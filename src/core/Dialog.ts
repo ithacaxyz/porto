@@ -340,9 +340,8 @@ export declare namespace iframe {
  *
  * @returns Popup dialog.
  */
-export function popup(options: popup.Options = {}) {
+export function popup() {
   if (typeof window === 'undefined') return noop()
-  const { size = defaultSize } = options
   return from({
     name: 'popup',
     setup(parameters) {
@@ -383,14 +382,7 @@ export function popup(options: popup.Options = {}) {
           offDetectClosed()
         },
         open() {
-          const left = (window.innerWidth - size.width) / 2 + window.screenX
-          const top = window.screenY + 100
-
-          popup = window.open(
-            getDialogUrl(host),
-            '_blank',
-            `width=${size.width},height=${size.height},left=${left},top=${top}`,
-          )
+          popup = window.open(getDialogUrl(host), '_blank')
           if (!popup) throw new Error('Failed to open popup')
 
           messenger = Messenger.bridge({
@@ -438,6 +430,9 @@ export function popup(options: popup.Options = {}) {
 
 export declare namespace popup {
   export type Options = {
+    /** Size is not used anymore in popup dialogs.
+     * @deprecated
+     */
     size?: { width: number; height: number } | undefined
   }
 }
@@ -483,6 +478,7 @@ export function experimental_inline(options: inline.Options) {
 
       const root = document.createElement('div')
       root.dataset.porto = ''
+      root.style.height = '100%'
       element().appendChild(root)
 
       const iframe = document.createElement('iframe')
@@ -499,7 +495,10 @@ export function experimental_inline(options: inline.Options) {
 
       iframe.setAttribute('src', getDialogUrl(host))
       iframe.setAttribute('title', 'Porto')
-      Object.assign(iframe.style, styles.iframe)
+      Object.assign(iframe.style, {
+        ...styles.iframe,
+        height: '100%',
+      })
 
       root.appendChild(iframe)
 
@@ -525,11 +524,6 @@ export function experimental_inline(options: inline.Options) {
       messenger.on('rpc-response', (response) =>
         handleResponse(store, response),
       )
-      messenger.on('__internal', (payload) => {
-        if (payload.type === 'resize') {
-          iframe.style.height = `${payload.height}px`
-        }
-      })
 
       return {
         close() {},

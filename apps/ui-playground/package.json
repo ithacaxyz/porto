@@ -1,0 +1,37 @@
+{
+  "name": "ui-playground",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5176",
+    "prebuild": "tsc --build",
+    "build": "vite build",
+    "check": "biome check --write --unsafe",
+    "check:types": "tsc --noEmit",
+    "prepreview": "pnpm build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@porto/ui": "workspace:*",
+    "@porto/apps": "workspace:*",
+    "@react-spring/web": "catalog:",
+    "@tanstack/react-router": "catalog:",
+    "cva": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@iconify/json": "catalog:",
+    "@tailwindcss/vite": "catalog:",
+    "@tanstack/router-plugin": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react-swc": "catalog:",
+    "globals": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "unplugin-icons": "catalog:",
+    "vite": "catalog:",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}

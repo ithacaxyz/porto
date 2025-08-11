@@ -1,0 +1,5 @@
+@layer reset, base, tokens, recipes, utilities;
+
+:root {
+  touch-action: manipulation;
+}

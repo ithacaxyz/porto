@@ -1,0 +1,50 @@
+{
+  "name": "@porto/ui",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "typings": "./dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "scripts": {
+    "build": "mkdir -p dist && pnpm run /^build:.*/",
+    "build:lib": "vite build",
+    "build:css": "panda cssgen --outfile dist/styles.css",
+    "check": "biome check --write --unsafe",
+    "check:types": "tsc --noEmit",
+    "dev": "pnpm run /^dev:.*/",
+    "dev:lib": "vite build --watch",
+    "dev:css": "panda cssgen --outfile dist/styles.css --watch",
+    "postinstall": "panda codegen && pnpm build"
+  },
+  "peerDependencies": {
+    "@react-spring/web": ">=10",
+    "react": ">=19",
+    "react-dom": ">=19"
+  },
+  "devDependencies": {
+    "@iconify/json": "catalog:",
+    "@microsoft/api-extractor": "^7.52.9",
+    "@pandacss/dev": "^0.54.0",
+    "@porto/apps": "workspace:*",
+    "@react-spring/web": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react-swc": "catalog:",
+    "postcss": "^8.5.6",
+    "rolldown-plugin-dts": "^0.14.2",
+    "typescript": "catalog:",
+    "unplugin-dts": "1.0.0-beta.4",
+    "unplugin-icons": "catalog:",
+    "unplugin-isolated-decl": "^0.14.6",
+    "vite": "catalog:",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}

@@ -1,16 +1,19 @@
-import { UserAgent } from '@porto/apps'
+import { Env, UserAgent } from '@porto/apps'
 import { Button } from '@porto/apps/components'
-import { createRootRoute, HeadContent, Outlet } from '@tanstack/react-router'
-import { cx } from 'cva'
+import { Frame } from '@porto/ui'
+import {
+  createRootRoute,
+  HeadContent,
+  Outlet,
+  useLocation,
+} from '@tanstack/react-router'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
-import { useAccount } from 'wagmi'
 import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import * as Referrer from '~/lib/Referrer'
 import LucideCircleAlert from '~icons/lucide/circle-alert'
 import { Layout } from './-components/Layout'
-import { TitleBar } from './-components/TitleBar'
 import { UpdateAccount } from './-components/UpdateAccount'
 
 export const Route = createRootRoute({
@@ -25,6 +28,15 @@ export const Route = createRootRoute({
   }),
 })
 
+const env = (
+  {
+    anvil: 'anvil',
+    dev: 'development',
+    prod: undefined,
+    stg: 'staging',
+  } satisfies Record<Env.Env, string | undefined>
+)[Env.get()]
+
 function RouteComponent() {
   React.useEffect(() => {
     // Note: we already call `porto.ready()` optimistically in `main.tsx`, but
@@ -35,132 +47,102 @@ function RouteComponent() {
   // Optimistically fetch account version (populate cache).
   UpdateAccount.useAccountVersion()
 
-  const { status } = useAccount()
   const mode = Dialog.useStore((state) => state.mode)
-  const display = Dialog.useStore((state) => state.display)
   const referrer = Dialog.useStore((state) => state.referrer)
   const customTheme = Dialog.useStore((state) => state.customTheme)
-  const request = Hooks.useRequest(porto)
+  const display = Dialog.useStore((state) => state.display)
   const search = Route.useSearch() as {
     requireUpdatedAccount?: boolean | undefined
   }
   const verifyStatus = Referrer.useVerify()
 
-  const contentRef = React.useRef<HTMLDivElement | null>(null)
-  const titlebarRef = React.useRef<HTMLDivElement | null>(null)
-
-  React.useLayoutEffect(() => {
-    const element = contentRef.current
-    if (!element) return
-
-    let frameId: number
-    let lastHeight: number | undefined
-
-    const resizeObserver = new ResizeObserver((entries) => {
-      // cancel any pending animation frame before requesting a new one
-      cancelAnimationFrame(frameId)
-
-      frameId = requestAnimationFrame(() => {
-        for (const entry of entries) {
-          if (!entry) return
-
-          const { height, width } = entry.contentRect
-          // Only send resize if height actually changed
-          if (height === lastHeight) return
-
-          const titlebarHeight = titlebarRef.current?.clientHeight ?? 0
-          const modeHeight = (() => {
-            if (mode === 'popup' && !UserAgent.isMobile()) {
-              if (UserAgent.isSafari()) return 27 + 1 // safari: 27px title bar, 1px in borders
-              return 27 + 34 + 2 // others: 27px title bar, 34px address bar, 2px in borders
-            }
-            return 2 // standalone: 2px in borders
-          })()
-
-          const totalHeight = height + titlebarHeight + modeHeight
-          lastHeight = height
-
-          if (mode === 'popup') window.resizeTo(width, totalHeight)
-          else if (mode === 'iframe' || mode === 'inline-iframe')
-            porto.messenger.send('__internal', {
-              height: Math.round(totalHeight),
-              type: 'resize',
-            })
-        }
-      })
-    })
-
-    resizeObserver.observe(element)
-    return () => {
-      // cancel any pending animation frame before disconnecting the observer
-      cancelAnimationFrame(frameId)
-      resizeObserver.disconnect()
+  const { domain, subdomain, icon, url } = React.useMemo(() => {
+    const hostnameParts = referrer?.url?.hostname.split('.').slice(-3)
+    const domain = hostnameParts?.slice(-2).join('.')
+    const subdomain = hostnameParts?.at(-3)
+    return {
+      domain,
+      icon: referrer?.icon,
+      subdomain,
+      url: referrer?.url?.toString(),
     }
-  }, [mode])
+  }, [referrer])
 
-  const styleMode = React.useMemo(() => {
-    if (mode === 'inline-iframe') return 'iframe' // condense to "iframe" for style simplicity
-    if (mode === 'popup' && UserAgent.isMobile()) return 'popup-mobile'
-    return mode
-  }, [mode])
+  const location = useLocation()
+  const request = Hooks.useRequest(porto)
 
   return (
     <>
       <HeadContent />
       <style>{customTheme?.tailwindCss}</style>
-      <div
-        data-dialog
-        {...{ [`data-${styleMode}`]: '' }} // for conditional styling based on dialog mode ("in-data-iframe:..." or "in-data-popup:...")
-        className={cx(
-          'border-th_frame contain-content data-popup-mobile:absolute data-popup-mobile:bottom-0 data-popup-standalone:mx-auto data-popup-standalone:h-fit data-popup-mobile:w-full data-popup-standalone:max-w-[360px] data-popup-mobile:rounded-th_frame data-popup-standalone:rounded-th_frame data-iframe:border data-popup-mobile:border data-popup-standalone:border data-popup-standalone:[@media(min-height:400px)]:mt-8',
-          display === 'drawer' && 'rounded-t-th_frame',
-          display === 'floating' && 'rounded-th_frame',
-        )}
-        style={{
-          // It is important to set the color scheme here and not at the :root level,
-          // because a mismatch between the color scheme of an iframe and its parent
-          // forces the iframe to be opaque [1][2]. This is why this is separated from
-          // the custom theme styles above, which are applied at the :root level.
-          // [1] https://fvsch.com/transparent-iframes#toc-3
-          // [2] https://github.com/w3c/csswg-drafts/issues/4772
-          colorScheme: customTheme?.colorScheme ?? 'light dark',
+
+      <Frame
+        // the color scheme is set from here rather than at the :root level,
+        // this is because a mismatch between the color scheme of an iframe
+        // and its parent would make the iframe opaque [1][2]. So the strategy
+        // is to set the same color scheme at the :root level than outside the
+        // iframe, and then restoring the color scheme we actually want here.
+        // [1] https://fvsch.com/transparent-iframes#toc-3
+        // [2] https://github.com/w3c/csswg-drafts/issues/4772
+        colorScheme={customTheme?.colorScheme}
+        loading={!request}
+        mode={
+          display === 'full'
+            ? 'full'
+            : {
+                mode: 'dialog',
+                variant: display === 'drawer' ? 'drawer' : 'normal',
+              }
+        }
+        onClose={
+          mode === 'inline-iframe' || mode === 'popup-standalone'
+            ? null
+            : () => Actions.rejectAll(porto)
+        }
+        onHeight={(height) => {
+          if (mode !== 'inline-iframe' && mode !== 'popup-standalone')
+            porto.messenger.send('__internal', { height, type: 'resize' })
+        }}
+        screenKey={`${location.pathname}${request?.id}`}
+        site={{
+          icon: typeof icon === 'object' ? [icon.light, icon.dark] : icon,
+          label: (
+            <div className="mr-auto flex shrink items-center gap-1 overflow-hidden whitespace-nowrap font-normal text-[14px] text-th_frame leading-[22px]">
+              {url?.startsWith('cli') ? (
+                referrer?.title
+              ) : url ? (
+                <div className="flex overflow-hidden" title={url}>
+                  {subdomain && (
+                    <>
+                      <div className="truncate">{subdomain}</div>
+                      <div>.</div>
+                    </>
+                  )}
+                  <div>{domain}</div>
+                </div>
+              ) : (
+                'Porto'
+              )}
+            </div>
+          ),
+          tag: env,
+          verified: verifyStatus.data?.status === 'whitelisted',
         }}
       >
-        <TitleBar
-          mode={mode}
-          ref={titlebarRef}
-          referrer={referrer}
-          verifyStatus={verifyStatus.data?.status}
-        />
-
-        <div
-          className="flex h-fit flex-col overflow-hidden bg-th_base pt-titlebar text-th_base"
-          ref={contentRef}
-        >
-          <div
-            className="flex flex-grow *:w-full"
-            key={request?.id ? request.id.toString() : '-1'} // rehydrate on id changes
-          >
-            <CheckError>
-              <CheckUnsupportedBrowser>
-                <CheckReferrer>
-                  {status === 'connecting' || status === 'reconnecting' ? (
-                    <Layout loading loadingTitle="Loading…">
-                      <div />
-                    </Layout>
-                  ) : search.requireUpdatedAccount ? (
-                    <UpdateAccount.CheckUpdate>
-                      <Outlet />
-                    </UpdateAccount.CheckUpdate>
-                  ) : (
-                    <Outlet />
-                  )}
-                </CheckReferrer>
-              </CheckUnsupportedBrowser>
-            </CheckError>
-          </div>
-        </div>
-      </div>
+        <CheckError>
+          <CheckUnsupportedBrowser>
+            <CheckReferrer>
+              {search.requireUpdatedAccount ? (
+                <UpdateAccount.CheckUpdate>
+                  <Outlet />
+                </UpdateAccount.CheckUpdate>
+              ) : (
+                <Outlet />
+              )}
+            </CheckReferrer>
+          </CheckUnsupportedBrowser>
+        </CheckError>
+      </Frame>
 
       <React.Suspense>
         <TanStackRouterDevtools position="bottom-right" />

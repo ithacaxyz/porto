@@ -32,7 +32,7 @@ export function NotFound() {
       </Layout.Header>
 
       <Layout.Content>
-        <pre className="max-h-[400px] overflow-scroll rounded-lg border border-th_base bg-th_field p-3 text-[14px] text-th_base leading-[22px]">
+        <pre className="max-h-[400px] overflow-scroll rounded-lg border border-th_base bg-th_base-alt p-3 text-[14px] text-th_base leading-[22px]">
           {Json.stringify(request ?? {}, null, 2)}
         </pre>
       </Layout.Content>

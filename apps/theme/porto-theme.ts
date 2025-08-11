@@ -77,12 +77,12 @@ export const portoTheme: PortoTheme = {
   ],
   baseContentSecondary: [
     'Secondary base content color. Used over baseBackground for secondary text and icons.',
-    '#8d8d8d',
+    '#838383',
     '#7b7b7b',
   ],
   baseContentTertiary: [
-    'Tertiary base content color. Used over baseBackground for text and icons.',
-    '#838383',
+    'Tertiary base content color. Used over baseBackground for tertiary text and icons.',
+    '#8d8d8d',
     '#6e6e6e',
   ],
   baseContentPositive: [
@@ -109,7 +109,7 @@ export const portoTheme: PortoTheme = {
   ],
   frameContent: [
     'Frame content color. Used over frameBackground for text and icons.',
-    '#838383',
+    '#8d8d8d',
     '#6e6e6e',
   ],
   frameBorder: [
@@ -323,8 +323,8 @@ export const portoTheme: PortoTheme = {
   // field
   fieldBackground: [
     'Field background color. Used for input fields, text areas, some edit buttons, and other form elements.',
-    '#e8e8e8',
-    '#222222',
+    '#f9f9f9',
+    '#191919',
   ],
   fieldBorder: [
     'Field border color. Used around field surfaces.',
@@ -333,13 +333,18 @@ export const portoTheme: PortoTheme = {
   ],
   fieldContent: [
     'Field content color. Used over fieldBackground for text and icons.',
-    '#646464',
-    '#b4b4b4',
+    '#202020',
+    '#eeeeee',
   ],
   fieldContentSecondary: [
     'Field secondary content color. Used over fieldBackground for text and icons.',
-    '#838383',
-    '#7b7b7b',
+    '#8d8d8d',
+    '#6e6e6e',
+  ],
+  fieldContentTertiary: [
+    'Field tertiary content color. Used for less important text, such as helper text or hints. Used over fieldBackground for text and icons.',
+    '#bbbbbb',
+    '#606060',
   ],
   fieldErrorBorder: [
     'Field error border color. Used around field surfaces.',

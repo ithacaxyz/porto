@@ -1,4 +1,5 @@
 @import "@porto/apps/styles.css";
+@import "@porto/ui/styles.css";
 
 @theme {
   --text-base: 15px;
@@ -10,8 +11,21 @@ html,
   @apply bg-transparent;
 }
 
+html,
+body {
+  height: 100%;
+}
+
 body {
   @apply text-base;
+}
+
+#root {
+  display: flex;
+  width: 100%;
+  max-width: 100vw;
+  height: 100%;
+  overflow-x: hidden;
 }
 
 [data-dialog] {
