@@ -189,7 +189,6 @@ export function Frame({
             )}
           >
             <div
-              ref={containerRef}
               className={cx(
                 css({
                   display: 'flex',
@@ -212,9 +211,9 @@ export function Frame({
                 mode === 'dialog' &&
                   css({
                     height: 'var(--screen-height)',
-                    minHeight: 200,
                   }),
               )}
+              ref={containerRef}
             >
               <div
                 className={cx(
