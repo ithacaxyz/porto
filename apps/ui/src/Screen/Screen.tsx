@@ -3,12 +3,7 @@ import { useId } from 'react'
 import { css, cx } from '../../styled-system/css'
 import { Frame } from '../Frame/Frame.js'
 
-export interface ScreenProps {
-  children?: ReactNode
-  layout?: 'compact' | 'full'
-}
-
-export function Screen({ children, layout }: ScreenProps) {
+export function Screen({ children, layout }: Screen.Props) {
   const frame = Frame.useFrame()
   const id = useId()
 
@@ -185,4 +180,11 @@ function ScreenHeader({
   )
 }
 
-Screen.Header = ScreenHeader
+export namespace Screen {
+  export interface Props {
+    children?: ReactNode
+    layout?: 'compact' | 'full'
+  }
+
+  export const Header = ScreenHeader
+}

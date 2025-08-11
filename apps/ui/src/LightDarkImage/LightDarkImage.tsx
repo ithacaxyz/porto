@@ -1,19 +1,12 @@
 import type { ImgHTMLAttributes } from 'react'
 import { Frame } from '~/Frame/Frame.js'
 
-export interface LightDarkImageProps
-  extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'src'> {
-  colorScheme?: 'light' | 'dark' | 'light dark'
-  dark: string
-  light: string
-}
-
 export function LightDarkImage({
   alt = '',
   dark,
   light,
   ...imgProps
-}: LightDarkImageProps) {
+}: LightDarkImage.Props) {
   const frame = Frame.useFrame(true)
   const colorScheme = frame?.colorScheme ?? 'light dark'
   return colorScheme === 'light dark' ? (
