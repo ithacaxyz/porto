@@ -1,16 +1,7 @@
 import { css } from '../../styled-system/css'
 import { Frame } from '../Frame/Frame.js'
 
-export type SpacerProps = {
-  size: number | Record<Frame.Mode, number>
-}
-
-export function Spacer({
-  orientation,
-  ...props
-}: SpacerProps & {
-  orientation?: 'horizontal' | 'vertical'
-}) {
+export function Spacer({ orientation, ...props }: Spacer.Props) {
   return orientation === 'horizontal' ? (
     <SpacerHorizontal {...props} />
   ) : (
@@ -18,11 +9,22 @@ export function Spacer({
   )
 }
 
-function SpacerHorizontal(_props: SpacerProps) {
-  return null
+function SpacerHorizontal({ size }: Omit<Spacer.Props, 'orientation'>) {
+  const { mode } = Frame.useFrame()
+  return (
+    <div
+      className={css({
+        display: 'flex',
+        height: '100%',
+      })}
+      style={{
+        width: typeof size === 'number' ? size : (size[mode] ?? 0),
+      }}
+    />
+  )
 }
 
-function SpacerVertical({ size }: SpacerProps) {
+function SpacerVertical({ size }: Omit<Spacer.Props, 'orientation'>) {
   const { mode } = Frame.useFrame()
   return (
     <div
@@ -37,5 +39,12 @@ function SpacerVertical({ size }: SpacerProps) {
   )
 }
 
-Spacer.H = SpacerHorizontal
-Spacer.V = SpacerVertical
+export namespace Spacer {
+  export interface Props {
+    size: number | Record<Frame.Mode, number>
+    orientation?: 'horizontal' | 'vertical'
+  }
+
+  export const H = SpacerHorizontal
+  export const V = SpacerVertical
+}

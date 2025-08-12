@@ -62,7 +62,7 @@ export default defineConfig(({ mode }) => {
       react(),
       tailwindcss(),
       {
-        // TODO(next): support `anvilTinos` & `anvilLeros`.
+        // TODO(next): support `anvil2` & `anvil3`.
         async configureServer(server) {
           if (process.env.ANVIL !== 'true') return
 

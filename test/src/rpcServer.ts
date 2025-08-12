@@ -27,7 +27,7 @@ const defaultConfig = {
 } satisfies Partial<Parameters<typeof defineRpcServer>[0]>
 
 export const instances = {
-  paros: defineRpcServer({
+  anvil: defineRpcServer({
     ...defaultConfig,
     endpoint: (key) => `http://127.0.0.1:${Anvil.instances.anvil.port}/${key}`,
     feeTokens: [
@@ -36,7 +36,7 @@ export const instances = {
     ],
     interopToken: exp1Address[Chains.anvil.id],
   }),
-  paros_newAccount: defineRpcServer({
+  anvil_newAccount: defineRpcServer({
     ...defaultConfig,
     delegationProxy: accountNewProxyAddress,
     endpoint: (key) => `http://127.0.0.1:${Anvil.instances.anvil.port}/${key}`,
