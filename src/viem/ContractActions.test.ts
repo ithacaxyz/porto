@@ -1,5 +1,4 @@
 import { AbiFunction, Secp256k1, Value } from 'ox'
-import { Mode } from 'porto'
 import { privateKeyToAccount } from 'viem/accounts'
 import { getBalance, readContract } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
@@ -13,7 +12,7 @@ import * as Key from './Key.js'
 describe('execute', () => {
   describe('behavior: authorize', () => {
     test('delegated: false, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
-      const porto = TestConfig.getPorto({ mode: Mode.contract })
+      const porto = TestConfig.getPorto()
       const client = TestConfig.getServerClient(porto)
       const contracts = TestConfig.getContracts(porto)
 
@@ -49,7 +48,7 @@ describe('execute', () => {
     })
 
     test('delegated: true, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
-      const porto = TestConfig.getPorto({ mode: Mode.contract })
+      const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
       const client = TestConfig.getServerClient(porto)
 
@@ -90,7 +89,7 @@ describe('execute', () => {
     })
 
     test('delegated: false, key: owner, keysToAuthorize: [P256], executor: EOA', async () => {
-      const porto = TestConfig.getPorto({ mode: Mode.contract })
+      const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
       const client = TestConfig.getServerClient(porto)
 
@@ -127,7 +126,7 @@ describe('execute', () => {
     })
 
     test('delegated: true, key: owner, keysToAuthorize: [P256], executor: EOA', async () => {
-      const porto = TestConfig.getPorto({ mode: Mode.contract })
+      const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
       const client = TestConfig.getServerClient(porto)
 
@@ -169,7 +168,7 @@ describe('execute', () => {
     })
 
     test('key: P256, keysToAuthorize: [P256]', async () => {
-      const porto = TestConfig.getPorto({ mode: Mode.contract })
+      const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
       const client = TestConfig.getServerClient(porto)
 
@@ -217,7 +216,7 @@ describe('execute', () => {
     })
 
     test('key: P256, keysToAuthorize: [WebCryptoP256]', async () => {
-      const porto = TestConfig.getPorto({ mode: Mode.contract })
+      const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
       const client = TestConfig.getServerClient(porto)
 
@@ -278,7 +277,7 @@ describe('execute', () => {
 
   describe('behavior: arbitrary calls', () => {
     test('key: p256, executor: JSON-RPC', async () => {
-      const porto = TestConfig.getPorto({ mode: Mode.contract })
+      const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
       const client = TestConfig.getServerClient(porto)
 
@@ -327,7 +326,7 @@ describe('execute', () => {
     })
 
     test('key: p256, executor: JSON-RPC, mint tokens', async () => {
-      const porto = TestConfig.getPorto({ mode: Mode.contract })
+      const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
       const client = TestConfig.getServerClient(porto)
 
@@ -362,7 +361,7 @@ describe('execute', () => {
     })
 
     test('key: secp256k1, executor: JSON-RPC', async () => {
-      const porto = TestConfig.getPorto({ mode: Mode.contract })
+      const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
       const client = TestConfig.getServerClient(porto)
 
@@ -411,7 +410,7 @@ describe('execute', () => {
     })
 
     test('key: webcrypto, executor: JSON-RPC', async () => {
-      const porto = TestConfig.getPorto({ mode: Mode.contract })
+      const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
       const client = TestConfig.getServerClient(porto)
 
@@ -473,7 +472,7 @@ describe('execute', () => {
     })
 
     test('key: owner, executor: JSON-RPC', async () => {
-      const porto = TestConfig.getPorto({ mode: Mode.contract })
+      const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
       const client = TestConfig.getServerClient(porto)
 
@@ -519,7 +518,7 @@ describe('execute', () => {
     })
 
     test('key: owner, executor: EOA', async () => {
-      const porto = TestConfig.getPorto({ mode: Mode.contract })
+      const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
       const client = TestConfig.getServerClient(porto)
 
@@ -569,7 +568,7 @@ describe('execute', () => {
   // TODO: unskip once Anvil supports reverts on delegated accounts.
   describe.skip('behavior: spend limits', () => {
     test('default', async () => {
-      const porto = TestConfig.getPorto({ mode: Mode.contract })
+      const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
       const client = TestConfig.getServerClient(porto)
 
@@ -644,7 +643,7 @@ describe('execute', () => {
 
   // TODO: unskip once Anvil supports reverts on delegated accounts.
   test.skip('error: insufficient funds', async () => {
-    const porto = TestConfig.getPorto({ mode: Mode.contract })
+    const porto = TestConfig.getPorto()
     const contracts = TestConfig.getContracts(porto)
     const client = TestConfig.getServerClient(porto)
 
@@ -670,7 +669,7 @@ describe('execute', () => {
       role: 'session',
     })
 
-    const porto = TestConfig.getPorto({ mode: Mode.contract })
+    const porto = TestConfig.getPorto()
     const contracts = TestConfig.getContracts(porto)
     const client = TestConfig.getServerClient(porto)
 
@@ -698,7 +697,7 @@ describe('execute', () => {
 
   // TODO: unskip once Anvil supports reverts on delegated accounts.
   test.skip('error: key does not exist ', async () => {
-    const porto = TestConfig.getPorto({ mode: Mode.contract })
+    const porto = TestConfig.getPorto()
     const contracts = TestConfig.getContracts(porto)
     const client = TestConfig.getServerClient(porto)
 
@@ -725,7 +724,7 @@ describe('execute', () => {
 describe('prepareExecute', () => {
   describe('authorize', () => {
     test('delegated: false, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
-      const porto = TestConfig.getPorto({ mode: Mode.contract })
+      const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
       const client = TestConfig.getServerClient(porto)
 
@@ -776,7 +775,7 @@ describe('prepareExecute', () => {
     })
 
     test('delegated: true, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
-      const porto = TestConfig.getPorto({ mode: Mode.contract })
+      const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
       const client = TestConfig.getServerClient(porto)
 
@@ -832,7 +831,7 @@ describe('prepareExecute', () => {
     })
 
     test('delegated: false, key: owner, keysToAuthorize: [P256], executor: EOA', async () => {
-      const porto = TestConfig.getPorto({ mode: Mode.contract })
+      const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
       const client = TestConfig.getServerClient(porto)
 

@@ -19,7 +19,6 @@ import {
   waitForCallsStatus,
   waitForTransactionReceipt,
 } from 'viem/actions'
-import { verifySiweMessage } from 'viem/siwe'
 import { describe, expect, test, vi } from 'vitest'
 
 import { accountOldProxyAddress } from '../../../test/src/_generated/addresses.js'
@@ -32,10 +31,7 @@ import * as ServerActions from '../../viem/ServerActions.js'
 import * as ServerClient from '../../viem/ServerClient.js'
 import * as WalletClient from '../../viem/WalletClient.js'
 
-describe.each([
-  ['contract', Anvil.enabled ? Mode.contract : undefined],
-  ['rpcServer', Mode.rpcServer],
-] as const)('%s', (type, mode) => {
+describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
   if (!mode) return
 
   const getPorto = (
@@ -1579,7 +1575,6 @@ describe.each([
 
     test('behavior: `signInWithEthereum` capability', async () => {
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
 
       const res = await porto.provider.request({
         method: 'wallet_connect',
@@ -1600,12 +1595,6 @@ describe.each([
         res.accounts.at(0)?.capabilities?.signInWithEthereum ?? {}
       if (message && signature) {
         switch (type) {
-          case 'contract': {
-            await expect(
-              verifySiweMessage(client, { message, signature }),
-            ).resolves.toBeTruthy()
-            break
-          }
           case 'rpcServer': {
             const { valid } = await porto.provider.request({
               method: 'wallet_verifySignature',
