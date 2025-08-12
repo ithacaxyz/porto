@@ -1,10 +1,62 @@
-import { Dialog, Mode, Porto } from 'porto'
+import { Chains, Dialog, Mode, Porto } from 'porto'
+import { fallback, http } from 'viem'
+
+const relayMethods = [
+  'wallet_feeTokens',
+  'wallet_getAccounts',
+  'wallet_getCapabilities',
+  'wallet_getAssets',
+  'wallet_getCallsStatus',
+  'wallet_getKeys',
+  'wallet_prepareCalls',
+  'wallet_prepareUpgradeAccount',
+  'wallet_sendPreparedCalls',
+  'wallet_upgradeAccount',
+  'wallet_verifySignature',
+]
+
+const defaultConfigs = {
+  prod: {
+    transports: {
+      [Chains.base.id]: fallback([
+        http('https://base-mainnet.rpc.ithaca.xyz'),
+        http('https://mainnet.base.org', {
+          methods: {
+            exclude: relayMethods,
+          },
+        }),
+      ]),
+    },
+  },
+  stg: {
+    transports: {
+      [Chains.baseSepolia.id]: fallback([
+        http('https://base-sepolia.rpc.ithaca.xyz'),
+        http('https://sepolia.base.org', {
+          methods: {
+            exclude: relayMethods,
+          },
+        }),
+      ]),
+      [Chains.optimismSepolia.id]: fallback([
+        http('https://optimism-sepolia.rpc.ithaca.xyz'),
+        http('https://sepolia.optimism.io', {
+          methods: {
+            exclude: relayMethods,
+          },
+        }),
+      ]),
+    },
+  },
+} as const
 
 export default defineContentScript({
   main() {
     let porto: Porto.Porto | undefined
     function init(prod?: boolean) {
-      porto = prod ? Porto.unstable_create() : Porto.create()
+      porto = prod
+        ? Porto.unstable_create(defaultConfigs.prod)
+        : Porto.create(defaultConfigs.stg)
       ;(window as any).ethereum = porto.provider
     }
 

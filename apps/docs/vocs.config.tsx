@@ -623,6 +623,7 @@ export default defineConfig({
           'localhost',
           'prod.localhost',
           'stg.localhost',
+          'dev.localhost',
           'anvil.localhost',
         ],
       }),

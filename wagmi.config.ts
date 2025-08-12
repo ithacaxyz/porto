@@ -2,39 +2,51 @@ import * as fs from 'node:fs'
 import { defineConfig } from '@wagmi/cli'
 import { foundry } from '@wagmi/cli/plugins'
 import {
-  anvil,
-  anvil2,
-  anvil3,
+  anvilLeros,
+  anvilParos,
+  anvilTinos,
   base,
   baseSepolia,
   optimismSepolia,
+  portoDevLeros,
+  portoDevParos,
+  portoDevTinos,
 } from './src/core/Chains.js'
 import * as anvilAddresses from './test/src/_generated/addresses.js'
 
 const address = {
   exp1: {
-    [anvil.id]: anvilAddresses.exp1Address,
-    [anvil2.id]: anvilAddresses.exp1Address,
-    [anvil3.id]: anvilAddresses.exp1Address,
+    [anvilLeros.id]: anvilAddresses.exp1Address,
+    [anvilParos.id]: anvilAddresses.exp1Address,
+    [anvilTinos.id]: anvilAddresses.exp1Address,
     [base.id]: '0x074C9c3273F31651a9dae896C1A1d68E868b6998',
     [baseSepolia.id]: '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa',
     [optimismSepolia.id]: '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa',
+    [portoDevLeros.id]: '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa',
+    [portoDevParos.id]: '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa',
+    [portoDevTinos.id]: '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa',
   },
   exp2: {
-    [anvil.id]: anvilAddresses.exp2Address,
-    [anvil2.id]: anvilAddresses.exp2Address,
-    [anvil3.id]: anvilAddresses.exp2Address,
+    [anvilLeros.id]: anvilAddresses.exp2Address,
+    [anvilParos.id]: anvilAddresses.exp2Address,
+    [anvilTinos.id]: anvilAddresses.exp2Address,
     [base.id]: '0xFcc74F42621D03Fd234d5f40931D8B82923E4D29',
     [baseSepolia.id]: '0x88238d346cfb2391203f4f33b90f5ecce22b4165',
     [optimismSepolia.id]: '0x88238d346cfb2391203f4f33b90f5ecce22b4165',
+    [portoDevLeros.id]: '0x88238d346cfb2391203f4f33b90f5ecce22b4165',
+    [portoDevParos.id]: '0x88238d346cfb2391203f4f33b90f5ecce22b4165',
+    [portoDevTinos.id]: '0x88238d346cfb2391203f4f33b90f5ecce22b4165',
   },
   expNft: {
-    [anvil.id]: anvilAddresses.expNftAddress,
-    [anvil2.id]: anvilAddresses.expNftAddress,
-    [anvil3.id]: anvilAddresses.expNftAddress,
+    [anvilLeros.id]: anvilAddresses.expNftAddress,
+    [anvilParos.id]: anvilAddresses.expNftAddress,
+    [anvilTinos.id]: anvilAddresses.expNftAddress,
     [base.id]: '0xB37377508CbEd17a2B3694Fa0A68dc7CEE63DaF9',
     [baseSepolia.id]: '0x4d129f5033F60ED8419bC7d385c1e7aFa5Ebf88E',
     [optimismSepolia.id]: '0x074C9c3273F31651a9dae896C1A1d68E868b6998',
+    [portoDevLeros.id]: '0xb19b36b1456E65E3A6D514D3F715f204BD59f431',
+    [portoDevParos.id]: '0xf7Cd8fa9b94DB2Aa972023b379c7f72c65E4De9D',
+    [portoDevTinos.id]: '0xA15BB66138824a1c7167f5E85b957d04Dd34E468',
   },
 } as const
 

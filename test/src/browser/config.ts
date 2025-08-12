@@ -1,11 +1,7 @@
-import { type Chains, Dialog, Mode, Porto, Transport } from 'porto'
-import { http } from 'viem'
+import { type Chains, Dialog, Mode, Porto } from 'porto'
 import { getChains } from '../chains.js'
 
-const env = import.meta.env.VITE_DEFAULT_ENV
-const chains = getChains(env)
-
-const { relayUrls } = Transport
+const chains = getChains(import.meta.env.VITE_DEFAULT_ENV)
 
 export const getPorto = () =>
   Porto.create({
@@ -18,5 +14,4 @@ export const getPorto = () =>
         skipUnsupported: true,
       }),
     }),
-    relay: http(relayUrls[env as keyof typeof relayUrls].http),
   })

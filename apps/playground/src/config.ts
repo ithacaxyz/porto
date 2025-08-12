@@ -33,6 +33,7 @@ const dialogModes = {
 } as const
 
 export const modes = {
+  contract: () => Mode.contract(),
   rpc: () => Mode.rpcServer(),
   ...dialogModes,
 } as const

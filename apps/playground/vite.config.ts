@@ -56,6 +56,7 @@ export default defineConfig(({ mode }) => {
               'localhost',
               'prod.localhost',
               'stg.localhost',
+              'dev.localhost',
               'anvil.localhost',
             ],
           }),
@@ -220,7 +221,9 @@ export default defineConfig(({ mode }) => {
             return MerchantRpc.requestListener({
               address: merchantAccount.address,
               key: merchantKey.privateKey!(),
-              relay: http(rpcServerConfig.rpcUrl),
+              transports: {
+                [chains.anvil.id]: http(rpcServerConfig.rpcUrl),
+              },
             })(req, res)
           })
         },

@@ -1,5 +1,6 @@
 import { type Address, type Hex, RpcRequest, RpcResponse, TypedData } from 'ox'
 import { createClient, rpcSchema } from 'viem'
+import type * as Chains from '../core/Chains.js'
 import type * as RpcSchema_internal from '../core/internal/rpcServer/rpcSchema.js'
 import * as Rpc from '../core/internal/rpcServer/schema/rpc.js'
 import * as Schema from '../core/internal/schema/schema.js'
@@ -18,8 +19,15 @@ import * as RequestListener from './internal/requestListener.js'
  * @param options - Options.
  * @returns Request handler.
  */
-export function requestHandler(options: requestHandler.Options) {
-  const { address, base, relay = Porto.defaultConfig.relay } = options
+export function requestHandler<
+  const chains extends readonly [Chains.Chain, ...Chains.Chain[]],
+>(options: requestHandler.Options<chains>) {
+  const {
+    address,
+    base,
+    chains = Porto.defaultConfig.chains,
+    transports = Porto.defaultConfig.transports,
+  } = options
 
   const from = (() => {
     if (typeof options.key === 'string') return undefined
@@ -54,9 +62,18 @@ export function requestHandler(options: requestHandler.Options) {
             message: 'chainId is required.',
           })
 
+        const chain = chains.find((c) => c.id === chainId)
+
+        const transport = transports[chainId as keyof typeof transports]
+        if (!transport)
+          throw new RpcResponse.InvalidParamsError({
+            message: `chain (id: ${chainId}) not supported.`,
+          })
+
         const client = createClient({
+          chain,
           rpcSchema: rpcSchema<RpcSchema_internal.Viem>(),
-          transport: relay,
+          transport,
         })
 
         const sponsor = (() => {
@@ -135,11 +152,18 @@ export function requestHandler(options: requestHandler.Options) {
 }
 
 export declare namespace requestHandler {
-  export type Options = {
+  export type Options<
+    chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
+      Chains.Chain,
+      ...Chains.Chain[],
+    ],
+  > = {
     /** Address of the Merchant Account. */
     address: Address.Address
     /** Base path of the request handler. */
     base?: string | undefined
+    /** Supported chains. */
+    chains?: Porto.Config<chains>['chains'] | undefined
     /** An Admin Key of the Merchant Account to use for signing. */
     key:
       | Hex.Hex
@@ -153,8 +177,8 @@ export declare namespace requestHandler {
           request: RpcSchema.wallet_prepareCalls.Parameters,
         ) => MaybePromise<boolean>)
       | undefined
-    /** Relay transport override. */
-    relay?: Porto.Config['relay'] | undefined
+    /** Supported transports. */
+    transports?: Porto.Config<chains>['transports'] | undefined
   }
 }
 

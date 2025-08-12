@@ -1,6 +1,10 @@
 import { spawnSync } from 'node:child_process'
+import { createServer, type Server } from 'node:http'
 import { resolve } from 'node:path'
+import { Readable } from 'node:stream'
 import { setTimeout } from 'node:timers/promises'
+import httpProxy from 'http-proxy'
+import type { RpcRequest } from 'ox'
 import { defineInstance, toArgs } from 'prool'
 import { execa } from 'prool/processes'
 
@@ -56,8 +60,13 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
   const process_ = execa({ name })
 
   let port = args.http?.port ?? 9119
+  let server: Server | undefined
 
   function stop() {
+    if (server) {
+      server.close()
+      server = undefined
+    }
     spawnSync('docker', ['rm', '-f', containerName])
   }
 
@@ -84,6 +93,8 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
         pulled = true
       }
 
+      const port_relay = port + 1
+
       const args_ = [
         '--name',
         containerName,
@@ -96,7 +107,7 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
         '--add-host',
         'localhost:host-gateway',
         '-p',
-        `${port}:${port}`,
+        `${port_relay}:${port_relay}`,
         '-v',
         `${resolve(import.meta.dirname, 'registry.yaml')}:/app/registry.yaml`,
         `${image}:${version}`,
@@ -108,8 +119,8 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
             'host.docker.internal',
           ),
           http: {
-            metricsPort: port + 1,
-            port,
+            metricsPort: port_relay + 1,
+            port: port_relay,
           },
           quoteTtl: 30,
           registry: '/app/registry.yaml',
@@ -118,28 +129,69 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
         ...feeTokens.flatMap((feeToken) => ['--fee-token', feeToken]),
       ]
 
-      const debug = process.env.VITE_RPC_DEBUG === 'true'
-      return await process_.start(($) => $`docker run ${args_}`, {
-        ...options,
-        resolver({ process, resolve, reject }) {
-          // TODO: remove once relay has feedback on startup.
-          setTimeout(3_000).then(resolve)
-          process.stdout.on('data', (data) => {
-            const message = data.toString()
-            if (debug) console.log(message)
-            if (message.includes('Started relay service')) resolve()
+      try {
+        const debug = process.env.VITE_RPC_DEBUG === 'true'
+        await process_.start(($) => $`docker run ${args_}`, {
+          ...options,
+          resolver({ process, resolve, reject }) {
+            // TODO: remove once relay has feedback on startup.
+            setTimeout(3_000).then(resolve)
+            process.stdout.on('data', (data) => {
+              const message = data.toString()
+              if (debug) console.log(message)
+              if (message.includes('Started relay service')) resolve()
+            })
+            process.stderr.on('data', (data) => {
+              const message = data.toString()
+              if (debug) console.log(message)
+              if (message.includes('WARNING')) return
+              reject(data)
+            })
+          },
+        })
+
+        const proxy = httpProxy.createProxyServer({
+          ignorePath: true,
+          ws: false,
+        })
+        server = createServer(async (req, res) => {
+          const body = await new Promise<RpcRequest.RpcRequest>((resolve) => {
+            let body = ''
+            req.on('data', (chunk) => {
+              body += chunk
+            })
+            req.on('end', () => {
+              resolve(JSON.parse(body || '{}'))
+            })
           })
-          process.stderr.on('data', (data) => {
-            const message = data.toString()
-            if (debug) console.log(message)
-            if (message.includes('WARNING')) return
-            reject(data)
+
+          const target = (() => {
+            if (
+              body.method &&
+              (body.method.startsWith('relay_') ||
+                body.method.startsWith('wallet_') ||
+                body.method === 'health')
+            )
+              return `http://${host}:${port_relay}`
+            return endpoint
+          })()
+
+          return proxy.web(req, res, {
+            buffer: Readable.from(JSON.stringify(body)),
+            target,
           })
-        },
-      })
+        }).listen(port)
+        return await new Promise((resolve, reject) => {
+          server!.on('error', reject)
+          server!.on('listening', resolve)
+        })
+      } catch (error) {
+        stop()
+        throw error
+      }
     },
     async stop() {
-      return stop()
+      stop()
     },
   }
 })

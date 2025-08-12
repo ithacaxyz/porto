@@ -27,7 +27,7 @@ export const account = {
 } as const
 
 export const instances = {
-  anvil: defineAnvil({
+  paros: defineAnvil({
     loadState: resolve(import.meta.dirname, '_generated/anvil.json'),
     port: 8545,
   }),

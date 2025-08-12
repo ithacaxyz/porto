@@ -31,6 +31,7 @@ export const Route = createRootRoute({
 const env = (
   {
     anvil: 'anvil',
+    dev: 'development',
     prod: undefined,
     stg: 'staging',
   } satisfies Record<Env.Env, string | undefined>

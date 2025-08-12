@@ -1,7 +1,17 @@
 import { type PortoConfig, Query } from '@porto/apps'
 import { useQuery } from '@tanstack/react-query'
 import type { Address } from 'ox'
-import { Chains } from 'porto'
+import {
+  anvilLeros,
+  anvilParos,
+  anvilTinos,
+  base,
+  baseSepolia,
+  optimismSepolia,
+  portoDevLeros,
+  portoDevParos,
+  portoDevTinos,
+} from 'porto/core/Chains'
 import * as React from 'react'
 import { useAccount, useChainId, useWatchBlockNumber } from 'wagmi'
 import { urlWithCorsBypass } from '~/lib/Constants'
@@ -9,16 +19,19 @@ import { useReadBalances } from './useReadBalances'
 
 export function addressApiEndpoint(chainId: PortoConfig.ChainId) {
   if (
-    chainId === Chains.anvil.id ||
-    chainId === Chains.anvil2.id ||
-    chainId === Chains.anvil3.id
+    chainId === anvilLeros.id ||
+    chainId === anvilParos.id ||
+    chainId === anvilTinos.id ||
+    chainId === portoDevLeros.id ||
+    chainId === portoDevParos.id ||
+    chainId === portoDevTinos.id
   )
     return 'https://explorer.ithaca.xyz/api/v2'
-  if (chainId === Chains.baseSepolia.id)
+  if (chainId === baseSepolia.id)
     return 'https://base-sepolia.blockscout.com/api/v2'
-  if (chainId === Chains.optimismSepolia.id)
+  if (chainId === optimismSepolia.id)
     return 'https://optimism-sepolia.blockscout.com/api/v2'
-  if (chainId === Chains.base.id) return 'https://base.blockscout.com/api/v2'
+  if (chainId === base.id) return 'https://base.blockscout.com/api/v2'
   throw new Error(`Unsupported chainId: ${chainId}`)
 }
 

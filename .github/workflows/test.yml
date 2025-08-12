@@ -23,7 +23,7 @@ on:
         type: string
         description: 'Environment to use for tests'
         default: 'stg'
-      relay-url:
+      rpc-url:
         type: string
         description: 'RPC URL to use for tests'
         default: ''
@@ -104,7 +104,7 @@ jobs:
       VITE_FAUCET_PRIVATE_KEY_RELEASE: ${{ secrets.VITE_FAUCET_PRIVATE_KEY_RELEASE }}
       VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT: ${{ secrets.VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT }}
       VITE_RELAY_VERSION: ${{ needs.relay-release.outputs.relay_version || inputs.relay-ref }}
-      VITE_RELAY_URL: ${{ inputs.relay-url }}
+      VITE_RPC_URL: ${{ inputs.rpc-url }}
 
     steps:
       - name: Skip if not enabled

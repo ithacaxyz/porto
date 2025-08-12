@@ -141,7 +141,7 @@ export function App() {
           <br />
         </div>
         <h2>Chain Management</h2>
-        <SwitchChain showTitle />
+        <SwitchChain />
         <div>
           <br />
           <hr />
@@ -194,7 +194,7 @@ export function App() {
       {mode === 'inline-dialog' && (
         <div className="fixed top-0 bottom-0 left-[calc(768px+var(--spacing)*2)] w-[300px] p-4">
           <div
-            className="h-full overflow-hidden rounded-md border-1 border-th_frame"
+            className="h-full overflow-hidden rounded-md border border-1 border-th_frame"
             id="porto"
           />
         </div>
@@ -213,14 +213,11 @@ function State() {
     <div>
       <h3>State</h3>
       {state.accounts.length === 0 ? (
-        <div>Disconnected</div>
+        <p>Disconnected</p>
       ) : (
         <>
-          <div>Address: {state.accounts[0].address}</div>
-          <div>
-            Chain ID: {state.chainId}
-            <SwitchChain />
-          </div>
+          <p>Address: {state.accounts[0].address}</p>
+          <p>Chain ID: {state.chainId}</p>
           <div>
             <p>Keys:</p>
             <pre>{Json.stringify(state.accounts?.[0]?.keys, null, 2)}</pre>
@@ -737,7 +734,7 @@ function UpdateAccount() {
   )
 }
 
-function SwitchChain(props: { showTitle?: boolean | undefined }) {
+function SwitchChain() {
   const [chainId, setChainId] = React.useState<number | undefined>(undefined)
 
   React.useEffect(() => {
@@ -750,7 +747,7 @@ function SwitchChain(props: { showTitle?: boolean | undefined }) {
 
   return (
     <div>
-      {props.showTitle && <h3>wallet_switchEthereumChain</h3>}
+      <h3>wallet_switchEthereumChain</h3>
       <div>
         {porto.config.chains.map((chain) => (
           <button

@@ -9,12 +9,10 @@
   },
   "dependencies": {
     "@porto/apps": "workspace:*",
-    "@tailwindcss/vite": "catalog:",
     "@tanstack/react-query": "catalog:",
     "porto": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "tailwindcss": "catalog:",
     "viem": "catalog:",
     "wagmi": "catalog:"
   },
