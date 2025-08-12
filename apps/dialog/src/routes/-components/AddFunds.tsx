@@ -436,8 +436,9 @@ function OnrampView(props: OnrampView.Props) {
   const widgetContainerRef = React.useRef<HTMLDivElement>(null)
   const widgetInstanceRef = React.useRef<any>(null)
 
-  const authToken = useMutation({
-    mutationFn: async () => {
+  const authToken = useQuery({
+    enabled: !!address && !!amount,
+    queryFn: async () => {
       const response = await fetch(
         `https://onramp.porto.workers.dev/token?address=${address}`,
       )
@@ -460,109 +461,119 @@ function OnrampView(props: OnrampView.Props) {
         fiatCurrency: string
       }>
     },
-    mutationKey: ['onramp-token', address],
+    queryKey: ['onramp-token', address],
   })
 
   React.useEffect(() => {
     if (!address || !amount || !widgetContainerRef.current) return
+    if (authToken.isError) {
+      console.error('[onramp] Failed to fetch auth token:', authToken.error)
+      setHasError(true)
+      setIsLoading(false)
+    }
+  }, [address, amount, authToken.isError, authToken.error])
 
-    authToken.mutate(undefined, {
-      onError: (error) => {
-        console.error('[onramp] Failed to fetch auth token:', error)
+  React.useEffect(() => {
+    if (!address || !amount || !widgetContainerRef.current) return
+    const tokenData = authToken.data
+
+    if (authToken.isSuccess && tokenData) {
+      if (!tokenData.initToken) {
+        console.error('[onramp] No auth token received')
         setHasError(true)
-        setIsLoading(false)
-      },
-      onSuccess: (tokenData) => {
-        if (!tokenData.initToken) {
-          console.error('[onramp] No auth token received')
-          setHasError(true)
+        return
+      }
+
+      const initializeWidget = () => {
+        if (
+          // @ts-expect-error - mercuryoWidget is loaded from CDN
+          typeof window.mercuryoWidget === 'undefined' ||
+          // @ts-expect-error - mercuryoWidget is loaded from CDN
+          !window.mercuryoWidget.run
+        ) {
+          // Retry after a short delay
+          setTimeout(initializeWidget, 100)
           return
         }
 
-        const initializeWidget = () => {
-          if (
-            // @ts-expect-error - mercuryoWidget is loaded from CDN
-            typeof window.mercuryoWidget === 'undefined' ||
-            // @ts-expect-error - mercuryoWidget is loaded from CDN
-            !window.mercuryoWidget.run
-          ) {
-            // Retry after a short delay
-            setTimeout(initializeWidget, 100)
-            return
-          }
+        try {
+          // Generate signature for the transaction
+          const merchantTransactionId = `${address.toLowerCase()}_${Date.now()}`
 
-          try {
-            // Generate signature for the transaction
-            const merchantTransactionId = `${address.toLowerCase()}_${Date.now()}`
+          // Initialize the widget with parameters
+          // @ts-expect-error - mercuryoWidget is loaded from CDN
+          const widget = window.mercuryoWidget.run({
+            address: address,
+            amount: amount,
+            birthdate: tokenData.birthdate,
+            currency: tokenData.fiatCurrency,
+            fiatAmount: tokenData.fiatAmount,
+            firstName: tokenData.firstName,
+            host: widgetContainerRef.current,
+            initToken: tokenData.initToken,
+            initTokenType: tokenData.initTypeToken,
+            lastName: tokenData.lastName,
+            merchantTransactionId: merchantTransactionId,
+            network: tokenData.network,
+            paymentMethod: tokenData.paymentMethod,
+            widgetFlow: tokenData.widgetFlow,
+            widgetId: tokenData.widgetId,
+          })
 
-            // Initialize the widget with parameters
-            // @ts-expect-error - mercuryoWidget is loaded from CDN
-            const widget = window.mercuryoWidget.run({
-              address: address,
-              amount: amount,
-              birthdate: tokenData.birthdate,
-              currency: tokenData.fiatCurrency,
-              fiatAmount: tokenData.fiatAmount,
-              firstName: tokenData.firstName,
-              host: widgetContainerRef.current,
-              initToken: tokenData.initToken,
-              initTokenType: tokenData.initTypeToken,
-              lastName: tokenData.lastName,
-              merchantTransactionId: merchantTransactionId,
-              network: tokenData.network,
-              paymentMethod: tokenData.paymentMethod,
-              widgetFlow: tokenData.widgetFlow,
-              widgetId: tokenData.widgetId,
+          widgetInstanceRef.current = widget
+
+          // Set up event handlers
+          if (widget?.onReady) {
+            widget.onReady(() => {
+              console.log('[onramp] Widget is ready')
+              setIsLoading(false)
             })
-
-            widgetInstanceRef.current = widget
-
-            // Set up event handlers
-            if (widget?.onReady) {
-              widget.onReady(() => {
-                console.log('[onramp] Widget is ready')
-                setIsLoading(false)
-              })
-            }
-
-            if (widget?.onLoad) {
-              widget.onLoad(() => {
-                console.log('[onramp] Widget loaded')
-                setIsLoading(false)
-              })
-            }
-
-            if (widget?.onPaymentFinished) {
-              widget.onPaymentFinished((data: any) => {
-                console.log('[onramp] Payment finished:', data)
-                onApprove({ id: data.txHash || data.transactionHash || '0x' })
-              })
-            }
-
-            if (widget?.onStatusChange) {
-              widget.onStatusChange((data: any) => {
-                console.log('[onramp] Status changed:', data)
-                if (data.status === 'failed' || data.status === 'cancelled') {
-                  setHasError(true)
-                  onReject?.()
-                }
-              })
-            }
-
-            // Fallback to set loading false after timeout
-            setTimeout(() => setIsLoading(false), 3000)
-          } catch (error) {
-            console.error('[onramp] Failed to initialize widget:', error)
-            setHasError(true)
-            setIsLoading(false)
           }
-        }
 
-        // Start initialization
-        initializeWidget()
-      },
-    })
-  }, [address, amount, authToken, onApprove, onReject])
+          if (widget?.onLoad) {
+            widget.onLoad(() => {
+              console.log('[onramp] Widget loaded')
+              setIsLoading(false)
+            })
+          }
+
+          if (widget?.onPaymentFinished) {
+            widget.onPaymentFinished((data: any) => {
+              console.log('[onramp] Payment finished:', data)
+              onApprove({ id: data.txHash || data.transactionHash || '0x' })
+            })
+          }
+
+          if (widget?.onStatusChange) {
+            widget.onStatusChange((data: any) => {
+              console.log('[onramp] Status changed:', data)
+              if (data.status === 'failed' || data.status === 'cancelled') {
+                setHasError(true)
+                onReject?.()
+              }
+            })
+          }
+
+          // Fallback to set loading false after timeout
+          setTimeout(() => setIsLoading(false), 3000)
+        } catch (error) {
+          console.error('[onramp] Failed to initialize widget:', error)
+          setHasError(true)
+          setIsLoading(false)
+        }
+      }
+
+      // Start initialization
+      initializeWidget()
+    }
+  }, [
+    address,
+    amount,
+    authToken.data,
+    authToken.isSuccess,
+    onApprove,
+    onReject,
+  ])
 
   // Cleanup on unmount
   React.useEffect(() => {
@@ -585,7 +596,7 @@ function OnrampView(props: OnrampView.Props) {
           onClick={() => {
             setHasError(false)
             setIsLoading(true)
-            authToken.reset()
+            authToken.refetch()
           }}
           variant="default"
         >
