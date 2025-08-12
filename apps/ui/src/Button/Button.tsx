@@ -1,6 +1,6 @@
 import { a, useSpring } from '@react-spring/web'
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import { css, cva, cx } from '../../styled-system/css'
 import { Frame } from '../Frame/Frame.js'
 import { Spinner } from '../Spinner/Spinner.js'
@@ -44,23 +44,28 @@ export function Button({
           await new Promise((resolve) => setTimeout(resolve, 0))
 
           const width = loadingRef.current?.clientWidth ?? 0
-
-          await next({
-            containerWidth: width,
-            immediate: firstRender.current,
-            labelOpacity: 0,
-            loadingOpacity: 1,
-          })
+          await Promise.all([
+            next({ immediate: true, labelOpacity: 0 }),
+            next({
+              containerWidth: width,
+              immediate: firstRender.current,
+              loadingOpacity: 1,
+              labelOpacity: 0,
+            }),
+          ])
           firstRender.current = false
         }
       : async (next) => {
           const width = labelRef.current?.clientWidth ?? 0
-          await next({
-            containerWidth: width,
-            immediate: firstRender.current,
-            labelOpacity: 1,
-            loadingOpacity: 0,
-          })
+          await Promise.all([
+            next({ immediate: true, loadingOpacity: 0 }),
+            next({
+              containerWidth: width,
+              immediate: firstRender.current,
+              labelOpacity: 1,
+              loadingOpacity: 0,
+            }),
+          ])
           firstRender.current = false
         },
   })
@@ -198,8 +203,9 @@ export function Button({
           })}
           ref={loadingRef}
           style={{
-            gap: size === 'small' ? 4 : 8,
+            gap: size === 'small' ? 6 : 8,
             opacity: loadingSpring.loadingOpacity,
+            visibility: loading ? 'visible' : 'hidden',
           }}
         >
           <Spinner
@@ -217,8 +223,9 @@ export function Button({
           })}
           ref={labelRef}
           style={{
-            gap: size === 'small' ? 4 : 8,
+            gap: size === 'small' ? 6 : 8,
             opacity: loadingSpring.labelOpacity,
+            visibility: loading ? 'hidden' : 'visible',
           }}
         >
           {icon}
