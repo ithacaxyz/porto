@@ -1,6 +1,6 @@
 import { a, useSpring } from '@react-spring/web'
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
-import { useRef, useEffect } from 'react'
+import { useRef } from 'react'
 import { css, cva, cx } from '../../styled-system/css'
 import { Frame } from '../Frame/Frame.js'
 import { Spinner } from '../Spinner/Spinner.js'
@@ -49,8 +49,8 @@ export function Button({
             next({
               containerWidth: width,
               immediate: firstRender.current,
-              loadingOpacity: 1,
               labelOpacity: 0,
+              loadingOpacity: 1,
             }),
           ])
           firstRender.current = false
