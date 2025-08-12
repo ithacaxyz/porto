@@ -895,7 +895,7 @@ export const exp1Abi = [
   { inputs: [], name: 'TotalSupplyOverflow', type: 'error' },
 ] as const
 
-export const exp1Address = '0x29F45fc3eD1d0ffaFb5e2af9Cc6C3AB1555cd5a2' as const
+export const exp1Address = '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa' as const
 
 export const exp1Config = { abi: exp1Abi, address: exp1Address } as const
 

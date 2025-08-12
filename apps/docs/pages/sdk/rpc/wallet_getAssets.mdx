@@ -1,0 +1,81 @@
+import { TryItOut } from '../../../components/TryItOut'
+
+# `wallet_getAssets`
+
+Returns the assets for an account.
+
+<TryItOut
+  exampleSlug="#example"
+  fn={async ({ provider }) => {
+    const [account] = await provider.request({ method: 'eth_requestAccounts' })
+    return provider.request({
+      method: 'wallet_getAssets',
+      params: [{ account }],
+    })
+  }}
+  transformResultCode={(code) => {
+    return 'const assets = ' + code
+  }}
+/>
+
+## Request
+
+```ts
+type Request = {
+  method: 'wallet_getAssets',
+  params: [{
+    /** Address of the account to get assets for. */
+    account: `0x${string}`,
+    /** Filter assets by chain. If not provided, all chains will be included. */
+    chainFilter?: Hex[],
+    /** Filter assets by type. If not provided, all asset types will be included. */
+    assetTypeFilter?: AssetType[],
+    /** Filter assets by name. If not provided, all assets will be included. */
+    assetFilter?: string[],
+    /** Filter assets by symbol. If not provided, all assets will be included. */
+  }]
+}
+```
+
+## Response
+
+```ts
+type Response = {
+  [chainId: Hex]: {
+    address: Address | null
+    balance: Hex
+    metadata: {
+      decimals: number
+      name: string
+      symbol: string
+    } | null
+    type: 'native' | 'erc20'
+  }[]
+}
+```
+
+## Example
+
+```ts twoslash
+import { Porto } from 'porto'
+
+const { provider } = Porto.create()
+
+const [account] = await provider.request({ method: 'eth_requestAccounts' })
+
+const assets = await provider.request({ // [!code focus]
+  method: 'wallet_getAssets', // [!code focus]
+  params: [{ account }], // [!code focus]
+}) // [!code focus]
+```
+
+<TryItOut
+  exampleSlug="#example"
+  fn={async ({ provider }) => {
+    const [account] = await provider.request({ method: 'eth_requestAccounts' })
+    return provider.request({
+      method: 'wallet_getAssets',
+      params: [{ account }],
+    })
+  }}
+/>

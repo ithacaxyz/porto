@@ -1,5 +1,5 @@
 import * as Schema from 'effect/Schema'
-import * as Quote from '../rpcServer/schema/quote.js'
+import * as Quotes from '../rpcServer/schema/quotes.js'
 import * as Rpc_server from '../rpcServer/schema/rpc.js'
 import * as C from './capabilities.js'
 import * as Key from './key.js'
@@ -67,7 +67,7 @@ export namespace wallet_addFunds {
   export const Parameters = Schema.Struct({
     address: Schema.optional(Primitive.Address),
     token: Schema.optional(Primitive.Address),
-    value: Schema.optional(Primitive.BigInt),
+    value: Schema.optional(Schema.String),
   }).annotations({
     identifier: 'Rpc.wallet_addFunds.Parameters',
   })
@@ -379,6 +379,20 @@ export namespace wallet_revokePermissions {
   export const Response = undefined
 }
 
+export namespace wallet_switchEthereumChain {
+  export const Request = Schema.Struct({
+    method: Schema.Literal('wallet_switchEthereumChain'),
+    params: Schema.Tuple(
+      Schema.Struct({
+        chainId: Primitive.Hex,
+      }),
+    ),
+  }).annotations({
+    identifier: 'Rpc.wallet_switchEthereumChain.Request',
+  })
+  export type Request = typeof Request.Type
+}
+
 export namespace wallet_updateAccount {
   export const Parameters = Schema.Struct({
     address: Schema.optional(Primitive.Address),
@@ -556,6 +570,20 @@ export namespace wallet_disconnect {
   export const Response = undefined
 }
 
+export namespace wallet_getAssets {
+  /** Parameters  */
+  export const Parameters = Rpc_server.wallet_getAssets.Parameters
+  export type Parameters = typeof Parameters.Type
+
+  /** Request for `wallet_getAssets`. */
+  export const Request = Rpc_server.wallet_getAssets.Request
+  export type Request = typeof Request.Type
+
+  /** Response for `wallet_getAssets`. */
+  export const Response = Rpc_server.wallet_getAssets.Response
+  export type Response = typeof Response.Type
+}
+
 export namespace wallet_getCallsStatus {
   export const Request = Schema.Struct({
     method: Schema.Literal('wallet_getCallsStatus'),
@@ -619,12 +647,13 @@ export namespace wallet_getCapabilities {
       feeToken: C.feeToken.GetCapabilitiesResponse,
       merchant: C.merchant.GetCapabilitiesResponse,
       permissions: C.permissions.GetCapabilitiesResponse,
+      requiredFunds: C.requiredFunds.GetCapabilitiesResponse,
     }),
   }).annotations({
     identifier: 'Rpc.wallet_getCapabilities.Response',
   })
   export type Response = typeof Response.Type
-  export type Response_raw = typeof Response.Type
+  export type Response_encoded = typeof Response.Encoded
 }
 
 export namespace wallet_getKeys {
@@ -656,6 +685,7 @@ export namespace wallet_prepareCalls {
     merchantRpcUrl: Schema.optional(C.merchantRpcUrl.Request),
     permissions: Schema.optional(C.permissions.Request),
     preCalls: Schema.optional(C.preCalls.Request),
+    requiredFunds: Schema.optional(C.requiredFunds.Request),
   }).annotations({
     identifier: 'Rpc.wallet_prepareCalls.Capabilities',
   })
@@ -692,7 +722,7 @@ export namespace wallet_prepareCalls {
       Schema.extend(
         Rpc_server.wallet_prepareCalls.ResponseCapabilities,
         Schema.Struct({
-          quote: Schema.optional(Quote.Signed),
+          quote: Schema.optional(Quotes.Signed),
         }),
       ),
     ),
@@ -703,17 +733,20 @@ export namespace wallet_prepareCalls {
       }),
       calls: Parameters.fields.calls,
       nonce: Primitive.BigInt,
-      quote: Schema.optional(Schema.partial(Quote.Signed)),
+      quote: Schema.optional(Schema.partial(Quotes.Signed)),
     }),
     digest: Primitive.Hex,
     key: Key.Base.pick('prehash', 'publicKey', 'type'),
     typedData: Schema.Struct({
-      domain: Schema.Struct({
-        chainId: Schema.Number,
-        name: Schema.String,
-        verifyingContract: Primitive.Address,
-        version: Schema.String,
-      }),
+      domain: Schema.Union(
+        Schema.Struct({
+          chainId: Schema.Number,
+          name: Schema.String,
+          verifyingContract: Primitive.Address,
+          version: Schema.String,
+        }),
+        Schema.Struct({}),
+      ),
       message: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
       primaryType: Schema.String,
       types: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
@@ -767,6 +800,10 @@ export namespace wallet_prepareUpgradeAccount {
 }
 
 export namespace wallet_sendCalls {
+  export const Capabilities = wallet_prepareCalls.Capabilities
+  export type Capabilities = typeof Capabilities.Type
+  export type Capabilities_encoded = typeof Capabilities.Encoded
+
   export const Request = Schema.Struct({
     method: Schema.Literal('wallet_sendCalls'),
     params: Schema.Tuple(wallet_prepareCalls.Parameters.omit('key')),

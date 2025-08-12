@@ -1,0 +1,111 @@
+import { TryItOut } from '../../../components/TryItOut'
+
+# `Hooks.useAssets`
+
+Hook for retrieving assets for an account.
+
+Internally uses [`wallet_getAssets`](/sdk/rpc/wallet_getAssets).
+
+```tsx twoslash
+import { Hooks } from 'porto/wagmi'
+
+function Example() {
+  const result = Hooks.useAssets({
+    account: '0x...',
+  })
+}
+```
+
+<TryItOut
+  exampleSlug="#example"
+  fn={async ({ provider }) => {
+    const [account] = await provider.request({ method: 'eth_requestAccounts' })
+    return provider.request({
+      method: 'wallet_getAssets',
+      params: [{ account }],
+    })
+  }}
+  transformResultCode={(code) => {
+    return 'const assets = ' + code
+  }}
+/>
+
+## Parameters
+
+### address
+
+`Address | undefined`
+
+Address of the account to get assets for. If not provided, will use the connected account.
+
+```tsx
+import { Hooks } from 'porto/wagmi'
+
+function Example() {
+  const result = Hooks.useAssets({
+    address: '0x...'
+  })
+}
+```
+
+### config
+
+`Config | undefined`
+
+Configuration to pass to the query.
+
+## Return Type
+
+```tsx
+UseQueryResult<Asset[]>
+```
+
+Returns a [`TanStack Query`](https://tanstack.com/query/latest) result object with the following properties:
+
+### data
+
+`Asset[] | undefined`
+
+Object of chainId to array of assets.
+
+### error
+
+`Error | null`
+
+Error encountered during query execution, if any.
+
+### isError
+
+`boolean`
+
+True if the query encountered an error.
+
+### isIdle
+
+`boolean`
+
+True if the query has not started yet.
+
+### isLoading
+
+`boolean`
+
+True if the query is in a loading state.
+
+### isPending
+
+`boolean`
+
+True if the query is in a pending state.
+
+### isSuccess
+
+`boolean`
+
+True if the query was successful and data is available.
+
+### status
+
+`'error' | 'idle' | 'loading' | 'success'`
+
+Current status of the query.

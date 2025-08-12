@@ -1,5 +1,17 @@
 # porto
 
+## 0.0.64
+
+### Patch Changes
+
+- [#660](https://github.com/ithacaxyz/porto/pull/660) [`5f78ace`](https://github.com/ithacaxyz/porto/commit/5f78ace6b6e700c43329a5a3f70633de0fc9d7f6) Thanks [@bpierre](https://github.com/bpierre)! - Deprecated the `size` config option from `Dialog.popup()`.
+
+- [#603](https://github.com/ithacaxyz/porto/pull/603) [`4e7aa3a`](https://github.com/ithacaxyz/porto/commit/4e7aa3a8873fc2919871adf1e2e1c0913c91b8f7) Thanks [@jxom](https://github.com/jxom)! - Added `wallet_switchEthereumChain`.
+
+- [#603](https://github.com/ithacaxyz/porto/pull/603) [`4e7aa3a`](https://github.com/ithacaxyz/porto/commit/4e7aa3a8873fc2919871adf1e2e1c0913c91b8f7) Thanks [@jxom](https://github.com/jxom)! - Migrated to Relay v17.
+
+- [#603](https://github.com/ithacaxyz/porto/pull/603) [`4e7aa3a`](https://github.com/ithacaxyz/porto/commit/4e7aa3a8873fc2919871adf1e2e1c0913c91b8f7) Thanks [@jxom](https://github.com/jxom)! - Added `chainId` to `Key`.
+
 ## 0.0.63
 
 ### Patch Changes

@@ -86,7 +86,7 @@ describe('Base', () => {
       [Schema.CoderError: Expected "admin", actual "invalid"
       Path: role
 
-      Details: { readonly expiry: (\`0x\${string}\` <-> number); readonly hash: \`0x\${string}\`; readonly id: \`0x\${string}\`; readonly prehash?: boolean | undefined; readonly publicKey: \`0x\${string}\`; readonly role: "admin" | "session"; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" }
+      Details: { readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: (\`0x\${string}\` <-> number); readonly hash: \`0x\${string}\`; readonly id: \`0x\${string}\`; readonly prehash?: boolean | undefined; readonly publicKey: \`0x\${string}\`; readonly role: "admin" | "session"; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" }
       └─ ["role"]
          └─ "admin" | "session"
             ├─ Expected "admin", actual "invalid"
@@ -108,7 +108,7 @@ describe('Base', () => {
       [Schema.CoderError: Expected "address", actual "invalid"
       Path: type
 
-      Details: { readonly expiry: (\`0x\${string}\` <-> number); readonly hash: \`0x\${string}\`; readonly id: \`0x\${string}\`; readonly prehash?: boolean | undefined; readonly publicKey: \`0x\${string}\`; readonly role: "admin" | "session"; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" }
+      Details: { readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: (\`0x\${string}\` <-> number); readonly hash: \`0x\${string}\`; readonly id: \`0x\${string}\`; readonly prehash?: boolean | undefined; readonly publicKey: \`0x\${string}\`; readonly role: "admin" | "session"; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" }
       └─ ["type"]
          └─ "address" | "p256" | "secp256k1" | "webauthn-p256"
             ├─ Expected "address", actual "invalid"

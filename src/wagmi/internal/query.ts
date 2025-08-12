@@ -1,6 +1,6 @@
 import type { Config } from '@wagmi/core'
 
-import type { getAdmins, getPermissions } from './core.js'
+import type { getAdmins, getAssets, getPermissions } from './core.js'
 import { filterQueryOptions } from './utils.js'
 
 export function getAdminsQueryKey<config extends Config>(
@@ -32,5 +32,21 @@ export function getPermissionsQueryKey<config extends Config>(
 export declare namespace getPermissionsQueryKey {
   type Value<config extends Config> = ReturnType<
     typeof getPermissionsQueryKey<config>
+  >
+}
+
+export function getAssetsQueryKey<config extends Config>(
+  options: getAssets.Parameters,
+) {
+  const { connector, ...parameters } = options
+  return [
+    'assets',
+    { ...filterQueryOptions(parameters), connectorUid: connector?.uid },
+  ] as const
+}
+
+export declare namespace getAssetsQueryKey {
+  type Value<config extends Config> = ReturnType<
+    typeof getAssetsQueryKey<config>
   >
 }

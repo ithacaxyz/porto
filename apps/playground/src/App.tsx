@@ -1,4 +1,11 @@
-import { exp1Abi, expNftAbi } from '@porto/apps/contracts'
+import {
+  exp1Abi,
+  exp1Address,
+  exp2Abi,
+  exp2Address,
+  expNftAbi,
+  expNftAddress,
+} from '@porto/apps/contracts'
 import {
   AbiFunction,
   Hex,
@@ -10,7 +17,7 @@ import {
   TypedData,
   Value,
 } from 'ox'
-import { Chains, Dialog } from 'porto'
+import { Dialog } from 'porto'
 import * as React from 'react'
 import { hashMessage, hashTypedData } from 'viem'
 import {
@@ -20,9 +27,7 @@ import {
 } from 'viem/accounts'
 
 import {
-  exp1Address,
-  exp2Address,
-  expNftAddress,
+  type ChainId,
   isDialogModeType,
   type ModeType,
   mipd,
@@ -124,6 +129,7 @@ export function App() {
         <Connect />
         <Login />
         <AddFunds />
+        <GetAssets />
         <Accounts />
         <Disconnect />
         <UpgradeAccount />
@@ -134,7 +140,13 @@ export function App() {
           <hr />
           <br />
         </div>
-
+        <h2>Chain Management</h2>
+        <SwitchChain />
+        <div>
+          <br />
+          <hr />
+          <br />
+        </div>
         <h2>Permissions</h2>
         <GrantPermissions />
         <GetPermissions />
@@ -217,12 +229,14 @@ function State() {
 }
 
 function Events() {
-  const [responses, setResponses] = React.useState<Record<string, unknown>>({})
+  const [responses, setResponses] = React.useState<Record<string, unknown[]>>(
+    {},
+  )
   React.useEffect(() => {
     const handleResponse = (event: string) => (response: unknown) =>
       setResponses((responses) => ({
         ...responses,
-        [event]: response,
+        [event]: [...(responses[event] ?? []), response],
       }))
 
     const handleAccountsChanged = handleResponse('accountsChanged')
@@ -266,11 +280,18 @@ function Connect() {
       <div>
         <button
           onClick={async () => {
+            const chainId = Hex.toNumber(
+              await porto.provider.request({
+                method: 'eth_chainId',
+              }),
+            ) as ChainId
             const payload = {
               capabilities: {
                 createAccount: false,
                 email,
-                grantPermissions: grantPermissions ? permissions() : undefined,
+                grantPermissions: grantPermissions
+                  ? permissions({ chainId })
+                  : undefined,
                 signInWithEthereum: await siwePayload(siwe),
               },
             } as const
@@ -294,11 +315,18 @@ function Connect() {
         </button>
         <button
           onClick={async () => {
+            const chainId = Hex.toNumber(
+              await porto.provider.request({
+                method: 'eth_chainId',
+              }),
+            ) as ChainId
             const payload = {
               capabilities: {
                 createAccount: true,
                 email,
-                grantPermissions: grantPermissions ? permissions() : undefined,
+                grantPermissions: grantPermissions
+                  ? permissions({ chainId })
+                  : undefined,
                 signInWithEthereum: await siwePayload(siwe),
               },
             } as const
@@ -389,19 +417,24 @@ function AddFunds() {
     <div>
       <h3>wallet_addFunds</h3>
       <button
-        onClick={() =>
+        onClick={async () => {
+          const chainId = Hex.toNumber(
+            await porto.provider.request({
+              method: 'eth_chainId',
+            }),
+          ) as ChainId
           porto.provider
             .request({
               method: 'wallet_addFunds',
               params: [
                 {
-                  token: exp1Address,
-                  value: Hex.fromNumber(100),
+                  token: exp1Address[chainId],
+                  value: '100',
                 },
               ],
             })
             .then(setResult)
-        }
+        }}
         type="button"
       >
         Add Funds
@@ -487,6 +520,39 @@ function GetCapabilities() {
   )
 }
 
+function GetAssets() {
+  const [result, setResult] = React.useState<unknown | null>(null)
+  return (
+    <div>
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault()
+          const formData = new FormData(e.target as HTMLFormElement)
+          const account = await (async () => {
+            if (formData.get('account'))
+              return formData.get('account') as `0x${string}`
+            const [address] = await porto.provider.request({
+              method: 'eth_accounts',
+            })
+            return address
+          })()
+          porto.provider
+            .request({
+              method: 'wallet_getAssets',
+              params: [{ account }],
+            })
+            .then(setResult)
+        }}
+      >
+        <h3>wallet_getAssets</h3>
+        <input name="account" placeholder="Account" type="text" />
+        <button type="submit">Get Assets</button>
+      </form>
+      {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
+    </div>
+  )
+}
+
 function GrantPermissions() {
   const [result, setResult] = React.useState<any | null>(null)
   return (
@@ -495,9 +561,14 @@ function GrantPermissions() {
       <form
         onSubmit={async (e) => {
           e.preventDefault()
+          const chainId = Hex.toNumber(
+            await porto.provider.request({
+              method: 'eth_chainId',
+            }),
+          ) as ChainId
           const result = await porto.provider.request({
             method: 'wallet_grantPermissions',
-            params: [permissions()],
+            params: [permissions({ chainId })],
           })
           setResult(result)
         }}
@@ -663,6 +734,42 @@ function UpdateAccount() {
   )
 }
 
+function SwitchChain() {
+  const [chainId, setChainId] = React.useState<number | undefined>(undefined)
+
+  React.useEffect(() => {
+    porto.provider
+      .request({
+        method: 'eth_chainId',
+      })
+      .then((chainId) => setChainId(Hex.toNumber(chainId)))
+  }, [])
+
+  return (
+    <div>
+      <h3>wallet_switchEthereumChain</h3>
+      <div>
+        {porto.config.chains.map((chain) => (
+          <button
+            disabled={chainId === chain.id}
+            key={chain.id}
+            onClick={async () => {
+              setChainId(chain.id)
+              await porto.provider.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: Hex.fromNumber(chain.id) }],
+              })
+            }}
+            type="button"
+          >
+            {chain.name}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function UpgradeAccount() {
   const [accountData, setAccountData] = React.useState<{
     address: string
@@ -713,6 +820,11 @@ function UpgradeAccount() {
           onClick={async () => {
             const account = privateKeyToAccount(privateKey as Hex.Hex)
 
+            const chainId = Hex.toNumber(
+              await porto.provider.request({
+                method: 'eth_chainId',
+              }),
+            ) as ChainId
             const { context, digests } = await porto.provider.request({
               method: 'wallet_prepareUpgradeAccount',
               params: [
@@ -720,7 +832,7 @@ function UpgradeAccount() {
                   address: account.address,
                   capabilities: {
                     grantPermissions: grantPermissions
-                      ? permissions()
+                      ? permissions({ chainId })
                       : undefined,
                   },
                 },
@@ -769,124 +881,197 @@ function SendCalls() {
         const result = await porto.provider.request({
           method: 'eth_accounts',
         })
+        const chainId = Hex.toNumber(
+          await porto.provider.request({
+            method: 'eth_chainId',
+          }),
+        ) as keyof typeof expNftAddress
         const account = result[0]!
         const recipient = address || account
 
-        const calls = (() => {
+        const params = (() => {
           if (action === 'mint')
-            return [
-              {
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(exp1Abi, 'mint'),
-                  [recipient, Value.fromEther('100')],
-                ),
-                to: exp1Address,
+            return {
+              calls: [
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(exp1Abi, 'mint'),
+                    [recipient, Value.fromEther('100')],
+                  ),
+                  to: exp1Address[chainId],
+                },
+              ],
+            } as const
+
+          if (action === 'swap-exp1')
+            return {
+              calls: [
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(exp1Abi, 'swap'),
+                    [exp2Address[chainId], recipient, Value.fromEther('10')],
+                  ),
+                  to: exp1Address[chainId],
+                },
+              ],
+              capabilities: {
+                requiredFunds: [
+                  {
+                    symbol: 'EXP',
+                    value: '10',
+                  },
+                ],
               },
-            ]
+            } as const
+
+          if (action === 'swap-exp2')
+            return {
+              calls: [
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(exp2Abi, 'swap'),
+                    [exp1Address[chainId], recipient, Value.fromEther('0.1')],
+                  ),
+                  to: exp2Address[chainId],
+                },
+              ],
+              capabilities: {
+                requiredFunds: [
+                  {
+                    symbol: 'EXP2',
+                    value: '0.1',
+                  },
+                ],
+              },
+            } as const
 
           if (action === 'transfer')
-            return [
-              {
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(exp1Abi, 'approve'),
-                  [recipient, Value.fromEther('50')],
-                ),
-                to: exp1Address,
+            return {
+              calls: [
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(exp1Abi, 'approve'),
+                    [recipient, Value.fromEther('50')],
+                  ),
+                  to: exp1Address[chainId],
+                },
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(exp1Abi, 'transferFrom'),
+                    [
+                      recipient,
+                      '0x0000000000000000000000000000000000000000',
+                      Value.fromEther('50'),
+                    ],
+                  ),
+                  to: exp1Address[chainId],
+                },
+              ],
+              capabilities: {
+                requiredFunds: [
+                  {
+                    symbol: 'EXP',
+                    value: '50',
+                  },
+                ],
               },
-              {
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(exp1Abi, 'transferFrom'),
-                  [
-                    recipient,
-                    '0x0000000000000000000000000000000000000000',
-                    Value.fromEther('50'),
-                  ],
-                ),
-                to: exp1Address,
-              },
-            ] as const
+            } as const
 
           if (action === 'mint-transfer')
-            return [
-              {
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(exp1Abi, 'mint'),
-                  [recipient, Value.fromEther('100')],
-                ),
-                to: exp2Address,
+            return {
+              calls: [
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(exp1Abi, 'mint'),
+                    [recipient, Value.fromEther('100')],
+                  ),
+                  to: exp2Address[chainId],
+                },
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(exp1Abi, 'approve'),
+                    [expNftAddress[chainId], Value.fromEther('10')],
+                  ),
+                  to: exp1Address[chainId],
+                },
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(expNftAbi, 'mint'),
+                  ),
+                  to: expNftAddress[chainId],
+                },
+              ],
+              capabilities: {
+                requiredFunds: [
+                  {
+                    symbol: 'EXP',
+                    value: '10',
+                  },
+                ],
               },
-              {
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(exp1Abi, 'approve'),
-                  [recipient, Value.fromEther('50')],
-                ),
-                to: exp1Address,
-              },
-              {
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(exp1Abi, 'transferFrom'),
-                  [
-                    recipient,
-                    '0x0000000000000000000000000000000000000000',
-                    Value.fromEther('50'),
-                  ],
-                ),
-                to: exp1Address,
-              },
-              {
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(expNftAbi, 'mint'),
-                ),
-                to: expNftAddress,
-              },
-            ] as const
+            } as const
 
           if (action === 'revert')
-            return [
-              {
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(exp1Abi, 'transferFrom'),
-                  [
-                    '0x0000000000000000000000000000000000000000',
-                    recipient,
-                    Value.fromEther('100'),
-                  ],
-                ),
-                to: exp2Address,
-              },
-            ] as const
+            return {
+              calls: [
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(exp1Abi, 'transferFrom'),
+                    [
+                      '0x0000000000000000000000000000000000000000',
+                      recipient,
+                      Value.fromEther('100'),
+                    ],
+                  ),
+                  to: exp2Address[chainId],
+                },
+              ],
+            } as const
 
           if (action === 'mint-nft')
-            return [
-              {
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(exp1Abi, 'approve'),
-                  [expNftAddress, Value.fromEther('10')],
-                ),
-                to: exp1Address,
+            return {
+              calls: [
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(exp1Abi, 'approve'),
+                    [expNftAddress[chainId], Value.fromEther('10')],
+                  ),
+                  to: exp1Address[chainId],
+                },
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(expNftAbi, 'mint'),
+                  ),
+                  to: expNftAddress[chainId],
+                },
+              ],
+              capabilities: {
+                requiredFunds: [
+                  {
+                    symbol: 'EXP',
+                    value: '10',
+                  },
+                ],
               },
-              {
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(expNftAbi, 'mint'),
-                ),
-                to: expNftAddress,
-              },
-            ] as const
+            } as const
 
-          return [
-            {
-              to: recipient,
-              value: '0x0',
-            },
-          ] as const
+          return {
+            calls: [
+              {
+                to: recipient,
+                value: '0x0',
+              },
+            ],
+          } as const
         })()
 
         const { id } = await porto.provider.request({
           method: 'wallet_sendCalls',
           params: [
             {
-              calls,
+              ...params,
               capabilities: {
+                ...params.capabilities,
                 feeToken: (feeToken === 'ETH'
                   ? '0x0000000000000000000000000000000000000000'
                   : undefined) as any,
@@ -904,10 +1089,10 @@ function SendCalls() {
       <div className="flex gap-2 overflow-auto">
         <select name="action">
           <option value="mint">Mint 100 EXP</option>
+          <option value="swap-exp1">Swap 10 EXP for 0.1 EXP2</option>
+          <option value="swap-exp2">Swap 0.1 EXP2 for 10 EXP</option>
           <option value="transfer">Transfer 50 EXP</option>
-          <option value="mint-transfer">
-            Mint 100 EXP2 + Transfer 50 EXP + Mint NFT
-          </option>
+          <option value="mint-transfer">Mint 100 EXP2 + Mint NFT</option>
           <option value="mint-nft">Mint NFT</option>
           <option value="revert">Revert</option>
           <option value="noop">Noop Calls</option>
@@ -970,6 +1155,12 @@ function SendTransaction() {
           method: 'eth_accounts',
         })
 
+        const chainId = Hex.toNumber(
+          await porto.provider.request({
+            method: 'eth_chainId',
+          }),
+        ) as ChainId
+
         const params = (() => {
           if (action === 'mint')
             return [
@@ -979,7 +1170,7 @@ function SendTransaction() {
                   [account, Value.fromEther('100')],
                 ),
                 from: account,
-                to: exp1Address,
+                to: exp1Address[chainId],
               },
             ] as const
 
@@ -1214,12 +1405,18 @@ function GrantKeyPermissions() {
 
           keyPair = { privateKey, publicKey }
 
+          const chainId = Hex.toNumber(
+            await porto.provider.request({
+              method: 'eth_chainId',
+            }),
+          ) as ChainId
+
           const result = await porto.provider.request({
             method: 'wallet_grantPermissions',
             params: [
               {
                 key: { publicKey, type: 'p256' },
-                ...permissions(),
+                ...permissions({ chainId }),
               },
             ],
           })
@@ -1247,6 +1444,12 @@ function PrepareCalls() {
           method: 'eth_accounts',
         })
 
+        const chainId = Hex.toNumber(
+          await porto.provider.request({
+            method: 'eth_chainId',
+          }),
+        ) as ChainId
+
         const calls = (() => {
           if (action === 'mint')
             return [
@@ -1255,7 +1458,7 @@ function PrepareCalls() {
                   AbiFunction.fromAbi(exp1Abi, 'mint'),
                   [account, Value.fromEther('100')],
                 ),
-                to: exp1Address,
+                to: exp1Address[chainId],
               },
             ]
 
@@ -1266,7 +1469,7 @@ function PrepareCalls() {
                   AbiFunction.fromAbi(exp1Abi, 'approve'),
                   [account, Value.fromEther('50')],
                 ),
-                to: exp1Address,
+                to: exp1Address[chainId],
               },
               {
                 data: AbiFunction.encodeData(
@@ -1277,7 +1480,7 @@ function PrepareCalls() {
                     Value.fromEther('50'),
                   ],
                 ),
-                to: exp1Address,
+                to: exp1Address[chainId],
               },
             ] as const
 
@@ -1292,7 +1495,7 @@ function PrepareCalls() {
                     Value.fromEther('100'),
                   ],
                 ),
-                to: exp2Address,
+                to: exp2Address[chainId],
               },
             ] as const
 
@@ -1315,7 +1518,7 @@ function PrepareCalls() {
           params: [
             {
               calls,
-              chainId: Hex.fromNumber(Chains.portoDev.id),
+              chainId: Hex.fromNumber(chainId),
               key: {
                 publicKey: keyPair.publicKey,
                 type: 'p256',

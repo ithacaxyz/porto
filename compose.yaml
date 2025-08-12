@@ -1,32 +1,39 @@
 name: porto
 
 services:
+  state:
+    build:
+      context: "${DOCKER_BUILD_CONTEXT:-https://github.com/ithacaxyz/porto.git}"
+      dockerfile: ./docker/state/Dockerfile
+    environment:
+      FOUNDRY_DISABLE_NIGHTLY_WARNING: "true"
+    user: root
+    volumes:
+      - state:/app/shared
+    command: ["sh", "-c", "bash ./run.sh"]
+
   anvil:
+    depends_on:
+      state:
+        condition: service_completed_successfully
     image: ghcr.io/foundry-rs/foundry:latest
     entrypoint: ["anvil"]
-    command: --odyssey --host 0.0.0.0 --port 8545
+    command: --odyssey --host 0.0.0.0 --port 8545 --accounts 20 --load-state /app/anvil.json
     labels:
       - dev.orbstack.domains=anvil.local
     ports:
       - "8545:8545"
+    volumes:
+      - state:/app
     healthcheck:
       test: ["CMD", "cast", "block-number", "--rpc-url", "http://localhost:8545"]
       interval: 2s
       retries: 5
 
-  config:
+  relay:
     depends_on:
       anvil:
         condition: service_healthy
-    build:
-      context: "${DOCKER_BUILD_CONTEXT:-https://github.com/ithacaxyz/porto.git}"
-      dockerfile: ./docker/config/Dockerfile
-    user: root
-    volumes:
-      - relay:/app/shared
-    command: ["sh", "-c", "bash ./run.sh"]
-
-  relay:
     build:
       context: "${DOCKER_BUILD_CONTEXT:-https://github.com/ithacaxyz/porto.git}"
       dockerfile_inline: |
@@ -38,13 +45,11 @@ services:
     ports:
       - "9119:9119"
     volumes:
-      - relay:/app
-    depends_on:
-      config:
-        condition: service_completed_successfully
+      - state:/app
     environment:
       RELAY_MNEMONIC: "test test test test test test test test test test test junk"
-    command: --config-only --registry /app/registry.yaml
+      RELAY_FUNDER_SIGNER_KEY: "0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6"
+    command: --config-only --registry /app/registry.yaml --funder-signing-key 0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6 --funder-owner-key 0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6
     healthcheck:
       test: ["CMD", "cast", "rpc", "--rpc-url", "http://localhost:9119", "health"]
       interval: 2s
@@ -64,4 +69,4 @@ services:
       - "9200:9200"
       
 volumes:
-  relay:
+  state:

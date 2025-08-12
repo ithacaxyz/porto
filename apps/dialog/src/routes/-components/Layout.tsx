@@ -12,7 +12,13 @@ export function Layout(props: Layout.Props) {
   const { children, loading = false, loadingTitle } = props
   return (
     <Screen>
-      {loading ? <IndeterminateLoader title={loadingTitle ?? ''} /> : children}
+      {loading ? (
+        <div className="p-3">
+          <IndeterminateLoader title={loadingTitle ?? ''} />
+        </div>
+      ) : (
+        children
+      )}
     </Screen>
   )
 }

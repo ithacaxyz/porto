@@ -2,7 +2,7 @@ import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import type * as RpcRequest from 'ox/RpcRequest'
 import type * as RpcResponse from 'ox/RpcResponse'
-import { http, type Transport } from 'viem'
+import { http, type Transport, type ValueOf } from 'viem'
 import { persist, subscribeWithSelector } from 'zustand/middleware'
 import { createStore, type Mutate, type StoreApi } from 'zustand/vanilla'
 import type * as Account from '../viem/Account.js'
@@ -13,6 +13,7 @@ import { rpcServer } from './internal/modes/rpcServer.js'
 import type * as internal from './internal/porto.js'
 import * as Provider from './internal/provider.js'
 import type * as FeeToken from './internal/schema/feeToken.js'
+import type * as Rpc from './internal/schema/rpc.js'
 import type * as Siwe from './internal/siwe.js'
 import type { ExactPartial, OneOf } from './internal/types.js'
 import * as Utils from './internal/utils.js'
@@ -22,12 +23,13 @@ const browser = typeof window !== 'undefined' && typeof document !== 'undefined'
 
 export const defaultConfig = {
   announceProvider: true,
-  chains: [Chains.baseSepolia],
+  chains: [Chains.baseSepolia, Chains.optimismSepolia],
   mode: browser ? dialog() : rpcServer(),
   storage: browser ? Storage.idb() : Storage.memory(),
   storageKey: 'porto.store',
   transports: {
     [Chains.baseSepolia.id]: http(),
+    [Chains.optimismSepolia.id]: http(),
   },
 } as const satisfies Config
 
@@ -113,7 +115,6 @@ export function create(
       ),
     ),
   )
-  store.persist.rehydrate()
 
   let mode = config.mode
 
@@ -307,3 +308,16 @@ export type QueuedRequest<result = unknown> = {
       status: 'error'
     }
 >
+
+declare module 'viem' {
+  interface Register {
+    CapabilitiesSchema: {
+      getCapabilities: {
+        ReturnType: ValueOf<Rpc.wallet_getCapabilities.Response_encoded>
+      }
+      sendCalls: {
+        Request: Rpc.wallet_sendCalls.Capabilities_encoded
+      }
+    }
+  }
+}

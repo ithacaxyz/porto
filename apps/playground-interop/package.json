@@ -1,0 +1,29 @@
+{
+  "name": "playground-interop",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@porto/apps": "workspace:*",
+    "@tanstack/react-query": "catalog:",
+    "porto": "workspace:*",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "viem": "catalog:",
+    "wagmi": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "globals": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-mkcert": "catalog:"
+  }
+}

@@ -9,7 +9,7 @@ import * as Primitive from '../../schema/primitive.js'
 import * as C from './capabilities.js'
 import * as Key from './key.js'
 import * as PreCall from './preCall.js'
-import * as Quote from './quote.js'
+import * as Quotes from './quotes.js'
 
 const Authorization = Schema.Struct({
   address: Primitive.Address,
@@ -86,7 +86,10 @@ export namespace health {
   })
   export type Request = typeof Request.Type
 
-  export const Response = Schema.String.annotations({
+  export const Response = Schema.Struct({
+    status: Schema.String,
+    version: Schema.String,
+  }).annotations({
     identifier: 'Rpc.health.Response',
   })
   export type Response = typeof Response.Type
@@ -190,6 +193,7 @@ export namespace wallet_getCapabilities {
           Schema.Struct({
             address: Primitive.Address,
             decimals: Schema.Number,
+            interop: Schema.optional(Schema.Boolean),
             kind: Schema.String,
             nativeRate: Schema.optional(Primitive.BigInt),
             symbol: Schema.String,
@@ -199,6 +203,70 @@ export namespace wallet_getCapabilities {
     }),
   }).annotations({
     identifier: 'Rpc.wallet_getCapabilities.Response',
+  })
+  export type Response = typeof Response.Type
+}
+
+export namespace wallet_getAssets {
+  /** Parameters  */
+  const AssetType = Schema.Union(
+    Schema.Literal('native'),
+    Schema.Literal('erc20'),
+    Schema.Literal('erc721'),
+    Schema.String,
+  )
+  export const Parameters = Schema.Struct({
+    account: Primitive.Address,
+    assetFilter: Schema.optional(
+      Schema.Record({
+        key: Primitive.Hex,
+        value: Schema.Array(
+          Schema.Struct({
+            address: Schema.Union(Primitive.Address, Schema.Literal('native')),
+            type: AssetType,
+          }),
+        ),
+      }),
+    ),
+    assetTypeFilter: Schema.optional(Schema.Array(AssetType)),
+    chainFilter: Schema.optional(Schema.Array(Primitive.Number)),
+  }).annotations({
+    identifier: 'Rpc.wallet_getAssets.Parameters',
+  })
+  export type Parameters = typeof Parameters.Type
+
+  /** Request for `wallet_getAssets`. */
+  export const Request = Schema.Struct({
+    method: Schema.Literal('wallet_getAssets'),
+    params: Schema.Tuple(Parameters),
+  }).annotations({
+    identifier: 'Rpc.wallet_getAssets.Request',
+  })
+  export type Request = typeof Request.Type
+
+  /** Response for `wallet_getAssets`. */
+  export const Response = Schema.Record({
+    key: Schema.String,
+    value: Schema.Array(
+      Schema.Struct({
+        address: Schema.Union(
+          Primitive.Address,
+          Schema.Literal('native'),
+          Schema.Null,
+        ),
+        balance: Primitive.BigInt,
+        metadata: Schema.NullOr(
+          Schema.Struct({
+            decimals: Schema.Number,
+            name: Schema.String,
+            symbol: Schema.String,
+          }),
+        ),
+        type: Schema.String,
+      }),
+    ),
+  }).annotations({
+    identifier: 'Rpc.wallet_getAssets.Response',
   })
   export type Response = typeof Response.Type
 }
@@ -246,8 +314,7 @@ export namespace wallet_getKeys {
     /** The address to get the keys for. */
     address: Primitive.Address,
     /** Target chain ID. */
-    // TODO: `Primitive.Number`
-    chain_id: Schema.Number,
+    chainId: Primitive.Number,
   }).annotations({
     identifier: 'Rpc.wallet_getKeys.Parameters',
   })
@@ -278,6 +345,8 @@ export namespace wallet_prepareCalls {
     preCall: Schema.optional(Schema.Boolean),
     /** Optional preCalls to execute before signature verification. */
     preCalls: Schema.optional(Schema.Array(PreCall.PreCall)),
+    /** Required funds on the target chain. */
+    requiredFunds: Schema.optional(C.requiredFunds.Request),
     /** Keys to revoke on the account. */
     revokeKeys: Schema.optional(C.revokeKeys.Request),
   }).annotations({
@@ -288,68 +357,15 @@ export namespace wallet_prepareCalls {
   /** Capabilities for `wallet_prepareCalls` response. */
   export const ResponseCapabilities = Schema.Struct({
     /** Asset diff. */
-    assetDiff: Schema.optional(
-      Schema.Array(
-        Schema.Tuple(
-          Primitive.Address,
-          Schema.Array(
-            Schema.Union(
-              Schema.Struct({
-                address: Schema.optional(
-                  Schema.Union(Primitive.Address, Schema.Null),
-                ),
-                decimals: Schema.optional(
-                  Schema.Union(Schema.Number, Schema.Null),
-                ),
-                direction: Schema.Union(
-                  Schema.Literal('incoming'),
-                  Schema.Literal('outgoing'),
-                ),
-                name: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
-                symbol: Schema.String,
-                type: Schema.Literal('erc20'),
-                value: Primitive.BigInt,
-              }),
-              Schema.Struct({
-                address: Schema.optional(
-                  Schema.Union(Primitive.Address, Schema.Null),
-                ),
-                direction: Schema.Union(
-                  Schema.Literal('incoming'),
-                  Schema.Literal('outgoing'),
-                ),
-                name: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
-                symbol: Schema.String,
-                type: Schema.Literal('erc721'),
-                uri: Schema.String,
-                value: Primitive.BigInt,
-              }),
-              Schema.Struct({
-                address: Schema.Null,
-                decimals: Schema.optional(
-                  Schema.Union(Schema.Number, Schema.Null),
-                ),
-                direction: Schema.Union(
-                  Schema.Literal('incoming'),
-                  Schema.Literal('outgoing'),
-                ),
-                name: Schema.Null,
-                symbol: Schema.String,
-                type: Schema.Null,
-                uri: Schema.Null,
-                value: Primitive.BigInt,
-              }),
-            ),
-          ),
-        ),
-      ),
-    ),
+    assetDiffs: Schema.optional(C.assetDiffs.Response),
     /** Keys authorized on the account. */
     authorizeKeys: Schema.optional(
       Schema.Union(C.authorizeKeys.Response, Schema.Null),
     ),
     /** Fee signature. */
     feeSignature: Schema.optional(Primitive.Hex),
+    /** Fee totals. */
+    feeTotals: Schema.optional(C.feeTotals.Response),
     /** Keys revoked on the account. */
     revokeKeys: Schema.optional(
       Schema.Union(C.revokeKeys.Response, Schema.Null),
@@ -401,7 +417,7 @@ export namespace wallet_prepareCalls {
       /** Quote for the call bundle. */
       preCall: Schema.optional(Schema.partial(PreCall.PreCall)),
       /** The call bundle. */
-      quote: Schema.optional(Schema.partial(Quote.Signed)),
+      quote: Schema.optional(Schema.partial(Quotes.Signed)),
     }),
     /** Digest to sign over. */
     digest: Primitive.Hex,
@@ -418,12 +434,15 @@ export namespace wallet_prepareCalls {
     ),
     /** EIP-712 typed data digest. */
     typedData: Schema.Struct({
-      domain: Schema.Struct({
-        chainId: Primitive.Number,
-        name: Schema.String,
-        verifyingContract: Primitive.Address,
-        version: Schema.String,
-      }),
+      domain: Schema.Union(
+        Schema.Struct({
+          chainId: Schema.Number,
+          name: Schema.String,
+          verifyingContract: Primitive.Address,
+          version: Schema.String,
+        }),
+        Schema.Struct({}),
+      ),
       message: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
       primaryType: Schema.String,
       types: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
@@ -495,12 +514,15 @@ export namespace wallet_prepareUpgradeAccount {
     }),
     /** EIP-712 typed data digest. */
     typedData: Schema.Struct({
-      domain: Schema.Struct({
-        chainId: Schema.optional(Primitive.Number),
-        name: Schema.String,
-        verifyingContract: Primitive.Address,
-        version: Schema.String,
-      }),
+      domain: Schema.Union(
+        Schema.Struct({
+          chainId: Schema.Number,
+          name: Schema.String,
+          verifyingContract: Primitive.Address,
+          version: Schema.String,
+        }),
+        Schema.Struct({}),
+      ),
       message: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
       primaryType: Schema.String,
       types: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
@@ -553,7 +575,7 @@ export namespace wallet_sendPreparedCalls {
       /** The call bundle. */
       preCall: Schema.optional(Schema.partial(PreCall.PreCall)),
       /** Quote for the call bundle. */
-      quote: Schema.optional(Schema.partial(Quote.Signed)),
+      quote: Schema.optional(Schema.partial(Quotes.Signed)),
     }),
     /** Key that was used to sign the call bundle. */
     key: Schema.Struct({

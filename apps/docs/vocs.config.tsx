@@ -2,9 +2,10 @@ import ChildProcess from 'node:child_process'
 import NodeFS from 'node:fs'
 import NodePath from 'node:path'
 import Process from 'node:process'
-import Icons from 'unplugin-icons/vite'
 import Mkcert from 'vite-plugin-mkcert'
 import { defineConfig } from 'vocs'
+
+import { Plugins } from '../~internal/vite/index'
 
 const commitSha =
   ChildProcess.execSync('git rev-parse --short HEAD').toString().trim() ||
@@ -266,6 +267,10 @@ export default defineConfig({
                 text: 'disconnect',
               },
               {
+                link: '/sdk/wagmi/getAssets',
+                text: 'getAssets',
+              },
+              {
                 link: '/sdk/wagmi/grantPermissions',
                 text: 'grantPermissions',
               },
@@ -287,6 +292,10 @@ export default defineConfig({
           {
             collapsed: true,
             items: [
+              {
+                link: '/sdk/wagmi/useAssets',
+                text: 'useAssets',
+              },
               {
                 link: '/sdk/wagmi/useGrantPermissions',
                 text: 'useGrantPermissions',
@@ -329,6 +338,10 @@ export default defineConfig({
               {
                 link: '/sdk/viem/WalletActions/disconnect',
                 text: 'disconnect',
+              },
+              {
+                link: '/sdk/viem/WalletActions/getAssets',
+                text: 'getAssets',
               },
               {
                 link: '/sdk/viem/WalletActions/grantPermissions',
@@ -435,6 +448,10 @@ export default defineConfig({
                     text: 'createAccount',
                   },
                   {
+                    link: '/sdk/viem/ServerActions/getAssets',
+                    text: 'getAssets',
+                  },
+                  {
                     link: '/sdk/viem/ServerActions/getCallsStatus',
                     text: 'getCallsStatus',
                   },
@@ -522,6 +539,10 @@ export default defineConfig({
             text: 'wallet_disconnect',
           },
           {
+            link: '/sdk/rpc/wallet_getAssets',
+            text: 'wallet_getAssets',
+          },
+          {
             link: '/sdk/rpc/wallet_getCapabilities',
             text: 'wallet_getCapabilities',
           },
@@ -606,7 +627,7 @@ export default defineConfig({
           'anvil.localhost',
         ],
       }),
-      Icons({ compiler: 'jsx', jsx: 'react' }) as never,
+      Plugins.Icons(),
     ],
     server: {
       proxy: {},

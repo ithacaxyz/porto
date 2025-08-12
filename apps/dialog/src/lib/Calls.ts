@@ -1,14 +1,18 @@
-import { Query as Query_porto } from '@porto/apps'
+import { Env, Query as Query_porto } from '@porto/apps'
 import * as Query from '@tanstack/react-query'
 import type { Address } from 'ox'
 import { Account, ServerActions } from 'porto'
 import * as PreCalls from 'porto/core/internal/preCalls'
+import * as RequiredFunds from 'porto/core/internal/requiredFunds'
+import type * as Capabilities_schema from 'porto/core/internal/schema/capabilities'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken'
 import { Hooks } from 'porto/remote'
 import type { ServerClient } from 'porto/viem'
 
 import * as FeeTokens from './FeeTokens'
 import { porto } from './Porto'
+
+const multichain = Env.get() !== 'anvil'
 
 export namespace prepareCalls {
   export function queryOptions<const calls extends readonly unknown[]>(
@@ -22,13 +26,14 @@ export namespace prepareCalls {
       calls,
       feeToken,
       merchantRpcUrl,
+      requiredFunds,
       refetchInterval,
       revokeKeys,
     } = options
 
     return Query.queryOptions({
       enabled: enabled && !!account,
-      // TODO: use EIP-1193 Provider + `wallet_sendPreparedCalls` in the future
+      // TODO: use EIP-1193 Provider + `wallet_prepareCalls` in the future
       // to dedupe.
       async queryFn({ queryKey }) {
         const [, { account, feeToken, ...parameters }] = queryKey
@@ -38,12 +43,12 @@ export namespace prepareCalls {
         const key = Account.getKey(account, { role: 'admin' })
         if (!key) throw new Error('no admin key found.')
 
-        const [{ address: feeTokenAddress }] =
-          await Query_porto.client.ensureQueryData(
-            FeeTokens.fetch.queryOptions(client, {
-              addressOrSymbol: feeToken,
-            }),
-          )
+        const feeTokens = await Query_porto.client.ensureQueryData(
+          FeeTokens.fetch.queryOptions(client, {
+            addressOrSymbol: feeToken,
+          }),
+        )
+        const [{ address: feeTokenAddress }] = feeTokens
 
         // Get pre-authorized keys to assign to the call bundle.
         const preCalls = await PreCalls.get({
@@ -51,12 +56,20 @@ export namespace prepareCalls {
           storage: porto.config.storage,
         })
 
+        const requiredFunds = RequiredFunds.toRpcServer(
+          parameters.requiredFunds ?? [],
+          {
+            feeTokens,
+          },
+        )
+
         return await ServerActions.prepareCalls(client, {
           ...parameters,
           account,
           feeToken: feeTokenAddress,
           key,
           preCalls,
+          requiredFunds: multichain ? requiredFunds : undefined,
         })
       },
       queryKey: queryOptions.queryKey(client, {
@@ -65,6 +78,7 @@ export namespace prepareCalls {
         calls,
         feeToken,
         merchantRpcUrl,
+        requiredFunds,
         revokeKeys,
       }),
       refetchInterval,
@@ -100,6 +114,7 @@ export namespace prepareCalls {
         account?: Account.Account | undefined
         feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
         merchantRpcUrl?: string | undefined
+        requiredFunds?: Capabilities_schema.requiredFunds.Request | undefined
       }
     }
   }

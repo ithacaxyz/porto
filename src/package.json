@@ -1,7 +1,7 @@
 {
   "name": "porto",
   "description": "Next-gen Account for Ethereum",
-  "version": "0.0.63",
+  "version": "0.0.64",
   "type": "module",
   "bin": {
     "porto": "./_dist/cli/bin/index.js"
@@ -30,7 +30,7 @@
     "@wagmi/core": ">=2.16.3",
     "react": ">=18",
     "typescript": ">=5.4.0",
-    "viem": ">=2.28.0",
+    "viem": ">=2.33.0",
     "wagmi": ">=2.0.0"
   },
   "peerDependenciesMeta": {

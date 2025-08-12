@@ -8,8 +8,8 @@ export const Schema = Permissions_.Permissions
 export type Permissions = typeof Schema.Type
 
 export function fromKey(key: Key.Key, options: fromKey.Options): Permissions {
-  const { expiry, permissions, id, publicKey, type } = key
-  const { address, chainId } = options
+  const { chainId, expiry, permissions, id, publicKey, type } = key
+  const { address } = options
   return {
     address,
     chainId,
@@ -26,13 +26,13 @@ export function fromKey(key: Key.Key, options: fromKey.Options): Permissions {
 export declare namespace fromKey {
   export type Options = {
     address: Address.Address
-    chainId?: number | undefined
   }
 }
 
 export function toKey(permissions: Permissions): Key.Key {
-  const { expiry, key } = permissions
+  const { chainId, expiry, key } = permissions
   return Key.from({
+    chainId,
     expiry,
     permissions: permissions.permissions ?? {},
     publicKey: key.publicKey,

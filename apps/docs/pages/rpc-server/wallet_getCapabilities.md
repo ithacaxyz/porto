@@ -126,7 +126,7 @@ cast rpc --rpc-url https://porto-dev.rpc.ithaca.xyz wallet_getCapabilities '[284
       "recipient": "0x0000000000000000000000000000000000000000",
       "tokens": [
         {
-          "address": "0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2",
+          "address": "0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa",
           "decimals": 18,
           "kind": "USDT",
           "nativeRate": "0x17a503c0a7000",

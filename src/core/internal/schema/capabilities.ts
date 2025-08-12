@@ -85,6 +85,7 @@ export namespace feeToken {
       Schema.Struct({
         address: Primitive.Address,
         decimals: Schema.Number,
+        interop: Schema.optional(Schema.Boolean),
         kind: Schema.String,
         nativeRate: Schema.optional(Primitive.BigInt),
         symbol: Schema.String,
@@ -116,7 +117,7 @@ export namespace permissions {
   export type GetCapabilitiesResponse = typeof GetCapabilitiesResponse.Type
 
   export const Request = Schema.Struct({
-    id: Schema.optional(Primitive.Hex),
+    id: Schema.optional(Schema.Union(Primitive.Hex, Schema.Null)),
   })
   export type Request = typeof Request.Type
 
@@ -139,5 +140,39 @@ export namespace preCalls {
 
 export namespace merchantRpcUrl {
   export const Request = Schema.String
+  export type Request = typeof Request.Type
+}
+
+export namespace requiredFunds {
+  export const GetCapabilitiesResponse = Schema.Struct({
+    supported: Schema.Boolean,
+    tokens: Schema.Array(
+      Schema.Struct({
+        address: Primitive.Address,
+        decimals: Schema.Number,
+        interop: Schema.optional(Schema.Boolean),
+        kind: Schema.String,
+        nativeRate: Schema.optional(Primitive.BigInt),
+        symbol: Schema.String,
+      }),
+    ),
+  })
+  export type GetCapabilitiesResponse = typeof GetCapabilitiesResponse.Type
+
+  export const Request = Schema.Array(
+    OneOf(
+      Schema.Struct({
+        address: Primitive.Address,
+        value: Primitive.BigInt,
+      }),
+      Schema.Struct({
+        symbol: FeeToken.Symbol,
+        value: Schema.Union(
+          Schema.TemplateLiteral(Schema.Number, '.', Schema.Number),
+          Schema.TemplateLiteral(Schema.Number),
+        ).pipe(Schema.pattern(/^\d+(\.\d+)?$/)),
+      }),
+    ),
+  )
   export type Request = typeof Request.Type
 }
