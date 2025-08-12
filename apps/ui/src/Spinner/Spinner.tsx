@@ -80,13 +80,13 @@ export function Spinner({
           })}
         >
           {CIRCLES.map(({ diff, progression }, i) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: CIRCLES is static
             <a.circle
               className={css({
                 transformOrigin: '50% 50%',
               })}
               cx="50%"
               cy="50%"
+              // biome-ignore lint/suspicious/noArrayIndexKey: CIRCLES is static
               key={i}
               r={radius}
               shapeRendering="geometricPrecision"
