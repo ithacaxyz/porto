@@ -117,6 +117,7 @@ export function Frame({
   return (
     <FrameContext.Provider value={contextValue}>
       <div
+        data-dialog={mode === 'dialog' ? true : undefined}
         className={cx(
           css({
             containerType: 'inline-size',
