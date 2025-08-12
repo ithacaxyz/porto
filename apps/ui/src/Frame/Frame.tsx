@@ -117,7 +117,6 @@ export function Frame({
   return (
     <FrameContext.Provider value={contextValue}>
       <div
-        data-dialog={mode === 'dialog' ? true : undefined}
         className={cx(
           css({
             containerType: 'inline-size',
@@ -133,6 +132,7 @@ export function Frame({
                 width: '100%',
               }),
         )}
+        data-dialog={mode === 'dialog' ? true : undefined}
         ref={frameRef}
         style={{ colorScheme }}
       >
