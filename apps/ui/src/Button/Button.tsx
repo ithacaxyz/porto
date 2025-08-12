@@ -1,6 +1,9 @@
+import { a, useSpring } from '@react-spring/web'
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import { useRef } from 'react'
 import { css, cva, cx } from '../../styled-system/css'
 import { Frame } from '../Frame/Frame.js'
+import { Spinner } from '../Spinner/Spinner.js'
 
 type ButtonSize = 'small' | 'medium' | 'large'
 
@@ -9,6 +12,7 @@ export function Button({
   className,
   disabled,
   icon,
+  loading,
   shape = 'normal',
   size,
   variant = 'secondary',
@@ -17,6 +21,50 @@ export function Button({
 }: Button.Props) {
   const frame = Frame.useFrame(true)
   size ??= { dialog: 'medium', full: 'large' }
+
+  const loadingRef = useRef<HTMLDivElement>(null)
+  const labelRef = useRef<HTMLDivElement>(null)
+
+  const firstRender = useRef(true)
+
+  const loadingSpring = useSpring({
+    config: {
+      friction: 80,
+      mass: 1,
+      tension: 1200,
+    },
+    from: {
+      containerWidth: 0,
+      labelOpacity: 1,
+      loadingOpacity: 0,
+    },
+    to: loading
+      ? async (next) => {
+          // wait for the loading text to render so we can get its width
+          await new Promise((resolve) => setTimeout(resolve, 0))
+
+          const width = loadingRef.current?.clientWidth ?? 0
+
+          await next({
+            containerWidth: width,
+            immediate: firstRender.current,
+            labelOpacity: 0,
+            loadingOpacity: 1,
+          })
+          firstRender.current = false
+        }
+      : async (next) => {
+          const width = labelRef.current?.clientWidth ?? 0
+          await next({
+            containerWidth: width,
+            immediate: firstRender.current,
+            labelOpacity: 1,
+            loadingOpacity: 0,
+          })
+          firstRender.current = false
+        },
+  })
+
   return (
     <button
       className={cx(
@@ -31,9 +79,6 @@ export function Button({
             },
           },
           _disabled: {
-            backgroundColor: 'var(--background-color-th_disabled)',
-            borderColor: 'var(--border-color-th_disabled)',
-            color: 'var(--text-color-th_disabled)',
             pointerEvents: 'none',
           },
           _focusVisible: {
@@ -51,13 +96,21 @@ export function Button({
           borderRadius: 'var(--radius-th_medium)',
           cursor: 'pointer!',
           display: 'inline-flex',
-          gap: 8,
           justifyContent: 'center',
           whiteSpace: 'nowrap',
         }),
         cva({
           variants: {
-            buttonVariant: {
+            colors: {
+              // disabled is a color variant rather than being applied when
+              // the button is disabled, this is because in certain cases we
+              // want the button to be disabled, but not to look like our
+              // default disabled state, e.g. when the button is loading.
+              disabled: {
+                '--button-bd': 'var(--border-color-th_disabled)',
+                '--button-bg': 'var(--background-color-th_disabled)',
+                color: 'var(--text-color-th_disabled)',
+              },
               negative: {
                 '--button-bd': 'var(--border-color-th_negative)',
                 '--button-bg': 'var(--background-color-th_negative)',
@@ -111,7 +164,7 @@ export function Button({
             },
           },
         })({
-          buttonVariant: variant,
+          colors: disabled ? 'disabled' : variant,
           size:
             typeof size === 'string'
               ? size
@@ -120,11 +173,58 @@ export function Button({
         wide && css({ width: '100%' }),
         className,
       )}
-      disabled={disabled}
+      disabled={disabled ?? Boolean(loading)}
       {...props}
     >
-      {icon}
-      {children}
+      <a.div
+        className={css({
+          display: 'flex',
+          height: '100%',
+          overflow: 'hidden',
+          position: 'relative',
+        })}
+        style={{
+          width: loadingSpring.containerWidth.to((v) =>
+            v === 0 ? 'auto' : `${v}px`,
+          ),
+        }}
+      >
+        <a.div
+          className={css({
+            alignItems: 'center',
+            display: 'flex',
+            inset: '0 auto 0 0',
+            position: 'absolute',
+          })}
+          ref={loadingRef}
+          style={{
+            gap: size === 'small' ? 4 : 8,
+            opacity: loadingSpring.loadingOpacity,
+          }}
+        >
+          <Spinner
+            color="currentColor"
+            size={size === 'small' ? 'small' : 'medium'}
+          />
+          {loading === true ? 'Loading…' : loading}
+        </a.div>
+        <a.div
+          className={css({
+            alignItems: 'center',
+            display: 'flex',
+            inset: '0 auto 0 0',
+            position: 'absolute',
+          })}
+          ref={labelRef}
+          style={{
+            gap: size === 'small' ? 4 : 8,
+            opacity: loadingSpring.labelOpacity,
+          }}
+        >
+          {icon}
+          {children}
+        </a.div>
+      </a.div>
     </button>
   )
 }
@@ -132,7 +232,9 @@ export function Button({
 export namespace Button {
   export interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
     icon?: ReactNode
+    loading?: boolean | ReactNode
     size?: ButtonSize | Record<Frame.Mode, ButtonSize>
+    shape?: 'normal' | 'square' // TODO: implement
     variant?:
       | 'negative'
       | 'negative-secondary'
@@ -140,7 +242,6 @@ export namespace Button {
       | 'primary'
       | 'secondary'
       | 'strong'
-    shape?: 'normal' | 'square' // TODO: implement
     wide?: boolean
   }
 }

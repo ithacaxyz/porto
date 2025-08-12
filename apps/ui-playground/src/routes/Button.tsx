@@ -1,5 +1,7 @@
 import { Button } from '@porto/ui'
 import { createFileRoute } from '@tanstack/react-router'
+import type { ComponentProps } from 'react'
+import { useEffect, useState } from 'react'
 import { ComponentScreen } from '~/components/ComponentScreen/ComponentScreen'
 import LucideLogIn from '~icons/lucide/log-in'
 import LucideScanFace from '~icons/lucide/scan-face'
@@ -26,10 +28,23 @@ function ButtonComponent() {
         </div>
       </ComponentScreen.Section>
       <ComponentScreen.Section title="Sizes">
-        <div className="flex flex-wrap items-center gap-4">
-          <Button size="small">Small</Button>
-          <Button size="medium">Medium</Button>
-          <Button size="large">Large</Button>
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap items-center gap-4">
+            <Button size="small">Small</Button>
+            <Button size="medium">Medium</Button>
+            <Button size="large">Large</Button>
+          </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <Button icon={<LucideLogIn />} size="small">
+              Small
+            </Button>
+            <Button icon={<LucideLogIn />} size="medium">
+              Medium
+            </Button>
+            <Button icon={<LucideLogIn />} size="large">
+              Large
+            </Button>
+          </div>
         </div>
       </ComponentScreen.Section>
       <ComponentScreen.Section title="States">
@@ -62,6 +77,26 @@ function ButtonComponent() {
           </div>
         </div>
       </ComponentScreen.Section>
+      <ComponentScreen.Section title="Loading">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-center gap-4">
+            <LoadingButton label="Small" size="small" />
+            <LoadingButton label="Medium" size="medium" />
+            <LoadingButton label="Large" size="large" />
+          </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <LoadingButton label="Default" />
+            <LoadingButton
+              label="Custom label"
+              loadingLabel="Custom loading label…"
+            />
+            <LoadingButton icon={true} label="With icon" />
+          </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <LoadingButton label="Wide" wide />
+          </div>
+        </div>
+      </ComponentScreen.Section>
       <ComponentScreen.Section title="Wide">
         <div className="flex max-w-1xl flex-col items-center gap-4">
           <Button size="small" wide>
@@ -76,5 +111,40 @@ function ButtonComponent() {
         </div>
       </ComponentScreen.Section>
     </ComponentScreen>
+  )
+}
+
+function LoadingButton({
+  icon,
+  label,
+  loadingLabel,
+  size,
+  wide,
+}: {
+  icon?: boolean
+  label?: string
+  loadingLabel?: string
+  size?: ComponentProps<typeof Button>['size']
+  wide?: boolean
+}) {
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (!loading) return
+    const timer = setTimeout(() => setLoading(false), 1000)
+    return () => clearTimeout(timer)
+  }, [loading])
+
+  return (
+    <Button
+      icon={icon ? <LucideLogIn /> : undefined}
+      loading={loading && (loadingLabel ?? true)}
+      onClick={() => setLoading(true)}
+      size={size}
+      variant="primary"
+      wide={wide}
+    >
+      {label ?? 'Click'}
+    </Button>
   )
 }
