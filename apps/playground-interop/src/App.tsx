@@ -14,10 +14,12 @@ import {
   type UseSendCallsReturnType,
   useAccount,
   useCapabilities,
+  useChainId,
   useChains,
   useConnect,
   useDisconnect,
   useSendCalls,
+  useSwitchChain,
   useWaitForCallsStatus,
 } from 'wagmi'
 import type { ChainId } from './config'
@@ -42,6 +44,8 @@ export function App() {
 function Account() {
   const account = useAccount()
   const disconnect = useDisconnect()
+  const chainId = useChainId()
+  const { chains, switchChain, error } = useSwitchChain()
 
   return (
     <div>
@@ -49,6 +53,21 @@ function Account() {
         account: {account.address}
         <br />
         status: {account.status}
+      </div>
+
+      <div>
+        {chains.map((chain) => (
+          <button
+            disabled={chainId === chain.id}
+            key={chain.id}
+            onClick={() => switchChain({ chainId: chain.id })}
+            type="button"
+          >
+            {chain.name}
+          </button>
+        ))}
+
+        {error?.message}
       </div>
 
       {account.status !== 'disconnected' && (
@@ -109,7 +128,9 @@ export function ChainGroup({
 }) {
   return (
     <div style={{ width: 300 }}>
-      <h3>{name}</h3>
+      <h3>
+        {name} {chainId}
+      </h3>
 
       <Balances chainId={chainId} />
 

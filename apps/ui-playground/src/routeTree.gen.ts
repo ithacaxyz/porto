@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as ThemeSwitchImport } from './routes/ThemeSwitch'
+import { Route as SpinnerImport } from './routes/Spinner'
 import { Route as SpacerImport } from './routes/Spacer'
 import { Route as SeparatorImport } from './routes/Separator'
 import { Route as ScreenImport } from './routes/Screen'
@@ -26,6 +27,12 @@ import { Route as IndexImport } from './routes/index'
 const ThemeSwitchRoute = ThemeSwitchImport.update({
   id: '/ThemeSwitch',
   path: '/ThemeSwitch',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SpinnerRoute = SpinnerImport.update({
+  id: '/Spinner',
+  path: '/Spinner',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -137,6 +144,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SpacerImport
       parentRoute: typeof rootRoute
     }
+    '/Spinner': {
+      id: '/Spinner'
+      path: '/Spinner'
+      fullPath: '/Spinner'
+      preLoaderRoute: typeof SpinnerImport
+      parentRoute: typeof rootRoute
+    }
     '/ThemeSwitch': {
       id: '/ThemeSwitch'
       path: '/ThemeSwitch'
@@ -158,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/Screen': typeof ScreenRoute
   '/Separator': typeof SeparatorRoute
   '/Spacer': typeof SpacerRoute
+  '/Spinner': typeof SpinnerRoute
   '/ThemeSwitch': typeof ThemeSwitchRoute
 }
 
@@ -170,6 +185,7 @@ export interface FileRoutesByTo {
   '/Screen': typeof ScreenRoute
   '/Separator': typeof SeparatorRoute
   '/Spacer': typeof SpacerRoute
+  '/Spinner': typeof SpinnerRoute
   '/ThemeSwitch': typeof ThemeSwitchRoute
 }
 
@@ -183,6 +199,7 @@ export interface FileRoutesById {
   '/Screen': typeof ScreenRoute
   '/Separator': typeof SeparatorRoute
   '/Spacer': typeof SpacerRoute
+  '/Spinner': typeof SpinnerRoute
   '/ThemeSwitch': typeof ThemeSwitchRoute
 }
 
@@ -197,6 +214,7 @@ export interface FileRouteTypes {
     | '/Screen'
     | '/Separator'
     | '/Spacer'
+    | '/Spinner'
     | '/ThemeSwitch'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -208,6 +226,7 @@ export interface FileRouteTypes {
     | '/Screen'
     | '/Separator'
     | '/Spacer'
+    | '/Spinner'
     | '/ThemeSwitch'
   id:
     | '__root__'
@@ -219,6 +238,7 @@ export interface FileRouteTypes {
     | '/Screen'
     | '/Separator'
     | '/Spacer'
+    | '/Spinner'
     | '/ThemeSwitch'
   fileRoutesById: FileRoutesById
 }
@@ -232,6 +252,7 @@ export interface RootRouteChildren {
   ScreenRoute: typeof ScreenRoute
   SeparatorRoute: typeof SeparatorRoute
   SpacerRoute: typeof SpacerRoute
+  SpinnerRoute: typeof SpinnerRoute
   ThemeSwitchRoute: typeof ThemeSwitchRoute
 }
 
@@ -244,6 +265,7 @@ const rootRouteChildren: RootRouteChildren = {
   ScreenRoute: ScreenRoute,
   SeparatorRoute: SeparatorRoute,
   SpacerRoute: SpacerRoute,
+  SpinnerRoute: SpinnerRoute,
   ThemeSwitchRoute: ThemeSwitchRoute,
 }
 
@@ -265,6 +287,7 @@ export const routeTree = rootRoute
         "/Screen",
         "/Separator",
         "/Spacer",
+        "/Spinner",
         "/ThemeSwitch"
       ]
     },
@@ -291,6 +314,9 @@ export const routeTree = rootRoute
     },
     "/Spacer": {
       "filePath": "Spacer.tsx"
+    },
+    "/Spinner": {
+      "filePath": "Spinner.tsx"
     },
     "/ThemeSwitch": {
       "filePath": "ThemeSwitch.tsx"
