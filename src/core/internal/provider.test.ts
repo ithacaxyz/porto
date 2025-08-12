@@ -1575,7 +1575,6 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
 
     test('behavior: `signInWithEthereum` capability', async () => {
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
 
       const res = await porto.provider.request({
         method: 'wallet_connect',
