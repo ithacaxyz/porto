@@ -502,22 +502,23 @@ function OnrampView(props: OnrampView.Props) {
 
           // Initialize the widget with parameters
           // @ts-expect-error - mercuryoWidget is loaded from CDN
+          // biome-ignore assist/source/useSortedKeys: _
           const widget = window.mercuryoWidget.run({
+            widgetId: tokenData.widgetId,
+            host: document.querySelector('div#mercuryo-widget'),
             address: address,
-            amount: amount,
-            birthdate: tokenData.birthdate,
+            amount,
             currency: tokenData.fiatCurrency,
             fiatAmount: tokenData.fiatAmount,
+            birthdate: tokenData.birthdate,
             firstName: tokenData.firstName,
-            host: widgetContainerRef.current,
             initToken: tokenData.initToken,
             initTokenType: tokenData.initTypeToken,
             lastName: tokenData.lastName,
             merchantTransactionId: merchantTransactionId,
-            network: tokenData.network,
-            paymentMethod: tokenData.paymentMethod,
-            widgetFlow: tokenData.widgetFlow,
-            widgetId: tokenData.widgetId,
+            network: 'BASE',
+            paymentMethod: 'apple',
+            widgetFlow: 'applepay_minimal',
           })
 
           widgetInstanceRef.current = widget
@@ -630,6 +631,7 @@ function OnrampView(props: OnrampView.Props) {
             'mercuryo-widget-container',
             isLoading && 'pointer-events-none absolute inset-0 opacity-0',
           )}
+          id="mercuryo-widget"
           ref={widgetContainerRef}
           style={{
             minHeight: '44px',
