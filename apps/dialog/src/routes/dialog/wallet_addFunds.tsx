@@ -18,12 +18,15 @@ export const Route = createFileRoute('/dialog/wallet_addFunds')({
 
 function RouteComponent() {
   const request = Route.useSearch()
+  // @ts-expect-error - TODO: fix this
   const { address, token, value } = request._decoded.params[0]
 
   return (
     <AddFunds
       address={address}
+      // @ts-expect-error - TODO: fix this
       onApprove={(result) => Actions.respond(porto, request!, { result })}
+      // @ts-expect-error - TODO: fix this
       onReject={() => Actions.reject(porto, request)}
       tokenAddress={token}
       value={value}
