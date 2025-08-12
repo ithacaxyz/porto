@@ -9,5 +9,14 @@ export default defineConfig({
   prefix: 'ui',
   preflight: false, // no css reset
   presets: [],
-  theme: { extend: {} },
+  theme: {
+    extend: {
+      keyframes: {
+        spin: {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+      },
+    },
+  },
 })
