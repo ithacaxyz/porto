@@ -429,15 +429,6 @@ export declare namespace AddFunds {
   }
 }
 
-export declare namespace OnrampView {
-  export type Props = {
-    address: Address.Address | undefined
-    amount: string | undefined
-    onApprove: (result: { id: Hex.Hex }) => void
-    onReject?: () => void
-  }
-}
-
 function OnrampView(props: OnrampView.Props) {
   const { address, amount, onApprove, onReject } = props
   const [hasError, setHasError] = React.useState<boolean>(false)
@@ -637,6 +628,15 @@ function OnrampView(props: OnrampView.Props) {
       </article>
     </div>
   )
+}
+
+export declare namespace OnrampView {
+  export type Props = {
+    address: Address.Address | undefined
+    amount: string | undefined
+    onApprove: (result: { id: Hex.Hex }) => void
+    onReject?: () => void
+  }
 }
 
 function DepositCryptoView(props: DepositCryptoView.Props) {
