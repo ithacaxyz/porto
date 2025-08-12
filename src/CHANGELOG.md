@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.65
+
+### Patch Changes
+
+- [#673](https://github.com/ithacaxyz/porto/pull/673) [`239c294`](https://github.com/ithacaxyz/porto/commit/239c29490de70834bd25bca45f2791c2943bef15) Thanks [@tmm](https://github.com/tmm)! - **Breaking:** Removed `Mode.contract`. If you still need this, you can fork the [most recent implementation](https://github.com/ithacaxyz/porto/blob/porto%400.0.64/src/core/internal/modes/contract.ts).
+
 ## 0.0.64
 
 ### Patch Changes
