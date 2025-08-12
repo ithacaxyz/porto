@@ -46,7 +46,6 @@ export function Screen({ children, layout }: Screen.Props) {
             position: 'relative',
             width: '100%',
           }),
-          layout === 'compact' && css({ padding: 12 }),
         )}
       >
         <div
@@ -60,9 +59,9 @@ export function Screen({ children, layout }: Screen.Props) {
               css({
                 '@container (min-width: 480px)': {
                   flex: '0 0 auto',
+                  padding: 12,
                 },
                 flex: '1 1 auto',
-                padding: 24,
               }),
           )}
         >

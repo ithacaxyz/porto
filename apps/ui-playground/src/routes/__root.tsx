@@ -1,25 +1,11 @@
 import { ThemeSwitch } from '@porto/ui'
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
 import { useColorScheme } from '~/ColorScheme'
+import { sections } from '~/constants'
 
 export const Route = createRootRoute({
   component: RootComponent,
 })
-
-const sections = [
-  {
-    screens: ['Colors'],
-    title: 'Theme',
-  },
-  {
-    screens: ['Button', 'Input', 'Separator', 'ThemeSwitch'],
-    title: 'Base',
-  },
-  {
-    screens: ['Frame', 'Screen', 'Spacer'],
-    title: 'Layout',
-  },
-] as const
 
 function RootComponent() {
   return (
