@@ -90,15 +90,22 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
         pulled = true
       }
 
+      const enableInterop = false
       const content = createRelayConfig({
+        delegationProxy: rest.delegationProxy,
+        enableInterop,
         endpoint: endpoint?.replaceAll(
           /127\.0\.0\.1|0\.0\.0\.0/g,
           'host.docker.internal',
         ),
+        escrow: rest.escrow,
         feeTokens,
+        funder: rest.funder,
+        intentGasBuffer: rest.intentGasBuffer,
         interopToken,
+        orchestrator: rest.orchestrator,
+        simulator: rest.simulator,
       })
-      console.log(content)
       await writeFile(configPath, content)
 
       const args_ = [
@@ -157,11 +164,17 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
 })
 
 function createRelayConfig(opts: {
+  delegationProxy: string
+  enableInterop: boolean
   endpoint: string
+  escrow: string
   feeTokens: string[]
+  funder: string
+  intentGasBuffer: bigint | undefined
   interopToken: string
+  orchestrator: string
+  simulator: string | undefined
 }) {
-  const enableInterop = false
   return YAML.stringify({
     chains: {
       anvil: {
@@ -173,14 +186,47 @@ function createRelayConfig(opts: {
             {
               address: feeToken,
               fee_token: true,
-              interop: enableInterop && feeToken === opts.interopToken,
+              interop: opts.enableInterop && feeToken === opts.interopToken,
             },
           ]),
         ),
         endpoint: opts.endpoint,
       },
     },
-    ...(enableInterop
+    delegation_proxy: opts.delegationProxy,
+    escrow: opts.escrow,
+    fee_recipient: '0x6a658769C4117012A9B6614A0C42e319A5f88e95',
+    funder: opts.funder,
+    legacy_delegation_proxies: [],
+    legacy_orchestrators: [],
+    orchestrator: opts.orchestrator,
+    quote: {
+      gas: {
+        intentBuffer: opts.intentGasBuffer ?? 10000,
+        txBuffer: 100000,
+      },
+      rateTtl: 600,
+      ttl: 300,
+    },
+    server: {
+      address: '127.0.0.1',
+      max_connections: 1000,
+      metrics_port: 9000,
+      port: 9119,
+    },
+    simulator: opts.simulator,
+    transactions: {
+      balance_check_interval: 5,
+      max_pending_transactions: 100,
+      max_queued_per_eoa: 1,
+      max_transactions_per_signer: 16,
+      nonce_check_interval: 60,
+      num_signers: 1,
+      priority_fee_percentile: 20,
+      public_node_endpoints: {},
+      transaction_timeout: 60,
+    },
+    ...(opts.enableInterop
       ? {
           interop: {
             settler: {
@@ -192,10 +238,5 @@ function createRelayConfig(opts: {
           },
         }
       : {}),
-    server: {
-      address: '127.0.0.1',
-      metrics_port: 9000,
-      port: 9119,
-    },
   })
 }
