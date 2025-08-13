@@ -286,8 +286,8 @@ export namespace wallet_getCallsStatus {
       Schema.Array(
         Schema.Struct({
           blockHash: Primitive.Hex,
-          blockNumber: Schema.Number,
-          chainId: Schema.Number,
+          blockNumber: Primitive.Number,
+          chainId: Primitive.Number,
           gasUsed: Schema.Number,
           logs: Schema.Array(
             Schema.Struct({
