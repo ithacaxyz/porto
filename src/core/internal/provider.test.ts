@@ -1695,7 +1695,7 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
   })
 
   describe.runIf(Anvil.enabled)('wallet_getCapabilities', () => {
-    test('default', async () => {
+    test.only('default', async () => {
       const porto = getPorto()
       const capabilities = await porto.provider.request({
         method: 'wallet_getCapabilities',

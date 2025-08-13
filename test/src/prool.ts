@@ -1,16 +1,19 @@
 import { spawnSync } from 'node:child_process'
+import { rm, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { setTimeout } from 'node:timers/promises'
 import { defineInstance, toArgs } from 'prool'
 import { execa } from 'prool/processes'
+import YAML from 'yaml'
 
 type RpcServerParameters = {
+  config?: string | undefined
   containerName?: string | undefined
   constantRate?: number | undefined
   endpoint: string
   escrow: string
-  delegationProxy: string
   feeTokens: string[]
+  delegationProxy: string
   funderSigningKey: string
   funderOwnerKey: string
   funder: string
@@ -18,12 +21,11 @@ type RpcServerParameters = {
     port?: number | undefined
     metricsPort?: number | undefined
   }
-  interopToken: string
   image?: string | undefined
+  interopToken: string
   legacyDelegationProxy?: string | undefined
   orchestrator: string
   quoteTtl?: number | undefined
-  registry?: string | undefined
   skipDiagnostics?: boolean | undefined
   signersMnemonic?: string | undefined
   simulator?: string | undefined
@@ -46,6 +48,7 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
     endpoint,
     feeTokens,
     image = 'ghcr.io/ithacaxyz/relay',
+    interopToken,
     signersMnemonic = 'test test test test test test test test test test test junk',
     version = process.env.VITE_RELAY_VERSION || 'latest',
     ...rest
@@ -57,9 +60,12 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
 
   let port = args.http?.port ?? 9119
 
-  function stop() {
+  async function stop() {
+    await rm(configPath)
     spawnSync('docker', ['rm', '-f', containerName])
   }
+
+  const configPath = resolve(import.meta.dirname, `relay.${containerName}.yaml`)
 
   return {
     _internal: {
@@ -84,6 +90,17 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
         pulled = true
       }
 
+      const content = createRelayConfig({
+        endpoint: endpoint?.replaceAll(
+          /127\.0\.0\.1|0\.0\.0\.0/g,
+          'host.docker.internal',
+        ),
+        feeTokens,
+        interopToken,
+      })
+      console.log(content)
+      await writeFile(configPath, content)
+
       const args_ = [
         '--name',
         containerName,
@@ -98,24 +115,19 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
         '-p',
         `${port}:${port}`,
         '-v',
-        `${resolve(import.meta.dirname, 'registry.yaml')}:/app/registry.yaml`,
+        `${configPath}:/app/relay.yaml`,
         `${image}:${version}`,
         ...toArgs({
           ...rest,
+          config: '/app/relay.yaml',
           constantRate: 1.0,
-          endpoint: endpoint?.replaceAll(
-            /127\.0\.0\.1|0\.0\.0\.0/g,
-            'host.docker.internal',
-          ),
           http: {
             metricsPort: port + 1,
             port,
           },
           quoteTtl: 30,
-          registry: '/app/registry.yaml',
           signersMnemonic,
         } satisfies Partial<RpcServerParameters>),
-        ...feeTokens.flatMap((feeToken) => ['--fee-token', feeToken]),
       ]
 
       const debug = process.env.VITE_RPC_DEBUG === 'true'
@@ -129,7 +141,7 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
             if (debug) console.log(message)
             if (message.includes('Started relay service')) resolve()
           })
-          process.stderr.on('data', (data) => {
+          process.stderr.on('data', async (data) => {
             const message = data.toString()
             if (debug) console.log(message)
             if (message.includes('WARNING')) return
@@ -139,7 +151,51 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
       })
     },
     async stop() {
-      return stop()
+      return await stop()
     },
   }
 })
+
+function createRelayConfig(opts: {
+  endpoint: string
+  feeTokens: string[]
+  interopToken: string
+}) {
+  const enableInterop = false
+  return YAML.stringify({
+    chains: {
+      anvil: {
+        assets: Object.fromEntries(
+          opts.feeTokens.map((feeToken, index) => [
+            feeToken === '0x0000000000000000000000000000000000000000'
+              ? 'ethereum'
+              : `exp${index}`,
+            {
+              address: feeToken,
+              fee_token: true,
+              interop: enableInterop && feeToken === opts.interopToken,
+            },
+          ]),
+        ),
+        endpoint: opts.endpoint,
+      },
+    },
+    ...(enableInterop
+      ? {
+          interop: {
+            settler: {
+              simple: {
+                settler_address: '0x',
+              },
+              wait_verification_timeout: 100000,
+            },
+          },
+        }
+      : {}),
+    server: {
+      address: '127.0.0.1',
+      metrics_port: 9000,
+      port: 9119,
+    },
+  })
+}

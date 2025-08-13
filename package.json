@@ -69,7 +69,8 @@
     "viem": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:",
-    "wagmi": "catalog:"
+    "wagmi": "catalog:",
+    "yaml": "^2.8.1"
   },
   "packageManager": "pnpm@10.12.2",
   "engines": {
