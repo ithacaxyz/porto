@@ -8,6 +8,7 @@ export function Input({
   adornments,
   className,
   disabled,
+  invalid,
   onChange,
   removeCompletion = true,
   size = { dialog: 'medium', full: 'large' },
@@ -25,6 +26,14 @@ export function Input({
     <div
       className={cx(
         css({
+          '&:has(input:focus-visible)': {
+            outline: '2px solid var(--color-th_focus)',
+            outlineOffset: -1,
+          },
+          '&:is(div):has(input:invalid, input[aria-invalid="true"])': {
+            outline: '2px solid var(--border-color-th_field-error)',
+            outlineOffset: -1,
+          },
           backgroundColor: 'var(--background-color-th_field)',
           border: '1px solid var(--border-color-th_field)',
           borderRadius: 'var(--radius-th_medium)',
@@ -33,11 +42,6 @@ export function Input({
           position: 'relative',
           width: '100%',
         }),
-        isFocused &&
-          css({
-            outline: '2px solid var(--color-th_focus)',
-            outlineOffset: -1,
-          }),
         cva({
           variants: {
             size: {
@@ -64,7 +68,7 @@ export function Input({
           css({
             backgroundColor: 'var(--background-color-th_disabled)',
             borderColor: 'var(--border-color-th_disabled)',
-            color: 'var(--text-color-th_disabled)',
+            color: 'var(--text-color-th_disabled)!',
             pointerEvents: 'none',
           }),
       )}
@@ -78,6 +82,7 @@ export function Input({
         />
       )}
       <input
+        aria-invalid={invalid ? 'true' : undefined}
         autoCapitalize={removeCompletion ? 'off' : undefined}
         autoComplete={removeCompletion ? 'off' : undefined}
         autoCorrect={removeCompletion ? 'off' : undefined}
@@ -90,6 +95,7 @@ export function Input({
               color: 'var(--text-color-th_field-tertiary)',
             },
             alignItems: 'center',
+            background: 'transparent',
             color: 'inherit',
             display: 'flex',
             flex: '1 1 auto',
@@ -147,16 +153,17 @@ function Adornment({
           fontSize: 'var(--adornment-font-size)',
           height: '100%',
           paddingInline: 'var(--input-padding-inline)',
+          whiteSpace: 'nowrap',
         }),
         position === 'start' &&
           css({
             color: 'inherit',
-            paddingRight: 0,
+            paddingRight: 4,
           }),
         position === 'end' &&
           css({
             color: 'var(--text-color-th_field-secondary)',
-            paddingLeft: 0,
+            paddingLeft: 4,
           }),
       )}
     >
@@ -181,6 +188,7 @@ export namespace Input {
     extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | 'onChange'> {
     adornments?: { end?: Adornment; start?: Adornment }
     formatValue?: (value: string) => string
+    invalid?: boolean
     onChange: (value: string) => void
     removeCompletion?: boolean
     size?: Size | Record<Frame.Mode, Size>
