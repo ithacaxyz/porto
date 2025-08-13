@@ -30,7 +30,7 @@ export async function fetch<
     return feeToken.symbol === 'ETH'
   })
 
-  const feeToken = feeTokens?.[index ?? 0]!
+  const feeToken = feeTokens?.[index !== -1 ? index : 0]!
   if (index === -1)
     console.warn(
       `Fee token ${overrideFeeToken ?? defaultFeeToken} not found. Falling back to ${feeToken?.symbol} (${feeToken?.address}).`,

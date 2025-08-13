@@ -1,4 +1,4 @@
-import { Chains, Mode } from 'porto'
+import { Chains, Mode, Transport } from 'porto'
 import type { Porto } from 'porto/remote'
 import { http, type ValueOf } from 'viem'
 
@@ -15,6 +15,7 @@ const config = {
       multichain: false,
       persistPreCalls: false,
     }),
+    relay: http(Transport.relayUrls.anvil.http),
   },
   prod: {
     chains: [Chains.base],
@@ -23,6 +24,7 @@ const config = {
       mock,
       persistPreCalls: false,
     }),
+    relay: http(Transport.relayUrls.prod.http),
     transports: {
       [Chains.base.id]: http(undefined, Sentry.httpTransportOptions()),
     },
@@ -34,6 +36,7 @@ const config = {
       mock,
       persistPreCalls: false,
     }),
+    relay: http(Transport.relayUrls.stg.http),
     storageKey: 'porto.store.stg',
     transports: {
       [Chains.baseSepolia.id]: http(undefined, Sentry.httpTransportOptions()),

@@ -91,7 +91,7 @@ export const baseSepolia = /*#__PURE__*/ define({
   rpcUrls: {
     default: {
       http: [
-        'https://base-sepolia-int.rpc.ithaca.xyz',
+        'https://base-sepolia.rpc.ithaca.xyz',
         ...chains.baseSepolia.rpcUrls.default.http,
       ],
     },
@@ -110,7 +110,7 @@ export const optimismSepolia = /*#__PURE__*/ define({
   rpcUrls: {
     default: {
       http: [
-        'https://optimism-sepolia-int.rpc.ithaca.xyz',
+        'https://optimism-sepolia.rpc.ithaca.xyz',
         ...chains.optimismSepolia.rpcUrls.default.http,
       ],
     },

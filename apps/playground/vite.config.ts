@@ -220,6 +220,7 @@ export default defineConfig(({ mode }) => {
             return MerchantRpc.requestListener({
               address: merchantAccount.address,
               key: merchantKey.privateKey!(),
+              relay: http(rpcServerConfig.rpcUrl),
               transports: {
                 [chains.anvil.id]: http(rpcServerConfig.rpcUrl),
               },

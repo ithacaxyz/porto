@@ -141,7 +141,7 @@ export function App() {
           <br />
         </div>
         <h2>Chain Management</h2>
-        <SwitchChain />
+        <SwitchChain showTitle />
         <div>
           <br />
           <hr />
@@ -213,11 +213,14 @@ function State() {
     <div>
       <h3>State</h3>
       {state.accounts.length === 0 ? (
-        <p>Disconnected</p>
+        <div>Disconnected</div>
       ) : (
         <>
-          <p>Address: {state.accounts[0].address}</p>
-          <p>Chain ID: {state.chainId}</p>
+          <div>Address: {state.accounts[0].address}</div>
+          <div>
+            Chain ID: {state.chainId}
+            <SwitchChain />
+          </div>
           <div>
             <p>Keys:</p>
             <pre>{Json.stringify(state.accounts?.[0]?.keys, null, 2)}</pre>
@@ -734,7 +737,7 @@ function UpdateAccount() {
   )
 }
 
-function SwitchChain() {
+function SwitchChain(props: { showTitle?: boolean }) {
   const [chainId, setChainId] = React.useState<number | undefined>(undefined)
 
   React.useEffect(() => {
@@ -747,7 +750,7 @@ function SwitchChain() {
 
   return (
     <div>
-      <h3>wallet_switchEthereumChain</h3>
+      {props.showTitle && <h3>wallet_switchEthereumChain</h3>}
       <div>
         {porto.config.chains.map((chain) => (
           <button

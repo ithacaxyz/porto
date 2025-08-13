@@ -7,6 +7,7 @@ import * as Schema from '../core/internal/schema/schema.js'
 import type { MaybePromise, OneOf } from '../core/internal/types.js'
 import * as Porto from '../core/Porto.js'
 import type * as RpcSchema from '../core/RpcSchema.js'
+import * as Transport from '../core/Transport.js'
 import * as Key from '../viem/Key.js'
 import * as RequestListener from './internal/requestListener.js'
 
@@ -26,6 +27,7 @@ export function requestHandler<
     address,
     base,
     chains = Porto.defaultConfig.chains,
+    relay = Porto.defaultConfig.relay,
     transports = Porto.defaultConfig.transports,
   } = options
 
@@ -62,13 +64,20 @@ export function requestHandler<
             message: 'chainId is required.',
           })
 
-        const chain = chains.find((c) => c.id === chainId)
-
-        const transport = transports[chainId as keyof typeof transports]
-        if (!transport)
-          throw new RpcResponse.InvalidParamsError({
-            message: `chain (id: ${chainId}) not supported.`,
-          })
+        const chain = !Transport.shouldUseRelay
+          ? chains.find((c) => c.id === chainId)
+          : undefined
+        const transport = (() => {
+          if (!Transport.shouldUseRelay) {
+            const transport = transports[chainId as keyof typeof transports]
+            if (!transport)
+              throw new RpcResponse.InvalidParamsError({
+                message: `chain (id: ${chainId}) not supported.`,
+              })
+            return transport
+          }
+          return relay
+        })()
 
         const client = createClient({
           chain,
@@ -177,6 +186,8 @@ export declare namespace requestHandler {
           request: RpcSchema.wallet_prepareCalls.Parameters,
         ) => MaybePromise<boolean>)
       | undefined
+    /** Relay transport override. */
+    relay?: Porto.Config['relay'] | undefined
     /** Supported transports. */
     transports?: Porto.Config<chains>['transports'] | undefined
   }

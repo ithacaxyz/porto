@@ -37,7 +37,7 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
   const getPorto = (
     config: {
       merchantRpcUrl?: string | undefined
-      rpcUrl?: string | undefined
+      relayRpcUrl?: string | undefined
     } = {},
   ) =>
     TestConfig.getPorto({
@@ -1253,7 +1253,7 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
       )
 
       const porto_newAccount = getPorto({
-        rpcUrl: RpcServer.instances.anvil_newAccount.rpcUrl,
+        relayRpcUrl: RpcServer.instances.anvil_newAccount.rpcUrl,
       })
       porto_newAccount._internal.store.setState(
         porto._internal.store.getState(),
