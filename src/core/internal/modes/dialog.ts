@@ -25,7 +25,7 @@ import { rpcServer } from './rpcServer.js'
 export function dialog(parameters: dialog.Parameters = {}) {
   const {
     fallback = rpcServer(),
-    host = 'https://stg.id.porto.sh/dialog',
+    host = Dialog.hostUrls.stg,
     renderer = Dialog.iframe(),
     theme,
     themeController,

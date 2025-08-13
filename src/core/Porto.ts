@@ -7,6 +7,7 @@ import { persist, subscribeWithSelector } from 'zustand/middleware'
 import { createStore, type Mutate, type StoreApi } from 'zustand/vanilla'
 import type * as Account from '../viem/Account.js'
 import * as Chains from './Chains.js'
+import { hostUrls } from './Dialog.js'
 import type * as Mode from './internal/mode.js'
 import { dialog } from './internal/modes/dialog.js'
 import { rpcServer } from './internal/modes/rpcServer.js'
@@ -181,11 +182,7 @@ export function unstable_create(
 ): Porto {
   return create({
     chains: [Chains.base],
-    mode: browser
-      ? dialog({
-          host: 'https://id.porto.sh/dialog',
-        })
-      : rpcServer(),
+    mode: browser ? dialog({ host: hostUrls.prod }) : rpcServer(),
     relay: http(relayUrls.prod.http),
     storageKey: 'prod.porto.store',
     transports: {

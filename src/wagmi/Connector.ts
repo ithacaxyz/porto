@@ -15,6 +15,7 @@ import {
   withRetry,
 } from 'viem'
 import * as Chains from '../core/Chains.js'
+import * as Dialog from '../core/Dialog.js'
 import * as Schema from '../core/internal/schema/schema.js'
 import type { ExactPartial } from '../core/internal/types.js'
 import * as Mode from '../core/Mode.js'
@@ -269,7 +270,7 @@ export function unstable_porto(config: ExactPartial<Porto.Config> = {}) {
   return porto({
     chains: [Chains.base],
     mode: Mode.dialog({
-      host: 'https://id.porto.sh/dialog',
+      host: Dialog.hostUrls.prod,
     }),
     transports: {
       [Chains.base.id]: http(),

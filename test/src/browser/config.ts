@@ -10,7 +10,7 @@ export const getPorto = () =>
     chains: chains as readonly [Chains.Chain, ...Chains.Chain[]],
     feeToken: 'EXP',
     mode: Mode.dialog({
-      host: 'http://localhost:5175/dialog/',
+      host: Dialog.hostUrls.local,
       renderer: Dialog.iframe({
         skipProtocolCheck: true,
         skipUnsupported: true,
