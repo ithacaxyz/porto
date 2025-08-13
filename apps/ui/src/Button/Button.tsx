@@ -178,7 +178,7 @@ export function Button({
         wide && css({ width: '100%' }),
         className,
       )}
-      disabled={disabled ?? Boolean(loading)}
+      disabled={Boolean(loading) || disabled}
       {...props}
     >
       <a.div
