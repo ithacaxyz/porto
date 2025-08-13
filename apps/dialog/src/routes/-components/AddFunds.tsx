@@ -13,7 +13,7 @@ import { useBalance, useWatchBlockNumber, useWatchContractEvent } from 'wagmi'
 import * as FeeTokens from '~/lib/FeeTokens'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
-import AppleIcon from '~icons/basil/apple-solid'
+// import AppleIcon from '~icons/basil/apple-solid'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
 import CopyIcon from '~icons/lucide/copy'
 import CardIcon from '~icons/lucide/credit-card'
@@ -429,14 +429,20 @@ export declare namespace AddFunds {
   }
 }
 
+declare global {
+  interface Window {
+    mercuryoWidget: any
+  }
+}
+
 function OnrampView(props: OnrampView.Props) {
-  const { address, amount, onApprove, onReject } = props
+  const { address, amount } = props
   const [hasError, setHasError] = React.useState<boolean>(false)
-  const [isLoading, setIsLoading] = React.useState<boolean>(true)
+  // const [isLoading, setIsLoading] = React.useState<boolean>(true)
   const widgetContainerRef = React.useRef<HTMLDivElement>(null)
   const widgetInstanceRef = React.useRef<any>(null)
 
-  const authToken = useQuery({
+  const onrampQuery = useQuery({
     enabled: !!address && !!amount,
     queryFn: async () => {
       const response = await fetch(
@@ -459,129 +465,62 @@ function OnrampView(props: OnrampView.Props) {
         paymentMethod: string
         fiatAmount: string
         fiatCurrency: string
+        currency: string
       }>
     },
     queryKey: ['onramp-token', address],
   })
 
   React.useEffect(() => {
-    if (!address || !amount || !widgetContainerRef.current) return
-    if (authToken.isError) {
-      console.error('[onramp] Failed to fetch auth token:', authToken.error)
-      setHasError(true)
-      setIsLoading(false)
-    }
-  }, [address, amount, authToken.isError, authToken.error])
+    if (!onrampQuery.data) return
+    const {
+      widgetId,
+      widgetUrl,
+      signature,
+      merchantTransactionId,
+      initToken,
+      initTypeToken,
+      birthdate,
+      currency,
+      firstName,
+      lastName,
+      network,
+      paymentMethod,
+      fiatAmount,
+      fiatCurrency,
+    } = onrampQuery.data
+    const widget = window.mercuryoWidget.run({
+      address,
+      amount,
+      birthdate,
+      currency,
+      fiatAmount,
+      fiatCurrency,
+      firstName,
+      host: widgetContainerRef.current,
+      initToken,
+      initTypeToken,
+      lastName,
+      merchantTransactionId,
+      network,
+      paymentMethod,
+      signature,
+      widgetId,
+      widgetUrl,
+    })
 
-  React.useEffect(() => {
-    if (!address || !amount || !widgetContainerRef.current) return
-    const tokenData = authToken.data
+    widgetInstanceRef.current = widget
 
-    if (authToken.isSuccess && tokenData) {
-      if (!tokenData.initToken) {
-        console.error('[onramp] No auth token received')
-        setHasError(true)
-        return
-      }
-
-      const initializeWidget = () => {
-        if (
-          // @ts-expect-error - mercuryoWidget is loaded from CDN
-          typeof window.mercuryoWidget === 'undefined' ||
-          // @ts-expect-error - mercuryoWidget is loaded from CDN
-          !window.mercuryoWidget.run
-        ) {
-          // Retry after a short delay
-          setTimeout(initializeWidget, 100)
-          return
-        }
-
-        try {
-          // Generate signature for the transaction
-          const merchantTransactionId = `${address.toLowerCase()}_${Date.now()}`
-
-          // Initialize the widget with parameters
-          // @ts-expect-error - mercuryoWidget is loaded from CDN
-          // biome-ignore assist/source/useSortedKeys: _
-          const widget = window.mercuryoWidget.run({
-            widgetId: tokenData.widgetId,
-            host: document.querySelector('div#mercuryo-widget'),
-            address: address,
-            amount,
-            currency: tokenData.fiatCurrency,
-            fiatAmount: tokenData.fiatAmount,
-            birthdate: tokenData.birthdate,
-            firstName: tokenData.firstName,
-            initToken: tokenData.initToken,
-            initTokenType: tokenData.initTypeToken,
-            lastName: tokenData.lastName,
-            merchantTransactionId: merchantTransactionId,
-            network: 'BASE',
-            paymentMethod: 'apple',
-            widgetFlow: 'applepay_minimal',
-          })
-
-          widgetInstanceRef.current = widget
-
-          // Set up event handlers
-          if (widget?.onReady) {
-            widget.onReady(() => {
-              console.log('[onramp] Widget is ready')
-              setIsLoading(false)
-            })
-          }
-
-          if (widget?.onLoad) {
-            widget.onLoad(() => {
-              console.log('[onramp] Widget loaded')
-              setIsLoading(false)
-            })
-          }
-
-          if (widget?.onPaymentFinished) {
-            widget.onPaymentFinished((data: any) => {
-              console.log('[onramp] Payment finished:', data)
-              onApprove({ id: data.txHash || data.transactionHash || '0x' })
-            })
-          }
-
-          if (widget?.onStatusChange) {
-            widget.onStatusChange((data: any) => {
-              console.log('[onramp] Status changed:', data)
-              if (data.status === 'failed' || data.status === 'cancelled') {
-                setHasError(true)
-                onReject?.()
-              }
-            })
-          }
-
-          // Fallback to set loading false after timeout
-          setTimeout(() => setIsLoading(false), 3000)
-        } catch (error) {
-          console.error('[onramp] Failed to initialize widget:', error)
-          setHasError(true)
-          setIsLoading(false)
-        }
-      }
-
-      // Start initialization
-      initializeWidget()
-    }
-  }, [
-    address,
-    amount,
-    authToken.data,
-    authToken.isSuccess,
-    onApprove,
-    onReject,
-  ])
+    widget?.onReady(() => {
+      console.log('[onramp] Widget is ready')
+    })
+  }, [address, amount, onrampQuery.data])
 
   // Cleanup on unmount
   React.useEffect(() => {
     return () => {
-      if (widgetInstanceRef.current?.destroy) {
+      if (widgetInstanceRef.current?.destroy)
         widgetInstanceRef.current.destroy()
-      }
     }
   }, [])
 
@@ -596,8 +535,8 @@ function OnrampView(props: OnrampView.Props) {
           className="text-xs"
           onClick={() => {
             setHasError(false)
-            setIsLoading(true)
-            authToken.refetch()
+            // setIsLoading(true)
+            onrampQuery.refetch()
           }}
           variant="default"
         >
@@ -610,8 +549,7 @@ function OnrampView(props: OnrampView.Props) {
   return (
     <div className="flex flex-col justify-between gap-2">
       <article className="relative mx-auto w-full select-none overflow-hidden">
-        {/* Show loading state with fake Apple Pay button */}
-        {isLoading && (
+        {/* {isLoading && (
           <Button
             className="w-full cursor-pointer! opacity-50"
             disabled
@@ -623,13 +561,12 @@ function OnrampView(props: OnrampView.Props) {
               <span className="text-[16px]">Pay</span>
             </div>
           </Button>
-        )}
+        )} */}
 
-        {/* Container for the Mercuryo widget */}
         <div
           className={cx(
             'mercuryo-widget-container',
-            isLoading && 'pointer-events-none absolute inset-0 opacity-0',
+            // isLoading && 'pointer-events-none absolute inset-0 opacity-0',
           )}
           id="mercuryo-widget"
           ref={widgetContainerRef}
