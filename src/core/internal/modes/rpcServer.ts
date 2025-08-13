@@ -72,7 +72,6 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const feeTokens = await FeeTokens.fetch(client, {
           store: internal.store,
         })
-        console.log('res', feeTokens)
 
         const adminKey = !mock
           ? await Key.createWebAuthnP256({

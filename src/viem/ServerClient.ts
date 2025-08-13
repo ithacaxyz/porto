@@ -55,7 +55,7 @@ export function fromPorto<
     public:
       (config_.transports as Record<number, Transport.Transport>)[chain.id] ??
       fallback(chain.rpcUrls.default.http.map((url) => http(url))),
-    relay: relay,
+    relay,
   })
 
   const key = [id, Json.stringify(chain)].filter(Boolean).join(':')

@@ -4,8 +4,6 @@ import { getChains } from '../chains.js'
 
 const env = import.meta.env.VITE_DEFAULT_ENV
 const chains = getChains(env)
-const relayUrl =
-  Transport.relayUrls[env as keyof typeof Transport.relayUrls].http
 
 export const getPorto = () =>
   Porto.create({
@@ -18,5 +16,7 @@ export const getPorto = () =>
         skipUnsupported: true,
       }),
     }),
-    relay: http(relayUrl),
+    relay: http(
+      Transport.relayUrls[env as keyof typeof Transport.relayUrls].http,
+    ),
   })

@@ -8,7 +8,7 @@ export const relayUrls = {
   stg: { http: 'https://stg-rpc.ithaca.xyz' },
 } as const
 
-export const shouldUseRelay = true
+export const shouldUseRelay = false
 
 export function relayProxy(
   transports: relayProxy.Value,

@@ -51,7 +51,6 @@ export function getPorto(
         const rpcUrl =
           overrideRpcUrl ||
           `${chain.rpcUrls.default.http[0]}${env === 'anvil' ? `/${poolId}` : ''}`
-
         return {
           // biome-ignore lint/performance/noAccumulatingSpread: _
           ...transports,

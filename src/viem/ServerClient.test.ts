@@ -100,7 +100,7 @@ describe('fromPorto', () => {
           "rpcUrls": {
             "default": {
               "http": [
-                "https://base-sepolia-int.rpc.ithaca.xyz",
+                "https://base-sepolia.rpc.ithaca.xyz",
                 "https://sepolia.base.org",
               ],
             },
