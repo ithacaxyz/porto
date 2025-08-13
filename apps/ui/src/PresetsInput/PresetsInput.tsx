@@ -7,22 +7,10 @@ import LucideX from '~icons/lucide/x'
 import { css, cx } from '../../styled-system/css'
 import { Input } from '../Input/Input.js'
 
-export interface PresetsInputProps {
-  adornments?: Input.Props['adornments']
-  className?: string
-  mode?: 'preset' | 'custom'
-  onModeChange?: (mode: 'preset' | 'custom') => void
-  onChange: (value: string) => void
-  placeholder?: string
-  presets: Array<{ label: ReactNode; value: string }>
-  value: string
-  formatValue?: (value: string) => string
-}
-
 const SPRING_CONFIG = {
-  friction: 80,
+  friction: 120,
   mass: 1,
-  tension: 2000,
+  tension: 3000,
 }
 
 export function PresetsInput({
@@ -30,12 +18,11 @@ export function PresetsInput({
   className,
   mode: controlledMode,
   onModeChange,
-  placeholder,
   onChange,
   presets,
   value,
-  formatValue,
-}: PresetsInputProps) {
+  ...inputProps
+}: PresetsInput.Props) {
   const radioGroupRef = useRef<HTMLDivElement>(null)
   const [internalMode, setInternalMode] = useState<'preset' | 'custom'>(
     'preset',
@@ -64,14 +51,27 @@ export function PresetsInput({
 
   const presetsTransition = useTransition(customMode ? [] : presets, {
     config: SPRING_CONFIG,
-    enter: { opacity: 1, transform: 'scale(1)' },
-    from: { opacity: 0, transform: 'scale(0.8)' },
-    initial: { opacity: 1, transform: 'scale(1)' },
+    enter: {
+      labelBlur: 'blur(0px)',
+      opacity: 1,
+      transform: 'scale3d(1, 1, 1)',
+    },
+    from: {
+      labelBlur: 'blur(2px)',
+      opacity: 0,
+      transform: 'scale3d(1.15, 1.3, 1)',
+    },
+    initial: {
+      labelBlur: 'blur(0px)',
+      opacity: 1,
+      transform: 'scale3d(1, 1, 1)',
+    },
     keys: (item) => item.value,
     leave: {
       immediate: true,
+      labelBlur: 'blur(2px)',
       opacity: 0,
-      transform: 'scale(0.9)',
+      transform: 'scale3d(1.15, 1.3, 1)',
     },
   })
 
@@ -83,9 +83,9 @@ export function PresetsInput({
       opacity: 1,
     },
     from: {
-      buttonTransform: 'scale(0)',
-      inputTransform: 'scale(0.95, 0.9)',
-      opacity: 0.5,
+      buttonTransform: 'scale(0.5)',
+      inputTransform: 'scale(0.96, 0.92)',
+      opacity: 0,
     },
     initial: {
       buttonTransform: 'scale(1)',
@@ -93,7 +93,9 @@ export function PresetsInput({
       opacity: 1,
     },
     leave: {
+      buttonTransform: 'scale(0)',
       immediate: true,
+      inputTransform: 'scale(0.96, 0.92)',
       opacity: 0,
     },
   })
@@ -139,23 +141,26 @@ export function PresetsInput({
                     className={css({
                       borderRadius: 16,
                       flex: 1,
-                      minWidth: 200,
                     })}
-                    formatValue={formatValue}
                     onChange={handleInputChange}
                     onKeyDown={(event) => {
                       if (event.key === 'Escape') {
+                        // prevent closing the modal
+                        event.stopPropagation()
+
                         handleModeChange('preset')
-                        setTimeout(() => {
+
+                        // wait for RadioGroup to get rendered
+                        queueMicrotask(() => {
                           radioGroupRef.current
                             ?.querySelector('input:checked')
                             ?.focus()
-                        }, 0)
+                        })
                       }
                     }}
-                    placeholder={placeholder}
                     size="medium"
                     value={value}
+                    {...inputProps}
                   />
                 </a.div>
               ),
@@ -175,7 +180,7 @@ export function PresetsInput({
                   position: 'absolute',
                 })}
                 style={{
-                  gridTemplateColumns: `repeat(${presets.length}, minmax(72px, 1fr))`,
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(40px, 1fr))',
                 }}
               >
                 {presetsTransition((styles, item) => (
@@ -186,7 +191,10 @@ export function PresetsInput({
                       position: 'relative',
                     })}
                     key={item.value}
-                    style={styles}
+                    style={{
+                      opacity: styles.opacity,
+                      transform: styles.transform,
+                    }}
                   >
                     <Radio
                       className={cx(
@@ -231,9 +239,16 @@ export function PresetsInput({
                         justifyContent: 'center',
                         outline: 'none',
                         position: 'relative',
+                        userSelect: 'none',
                       })}
                     >
-                      {item.label}
+                      <a.span
+                        style={{
+                          filter: styles.labelBlur,
+                        }}
+                      >
+                        {item.label}
+                      </a.span>
                     </div>
                   </a.label>
                 ))}
@@ -287,4 +302,12 @@ export function PresetsInput({
       </button>
     </div>
   )
+}
+
+export namespace PresetsInput {
+  export interface Props extends Input.Props {
+    mode?: 'preset' | 'custom'
+    onModeChange?: (mode: 'preset' | 'custom') => void
+    presets: Array<{ label: ReactNode; value: string }>
+  }
 }
