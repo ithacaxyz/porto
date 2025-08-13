@@ -1,7 +1,7 @@
 import { Input } from '@porto/ui'
 import { createFileRoute } from '@tanstack/react-router'
-import { ComponentScreen } from '~/components/ComponentScreen/ComponentScreen'
 import { useState } from 'react'
+import { ComponentScreen } from '~/components/ComponentScreen/ComponentScreen'
 
 export const Route = createFileRoute('/Input')({
   component: InputComponent,
