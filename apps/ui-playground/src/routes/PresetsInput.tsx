@@ -50,11 +50,15 @@ function PresetsInputComponent() {
                 },
                 start: '$',
               }}
+              inputMode="decimal"
+              max={500}
+              min={0}
               mode={mode}
               onChange={setValue}
               onModeChange={setMode}
               placeholder="123.45"
               presets={[...presets]}
+              type="number"
               value={value}
             />
             <div className="flex gap-4">
