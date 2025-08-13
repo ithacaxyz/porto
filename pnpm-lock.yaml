@@ -741,6 +741,9 @@ importers:
 
   apps/ui:
     devDependencies:
+      '@ariakit/react':
+        specifier: 'catalog:'
+        version: 0.4.17(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@iconify/json':
         specifier: 'catalog:'
         version: 2.2.354
@@ -792,6 +795,9 @@ importers:
 
   apps/ui-playground:
     dependencies:
+      '@ariakit/react':
+        specifier: 'catalog:'
+        version: 0.4.17(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@porto/apps':
         specifier: workspace:*
         version: link:../~internal

@@ -1,6 +1,7 @@
+import { Radio, RadioGroup, RadioProvider } from '@ariakit/react'
 import { a, useTransition } from '@react-spring/web'
-import type { KeyboardEvent, ReactNode } from 'react'
-import { useEffect, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
+import { useRef, useState } from 'react'
 import LucidePencil from '~icons/lucide/pencil'
 import LucideX from '~icons/lucide/x'
 import { css, cx } from '../../styled-system/css'
@@ -19,9 +20,9 @@ export interface PresetsInputProps {
 }
 
 const SPRING_CONFIG = {
-  friction: 60,
+  friction: 80,
   mass: 1,
-  tension: 1000,
+  tension: 2000,
 }
 
 export function PresetsInput({
@@ -34,11 +35,8 @@ export function PresetsInput({
   presets,
   value,
   formatValue,
-  ...props
 }: PresetsInputProps) {
-  const buttonsRef = useRef<Map<string, HTMLButtonElement>>(new Map())
-  const editButtonRef = useRef<HTMLButtonElement>(null)
-
+  const radioGroupRef = useRef<HTMLDivElement>(null)
   const [internalMode, setInternalMode] = useState<'preset' | 'custom'>(
     'preset',
   )
@@ -50,6 +48,7 @@ export function PresetsInput({
   const handleInputChange = (newValue: string) => {
     onChange(newValue)
   }
+
   const handleModeChange = (newMode: 'preset' | 'custom') => {
     if (controlledMode === undefined) {
       setInternalMode(newMode)
@@ -63,51 +62,16 @@ export function PresetsInput({
     }
   }
 
-  useEffect(() => {
-    if (mode !== 'preset') return
-    const button = buttonsRef.current.get(value)
-    if (
-      button &&
-      document.activeElement?.parentElement === button.parentElement
-    ) {
-      button.focus()
-    }
-  }, [value, mode])
-
-  const handleRadioKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    const currentIndex = presets.findIndex((item) => item.value === value)
-
-    let nextIndex: null | number = null
-
-    switch (event.key) {
-      case 'ArrowLeft':
-      case 'ArrowUp':
-        event.preventDefault()
-        nextIndex = currentIndex > 0 ? currentIndex - 1 : presets.length - 1
-        break
-      case 'ArrowRight':
-      case 'ArrowDown':
-        event.preventDefault()
-        nextIndex = currentIndex < presets.length - 1 ? currentIndex + 1 : 0
-        break
-    }
-
-    if (nextIndex === null) return
-    const preset = presets[nextIndex]
-    if (preset) handlePresetChange(preset.value)
-  }
-
   const presetsTransition = useTransition(customMode ? [] : presets, {
     config: SPRING_CONFIG,
-    enter: { opacity: 1, transform: 'scale(1)', filter: 'blur(0px)' },
-    from: { opacity: 0.5, transform: 'scale(0.8)', filter: 'blur(1px)' },
-    initial: { opacity: 1, transform: 'scale(1)', filter: 'blur(0px)' },
+    enter: { opacity: 1, transform: 'scale(1)' },
+    from: { opacity: 0, transform: 'scale(0.8)' },
+    initial: { opacity: 1, transform: 'scale(1)' },
     keys: (item) => item.value,
     leave: {
       immediate: true,
       opacity: 0,
-      transform: 'scale(0.8)',
-      filter: 'blur(1px)',
+      transform: 'scale(0.9)',
     },
   })
 
@@ -115,18 +79,18 @@ export function PresetsInput({
     config: SPRING_CONFIG,
     enter: {
       buttonTransform: 'scale(1)',
-      opacity: 1,
       inputTransform: 'scale(1, 1)',
+      opacity: 1,
     },
     from: {
       buttonTransform: 'scale(0)',
-      opacity: 0.5,
       inputTransform: 'scale(0.95, 0.9)',
+      opacity: 0.5,
     },
     initial: {
       buttonTransform: 'scale(1)',
-      opacity: 1,
       inputTransform: 'scale(1, 1)',
+      opacity: 1,
     },
     leave: {
       immediate: true,
@@ -182,7 +146,11 @@ export function PresetsInput({
                     onKeyDown={(event) => {
                       if (event.key === 'Escape') {
                         handleModeChange('preset')
-                        editButtonRef.current?.focus()
+                        setTimeout(() => {
+                          radioGroupRef.current
+                            ?.querySelector('input:checked')
+                            ?.focus()
+                        }, 0)
                       }
                     }}
                     placeholder={placeholder}
@@ -193,66 +161,85 @@ export function PresetsInput({
               ),
           )
         ) : (
-          <div
-            className={css({
-              alignItems: 'center',
-              display: 'grid',
-              gap: 8,
-              inset: 0,
-              position: 'absolute',
-            })}
-            onKeyDown={handleRadioKeyDown}
-            role="radiogroup"
-            style={{
-              gridTemplateColumns: `repeat(${presets.length}, minmax(72px, 1fr))`,
-            }}
+          <RadioProvider
+            setValue={(value) => handlePresetChange(value as string)}
+            value={value}
           >
-            {presetsTransition((styles, item) => (
-              // biome-ignore lint/a11y/useSemanticElements: _
-              <a.button
-                aria-checked={value === item.value}
+            <RadioGroup ref={radioGroupRef}>
+              <div
                 className={css({
-                  _active: {
-                    transform: 'translateY(1px)',
-                  },
-                  _checked: {
-                    borderColor: 'var(--color-th_accent)',
-                    borderWidth: 2,
-                    color: 'var(--text-color-th_field)',
-                  },
-                  _focusVisible: {
-                    outline: '2px solid var(--color-th_focus)',
-                    outlineOffset: 2,
-                  },
                   alignItems: 'center',
-                  backgroundColor: 'transparent',
-                  border: '1px solid var(--border-color-th_field)',
-                  borderRadius: 'var(--radius-th_medium)',
-                  color: 'var(--text-color-th_field-secondary)',
-                  cursor: 'pointer!',
-                  display: 'flex',
-                  fontSize: 15,
-                  height: 38,
-                  justifyContent: 'center',
-                  outline: 'none',
-                  position: 'relative',
+                  display: 'grid',
+                  gap: 8,
+                  inset: 0,
+                  position: 'absolute',
                 })}
-                key={item.value}
-                onClick={() => handlePresetChange(item.value)}
-                ref={(el) => {
-                  if (el) buttonsRef.current.set(item.value, el)
-                  else buttonsRef.current.delete(item.value)
+                style={{
+                  gridTemplateColumns: `repeat(${presets.length}, minmax(72px, 1fr))`,
                 }}
-                role="radio"
-                style={styles}
-                tabIndex={value === item.value ? 0 : -1}
-                type="button"
-                {...props}
               >
-                {item.label}
-              </a.button>
-            ))}
-          </div>
+                {presetsTransition((styles, item) => (
+                  // biome-ignore lint/a11y/noLabelWithoutControl: Radio contains a control
+                  <a.label
+                    className={css({
+                      display: 'block',
+                      position: 'relative',
+                    })}
+                    key={item.value}
+                    style={styles}
+                  >
+                    <Radio
+                      className={cx(
+                        'peer',
+                        css({
+                          // We can’t use Ariakit’s VisuallyHidden here, as
+                          // it would add an element and prevent using peer
+                          // selectors to style the buttons states. Instead
+                          // we juste place it behind the button-like.
+                          height: 1,
+                          left: '50%',
+                          position: 'absolute',
+                          top: '50%',
+                          width: 1,
+                        }),
+                      )}
+                      value={item.value}
+                    />
+                    <div
+                      className={css({
+                        _peerActive: {
+                          transform: 'translateY(1px)',
+                        },
+                        _peerChecked: {
+                          borderColor: 'var(--color-th_accent)',
+                          borderWidth: 2,
+                          color: 'var(--text-color-th_field)',
+                        },
+                        _peerFocusVisible: {
+                          outline: '2px solid var(--color-th_focus)',
+                          outlineOffset: 2,
+                        },
+                        alignItems: 'center',
+                        background: 'var(--background-color-th_base)',
+                        border: '1px solid var(--border-color-th_field)',
+                        borderRadius: 'var(--radius-th_medium)',
+                        color: 'var(--text-color-th_field-secondary)',
+                        cursor: 'pointer!',
+                        display: 'flex',
+                        fontSize: 15,
+                        height: 38,
+                        justifyContent: 'center',
+                        outline: 'none',
+                        position: 'relative',
+                      })}
+                    >
+                      {item.label}
+                    </div>
+                  </a.label>
+                ))}
+              </div>
+            </RadioGroup>
+          </RadioProvider>
         )}
       </div>
       <button
@@ -264,6 +251,7 @@ export function PresetsInput({
             outline: '2px solid var(--color-th_focus)',
             outlineOffset: 2,
           },
+          background: 'var(--background-color-th_base)',
           border: '1px solid var(--border-color-th_field)',
           borderRadius: 'var(--radius-th_medium)',
           color: 'var(--text-color-th_field-secondary)',
@@ -277,7 +265,6 @@ export function PresetsInput({
           width: 38,
         })}
         onClick={() => handleModeChange(customMode ? 'preset' : 'custom')}
-        ref={editButtonRef}
         title={customMode ? 'Back to presets' : 'Custom value'}
         type="button"
       >

@@ -12,6 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ariakit/react": "catalog:",
     "@porto/ui": "workspace:*",
     "@porto/apps": "workspace:*",
     "@react-spring/web": "catalog:",

@@ -25,11 +25,13 @@
     "postinstall": "panda codegen && pnpm build"
   },
   "peerDependencies": {
+    "@ariakit/react": "*",
     "@react-spring/web": ">=10",
     "react": ">=19",
     "react-dom": ">=19"
   },
   "devDependencies": {
+    "@ariakit/react": "catalog:",
     "@iconify/json": "catalog:",
     "@microsoft/api-extractor": "^7.52.9",
     "@pandacss/dev": "^0.54.0",
