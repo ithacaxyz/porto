@@ -114,7 +114,7 @@ jobs:
           exit 0
       - name: Clone repository
         if: matrix.enabled == true
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ inputs.porto-ref }}
 
