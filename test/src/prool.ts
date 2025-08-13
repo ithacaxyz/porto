@@ -186,7 +186,7 @@ function createRelayConfig(opts: {
             {
               address: feeToken,
               fee_token: true,
-              interop: opts.enableInterop && feeToken === opts.interopToken,
+              interop: feeToken === opts.interopToken,
             },
           ]),
         ),

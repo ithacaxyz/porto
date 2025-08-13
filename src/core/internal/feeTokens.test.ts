@@ -30,7 +30,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
     `)
   })
 
-  test.only('behavior: with store', async () => {
+  test('behavior: with store', async () => {
     const porto = TestConfig.getPorto()
     const client = TestConfig.getServerClient(porto)
 
