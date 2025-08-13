@@ -2,6 +2,7 @@ import * as Ariakit from '@ariakit/react'
 import { Button } from '@porto/apps/components'
 import { erc20Abi } from '@porto/apps/contracts'
 import { useCopyToClipboard, usePrevious } from '@porto/apps/hooks'
+import { PresetsInput, Button as UiButton } from '@porto/ui'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Cuer } from 'cuer'
 import { type Address, Hex, Value } from 'ox'
@@ -16,12 +17,12 @@ import { Layout } from '~/routes/-components/Layout'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
 import CopyIcon from '~icons/lucide/copy'
 import CardIcon from '~icons/lucide/credit-card'
-import PencilIcon from '~icons/lucide/pencil'
 import QrCodeIcon from '~icons/lucide/qr-code'
 import TriangleAlertIcon from '~icons/lucide/triangle-alert'
-import XIcon from '~icons/lucide/x'
 
 const presetAmounts = ['25', '50', '100', '250'] as const
+
+const MAX_AMOUNT = 500
 
 export function AddFunds(props: AddFunds.Props) {
   const {
@@ -79,17 +80,11 @@ export function AddFunds(props: AddFunds.Props) {
     },
   })
 
-  const loading = deposit.isPending
-
-  const [editView, setEditView] = React.useState<'default' | 'editing'>(
-    defaultValue ? 'editing' : 'default',
-  )
-
   if (deposit.isSuccess) return
 
   if (view === 'default')
     return (
-      <Layout loading={loading} loadingTitle="Adding funds...">
+      <Layout>
         <Layout.Header>
           <Layout.Header.Default
             content="Select how much you will deposit."
@@ -103,75 +98,32 @@ export function AddFunds(props: AddFunds.Props) {
             onSubmit={(e) => deposit.mutate(e)}
           >
             <div className="col-span-1 row-span-1">
-              <div className="flex max-h-[42px] w-full max-w-full flex-row justify-center space-x-2">
-                {editView === 'editing' ? (
-                  <div className="relative flex w-full flex-row items-center justify-between rounded-lg border-[1.5px] border-transparent bg-th_field px-3 py-2.5 text-th_field focus-within:border-th_focus focus-within:bg-th_field-focused focus-within:text-th_field-focused has-invalid:border-th_field-error">
-                    <span className="-translate-y-1/2 absolute top-1/2 left-3 text-th_field">
-                      $
-                    </span>
-                    <input
-                      autoCapitalize="off"
-                      autoComplete="off"
-                      autoCorrect="off"
-                      // biome-ignore lint/a11y/noAutofocus: _
-                      autoFocus
-                      className="h-full max-h-[96%] w-full max-w-[50%] bg-transparent pl-3 placeholder:text-th_field focus:outline-none"
-                      inputMode="decimal"
-                      max={500}
-                      min={0}
-                      onChange={(event) =>
-                        event.target.value.length > 0
-                          ? setAmount(event.target.value)
-                          : setAmount('')
-                      }
-                      placeholder="Enter amount"
-                      required
-                      spellCheck={false}
-                      type="number"
-                      value={amount}
-                      // should add disabled` if testnet?
-                    />
-                    <span className="text-sm text-th_field">Max. $500</span>
-                  </div>
-                ) : (
-                  <Ariakit.RadioProvider
-                    setValue={(value) => setAmount(value as string)}
-                    value={amount}
-                  >
-                    <Ariakit.RadioGroup className="flex w-full gap-3 *:h-10.5">
-                      {presetAmounts.map((predefinedAmount) => (
-                        // biome-ignore lint/a11y/noLabelWithoutControl: _
-                        <label
-                          className="flex w-full justify-center rounded-[10px] border-[1.5px] border-th_field bg-th_base py-2 text-center align-center text-th_field leading-normal hover:bg-th_field has-checked:border-[1.5px] has-checked:border-th_focus has-checked:bg-th_field has-checked:text-th_base"
-                          key={predefinedAmount}
-                        >
-                          <Ariakit.VisuallyHidden>
-                            <Ariakit.Radio value={predefinedAmount} />
-                          </Ariakit.VisuallyHidden>
-                          ${predefinedAmount}
-                        </label>
-                      ))}
-                    </Ariakit.RadioGroup>
-                  </Ariakit.RadioProvider>
-                )}
-                <Ariakit.Button
-                  className="flex min-w-[42px] flex-row items-center justify-center gap-2 rounded-[10px] border-[1.5px] border-th_field py-2 text-center text-th_field hover:bg-th_field has-checked:border-[1.5px] has-checked:border-th_focus has-checked:bg-th_field has-checked:text-th_base"
-                  onClick={() =>
-                    setEditView(editView === 'default' ? 'editing' : 'default')
-                  }
-                >
-                  {editView === 'editing' ? (
-                    <XIcon className="size-6" />
-                  ) : (
-                    <PencilIcon className="size-4" />
-                  )}
-                </Ariakit.Button>
-              </div>
+              <PresetsInput
+                adornments={{
+                  end: {
+                    label: `Max. $${MAX_AMOUNT}`,
+                    type: 'fill',
+                    value: String(MAX_AMOUNT),
+                  },
+                  start: '$',
+                }}
+                inputMode="decimal"
+                max={MAX_AMOUNT}
+                min={0}
+                onChange={setAmount}
+                placeholder="Enter amount"
+                presets={presetAmounts.map((value) => ({
+                  label: `$${value}`,
+                  value,
+                }))}
+                type="number"
+                value={amount}
+              />
             </div>
             <div className="col-span-1 row-span-1 space-y-3.5">
               {showOnramp ? (
                 <PayButton
-                  disabled={!address}
+                  disabled={!address || !amount || Number(amount) === 0}
                   url={stripeOnrampUrl({
                     address: address!,
                     amount: Number(amount),
@@ -179,14 +131,16 @@ export function AddFunds(props: AddFunds.Props) {
                   variant="stripe"
                 />
               ) : (
-                <Button
-                  className="w-full flex-1"
+                <UiButton
                   data-testid="buy"
+                  disabled={!amount || Number(amount) === 0}
+                  loading={deposit.isPending && 'Adding funds…'}
                   type="submit"
                   variant="primary"
+                  wide
                 >
                   Get started
-                </Button>
+                </UiButton>
               )}
             </div>
             <div className="col-span-1 row-span-1">
@@ -199,6 +153,7 @@ export function AddFunds(props: AddFunds.Props) {
             <div className="col-span-1 row-span-1">
               <Button
                 className="w-full px-3!"
+                disabled={deposit.isPending}
                 onClick={() => setView('deposit-crypto')}
                 type="button"
               >
@@ -245,7 +200,6 @@ export function AddFunds(props: AddFunds.Props) {
     return (
       <DepositCryptoView
         address={address}
-        loading={loading}
         onApprove={onApprove}
         onBack={() => setView('default')}
       />
@@ -305,7 +259,7 @@ export declare namespace AddFunds {
 }
 
 function DepositCryptoView(props: DepositCryptoView.Props) {
-  const { address, loading, onBack, onApprove } = props
+  const { address, onBack, onApprove } = props
 
   const chain = Hooks.useChain(porto)
 
@@ -359,7 +313,7 @@ function DepositCryptoView(props: DepositCryptoView.Props) {
   })
 
   return (
-    <Layout loading={loading} loadingTitle="Adding funds...">
+    <Layout>
       <Layout.Content className="py-3 text-center">
         <Ariakit.Button
           className="mx-auto flex h-[148px] items-center justify-center gap-4 rounded-lg border border-th_secondary bg-th_secondary p-4 hover:cursor-pointer!"
@@ -417,7 +371,6 @@ function DepositCryptoView(props: DepositCryptoView.Props) {
 export declare namespace DepositCryptoView {
   export type Props = {
     address: Address.Address | undefined
-    loading: boolean
     onBack: () => void
     onApprove: (result: { id: Hex.Hex }) => void
   }
