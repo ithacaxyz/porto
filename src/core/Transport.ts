@@ -8,8 +8,6 @@ export const relayUrls = {
   stg: { http: 'https://stg-rpc.ithaca.xyz' },
 } as const
 
-export const shouldUseRelay = true
-
 export function relayProxy(
   transports: relayProxy.Value,
 ): relayProxy.ReturnType {
@@ -21,7 +19,7 @@ export function relayProxy(
       key: relayProxy.type,
       name: 'Relay Proxy',
       async request({ method, params }, options) {
-        if (shouldUseRelay && isRelay(method))
+        if (isRelay(method))
           return transport_relay.request({ method, params }, options) as never
         return transport_public.request({ method, params }, options) as never
       },

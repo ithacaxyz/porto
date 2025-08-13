@@ -221,9 +221,6 @@ export default defineConfig(({ mode }) => {
               address: merchantAccount.address,
               key: merchantKey.privateKey!(),
               relay: http(rpcServerConfig.rpcUrl),
-              transports: {
-                [chains.anvil.id]: http(rpcServerConfig.rpcUrl),
-              },
             })(req, res)
           })
         },

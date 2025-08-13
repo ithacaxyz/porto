@@ -14,14 +14,12 @@ export function getPorto(
   parameters: {
     mode?: (parameters: { mock: boolean }) => Mode.Mode | undefined
     merchantRpcUrl?: string | undefined
-    rpcUrl?: string | undefined
     relayRpcUrl?: string | undefined
   } = {},
 ) {
   const {
     mode = Mode.rpcServer,
     merchantRpcUrl,
-    rpcUrl: overrideRpcUrl = process.env.VITE_RPC_URL,
     relayRpcUrl: overrideRelayRpcUrl = process.env.VITE_RELAY_URL,
   } = parameters
 
@@ -48,9 +46,7 @@ export function getPorto(
     storage: Storage.memory(),
     transports: chains.reduce(
       (transports, chain) => {
-        const rpcUrl =
-          overrideRpcUrl ||
-          `${chain.rpcUrls.default.http[0]}${env === 'anvil' ? `/${poolId}` : ''}`
+        const rpcUrl = `${chain.rpcUrls.default.http[0]}${env === 'anvil' ? `/${poolId}` : ''}`
         return {
           // biome-ignore lint/performance/noAccumulatingSpread: _
           ...transports,

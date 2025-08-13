@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import * as Anvil from '../../../test/src/anvil.js'
 import * as TestConfig from '../../../test/src/config.js'
 import * as FeeTokens from './feeTokens.js'
@@ -162,34 +162,28 @@ describe.runIf(Anvil.enabled)('resolve', () => {
     const porto = TestConfig.getPorto()
     const client = TestConfig.getServerClient(porto)
 
-    const spy = vi.spyOn(console, 'warn').mockImplementationOnce(() => {})
-
     const feeTokens = await FeeTokens.fetch(client, {
       addressOrSymbol: 'WAGMI',
       store: porto._internal.store,
     })
 
-    expect(spy).toHaveBeenCalledWith(
-      'Fee token WAGMI not found. Falling back to EXP (0x8ce361602b935680e8dec218b820ff5056beb7af).',
-    )
-
     expect(feeTokens).toMatchInlineSnapshot(`
       [
         {
-          "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
+          "address": "0x0000000000000000000000000000000000000000",
           "decimals": 18,
-          "interop": true,
-          "kind": "USDT",
+          "interop": false,
+          "kind": "ETH",
           "nativeRate": 1000000000000000000n,
-          "symbol": "EXP",
+          "symbol": "ETH",
         },
         {
-          "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
+          "address": "0x0000000000000000000000000000000000000000",
           "decimals": 18,
-          "interop": true,
-          "kind": "USDT",
+          "interop": false,
+          "kind": "ETH",
           "nativeRate": 1000000000000000000n,
-          "symbol": "EXP",
+          "symbol": "ETH",
         },
       ]
     `)
