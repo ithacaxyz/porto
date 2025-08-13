@@ -4,7 +4,14 @@ export const sections = [
     title: 'Theme',
   },
   {
-    screens: ['Button', 'Input', 'Separator', 'ThemeSwitch', 'Spinner'],
+    screens: [
+      'Button',
+      'Input',
+      'PresetsInput',
+      'Separator',
+      'Spinner',
+      'ThemeSwitch',
+    ],
     title: 'Base',
   },
   {

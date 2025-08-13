@@ -57,11 +57,13 @@ function PresetsInputComponent() {
               presets={[...presets]}
               value={value}
             />
-            <div>
-              Value:{' '}
-              {empty ? '<empty>' : parsed === null ? '<error>' : formatted}
+            <div className="flex gap-4">
+              <div className="w-30">Mode: {mode}</div>
+              <div>
+                Value:{' '}
+                {empty ? '<empty>' : parsed === null ? '<error>' : formatted}
+              </div>
             </div>
-            <div>Mode: {mode}</div>
           </div>
         </div>
       </ComponentScreen.Section>

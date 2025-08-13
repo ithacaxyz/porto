@@ -4,11 +4,10 @@ import { useEffect, useRef, useState } from 'react'
 import LucidePencil from '~icons/lucide/pencil'
 import LucideX from '~icons/lucide/x'
 import { css, cx } from '../../styled-system/css'
-import type { InputProps } from '../Input/Input.js'
 import { Input } from '../Input/Input.js'
 
 export interface PresetsInputProps {
-  adornments?: InputProps['adornments']
+  adornments?: Input.Props['adornments']
   className?: string
   mode?: 'preset' | 'custom'
   onModeChange?: (mode: 'preset' | 'custom') => void
@@ -17,6 +16,12 @@ export interface PresetsInputProps {
   presets: Array<{ label: ReactNode; value: string }>
   value: string
   formatValue?: (value: string) => string
+}
+
+const SPRING_CONFIG = {
+  friction: 60,
+  mass: 1,
+  tension: 1000,
 }
 
 export function PresetsInput({
@@ -93,38 +98,35 @@ export function PresetsInput({
   }
 
   const presetsTransition = useTransition(customMode ? [] : presets, {
-    config: {
-      friction: 100,
-      mass: 1,
-      tension: 3000,
-    },
-    enter: { opacity: 1, transform: ' scale(1)' },
-    from: { opacity: 0, transform: ' scale(0.85)' },
-    initial: { opacity: 1, transform: ' scale(1)' },
+    config: SPRING_CONFIG,
+    enter: { opacity: 1, transform: 'scale(1)', filter: 'blur(0px)' },
+    from: { opacity: 0.5, transform: 'scale(0.8)', filter: 'blur(1px)' },
+    initial: { opacity: 1, transform: 'scale(1)', filter: 'blur(0px)' },
     keys: (item) => item.value,
-    leave: { immediate: true, opacity: 0 },
+    leave: {
+      immediate: true,
+      opacity: 0,
+      transform: 'scale(0.8)',
+      filter: 'blur(1px)',
+    },
   })
 
   const customInputTransition = useTransition(customMode, {
-    config: {
-      friction: 80,
-      mass: 1,
-      tension: 2000,
-    },
+    config: SPRING_CONFIG,
     enter: {
       buttonTransform: 'scale(1)',
       opacity: 1,
-      transform: 'scale(1, 1)',
+      inputTransform: 'scale(1, 1)',
     },
     from: {
       buttonTransform: 'scale(0)',
-      opacity: 0,
-      transform: 'scale(0.98, 0.95)',
+      opacity: 0.5,
+      inputTransform: 'scale(0.95, 0.9)',
     },
     initial: {
       buttonTransform: 'scale(1)',
       opacity: 1,
-      transform: 'scale(1, 1)',
+      inputTransform: 'scale(1, 1)',
     },
     leave: {
       immediate: true,
@@ -162,7 +164,10 @@ export function PresetsInput({
                     inset: 0,
                     position: 'absolute',
                   })}
-                  style={styles}
+                  style={{
+                    opacity: styles.opacity,
+                    transform: styles.inputTransform,
+                  }}
                 >
                   <Input
                     adornments={adornments}
