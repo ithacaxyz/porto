@@ -7,8 +7,6 @@ export {
   anvil,
   base,
   baseSepolia,
-  bsc,
-  optimism,
   optimismSepolia,
 } from 'viem/chains'
 

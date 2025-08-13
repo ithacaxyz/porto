@@ -26,7 +26,8 @@ export function toRpcServer(
     if (requiredFund.address) return requiredFund
 
     const interopToken = interopTokens.find(
-      (feeToken) => feeToken.symbol === requiredFund.symbol,
+      (feeToken) =>
+        feeToken.uid.toLowerCase() === requiredFund.symbol.toLowerCase(),
     )
     if (!interopToken)
       throw new Error(`interop token not found: ${requiredFund.symbol}`)

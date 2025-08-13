@@ -633,16 +633,14 @@ describe('feeToken', () => {
             address: '0x1234567890abcdef',
             decimals: 18,
             interop: true,
-            kind: 'ERC20',
-            symbol: 'USDC',
+            uid: 'usdc',
           },
           {
             address: '0xfedcba0987654321',
             decimals: 6,
             interop: true,
-            kind: 'ERC20',
             nativeRate: '0x1000',
-            symbol: 'USDT',
+            uid: 'usdt',
           },
         ],
       })
@@ -654,16 +652,14 @@ describe('feeToken', () => {
               "address": "0x1234567890abcdef",
               "decimals": 18,
               "interop": true,
-              "kind": "ERC20",
-              "symbol": "USDC",
+              "uid": "usdc",
             },
             {
               "address": "0xfedcba0987654321",
               "decimals": 6,
               "interop": true,
-              "kind": "ERC20",
               "nativeRate": 4096n,
-              "symbol": "USDT",
+              "uid": "usdt",
             },
           ],
         }
@@ -681,7 +677,7 @@ describe('feeToken', () => {
         [Schema.CoderError: \`supported\` is missing
         Path: supported
 
-        Details: { readonly supported: boolean; readonly tokens: ReadonlyArray<{ readonly address: \`0x\${string}\`; readonly decimals: number; readonly interop?: boolean | undefined; readonly kind: string; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string }> }
+        Details: { readonly supported: boolean; readonly tokens: ReadonlyArray<{ readonly address: \`0x\${string}\`; readonly decimals: number; readonly interop?: boolean | undefined; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly uid: string }> }
         └─ ["supported"]
            └─ is missing]
       `)
@@ -711,16 +707,14 @@ describe('feeToken', () => {
             address: '0x1234567890abcdef',
             decimals: 18,
             interop: true,
-            kind: 'ERC20',
-            symbol: 'USDC',
+            uid: 'usdc',
           },
           {
             address: '0xfedcba0987654321',
             decimals: 6,
             interop: true,
-            kind: 'ERC20',
             nativeRate: '0x1000',
-            symbol: 'USDT',
+            uid: 'usdt',
           },
         ],
       }
@@ -738,16 +732,14 @@ describe('feeToken', () => {
               "address": "0x1234567890abcdef",
               "decimals": 18,
               "interop": true,
-              "kind": "ERC20",
-              "symbol": "USDC",
+              "uid": "usdc",
             },
             {
               "address": "0xfedcba0987654321",
               "decimals": 6,
               "interop": true,
-              "kind": "ERC20",
               "nativeRate": "0x1000",
-              "symbol": "USDT",
+              "uid": "usdt",
             },
           ],
         }
@@ -774,9 +766,8 @@ describe('feeToken', () => {
               address: '0x123',
               decimals: 18,
               interop: true,
-              kind: 'ERC20',
               nativeRate: '0xff',
-              symbol: 'TEST',
+              uid: 'TEST',
             },
           ],
         },
@@ -787,9 +778,8 @@ describe('feeToken', () => {
               address: '0x123',
               decimals: 18,
               interop: true,
-              kind: 'ERC20',
               nativeRate: 255n,
-              symbol: 'TEST',
+              uid: 'TEST',
             },
           ] as const,
         },
@@ -816,11 +806,11 @@ describe('feeToken', () => {
         [Schema.CoderError: \`address\` is missing
         Path: tokens.0.address
 
-        Details: { readonly supported: boolean; readonly tokens: ReadonlyArray<{ readonly address: \`0x\${string}\`; readonly decimals: number; readonly interop?: boolean | undefined; readonly kind: string; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string }> }
+        Details: { readonly supported: boolean; readonly tokens: ReadonlyArray<{ readonly address: \`0x\${string}\`; readonly decimals: number; readonly interop?: boolean | undefined; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly uid: string }> }
         └─ ["tokens"]
-           └─ ReadonlyArray<{ readonly address: \`0x\${string}\`; readonly decimals: number; readonly interop?: boolean | undefined; readonly kind: string; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string }>
+           └─ ReadonlyArray<{ readonly address: \`0x\${string}\`; readonly decimals: number; readonly interop?: boolean | undefined; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly uid: string }>
               └─ [0]
-                 └─ { readonly address: \`0x\${string}\`; readonly decimals: number; readonly interop?: boolean | undefined; readonly kind: string; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string }
+                 └─ { readonly address: \`0x\${string}\`; readonly decimals: number; readonly interop?: boolean | undefined; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly uid: string }
                     └─ ["address"]
                        └─ is missing]
       `)

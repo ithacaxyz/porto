@@ -35,7 +35,7 @@ export function AddFunds(props: AddFunds.Props) {
   const account = Hooks.useAccount(porto)
   const chain = Hooks.useChain(porto, { chainId })
   const feeTokens = FeeTokens.fetch.useQuery({
-    addressOrSymbol: tokenAddress,
+    addressOrUid: tokenAddress,
   })
   const feeToken = feeTokens.data?.[0]
 

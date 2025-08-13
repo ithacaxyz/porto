@@ -8,17 +8,15 @@ const feeTokens = [
     address: '0x97870b32890d3f1f089489a29007863a5678089d',
     decimals: 6,
     interop: true,
-    kind: 'USDC',
     nativeRate: 387750000000000n,
-    symbol: 'EXP',
+    uid: 'exp', // kind usdc
   },
   {
     address: '0x0000000000000000000000000000000000000000',
     decimals: 18,
     interop: true,
-    kind: 'ETH',
     nativeRate: 10n ** 18n,
-    symbol: 'ETH',
+    uid: 'ethereum',
   },
 ] as const satisfies FeeTokens.FeeTokens
 
@@ -406,9 +404,8 @@ describe('getFeeLimit', () => {
           "address": "0x97870b32890d3f1f089489a29007863a5678089d",
           "decimals": 6,
           "interop": true,
-          "kind": "USDC",
           "nativeRate": 387750000000000n,
-          "symbol": "EXP",
+          "uid": "exp",
         },
         "value": 25789813n,
       }
@@ -448,9 +445,8 @@ describe('getFeeLimit', () => {
         address: '0x0000000000000000000000000000000000000000',
         decimals: 18,
         interop: true,
-        kind: 'ETH',
         nativeRate: 10n ** 18n,
-        symbol: 'ETH',
+        uid: 'ethereum',
       },
     ] as const satisfies FeeTokens.FeeTokens
 
@@ -494,9 +490,8 @@ describe('getFeeLimit', () => {
           "address": "0x97870b32890d3f1f089489a29007863a5678089d",
           "decimals": 6,
           "interop": true,
-          "kind": "USDC",
           "nativeRate": 387750000000000n,
-          "symbol": "EXP",
+          "uid": "exp",
         },
         "value": 10000n,
       }
@@ -532,9 +527,8 @@ describe('getFeeLimit', () => {
           "address": "0x0000000000000000000000000000000000000000",
           "decimals": 18,
           "interop": true,
-          "kind": "ETH",
           "nativeRate": 1000000000000000000n,
-          "symbol": "ETH",
+          "uid": "eth",
         },
         "value": 3877500000000000n,
       }
@@ -563,9 +557,8 @@ describe('getFeeLimit', () => {
           "address": "0x97870b32890d3f1f089489a29007863a5678089d",
           "decimals": 6,
           "interop": true,
-          "kind": "USDC",
           "nativeRate": 387750000000000n,
-          "symbol": "EXP",
+          "uid": "exp",
         },
         "value": 25789813n,
       }
@@ -588,7 +581,7 @@ describe('getFeeLimit', () => {
         feeTokens,
       },
     )
-    expect(result?.token.kind).toMatchInlineSnapshot(`"USDC"`)
+    expect(result?.token.uid).toMatchInlineSnapshot(`"exp"`)
   })
 
   test('behavior: handles tokens without native rate', () => {
@@ -597,15 +590,13 @@ describe('getFeeLimit', () => {
         address: '0x97870b32890d3f1f089489a29007863a5678089d',
         decimals: 18,
         interop: true,
-        kind: 'USDC',
-        symbol: 'EXP',
+        uid: 'eXP',
       },
       {
         address: '0x0000000000000000000000000000000000000000',
         decimals: 18,
         interop: true,
-        kind: 'ETH',
-        symbol: 'ETH',
+        uid: 'ETH',
       },
     ] as const satisfies FeeTokens.FeeTokens
 
