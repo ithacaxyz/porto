@@ -43,6 +43,7 @@
   },
 
   "files.exclude": {
+    "**/.tanstack/**": true,
     "**/.vercel/**": true,
     "**/.wrangler/**": true,
     "**/*.tsbuildinfo": true
@@ -53,6 +54,7 @@
   "javascript.preferences.autoImportFileExcludePatterns": ["**/index.js"],
   "search.exclude": {
     "**/_/**": true,
+    "**/.tanstack/**": true,
     "**/dist/**": true,
     "**/routeTree.gen.ts": true,
     "contracts": true,

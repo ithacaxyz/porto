@@ -485,9 +485,9 @@ function OnrampView(props: OnrampView.Props) {
       firstName,
       lastName,
       network,
-      paymentMethod,
       fiatAmount,
       fiatCurrency,
+      widgetFlow,
     } = onrampQuery.data
     const widget = window.mercuryoWidget.run({
       address,
@@ -503,8 +503,9 @@ function OnrampView(props: OnrampView.Props) {
       lastName,
       merchantTransactionId,
       network,
-      paymentMethod,
+      paymentMethod: 'apple',
       signature,
+      widgetFlow,
       widgetId,
       widgetUrl,
     })
