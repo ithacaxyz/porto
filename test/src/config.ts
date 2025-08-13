@@ -96,15 +96,10 @@ export function getContracts<
   const chain = chains.find((chain) => chain.id === chainId)
   if (!chain) throw new Error(`Chain not found: ${chainId}`)
 
-  const delegationAddress = (() => {
-    if ('portoAccount' in chain.contracts)
-      return chain.contracts.portoAccount.address
-    throw new Error(`Delegation address not found for chain ${chain.name}`)
-  })()
-
   return {
     delegation: {
-      address: delegationAddress,
+      // TODO: Don't hardcode
+      address: '0xb19b36b1456e65e3a6d514d3f715f204bd59f431',
     },
     exp1: {
       abi: Contracts.exp1Abi,
