@@ -485,7 +485,7 @@ function OnrampView(props: OnrampView.Props) {
       firstName,
       lastName,
       network,
-      fiatAmount,
+      // fiatAmount,
       fiatCurrency,
       widgetFlow,
     } = onrampQuery.data
@@ -550,7 +550,7 @@ function OnrampView(props: OnrampView.Props) {
 
   return (
     <div className="flex flex-col justify-between gap-2">
-      <article className="relative mx-auto w-full select-none overflow-hidden">
+      <article className="relative mx-auto w-full select-none overflow-hidden rounded-full">
         {/* {isLoading && (
           <Button
             className="w-full cursor-pointer! opacity-50"
@@ -566,16 +566,9 @@ function OnrampView(props: OnrampView.Props) {
         )} */}
 
         <div
-          className={cx(
-            'mercuryo-widget-container',
-            // isLoading && 'pointer-events-none absolute inset-0 opacity-0',
-          )}
+          className="h-[44px] min-h-[44px] w-full min-w-full"
           id="mercuryo-widget"
           ref={widgetContainerRef}
-          style={{
-            minHeight: '44px',
-            width: '100%',
-          }}
         />
       </article>
     </div>
