@@ -500,7 +500,7 @@ function OnrampView(props: OnrampView.Props) {
       firstName,
       host: document.querySelector('div#mercuryo-widget'),
       initToken,
-      initTypeToken,
+      initTokenType: initTypeToken,
       lastName,
       merchantTransactionId,
       network,
