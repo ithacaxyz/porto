@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 import * as Anvil from '../../../test/src/anvil.js'
 import * as TestConfig from '../../../test/src/config.js'
 import * as FeeTokens from './feeTokens.js'
@@ -145,6 +145,43 @@ describe.runIf(Anvil.enabled)('resolve', () => {
           "kind": "ETH",
           "nativeRate": 1000000000000000000n,
           "symbol": "ETH",
+        },
+        {
+          "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
+          "decimals": 18,
+          "interop": true,
+          "kind": "USDT",
+          "nativeRate": 1000000000000000000n,
+          "symbol": "EXP",
+        },
+      ]
+    `)
+  })
+
+  test('behavior: falls back to first fee token if override/default not found', async () => {
+    const porto = TestConfig.getPorto()
+    const client = TestConfig.getServerClient(porto)
+
+    const spy = vi.spyOn(console, 'warn').mockImplementationOnce(() => {})
+
+    const feeTokens = await FeeTokens.fetch(client, {
+      addressOrSymbol: 'WAGMI',
+      store: porto._internal.store,
+    })
+
+    expect(spy).toHaveBeenCalledWith(
+      'Fee token WAGMI not found. Falling back to EXP (0x8ce361602b935680e8dec218b820ff5056beb7af).',
+    )
+
+    expect(feeTokens).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
+          "decimals": 18,
+          "interop": true,
+          "kind": "USDT",
+          "nativeRate": 1000000000000000000n,
+          "symbol": "EXP",
         },
         {
           "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
