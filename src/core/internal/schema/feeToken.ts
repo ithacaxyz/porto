@@ -10,6 +10,7 @@ export const FeeToken = Schema.Struct({
 })
 export type FeeToken = typeof FeeToken.Type
 
+// TODO: Remove
 export const Kind = Schema.Union(
   Schema.Literal('ETH'),
   Schema.Literal('USDC'),
@@ -17,5 +18,6 @@ export const Kind = Schema.Union(
 )
 export type Kind = typeof Kind.Type
 
+// TODO: Remove
 export const Symbol = Schema.String
 export type Symbol = typeof Symbol.Type

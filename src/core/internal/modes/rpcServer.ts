@@ -275,7 +275,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })
 
         const [feeToken] = await FeeTokens.fetch(client, {
-          addressOrSymbol: parameters.feeToken,
+          addressOrUid: parameters.feeToken,
           store: internal.store,
         })
         const { id } = await ServerActions.sendCalls(client, {
@@ -531,7 +531,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           }))
 
         const feeTokens = await FeeTokens.fetch(client, {
-          addressOrSymbol: parameters.feeToken,
+          addressOrUid: parameters.feeToken,
           store: internal.store,
         })
         const [feeToken] = feeTokens
@@ -632,7 +632,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         try {
           const [feeToken] = await FeeTokens.fetch(client, {
-            addressOrSymbol: parameters.feeToken,
+            addressOrUid: parameters.feeToken,
             store: internal.store,
           })
           const { id } = await ServerActions.sendCalls(client, {
@@ -666,7 +666,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         try {
           const [feeToken] = await FeeTokens.fetch(client, {
-            addressOrSymbol: parameters.feeToken,
+            addressOrUid: parameters.feeToken,
             store: internal.store,
           })
           const { id } = await ServerActions.sendCalls(client, {
@@ -713,7 +713,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         // Resolve fee token to use.
         const feeTokens = await FeeTokens.fetch(client, {
-          addressOrSymbol: parameters.feeToken,
+          addressOrUid: parameters.feeToken,
           store: internal.store,
         })
         const [feeToken] = feeTokens
