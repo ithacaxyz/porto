@@ -99,15 +99,15 @@ export function PresetsInput({
 
   const presetsTransition = useTransition(customMode ? [] : presets, {
     config: SPRING_CONFIG,
-    enter: { opacity: 1, transform: 'scale(1)', filter: 'blur(0px)' },
-    from: { opacity: 0.5, transform: 'scale(0.8)', filter: 'blur(1px)' },
-    initial: { opacity: 1, transform: 'scale(1)', filter: 'blur(0px)' },
+    enter: { filter: 'blur(0px)', opacity: 1, transform: 'scale(1)' },
+    from: { filter: 'blur(1px)', opacity: 0.5, transform: 'scale(0.8)' },
+    initial: { filter: 'blur(0px)', opacity: 1, transform: 'scale(1)' },
     keys: (item) => item.value,
     leave: {
+      filter: 'blur(1px)',
       immediate: true,
       opacity: 0,
       transform: 'scale(0.8)',
-      filter: 'blur(1px)',
     },
   })
 
@@ -115,18 +115,18 @@ export function PresetsInput({
     config: SPRING_CONFIG,
     enter: {
       buttonTransform: 'scale(1)',
-      opacity: 1,
       inputTransform: 'scale(1, 1)',
+      opacity: 1,
     },
     from: {
       buttonTransform: 'scale(0)',
-      opacity: 0.5,
       inputTransform: 'scale(0.95, 0.9)',
+      opacity: 0.5,
     },
     initial: {
       buttonTransform: 'scale(1)',
-      opacity: 1,
       inputTransform: 'scale(1, 1)',
+      opacity: 1,
     },
     leave: {
       immediate: true,

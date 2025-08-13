@@ -5,7 +5,6 @@ import { Address } from 'ox'
 import type * as React from 'react'
 
 import { StringFormatter } from '~//utils'
-import { DialogScreen } from '~/components/DialogScreen'
 import ChevronDown from '~icons/lucide/chevron-down'
 
 export function Layout(props: Layout.Props) {
