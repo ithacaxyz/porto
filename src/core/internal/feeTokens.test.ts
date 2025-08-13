@@ -170,20 +170,20 @@ describe.runIf(Anvil.enabled)('resolve', () => {
     expect(feeTokens).toMatchInlineSnapshot(`
       [
         {
-          "address": "0x0000000000000000000000000000000000000000",
+          "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
           "decimals": 18,
-          "interop": false,
-          "kind": "ETH",
+          "interop": true,
+          "kind": "USDT",
           "nativeRate": 1000000000000000000n,
-          "symbol": "ETH",
+          "symbol": "EXP",
         },
         {
-          "address": "0x0000000000000000000000000000000000000000",
+          "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
           "decimals": 18,
-          "interop": false,
-          "kind": "ETH",
+          "interop": true,
+          "kind": "USDT",
           "nativeRate": 1000000000000000000n,
-          "symbol": "ETH",
+          "symbol": "EXP",
         },
       ]
     `)
