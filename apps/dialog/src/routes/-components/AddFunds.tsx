@@ -11,6 +11,7 @@ import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
 import { useBalance, useWatchBlockNumber, useWatchContractEvent } from 'wagmi'
 import * as FeeTokens from '~/lib/FeeTokens'
+import { enableOnramp } from '~/lib/Onramp.ts'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
@@ -435,10 +436,14 @@ declare global {
 }
 
 function OnrampView(props: OnrampView.Props) {
-  const { address, amount } = props
+  const { address, amount, onApprove } = props
   const [hasError, setHasError] = React.useState<boolean>(false)
   const widgetContainerRef = React.useRef<HTMLDivElement>(null)
   const widgetInstanceRef = React.useRef<any>(null)
+
+  const showOnramp = enableOnramp()
+
+  const chain = Hooks.useChain(porto)
 
   const onrampQuery = useQuery({
     enabled: !!address && !!amount,
@@ -522,6 +527,37 @@ function OnrampView(props: OnrampView.Props) {
     }
   }, [])
 
+  const walletClient = Hooks.useWalletClient(porto)
+  const { data: tokens } = useQuery({
+    queryFn: async () => {
+      const chainId = Hex.fromNumber(chain?.id!)
+      const response = await walletClient.request({
+        method: 'wallet_getCapabilities',
+        params: [address!, [chainId]],
+      })
+      return response[chainId]?.feeToken.tokens
+    },
+    queryKey: ['capabilities'],
+    select: (data) =>
+      data
+        ?.filter((token) => token.symbol.toLowerCase() === 'usdc')
+        .map((token) => token.address.toLowerCase()),
+  })
+
+  useWatchContractEvent({
+    abi: erc20Abi,
+    args: {
+      to: address,
+    },
+    eventName: 'Transfer',
+    onLogs: (events) => {
+      for (const event of events) {
+        if (tokens?.includes(event.address.toLowerCase()))
+          onApprove({ id: event.transactionHash })
+      }
+    },
+  })
+
   if (hasError) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 p-4 text-center">
@@ -543,7 +579,7 @@ function OnrampView(props: OnrampView.Props) {
     )
   }
 
-  return (
+  return showOnramp ? (
     <div className="flex flex-col justify-between gap-2">
       <article className="relative mx-auto w-full select-none overflow-hidden rounded-full">
         <div
@@ -553,6 +589,15 @@ function OnrampView(props: OnrampView.Props) {
         />
       </article>
     </div>
+  ) : (
+    <Button
+      className="w-full flex-1"
+      data-testid="buy"
+      type="submit"
+      variant="primary"
+    >
+      Get started
+    </Button>
   )
 }
 
