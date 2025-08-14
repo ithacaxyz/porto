@@ -17,10 +17,15 @@ export function Button({
   size,
   variant = 'secondary',
   wide,
+  width,
+  type = 'button',
   ...props
 }: Button.Props) {
   const frame = Frame.useFrame(true)
   size ??= { dialog: 'medium', full: 'large' }
+
+  if (wide && width === undefined) width = 'full'
+  width ??= 'auto'
 
   const loadingRef = useRef<HTMLDivElement>(null)
   const labelRef = useRef<HTMLDivElement>(null)
@@ -93,7 +98,8 @@ export function Button({
           justifyContent: 'center',
           whiteSpace: 'nowrap',
         }),
-        wide && css({ width: '100%' }),
+        width === 'full' && css({ width: '100%' }),
+        width === 'grow' && css({ flexGrow: 1 }),
         cva({
           variants: {
             colors: {
@@ -168,7 +174,12 @@ export function Button({
         className,
       )}
       disabled={Boolean(loading) || disabled}
+      type={type}
       {...props}
+      style={{
+        ...props.style,
+        width: typeof width === 'number' ? width : undefined,
+      }}
     >
       <a.div
         className={css({
@@ -239,6 +250,11 @@ export namespace Button {
       | 'primary'
       | 'secondary'
       | 'strong'
+    /**
+     * Use width="full" instead.
+     * @deprecated
+     */
     wide?: boolean
+    width?: 'auto' | 'full' | 'grow' | number
   }
 }
