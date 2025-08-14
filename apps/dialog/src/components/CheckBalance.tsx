@@ -32,12 +32,17 @@ export function CheckBalance(props: CheckBalance.Props) {
       }
     }
 
+    // TODO: Test this error in provider.test.ts
     // If an error is thrown requiring funds; extract the deficit, token, and chain id.
     const pattern = /required (\d+) of asset (0x[a-fA-F0-9]{40}) on chain (\d+)/
-    const insufficientFundsMatch = (query.error?.cause as Error)?.message.match(
-      pattern,
-    )
-    if (!insufficientFundsMatch) return undefined
+    const errorMessage = (query.error?.cause as Error)?.message ?? ''
+    const insufficientFundsMatch = errorMessage.match(pattern)
+    if (!insufficientFundsMatch) {
+      // TODO: Remove once other pattern is back
+      const pattern = /InsufficientBalance/
+      if (pattern.test(errorMessage)) return {}
+      return undefined
+    }
 
     const [, value, address, chainId] = insufficientFundsMatch
     return {
