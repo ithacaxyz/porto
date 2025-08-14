@@ -1,3 +1,4 @@
+import { Button as UiButton } from '@porto/ui'
 import { Button, Input } from '@porto/apps/components'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
@@ -18,8 +19,6 @@ export function Email(props: Email.Props) {
     status,
   } = props
 
-  const [respondingTitle, setRespondingTitle] = React.useState('Signing up...')
-
   const account = Hooks.useAccount(porto)
   const email = Dialog.useStore((state) =>
     account?.address
@@ -37,12 +36,13 @@ export function Email(props: Email.Props) {
   )
   const hostname = Dialog.useStore((state) => state.referrer?.url?.hostname)
 
-  const onSubmit = React.useCallback<React.FormEventHandler<HTMLFormElement>>(
+  const onSignUpSubmit = React.useCallback<
+    React.FormEventHandler<HTMLFormElement>
+  >(
     async (event) => {
       event.preventDefault()
       const formData = new FormData(event.target as HTMLFormElement)
       const email = formData.get('email')?.toString()
-      setRespondingTitle('Signing up...')
       onApprove({ email, signIn: false })
     },
     [onApprove],
@@ -67,7 +67,7 @@ export function Email(props: Email.Props) {
   }, [actions, cli, hostname])
 
   return (
-    <Layout loading={status === 'responding'} loadingTitle={respondingTitle}>
+    <Layout>
       <Layout.Header className="flex-grow">
         <Layout.Header.Default
           content={content}
@@ -80,28 +80,29 @@ export function Email(props: Email.Props) {
 
       <div className="group flex min-h-[48px] w-full flex-col items-center justify-center space-y-3 px-3 pb-3">
         {actions.includes('sign-in') && (
-          <Button
-            className="flex w-full gap-2"
+          <UiButton
             data-testid="sign-in"
+            wide
+            icon={<IconScanFace className="size-5.25" />}
             disabled={status === 'loading'}
+            loading={status === 'responding' && 'Signing in…'}
             onClick={() => {
-              setRespondingTitle('Signing in...')
               onApprove({ signIn: true })
             }}
+            size="medium"
             type="button"
             variant="primary"
           >
-            <IconScanFace className="size-5.25" />
             {actions.includes('sign-up')
               ? 'Sign in with Porto'
               : 'Continue with Porto'}
-          </Button>
+          </UiButton>
         )}
 
         {actions.includes('sign-up') ? (
           <form
             className="flex w-full flex-grow flex-col gap-2"
-            onSubmit={onSubmit}
+            onSubmit={onSignUpSubmit}
           >
             {/* If "Sign in" button is present, show the "First time?" text for sign up. */}
             {actions.includes('sign-in') && (
@@ -126,12 +127,12 @@ export function Email(props: Email.Props) {
                 Optional
               </div>
             </div>
-            <Button
-              className="w-full gap-2 group-has-[:user-invalid]:cursor-not-allowed group-has-[:user-invalid]:text-th_base-tertiary"
+            <UiButton
               data-testid="sign-up"
               disabled={status === 'loading'}
-              type="submit"
-              variant={actions.includes('sign-in') ? 'default' : 'primary'}
+              loading={status === 'responding' && 'Signing up…'}
+              size="medium"
+              variant={actions.includes('sign-in') ? 'secondary' : 'primary'}
             >
               <span className="hidden group-has-[:user-invalid]:block">
                 Invalid email
@@ -146,7 +147,7 @@ export function Email(props: Email.Props) {
                   </>
                 )}
               </span>
-            </Button>
+            </UiButton>
           </form>
         ) : (
           // If no sign up button, this means the user is already logged in, however
@@ -159,7 +160,6 @@ export function Email(props: Email.Props) {
             <button
               className="text-th_link"
               onClick={() => {
-                setRespondingTitle('Signing in...')
                 onApprove({ selectAccount: true, signIn: true })
               }}
               type="button"

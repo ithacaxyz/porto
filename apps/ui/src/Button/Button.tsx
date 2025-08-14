@@ -103,7 +103,9 @@ export function Button({
           display: 'inline-flex',
           justifyContent: 'center',
           whiteSpace: 'nowrap',
+          flex: '0 0 auto',
         }),
+        wide && css({ width: '100%' }),
         cva({
           variants: {
             colors: {
@@ -175,10 +177,9 @@ export function Button({
               ? size
               : (frame && size[frame.mode]) || 'medium',
         }),
-        wide && css({ width: '100%' }),
         className,
       )}
-      disabled={disabled ?? Boolean(loading)}
+      disabled={Boolean(loading) || disabled}
       {...props}
     >
       <a.div

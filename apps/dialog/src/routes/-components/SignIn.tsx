@@ -1,6 +1,7 @@
-import { Button } from '@porto/apps/components'
+import { Button } from '@porto/ui'
 import { Hooks } from 'porto/remote'
 
+import * as React from 'react'
 import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
@@ -13,8 +14,12 @@ export function SignIn(props: SignIn.Props) {
   const account = Hooks.useAccount(porto)
   const hostname = Dialog.useStore((state) => state.referrer?.url?.hostname)
 
+  const [mode, setMode] = React.useState<'sign-in' | 'sign-up'>('sign-in')
+  const signingIn = mode === 'sign-in' && status === 'responding'
+  const signingUp = mode === 'sign-up' && status === 'responding'
+
   return (
-    <Layout loading={status === 'responding'} loadingTitle="Signing in...">
+    <Layout>
       <Layout.Header className="flex-grow">
         <Layout.Header.Default
           content={
@@ -37,26 +42,35 @@ export function SignIn(props: SignIn.Props) {
 
       <Layout.Footer>
         <Layout.Footer.Actions>
-          <Button
-            className="w-full"
-            data-testid="sign-up"
-            disabled={status === 'loading'}
-            onClick={() => onApprove({ signIn: false })}
-            type="button"
-          >
-            Sign up
-          </Button>
-
-          <Button
-            className="w-full"
-            data-testid="sign-in"
-            disabled={status === 'loading'}
-            onClick={() => onApprove({ signIn: true })}
-            type="button"
-            variant="primary"
-          >
-            Sign in
-          </Button>
+          <div className="flex-grow">
+            <Button
+              loading={signingUp && 'Signing up…'}
+              data-testid="sign-up"
+              disabled={status === 'loading' || signingIn}
+              onClick={() => {
+                setMode('sign-up')
+                onApprove({ signIn: false })
+              }}
+              wide
+            >
+              Sign up
+            </Button>
+          </div>
+          <div className="flex-grow">
+            <Button
+              loading={signingIn && 'Signing in…'}
+              wide
+              data-testid="sign-in"
+              disabled={status === 'loading' || signingUp}
+              onClick={() => {
+                setMode('sign-in')
+                onApprove({ signIn: true })
+              }}
+              variant="primary"
+            >
+              Sign in
+            </Button>
+          </div>
         </Layout.Footer.Actions>
 
         {account && (

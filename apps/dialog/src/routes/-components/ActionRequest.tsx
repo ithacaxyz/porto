@@ -1,4 +1,5 @@
-import { Button, ChainIcon, Spinner } from '@porto/apps/components'
+import { ChainIcon, Spinner } from '@porto/apps/components'
+import { Button } from '@porto/ui'
 import { cx } from 'cva'
 import { type Address, Base64 } from 'ox'
 import type { Chains } from 'porto'
@@ -87,7 +88,7 @@ export function ActionRequest(props: ActionRequest.Props) {
       onReject={onReject}
       query={prepareCallsQuery}
     >
-      <Layout loading={loading} loadingTitle="Sending...">
+      <Layout>
         <Layout.Header>
           <Layout.Header.Default
             icon={prepareCallsQuery.isError ? TriangleAlert : Star}
@@ -112,43 +113,25 @@ export function ActionRequest(props: ActionRequest.Props) {
 
         <Layout.Footer>
           <Layout.Footer.Actions>
-            {prepareCallsQuery.isError ? (
-              <>
-                <Button onClick={onReject} type="button" variant="destructive">
-                  Deny
-                </Button>
-                <Button
-                  className="flex-grow"
-                  onClick={() => onApprove(prepareCallsQuery.data!)}
-                  type="button"
-                  variant="success"
-                >
-                  Approve anyway
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  disabled={!prepareCallsQuery.isSuccess}
-                  onClick={onReject}
-                  type="button"
-                  variant="destructive"
-                >
-                  Deny
-                </Button>
-
-                <Button
-                  className="flex-grow"
-                  data-testid="confirm"
-                  disabled={!prepareCallsQuery.isSuccess}
-                  onClick={() => onApprove(prepareCallsQuery.data!)}
-                  type="button"
-                  variant="success"
-                >
-                  Approve
-                </Button>
-              </>
-            )}
+            <Button
+              disabled={prepareCallsQuery.isPending || loading}
+              onClick={onReject}
+              variant="negative"
+            >
+              Deny
+            </Button>
+            <div className="flex-1">
+              <Button
+                data-testid="confirm"
+                disabled={!prepareCallsQuery.isSuccess}
+                loading={loading && 'Sending…'}
+                onClick={() => onApprove(prepareCallsQuery.data!)}
+                variant="positive"
+                wide
+              >
+                {prepareCallsQuery.isError ? 'Approve anyway' : 'Approve'}
+              </Button>
+            </div>
           </Layout.Footer.Actions>
 
           {account?.address && (
