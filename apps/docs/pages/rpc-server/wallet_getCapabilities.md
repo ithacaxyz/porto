@@ -74,10 +74,10 @@ type Response = {
       tokens: {
         address: Address,
         decimals: number,
-        kind: 'USDC' | 'USDT' | 'ETH',
         // the rate of the fee token to native tokens
         nativeRate: Hex,
         symbol: string,
+        uid: string
       }[],
     },
   }
@@ -128,23 +128,23 @@ cast rpc --rpc-url https://porto-dev.rpc.ithaca.xyz wallet_getCapabilities '[284
         {
           "address": "0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa",
           "decimals": 18,
-          "kind": "USDT",
           "nativeRate": "0x17a503c0a7000",
-          "symbol": "EXP"
+          "symbol": "EXP",
+          "uid": "exp2"
         },
         {
           "address": "0x502ff46e72c47b8c3183db8919700377eed66d2e",
           "decimals": 18,
-          "kind": "USDT",
           "nativeRate": "0x17a503c0a7000",
-          "symbol": "EXP"
+          "symbol": "EXP",
+          "uid": "exp"
         },
         {
           "address": "0x0000000000000000000000000000000000000000",
           "decimals": 18,
-          "kind": "ETH",
           "nativeRate": "0xde0b6b3a7640000",
-          "symbol": "ETH"
+          "symbol": "ETH",
+          "uid": "ethereum"
         }
       ]
     }

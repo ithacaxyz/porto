@@ -106,14 +106,14 @@ function Chains() {
   return (
     <div style={{ display: 'flex', gap: '2rem' }}>
       {chains.map((chain) => (
-        <>
+        <div key={chain.id}>
           <ChainGroup
             chainId={chain.id as ChainId}
             key={chain.id}
             name={chain.name}
           />
           <div style={{ backgroundColor: '#b0b0b0', minWidth: 1 }} />
-        </>
+        </div>
       ))}
     </div>
   )

@@ -92,7 +92,7 @@ function defineRpcServer(parameters: {
             http: {
               port,
             },
-            version: 'v20.1.0',
+            version: 'v21.0.0',
           }),
         port,
       }).start()

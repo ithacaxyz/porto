@@ -3,6 +3,7 @@ import { getCapabilities } from 'viem/actions'
 import { readFile, writeFile } from 'node:fs/promises'
 import * as Chains from 'viem/chains'
 
+// TODO: Update wagmi.config.ts
 console.log('Fetching chains for environments.')
 
 const environments = [
