@@ -13,7 +13,7 @@ import { useBalance, useWatchBlockNumber, useWatchContractEvent } from 'wagmi'
 import * as FeeTokens from '~/lib/FeeTokens'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
-// import AppleIcon from '~icons/basil/apple-solid'
+import AppleIcon from '~icons/basil/apple-solid'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
 import CopyIcon from '~icons/lucide/copy'
 import CardIcon from '~icons/lucide/credit-card'
@@ -438,7 +438,7 @@ declare global {
 function OnrampView(props: OnrampView.Props) {
   const { address, amount } = props
   const [hasError, setHasError] = React.useState<boolean>(false)
-  // const [isLoading, setIsLoading] = React.useState<boolean>(true)
+  const [isLoading, setIsLoading] = React.useState<boolean>(true)
   const widgetContainerRef = React.useRef<HTMLDivElement>(null)
   const widgetInstanceRef = React.useRef<any>(null)
 
@@ -458,12 +458,8 @@ function OnrampView(props: OnrampView.Props) {
         signature: string
         widgetFlow: string
         widgetUrl: string
-        birthdate: string
-        firstName: string
-        lastName: string
         network: string
         paymentMethod: string
-        fiatAmount: string
         fiatCurrency: string
         currency: string
       }>
@@ -480,28 +476,23 @@ function OnrampView(props: OnrampView.Props) {
       merchantTransactionId,
       initToken,
       initTypeToken,
-      birthdate,
       currency,
-      firstName,
-      lastName,
       network,
-      // fiatAmount,
       fiatCurrency,
       widgetFlow,
+      ...rest
     } = onrampQuery.data
-    console.info(window.mercuryoWidget)
+
     const widget = window.mercuryoWidget.run({
+      ...rest,
       address,
       amount,
-      birthdate,
       currency,
       fiatAmount: amount,
       fiatCurrency,
-      firstName,
-      host: document.querySelector('div#mercuryo-widget'),
+      host: widgetContainerRef.current,
       initToken,
       initTokenType: initTypeToken,
-      lastName,
       merchantTransactionId,
       network,
       paymentMethod: 'apple',
@@ -515,10 +506,10 @@ function OnrampView(props: OnrampView.Props) {
 
     widget?.onReady(() => {
       console.log('[onramp] Widget is ready')
+      setIsLoading(false)
     })
   }, [address, amount, onrampQuery.data])
 
-  // Cleanup on unmount
   React.useEffect(() => {
     return () => {
       if (widgetInstanceRef.current?.destroy)
@@ -537,7 +528,7 @@ function OnrampView(props: OnrampView.Props) {
           className="text-xs"
           onClick={() => {
             setHasError(false)
-            // setIsLoading(true)
+            setIsLoading(true)
             onrampQuery.refetch()
           }}
           variant="default"
@@ -551,7 +542,7 @@ function OnrampView(props: OnrampView.Props) {
   return (
     <div className="flex flex-col justify-between gap-2">
       <article className="relative mx-auto w-full select-none overflow-hidden rounded-full">
-        {/* {isLoading && (
+        {isLoading && (
           <Button
             className="w-full cursor-pointer! opacity-50"
             disabled
@@ -563,7 +554,7 @@ function OnrampView(props: OnrampView.Props) {
               <span className="text-[16px]">Pay</span>
             </div>
           </Button>
-        )} */}
+        )}
 
         <div
           className="h-[44px] min-h-[44px] w-full min-w-full"
