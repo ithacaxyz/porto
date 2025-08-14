@@ -139,7 +139,7 @@ export function AddFunds(props: AddFunds.Props) {
                   variant="primary"
                   wide
                 >
-                  Get started
+                  Add funds
                 </UiButton>
               )}
             </div>
