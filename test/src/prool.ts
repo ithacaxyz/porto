@@ -241,8 +241,8 @@ function createRelayConfig(opts: {
         : {}),
     },
     {
-      defaultStringType: 'QUOTE_DOUBLE',
       defaultKeyType: 'PLAIN',
+      defaultStringType: 'QUOTE_DOUBLE',
     },
   )
 }
