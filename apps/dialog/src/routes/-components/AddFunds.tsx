@@ -486,7 +486,6 @@ function OnrampView(props: OnrampView.Props) {
       fiatCurrency,
       widgetFlow,
     } = onrampQuery.data
-    console.info(window.mercuryoWidget)
     const widget = window.mercuryoWidget.run({
       address,
       amount,
