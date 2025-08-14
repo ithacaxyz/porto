@@ -65,6 +65,8 @@ export function AddFunds(props: AddFunds.Props) {
       const params = new URLSearchParams({
         address,
         chainId: chain.id.toString(),
+        // TODO: Remove
+        overrideTokenAddress: '0x3A9b126BF65C518F1E02602BD77bD1288147F94C',
         value: value.toString(),
       })
       const response = await fetch(
