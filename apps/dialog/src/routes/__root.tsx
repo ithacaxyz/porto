@@ -213,23 +213,21 @@ function CheckError(props: CheckError.Props) {
       <Layout.Footer>
         <Layout.Footer.Actions>
           {secondaryAction && (
-            <Button
+            <UiButton
               data-testid="secondary-action"
               onClick={secondaryAction.onClick}
-              type="button"
             >
               {secondaryAction.label}
-            </Button>
+            </UiButton>
           )}
-          <Button
-            className="flex-grow"
+          <UiButton
             data-testid="primary-action"
+            grow
             onClick={mainAction.onClick}
-            type="button"
             variant="primary"
           >
             {mainAction.label}
-          </Button>
+          </UiButton>
         </Layout.Footer.Actions>
       </Layout.Footer>
     </Layout>
