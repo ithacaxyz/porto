@@ -105,10 +105,10 @@ export function Spinner({
 
 export namespace Spinner {
   export type Props = {
-    color?: string
-    padding?: number
-    size?: Size
-    thickness?: number
+    color?: string | undefined
+    padding?: number | undefined
+    size?: Size | undefined
+    thickness?: number | undefined
   }
 
   export type Size = 'small' | 'medium' | 'large' | number
