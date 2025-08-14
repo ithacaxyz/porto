@@ -23,12 +23,7 @@ export function Spinner({
   padding,
   size = 'medium',
   thickness,
-}: {
-  color?: string
-  padding?: number
-  size?: 'small' | 'medium' | 'large' | number
-  thickness?: number
-}) {
+}: Spinner.Props) {
   padding ??= 1
   color ??= 'var(--color-th_accent)'
 
@@ -106,4 +101,15 @@ export function Spinner({
       </svg>
     </div>
   )
+}
+
+export namespace Spinner {
+  export type Props = {
+    color?: string
+    padding?: number
+    size?: Size
+    thickness?: number
+  }
+
+  export type Size = 'small' | 'medium' | 'large' | number
 }
