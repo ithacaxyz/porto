@@ -222,9 +222,9 @@ function CheckError(props: CheckError.Props) {
           )}
           <UiButton
             data-testid="primary-action"
-            grow
             onClick={mainAction.onClick}
             variant="primary"
+            width="grow"
           >
             {mainAction.label}
           </UiButton>
