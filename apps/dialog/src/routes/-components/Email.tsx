@@ -1,5 +1,5 @@
 import { Input } from '@porto/apps/components'
-import { Button as UiButton } from '@porto/ui'
+import { Button } from '@porto/ui'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
 import * as Dialog from '~/lib/Dialog'
@@ -80,7 +80,7 @@ export function Email(props: Email.Props) {
 
       <div className="group flex min-h-[48px] w-full flex-col items-center justify-center space-y-3 px-3 pb-3">
         {actions.includes('sign-in') && (
-          <UiButton
+          <Button
             data-testid="sign-in"
             disabled={status === 'loading'}
             icon={<IconScanFace className="size-5.25" />}
@@ -96,7 +96,7 @@ export function Email(props: Email.Props) {
             {actions.includes('sign-up')
               ? 'Sign in with Porto'
               : 'Continue with Porto'}
-          </UiButton>
+          </Button>
         )}
 
         {actions.includes('sign-up') ? (
@@ -127,7 +127,7 @@ export function Email(props: Email.Props) {
                 Optional
               </div>
             </div>
-            <UiButton
+            <Button
               data-testid="sign-up"
               disabled={status === 'loading'}
               loading={status === 'responding' && 'Signing up…'}
@@ -147,7 +147,7 @@ export function Email(props: Email.Props) {
                   </>
                 )}
               </span>
-            </UiButton>
+            </Button>
           </form>
         ) : (
           // If no sign up button, this means the user is already logged in, however
