@@ -94,7 +94,6 @@ export function Email(props: Email.Props) {
               setMode('sign-in')
               onApprove({ signIn: true })
             }}
-            size="medium"
             type="button"
             variant="primary"
             width="full"

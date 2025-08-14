@@ -116,7 +116,7 @@ export function ActionRequest(props: ActionRequest.Props) {
             <Button
               disabled={prepareCallsQuery.isPending || loading}
               onClick={onReject}
-              variant="negative"
+              variant="negative-secondary"
             >
               Deny
             </Button>
