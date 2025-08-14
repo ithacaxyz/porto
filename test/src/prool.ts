@@ -175,68 +175,74 @@ function createRelayConfig(opts: {
   orchestrator: string
   simulator: string | undefined
 }) {
-  return YAML.stringify({
-    chains: {
-      anvil: {
-        assets: Object.fromEntries(
-          opts.feeTokens.map((feeToken, index) => [
-            feeToken === '0x0000000000000000000000000000000000000000'
-              ? 'ethereum'
-              : `exp${index}`,
-            {
-              address: feeToken,
-              fee_token: true,
-              interop: feeToken === opts.interopToken,
-            },
-          ]),
-        ),
-        endpoint: opts.endpoint,
-      },
-    },
-    delegation_proxy: opts.delegationProxy,
-    escrow: opts.escrow,
-    fee_recipient: '0x6a658769C4117012A9B6614A0C42e319A5f88e95',
-    funder: opts.funder,
-    legacy_delegation_proxies: [],
-    legacy_orchestrators: [],
-    orchestrator: opts.orchestrator,
-    quote: {
-      gas: {
-        intentBuffer: opts.intentGasBuffer ?? 10000,
-        txBuffer: 100000,
-      },
-      rateTtl: 600,
-      ttl: 300,
-    },
-    server: {
-      address: '127.0.0.1',
-      max_connections: 1000,
-      metrics_port: 9000,
-      port: 9119,
-    },
-    simulator: opts.simulator,
-    transactions: {
-      balance_check_interval: 5,
-      max_pending_transactions: 100,
-      max_queued_per_eoa: 1,
-      max_transactions_per_signer: 16,
-      nonce_check_interval: 60,
-      num_signers: 1,
-      priority_fee_percentile: 20,
-      public_node_endpoints: {},
-      transaction_timeout: 60,
-    },
-    ...(opts.enableInterop
-      ? {
-          interop: {
-            settler: {
-              simple: {
-                settler_address: '0x',
+  return YAML.stringify(
+    {
+      chains: {
+        anvil: {
+          assets: Object.fromEntries(
+            opts.feeTokens.map((feeToken, index) => [
+              feeToken === '0x0000000000000000000000000000000000000000'
+                ? 'ethereum'
+                : `exp${index}`,
+              {
+                address: feeToken,
+                fee_token: true,
+                interop: feeToken === opts.interopToken,
               },
-              wait_verification_timeout: 100000,
+            ]),
+          ),
+          endpoint: opts.endpoint,
+        },
+      },
+      delegation_proxy: opts.delegationProxy,
+      escrow: opts.escrow,
+      fee_recipient: '0x6a658769C4117012A9B6614A0C42e319A5f88e95',
+      funder: opts.funder,
+      legacy_delegation_proxies: [],
+      legacy_orchestrators: [],
+      orchestrator: opts.orchestrator,
+      quote: {
+        gas: {
+          intentBuffer: opts.intentGasBuffer ?? 10000,
+          txBuffer: 100000,
+        },
+        rateTtl: 600,
+        ttl: 300,
+      },
+      server: {
+        address: '127.0.0.1',
+        max_connections: 1000,
+        metrics_port: 9000,
+        port: 9119,
+      },
+      simulator: opts.simulator,
+      transactions: {
+        balance_check_interval: 5,
+        max_pending_transactions: 100,
+        max_queued_per_eoa: 1,
+        max_transactions_per_signer: 16,
+        nonce_check_interval: 60,
+        num_signers: 1,
+        priority_fee_percentile: 20,
+        public_node_endpoints: {},
+        transaction_timeout: 60,
+      },
+      ...(opts.enableInterop
+        ? {
+            interop: {
+              settler: {
+                simple: {
+                  settler_address: '0x',
+                },
+                wait_verification_timeout: 100000,
+              },
             },
-          },
-        }
-      : {}),
-  })
+          }
+        : {}),
+    },
+    {
+      defaultStringType: 'QUOTE_DOUBLE',
+      defaultKeyType: 'PLAIN',
+    },
+  )
 }
