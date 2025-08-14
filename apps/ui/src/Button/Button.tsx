@@ -16,7 +16,8 @@ export function Button({
   shape = 'normal',
   size,
   variant = 'secondary',
-  wide,
+  width = 'auto',
+  type = 'button',
   ...props
 }: Button.Props) {
   const frame = Frame.useFrame(true)
@@ -38,36 +39,25 @@ export function Button({
       labelOpacity: 1,
       loadingOpacity: 0,
     },
-    to: loading
-      ? async (next) => {
-          // wait for the loading text to render so we can get its width
-          await new Promise((resolve) => setTimeout(resolve, 0))
-
-          const width = loadingRef.current?.clientWidth ?? 0
-          await Promise.all([
-            next({ immediate: true, labelOpacity: 0 }),
-            next({
-              containerWidth: width,
-              immediate: firstRender.current,
-              labelOpacity: 0,
-              loadingOpacity: 1,
-            }),
-          ])
-          firstRender.current = false
-        }
-      : async (next) => {
-          const width = labelRef.current?.clientWidth ?? 0
-          await Promise.all([
-            next({ immediate: true, loadingOpacity: 0 }),
-            next({
-              containerWidth: width,
-              immediate: firstRender.current,
-              labelOpacity: 1,
-              loadingOpacity: 0,
-            }),
-          ])
-          firstRender.current = false
-        },
+    to: async (next) => {
+      const targetRef = loading ? loadingRef : labelRef
+      const width = targetRef.current?.clientWidth ?? 0
+      if (width === 0) return
+      await Promise.all([
+        next(
+          loading
+            ? { immediate: true, labelOpacity: 0 }
+            : { immediate: true, loadingOpacity: 0 },
+        ),
+        next({
+          containerWidth: width,
+          immediate: firstRender.current,
+          labelOpacity: loading ? 0 : 1,
+          loadingOpacity: loading ? 1 : 0,
+        }),
+      ])
+      firstRender.current = false
+    },
   })
 
   return (
@@ -101,9 +91,12 @@ export function Button({
           borderRadius: 'var(--radius-th_medium)',
           cursor: 'pointer!',
           display: 'inline-flex',
+          flex: '0 0 auto',
           justifyContent: 'center',
           whiteSpace: 'nowrap',
         }),
+        width === 'full' && css({ width: '100%' }),
+        width === 'grow' && css({ flexGrow: 1 }),
         cva({
           variants: {
             colors: {
@@ -175,11 +168,15 @@ export function Button({
               ? size
               : (frame && size[frame.mode]) || 'medium',
         }),
-        wide && css({ width: '100%' }),
         className,
       )}
       disabled={Boolean(loading) || disabled}
+      type={type}
       {...props}
+      style={{
+        ...props.style,
+        width: typeof width === 'number' ? width : undefined,
+      }}
     >
       <a.div
         className={css({
@@ -194,26 +191,27 @@ export function Button({
           ),
         }}
       >
-        <a.div
-          className={css({
-            alignItems: 'center',
-            display: 'flex',
-            inset: '0 auto 0 0',
-            position: 'absolute',
-          })}
-          ref={loadingRef}
-          style={{
-            gap: size === 'small' ? 6 : 8,
-            opacity: loadingSpring.loadingOpacity,
-            visibility: loading ? 'visible' : 'hidden',
-          }}
-        >
-          <Spinner
-            color="currentColor"
-            size={size === 'small' ? 'small' : 'medium'}
-          />
-          {loading === true ? 'Loading…' : loading}
-        </a.div>
+        {loading && (
+          <a.div
+            className={css({
+              alignItems: 'center',
+              display: 'flex',
+              inset: '0 auto 0 0',
+              position: 'absolute',
+            })}
+            ref={loadingRef}
+            style={{
+              gap: size === 'small' ? 6 : 8,
+              opacity: loadingSpring.loadingOpacity,
+            }}
+          >
+            <Spinner
+              color="currentColor"
+              size={size === 'small' ? 'small' : 'medium'}
+            />
+            {loading === true ? 'Loading…' : loading}
+          </a.div>
+        )}
         <a.div
           className={css({
             alignItems: 'center',
@@ -249,6 +247,6 @@ export namespace Button {
       | 'primary'
       | 'secondary'
       | 'strong'
-    wide?: boolean
+    width?: 'auto' | 'full' | 'grow' | number | undefined
   }
 }

@@ -1,6 +1,7 @@
-import { Button } from '@porto/apps/components'
+import { Button } from '@porto/ui'
 import { Hooks } from 'porto/remote'
 
+import * as React from 'react'
 import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
@@ -13,8 +14,12 @@ export function SignIn(props: SignIn.Props) {
   const account = Hooks.useAccount(porto)
   const hostname = Dialog.useStore((state) => state.referrer?.url?.hostname)
 
+  const [mode, setMode] = React.useState<'sign-in' | 'sign-up'>('sign-in')
+  const signingIn = mode === 'sign-in' && status === 'responding'
+  const signingUp = mode === 'sign-up' && status === 'responding'
+
   return (
-    <Layout loading={status === 'responding'} loadingTitle="Signing in...">
+    <Layout>
       <Layout.Header className="flex-grow">
         <Layout.Header.Default
           content={
@@ -38,22 +43,27 @@ export function SignIn(props: SignIn.Props) {
       <Layout.Footer>
         <Layout.Footer.Actions>
           <Button
-            className="w-full"
             data-testid="sign-up"
-            disabled={status === 'loading'}
-            onClick={() => onApprove({ signIn: false })}
-            type="button"
+            disabled={status === 'loading' || signingIn}
+            loading={signingUp && 'Signing up…'}
+            onClick={() => {
+              setMode('sign-up')
+              onApprove({ signIn: false })
+            }}
+            width="grow"
           >
             Sign up
           </Button>
-
           <Button
-            className="w-full"
             data-testid="sign-in"
-            disabled={status === 'loading'}
-            onClick={() => onApprove({ signIn: true })}
-            type="button"
+            disabled={status === 'loading' || signingUp}
+            loading={signingIn && 'Signing in…'}
+            onClick={() => {
+              setMode('sign-in')
+              onApprove({ signIn: true })
+            }}
             variant="primary"
+            width="grow"
           >
             Sign in
           </Button>

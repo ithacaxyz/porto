@@ -93,19 +93,19 @@ function ButtonComponent() {
             <LoadingButton icon={true} label="With icon" />
           </div>
           <div className="flex flex-wrap items-center gap-4">
-            <LoadingButton label="Wide" wide />
+            <LoadingButton label="Full width" width="full" />
           </div>
         </div>
       </ComponentScreen.Section>
-      <ComponentScreen.Section title="Wide">
+      <ComponentScreen.Section title="Full width">
         <div className="flex max-w-1xl flex-col items-center gap-4">
-          <Button size="small" wide>
+          <Button size="small" width="full">
             Small
           </Button>
-          <Button size="medium" wide>
+          <Button size="medium" width="full">
             Medium
           </Button>
-          <Button size="large" wide>
+          <Button size="large" width="full">
             Large
           </Button>
         </div>
@@ -119,13 +119,13 @@ function LoadingButton({
   label,
   loadingLabel,
   size,
-  wide,
+  width,
 }: {
   icon?: boolean
   label?: string
   loadingLabel?: string
   size?: ComponentProps<typeof Button>['size']
-  wide?: boolean
+  width?: ComponentProps<typeof Button>['width']
 }) {
   const [loading, setLoading] = useState(false)
 
@@ -142,7 +142,7 @@ function LoadingButton({
       onClick={() => setLoading(true)}
       size={size}
       variant="primary"
-      wide={wide}
+      width={width}
     >
       {label ?? 'Click'}
     </Button>

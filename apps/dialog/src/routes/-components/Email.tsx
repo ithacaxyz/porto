@@ -1,4 +1,5 @@
-import { Button, Input } from '@porto/apps/components'
+import { Input } from '@porto/apps/components'
+import { Button } from '@porto/ui'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
 import * as Dialog from '~/lib/Dialog'
@@ -18,8 +19,6 @@ export function Email(props: Email.Props) {
     status,
   } = props
 
-  const [respondingTitle, setRespondingTitle] = React.useState('Signing up...')
-
   const account = Hooks.useAccount(porto)
   const email = Dialog.useStore((state) =>
     account?.address
@@ -37,12 +36,18 @@ export function Email(props: Email.Props) {
   )
   const hostname = Dialog.useStore((state) => state.referrer?.url?.hostname)
 
-  const onSubmit = React.useCallback<React.FormEventHandler<HTMLFormElement>>(
+  const [mode, setMode] = React.useState<'sign-in' | 'sign-up'>('sign-in')
+  const signingIn = mode === 'sign-in' && status === 'responding'
+  const signingUp = mode === 'sign-up' && status === 'responding'
+
+  const onSignUpSubmit = React.useCallback<
+    React.FormEventHandler<HTMLFormElement>
+  >(
     async (event) => {
       event.preventDefault()
       const formData = new FormData(event.target as HTMLFormElement)
       const email = formData.get('email')?.toString()
-      setRespondingTitle('Signing up...')
+      setMode('sign-up')
       onApprove({ email, signIn: false })
     },
     [onApprove],
@@ -67,7 +72,7 @@ export function Email(props: Email.Props) {
   }, [actions, cli, hostname])
 
   return (
-    <Layout loading={status === 'responding'} loadingTitle={respondingTitle}>
+    <Layout>
       <Layout.Header className="flex-grow">
         <Layout.Header.Default
           content={content}
@@ -81,17 +86,19 @@ export function Email(props: Email.Props) {
       <div className="group flex min-h-[48px] w-full flex-col items-center justify-center space-y-3 px-3 pb-3">
         {actions.includes('sign-in') && (
           <Button
-            className="flex w-full gap-2"
             data-testid="sign-in"
-            disabled={status === 'loading'}
+            disabled={status === 'loading' || signingUp}
+            icon={<IconScanFace className="size-5.25" />}
+            loading={signingIn && 'Signing in…'}
             onClick={() => {
-              setRespondingTitle('Signing in...')
+              setMode('sign-in')
               onApprove({ signIn: true })
             }}
+            size="medium"
             type="button"
             variant="primary"
+            width="full"
           >
-            <IconScanFace className="size-5.25" />
             {actions.includes('sign-up')
               ? 'Sign in with Porto'
               : 'Continue with Porto'}
@@ -101,7 +108,7 @@ export function Email(props: Email.Props) {
         {actions.includes('sign-up') ? (
           <form
             className="flex w-full flex-grow flex-col gap-2"
-            onSubmit={onSubmit}
+            onSubmit={onSignUpSubmit}
           >
             {/* If "Sign in" button is present, show the "First time?" text for sign up. */}
             {actions.includes('sign-in') && (
@@ -117,7 +124,7 @@ export function Email(props: Email.Props) {
               <Input
                 className="w-full user-invalid:bg-th_field user-invalid:ring-th_base-negative"
                 defaultValue={defaultValue}
-                disabled={status === 'loading'}
+                disabled={status === 'loading' || signingIn}
                 name="email"
                 placeholder="example@ithaca.xyz"
                 type="email"
@@ -127,11 +134,11 @@ export function Email(props: Email.Props) {
               </div>
             </div>
             <Button
-              className="w-full gap-2 group-has-[:user-invalid]:cursor-not-allowed group-has-[:user-invalid]:text-th_base-tertiary"
               data-testid="sign-up"
-              disabled={status === 'loading'}
-              type="submit"
-              variant={actions.includes('sign-in') ? 'default' : 'primary'}
+              disabled={status === 'loading' || signingIn}
+              loading={signingUp && 'Signing up…'}
+              size="medium"
+              variant={actions.includes('sign-in') ? 'secondary' : 'primary'}
             >
               <span className="hidden group-has-[:user-invalid]:block">
                 Invalid email
@@ -159,7 +166,6 @@ export function Email(props: Email.Props) {
             <button
               className="text-th_link"
               onClick={() => {
-                setRespondingTitle('Signing in...')
                 onApprove({ selectAccount: true, signIn: true })
               }}
               type="button"

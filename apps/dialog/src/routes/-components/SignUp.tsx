@@ -1,5 +1,4 @@
-import { Button } from '@porto/apps/components'
-import { LightDarkImage } from '@porto/ui'
+import { Button, LightDarkImage } from '@porto/ui'
 import { useState } from 'react'
 import * as Dialog from '~/lib/Dialog'
 import { Layout } from '~/routes/-components/Layout'
@@ -16,8 +15,9 @@ export function SignUp(props: SignUp.Props) {
   const hostname = Dialog.useStore((state) => state.referrer?.url?.hostname)
 
   if (showLearn) return <SignUp.Learn onDone={() => setShowLearn(false)} />
+
   return (
-    <Layout loading={status === 'responding'} loadingTitle="Signing up...">
+    <Layout>
       <Layout.Header className="flex-grow">
         <Layout.Header.Default
           content={
@@ -45,23 +45,22 @@ export function SignUp(props: SignUp.Props) {
               data-testid="sign-in"
               disabled={status === 'loading'}
               onClick={() => onApprove({ selectAccount: true, signIn: true })}
-              type="button"
             >
               Sign in
             </Button>
           ) : (
-            <Button data-testid="cancel" onClick={onReject} type="button">
+            <Button data-testid="cancel" onClick={onReject}>
               No thanks
             </Button>
           )}
 
           <Button
-            className="flex-grow"
             data-testid="sign-up"
             disabled={status === 'loading'}
+            loading={status === 'responding' && 'Signing up…'}
             onClick={() => onApprove({ signIn: false })}
-            type="button"
             variant="primary"
+            width="grow"
           >
             Sign up
           </Button>
@@ -126,7 +125,7 @@ export namespace SignUp {
 
         <Layout.Footer>
           <Layout.Footer.Actions>
-            <Button className="flex-grow" onClick={onDone} type="button">
+            <Button onClick={onDone} width="full">
               Back
             </Button>
           </Layout.Footer.Actions>
