@@ -138,8 +138,8 @@ export function Email(props: Email.Props) {
               disabled={status === 'loading' || signingIn}
               loading={signingUp && 'Signing up…'}
               size="medium"
-              variant={actions.includes('sign-in') ? 'secondary' : 'primary'}
               type="submit"
+              variant={actions.includes('sign-in') ? 'secondary' : 'primary'}
             >
               <span className="hidden group-has-[:user-invalid]:block">
                 Invalid email
