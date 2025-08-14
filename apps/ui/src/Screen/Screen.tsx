@@ -1,9 +1,9 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { useId } from 'react'
-import { css, cx } from '../../styled-system/css'
-import { Frame } from '../Frame/Frame.js'
-import { ButtonArea } from '../ButtonArea/ButtonArea.js'
 import ChevronRight from '~icons/lucide/chevron-right'
+import { css, cx } from '../../styled-system/css'
+import { ButtonArea } from '../ButtonArea/ButtonArea.js'
+import { Frame } from '../Frame/Frame.js'
 
 export function Screen({ children, layout, bottomAction }: Screen.Props) {
   const frame = Frame.useFrame()
@@ -183,9 +183,9 @@ function ScreenBottomAction({
     <div
       className={cx(
         css({
+          borderTop: '1px solid var(--border-color-th_base)',
           display: 'flex',
           width: '100%',
-          borderTop: '1px solid var(--border-color-th_base)',
         }),
         layout === 'full' &&
           css({
@@ -198,32 +198,32 @@ function ScreenBottomAction({
       <ButtonArea
         className={cx(
           css({
-            display: 'flex',
-            width: '100%',
             alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: 12,
             borderRadius: 'var(--radius-th_large)',
             borderTopLeftRadius: 0,
             borderTopRightRadius: 0,
+            display: 'flex',
             fontSize: 14,
             fontWeight: 500,
+            justifyContent: 'space-between',
             outlineOffset: -2,
+            padding: 12,
+            width: '100%',
           }),
           layout === 'full' &&
             css({
-              borderRadius: 0,
               '@container (min-width: 480px)': {
                 borderRadius: 'var(--radius-th_medium)',
               },
+              borderRadius: 0,
             }),
         )}
         {...props}
       >
         <div
           className={css({
-            display: 'flex',
             alignItems: 'center',
+            display: 'flex',
             gap: 6,
           })}
         >

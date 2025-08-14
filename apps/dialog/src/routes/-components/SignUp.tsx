@@ -1,4 +1,4 @@
-import { Screen, ButtonArea, Button, LightDarkImage } from '@porto/ui'
+import { Button, LightDarkImage, Screen } from '@porto/ui'
 import { useState } from 'react'
 import * as Dialog from '~/lib/Dialog'
 import { Layout } from '~/routes/-components/Layout'
@@ -18,13 +18,13 @@ export function SignUp(props: SignUp.Props) {
   return (
     <Screen
       bottomAction={{
-        onClick: () => setShowLearn(true),
         children: (
           <>
             <Question className="mt-px size-5 text-th_base-secondary" />
             <span>Learn about passkeys</span>
           </>
         ),
+        onClick: () => setShowLearn(true),
       }}
     >
       <Layout.Header className="flex-grow">

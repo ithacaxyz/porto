@@ -20,10 +20,10 @@ export function ButtonArea({
           _focusVisible: {
             outline: '2px solid var(--color-th_focus)',
           },
-          outlineOffset: 2,
           cursor: 'pointer!',
           display: 'inline-flex',
           flex: '0 0 auto',
+          outlineOffset: 2,
         }),
         className,
       )}
