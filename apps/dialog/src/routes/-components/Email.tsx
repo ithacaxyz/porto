@@ -36,6 +36,10 @@ export function Email(props: Email.Props) {
   )
   const hostname = Dialog.useStore((state) => state.referrer?.url?.hostname)
 
+  const [mode, setMode] = React.useState<'sign-in' | 'sign-up'>('sign-in')
+  const signingIn = mode === 'sign-in' && status === 'responding'
+  const signingUp = mode === 'sign-up' && status === 'responding'
+
   const onSignUpSubmit = React.useCallback<
     React.FormEventHandler<HTMLFormElement>
   >(
@@ -43,6 +47,7 @@ export function Email(props: Email.Props) {
       event.preventDefault()
       const formData = new FormData(event.target as HTMLFormElement)
       const email = formData.get('email')?.toString()
+      setMode('sign-up')
       onApprove({ email, signIn: false })
     },
     [onApprove],
@@ -82,10 +87,11 @@ export function Email(props: Email.Props) {
         {actions.includes('sign-in') && (
           <Button
             data-testid="sign-in"
-            disabled={status === 'loading'}
+            disabled={status === 'loading' || signingUp}
             icon={<IconScanFace className="size-5.25" />}
-            loading={status === 'responding' && 'Signing in…'}
+            loading={signingIn && 'Signing in…'}
             onClick={() => {
+              setMode('sign-in')
               onApprove({ signIn: true })
             }}
             size="medium"
@@ -118,7 +124,7 @@ export function Email(props: Email.Props) {
               <Input
                 className="w-full user-invalid:bg-th_field user-invalid:ring-th_base-negative"
                 defaultValue={defaultValue}
-                disabled={status === 'loading'}
+                disabled={status === 'loading' || signingIn}
                 name="email"
                 placeholder="example@ithaca.xyz"
                 type="email"
@@ -129,8 +135,8 @@ export function Email(props: Email.Props) {
             </div>
             <Button
               data-testid="sign-up"
-              disabled={status === 'loading'}
-              loading={status === 'responding' && 'Signing up…'}
+              disabled={status === 'loading' || signingIn}
+              loading={signingUp && 'Signing up…'}
               size="medium"
               variant={actions.includes('sign-in') ? 'secondary' : 'primary'}
             >
