@@ -42,6 +42,7 @@ export function Button({
     to: async (next) => {
       const targetRef = loading ? loadingRef : labelRef
       const width = targetRef.current?.clientWidth ?? 0
+      if (width === 0) return
       await Promise.all([
         next(
           loading
