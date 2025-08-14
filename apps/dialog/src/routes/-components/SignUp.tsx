@@ -1,9 +1,8 @@
-import { Button, LightDarkImage } from '@porto/ui'
+import { Screen, ButtonArea, Button, LightDarkImage } from '@porto/ui'
 import { useState } from 'react'
 import * as Dialog from '~/lib/Dialog'
 import { Layout } from '~/routes/-components/Layout'
 import { Permissions } from '~/routes/-components/Permissions'
-import ChevronRight from '~icons/lucide/chevron-right'
 import LucideLogIn from '~icons/lucide/log-in'
 import Question from '~icons/mingcute/question-line'
 
@@ -17,7 +16,17 @@ export function SignUp(props: SignUp.Props) {
   if (showLearn) return <SignUp.Learn onDone={() => setShowLearn(false)} />
 
   return (
-    <Layout>
+    <Screen
+      bottomAction={{
+        onClick: () => setShowLearn(true),
+        children: (
+          <>
+            <Question className="mt-px size-5 text-th_base-secondary" />
+            <span>Learn about passkeys</span>
+          </>
+        ),
+      }}
+    >
       <Layout.Header className="flex-grow">
         <Layout.Header.Default
           content={
@@ -65,22 +74,8 @@ export function SignUp(props: SignUp.Props) {
             Sign up
           </Button>
         </Layout.Footer.Actions>
-
-        <button
-          className="flex w-full cursor-pointer items-center justify-between border-th_base border-t p-3 pb-0"
-          onClick={() => setShowLearn(true)}
-          type="button"
-        >
-          <div className="flex items-center gap-1.5">
-            <Question className="mt-px size-5 text-th_base-secondary" />
-            <span className="font-medium text-[14px]">
-              Learn about passkeys
-            </span>
-          </div>
-          <ChevronRight className="size-5 text-th_base opacity-50" />
-        </button>
       </Layout.Footer>
-    </Layout>
+    </Screen>
   )
 }
 
@@ -95,7 +90,7 @@ export namespace SignUp {
 
   export function Learn({ onDone }: { onDone: () => void }) {
     return (
-      <Layout>
+      <Screen>
         <Layout.Header className="flex-grow space-y-2">
           <LightDarkImage
             alt="Diagram illustrating how passkeys work"
@@ -130,7 +125,7 @@ export namespace SignUp {
             </Button>
           </Layout.Footer.Actions>
         </Layout.Footer>
-      </Layout>
+      </Screen>
     )
   }
 }

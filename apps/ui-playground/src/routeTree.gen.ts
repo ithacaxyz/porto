@@ -19,6 +19,7 @@ import { Route as ScreenImport } from './routes/Screen'
 import { Route as InputImport } from './routes/Input'
 import { Route as FrameImport } from './routes/Frame'
 import { Route as ColorsImport } from './routes/Colors'
+import { Route as ButtonAreaImport } from './routes/ButtonArea'
 import { Route as ButtonImport } from './routes/Button'
 import { Route as IndexImport } from './routes/index'
 
@@ -72,6 +73,12 @@ const ColorsRoute = ColorsImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const ButtonAreaRoute = ButtonAreaImport.update({
+  id: '/ButtonArea',
+  path: '/ButtonArea',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const ButtonRoute = ButtonImport.update({
   id: '/Button',
   path: '/Button',
@@ -100,6 +107,13 @@ declare module '@tanstack/react-router' {
       path: '/Button'
       fullPath: '/Button'
       preLoaderRoute: typeof ButtonImport
+      parentRoute: typeof rootRoute
+    }
+    '/ButtonArea': {
+      id: '/ButtonArea'
+      path: '/ButtonArea'
+      fullPath: '/ButtonArea'
+      preLoaderRoute: typeof ButtonAreaImport
       parentRoute: typeof rootRoute
     }
     '/Colors': {
@@ -166,6 +180,7 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/Button': typeof ButtonRoute
+  '/ButtonArea': typeof ButtonAreaRoute
   '/Colors': typeof ColorsRoute
   '/Frame': typeof FrameRoute
   '/Input': typeof InputRoute
@@ -179,6 +194,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/Button': typeof ButtonRoute
+  '/ButtonArea': typeof ButtonAreaRoute
   '/Colors': typeof ColorsRoute
   '/Frame': typeof FrameRoute
   '/Input': typeof InputRoute
@@ -193,6 +209,7 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/Button': typeof ButtonRoute
+  '/ButtonArea': typeof ButtonAreaRoute
   '/Colors': typeof ColorsRoute
   '/Frame': typeof FrameRoute
   '/Input': typeof InputRoute
@@ -208,6 +225,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/Button'
+    | '/ButtonArea'
     | '/Colors'
     | '/Frame'
     | '/Input'
@@ -220,6 +238,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/Button'
+    | '/ButtonArea'
     | '/Colors'
     | '/Frame'
     | '/Input'
@@ -232,6 +251,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/Button'
+    | '/ButtonArea'
     | '/Colors'
     | '/Frame'
     | '/Input'
@@ -246,6 +266,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ButtonRoute: typeof ButtonRoute
+  ButtonAreaRoute: typeof ButtonAreaRoute
   ColorsRoute: typeof ColorsRoute
   FrameRoute: typeof FrameRoute
   InputRoute: typeof InputRoute
@@ -259,6 +280,7 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ButtonRoute: ButtonRoute,
+  ButtonAreaRoute: ButtonAreaRoute,
   ColorsRoute: ColorsRoute,
   FrameRoute: FrameRoute,
   InputRoute: InputRoute,
@@ -281,6 +303,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/Button",
+        "/ButtonArea",
         "/Colors",
         "/Frame",
         "/Input",
@@ -296,6 +319,9 @@ export const routeTree = rootRoute
     },
     "/Button": {
       "filePath": "Button.tsx"
+    },
+    "/ButtonArea": {
+      "filePath": "ButtonArea.tsx"
     },
     "/Colors": {
       "filePath": "Colors.tsx"
