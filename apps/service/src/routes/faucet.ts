@@ -37,7 +37,12 @@ faucetApp.on(
   ['GET', 'POST'],
   '/',
   validator('query', (values, context) => {
-    const { address, chainId, value = '25' } = <Record<string, string>>values
+    const {
+      address,
+      chainId,
+      value = '25',
+      rpcSplit = false,
+    } = <Record<string, string>>values
 
     if (!address || !isAddress(address))
       return context.json({ error: 'Valid EVM address required' }, 400)
@@ -48,10 +53,10 @@ faucetApp.on(
     )
       return context.json({ error: 'Valid chainId required' }, 400)
 
-    return { address, chainId, value: BigInt(value) }
+    return { address, chainId, rpcSplit, value: BigInt(value) }
   }),
   async (context) => {
-    const { address, chainId, value } = context.req.valid('query')
+    const { address, chainId, value, rpcSplit } = context.req.valid('query')
 
     const account = privateKeyToAccount(context.env.DRIP_PRIVATE_KEY)
     const client = createWalletClient({
@@ -65,7 +70,9 @@ faucetApp.on(
 
     const hash = await client.writeContract({
       abi: exp1Abi,
-      address: exp1Address[chainId as unknown as keyof typeof exp1Address],
+      address: rpcSplit
+        ? '0x3A9b126BF65C518F1E02602BD77bD1288147F94C'
+        : exp1Address[chainId as unknown as keyof typeof exp1Address],
       args: [address, value],
       functionName: 'mint',
       maxFeePerGas: maxFeePerGas * 2n,
