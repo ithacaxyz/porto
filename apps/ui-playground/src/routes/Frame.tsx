@@ -36,7 +36,7 @@ function GetStartedDemo() {
         <Button
           icon={<LucideScanFace />}
           variant={emailFilled ? 'secondary' : 'primary'}
-          wide
+          width="full"
         >
           Sign in
         </Button>
@@ -49,7 +49,7 @@ function GetStartedDemo() {
           value={email}
         />
         <Spacer.V size={{ dialog: 8, full: 12 }} />
-        <Button variant={emailFilled ? 'primary' : 'secondary'} wide>
+        <Button variant={emailFilled ? 'primary' : 'secondary'} width="full">
           Create account
         </Button>
       </div>
@@ -71,7 +71,7 @@ function SignInDemo() {
         title="Sign in"
       />
       <div>
-        <Button icon={<LucideScanFace />} variant="primary" wide>
+        <Button icon={<LucideScanFace />} variant="primary" width="full">
           Sign in
         </Button>
       </div>
@@ -286,11 +286,11 @@ function ActionRequestDemo() {
           <Button
             onClick={() => setViewDetails(false)}
             variant="secondary"
-            wide
+            width="full"
           >
             Cancel
           </Button>
-          <Button variant="primary" wide>
+          <Button variant="primary" width="full">
             Confirm
           </Button>
         </div>

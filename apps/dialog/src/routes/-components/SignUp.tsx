@@ -125,7 +125,7 @@ export namespace SignUp {
 
         <Layout.Footer>
           <Layout.Footer.Actions>
-            <Button onClick={onDone} wide>
+            <Button onClick={onDone} width="full">
               Back
             </Button>
           </Layout.Footer.Actions>

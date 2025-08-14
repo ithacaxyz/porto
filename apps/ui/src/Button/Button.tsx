@@ -16,16 +16,12 @@ export function Button({
   shape = 'normal',
   size,
   variant = 'secondary',
-  wide,
-  width,
+  width = 'auto',
   type = 'button',
   ...props
 }: Button.Props) {
   const frame = Frame.useFrame(true)
   size ??= { dialog: 'medium', full: 'large' }
-
-  if (wide && width === undefined) width = 'full'
-  width ??= 'auto'
 
   const loadingRef = useRef<HTMLDivElement>(null)
   const labelRef = useRef<HTMLDivElement>(null)
@@ -250,11 +246,6 @@ export namespace Button {
       | 'primary'
       | 'secondary'
       | 'strong'
-    /**
-     * Use width="full" instead.
-     * @deprecated
-     */
-    wide?: boolean
     width?: 'auto' | 'full' | 'grow' | number
   }
 }

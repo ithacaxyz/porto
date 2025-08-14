@@ -97,7 +97,7 @@ export function Email(props: Email.Props) {
             size="medium"
             type="button"
             variant="primary"
-            wide
+            width="full"
           >
             {actions.includes('sign-up')
               ? 'Sign in with Porto'

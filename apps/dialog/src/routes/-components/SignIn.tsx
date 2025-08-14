@@ -42,35 +42,31 @@ export function SignIn(props: SignIn.Props) {
 
       <Layout.Footer>
         <Layout.Footer.Actions>
-          <div className="flex-grow">
-            <Button
-              data-testid="sign-up"
-              disabled={status === 'loading' || signingIn}
-              loading={signingUp && 'Signing up…'}
-              onClick={() => {
-                setMode('sign-up')
-                onApprove({ signIn: false })
-              }}
-              wide
-            >
-              Sign up
-            </Button>
-          </div>
-          <div className="flex-grow">
-            <Button
-              data-testid="sign-in"
-              disabled={status === 'loading' || signingUp}
-              loading={signingIn && 'Signing in…'}
-              onClick={() => {
-                setMode('sign-in')
-                onApprove({ signIn: true })
-              }}
-              variant="primary"
-              wide
-            >
-              Sign in
-            </Button>
-          </div>
+          <Button
+            data-testid="sign-up"
+            disabled={status === 'loading' || signingIn}
+            loading={signingUp && 'Signing up…'}
+            onClick={() => {
+              setMode('sign-up')
+              onApprove({ signIn: false })
+            }}
+            width="grow"
+          >
+            Sign up
+          </Button>
+          <Button
+            data-testid="sign-in"
+            disabled={status === 'loading' || signingUp}
+            loading={signingIn && 'Signing in…'}
+            onClick={() => {
+              setMode('sign-in')
+              onApprove({ signIn: true })
+            }}
+            variant="primary"
+            width="grow"
+          >
+            Sign in
+          </Button>
         </Layout.Footer.Actions>
 
         {account && (

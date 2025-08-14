@@ -120,18 +120,16 @@ export function ActionRequest(props: ActionRequest.Props) {
             >
               Deny
             </Button>
-            <div className="flex-1">
-              <Button
-                data-testid="confirm"
-                disabled={!prepareCallsQuery.isSuccess}
-                loading={loading && 'Sending…'}
-                onClick={() => onApprove(prepareCallsQuery.data!)}
-                variant="positive"
-                wide
-              >
-                {prepareCallsQuery.isError ? 'Approve anyway' : 'Approve'}
-              </Button>
-            </div>
+            <Button
+              data-testid="confirm"
+              disabled={!prepareCallsQuery.isSuccess}
+              loading={loading && 'Sending…'}
+              onClick={() => onApprove(prepareCallsQuery.data!)}
+              variant="positive"
+              width="grow"
+            >
+              {prepareCallsQuery.isError ? 'Approve anyway' : 'Approve'}
+            </Button>
           </Layout.Footer.Actions>
 
           {account?.address && (
