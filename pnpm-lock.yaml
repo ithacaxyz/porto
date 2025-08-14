@@ -756,6 +756,9 @@ importers:
       '@react-spring/web':
         specifier: 'catalog:'
         version: 10.0.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@size-limit/preset-small-lib':
+        specifier: ^11.1.6
+        version: 11.2.0(size-limit@11.2.0)
       '@types/react':
         specifier: 'catalog:'
         version: 19.1.5
@@ -771,6 +774,9 @@ importers:
       rolldown-plugin-dts:
         specifier: ^0.14.2
         version: 0.14.2(rolldown@1.0.0-beta.15)(typescript@5.8.3)
+      size-limit:
+        specifier: ^11.1.6
+        version: 11.2.0
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -4410,6 +4416,12 @@ packages:
     resolution: {integrity: sha512-dNZafjM93Y+F+sfwTO5gTpsGXlnc/0Q+c2+62ViqP3gkMWvHEMSKkaEHgVJLcLg3i/g19GSIPziiKpgyne07Bw==}
     engines: {node: '>=8'}
 
+  '@size-limit/esbuild@11.2.0':
+    resolution: {integrity: sha512-vSg9H0WxGQPRzDnBzeDyD9XT0Zdq0L+AI3+77/JhxznbSCMJMMr8ndaWVQRhOsixl97N0oD4pRFw2+R1Lcvi6A==}
+    engines: {node: ^18.0.0 || >=20.0.0}
+    peerDependencies:
+      size-limit: 11.2.0
+
   '@size-limit/file@11.2.0':
     resolution: {integrity: sha512-OZHE3putEkQ/fgzz3Tp/0hSmfVo3wyTpOJSRNm6AmcwX4Nm9YtTfbQQ/hZRwbBFR23S7x2Sd9EbqYzngKwbRoA==}
     engines: {node: ^18.0.0 || >=20.0.0}
@@ -4418,6 +4430,11 @@ packages:
 
   '@size-limit/preset-big-lib@11.2.0':
     resolution: {integrity: sha512-4bcpJKm/VVMMDSCvULib340E6VRtqw6xmW0k/KJ+7GwozmeJYu5t1KIT0RW+jooEwp3DCNxMlgLlJPFJWYq7Pw==}
+    peerDependencies:
+      size-limit: 11.2.0
+
+  '@size-limit/preset-small-lib@11.2.0':
+    resolution: {integrity: sha512-RFbbIVfv8/QDgTPyXzjo5NKO6CYyK5Uq5xtNLHLbw5RgSKrgo8WpiB/fNivZuNd/5Wk0s91PtaJ9ThNcnFuI3g==}
     peerDependencies:
       size-limit: 11.2.0
 
@@ -14641,6 +14658,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@size-limit/esbuild@11.2.0(size-limit@11.2.0)':
+    dependencies:
+      esbuild: 0.25.8
+      nanoid: 5.1.5
+      size-limit: 11.2.0
+
   '@size-limit/file@11.2.0(size-limit@11.2.0)':
     dependencies:
       size-limit: 11.2.0
@@ -14660,6 +14683,12 @@ snapshots:
       - uglify-js
       - utf-8-validate
       - webpack-cli
+
+  '@size-limit/preset-small-lib@11.2.0(size-limit@11.2.0)':
+    dependencies:
+      '@size-limit/esbuild': 11.2.0(size-limit@11.2.0)
+      '@size-limit/file': 11.2.0(size-limit@11.2.0)
+      size-limit: 11.2.0
 
   '@size-limit/time@11.2.0(bufferutil@4.0.9)(size-limit@11.2.0)(utf-8-validate@5.0.10)':
     dependencies:
