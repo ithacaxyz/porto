@@ -13,7 +13,6 @@ import { useBalance, useWatchBlockNumber, useWatchContractEvent } from 'wagmi'
 import * as FeeTokens from '~/lib/FeeTokens'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
-import AppleIcon from '~icons/basil/apple-solid'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
 import CopyIcon from '~icons/lucide/copy'
 import CardIcon from '~icons/lucide/credit-card'
@@ -438,7 +437,6 @@ declare global {
 function OnrampView(props: OnrampView.Props) {
   const { address, amount } = props
   const [hasError, setHasError] = React.useState<boolean>(false)
-  const [isLoading, setIsLoading] = React.useState<boolean>(true)
   const widgetContainerRef = React.useRef<HTMLDivElement>(null)
   const widgetInstanceRef = React.useRef<any>(null)
 
@@ -458,8 +456,12 @@ function OnrampView(props: OnrampView.Props) {
         signature: string
         widgetFlow: string
         widgetUrl: string
+        birthdate: string
+        firstName: string
+        lastName: string
         network: string
         paymentMethod: string
+        fiatAmount: string
         fiatCurrency: string
         currency: string
       }>
@@ -476,23 +478,27 @@ function OnrampView(props: OnrampView.Props) {
       merchantTransactionId,
       initToken,
       initTypeToken,
+      birthdate,
       currency,
+      firstName,
+      lastName,
       network,
       fiatCurrency,
       widgetFlow,
-      ...rest
     } = onrampQuery.data
-
+    console.info(window.mercuryoWidget)
     const widget = window.mercuryoWidget.run({
-      ...rest,
       address,
       amount,
+      birthdate,
       currency,
       fiatAmount: amount,
       fiatCurrency,
+      firstName,
       host: widgetContainerRef.current,
       initToken,
       initTokenType: initTypeToken,
+      lastName,
       merchantTransactionId,
       network,
       paymentMethod: 'apple',
@@ -504,9 +510,9 @@ function OnrampView(props: OnrampView.Props) {
 
     widgetInstanceRef.current = widget
 
+    // TODO: use this once it actually indicates that the widget is ready
     widget?.onReady(() => {
       console.log('[onramp] Widget is ready')
-      setIsLoading(false)
     })
   }, [address, amount, onrampQuery.data])
 
@@ -528,7 +534,6 @@ function OnrampView(props: OnrampView.Props) {
           className="text-xs"
           onClick={() => {
             setHasError(false)
-            setIsLoading(true)
             onrampQuery.refetch()
           }}
           variant="default"
@@ -542,22 +547,8 @@ function OnrampView(props: OnrampView.Props) {
   return (
     <div className="flex flex-col justify-between gap-2">
       <article className="relative mx-auto w-full select-none overflow-hidden rounded-full">
-        {isLoading && (
-          <Button
-            className="w-full cursor-pointer! opacity-50"
-            disabled
-            variant="invert"
-          >
-            Buy with
-            <div className="-mt-px flex">
-              <AppleIcon className="mt-px ml-1 inline size-4.5" />
-              <span className="text-[16px]">Pay</span>
-            </div>
-          </Button>
-        )}
-
         <div
-          className="h-[44px] min-h-[44px] w-full min-w-full"
+          className="h-[46px] min-h-[44px] w-full min-w-full"
           id="mercuryo-widget"
           ref={widgetContainerRef}
         />
