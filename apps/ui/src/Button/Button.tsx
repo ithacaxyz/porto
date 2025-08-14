@@ -101,9 +101,9 @@ export function Button({
           borderRadius: 'var(--radius-th_medium)',
           cursor: 'pointer!',
           display: 'inline-flex',
+          flex: '0 0 auto',
           justifyContent: 'center',
           whiteSpace: 'nowrap',
-          flex: '0 0 auto',
         }),
         wide && css({ width: '100%' }),
         cva({

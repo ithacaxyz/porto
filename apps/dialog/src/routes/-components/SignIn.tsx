@@ -44,9 +44,9 @@ export function SignIn(props: SignIn.Props) {
         <Layout.Footer.Actions>
           <div className="flex-grow">
             <Button
-              loading={signingUp && 'Signing up…'}
               data-testid="sign-up"
               disabled={status === 'loading' || signingIn}
+              loading={signingUp && 'Signing up…'}
               onClick={() => {
                 setMode('sign-up')
                 onApprove({ signIn: false })
@@ -58,15 +58,15 @@ export function SignIn(props: SignIn.Props) {
           </div>
           <div className="flex-grow">
             <Button
-              loading={signingIn && 'Signing in…'}
-              wide
               data-testid="sign-in"
               disabled={status === 'loading' || signingUp}
+              loading={signingIn && 'Signing in…'}
               onClick={() => {
                 setMode('sign-in')
                 onApprove({ signIn: true })
               }}
               variant="primary"
+              wide
             >
               Sign in
             </Button>

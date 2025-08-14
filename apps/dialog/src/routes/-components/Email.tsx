@@ -1,5 +1,5 @@
+import { Input } from '@porto/apps/components'
 import { Button as UiButton } from '@porto/ui'
-import { Button, Input } from '@porto/apps/components'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
 import * as Dialog from '~/lib/Dialog'
@@ -82,9 +82,8 @@ export function Email(props: Email.Props) {
         {actions.includes('sign-in') && (
           <UiButton
             data-testid="sign-in"
-            wide
-            icon={<IconScanFace className="size-5.25" />}
             disabled={status === 'loading'}
+            icon={<IconScanFace className="size-5.25" />}
             loading={status === 'responding' && 'Signing in…'}
             onClick={() => {
               onApprove({ signIn: true })
@@ -92,6 +91,7 @@ export function Email(props: Email.Props) {
             size="medium"
             type="button"
             variant="primary"
+            wide
           >
             {actions.includes('sign-up')
               ? 'Sign in with Porto'
