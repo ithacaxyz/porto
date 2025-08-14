@@ -9,7 +9,7 @@ export namespace fetch {
     client: ServerClient.ServerClient,
     parameters: queryOptions.Options = {},
   ) {
-    const { addressOrUid, enabled } = parameters
+    const { addressOrSymbol, enabled } = parameters
 
     return Query.queryOptions({
       enabled,
@@ -18,7 +18,7 @@ export namespace fetch {
         return await FeeTokens.fetch(client, parameters)
       },
       queryKey: queryOptions.queryKey(client, {
-        addressOrUid,
+        addressOrSymbol,
         store: porto._internal.store as any,
       }),
     })

@@ -9,13 +9,15 @@ const feeTokens = [
     decimals: 6,
     interop: true,
     nativeRate: 387750000000000n,
-    uid: 'exp', // kind usdc
+    symbol: 'EXP',
+    uid: 'exp',
   },
   {
     address: '0x0000000000000000000000000000000000000000',
     decimals: 18,
     interop: true,
     nativeRate: 10n ** 18n,
+    symbol: 'ETH',
     uid: 'ethereum',
   },
 ] as const satisfies FeeTokens.FeeTokens
@@ -405,6 +407,7 @@ describe('getFeeLimit', () => {
           "decimals": 6,
           "interop": true,
           "nativeRate": 387750000000000n,
+          "symbol": "EXP",
           "uid": "exp",
         },
         "value": 25789813n,
@@ -446,6 +449,7 @@ describe('getFeeLimit', () => {
         decimals: 18,
         interop: true,
         nativeRate: 10n ** 18n,
+        symbol: 'ETH',
         uid: 'ethereum',
       },
     ] as const satisfies FeeTokens.FeeTokens
@@ -491,6 +495,7 @@ describe('getFeeLimit', () => {
           "decimals": 6,
           "interop": true,
           "nativeRate": 387750000000000n,
+          "symbol": "EXP",
           "uid": "exp",
         },
         "value": 10000n,
@@ -528,7 +533,8 @@ describe('getFeeLimit', () => {
           "decimals": 18,
           "interop": true,
           "nativeRate": 1000000000000000000n,
-          "uid": "eth",
+          "symbol": "ETH",
+          "uid": "ethereum",
         },
         "value": 3877500000000000n,
       }
@@ -558,6 +564,7 @@ describe('getFeeLimit', () => {
           "decimals": 6,
           "interop": true,
           "nativeRate": 387750000000000n,
+          "symbol": "EXP",
           "uid": "exp",
         },
         "value": 25789813n,
@@ -590,13 +597,15 @@ describe('getFeeLimit', () => {
         address: '0x97870b32890d3f1f089489a29007863a5678089d',
         decimals: 18,
         interop: true,
-        uid: 'eXP',
+        symbol: 'EXP',
+        uid: 'exp',
       },
       {
         address: '0x0000000000000000000000000000000000000000',
         decimals: 18,
         interop: true,
-        uid: 'ETH',
+        symbol: 'ETH',
+        uid: 'ethereum',
       },
     ] as const satisfies FeeTokens.FeeTokens
 

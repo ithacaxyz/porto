@@ -182,7 +182,7 @@ function createRelayConfig(opts: {
           opts.feeTokens.map((feeToken, index) => [
             feeToken === '0x0000000000000000000000000000000000000000'
               ? 'ethereum'
-              : `exp${index}`,
+              : `exp${index - 1 === 0 ? '' : index}`,
             {
               address: feeToken,
               fee_token: true,

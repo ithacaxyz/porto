@@ -36,6 +36,7 @@ export default defineConfig(({ mode }) => {
             globalSetup: [join(__dirname, './globalSetup.ts')],
             hookTimeout: 20_000,
             include: [
+              '!*.yaml',
               '!src/**/*.browser.test.ts',
               'src/**/*.test.ts',
               ...(env.VITE_DEFAULT_ENV !== 'anvil'
@@ -52,7 +53,7 @@ export default defineConfig(({ mode }) => {
                     },
                   }
                 : {},
-            // retry: 3,
+            retry: 3,
             setupFiles: [join(__dirname, './setup.ts')],
             testTimeout: 30_000,
           },

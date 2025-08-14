@@ -192,7 +192,11 @@ export namespace wallet_getCapabilities {
             address: Primitive.Address,
             decimals: Schema.Number,
             interop: Schema.optional(Schema.Boolean),
-            nativeRate: Schema.optional(Primitive.BigInt),
+            nativeRate: Schema.optional(Primitive.BigInt).pipe(
+              // TODO: remove when RPC returns camelized name
+              Schema.fromKey('native_rate'),
+            ),
+            symbol: Schema.String,
             uid: Schema.String,
           }),
         ),

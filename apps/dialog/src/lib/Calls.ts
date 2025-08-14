@@ -45,7 +45,7 @@ export namespace prepareCalls {
 
         const feeTokens = await Query_porto.client.ensureQueryData(
           FeeTokens.fetch.queryOptions(client, {
-            addressOrUid: feeToken,
+            addressOrSymbol: feeToken,
           }),
         )
         const [{ address: feeTokenAddress }] = feeTokens

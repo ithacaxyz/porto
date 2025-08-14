@@ -17,6 +17,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
           "decimals": 18,
           "interop": false,
           "nativeRate": 1000000000000000000n,
+          "symbol": "ETH",
           "uid": "ethereum",
         },
         {
@@ -24,7 +25,8 @@ describe.runIf(Anvil.enabled)('resolve', () => {
           "decimals": 18,
           "interop": true,
           "nativeRate": 1000000000000000000n,
-          "uid": "exp1",
+          "symbol": "EXP",
+          "uid": "exp",
         },
       ]
     `)
@@ -45,13 +47,15 @@ describe.runIf(Anvil.enabled)('resolve', () => {
           "decimals": 18,
           "interop": true,
           "nativeRate": 1000000000000000000n,
-          "uid": "exp1",
+          "symbol": "EXP",
+          "uid": "exp",
         },
         {
           "address": "0x0000000000000000000000000000000000000000",
           "decimals": 18,
           "interop": false,
           "nativeRate": 1000000000000000000n,
+          "symbol": "ETH",
           "uid": "ethereum",
         },
       ]
@@ -63,7 +67,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
     const client = TestConfig.getServerClient(porto)
 
     const feeTokens = await FeeTokens.fetch(client, {
-      addressOrUid: 'ethereum',
+      addressOrSymbol: 'ETH',
       store: porto._internal.store,
     })
 
@@ -74,6 +78,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
           "decimals": 18,
           "interop": false,
           "nativeRate": 1000000000000000000n,
+          "symbol": "ETH",
           "uid": "ethereum",
         },
         {
@@ -81,7 +86,8 @@ describe.runIf(Anvil.enabled)('resolve', () => {
           "decimals": 18,
           "interop": true,
           "nativeRate": 1000000000000000000n,
-          "uid": "exp1",
+          "symbol": "EXP",
+          "uid": "exp",
         },
       ]
     `)
@@ -92,7 +98,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
     const client = TestConfig.getServerClient(porto)
 
     const feeTokens = await FeeTokens.fetch(client, {
-      addressOrUid: '0x0000000000000000000000000000000000000000',
+      addressOrSymbol: '0x0000000000000000000000000000000000000000',
       store: porto._internal.store,
     })
 
@@ -103,6 +109,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
           "decimals": 18,
           "interop": false,
           "nativeRate": 1000000000000000000n,
+          "symbol": "ETH",
           "uid": "ethereum",
         },
         {
@@ -110,7 +117,8 @@ describe.runIf(Anvil.enabled)('resolve', () => {
           "decimals": 18,
           "interop": true,
           "nativeRate": 1000000000000000000n,
-          "uid": "exp1",
+          "symbol": "EXP",
+          "uid": "exp",
         },
       ]
     `)
@@ -121,7 +129,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
     const client = TestConfig.getServerClient(porto)
 
     porto._internal.store.setState({
-      feeToken: 'ethereum',
+      feeToken: 'ETH',
     })
 
     const feeTokens = await FeeTokens.fetch(client, {
@@ -135,6 +143,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
           "decimals": 18,
           "interop": false,
           "nativeRate": 1000000000000000000n,
+          "symbol": "ETH",
           "uid": "ethereum",
         },
         {
@@ -142,7 +151,8 @@ describe.runIf(Anvil.enabled)('resolve', () => {
           "decimals": 18,
           "interop": true,
           "nativeRate": 1000000000000000000n,
-          "uid": "exp1",
+          "symbol": "EXP",
+          "uid": "exp",
         },
       ]
     `)
@@ -153,7 +163,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
     const client = TestConfig.getServerClient(porto)
 
     const feeTokens = await FeeTokens.fetch(client, {
-      addressOrUid: 'wagmi',
+      addressOrSymbol: 'WAGMI',
     })
 
     expect(feeTokens).toMatchInlineSnapshot(`
@@ -163,14 +173,16 @@ describe.runIf(Anvil.enabled)('resolve', () => {
           "decimals": 18,
           "interop": true,
           "nativeRate": 1000000000000000000n,
-          "uid": "exp1",
+          "symbol": "EXP",
+          "uid": "exp",
         },
         {
           "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
           "decimals": 18,
           "interop": true,
           "nativeRate": 1000000000000000000n,
-          "uid": "exp1",
+          "symbol": "EXP",
+          "uid": "exp",
         },
       ]
     `)
