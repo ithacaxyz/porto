@@ -247,6 +247,6 @@ export namespace Button {
       | 'primary'
       | 'secondary'
       | 'strong'
-    width?: 'auto' | 'full' | 'grow' | number
+    width?: 'auto' | 'full' | 'grow' | number | undefined
   }
 }
