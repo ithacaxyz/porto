@@ -1,6 +1,6 @@
 import { Env, UserAgent } from '@porto/apps'
 import { Button } from '@porto/apps/components'
-import { Frame } from '@porto/ui'
+import { Frame, Button as UiButton } from '@porto/ui'
 import {
   createRootRoute,
   HeadContent,
@@ -171,11 +171,14 @@ function CheckError(props: CheckError.Props) {
           label: 'Try in popup',
           onClick: () => {
             // clear error state and switch to popup mode
-            Dialog.store.setState({ error: null })
             porto.messenger.send('__internal', {
               mode: 'popup',
               type: 'switch',
             })
+            // prevents screen change while the popup opens
+            setTimeout(() => {
+              Dialog.store.setState({ error: null })
+            }, 100)
           },
         }
       : {
