@@ -35,10 +35,9 @@ export default defineConfig(({ mode }) => {
             ? '"http://localhost:5173"'
             : '"https://anvil.localhost:5173"'
           : JSON.stringify('https://service-next.porto.workers.dev'),
-      // TODO(next): uncomment
-      // JSON.stringify(
-      //     env.VITE_WORKERS_URL ?? 'https://service.porto.workers.dev',
-      //   ),
+      JSON.stringify(
+          env.VITE_WORKERS_URL ?? 'https://service.porto.workers.dev',
+        ),
     },
     plugins: [
       skipMkcert
