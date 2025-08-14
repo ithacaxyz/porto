@@ -33,8 +33,8 @@ const address = {
     [anvil.id]: anvilAddresses.expNftAddress,
     [anvil2.id]: anvilAddresses.expNftAddress,
     [base.id]: '0xB37377508CbEd17a2B3694Fa0A68dc7CEE63DaF9',
-    [baseSepolia.id]: '0x4d129f5033F60ED8419bC7d385c1e7aFa5Ebf88E',
-    [optimismSepolia.id]: '0x074C9c3273F31651a9dae896C1A1d68E868b6998',
+    [baseSepolia.id]: '0x327cC427d8175b24D2D62CF57F5Fa4d577d6f716',
+    [optimismSepolia.id]: '0x6A8Cea0F118041bF7C4A8DA694A130AA252e8783',
   },
 } as const
 

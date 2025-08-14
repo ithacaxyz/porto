@@ -1370,8 +1370,8 @@ export const exp2Config = { address: exp2Address, abi: exp2Abi } as const
 /**
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0xB37377508CbEd17a2B3694Fa0A68dc7CEE63DaF9)
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x4d129f5033F60ED8419bC7d385c1e7aFa5Ebf88E)
- * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x074C9c3273F31651a9dae896C1A1d68E868b6998)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x327cC427d8175b24D2D62CF57F5Fa4d577d6f716)
+ * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x6A8Cea0F118041bF7C4A8DA694A130AA252e8783)
  */
 export const expNftAbi = [
   {
@@ -1690,22 +1690,22 @@ export const expNftAbi = [
 /**
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0xB37377508CbEd17a2B3694Fa0A68dc7CEE63DaF9)
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x4d129f5033F60ED8419bC7d385c1e7aFa5Ebf88E)
- * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x074C9c3273F31651a9dae896C1A1d68E868b6998)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x327cC427d8175b24D2D62CF57F5Fa4d577d6f716)
+ * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x6A8Cea0F118041bF7C4A8DA694A130AA252e8783)
  */
 export const expNftAddress = {
   8453: '0xB37377508CbEd17a2B3694Fa0A68dc7CEE63DaF9',
   31337: '0x12975173B87F7595EE45dFFb2Ab812ECE596Bf84',
   31338: '0x12975173B87F7595EE45dFFb2Ab812ECE596Bf84',
   31339: '0x12975173B87F7595EE45dFFb2Ab812ECE596Bf84',
-  84532: '0x4d129f5033F60ED8419bC7d385c1e7aFa5Ebf88E',
-  11155420: '0x074C9c3273F31651a9dae896C1A1d68E868b6998',
+  84532: '0x327cC427d8175b24D2D62CF57F5Fa4d577d6f716',
+  11155420: '0x6A8Cea0F118041bF7C4A8DA694A130AA252e8783',
 } as const
 
 /**
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0xB37377508CbEd17a2B3694Fa0A68dc7CEE63DaF9)
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x4d129f5033F60ED8419bC7d385c1e7aFa5Ebf88E)
- * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x074C9c3273F31651a9dae896C1A1d68E868b6998)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x327cC427d8175b24D2D62CF57F5Fa4d577d6f716)
+ * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x6A8Cea0F118041bF7C4A8DA694A130AA252e8783)
  */
 export const expNftConfig = { address: expNftAddress, abi: expNftAbi } as const
