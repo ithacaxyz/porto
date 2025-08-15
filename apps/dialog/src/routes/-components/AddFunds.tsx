@@ -2,7 +2,7 @@ import * as Ariakit from '@ariakit/react'
 import { Button } from '@porto/apps/components'
 import { erc20Abi } from '@porto/apps/contracts'
 import { useCopyToClipboard, usePrevious } from '@porto/apps/hooks'
-import { PresetsInput, Button as UiButton } from '@porto/ui'
+import { PresetsInput } from '@porto/ui'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Cuer } from 'cuer'
 import { type Address, Hex, Value } from 'ox'
@@ -84,7 +84,7 @@ export function AddFunds(props: AddFunds.Props) {
 
   if (view === 'default')
     return (
-      <Layout>
+      <Layout loading={deposit.isPending} loadingTitle="Adding funds…">
         <Layout.Header>
           <Layout.Header.Default
             content="Select how much you will deposit."
@@ -131,16 +131,14 @@ export function AddFunds(props: AddFunds.Props) {
                   variant="stripe"
                 />
               ) : (
-                <UiButton
+                <Button
+                  className="w-full flex-1"
                   data-testid="buy"
-                  disabled={!amount || Number(amount) === 0}
-                  loading={deposit.isPending && 'Adding funds…'}
                   type="submit"
                   variant="primary"
-                  wide
                 >
                   Add funds
-                </UiButton>
+                </Button>
               )}
             </div>
             <div className="col-span-1 row-span-1">
@@ -153,7 +151,6 @@ export function AddFunds(props: AddFunds.Props) {
             <div className="col-span-1 row-span-1">
               <Button
                 className="w-full px-3!"
-                disabled={deposit.isPending}
                 onClick={() => setView('deposit-crypto')}
                 type="button"
               >
