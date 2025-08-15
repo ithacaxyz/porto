@@ -96,12 +96,14 @@ async function getAssetsPrices({
       : chain.testnet
         ? 'ethereum'
         : chain.name.toLowerCase()
+  const exp1Token = exp1Address[chain.id as keyof typeof exp1Address]
+  const exp2Token = exp2Address[chain.id as keyof typeof exp2Address]
   const searchParams = assets
     .filter((asset) =>
       [
         '0x0000000000000000000000000000000000000000',
-        exp1Address[chain.id].toLowerCase(),
-        exp2Address[chain.id].toLowerCase(),
+        ...(exp1Token ? [exp1Token.toLowerCase()] : []),
+        ...(exp2Token ? [exp2Token.toLowerCase()] : []),
       ].includes(asset.address.toLowerCase()),
     )
     .map((asset) => `${chainName}:${asset.address}`)

@@ -11,6 +11,8 @@ export function getChains(env: string) {
         rpcUrls: {
           default: {
             http: [
+              // TODO: Remove hardcoded and use high perf RPC URL in env var
+              'https://base-sepolia-int.rpc.ithaca.xyz',
               'https://base-sepolia.rpc.ithaca.xyz',
               ...Chains.baseSepolia.rpcUrls.default.http,
             ],
@@ -22,6 +24,8 @@ export function getChains(env: string) {
         rpcUrls: {
           default: {
             http: [
+              // TODO: Remove hardcoded and use high perf RPC URL in env var
+              'https://optimism-sepolia-int.rpc.ithaca.xyz',
               'https://optimism-sepolia.rpc.ithaca.xyz',
               ...Chains.optimismSepolia.rpcUrls.default.http,
             ],

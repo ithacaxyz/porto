@@ -104,6 +104,6 @@ export async function setBalance(
       hash,
     })
     // TODO: Remove when we use our own RPC URL instead of public RPC URL (e.g. right now we are using `sepolia.base.org` and it's too slow)
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    await new Promise((resolve) => setTimeout(resolve, 2_000))
   }
 }

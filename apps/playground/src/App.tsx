@@ -426,12 +426,15 @@ function AddFunds() {
               method: 'eth_chainId',
             }),
           ) as ChainId
+          const token = exp1Address[chainId as never]
+          if (!token)
+            throw new Error(`exp1 address not defined for chainId ${chainId}`)
           porto.provider
             .request({
               method: 'wallet_addFunds',
               params: [
                 {
-                  token: exp1Address[chainId],
+                  token,
                   value: '100',
                 },
               ],
@@ -569,9 +572,14 @@ function GrantPermissions() {
               method: 'eth_chainId',
             }),
           ) as ChainId
+          const p = permissions({ chainId })
+          if (!p) {
+            console.warn(`no permissions to grant for chainId ${chainId}`)
+            return
+          }
           const result = await porto.provider.request({
             method: 'wallet_grantPermissions',
-            params: [permissions({ chainId })],
+            params: [p],
           })
           setResult(result)
         }}
@@ -1165,7 +1173,10 @@ function SendTransaction() {
         ) as ChainId
 
         const params = (() => {
-          if (action === 'mint')
+          if (action === 'mint') {
+            const token = exp1Address[chainId as never]
+            if (!token)
+              throw new Error(`exp1 address not defined for chainId ${chainId}`)
             return [
               {
                 data: AbiFunction.encodeData(
@@ -1173,9 +1184,10 @@ function SendTransaction() {
                   [account, Value.fromEther('100')],
                 ),
                 from: account,
-                to: exp1Address[chainId],
+                to: token,
               },
             ] as const
+          }
 
           return [
             {
@@ -1414,12 +1426,18 @@ function GrantKeyPermissions() {
             }),
           ) as ChainId
 
+          const p = permissions({ chainId })
+          if (!p) {
+            console.warn(`no permissions to grant for chainId ${chainId}`)
+            return
+          }
+
           const result = await porto.provider.request({
             method: 'wallet_grantPermissions',
             params: [
               {
                 key: { publicKey, type: 'p256' },
-                ...permissions({ chainId }),
+                ...p,
               },
             ],
           })
@@ -1454,25 +1472,32 @@ function PrepareCalls() {
         ) as ChainId
 
         const calls = (() => {
-          if (action === 'mint')
+          if (action === 'mint') {
+            const token = exp1Address[chainId as never]
+            if (!token)
+              throw new Error(`exp1 address not defined for chainId ${chainId}`)
             return [
               {
                 data: AbiFunction.encodeData(
                   AbiFunction.fromAbi(exp1Abi, 'mint'),
                   [account, Value.fromEther('100')],
                 ),
-                to: exp1Address[chainId],
+                to: token,
               },
             ]
+          }
 
-          if (action === 'transfer')
+          if (action === 'transfer') {
+            const token = exp1Address[chainId as never]
+            if (!token)
+              throw new Error(`exp1 address not defined for chainId ${chainId}`)
             return [
               {
                 data: AbiFunction.encodeData(
                   AbiFunction.fromAbi(exp1Abi, 'approve'),
                   [account, Value.fromEther('50')],
                 ),
-                to: exp1Address[chainId],
+                to: token,
               },
               {
                 data: AbiFunction.encodeData(
@@ -1483,11 +1508,15 @@ function PrepareCalls() {
                     Value.fromEther('50'),
                   ],
                 ),
-                to: exp1Address[chainId],
+                to: token,
               },
             ] as const
+          }
 
-          if (action === 'revert')
+          if (action === 'revert') {
+            const token = exp2Address[chainId as never]
+            if (!token)
+              throw new Error(`exp2 address not defined for chainId ${chainId}`)
             return [
               {
                 data: AbiFunction.encodeData(
@@ -1498,9 +1527,10 @@ function PrepareCalls() {
                     Value.fromEther('100'),
                   ],
                 ),
-                to: exp2Address[chainId],
+                to: token,
               },
             ] as const
+          }
 
           return [
             {
