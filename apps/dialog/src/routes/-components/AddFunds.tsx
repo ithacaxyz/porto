@@ -429,21 +429,13 @@ export declare namespace AddFunds {
   }
 }
 
-declare global {
-  interface Window {
-    mercuryoWidget: any
-  }
-}
-
 function OnrampView(props: OnrampView.Props) {
-  const { address, amount, onApprove } = props
+  const { address, amount } = props
   const [hasError, setHasError] = React.useState<boolean>(false)
   const widgetContainerRef = React.useRef<HTMLDivElement>(null)
   const widgetInstanceRef = React.useRef<any>(null)
 
   const showOnramp = enableOnramp()
-
-  const chain = Hooks.useChain(porto)
 
   const onrampQuery = useQuery({
     enabled: !!address && !!amount,
@@ -527,35 +519,29 @@ function OnrampView(props: OnrampView.Props) {
     }
   }, [])
 
-  const walletClient = Hooks.useWalletClient(porto)
-  const { data: tokens } = useQuery({
+  const transactionQuery = useQuery({
     queryFn: async () => {
-      const chainId = Hex.fromNumber(chain?.id!)
-      const response = await walletClient.request({
-        method: 'wallet_getCapabilities',
-        params: [address!, [chainId]],
-      })
-      return response[chainId]?.feeToken.tokens
-    },
-    queryKey: ['capabilities'],
-    select: (data) =>
-      data
-        ?.filter((token) => token.symbol.toLowerCase() === 'usdc')
-        .map((token) => token.address.toLowerCase()),
-  })
+      const merchantTransactionId = onrampQuery.data?.merchantTransactionId
+      if (!merchantTransactionId) return null
 
-  useWatchContractEvent({
-    abi: erc20Abi,
-    args: {
-      to: address,
+      const searchParams = new URLSearchParams({
+        merchantTransactionId,
+      })
+      const response = await fetch(
+        `https://onramp.porto.workers.dev/transactions?${searchParams.toString()}`,
+      )
+      if (!response.ok) throw new Error('Failed to fetch transaction')
+
+      return response.json() as Promise<{
+        url: string
+        hash: string
+        status: string
+        amount: string
+        currency: string
+      }>
     },
-    eventName: 'Transfer',
-    onLogs: (events) => {
-      for (const event of events) {
-        if (tokens?.includes(event.address.toLowerCase()))
-          onApprove({ id: event.transactionHash })
-      }
-    },
+    queryKey: ['onramp-transactions', address],
+    refetchInterval: 1_000,
   })
 
   if (hasError) {
@@ -588,6 +574,15 @@ function OnrampView(props: OnrampView.Props) {
           ref={widgetContainerRef}
         />
       </article>
+      {transactionQuery.data && (
+        <a
+          className="text-center"
+          href={transactionQuery.data.url}
+          target="_blank"
+        >
+          {transactionQuery.data.hash}
+        </a>
+      )}
     </div>
   ) : (
     <Button
@@ -607,6 +602,12 @@ export declare namespace OnrampView {
     amount: string | undefined
     onApprove: (result: { id: Hex.Hex }) => void
     onReject?: () => void
+  }
+}
+
+declare global {
+  interface Window {
+    mercuryoWidget: any
   }
 }
 
