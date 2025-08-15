@@ -23,10 +23,16 @@ export function Button({
   const frame = Frame.useFrame(true)
   size ??= { dialog: 'medium', full: 'large' }
 
+  if (loading === true) loading = 'Loading…'
+
   const loadingRef = useRef<HTMLDivElement>(null)
   const labelRef = useRef<HTMLDivElement>(null)
+  const firstAnimFinished = useRef(false)
 
-  const firstRender = useRef(true)
+  // No loading state until the label has been displayed once.
+  // This is to avoid a case where the animation doesn’t start
+  // and the container width ends up being 0.
+  if (!firstAnimFinished.current) loading = false
 
   const loadingSpring = useSpring({
     config: {
@@ -51,12 +57,12 @@ export function Button({
         ),
         next({
           containerWidth: width,
-          immediate: firstRender.current,
+          immediate: !firstAnimFinished.current,
           labelOpacity: loading ? 0 : 1,
           loadingOpacity: loading ? 1 : 0,
         }),
       ])
-      firstRender.current = false
+      firstAnimFinished.current = true
     },
   })
 
@@ -211,7 +217,7 @@ export function Button({
             }}
           >
             <Spinner size={size === 'small' ? 'small' : 'medium'} />
-            {loading === true ? 'Loading…' : loading}
+            {loading}
           </a.div>
         )}
         <a.div
@@ -219,10 +225,10 @@ export function Button({
             alignItems: 'center',
             display: 'flex',
             inset: '0 auto 0 0',
-            position: 'absolute',
           })}
           ref={labelRef}
           style={{
+            position: firstAnimFinished.current ? 'absolute' : 'static',
             gap: size === 'small' ? 6 : 8,
             opacity: loadingSpring.labelOpacity,
             visibility: loading ? 'hidden' : 'visible',
