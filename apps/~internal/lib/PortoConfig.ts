@@ -62,6 +62,10 @@ const dialogHosts = {
   anvil: import.meta.env.PROD
     ? undefined
     : 'https://anvil.localhost:5174/dialog/',
+  // @ts-expect-error: TODO: remove after merging
+  dev: import.meta.env.PROD
+    ? 'https://dev.id.porto.sh/dialog/'
+    : 'https://dev.localhost:5174/dialog/',
   prod: import.meta.env.PROD
     ? 'https://prod.id.porto.sh/dialog/'
     : 'https://prod.localhost:5174/dialog/',
