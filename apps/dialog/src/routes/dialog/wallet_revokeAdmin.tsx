@@ -26,14 +26,12 @@ function RouteComponent() {
   })
 
   return (
-    <div>
-      <RevokeAdmin
-        feeToken={parameters.capabilities?.feeToken}
-        loading={respond.isPending}
-        onApprove={() => respond.mutate()}
-        onReject={() => Actions.reject(porto, request)}
-        revokeKeyId={parameters.id}
-      />
-    </div>
+    <RevokeAdmin
+      feeToken={parameters.capabilities?.feeToken}
+      loading={respond.isPending}
+      onApprove={() => respond.mutate()}
+      onReject={() => Actions.reject(porto, request)}
+      revokeKeyId={parameters.id}
+    />
   )
 }

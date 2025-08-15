@@ -1,4 +1,4 @@
-import { Button } from '@porto/apps/components'
+import { Button } from '@porto/ui'
 import type { Address } from 'ox'
 import { Hooks } from 'porto/remote'
 
@@ -12,7 +12,7 @@ export function VerifyEmail(props: VerifyEmail.Props) {
   const account = Hooks.useAccount(porto, { address })
 
   return (
-    <Layout loading={loading} loadingTitle="Verifying...">
+    <Layout>
       <Layout.Header>
         <Layout.Header.Default
           icon={LucideLogIn}
@@ -36,19 +36,14 @@ export function VerifyEmail(props: VerifyEmail.Props) {
 
       <Layout.Footer>
         <Layout.Footer.Actions>
-          <Button
-            className="flex-grow"
-            onClick={() => onReject()}
-            type="button"
-          >
+          <Button disabled={loading} onClick={() => onReject()} width="grow">
             No thanks
           </Button>
-
           <Button
-            className="flex-grow"
+            loading={loading && 'Verifying…'}
             onClick={() => onApprove()}
-            type="button"
             variant="primary"
+            width="grow"
           >
             Verify email
           </Button>

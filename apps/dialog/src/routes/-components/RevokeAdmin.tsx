@@ -1,4 +1,4 @@
-import { Button } from '@porto/apps/components'
+import { Button } from '@porto/ui'
 import type { Address, Hex } from 'ox'
 import { Key } from 'porto'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken'
@@ -29,7 +29,7 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
 
   return (
     <CheckBalance onReject={onReject} query={prepareCallsQuery}>
-      <Layout loading={loading} loadingTitle="Removing...">
+      <Layout>
         <Layout.Header>
           <Layout.Header.Default
             content={
@@ -61,38 +61,19 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
             )}
           </ActionRequest.PaneWithDetails>
         </Layout.Content>
-
         <Layout.Footer>
           <Layout.Footer.Actions>
-            {prepareCallsQuery.isError ? (
-              <>
-                <Button className="flex-1" onClick={onReject} type="button">
-                  Cancel
-                </Button>
-                <Button
-                  className="flex-1"
-                  onClick={onApprove}
-                  type="button"
-                  variant="default"
-                >
-                  Attempt anyway
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button className="flex-1" onClick={onReject} type="button">
-                  Cancel
-                </Button>
-                <Button
-                  className="flex-1"
-                  onClick={onApprove}
-                  type="button"
-                  variant="primary"
-                >
-                  Remove
-                </Button>
-              </>
-            )}
+            <Button disabled={loading} onClick={onReject} width="grow">
+              Cancel
+            </Button>
+            <Button
+              loading={loading && 'Removing…'}
+              onClick={onApprove}
+              variant={prepareCallsQuery.isError ? 'secondary' : 'primary'}
+              width="grow"
+            >
+              {prepareCallsQuery.isError ? 'Attempt anyway' : 'Remove'}
+            </Button>
           </Layout.Footer.Actions>
 
           {admins.data?.address && (

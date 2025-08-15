@@ -1,4 +1,4 @@
-import { Button } from '@porto/apps/components'
+import { Button } from '@porto/ui'
 import { useMutation } from '@tanstack/react-query'
 import { Json } from 'ox'
 import { Actions, Hooks } from 'porto/remote'
@@ -16,7 +16,7 @@ export function NotFound() {
   })
 
   return (
-    <Layout loading={respond.isPending} loadingTitle="Responding...">
+    <Layout>
       <Layout.Header>
         <Layout.Header.Default
           content={
@@ -40,18 +40,18 @@ export function NotFound() {
       <Layout.Footer>
         <Layout.Footer.Actions>
           <Button
-            className="flex-grow"
+            disabled={respond.isPending}
             onClick={() => Actions.reject(porto, request!)}
-            type="button"
+            width="grow"
           >
             Reject
           </Button>
 
           <Button
-            className="flex-grow"
+            loading={respond.isPending && 'Responding…'}
             onClick={() => respond.mutate()}
-            type="button"
-            variant="warning"
+            variant="negative"
+            width="grow"
           >
             Respond
           </Button>

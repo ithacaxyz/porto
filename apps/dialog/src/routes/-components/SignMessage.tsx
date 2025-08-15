@@ -1,4 +1,4 @@
-import { Button } from '@porto/apps/components'
+import { Button } from '@porto/ui'
 import type { Address } from 'ox'
 import { Hooks } from 'porto/remote'
 
@@ -13,10 +13,10 @@ export function SignMessage(props: SignMessage.Props) {
   const account = Hooks.useAccount(porto, { address })
 
   return (
-    <Layout loading={loading} loadingTitle="Signing...">
+    <Layout>
       <Layout.Header>
         <Layout.Header.Default
-          content={<>Review the message to sign below.</>}
+          content="Review the message to sign below."
           icon={LucideLogIn}
           title="Sign Message"
           variant="default"
@@ -38,19 +38,14 @@ export function SignMessage(props: SignMessage.Props) {
 
       <Layout.Footer>
         <Layout.Footer.Actions>
-          <Button
-            className="flex-grow"
-            onClick={() => onReject()}
-            type="button"
-          >
+          <Button disabled={loading} onClick={() => onReject()} width="grow">
             No thanks
           </Button>
-
           <Button
-            className="flex-grow"
+            loading={loading && 'Signing…'}
             onClick={() => onApprove()}
-            type="button"
             variant="primary"
+            width="grow"
           >
             Sign message
           </Button>
@@ -67,8 +62,8 @@ export function SignMessage(props: SignMessage.Props) {
 export namespace SignMessage {
   export type Props = {
     address?: Address.Address | undefined
-    message: string
     loading?: boolean | undefined
+    message: string
     onApprove: () => void
     onReject: () => void
   }
@@ -80,7 +75,7 @@ export namespace SignMessage {
     const hostname = Dialog.useStore((state) => state.referrer?.url?.hostname)
 
     return (
-      <Layout loading={loading} loadingTitle="Authenticating...">
+      <Layout>
         <Layout.Header className="flex-grow">
           <Layout.Header.Default
             content={
@@ -101,15 +96,14 @@ export namespace SignMessage {
 
         <Layout.Footer>
           <Layout.Footer.Actions>
-            <Button onClick={() => onReject()} type="button">
+            <Button disabled={loading} onClick={() => onReject()}>
               No thanks
             </Button>
-
             <Button
-              className="flex-grow"
+              loading={loading && 'Authenticating…'}
               onClick={() => onApprove()}
-              type="button"
               variant="primary"
+              width="grow"
             >
               Approve
             </Button>

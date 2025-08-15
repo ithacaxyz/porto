@@ -66,29 +66,17 @@ export function GrantAdmin(props: GrantAdmin.Props) {
 
         <Layout.Footer>
           <Layout.Footer.Actions>
-            {prepareCallsQuery.isError ? (
-              <>
-                <Button width="grow" onClick={onReject}>
-                  Cancel
-                </Button>
-                <Button
-                  width="grow"
-                  onClick={onApprove}
-                  loading={loading && 'Authorizing…'}
-                >
-                  Attempt anyway
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button width="grow" onClick={onReject}>
-                  Cancel
-                </Button>
-                <Button width="grow" onClick={onApprove} variant="primary">
-                  Add
-                </Button>
-              </>
-            )}
+            <Button disabled={loading} onClick={onReject} width="grow">
+              Cancel
+            </Button>
+            <Button
+              loading={loading && 'Authorizing…'}
+              onClick={onApprove}
+              variant={prepareCallsQuery.isError ? 'secondary' : 'primary'}
+              width="grow"
+            >
+              {prepareCallsQuery.isError ? 'Attempt anyway' : 'Add'}
+            </Button>
           </Layout.Footer.Actions>
 
           {account?.address && (
