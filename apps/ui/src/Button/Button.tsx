@@ -228,9 +228,9 @@ export function Button({
           })}
           ref={labelRef}
           style={{
-            position: firstAnimFinished.current ? 'absolute' : 'static',
             gap: size === 'small' ? 6 : 8,
             opacity: loadingSpring.labelOpacity,
+            position: firstAnimFinished.current ? 'absolute' : 'static',
             visibility: loading ? 'hidden' : 'visible',
           }}
         >
