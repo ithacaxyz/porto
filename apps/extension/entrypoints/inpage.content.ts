@@ -3,14 +3,10 @@ import { Dialog, Mode, Porto } from 'porto'
 export default defineContentScript({
   main() {
     let porto: Porto.Porto | undefined
-    function init() {
+
+    window.addEventListener('message', (_event) => {
       porto = Porto.unstable_create()
       ;(window as any).ethereum = porto.provider
-    }
-
-    window.addEventListener('message', (event) => {
-      if (event.data.event !== 'init') return
-      init()
     })
 
     window.addEventListener('message', (event) => {
