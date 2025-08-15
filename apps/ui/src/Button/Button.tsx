@@ -143,7 +143,7 @@ export function Button({
             size: {
               large: {
                 borderRadius: 21,
-                fontSize: 18,
+                fontSize: 16,
 
                 // large button temporarily made smaller, until we move
                 // to layouts adapted to larger (52px tall) buttons.
