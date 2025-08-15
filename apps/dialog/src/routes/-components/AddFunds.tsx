@@ -134,6 +134,7 @@ export function AddFunds(props: AddFunds.Props) {
                 <Button
                   className="w-full flex-1"
                   data-testid="buy"
+                  disabled={!address || !amount || Number(amount) === 0}
                   type="submit"
                   variant="primary"
                 >
