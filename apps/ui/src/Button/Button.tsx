@@ -27,12 +27,8 @@ export function Button({
 
   const loadingRef = useRef<HTMLDivElement>(null)
   const labelRef = useRef<HTMLDivElement>(null)
-  const firstAnimFinished = useRef(false)
 
-  // No loading state until the label has been displayed once.
-  // This is to avoid a case where the animation doesn’t start
-  // and the container width ends up being 0.
-  if (!firstAnimFinished.current) loading = false
+  const firstAnimDone = useRef(false)
 
   const loadingSpring = useSpring({
     config: {
@@ -43,26 +39,29 @@ export function Button({
     from: {
       containerWidth: 0,
       labelOpacity: 1,
-      loadingOpacity: 0,
+      loadingOpacity: 1,
+      position: 'static',
     },
     to: async (next) => {
       const targetRef = loading ? loadingRef : labelRef
       const width = targetRef.current?.clientWidth ?? 0
       if (width === 0) return
+      if (labelRef.current) labelRef.current.style.position = 'absolute'
+      if (loadingRef.current) loadingRef.current.style.position = 'absolute'
       await Promise.all([
-        next(
-          loading
-            ? { immediate: true, labelOpacity: 0 }
-            : { immediate: true, loadingOpacity: 0 },
-        ),
         next({
+          immediate: true,
+          position: 'static',
+          ...(loading ? { labelOpacity: 0 } : { loadingOpacity: 0 }),
+        }),
+        next({
+          immediate: !firstAnimDone.current,
           containerWidth: width,
-          immediate: !firstAnimFinished.current,
           labelOpacity: loading ? 0 : 1,
           loadingOpacity: loading ? 1 : 0,
         }),
       ])
-      firstAnimFinished.current = true
+      firstAnimDone.current = true
     },
   })
 
@@ -202,13 +201,12 @@ export function Button({
           ),
         }}
       >
-        {loading && (
+        {loading ? (
           <a.div
             className={css({
               alignItems: 'center',
               display: 'flex',
               inset: '0 auto 0 0',
-              position: 'absolute',
             })}
             ref={loadingRef}
             style={{
@@ -219,24 +217,24 @@ export function Button({
             <Spinner size={size === 'small' ? 'small' : 'medium'} />
             {loading}
           </a.div>
+        ) : (
+          <a.div
+            className={css({
+              alignItems: 'center',
+              display: 'flex',
+              inset: '0 auto 0 0',
+            })}
+            ref={labelRef}
+            style={{
+              gap: size === 'small' ? 6 : 8,
+              opacity: loadingSpring.labelOpacity,
+              visibility: loading ? 'hidden' : 'visible',
+            }}
+          >
+            {icon}
+            {children}
+          </a.div>
         )}
-        <a.div
-          className={css({
-            alignItems: 'center',
-            display: 'flex',
-            inset: '0 auto 0 0',
-          })}
-          ref={labelRef}
-          style={{
-            position: firstAnimFinished.current ? 'absolute' : 'static',
-            gap: size === 'small' ? 6 : 8,
-            opacity: loadingSpring.labelOpacity,
-            visibility: loading ? 'hidden' : 'visible',
-          }}
-        >
-          {icon}
-          {children}
-        </a.div>
       </a.div>
     </button>
   )
