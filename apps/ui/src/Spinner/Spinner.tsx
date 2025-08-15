@@ -19,13 +19,14 @@ const CIRCLES = [
 ] as const
 
 export function Spinner({
+  animateMount,
   color,
   padding,
   size = 'medium',
   thickness,
 }: Spinner.Props) {
   padding ??= 1
-  color ??= 'var(--color-th_accent)'
+  color ??= 'currentColor'
 
   if (size === 'large') size = 32
   if (size === 'medium') size = 20
@@ -45,17 +46,34 @@ export function Spinner({
     to: { progress: 1 },
   })
 
+  const mountAnimStyles = useSpring({
+    config: {
+      mass: 2,
+      tension: 2000,
+      friction: 60,
+    },
+    from: {
+      opacity: animateMount ? 0 : 1,
+      transform: `scale(${animateMount ? 0 : 1})`,
+    },
+    to: {
+      opacity: 1,
+      transform: `scale(1)`,
+    },
+  })
+
   const radius = size / 2 - padding - thickness / 2
   const circumference = 2 * radius * Math.PI
 
   return (
-    <div
+    <a.div
       className={css({
         position: 'relative',
       })}
       style={{
         height: size,
         width: size,
+        ...mountAnimStyles,
       }}
     >
       <svg
@@ -99,12 +117,13 @@ export function Spinner({
           ))}
         </g>
       </svg>
-    </div>
+    </a.div>
   )
 }
 
 export namespace Spinner {
   export type Props = {
+    animateMount?: boolean | undefined
     color?: string | undefined
     padding?: number | undefined
     size?: Size | undefined

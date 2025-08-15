@@ -205,10 +205,7 @@ export function Button({
               opacity: loadingSpring.loadingOpacity,
             }}
           >
-            <Spinner
-              color="currentColor"
-              size={size === 'small' ? 'small' : 'medium'}
-            />
+            <Spinner size={size === 'small' ? 'small' : 'medium'} />
             {loading === true ? 'Loading…' : loading}
           </a.div>
         )}

@@ -1,4 +1,4 @@
-import { Spinner } from '@porto/apps/components'
+import { Spinner } from '@porto/ui'
 import type { UseQueryResult } from '@tanstack/react-query'
 import type { Address } from 'ox'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
@@ -57,8 +57,8 @@ export function CheckBalance(props: CheckBalance.Props) {
     return (
       <Layout>
         <div className="flex h-40 items-center justify-center">
-          <div className="size-[24px]">
-            <Spinner className="text-th_base-secondary" />
+          <div className="size-[24px] text-th_base-secondary">
+            <Spinner size="large" animateMount />
           </div>
         </div>
       </Layout>

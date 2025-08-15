@@ -1,4 +1,4 @@
-import { Button } from '@porto/apps/components'
+import { Button } from '@porto/ui'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import type { Address } from 'ox'
 import { Account, Key, ServerActions } from 'porto'
@@ -95,10 +95,7 @@ export function UpdateAccount(props: UpdateAccount.Props) {
       onReject={onCancel}
       query={prepareCallsQuery}
     >
-      <Layout
-        loading={sendCallsMutation.isPending}
-        loadingTitle="Updating account..."
-      >
+      <Layout>
         <Layout.Header>
           <Layout.Header.Default
             content={
@@ -133,20 +130,16 @@ export function UpdateAccount(props: UpdateAccount.Props) {
         {isFetched && (
           <Layout.Footer>
             <Layout.Footer.Actions>
-              <Button
-                className={!isSuccess ? 'flex-grow' : undefined}
-                onClick={onCancel}
-                type="button"
-              >
+              <Button onClick={onCancel} width={isSuccess ? 'auto' : 'grow'}>
                 Cancel
               </Button>
 
               {isSuccess && (
                 <Button
-                  className="flex-grow"
+                  loading={sendCallsMutation.isPending && 'Updating account…'}
                   onClick={() => sendCallsMutation.mutate()}
-                  type="button"
                   variant="primary"
+                  width="grow"
                 >
                   Update now
                 </Button>

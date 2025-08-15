@@ -1,4 +1,4 @@
-import { Button } from '@porto/apps/components'
+import { Button } from '@porto/ui'
 import type { Hex } from 'ox'
 import type * as Address from 'ox/Address'
 import { Key } from 'porto'
@@ -29,7 +29,7 @@ export function GrantAdmin(props: GrantAdmin.Props) {
 
   return (
     <CheckBalance onReject={onReject} query={prepareCallsQuery}>
-      <Layout loading={loading} loadingTitle="Authorizing...">
+      <Layout>
         <Layout.Header>
           <Layout.Header.Default
             content={
@@ -68,29 +68,23 @@ export function GrantAdmin(props: GrantAdmin.Props) {
           <Layout.Footer.Actions>
             {prepareCallsQuery.isError ? (
               <>
-                <Button className="flex-1" onClick={onReject} type="button">
+                <Button width="grow" onClick={onReject}>
                   Cancel
                 </Button>
                 <Button
-                  className="flex-1"
+                  width="grow"
                   onClick={onApprove}
-                  type="button"
-                  variant="default"
+                  loading={loading && 'Authorizing…'}
                 >
                   Attempt anyway
                 </Button>
               </>
             ) : (
               <>
-                <Button className="flex-1" onClick={onReject} type="button">
+                <Button width="grow" onClick={onReject}>
                   Cancel
                 </Button>
-                <Button
-                  className="flex-1"
-                  onClick={onApprove}
-                  type="button"
-                  variant="primary"
-                >
+                <Button width="grow" onClick={onApprove} variant="primary">
                   Add
                 </Button>
               </>
