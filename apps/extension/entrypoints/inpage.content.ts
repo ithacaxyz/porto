@@ -2,12 +2,8 @@ import { Dialog, Mode, Porto } from 'porto'
 
 export default defineContentScript({
   main() {
-    let porto: Porto.Porto | undefined
-
-    window.addEventListener('message', (_event) => {
-      porto = Porto.unstable_create()
-      ;(window as any).ethereum = porto.provider
-    })
+    const porto = Porto.unstable_create()
+    ;(window as any).ethereum = porto.provider
 
     window.addEventListener('message', (event) => {
       if (event.data.event !== 'trigger-reload') return
