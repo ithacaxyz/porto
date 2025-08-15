@@ -175,6 +175,7 @@ export function AddFunds(props: AddFunds.Props) {
               <OnrampView
                 address={address}
                 amount={amount}
+                loading={faucet.isPending}
                 onApprove={onApprove}
                 onReject={onReject}
               />
@@ -189,7 +190,7 @@ export function AddFunds(props: AddFunds.Props) {
             <div className="col-span-1 row-span-1 space-y-2">
               <Button
                 className="w-full px-3!"
-                disabled={deposit.isPending}
+                disabled={faucet.isPending}
                 onClick={() => setView('deposit-crypto')}
                 type="button"
               >
@@ -432,7 +433,7 @@ export declare namespace AddFunds {
 }
 
 function OnrampView(props: OnrampView.Props) {
-  const { address, amount } = props
+  const { address, amount, loading } = props
   const [hasError, setHasError] = React.useState<boolean>(false)
   const widgetContainerRef = React.useRef<HTMLDivElement>(null)
   const widgetInstanceRef = React.useRef<any>(null)
@@ -603,14 +604,17 @@ function OnrampView(props: OnrampView.Props) {
       )}
     </div>
   ) : (
-    <Button
+    <UI.Button
       className="w-full flex-1"
       data-testid="buy"
+      disabled={!address || !amount || Number(amount) === 0}
+      loading={loading && 'Adding funds…'}
       type="submit"
       variant="primary"
+      width="full"
     >
       Get started
-    </Button>
+    </UI.Button>
   )
 }
 
@@ -620,6 +624,7 @@ export declare namespace OnrampView {
     amount: string | undefined
     onApprove: (result: { id: Hex.Hex }) => void
     onReject?: () => void
+    loading?: boolean
   }
 }
 
