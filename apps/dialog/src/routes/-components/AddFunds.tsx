@@ -16,6 +16,7 @@ import * as FeeTokens from '~/lib/FeeTokens'
 import { enableOnramp, getOnrampWidget, stripeOnrampUrl } from '~/lib/Onramp.ts'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
+import { StringFormatter } from '~/utils'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
 import CopyIcon from '~icons/lucide/copy'
 import CardIcon from '~icons/lucide/credit-card'
@@ -580,15 +581,16 @@ function OnrampView(props: OnrampView.Props) {
               id="mercuryo-widget"
             />
           </article>
-          {transactionQuery.data && (
-            <a
-              className="text-center"
-              href={transactionQuery.data.url}
-              target="_blank"
-            >
-              [{transactionQuery.data.status}] {transactionQuery.data.hash}
-            </a>
-          )}
+          {transactionQuery.data &&
+            transactionQuery.data.status !== 'not_found' && (
+              <a
+                className="text-center"
+                href={transactionQuery.data.url}
+                target="_blank"
+              >
+                {StringFormatter.truncate(transactionQuery.data.hash)}
+              </a>
+            )}
         </>
       )}
     </div>
