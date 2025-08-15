@@ -1,5 +1,15 @@
 # porto
 
+## 0.0.68
+
+### Patch Changes
+
+- [`bfe750f`](https://github.com/ithacaxyz/porto/commit/bfe750f487251084fecdba05c89837a20452eade) Thanks [@tmm](https://github.com/tmm)! - Bumped extension defaults.
+
+- [#694](https://github.com/ithacaxyz/porto/pull/694) [`6a19110`](https://github.com/ithacaxyz/porto/commit/6a19110ada4abe8b5fec48340b93c10c1260d89b) Thanks [@o-az](https://github.com/o-az)! - Default Chrome extension to production environment
+
+- [`a4c2422`](https://github.com/ithacaxyz/porto/commit/a4c2422ef01072a40efe8c88cf7d9750e0f8aca4) Thanks [@tmm](https://github.com/tmm)! - Changed extension default fee token.
+
 ## 0.0.67
 
 ### Patch Changes
