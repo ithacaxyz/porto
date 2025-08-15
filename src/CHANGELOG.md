@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.67
+
+### Patch Changes
+
+- [`4b5b188`](https://github.com/ithacaxyz/porto/commit/4b5b18876a4c9085086fa65beb29906947da6630) Thanks [@tmm](https://github.com/tmm)! - Added chains to `unstable_create`.
+
 ## 0.0.66
 
 ### Patch Changes
