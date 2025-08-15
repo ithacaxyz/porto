@@ -55,8 +55,8 @@ export function Button({
           ...(loading ? { labelOpacity: 0 } : { loadingOpacity: 0 }),
         }),
         next({
-          immediate: !firstAnimDone.current,
           containerWidth: width,
+          immediate: !firstAnimDone.current,
           labelOpacity: loading ? 0 : 1,
           loadingOpacity: loading ? 1 : 0,
         }),
