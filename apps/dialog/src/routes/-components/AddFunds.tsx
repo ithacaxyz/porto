@@ -435,7 +435,6 @@ export declare namespace AddFunds {
 
 function OnrampView(props: OnrampView.Props) {
   const { address, amount, loading } = props
-  const [hasError, setHasError] = React.useState<boolean>(false)
 
   const onrampWidget = getOnrampWidget()
   const showOnramp = enableOnramp()
@@ -541,7 +540,7 @@ function OnrampView(props: OnrampView.Props) {
     refetchInterval: 1_000,
   })
 
-  if (hasError) {
+  if (onrampQuery.isError) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 p-4 text-center">
         <TriangleAlertIcon className="size-6 text-th_field-error" />
@@ -550,10 +549,7 @@ function OnrampView(props: OnrampView.Props) {
         </p>
         <Button
           className="text-xs"
-          onClick={() => {
-            setHasError(false)
-            onrampQuery.refetch()
-          }}
+          onClick={() => onrampQuery.refetch()}
           variant="default"
         >
           Try again
