@@ -58,7 +58,7 @@ export function CheckBalance(props: CheckBalance.Props) {
       <Layout>
         <div className="flex h-40 items-center justify-center">
           <div className="size-[24px] text-th_base-secondary">
-            <Spinner size="large" animateMount />
+            <Spinner animateMount size="large" />
           </div>
         </div>
       </Layout>

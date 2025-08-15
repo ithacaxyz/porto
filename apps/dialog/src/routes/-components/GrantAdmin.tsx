@@ -68,23 +68,23 @@ export function GrantAdmin(props: GrantAdmin.Props) {
           <Layout.Footer.Actions>
             {prepareCallsQuery.isError ? (
               <>
-                <Button width="grow" onClick={onReject}>
+                <Button onClick={onReject} width="grow">
                   Cancel
                 </Button>
                 <Button
-                  width="grow"
-                  onClick={onApprove}
                   loading={loading && 'Authorizing…'}
+                  onClick={onApprove}
+                  width="grow"
                 >
                   Attempt anyway
                 </Button>
               </>
             ) : (
               <>
-                <Button width="grow" onClick={onReject}>
+                <Button onClick={onReject} width="grow">
                   Cancel
                 </Button>
-                <Button width="grow" onClick={onApprove} variant="primary">
+                <Button onClick={onApprove} variant="primary" width="grow">
                   Add
                 </Button>
               </>

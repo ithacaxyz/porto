@@ -48,9 +48,9 @@ export function Spinner({
 
   const mountAnimStyles = useSpring({
     config: {
+      friction: 60,
       mass: 2,
       tension: 2000,
-      friction: 60,
     },
     from: {
       opacity: animateMount ? 0 : 1,
@@ -58,7 +58,7 @@ export function Spinner({
     },
     to: {
       opacity: 1,
-      transform: `scale(1)`,
+      transform: 'scale(1)',
     },
   })
 
