@@ -13,6 +13,11 @@ export namespace ShowAfter {
 
   export function useShowAfter(delay: number) {
     return useSpring({
+      config: {
+        friction: 80,
+        mass: 2,
+        tension: 2000,
+      },
       delay,
       from: { opacity: 0, transform: 'scale(0.97)' },
       to: { opacity: 1, transform: 'scale(1)' },
