@@ -230,7 +230,7 @@ export function AddFunds(props: AddFunds.Props) {
           </form>
 
           <p className="mt-3 px-8 text-center text-[12px] text-th_base-secondary">
-            By using this process, you are agreeing to Mercuryo's{' '}
+            By using the onramp, you are agreeing to Mercuryo's{' '}
             <a
               className="text-primary"
               href="https://mercuryo.io/terms-and-conditions"
