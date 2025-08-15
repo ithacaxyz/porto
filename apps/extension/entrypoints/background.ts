@@ -15,21 +15,6 @@ namespace ContextMenu {
       title: 'Docs',
     })
 
-    browser.contextMenus.create({
-      checked: true,
-      contexts: ['action'],
-      id: 'preview',
-      title: 'Developer Preview',
-      type: 'radio',
-    })
-    browser.contextMenus.create({
-      checked: false,
-      contexts: ['action'],
-      id: 'release',
-      title: 'Release (Beta)',
-      type: 'radio',
-    })
-
     browser.contextMenus.onClicked.addListener(async (info) => {
       const env = await Env.get()
       if (info.menuItemId === 'id')
