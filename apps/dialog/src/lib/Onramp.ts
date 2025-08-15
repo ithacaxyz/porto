@@ -7,6 +7,23 @@ export function enableOnramp() {
   return Env.get() === 'prod' || onrampEnabled
 }
 
+export function getOnrampWidget() {
+  if (typeof window === 'undefined' || Env.get() !== 'prod') return
+  if (window?.mercuryoWidget) return window.mercuryoWidget
+
+  const script = document.createElement('script')
+  script.setAttribute('src', 'https://widget.mercuryo.io/embed.2.1.js')
+  document.body.appendChild(script)
+
+  return window.mercuryoWidget
+}
+
+declare global {
+  interface Window {
+    mercuryoWidget: any
+  }
+}
+
 /**
  * Test card:
  * 4242 4242 4242 4242
@@ -24,12 +41,12 @@ export function stripeOnrampUrl(params: stripeOnrampUrl.Params) {
   }
 
   const searchParams = new URLSearchParams({
-    address: params.address,
     destination_currency: 'usdc',
     destination_network: 'base',
     environment: Env.get(),
     source_amount: params.amount.toString(),
     source_currency: 'usd',
+    wallet_address: params.address,
   })
   const url = new URL('/onramp', import.meta.env.VITE_WORKERS_URL)
   url.search = searchParams.toString()

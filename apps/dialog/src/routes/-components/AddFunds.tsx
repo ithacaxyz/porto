@@ -13,7 +13,7 @@ import * as React from 'react'
 import { useBalance, useWatchBlockNumber, useWatchContractEvent } from 'wagmi'
 import { PayButton } from '~/components/PayButton'
 import * as FeeTokens from '~/lib/FeeTokens'
-import { enableOnramp, stripeOnrampUrl } from '~/lib/Onramp.ts'
+import { enableOnramp, getOnrampWidget, stripeOnrampUrl } from '~/lib/Onramp.ts'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
@@ -435,10 +435,9 @@ export declare namespace AddFunds {
 function OnrampView(props: OnrampView.Props) {
   const { address, amount, loading } = props
   const [hasError, setHasError] = React.useState<boolean>(false)
-  const widgetRef = React.useRef<HTMLDivElement>(null)
 
+  const onrampWidget = getOnrampWidget()
   const showOnramp = enableOnramp()
-
   const isFirefox = UserAgent.isFirefox()
 
   const onrampQuery = useQuery({
@@ -470,6 +469,7 @@ function OnrampView(props: OnrampView.Props) {
     queryKey: ['onramp-token', address],
   })
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: _
   React.useEffect(() => {
     if (!onrampQuery.data) return
     const {
@@ -487,7 +487,8 @@ function OnrampView(props: OnrampView.Props) {
       fiatCurrency,
       widgetFlow,
     } = onrampQuery.data
-    const widget = window.mercuryoWidget.run({
+
+    const widget = onrampWidget.run({
       address,
       amount,
       birthdate,
@@ -495,7 +496,7 @@ function OnrampView(props: OnrampView.Props) {
       fiatAmount: amount,
       fiatCurrency,
       firstName,
-      host: widgetRef.current,
+      host: document.querySelector('div#mercuryo-widget'),
       initToken,
       initTokenType: initTypeToken,
       lastName,
@@ -508,11 +509,9 @@ function OnrampView(props: OnrampView.Props) {
       widgetUrl,
     })
 
-    widgetRef.current = widget
-
     // TODO: use this once it actually indicates that the widget is ready
     widget?.onReady(() => {
-      console.log('[onramp] Widget is ready')
+      console.info('[onramp] Widget is ready')
     })
   }, [address, amount, onrampQuery.data])
 
@@ -528,7 +527,6 @@ function OnrampView(props: OnrampView.Props) {
       const response = await fetch(
         `https://onramp.porto.workers.dev/transactions?${searchParams.toString()}`,
       )
-      if (!response.ok) throw new Error('Failed to fetch transaction')
 
       return response.json() as Promise<{
         url: string
@@ -580,7 +578,6 @@ function OnrampView(props: OnrampView.Props) {
             <div
               className="h-[46px] min-h-[44px] w-full min-w-full"
               id="mercuryo-widget"
-              ref={widgetRef}
             />
           </article>
           {transactionQuery.data && (
@@ -617,12 +614,6 @@ export declare namespace OnrampView {
     onApprove: (result: { id: Hex.Hex }) => void
     onReject?: () => void
     loading?: boolean
-  }
-}
-
-declare global {
-  interface Window {
-    mercuryoWidget: any
   }
 }
 
