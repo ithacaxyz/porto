@@ -440,8 +440,13 @@ function OnrampView(props: OnrampView.Props) {
   const showOnramp = enableOnramp()
   const isFirefox = UserAgent.isFirefox()
 
+  const experimentalEnabled = React.useMemo(
+    () => window.location.search.includes('experimentalOnramp'),
+    [],
+  )
+
   const onrampQuery = useQuery({
-    enabled: !!address && !!amount && !isFirefox,
+    enabled: !!address && !!amount && !isFirefox && !experimentalEnabled,
     queryFn: async () => {
       const response = await fetch(
         `https://onramp.porto.workers.dev/token?address=${address}`,
@@ -516,7 +521,10 @@ function OnrampView(props: OnrampView.Props) {
   }, [address, amount, onrampQuery.data])
 
   const transactionQuery = useQuery({
-    enabled: !!onrampQuery.data?.merchantTransactionId && !isFirefox,
+    enabled:
+      !!onrampQuery.data?.merchantTransactionId &&
+      !isFirefox &&
+      !experimentalEnabled,
     queryFn: async () => {
       const merchantTransactionId = onrampQuery.data?.merchantTransactionId
       if (!merchantTransactionId) return null
@@ -560,7 +568,7 @@ function OnrampView(props: OnrampView.Props) {
 
   return showOnramp ? (
     <div className="flex flex-col justify-between gap-2">
-      {isFirefox ? (
+      {isFirefox && !experimentalEnabled ? (
         <PayButton
           disabled={!address}
           url={stripeOnrampUrl({

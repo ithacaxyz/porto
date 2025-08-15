@@ -58,9 +58,7 @@ export function iframe(options: iframe.Options = {}) {
     !skipUnsupported &&
     UserAgent.isSafari() &&
     requests?.some((x) =>
-      ['wallet_connect', 'eth_requestAccounts', 'wallet_addFunds'].includes(
-        x.method,
-      ),
+      ['wallet_connect', 'eth_requestAccounts'].includes(x.method),
     )
 
   if (typeof window === 'undefined') return noop()
@@ -308,7 +306,13 @@ export function iframe(options: iframe.Options = {}) {
             requests.map((x) => x.request),
           )
 
-          if (!headless && (unsupported || insecureProtocol))
+          if (
+            !headless &&
+            (unsupported ||
+              insecureProtocol ||
+              window.location.search.includes('experimentalOnramp')) &&
+            requests.some((x) => x.request.method === 'wallet_addFunds')
+          )
             fallback.syncRequests(requests)
           else {
             const requiresConfirm = requests.some((x) =>
