@@ -580,7 +580,7 @@ function OnrampView(props: OnrampView.Props) {
           href={transactionQuery.data.url}
           target="_blank"
         >
-          {transactionQuery.data.hash}
+          [{transactionQuery.data.status}] {transactionQuery.data.hash}
         </a>
       )}
     </div>
