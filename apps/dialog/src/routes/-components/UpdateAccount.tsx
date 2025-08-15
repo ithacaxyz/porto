@@ -168,12 +168,9 @@ export namespace UpdateAccount {
 
     if (version.fetchStatus === 'idle' && version.status === 'pending')
       return children
-    if (version.isPending)
-      return (
-        <Layout loading loadingTitle="Loading...">
-          <div />
-        </Layout>
-      )
+
+    if (version.isPending) return <Layout loading />
+
     if (needsUpdate && !skipUpdate)
       return (
         <UpdateAccount

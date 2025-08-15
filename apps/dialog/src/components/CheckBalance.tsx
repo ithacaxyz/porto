@@ -1,4 +1,3 @@
-import { Spinner } from '@porto/ui'
 import type { UseQueryResult } from '@tanstack/react-query'
 import type { Address } from 'ox'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
@@ -53,17 +52,9 @@ export function CheckBalance(props: CheckBalance.Props) {
   }, [quotes, query.error?.cause])
 
   if (step === 'success') return children
-  if (query.isPending)
-    return (
-      <Layout>
-        <div className="flex h-40 items-center justify-center">
-          <div className="size-[24px] text-th_base-secondary">
-            <Spinner size="large" animateMount />
-          </div>
-        </div>
-      </Layout>
-    )
+  if (query.isPending) return <Layout loading />
   if (!deficitToken) return children
+
   return (
     <AddFunds
       address={address}
