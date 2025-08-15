@@ -11,7 +11,7 @@ function RouteComponent() {
     <ComponentScreen title="Spinner">
       <ComponentScreen.Section title="Size">
         <div className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-center gap-1">
+          <div className="flex flex-wrap items-center gap-1 text-th_accent">
             <Spinner size="small" />
             <Spinner size="medium" />
             <Spinner size="large" />

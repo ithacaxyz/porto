@@ -2,7 +2,7 @@ import * as Ariakit from '@ariakit/react'
 import { Button } from '@porto/apps/components'
 import { erc20Abi } from '@porto/apps/contracts'
 import { useCopyToClipboard, usePrevious } from '@porto/apps/hooks'
-import { PresetsInput } from '@porto/ui'
+import * as UI from '@porto/ui'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Cuer } from 'cuer'
 import { type Address, Hex, Value } from 'ox'
@@ -66,8 +66,6 @@ export function AddFunds(props: AddFunds.Props) {
       const params = new URLSearchParams({
         address,
         chainId: chain.id.toString(),
-        // TODO: Remove
-        overrideTokenAddress: '0x3A9b126BF65C518F1E02602BD77bD1288147F94C',
         value: value.toString(),
       })
       const response = await fetch(
@@ -86,7 +84,7 @@ export function AddFunds(props: AddFunds.Props) {
 
   if (view === 'default')
     return (
-      <Layout loading={deposit.isPending} loadingTitle="Adding funds…">
+      <Layout>
         <Layout.Header>
           <Layout.Header.Default
             content="Select how much you will deposit."
@@ -100,7 +98,7 @@ export function AddFunds(props: AddFunds.Props) {
             onSubmit={(e) => deposit.mutate(e)}
           >
             <div className="col-span-1 row-span-1">
-              <PresetsInput
+              <UI.PresetsInput
                 adornments={{
                   end: {
                     label: `Max. $${MAX_AMOUNT}`,
@@ -133,15 +131,16 @@ export function AddFunds(props: AddFunds.Props) {
                   variant="stripe"
                 />
               ) : (
-                <Button
-                  className="w-full flex-1"
+                <UI.Button
                   data-testid="buy"
                   disabled={!address || !amount || Number(amount) === 0}
+                  loading={deposit.isPending && 'Adding funds…'}
                   type="submit"
                   variant="primary"
+                  width="full"
                 >
                   Add funds
-                </Button>
+                </UI.Button>
               )}
             </div>
             <div className="col-span-1 row-span-1">
@@ -154,6 +153,7 @@ export function AddFunds(props: AddFunds.Props) {
             <div className="col-span-1 row-span-1">
               <Button
                 className="w-full px-3!"
+                disabled={deposit.isPending}
                 onClick={() => setView('deposit-crypto')}
                 type="button"
               >

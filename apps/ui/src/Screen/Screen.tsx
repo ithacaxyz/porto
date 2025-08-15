@@ -1,9 +1,11 @@
-import type { ReactNode } from 'react'
+import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { useId } from 'react'
+import ChevronRight from '~icons/lucide/chevron-right'
 import { css, cx } from '../../styled-system/css'
+import { ButtonArea } from '../ButtonArea/ButtonArea.js'
 import { Frame } from '../Frame/Frame.js'
 
-export function Screen({ children, layout }: Screen.Props) {
+export function Screen({ children, layout, bottomAction }: Screen.Props) {
   const frame = Frame.useFrame()
   const id = useId()
 
@@ -66,23 +68,16 @@ export function Screen({ children, layout }: Screen.Props) {
           )}
         >
           {children}
+          {bottomAction && (
+            <ScreenBottomAction layout={layout} {...bottomAction} />
+          )}
         </div>
       </div>
     </div>
   )
 }
 
-function ScreenHeader({
-  content,
-  icon,
-  layout,
-  title,
-}: {
-  content?: ReactNode
-  icon?: ReactNode
-  layout?: 'compact' | 'full'
-  title: string
-}) {
+function ScreenHeader({ content, icon, layout, title }: Screen.HeaderProps) {
   const frame = Frame.useFrame()
   layout ??= frame.mode === 'dialog' ? 'compact' : 'full'
 
@@ -179,11 +174,93 @@ function ScreenHeader({
   )
 }
 
+function ScreenBottomAction({
+  children,
+  layout,
+  ...props
+}: Screen.BottomActionProps) {
+  return (
+    <div
+      className={cx(
+        css({
+          borderTop: '1px solid var(--border-color-th_base)',
+          display: 'flex',
+          width: '100%',
+        }),
+        layout === 'full' &&
+          css({
+            '@container (min-width: 480px)': {
+              marginTop: 12,
+            },
+          }),
+      )}
+    >
+      <ButtonArea
+        className={cx(
+          css({
+            alignItems: 'center',
+            borderRadius: 'var(--radius-th_large)',
+            borderTopLeftRadius: 0,
+            borderTopRightRadius: 0,
+            display: 'flex',
+            fontSize: 14,
+            fontWeight: 500,
+            justifyContent: 'space-between',
+            outlineOffset: -2,
+            padding: 12,
+            width: '100%',
+          }),
+          layout === 'full' &&
+            css({
+              '@container (min-width: 480px)': {
+                borderRadius: 'var(--radius-th_medium)',
+              },
+              borderRadius: 0,
+            }),
+        )}
+        {...props}
+      >
+        <div
+          className={css({
+            alignItems: 'center',
+            display: 'flex',
+            gap: 6,
+          })}
+        >
+          {children}
+        </div>
+        <ChevronRight
+          className={css({
+            color: 'var(--text-color-th_base-secondary)',
+          })}
+          height={20}
+          width={20}
+        />
+      </ButtonArea>
+    </div>
+  )
+}
+
 export namespace Screen {
   export interface Props {
+    bottomAction?: ButtonHTMLAttributes<HTMLButtonElement> | undefined
     children?: ReactNode
-    layout?: 'compact' | 'full'
+    layout?: Layout | undefined
   }
+
+  export interface HeaderProps {
+    content?: ReactNode
+    icon?: ReactNode
+    layout?: Layout | undefined
+    title: string
+  }
+
+  export interface BottomActionProps
+    extends ButtonHTMLAttributes<HTMLButtonElement> {
+    layout: Layout
+  }
+
+  export type Layout = 'compact' | 'full'
 
   export const Header = ScreenHeader
 }

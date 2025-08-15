@@ -181,12 +181,14 @@ export function unstable_create(
   parameters: ExactPartial<Config> | undefined = {},
 ): Porto {
   return create({
-    chains: [Chains.base],
+    chains: [Chains.base, Chains.arbitrum, Chains.optimism],
     mode: browser ? dialog({ host: hostUrls.prod }) : rpcServer(),
     relay: http(relayUrls.prod.http),
     storageKey: 'prod.porto.store',
     transports: {
+      [Chains.arbitrum.id]: http(),
       [Chains.base.id]: http(),
+      [Chains.optimism.id]: http(),
     },
     ...parameters,
   })

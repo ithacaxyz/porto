@@ -1,4 +1,4 @@
-import { Button } from '@porto/apps/components'
+import { Button } from '@porto/ui'
 import type { Address } from 'ox'
 import type * as PermissionsRequest from 'porto/core/internal/permissionsRequest'
 import { Hooks } from 'porto/remote'
@@ -14,7 +14,7 @@ export function GrantPermissions(props: GrantPermissions.Props) {
   const account = Hooks.useAccount(porto, { address })
 
   return (
-    <Layout loading={loading} loadingTitle="Authorizing...">
+    <Layout>
       <Layout.Header>
         <Layout.Header.Default
           content={
@@ -36,20 +36,19 @@ export function GrantPermissions(props: GrantPermissions.Props) {
       <Layout.Footer>
         <Layout.Footer.Actions>
           <Button
-            className="flex-1"
             data-testid="cancel"
+            disabled={loading}
             onClick={onReject}
-            type="button"
+            width="grow"
           >
             Cancel
           </Button>
-
           <Button
-            className="flex-1"
             data-testid="grant"
+            loading={loading && 'Authorizing…'}
             onClick={onApprove}
-            type="button"
             variant="primary"
+            width="grow"
           >
             Grant
           </Button>

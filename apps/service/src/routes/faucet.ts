@@ -3,13 +3,7 @@ import { Hono } from 'hono'
 import { getConnInfo } from 'hono/cloudflare-workers'
 import { validator } from 'hono/validator'
 import { Chains } from 'porto'
-import {
-  type Address,
-  createWalletClient,
-  http,
-  isAddress,
-  publicActions,
-} from 'viem'
+import { createWalletClient, http, isAddress, publicActions } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { waitForTransactionReceipt } from 'viem/actions'
 
@@ -62,8 +56,7 @@ faucetApp.on(
     return { address, chainId, overrideTokenAddress, value: BigInt(value) }
   }),
   async (context) => {
-    const { address, chainId, value, overrideTokenAddress } =
-      context.req.valid('query')
+    const { address, chainId, value } = context.req.valid('query')
 
     const account = privateKeyToAccount(context.env.DRIP_PRIVATE_KEY)
     const client = createWalletClient({
@@ -77,9 +70,7 @@ faucetApp.on(
 
     const hash = await client.writeContract({
       abi: exp1Abi,
-      address:
-        (overrideTokenAddress as Address) ||
-        exp1Address[chainId as unknown as keyof typeof exp1Address],
+      address: exp1Address[chainId as unknown as keyof typeof exp1Address],
       args: [address, value],
       functionName: 'mint',
       maxFeePerGas: maxFeePerGas * 2n,

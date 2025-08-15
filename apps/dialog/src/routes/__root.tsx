@@ -1,6 +1,6 @@
 import { Env, UserAgent } from '@porto/apps'
 import { Button } from '@porto/apps/components'
-import { Frame, Button as UiButton } from '@porto/ui'
+import * as UI from '@porto/ui'
 import {
   createRootRoute,
   HeadContent,
@@ -75,7 +75,7 @@ function RouteComponent() {
       <HeadContent />
       <style>{customTheme?.tailwindCss}</style>
 
-      <Frame
+      <UI.Frame
         // the color scheme is set from here rather than at the :root level,
         // this is because a mismatch between the color scheme of an iframe
         // and its parent would make the iframe opaque [1][2]. So the strategy
@@ -144,7 +144,7 @@ function RouteComponent() {
             </CheckReferrer>
           </CheckUnsupportedBrowser>
         </CheckError>
-      </Frame>
+      </UI.Frame>
 
       <React.Suspense>
         <TanStackRouterDevtools position="bottom-right" />
@@ -213,21 +213,21 @@ function CheckError(props: CheckError.Props) {
       <Layout.Footer>
         <Layout.Footer.Actions>
           {secondaryAction && (
-            <UiButton
+            <UI.Button
               data-testid="secondary-action"
               onClick={secondaryAction.onClick}
             >
               {secondaryAction.label}
-            </UiButton>
+            </UI.Button>
           )}
-          <UiButton
+          <UI.Button
             data-testid="primary-action"
             onClick={mainAction.onClick}
             variant="primary"
             width="grow"
           >
             {mainAction.label}
-          </UiButton>
+          </UI.Button>
         </Layout.Footer.Actions>
       </Layout.Footer>
     </Layout>

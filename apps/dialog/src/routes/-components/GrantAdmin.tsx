@@ -1,4 +1,4 @@
-import { Button } from '@porto/apps/components'
+import { Button } from '@porto/ui'
 import type { Hex } from 'ox'
 import type * as Address from 'ox/Address'
 import { Key } from 'porto'
@@ -29,7 +29,7 @@ export function GrantAdmin(props: GrantAdmin.Props) {
 
   return (
     <CheckBalance onReject={onReject} query={prepareCallsQuery}>
-      <Layout loading={loading} loadingTitle="Authorizing...">
+      <Layout>
         <Layout.Header>
           <Layout.Header.Default
             content={
@@ -66,35 +66,17 @@ export function GrantAdmin(props: GrantAdmin.Props) {
 
         <Layout.Footer>
           <Layout.Footer.Actions>
-            {prepareCallsQuery.isError ? (
-              <>
-                <Button className="flex-1" onClick={onReject} type="button">
-                  Cancel
-                </Button>
-                <Button
-                  className="flex-1"
-                  onClick={onApprove}
-                  type="button"
-                  variant="default"
-                >
-                  Attempt anyway
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button className="flex-1" onClick={onReject} type="button">
-                  Cancel
-                </Button>
-                <Button
-                  className="flex-1"
-                  onClick={onApprove}
-                  type="button"
-                  variant="primary"
-                >
-                  Add
-                </Button>
-              </>
-            )}
+            <Button disabled={loading} onClick={onReject} width="grow">
+              Cancel
+            </Button>
+            <Button
+              loading={loading && 'Authorizing…'}
+              onClick={onApprove}
+              variant={prepareCallsQuery.isError ? 'secondary' : 'primary'}
+              width="grow"
+            >
+              {prepareCallsQuery.isError ? 'Attempt anyway' : 'Add'}
+            </Button>
           </Layout.Footer.Actions>
 
           {account?.address && (

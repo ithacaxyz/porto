@@ -1,5 +1,5 @@
 import { IndeterminateLoader } from '@porto/apps/components'
-import { Screen } from '@porto/ui'
+import { Screen, Spinner } from '@porto/ui'
 import { cva, cx, type VariantProps } from 'cva'
 import { Address } from 'ox'
 import type * as React from 'react'
@@ -12,9 +12,15 @@ export function Layout(props: Layout.Props) {
   return (
     <Screen>
       {loading ? (
-        <div className="p-3">
-          <IndeterminateLoader title={loadingTitle ?? ''} />
-        </div>
+        loadingTitle ? (
+          <div className="p-3">
+            <IndeterminateLoader title={loadingTitle} />
+          </div>
+        ) : (
+          <div className="flex h-40 items-center justify-center text-th_base-secondary">
+            <Spinner animateMount size="large" />
+          </div>
+        )
       ) : (
         children
       )}
@@ -24,11 +30,11 @@ export function Layout(props: Layout.Props) {
 
 export namespace Layout {
   export type Props = {
-    children: React.ReactNode
+    children?: React.ReactNode | undefined
   } & (
     | {
         loading?: boolean
-        loadingTitle: string
+        loadingTitle?: string
       }
     | {
         loading?: undefined

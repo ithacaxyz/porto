@@ -1,4 +1,4 @@
-import { Button } from '@porto/apps/components'
+import { Button } from '@porto/ui'
 import type { RpcSchema } from 'ox'
 import type { RpcSchema as porto_RpcSchema } from 'porto'
 import { Hooks } from 'porto/wagmi'
@@ -22,7 +22,7 @@ export function RevokePermissions(props: RevokePermissions.Props) {
 
   return (
     <CheckBalance onReject={onReject} query={prepareCallsQuery}>
-      <Layout loading={loading} loadingTitle="Authorizing...">
+      <Layout>
         <Layout.Header>
           <Layout.Header.Default
             content={
@@ -55,15 +55,14 @@ export function RevokePermissions(props: RevokePermissions.Props) {
 
         <Layout.Footer>
           <Layout.Footer.Actions>
-            <Button className="flex-1" onClick={onReject} type="button">
+            <Button disabled={loading} onClick={onReject} width="grow">
               Cancel
             </Button>
-
             <Button
-              className="flex-1"
+              loading={loading && 'Authorizing…'}
               onClick={onApprove}
-              type="button"
-              variant="destructive"
+              variant="negative"
+              width="grow"
             >
               Revoke
             </Button>

@@ -142,9 +142,14 @@ export function Button({
             },
             size: {
               large: {
-                borderRadius: 26,
-                fontSize: 18,
-                height: 52,
+                borderRadius: 21,
+                fontSize: 16,
+
+                // large button temporarily made smaller, until we move
+                // to layouts adapted to larger (52px tall) buttons.
+                // height: 52,
+                // borderRadius: 26,
+                height: 42,
                 paddingInline: 20,
               },
               medium: {
@@ -205,10 +210,7 @@ export function Button({
               opacity: loadingSpring.loadingOpacity,
             }}
           >
-            <Spinner
-              color="currentColor"
-              size={size === 'small' ? 'small' : 'medium'}
-            />
+            <Spinner size={size === 'small' ? 'small' : 'medium'} />
             {loading === true ? 'Loading…' : loading}
           </a.div>
         )}
