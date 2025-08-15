@@ -122,6 +122,13 @@ Available:
 Using `Mode.contract()` or `Mode.rpcServer()` comes with some caveats. Please refer to the [`Mode.contract()`](#TODO) or [`Mode.rpcServer()`](#TODO) documentation for more information.
 :::
 
+### relay
+
+- **Type:** `Transport{:ts}`
+- **Default:** `http('https://rpc.ithaca.xyz'){:ts}`
+
+Relay RPC Transport override.
+
 ### storage
 
 - **Type:** `Storage.Storage{:ts}`
@@ -141,7 +148,7 @@ Available:
 - **Type:** `{ [chainId: string]: Transport }{:ts}`
 - **Default:** `{}{:ts}`
 
-Transport to use for each chain.
+Public RPC Transport overrides to use for each chain.
 
 ## Return Type
 

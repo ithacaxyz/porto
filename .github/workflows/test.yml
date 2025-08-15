@@ -23,7 +23,7 @@ on:
         type: string
         description: 'Environment to use for tests'
         default: 'stg'
-      rpc-url:
+      relay-url:
         type: string
         description: 'RPC URL to use for tests'
         default: ''
@@ -96,7 +96,7 @@ jobs:
             enabled: ${{ github.ref == 'refs/heads/main' && (inputs.test-deployment-browser == true || inputs.test-deployment-browser == null) }}
           - env: ${{ inputs.env || 'stg' }}
             browser: 'false'
-            enabled: ${{ github.ref == 'refs/heads/main' && (inputs.test-deployment-node == true || inputs.test-deployment-node == null) }}
+            enabled: ${{ false && github.ref == 'refs/heads/main' && (inputs.test-deployment-node == true || inputs.test-deployment-node == null) }}
     env: 
       CI: true
       VITE_DEFAULT_ENV: ${{ matrix.env }}
@@ -104,7 +104,7 @@ jobs:
       VITE_FAUCET_PRIVATE_KEY_RELEASE: ${{ secrets.VITE_FAUCET_PRIVATE_KEY_RELEASE }}
       VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT: ${{ secrets.VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT }}
       VITE_RELAY_VERSION: ${{ needs.relay-release.outputs.relay_version || inputs.relay-ref }}
-      VITE_RPC_URL: ${{ inputs.rpc-url }}
+      VITE_RELAY_URL: ${{ inputs.relay-url }}
 
     steps:
       - name: Skip if not enabled

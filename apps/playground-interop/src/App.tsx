@@ -106,14 +106,14 @@ function Chains() {
   return (
     <div style={{ display: 'flex', gap: '2rem' }}>
       {chains.map((chain) => (
-        <>
+        <div key={chain.id}>
           <ChainGroup
             chainId={chain.id as ChainId}
             key={chain.id}
             name={chain.name}
           />
           <div style={{ backgroundColor: '#b0b0b0', minWidth: 1 }} />
-        </>
+        </div>
       ))}
     </div>
   )
@@ -207,6 +207,12 @@ function Mint({ chainId }: { chainId: Exclude<ChainId, 0> }) {
             const symbol = formData.get('symbol') as string
 
             const config = symbol === 'EXP' ? exp1Config : exp2Config
+            const to =
+              config.address[chainId as keyof (typeof config)['address']]
+            if (!to) {
+              console.warn(`to address not defined for chainId ${chainId}`)
+              return
+            }
 
             sendCalls.sendCalls({
               calls: [
@@ -214,7 +220,7 @@ function Mint({ chainId }: { chainId: Exclude<ChainId, 0> }) {
                   abi: config.abi,
                   args: [account.address!, parseEther(amount)],
                   functionName: 'mint',
-                  to: config.address[chainId],
+                  to,
                 },
               ],
               chainId,
@@ -354,11 +360,31 @@ function Swap({ chainId }: { chainId: Exclude<ChainId, 0> }) {
             const formData = new FormData(e.target as HTMLFormElement)
             const fromAmount = formData.get('fromAmount') as `${number}`
 
-            const toAddress =
-              from === 'EXP'
-                ? exp2Config.address[chainId]
-                : exp1Config.address[chainId]
+            const exp1Token =
+              exp1Config.address[
+                chainId as keyof (typeof exp1Config)['address']
+              ]
+            if (exp1Token) {
+              console.warn(`exp1 address not defined for chainId ${chainId}`)
+              return
+            }
+            const exp2Token =
+              exp2Config.address[
+                chainId as keyof (typeof exp2Config)['address']
+              ]
+            if (exp2Token) {
+              console.warn(`exp2 address not defined for chainId ${chainId}`)
+              return
+            }
+
+            const toAddress = from === 'EXP' ? exp2Token : exp1Token
             const config = from === 'EXP' ? exp1Config : exp2Config
+            const to =
+              config.address[chainId as keyof (typeof config)['address']]
+            if (!to) {
+              console.warn(`to address not defined for chainId ${chainId}`)
+              return
+            }
 
             sendCalls.sendCalls({
               calls: [
@@ -366,7 +392,7 @@ function Swap({ chainId }: { chainId: Exclude<ChainId, 0> }) {
                   abi: config.abi,
                   args: [toAddress, account.address!, parseEther(fromAmount)],
                   functionName: 'swap',
-                  to: config.address[chainId],
+                  to,
                 },
               ],
               capabilities: {

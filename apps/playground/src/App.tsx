@@ -101,7 +101,6 @@ export function App() {
             <option value="iframe-dialog">Dialog (iframe)</option>
             <option value="popup-dialog">Dialog (popup)</option>
             <option value="inline-dialog">Dialog (inline)</option>
-            <option value="contract">Contract</option>
             <option value="rpc">RPC Server</option>
           </select>
         </div>
@@ -141,7 +140,7 @@ export function App() {
           <br />
         </div>
         <h2>Chain Management</h2>
-        <SwitchChain />
+        <SwitchChain showTitle />
         <div>
           <br />
           <hr />
@@ -194,7 +193,7 @@ export function App() {
       {mode === 'inline-dialog' && (
         <div className="fixed top-0 bottom-0 left-[calc(768px+var(--spacing)*2)] w-[300px] p-4">
           <div
-            className="h-full overflow-hidden rounded-md border border-1 border-th_frame"
+            className="h-full overflow-hidden rounded-md border border-th_frame"
             id="porto"
           />
         </div>
@@ -213,11 +212,14 @@ function State() {
     <div>
       <h3>State</h3>
       {state.accounts.length === 0 ? (
-        <p>Disconnected</p>
+        <div>Disconnected</div>
       ) : (
         <>
-          <p>Address: {state.accounts[0].address}</p>
-          <p>Chain ID: {state.chainId}</p>
+          <div>Address: {state.accounts[0].address}</div>
+          <div>
+            Chain ID: {state.chainId}
+            <SwitchChain />
+          </div>
           <div>
             <p>Keys:</p>
             <pre>{Json.stringify(state.accounts?.[0]?.keys, null, 2)}</pre>
@@ -423,12 +425,15 @@ function AddFunds() {
               method: 'eth_chainId',
             }),
           ) as ChainId
+          const token = exp1Address[chainId as never]
+          if (!token)
+            throw new Error(`exp1 address not defined for chainId ${chainId}`)
           porto.provider
             .request({
               method: 'wallet_addFunds',
               params: [
                 {
-                  token: exp1Address[chainId],
+                  token,
                   value: '100',
                 },
               ],
@@ -566,9 +571,14 @@ function GrantPermissions() {
               method: 'eth_chainId',
             }),
           ) as ChainId
+          const p = permissions({ chainId })
+          if (!p) {
+            console.warn(`no permissions to grant for chainId ${chainId}`)
+            return
+          }
           const result = await porto.provider.request({
             method: 'wallet_grantPermissions',
-            params: [permissions({ chainId })],
+            params: [p],
           })
           setResult(result)
         }}
@@ -734,7 +744,7 @@ function UpdateAccount() {
   )
 }
 
-function SwitchChain() {
+function SwitchChain(props: { showTitle?: boolean }) {
   const [chainId, setChainId] = React.useState<number | undefined>(undefined)
 
   React.useEffect(() => {
@@ -747,7 +757,7 @@ function SwitchChain() {
 
   return (
     <div>
-      <h3>wallet_switchEthereumChain</h3>
+      {props.showTitle && <h3>wallet_switchEthereumChain</h3>}
       <div>
         {porto.config.chains.map((chain) => (
           <button
@@ -1162,7 +1172,10 @@ function SendTransaction() {
         ) as ChainId
 
         const params = (() => {
-          if (action === 'mint')
+          if (action === 'mint') {
+            const token = exp1Address[chainId as never]
+            if (!token)
+              throw new Error(`exp1 address not defined for chainId ${chainId}`)
             return [
               {
                 data: AbiFunction.encodeData(
@@ -1170,9 +1183,10 @@ function SendTransaction() {
                   [account, Value.fromEther('100')],
                 ),
                 from: account,
-                to: exp1Address[chainId],
+                to: token,
               },
             ] as const
+          }
 
           return [
             {
@@ -1411,12 +1425,18 @@ function GrantKeyPermissions() {
             }),
           ) as ChainId
 
+          const p = permissions({ chainId })
+          if (!p) {
+            console.warn(`no permissions to grant for chainId ${chainId}`)
+            return
+          }
+
           const result = await porto.provider.request({
             method: 'wallet_grantPermissions',
             params: [
               {
                 key: { publicKey, type: 'p256' },
-                ...permissions({ chainId }),
+                ...p,
               },
             ],
           })
@@ -1451,25 +1471,32 @@ function PrepareCalls() {
         ) as ChainId
 
         const calls = (() => {
-          if (action === 'mint')
+          if (action === 'mint') {
+            const token = exp1Address[chainId as never]
+            if (!token)
+              throw new Error(`exp1 address not defined for chainId ${chainId}`)
             return [
               {
                 data: AbiFunction.encodeData(
                   AbiFunction.fromAbi(exp1Abi, 'mint'),
                   [account, Value.fromEther('100')],
                 ),
-                to: exp1Address[chainId],
+                to: token,
               },
             ]
+          }
 
-          if (action === 'transfer')
+          if (action === 'transfer') {
+            const token = exp1Address[chainId as never]
+            if (!token)
+              throw new Error(`exp1 address not defined for chainId ${chainId}`)
             return [
               {
                 data: AbiFunction.encodeData(
                   AbiFunction.fromAbi(exp1Abi, 'approve'),
                   [account, Value.fromEther('50')],
                 ),
-                to: exp1Address[chainId],
+                to: token,
               },
               {
                 data: AbiFunction.encodeData(
@@ -1480,11 +1507,15 @@ function PrepareCalls() {
                     Value.fromEther('50'),
                   ],
                 ),
-                to: exp1Address[chainId],
+                to: token,
               },
             ] as const
+          }
 
-          if (action === 'revert')
+          if (action === 'revert') {
+            const token = exp2Address[chainId as never]
+            if (!token)
+              throw new Error(`exp2 address not defined for chainId ${chainId}`)
             return [
               {
                 data: AbiFunction.encodeData(
@@ -1495,9 +1526,10 @@ function PrepareCalls() {
                     Value.fromEther('100'),
                   ],
                 ),
-                to: exp2Address[chainId],
+                to: token,
               },
             ] as const
+          }
 
           return [
             {

@@ -536,7 +536,8 @@ export function BuyNow(props: { chainId: ChainId; next: () => void }) {
   const { address } = useAccount()
   const { data: exp1Balance } = useReadContract({
     abi: exp1Config.abi,
-    address: exp1Config.address[chainId],
+    address:
+      exp1Config.address[chainId as keyof (typeof exp1Config)['address']],
     args: [address!],
     functionName: 'balanceOf',
     query: {
@@ -640,7 +641,19 @@ export function BuyNow(props: { chainId: ChainId; next: () => void }) {
             'outline outline-dashed outline-blue9 outline-offset-2',
         )}
         disabled={isPending || isConfirming}
-        onClick={() =>
+        onClick={() => {
+          const exp1Token =
+            exp1Config.address[chainId as keyof (typeof exp1Config)['address']]
+          if (exp1Token) {
+            console.warn(`exp1 address not defined for chainId ${chainId}`)
+            return
+          }
+          const expNft =
+            expNftConfig.address[chainId as keyof typeof expNftConfig.address]
+          if (expNft) {
+            console.warn(`expNft address not defined for chainId ${chainId}`)
+            return
+          }
           sendCalls({
             calls: [
               ...(shouldMintExp
@@ -649,20 +662,20 @@ export function BuyNow(props: { chainId: ChainId; next: () => void }) {
                       abi: exp1Config.abi,
                       args: [address!, Value.fromEther('110')],
                       functionName: 'mint',
-                      to: exp1Config.address[chainId],
+                      to: exp1Token,
                     },
                   ]
                 : []),
               {
                 abi: exp1Config.abi,
-                args: [expNftConfig.address[chainId], Value.fromEther('10')],
+                args: [expNft, Value.fromEther('10')],
                 functionName: 'approve',
-                to: exp1Config.address[chainId],
+                to: exp1Token,
               },
               {
                 abi: expNftConfig.abi,
                 functionName: 'mint',
-                to: expNftConfig.address[chainId],
+                to: expNft,
               },
             ],
             capabilities: {
@@ -674,7 +687,7 @@ export function BuyNow(props: { chainId: ChainId; next: () => void }) {
               ],
             },
           })
-        }
+        }}
       >
         {isPending ? (
           <>
@@ -710,7 +723,8 @@ export function SendTip(props: {
   })
   const { data: exp1Balance, refetch: expBalanceRefetch } = useReadContract({
     abi: exp1Config.abi,
-    address: exp1Config.address[chainId],
+    address:
+      exp1Config.address[chainId as keyof (typeof exp1Config)['address']],
     args: [creatorAddress],
     functionName: 'balanceOf',
   })
@@ -801,9 +815,15 @@ export function SendTip(props: {
         )}
         disabled={isPending || isConfirming}
         onClick={() => {
+          const exp1Token =
+            exp1Config.address[chainId as keyof (typeof exp1Config)['address']]
+          if (exp1Token) {
+            console.warn(`exp1 address not defined for chainId ${chainId}`)
+            return
+          }
           const shared = {
             abi: exp1Config.abi,
-            to: exp1Config.address[chainId],
+            to: exp1Token,
           }
           const amount = Value.fromEther('1')
           sendCalls({
@@ -914,6 +934,13 @@ export function Subscribe(props: {
       const tier = tiers.find((tier) => tier.unit === state.values.tier)
       if (!tier) throw new Error(`Invalid tier: ${state.values.tier}`)
 
+      const exp1Token =
+        exp1Config.address[chainId as keyof (typeof exp1Config)['address']]
+      if (exp1Token) {
+        console.warn(`exp1 address not defined for chainId ${chainId}`)
+        return
+      }
+
       const privateKey = P256.randomPrivateKey()
       const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
         includePrefix: false,
@@ -927,7 +954,7 @@ export function Subscribe(props: {
             {
               limit: tier.amount,
               period: state.values.tier,
-              token: exp1Config.address[chainId],
+              token: exp1Token,
             },
           ],
         },
@@ -1103,13 +1130,17 @@ function Swap(props: {
   const exp1Config_ = {
     ...shared,
     abi: exp1Config.abi,
-    address: exp1Config.address[chainId],
+    address:
+      exp1Config.address[chainId as keyof (typeof exp1Config)['address']],
     chainId,
   } as const
   const exp2Config_ = {
     ...shared,
     abi: exp2Config.abi,
-    address: exp2Config.address[destinationChainId],
+    address:
+      exp2Config.address[
+        destinationChainId as keyof (typeof exp2Config)['address']
+      ],
     chainId: destinationChainId,
   } as const
 

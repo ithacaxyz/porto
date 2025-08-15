@@ -1,5 +1,4 @@
 import * as Schema from 'effect/Schema'
-import * as FeeToken from './feeToken.js'
 import * as Primitive from './primitive.js'
 import { OneOf } from './schema.js'
 
@@ -40,7 +39,15 @@ export const CallPermissions = Schema.Array(
 export type CallPermissions = typeof CallPermissions.Type
 
 export const FeeLimit = Schema.Struct({
-  currency: Schema.Union(FeeToken.Kind, Schema.Literal('USD')),
+  currency: Schema.Union(
+    // inlined union used to be `FeeToken.kind`
+    Schema.Union(
+      Schema.Literal('ETH'),
+      Schema.Literal('USDC'),
+      Schema.Literal('USDT'),
+    ),
+    Schema.Literal('USD'),
+  ),
   value: Schema.Union(
     Schema.TemplateLiteral(Schema.Number, '.', Schema.Number),
     Schema.TemplateLiteral(Schema.Number),

@@ -862,18 +862,20 @@ exports[`rpcServer > wallet_getCapabilities > behavior: chainId 4`] = `
   {
     "address": "0x0000000000000000000000000000000000000000",
     "decimals": 18,
+    "feeToken": true,
     "interop": false,
-    "kind": "ETH",
     "nativeRate": null,
     "symbol": "ETH",
+    "uid": "ethereum",
   },
   {
     "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
     "decimals": 18,
+    "feeToken": true,
     "interop": true,
-    "kind": "USDT",
     "nativeRate": null,
     "symbol": "EXP",
+    "uid": "exp",
   },
 ]
 `;

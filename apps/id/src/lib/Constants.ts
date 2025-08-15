@@ -104,6 +104,15 @@ export const defaultAssets: Record<
       symbol: 'EXP2',
     },
   ],
+  [Chains.arbitrum.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'Ethereum',
+      symbol: 'ETH',
+    },
+  ],
   [Chains.baseSepolia.id]: [
     {
       address: '0x0000000000000000000000000000000000000000',
@@ -174,6 +183,22 @@ export const defaultAssets: Record<
       logo: '/icons/cbbtc.png',
       name: 'Coinbase Wrapped BTC',
       symbol: 'CBBTC',
+    },
+  ],
+  [Chains.optimism.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'Ethereum',
+      symbol: 'ETH',
+    },
+    {
+      address: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
+      decimals: 6,
+      logo: '/icons/usdc.svg',
+      name: 'USD Coin',
+      symbol: 'USDC',
     },
   ],
   [Chains.optimismSepolia.id]: [

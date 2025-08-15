@@ -142,7 +142,7 @@ export default defineConfig(({ mode }) => {
               orchestrator: orchestratorAddress,
               simulator: simulatorAddress,
               txGasBuffer: 100_000n,
-              version: 'v18.2.1',
+              version: 'v21.0.1',
             }).start()
             await fetch(rpcServerConfig.rpcUrl + '/start')
             return stop
@@ -221,9 +221,7 @@ export default defineConfig(({ mode }) => {
             return MerchantRpc.requestListener({
               address: merchantAccount.address,
               key: merchantKey.privateKey!(),
-              transports: {
-                [chains.anvil.id]: http(rpcServerConfig.rpcUrl),
-              },
+              relay: http(rpcServerConfig.rpcUrl),
             })(req, res)
           })
         },

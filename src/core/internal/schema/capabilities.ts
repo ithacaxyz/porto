@@ -86,9 +86,9 @@ export namespace feeToken {
         address: Primitive.Address,
         decimals: Schema.Number,
         interop: Schema.optional(Schema.Boolean),
-        kind: Schema.String,
         nativeRate: Schema.optional(Primitive.BigInt),
         symbol: Schema.String,
+        uid: Schema.String,
       }),
     ),
   })
@@ -151,9 +151,9 @@ export namespace requiredFunds {
         address: Primitive.Address,
         decimals: Schema.Number,
         interop: Schema.optional(Schema.Boolean),
-        kind: Schema.String,
         nativeRate: Schema.optional(Primitive.BigInt),
         symbol: Schema.String,
+        uid: Schema.String,
       }),
     ),
   })

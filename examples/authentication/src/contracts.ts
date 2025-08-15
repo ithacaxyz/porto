@@ -1004,7 +1004,7 @@ export const exp1Abi = [
   { inputs: [], name: 'Unauthorized', type: 'error' },
 ] as const
 
-export const exp1Address = '0xaF3B0A5b4BeCc4fA1dfAfE74580eFa19a2ea49fa' as const
+export const exp1Address = '0x3A9b126BF65C518F1E02602BD77bD1288147F94C' as const
 
 export const exp1Config = { abi: exp1Abi, address: exp1Address } as const
 
@@ -1309,7 +1309,7 @@ export const exp2Abi = [
   { inputs: [], name: 'Unauthorized', type: 'error' },
 ] as const
 
-export const exp2Address = '0x88238D346Cfb2391203f4F33B90f5ECcE22b4165' as const
+export const exp2Address = '0x6795f10304557A454b94a5c04e9217677Cc9b598' as const
 
 export const exp2Config = { abi: exp2Abi, address: exp2Address } as const
 
@@ -1632,6 +1632,6 @@ export const expNftAbi = [
 ] as const
 
 export const expNftAddress =
-  '0x4d129f5033F60ED8419bC7d385c1e7aFa5Ebf88E' as const
+  '0x327cC427d8175b24D2D62CF57F5Fa4d577d6f716' as const
 
 export const expNftConfig = { abi: expNftAbi, address: expNftAddress } as const

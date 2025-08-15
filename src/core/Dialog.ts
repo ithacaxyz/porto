@@ -7,6 +7,12 @@ import * as UserAgent from './internal/userAgent.js'
 import * as Messenger from './Messenger.js'
 import type { QueuedRequest, Store } from './Porto.js'
 
+export const hostUrls = {
+  local: 'http://localhost:5175/dialog/',
+  prod: 'https://id.porto.sh/dialog',
+  stg: 'https://stg.id.porto.sh/dialog',
+} as const
+
 /** Dialog interface. */
 export type Dialog = {
   name: string

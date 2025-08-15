@@ -52,8 +52,7 @@ export namespace account_setEmail {
 export namespace account_verifyEmail {
   /** Parameters for `account_verifyEmail` request. */
   export const Parameters = Schema.Struct({
-    // TODO: `Primitive.Number`
-    chainId: Schema.Number,
+    chainId: Primitive.Number,
     email: Schema.String,
     signature: Primitive.Hex,
     token: Schema.String,
@@ -99,8 +98,7 @@ export namespace wallet_getAccounts {
   /** Parameters for `wallet_getAccounts` request. */
   export const Parameters = Schema.Struct({
     /** Target chain ID. */
-    // TODO: `Primitive.Number`
-    chainId: Schema.Number,
+    chainId: Primitive.Number,
     /** Key identifier. */
     id: Primitive.Hex,
   }).annotations({
@@ -194,9 +192,9 @@ export namespace wallet_getCapabilities {
             address: Primitive.Address,
             decimals: Schema.Number,
             interop: Schema.optional(Schema.Boolean),
-            kind: Schema.String,
             nativeRate: Schema.optional(Primitive.BigInt),
             symbol: Schema.String,
+            uid: Schema.String,
           }),
         ),
       }),
@@ -286,9 +284,9 @@ export namespace wallet_getCallsStatus {
       Schema.Array(
         Schema.Struct({
           blockHash: Primitive.Hex,
-          blockNumber: Schema.Number,
-          chainId: Schema.Number,
-          gasUsed: Schema.Number,
+          blockNumber: Primitive.Number,
+          chainId: Primitive.Number,
+          gasUsed: Primitive.Number,
           logs: Schema.Array(
             Schema.Struct({
               address: Primitive.Address,
@@ -652,7 +650,7 @@ export namespace wallet_verifySignature {
     /** Account address. */
     address: Primitive.Hex,
     /** Chain ID of the account with the given key configured. */
-    chainId: Schema.Number,
+    chainId: Primitive.Number,
     /** Digest of the message to verify. */
     digest: Primitive.Hex,
     /** Signature to verify. */

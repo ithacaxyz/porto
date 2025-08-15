@@ -1,5 +1,6 @@
 import { type Account, type Chains, Mode, Porto, Storage } from 'porto'
-import { http } from 'viem'
+import { type HttpTransportConfig, http } from 'viem'
+import { relayUrls } from '../../src/core/Transport.js'
 import * as ServerClient from '../../src/viem/ServerClient.js'
 import * as WalletClient from '../../src/viem/WalletClient.js'
 import * as Contracts from './_generated/contracts.js'
@@ -13,14 +14,19 @@ export function getPorto(
   parameters: {
     mode?: (parameters: { mock: boolean }) => Mode.Mode | undefined
     merchantRpcUrl?: string | undefined
-    rpcUrl?: string | undefined
+    relayRpcUrl?: string | undefined
   } = {},
 ) {
   const {
     mode = Mode.rpcServer,
     merchantRpcUrl,
-    rpcUrl: overrideRpcUrl = process.env.VITE_RPC_URL,
+    relayRpcUrl: overrideRelayRpcUrl = process.env.VITE_RELAY_URL,
   } = parameters
+
+  const relayRpcUrl =
+    overrideRelayRpcUrl ||
+    relayUrls[env as keyof typeof relayUrls].http +
+      (env === 'anvil' ? `/${poolId}` : '')
 
   return Porto.create({
     chains,
@@ -30,30 +36,27 @@ export function getPorto(
       mock: true,
       multichain: env !== 'anvil',
     }),
+    relay: http(
+      relayRpcUrl,
+      debugOptions({
+        enabled: process.env.VITE_RPC_DEBUG === 'true',
+        rpcUrl: relayRpcUrl,
+      }),
+    ),
     storage: Storage.memory(),
     transports: chains.reduce(
       (transports, chain) => {
-        const rpcUrl =
-          overrideRpcUrl ||
-          `${chain.rpcUrls.default.http[0]}${env === 'anvil' ? `/${poolId}` : ''}`
-
+        const rpcUrl = `${chain.rpcUrls.default.http[0]}${env === 'anvil' ? `/${poolId}` : ''}`
         return {
           // biome-ignore lint/performance/noAccumulatingSpread: _
           ...transports,
-          [chain.id]: http(rpcUrl, {
-            async onFetchRequest(_, init) {
-              if (process.env.VITE_RPC_DEBUG !== 'true') return
-              console.log(`curl \\
-  ${rpcUrl} \\
-  -X POST \\
-  -H "Content-Type: application/json" \\
-  -d '${JSON.stringify(JSON.parse(init.body as string))}'`)
-            },
-            async onFetchResponse(response) {
-              if (process.env.VITE_RPC_DEBUG !== 'true') return
-              console.log('> ' + JSON.stringify(await response.clone().json()))
-            },
-          }),
+          [chain.id]: http(
+            rpcUrl,
+            debugOptions({
+              enabled: process.env.VITE_RPC_DEBUG === 'true',
+              rpcUrl,
+            }),
+          ),
         }
       },
       {} as Porto.Config['transports'],
@@ -91,7 +94,8 @@ export function getContracts<
 
   return {
     delegation: {
-      address: chain.contracts!.portoAccount!.address,
+      // TODO: Don't hardcode
+      address: '0xb19b36b1456e65e3a6d514d3f715f204bd59f431',
     },
     exp1: {
       abi: Contracts.exp1Abi,
@@ -102,4 +106,26 @@ export function getContracts<
       address: Contracts.exp2Address[chain.id],
     },
   } as const
+}
+
+function debugOptions({
+  enabled,
+  rpcUrl,
+}: {
+  enabled: boolean
+  rpcUrl: string
+}): HttpTransportConfig | undefined {
+  if (!enabled) return undefined
+  return {
+    async onFetchRequest(_, init) {
+      console.log(`curl \\
+${rpcUrl} \\
+-X POST \\
+-H "Content-Type: application/json" \\
+-d '${JSON.stringify(JSON.parse(init.body as string))}'`)
+    },
+    async onFetchResponse(response) {
+      console.log('> ' + JSON.stringify(await response.clone().json()))
+    },
+  }
 }

@@ -162,10 +162,16 @@ export function getFeeLimit(
   const feeToken = feeTokens[0]!
 
   const limitToken = feeTokens.find((token) => {
-    if (feeLimit.currency === 'USD') return token.kind.startsWith('USD')
-    return (
-      feeLimit.currency === token.symbol || feeLimit.currency === token.kind
-    )
+    if (feeLimit.currency.startsWith('USD'))
+      return (
+        token.uid.toLowerCase().startsWith('usd') ||
+        token.symbol.toLowerCase().startsWith('usd') ||
+        // TODO: remove this condition since `EXP` is not real
+        token.symbol
+          .toLowerCase()
+          .startsWith('exp')
+      )
+    return feeLimit.currency === token.symbol || feeLimit.currency === token.uid
   })
   if (!limitToken) return undefined
 

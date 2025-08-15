@@ -90,8 +90,18 @@ export type ThemeType = keyof typeof themes
 
 export const mipd = createStore()
 
-export const permissions = ({ chainId }: { chainId: ChainId }) =>
-  ({
+export const permissions = ({ chainId }: { chainId: ChainId }) => {
+  const exp1Token = exp1Address[chainId as keyof typeof exp1Address]
+  if (!exp1Token) {
+    console.warn(`exp1 address not defined for chainId ${chainId}`)
+    return undefined
+  }
+  const exp2Token = exp2Address[chainId as keyof typeof exp2Address]
+  if (!exp2Token) {
+    console.warn(`exp2 address not defined for chainId ${chainId}`)
+    return undefined
+  }
+  return {
     expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
     feeLimit: {
       currency: 'USD',
@@ -100,10 +110,10 @@ export const permissions = ({ chainId }: { chainId: ChainId }) =>
     permissions: {
       calls: [
         {
-          to: exp1Address[chainId],
+          to: exp1Token,
         },
         {
-          to: exp2Address[chainId],
+          to: exp2Token,
         },
         {
           signature: 'mint()',
@@ -114,11 +124,12 @@ export const permissions = ({ chainId }: { chainId: ChainId }) =>
         {
           limit: Hex.fromNumber(Value.fromEther('50')),
           period: 'minute',
-          token: exp1Address[chainId],
+          token: exp1Token,
         },
       ],
     },
-  }) as const
+  } as const
+}
 
 const merchant = new URLSearchParams(window.location.search).get('merchant')
 
