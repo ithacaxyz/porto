@@ -576,7 +576,7 @@ function OnrampView(props: OnrampView.Props) {
         <>
           <article className="relative mx-auto w-full select-none overflow-hidden rounded-full">
             <div
-              className="h-[46px] min-h-[44px] w-full min-w-full"
+              className="h-[46px] min-h-[44px] w-full min-w-full bg-black dark:bg-white"
               id="mercuryo-widget"
             />
           </article>
