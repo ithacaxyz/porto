@@ -2,7 +2,7 @@ import * as Ariakit from '@ariakit/react'
 import { Button } from '@porto/apps/components'
 import { erc20Abi } from '@porto/apps/contracts'
 import { useCopyToClipboard, usePrevious } from '@porto/apps/hooks'
-import { Button as UiButton } from '@porto/ui'
+import * as UI from '@porto/ui'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Cuer } from 'cuer'
 import { type Address, Hex, Value } from 'ox'
@@ -180,7 +180,7 @@ export function AddFunds(props: AddFunds.Props) {
                   variant="stripe"
                 />
               ) : (
-                <UiButton
+                <UI.Button
                   data-testid="buy"
                   disabled={!amount || Number(amount) === 0}
                   loading={deposit.isPending && 'Adding funds…'}
@@ -189,7 +189,7 @@ export function AddFunds(props: AddFunds.Props) {
                   width="full"
                 >
                   Add funds
-                </UiButton>
+                </UI.Button>
               )}
             </div>
             <div className="col-span-1 row-span-1">
