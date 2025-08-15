@@ -266,7 +266,7 @@ export function AddFunds(props: AddFunds.Props) {
       e.preventDefault()
       if (isValidEmail) setEmailView('validated')
       else if (email.length > 0) setEmailView('invalidated')
-      //  TODO: add email submit (async)
+      // TODO: add email submit (async)
     }
 
     return (
@@ -435,8 +435,7 @@ export declare namespace AddFunds {
 function OnrampView(props: OnrampView.Props) {
   const { address, amount, loading } = props
   const [hasError, setHasError] = React.useState<boolean>(false)
-  const widgetContainerRef = React.useRef<HTMLDivElement>(null)
-  const widgetInstanceRef = React.useRef<any>(null)
+  const widgetRef = React.useRef<HTMLDivElement>(null)
 
   const showOnramp = enableOnramp()
 
@@ -496,7 +495,7 @@ function OnrampView(props: OnrampView.Props) {
       fiatAmount: amount,
       fiatCurrency,
       firstName,
-      host: widgetContainerRef.current,
+      host: widgetRef.current,
       initToken,
       initTokenType: initTypeToken,
       lastName,
@@ -509,20 +508,13 @@ function OnrampView(props: OnrampView.Props) {
       widgetUrl,
     })
 
-    widgetInstanceRef.current = widget
+    widgetRef.current = widget
 
     // TODO: use this once it actually indicates that the widget is ready
     widget?.onReady(() => {
       console.log('[onramp] Widget is ready')
     })
   }, [address, amount, onrampQuery.data])
-
-  React.useEffect(() => {
-    return () => {
-      if (widgetInstanceRef.current?.destroy)
-        widgetInstanceRef.current.destroy()
-    }
-  }, [])
 
   const transactionQuery = useQuery({
     enabled: !!onrampQuery.data?.merchantTransactionId && !isFirefox,
@@ -588,7 +580,7 @@ function OnrampView(props: OnrampView.Props) {
             <div
               className="h-[46px] min-h-[44px] w-full min-w-full"
               id="mercuryo-widget"
-              ref={widgetContainerRef}
+              ref={widgetRef}
             />
           </article>
           {transactionQuery.data && (
