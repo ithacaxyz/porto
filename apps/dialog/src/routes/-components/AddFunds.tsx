@@ -1,4 +1,5 @@
 import * as Ariakit from '@ariakit/react'
+import { UserAgent } from '@porto/apps'
 import { Button } from '@porto/apps/components'
 import { erc20Abi } from '@porto/apps/contracts'
 import { useCopyToClipboard, usePrevious } from '@porto/apps/hooks'
@@ -10,8 +11,9 @@ import { type Address, Hex, Value } from 'ox'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
 import { useBalance, useWatchBlockNumber, useWatchContractEvent } from 'wagmi'
+import { PayButton } from '~/components/PayButton'
 import * as FeeTokens from '~/lib/FeeTokens'
-import { enableOnramp } from '~/lib/Onramp.ts'
+import { enableOnramp, stripeOnrampUrl } from '~/lib/Onramp.ts'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
@@ -437,8 +439,10 @@ function OnrampView(props: OnrampView.Props) {
 
   const showOnramp = enableOnramp()
 
+  const isFirefox = UserAgent.isFirefox()
+
   const onrampQuery = useQuery({
-    enabled: !!address && !!amount,
+    enabled: !!address && !!amount && !isFirefox,
     queryFn: async () => {
       const response = await fetch(
         `https://onramp.porto.workers.dev/token?address=${address}`,
@@ -520,6 +524,7 @@ function OnrampView(props: OnrampView.Props) {
   }, [])
 
   const transactionQuery = useQuery({
+    enabled: !!onrampQuery.data?.merchantTransactionId && !isFirefox,
     queryFn: async () => {
       const merchantTransactionId = onrampQuery.data?.merchantTransactionId
       if (!merchantTransactionId) return null
@@ -567,21 +572,34 @@ function OnrampView(props: OnrampView.Props) {
 
   return showOnramp ? (
     <div className="flex flex-col justify-between gap-2">
-      <article className="relative mx-auto w-full select-none overflow-hidden rounded-full">
-        <div
-          className="h-[46px] min-h-[44px] w-full min-w-full"
-          id="mercuryo-widget"
-          ref={widgetContainerRef}
+      {isFirefox ? (
+        <PayButton
+          disabled={!address}
+          url={stripeOnrampUrl({
+            address: address!,
+            amount: Number(amount),
+          })}
+          variant="stripe"
         />
-      </article>
-      {transactionQuery.data && (
-        <a
-          className="text-center"
-          href={transactionQuery.data.url}
-          target="_blank"
-        >
-          [{transactionQuery.data.status}] {transactionQuery.data.hash}
-        </a>
+      ) : (
+        <>
+          <article className="relative mx-auto w-full select-none overflow-hidden rounded-full">
+            <div
+              className="h-[46px] min-h-[44px] w-full min-w-full"
+              id="mercuryo-widget"
+              ref={widgetContainerRef}
+            />
+          </article>
+          {transactionQuery.data && (
+            <a
+              className="text-center"
+              href={transactionQuery.data.url}
+              target="_blank"
+            >
+              [{transactionQuery.data.status}] {transactionQuery.data.hash}
+            </a>
+          )}
+        </>
       )}
     </div>
   ) : (
