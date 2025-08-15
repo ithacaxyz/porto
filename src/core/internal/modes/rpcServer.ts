@@ -69,9 +69,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         const eoa = Account.fromPrivateKey(Secp256k1.randomPrivateKey())
 
-        const feeTokens = await FeeTokens.fetch(client, {
-          store: internal.store,
-        })
+        const feeTokens = await FeeTokens.fetch(client)
 
         const adminKey = !mock
           ? await Key.createWebAuthnP256({
@@ -276,7 +274,6 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         const [feeToken] = await FeeTokens.fetch(client, {
           addressOrSymbol: parameters.feeToken,
-          store: internal.store,
         })
         const { id } = await ServerActions.sendCalls(client, {
           account,
@@ -298,9 +295,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           config: { storage },
         } = internal
 
-        const feeTokens = await FeeTokens.fetch(client, {
-          store: internal.store,
-        })
+        const feeTokens = await FeeTokens.fetch(client)
 
         // Parse permissions request into a structured key.
         const authorizeKey = await PermissionsRequest.toKey(permissions, {
@@ -330,9 +325,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           config: { storage },
         } = internal
 
-        const feeTokens = await FeeTokens.fetch(client, {
-          store: internal.store,
-        })
+        const feeTokens = await FeeTokens.fetch(client)
         const authorizeKey = await PermissionsRequest.toKey(permissions, {
           chainId: client.chain.id,
           feeTokens,
@@ -532,7 +525,6 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         const feeTokens = await FeeTokens.fetch(client, {
           addressOrSymbol: parameters.feeToken,
-          store: internal.store,
         })
         const [feeToken] = feeTokens
 
@@ -580,9 +572,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const { address, email, label, internal, permissions } = parameters
         const { client } = internal
 
-        const feeTokens = await FeeTokens.fetch(client, {
-          store: internal.store,
-        })
+        const feeTokens = await FeeTokens.fetch(client)
 
         const adminKey = !mock
           ? await Key.createWebAuthnP256({
@@ -633,7 +623,6 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         try {
           const [feeToken] = await FeeTokens.fetch(client, {
             addressOrSymbol: parameters.feeToken,
-            store: internal.store,
           })
           const { id } = await ServerActions.sendCalls(client, {
             account,
@@ -667,7 +656,6 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         try {
           const [feeToken] = await FeeTokens.fetch(client, {
             addressOrSymbol: parameters.feeToken,
-            store: internal.store,
           })
           const { id } = await ServerActions.sendCalls(client, {
             account,
@@ -714,7 +702,6 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         // Resolve fee token to use.
         const feeTokens = await FeeTokens.fetch(client, {
           addressOrSymbol: parameters.feeToken,
-          store: internal.store,
         })
         const [feeToken] = feeTokens
 
@@ -829,9 +816,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         if (!accountImplementation)
           throw new Error('accountImplementation not found.')
 
-        const [feeToken] = await FeeTokens.fetch(client, {
-          store: internal.store,
-        })
+        const [feeToken] = await FeeTokens.fetch(client)
 
         return await ServerActions.sendCalls(client, {
           account,

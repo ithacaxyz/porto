@@ -19,7 +19,6 @@ export namespace fetch {
       },
       queryKey: queryOptions.queryKey(client, {
         addressOrSymbol,
-        store: porto._internal.store as any,
       }),
     })
   }
