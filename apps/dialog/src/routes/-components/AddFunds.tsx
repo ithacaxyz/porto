@@ -440,23 +440,8 @@ function OnrampView(props: OnrampView.Props) {
   const showOnramp = enableOnramp()
   const isFirefox = UserAgent.isFirefox()
 
-  const experimentalEnabled = React.useMemo(
-    /**
-     * if pathname starts with /dialog, it means we're in popup mode
-     * when in iframe mode, pathname reflects the host url,
-     * aka the top level pathname which won't start with /dialog
-     */
-    () => {
-      const url = new URL(window.location.href)
-      return (
-        url.hostname === 'prod.id.porto.sh' || url.hostname === 'prod.localhost'
-      )
-    },
-    [],
-  )
-
   const onrampQuery = useQuery({
-    enabled: !!address && !!amount && !isFirefox && experimentalEnabled,
+    enabled: !!address && !!amount && !isFirefox,
     queryFn: async () => {
       const response = await fetch(
         `https://onramp.porto.workers.dev/token?address=${address}`,
@@ -486,7 +471,7 @@ function OnrampView(props: OnrampView.Props) {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: _
   React.useEffect(() => {
-    if (!onrampQuery.data || !experimentalEnabled) return
+    if (!onrampQuery.data) return
 
     const {
       widgetId,
@@ -539,9 +524,9 @@ function OnrampView(props: OnrampView.Props) {
 
   const transactionQuery = useQuery({
     enabled:
+      onrampQuery.status === 'success' &&
       !!onrampQuery.data?.merchantTransactionId &&
-      !isFirefox &&
-      experimentalEnabled,
+      !isFirefox,
     queryFn: async () => {
       const merchantTransactionId = onrampQuery.data?.merchantTransactionId
       if (!merchantTransactionId) return null
