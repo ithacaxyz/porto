@@ -23,10 +23,12 @@ export function Button({
   const frame = Frame.useFrame(true)
   size ??= { dialog: 'medium', full: 'large' }
 
+  if (loading === true) loading = 'Loading…'
+
   const loadingRef = useRef<HTMLDivElement>(null)
   const labelRef = useRef<HTMLDivElement>(null)
 
-  const firstRender = useRef(true)
+  const firstAnimDone = useRef(false)
 
   const loadingSpring = useSpring({
     config: {
@@ -37,26 +39,29 @@ export function Button({
     from: {
       containerWidth: 0,
       labelOpacity: 1,
-      loadingOpacity: 0,
+      loadingOpacity: 1,
+      position: 'static',
     },
     to: async (next) => {
       const targetRef = loading ? loadingRef : labelRef
       const width = targetRef.current?.clientWidth ?? 0
       if (width === 0) return
+      if (labelRef.current) labelRef.current.style.position = 'absolute'
+      if (loadingRef.current) loadingRef.current.style.position = 'absolute'
       await Promise.all([
-        next(
-          loading
-            ? { immediate: true, labelOpacity: 0 }
-            : { immediate: true, loadingOpacity: 0 },
-        ),
+        next({
+          immediate: true,
+          position: 'static',
+          ...(loading ? { labelOpacity: 0 } : { loadingOpacity: 0 }),
+        }),
         next({
           containerWidth: width,
-          immediate: firstRender.current,
+          immediate: !firstAnimDone.current,
           labelOpacity: loading ? 0 : 1,
           loadingOpacity: loading ? 1 : 0,
         }),
       ])
-      firstRender.current = false
+      firstAnimDone.current = true
     },
   })
 
@@ -196,13 +201,12 @@ export function Button({
           ),
         }}
       >
-        {loading && (
+        {loading ? (
           <a.div
             className={css({
               alignItems: 'center',
               display: 'flex',
               inset: '0 auto 0 0',
-              position: 'absolute',
             })}
             ref={loadingRef}
             style={{
@@ -211,26 +215,26 @@ export function Button({
             }}
           >
             <Spinner size={size === 'small' ? 'small' : 'medium'} />
-            {loading === true ? 'Loading…' : loading}
+            {loading}
+          </a.div>
+        ) : (
+          <a.div
+            className={css({
+              alignItems: 'center',
+              display: 'flex',
+              inset: '0 auto 0 0',
+            })}
+            ref={labelRef}
+            style={{
+              gap: size === 'small' ? 6 : 8,
+              opacity: loadingSpring.labelOpacity,
+              visibility: loading ? 'hidden' : 'visible',
+            }}
+          >
+            {icon}
+            {children}
           </a.div>
         )}
-        <a.div
-          className={css({
-            alignItems: 'center',
-            display: 'flex',
-            inset: '0 auto 0 0',
-            position: 'absolute',
-          })}
-          ref={labelRef}
-          style={{
-            gap: size === 'small' ? 6 : 8,
-            opacity: loadingSpring.labelOpacity,
-            visibility: loading ? 'hidden' : 'visible',
-          }}
-        >
-          {icon}
-          {children}
-        </a.div>
       </a.div>
     </button>
   )
