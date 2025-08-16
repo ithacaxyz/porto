@@ -307,11 +307,17 @@ export function iframe(options: iframe.Options = {}) {
           )
 
           if (
-            !headless &&
-            (unsupported ||
-              insecureProtocol ||
-              window.location.search.includes('experimentalOnramp')) &&
-            requests.some((x) => x.request.method === 'wallet_addFunds')
+            (!headless && (unsupported || insecureProtocol)) ||
+            /**
+             * the Apple Pay certificate is only valid for prod.id.porto.sh
+             * so if experimental flag is enabled and domain is prod.id,
+             * then no need to open in popup.
+             * otherwise, if experimental flag is enabled and domain is not prod.id,
+             * then we need to open in popup.
+             */
+            (requests.some((x) => x.request.method === 'wallet_addFunds') &&
+              window.location.hostname !== 'prod.id.porto.sh' &&
+              internal.config.experimental?.applePayOnramp === true)
           )
             fallback.syncRequests(requests)
           else {

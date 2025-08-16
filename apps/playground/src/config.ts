@@ -135,6 +135,9 @@ const merchant = new URLSearchParams(window.location.search).get('merchant')
 
 export const porto = Porto.create({
   ...config,
+  experimental: {
+    applePayOnramp: true,
+  },
   merchantRpcUrl: merchant ? '/merchant' : undefined,
   // We will be deferring mode setup until after hydration.
   mode: null,

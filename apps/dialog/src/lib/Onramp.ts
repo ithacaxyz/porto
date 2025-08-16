@@ -7,12 +7,22 @@ export function enableOnramp() {
   return Env.get() === 'prod' || onrampEnabled
 }
 
+const widgetScript = 'https://widget.mercuryo.io/embed.2.1.js'
+
 export function getOnrampWidget() {
-  if (typeof window === 'undefined' || Env.get() !== 'prod') return
-  if (window?.mercuryoWidget) return window.mercuryoWidget
+  if (
+    Env.get() !== 'prod' ||
+    typeof window === 'undefined' ||
+    !window.location.pathname.startsWith('/dialog')
+  )
+    return
+
+  const existingScript = document.querySelector(`script[src="${widgetScript}"]`)
+  if (existingScript) return window.mercuryoWidget
 
   const script = document.createElement('script')
-  script.setAttribute('src', 'https://widget.mercuryo.io/embed.2.1.js')
+  script.setAttribute('src', widgetScript)
+  script.setAttribute('async', 'true')
   document.body.appendChild(script)
 
   return window.mercuryoWidget

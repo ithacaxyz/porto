@@ -9,6 +9,9 @@ const host = (() => {
 
 export const config = {
   ...PortoConfig.getConfig(),
+  experimental: {
+    applePayOnramp: true,
+  },
   mode: Mode.dialog({
     host,
   }),

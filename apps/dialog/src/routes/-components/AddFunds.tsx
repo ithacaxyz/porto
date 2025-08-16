@@ -441,12 +441,22 @@ function OnrampView(props: OnrampView.Props) {
   const isFirefox = UserAgent.isFirefox()
 
   const experimentalEnabled = React.useMemo(
-    () => window.location.search.includes('experimentalOnramp'),
+    /**
+     * if pathname starts with /dialog, it means we're in popup mode
+     * when in iframe mode, pathname reflects the host url,
+     * aka the top level pathname which won't start with /dialog
+     */
+    () => {
+      const url = new URL(window.location.href)
+      return (
+        url.hostname === 'prod.id.porto.sh' || url.hostname === 'prod.localhost'
+      )
+    },
     [],
   )
 
   const onrampQuery = useQuery({
-    enabled: !!address && !!amount && !isFirefox && !experimentalEnabled,
+    enabled: !!address && !!amount && !isFirefox && experimentalEnabled,
     queryFn: async () => {
       const response = await fetch(
         `https://onramp.porto.workers.dev/token?address=${address}`,
@@ -476,7 +486,8 @@ function OnrampView(props: OnrampView.Props) {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: _
   React.useEffect(() => {
-    if (!onrampQuery.data) return
+    if (!onrampQuery.data || !experimentalEnabled) return
+
     const {
       widgetId,
       widgetUrl,
@@ -493,38 +504,44 @@ function OnrampView(props: OnrampView.Props) {
       widgetFlow,
     } = onrampQuery.data
 
-    const widget = onrampWidget.run({
-      address,
-      amount,
-      birthdate,
-      currency,
-      fiatAmount: amount,
-      fiatCurrency,
-      firstName,
-      host: document.querySelector('div#mercuryo-widget'),
-      initToken,
-      initTokenType: initTypeToken,
-      lastName,
-      merchantTransactionId,
-      network,
-      paymentMethod: 'apple',
-      signature,
-      widgetFlow,
-      widgetId,
-      widgetUrl,
-    })
+    function checkAndRunWidget() {
+      if (!onrampWidget || !onrampWidget?.run) return
 
-    // TODO: use this once it actually indicates that the widget is ready
-    widget?.onReady(() => {
-      console.info('[onramp] Widget is ready')
-    })
+      const widgetInstance = onrampWidget?.run({
+        address,
+        amount,
+        birthdate,
+        currency,
+        fiatAmount: amount,
+        fiatCurrency,
+        firstName,
+        host: document.querySelector('div#mercuryo-widget'),
+        initToken,
+        initTokenType: initTypeToken,
+        lastName,
+        merchantTransactionId,
+        network,
+        paymentMethod: 'apple',
+        signature,
+        widgetFlow,
+        widgetId,
+        widgetUrl,
+      })
+
+      // TODO: use this once it actually indicates that the widget is ready
+      widgetInstance?.onReady(() => {
+        console.info('[onramp] Widget is ready')
+      })
+    }
+
+    checkAndRunWidget()
   }, [address, amount, onrampQuery.data])
 
   const transactionQuery = useQuery({
     enabled:
       !!onrampQuery.data?.merchantTransactionId &&
       !isFirefox &&
-      !experimentalEnabled,
+      experimentalEnabled,
     queryFn: async () => {
       const merchantTransactionId = onrampQuery.data?.merchantTransactionId
       if (!merchantTransactionId) return null
@@ -568,7 +585,7 @@ function OnrampView(props: OnrampView.Props) {
 
   return showOnramp ? (
     <div className="flex flex-col justify-between gap-2">
-      {isFirefox && !experimentalEnabled ? (
+      {isFirefox ? (
         <PayButton
           disabled={!address}
           url={stripeOnrampUrl({
