@@ -10,12 +10,7 @@ export function enableOnramp() {
 const widgetScript = 'https://widget.mercuryo.io/embed.2.1.js'
 
 export function getOnrampWidget() {
-  if (
-    Env.get() !== 'prod' ||
-    typeof window === 'undefined' ||
-    !window.location.pathname.startsWith('/dialog')
-  )
-    return
+  if (Env.get() !== 'prod' || typeof window === 'undefined') return
 
   const existingScript = document.querySelector(`script[src="${widgetScript}"]`)
   if (existingScript) return window.mercuryoWidget

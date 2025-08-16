@@ -62,12 +62,8 @@ const dialogHosts = {
   anvil: import.meta.env.PROD
     ? undefined
     : 'https://anvil.localhost:5174/dialog/',
-  // @ts-expect-error: TODO: remove after merging
-  dev: import.meta.env.PROD
-    ? 'https://dev.id.porto.sh/dialog/'
-    : 'https://dev.localhost:5174/dialog/',
   prod: import.meta.env.PROD
-    ? 'https://prod.id.porto.sh/dialog/'
+    ? 'https://id.porto.sh/dialog/'
     : 'https://prod.localhost:5174/dialog/',
   stg: import.meta.env.PROD
     ? 'https://stg.id.porto.sh/dialog/'
@@ -84,18 +80,18 @@ export function getDialogHost(env = Env.get()): string {
   const url = (() => {
     if (import.meta.env.VITE_DIALOG_HOST)
       return import.meta.env.VITE_DIALOG_HOST
-    // if (
-    //   import.meta.env.VITE_VERCEL_ENV === 'preview' &&
-    //   import.meta.env.VITE_VERCEL_BRANCH_URL
-    // )
-    //   return (
-    //     'https://' +
-    //     import.meta.env.VITE_VERCEL_BRANCH_URL.replace(
-    //       /(.*)(-git.*)/,
-    //       'dialogporto$2',
-    //     ) +
-    //     '/dialog/'
-    //   )
+    if (
+      import.meta.env.VITE_VERCEL_ENV === 'preview' &&
+      import.meta.env.VITE_VERCEL_BRANCH_URL
+    )
+      return (
+        'https://' +
+        import.meta.env.VITE_VERCEL_BRANCH_URL.replace(
+          /(.*)(-git.*)/,
+          'dialogporto$2',
+        ) +
+        '/dialog/'
+      )
     return dialogHosts[env]
   })()
   return url + '?env=' + env
