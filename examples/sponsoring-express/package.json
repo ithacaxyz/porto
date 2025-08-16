@@ -7,9 +7,6 @@
     "start": "NODE_ENV=production tsx server/index.ts",
     "build": "vite build"
   },
-  "engines": {
-    "node": ">=23"
-  },
   "dependencies": {
     "@tanstack/react-query": "^5",
     "cors": "^2.8.5",

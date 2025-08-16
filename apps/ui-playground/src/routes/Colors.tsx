@@ -25,7 +25,7 @@ function RouteComponent() {
             return (
               <div className="flex flex-col gap-2" key={name}>
                 <h2 className="text-lg text-th_base">{name}</h2>
-                <div className="grid h-30 grid-cols-2 ">
+                <div className="grid h-30 grid-cols-2">
                   <ColorButton color={light} mode="light" side="left" />
                   <ColorButton color={dark} mode="dark" side="right" />
                 </div>

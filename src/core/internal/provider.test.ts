@@ -2824,7 +2824,7 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
           params: [
             {
               calls: [
-                // @ts-ignore
+                // @ts-expect-error
                 {
                   data: '0xdeadbeef',
                 },

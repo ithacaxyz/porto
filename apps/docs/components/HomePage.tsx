@@ -431,7 +431,7 @@ function Demo() {
                     step === steps[steps.length - 1] && 'invisible',
                     complete
                       ? 'border-accent bg-accent text-white outline outline-dashed outline-blue9 outline-offset-8 hover:bg-accentHover'
-                      : 'border-gray5 bg-transparent text-gray8 hover:bg-gray2 ',
+                      : 'border-gray5 bg-transparent text-gray8 hover:bg-gray2',
                   )}
                   disabled={step === steps[steps.length - 1]}
                   onClick={() => {
@@ -1378,7 +1378,7 @@ function Swap(props: {
         aria-disabled={isPending || isConfirming}
         className={cx(
           '-tracking-[0.448px] flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] px-3 text-center font-medium text-[16px] leading-normal aria-disabled:pointer-events-none aria-disabled:bg-gray5 aria-disabled:text-gray10',
-          isConfirmed ? 'bg-green3 text-green10' : 'bg-accent text-white ',
+          isConfirmed ? 'bg-green3 text-green10' : 'bg-accent text-white',
           !(isPending || isConfirming || isConfirmed) &&
             'outline outline-dashed outline-blue9 outline-offset-2',
         )}
