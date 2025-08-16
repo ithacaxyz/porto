@@ -1,26 +1,29 @@
 import * as Ariakit from '@ariakit/react'
+import { UserAgent } from '@porto/apps'
 import { Button } from '@porto/apps/components'
 import { erc20Abi } from '@porto/apps/contracts'
 import { useCopyToClipboard, usePrevious } from '@porto/apps/hooks'
 import * as UI from '@porto/ui'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Cuer } from 'cuer'
+import { cx } from 'cva'
 import { type Address, Hex, Value } from 'ox'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
 import { useBalance, useWatchBlockNumber, useWatchContractEvent } from 'wagmi'
 import { PayButton } from '~/components/PayButton'
 import * as FeeTokens from '~/lib/FeeTokens'
-import { enableOnramp, stripeOnrampUrl } from '~/lib/Onramp'
+import { enableOnramp, getOnrampWidget, stripeOnrampUrl } from '~/lib/Onramp.ts'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
+import { StringFormatter } from '~/utils'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
 import CopyIcon from '~icons/lucide/copy'
 import CardIcon from '~icons/lucide/credit-card'
 import QrCodeIcon from '~icons/lucide/qr-code'
 import TriangleAlertIcon from '~icons/lucide/triangle-alert'
 
-const presetAmounts = ['25', '50', '100', '250'] as const
+const presetAmounts = ['30', '50', '100', '250'] as const
 
 const MAX_AMOUNT = 500
 
@@ -48,12 +51,14 @@ export function AddFunds(props: AddFunds.Props) {
       : presetAmounts[0]!,
   )
   const [view, setView] = React.useState<
-    'default' | 'deposit-crypto' | 'error'
+    'default' | 'deposit-crypto' | 'error' | 'email'
   >('default')
+  const [emailView, setEmailView] = React.useState<
+    'start' | 'added' | 'validated' | 'invalidated'
+  >('start')
+  const [email, setEmail] = React.useState<string>('')
 
-  const showOnramp = enableOnramp()
-
-  const deposit = useMutation({
+  const faucet = useMutation({
     async mutationFn(e: React.FormEvent<HTMLFormElement>) {
       e.preventDefault()
       e.stopPropagation()
@@ -80,7 +85,7 @@ export function AddFunds(props: AddFunds.Props) {
     },
   })
 
-  if (deposit.isSuccess) return
+  if (faucet.isSuccess) return
 
   if (view === 'default')
     return (
@@ -95,7 +100,7 @@ export function AddFunds(props: AddFunds.Props) {
         <Layout.Content>
           <form
             className="grid h-min grid-flow-row auto-rows-min grid-cols-1 space-y-3"
-            onSubmit={(e) => deposit.mutate(e)}
+            onSubmit={(e) => faucet.mutate(e)}
           >
             <div className="col-span-1 row-span-1">
               <UI.PresetsInput
@@ -121,27 +126,13 @@ export function AddFunds(props: AddFunds.Props) {
               />
             </div>
             <div className="col-span-1 row-span-1 space-y-3.5">
-              {showOnramp ? (
-                <PayButton
-                  disabled={!address || !amount || Number(amount) === 0}
-                  url={stripeOnrampUrl({
-                    address: address!,
-                    amount: Number(amount),
-                  })}
-                  variant="stripe"
-                />
-              ) : (
-                <UI.Button
-                  data-testid="buy"
-                  disabled={!address || !amount || Number(amount) === 0}
-                  loading={deposit.isPending && 'Adding funds…'}
-                  type="submit"
-                  variant="primary"
-                  width="full"
-                >
-                  Add funds
-                </UI.Button>
-              )}
+              <OnrampView
+                address={address}
+                amount={amount}
+                loading={faucet.isPending}
+                onApprove={onApprove}
+                onReject={onReject}
+              />
             </div>
             <div className="col-span-1 row-span-1">
               <div className="my-auto flex w-full flex-row items-center gap-2 *:border-th_separator">
@@ -150,10 +141,10 @@ export function AddFunds(props: AddFunds.Props) {
                 <hr className="flex-1 border-th_separator" />
               </div>
             </div>
-            <div className="col-span-1 row-span-1">
+            <div className="col-span-1 row-span-1 space-y-2">
               <Button
                 className="w-full px-3!"
-                disabled={deposit.isPending}
+                disabled={faucet.isPending}
                 onClick={() => setView('deposit-crypto')}
                 type="button"
               >
@@ -192,6 +183,18 @@ export function AddFunds(props: AddFunds.Props) {
               </Button>
             </div>
           </form>
+
+          <p className="mt-3 px-8 text-center text-[12px] text-th_base-secondary">
+            By using the onramp, you are agreeing to Mercuryo's{' '}
+            <a
+              className="text-primary"
+              href="https://mercuryo.io/terms-and-conditions"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              terms & conditions
+            </a>
+          </p>
         </Layout.Content>
       </Layout>
     )
@@ -204,6 +207,131 @@ export function AddFunds(props: AddFunds.Props) {
         onBack={() => setView('default')}
       />
     )
+
+  if (view === 'email') {
+    function validateEmail(email: string) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      return re.test(email)
+    }
+
+    const isValidEmail = validateEmail(email)
+
+    function handleEmailSubmit(e: React.FormEvent) {
+      e.preventDefault()
+      if (isValidEmail) setEmailView('validated')
+      else if (email.length > 0) setEmailView('invalidated')
+      // TODO: add email submit (async)
+    }
+
+    return (
+      <Layout>
+        <Layout.Header>
+          <Layout.Header.Default
+            content={
+              emailView === 'invalidated'
+                ? ''
+                : 'We need this to set up Apple Pay and Google Pay for payment.'
+            }
+            title="Add your email"
+          />
+        </Layout.Header>
+
+        <Layout.Content>
+          <form className="space-y-4" onSubmit={handleEmailSubmit}>
+            <div className="relative">
+              <input
+                autoCapitalize="off"
+                autoComplete="email"
+                autoCorrect="off"
+                // biome-ignore lint/a11y/noAutofocus: _
+                autoFocus
+                className={cx(
+                  'w-full rounded-lg border-[1.5px] bg-th_field px-3 py-3 pr-10 placeholder:text-th_field focus:border-th_focus focus:bg-th_field-focused focus:outline-none',
+                  emailView === 'invalidated'
+                    ? 'border-th_field-error text-th_field-error'
+                    : emailView === 'validated'
+                      ? 'border-th_focus text-th_base'
+                      : 'border-transparent text-th_base',
+                )}
+                disabled={emailView === 'validated'}
+                inputMode="email"
+                onChange={(e) => {
+                  const newEmail = e.target.value
+                  setEmail(newEmail)
+
+                  // Reset view states as user types
+                  if (newEmail === '') setEmailView('start')
+                  else if (validateEmail(newEmail)) setEmailView('validated')
+                  else setEmailView('added')
+                }}
+                placeholder="achel@achal.me"
+                required
+                spellCheck={false}
+                type="email"
+                value={email}
+              />
+              {emailView === 'validated' && (
+                <svg
+                  aria-hidden="true"
+                  aria-label="Valid email"
+                  className="-translate-y-1/2 absolute top-1/2 right-3 size-5 text-green-500"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M5 13l4 4L19 7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
+              {emailView === 'invalidated' && (
+                <p className="mt-2 text-sm text-th_field-error">
+                  Invalid email
+                </p>
+              )}
+            </div>
+
+            <Button
+              className="w-full"
+              disabled={!isValidEmail}
+              onClick={
+                emailView === 'validated' ? () => setView('default') : undefined
+              }
+              type={emailView === 'validated' ? 'button' : 'submit'}
+              variant="primary"
+            >
+              Continue
+            </Button>
+          </form>
+
+          <p className="mt-4 text-center text-[11.5px] text-th_base-secondary">
+            By using our deposit on-ramp, you agree to our{' '}
+            <a
+              className="text-th_base-secondary underline"
+              href="https://porto.sh/terms"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Terms of Use
+            </a>{' '}
+            and{' '}
+            <a
+              className="text-th_base-secondary underline"
+              href="https://ithaca.xyz/about/privacy-policy"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Privacy Policy for Porto
+            </a>
+            .
+          </p>
+        </Layout.Content>
+      </Layout>
+    )
+  }
 
   if (view === 'error')
     return (
@@ -255,6 +383,198 @@ export declare namespace AddFunds {
     onReject?: () => void
     tokenAddress?: Address.Address | undefined
     value?: string | undefined
+  }
+}
+
+function OnrampView(props: OnrampView.Props) {
+  const { address, amount, loading } = props
+
+  const onrampWidget = getOnrampWidget()
+  const showOnramp = enableOnramp()
+  const isFirefox = UserAgent.isFirefox()
+
+  const onrampQuery = useQuery({
+    enabled: !!address && !!amount && !isFirefox,
+    queryFn: async () => {
+      const response = await fetch(
+        `https://onramp.porto.workers.dev/token?address=${address}`,
+      )
+      if (!response.ok) throw new Error('Failed to fetch auth token')
+
+      return response.json() as Promise<{
+        initToken: string
+        initTypeToken: string
+        widgetId: string
+        merchantTransactionId: string
+        signature: string
+        widgetFlow: string
+        widgetUrl: string
+        birthdate: string
+        firstName: string
+        lastName: string
+        network: string
+        paymentMethod: string
+        fiatAmount: string
+        fiatCurrency: string
+        currency: string
+      }>
+    },
+    queryKey: ['onramp-token', address],
+  })
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: _
+  React.useEffect(() => {
+    if (!onrampQuery.data) return
+
+    const {
+      widgetId,
+      widgetUrl,
+      signature,
+      merchantTransactionId,
+      initToken,
+      initTypeToken,
+      birthdate,
+      currency,
+      firstName,
+      lastName,
+      network,
+      fiatCurrency,
+      widgetFlow,
+    } = onrampQuery.data
+
+    function checkAndRunWidget() {
+      if (!onrampWidget || !onrampWidget?.run) return
+
+      const widgetInstance = onrampWidget?.run({
+        address,
+        amount,
+        birthdate,
+        currency,
+        fiatAmount: amount,
+        fiatCurrency,
+        firstName,
+        host: document.querySelector('div#mercuryo-widget'),
+        initToken,
+        initTokenType: initTypeToken,
+        lastName,
+        merchantTransactionId,
+        network,
+        paymentMethod: 'apple',
+        signature,
+        widgetFlow,
+        widgetId,
+        widgetUrl,
+      })
+
+      // TODO: use this once it actually indicates that the widget is ready
+      widgetInstance?.onReady(() => {
+        console.info('[onramp] Widget is ready')
+      })
+    }
+
+    checkAndRunWidget()
+  }, [address, amount, onrampQuery.data])
+
+  const transactionQuery = useQuery({
+    enabled:
+      onrampQuery.status === 'success' &&
+      !!onrampQuery.data?.merchantTransactionId &&
+      !isFirefox,
+    queryFn: async () => {
+      const merchantTransactionId = onrampQuery.data?.merchantTransactionId
+      if (!merchantTransactionId) return null
+
+      const searchParams = new URLSearchParams({
+        merchantTransactionId,
+      })
+      const response = await fetch(
+        `https://onramp.porto.workers.dev/transactions?${searchParams.toString()}`,
+      )
+
+      return response.json() as Promise<{
+        url: string
+        hash: string
+        status: string
+        amount: string
+        currency: string
+      }>
+    },
+    queryKey: ['onramp-transactions', address],
+    refetchInterval: 1_000,
+  })
+
+  if (onrampQuery.isError) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-2 p-4 text-center">
+        <TriangleAlertIcon className="size-6 text-th_field-error" />
+        <p className="text-sm text-th_field-error">
+          Failed to load payment options
+        </p>
+        <Button
+          className="text-xs"
+          onClick={() => onrampQuery.refetch()}
+          variant="default"
+        >
+          Try again
+        </Button>
+      </div>
+    )
+  }
+
+  return showOnramp ? (
+    <div className="flex flex-col justify-between gap-2">
+      {isFirefox ? (
+        <PayButton
+          disabled={!address}
+          url={stripeOnrampUrl({
+            address: address!,
+            amount: Number(amount),
+          })}
+          variant="stripe"
+        />
+      ) : (
+        <>
+          <article className="relative mx-auto w-full select-none overflow-hidden rounded-full">
+            <div
+              className="h-[46px] min-h-[44px] w-full min-w-full bg-black dark:bg-white"
+              id="mercuryo-widget"
+            />
+          </article>
+          {transactionQuery.data &&
+            transactionQuery.data.status !== 'not_found' && (
+              <a
+                className="text-center"
+                href={transactionQuery.data.url}
+                target="_blank"
+              >
+                {StringFormatter.truncate(transactionQuery.data.hash)}
+              </a>
+            )}
+        </>
+      )}
+    </div>
+  ) : (
+    <UI.Button
+      className="w-full flex-1"
+      data-testid="buy"
+      disabled={!address || !amount || Number(amount) === 0}
+      loading={loading && 'Adding funds…'}
+      type="submit"
+      variant="primary"
+      width="grow"
+    >
+      Add funds
+    </UI.Button>
+  )
+}
+
+export declare namespace OnrampView {
+  export type Props = {
+    address: Address.Address | undefined
+    amount: string | undefined
+    onApprove: (result: { id: Hex.Hex }) => void
+    onReject?: () => void
+    loading?: boolean
   }
 }
 

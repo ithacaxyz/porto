@@ -1,4 +1,4 @@
-import { PortoConfig } from '@porto/apps'
+import { Env, PortoConfig } from '@porto/apps'
 import { Mode, type Porto, Storage } from 'porto'
 
 const host = (() => {
@@ -9,6 +9,9 @@ const host = (() => {
 
 export const config = {
   ...PortoConfig.getConfig(),
+  experimental: {
+    applePayOnramp: Env.get() === 'prod',
+  },
   mode: Mode.dialog({
     host,
   }),

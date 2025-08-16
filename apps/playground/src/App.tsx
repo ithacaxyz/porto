@@ -1,3 +1,4 @@
+import { Env } from '@porto/apps'
 import {
   exp1Abi,
   exp1Address,
@@ -434,7 +435,7 @@ function AddFunds() {
               params: [
                 {
                   token,
-                  value: '100',
+                  value: Env.get() === 'prod' ? '30' : '100',
                 },
               ],
             })
