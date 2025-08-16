@@ -7,6 +7,8 @@ on:
 jobs:
   issue-labeled:
     if: ${{ github.repository_owner == 'ithacaxyz' }}
+    permissions:
+      issues: write
     uses: wevm/actions/.github/workflows/issue-labeled.yml@main
     with:
       needs-reproduction-body: |

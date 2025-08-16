@@ -12,38 +12,31 @@ jobs:
     permissions:
       pull-requests: write
     runs-on: ubuntu-latest
+    env:
+      REPO: ${{ github.repository }}
+      PR_AUTHOR: ${{ github.event.pull_request.user.login }}
     steps:
+      - name: Check Membership
+        run: |
+          gh api orgs/${{ env.REPO }}/members/${{ env.PR_AUTHOR }} --silent 2> /dev/null \
+            && echo "IS_ORG_MEMBER=true" >> $GITHUB_ENV || echo "IS_ORG_MEMBER=false" >> $GITHUB_ENV
+
       - name: Auto assign PR to author
+        if: ${{ env.IS_ORG_MEMBER == 'true' }}
+        env:
+          IS_ORG_MEMBER: ${{ env.IS_ORG_MEMBER }}
         uses: actions/github-script@v7
         with:
-          script: |-
+          script: |
             const pr = context.payload.pull_request
-            const author = pr.user.login
 
-            // Check if PR author is not an org member
-            if (!pr.user.site_admin) {
-              console.info(`PR #${pr.number} author is not an org member. Skipping assignment.`)
-              return
-            }
+            if (pr.assignees.length > 0 || pr.user.type.toLowerCase() === 'bot') return
 
-            // Check if PR author is a bot
-            if (pr.user.type === 'Bot') {
-              console.info(`PR #${pr.number} author is a bot. Skipping assignment.`)
-              return
-            }
-
-            // Check if PR already has assignees
-            if (pr.assignees.length > 0) {
-              console.info(`PR #${pr.number} already has assignees. Skipping assignment.`)
-              return
-            }
-
-            // Assign the PR to the author
-            await github.rest.issues.addAssignees({
+            github.rest.issues.addAssignees({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: pr.number,
-              assignees: [author]
+              assignees: [${{ env.PR_AUTHOR }}]
             })
-
-            console.info(`Successfully assigned PR #${pr.number} to ${author}`)
+              .then(() => console.info(`Successfully assigned PR #${pr.number} to ${{ env.PR_AUTHOR }}`))
+              .catch((error) => console.error(error))
