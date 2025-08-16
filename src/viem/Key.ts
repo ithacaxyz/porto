@@ -1032,6 +1032,7 @@ export function toRpcServer(
 
   // biome-ignore lint/complexity/useFlatMap: i know
   const permissions = Object.entries(key.permissions ?? {})
+    // biome-ignore lint/suspicious/useIterableCallbackReturn: _
     .map(([key, v]) => {
       if (key === 'calls') {
         const calls = v as Key_schema.CallPermissions

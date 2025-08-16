@@ -103,7 +103,7 @@ export default defineConfig(({ mode }) => {
               import.meta.dirname,
               '../../test/src/_generated/anvil.json',
             ),
-            // @ts-ignore
+            // @ts-expect-error
             odyssey: true,
             port: anvilConfig.port,
           }).start()
