@@ -50,7 +50,6 @@ export type Mode = {
     }) => Promise<{ id: Hex.Hex }>
 
     addFaucetFunds: (parameters: {
-
       /** Internal properties. */
       internal: ActionsInternal
     }) => Promise<{ id: Hex.Hex }>

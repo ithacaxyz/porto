@@ -6,12 +6,11 @@
 
 import * as Schema from 'effect/Schema'
 import * as Primitive from '../../schema/primitive.js'
+import * as Rpc from '../../schema/rpc.js'
 import * as C from './capabilities.js'
 import * as Key from './key.js'
 import * as PreCall from './preCall.js'
 import * as Quotes from './quotes.js'
-import * as Rpc from '../../schema/rpc.js'
-
 
 const Authorization = Schema.Struct({
   address: Primitive.Address,
