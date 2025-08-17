@@ -42,9 +42,11 @@ function GetStartedDemo() {
         </Button>
         <Separator label="First time, or lost access?" />
         <Input
+          adornments={{
+            end: 'Optional',
+          }}
           autoComplete="off"
-          contextual="Optional"
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={setEmail}
           placeholder="Email address"
           value={email}
         />
