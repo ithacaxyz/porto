@@ -33,7 +33,7 @@ export function useAddressTransfers({
   chainId?: PortoConfig.ChainId | undefined
 } = {}) {
   const account = useAccount()
-  const defaultChainId = useChainId()
+  const defaultChainId = chainId ?? useChainId()
 
   const userAddress = address ?? account.address
   const userChainId = chainId ?? defaultChainId

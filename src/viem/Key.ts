@@ -257,7 +257,6 @@ export async function createWebAuthnP256(
       : undefined,
     user: {
       displayName: label,
-      // @ts-expect-error - TODO: fix Type '"SharedArrayBuffer"' is not assignable to type '"ArrayBuffer"'
       id: userId ?? Bytes.fromString(label),
       name: label,
     },

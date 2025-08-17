@@ -7,10 +7,7 @@ export const config = createConfig({
   chains: Porto.config.chains,
   connectors: [portoConnector(Porto.config)],
   multiInjectedProviderDiscovery: false,
-  storage:
-    typeof window !== 'undefined'
-      ? createStorage({ storage: localStorage })
-      : undefined,
+  storage: createStorage({ storage: localStorage }),
   transports: Porto.config.transports,
 })
 

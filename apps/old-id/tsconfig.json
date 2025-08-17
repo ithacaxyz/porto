@@ -1,0 +1,11 @@
+{
+  "extends": "../tsconfig.base.json",
+  "include": ["src"],
+  "files": ["./vite-env.d.ts"],
+  "compilerOptions": {
+    "paths": {
+      "~/*": ["./src/*"]
+    },
+    "types": ["unplugin-icons/types/react", "typed-query-selector/strict"]
+  }
+}

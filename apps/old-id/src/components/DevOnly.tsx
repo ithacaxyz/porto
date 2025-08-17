@@ -60,8 +60,6 @@ export function DevOnly() {
   })
 
   const [open, setOpen] = React.useState(false)
-  const ref = React.useRef<HTMLDivElement>(null)
-  useClickOutside([ref], () => setOpen(false))
 
   if (!account.isConnected) return null
 
@@ -87,6 +85,9 @@ export function DevOnly() {
       ],
     })
   }
+
+  const ref = React.useRef<HTMLDivElement>(null)
+  useClickOutside([ref], () => setOpen(false))
 
   return (
     <div>

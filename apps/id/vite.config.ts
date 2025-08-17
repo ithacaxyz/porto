@@ -3,8 +3,9 @@ import NodeFS from 'node:fs'
 import NodePath from 'node:path'
 import { sentryVitePlugin as SentryVitePlugin } from '@sentry/vite-plugin'
 import Tailwindcss from '@tailwindcss/vite'
-import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
-import React from '@vitejs/plugin-react'
+import { tanstackStart } from '@tanstack/react-start/plugin/vite'
+
+// import React from '@vitejs/plugin-react'
 import { defineConfig, loadEnv } from 'vite'
 import Mkcert from 'vite-plugin-mkcert'
 import TsconfigPaths from 'vite-tsconfig-paths'
@@ -15,9 +16,8 @@ const portoCommitSha =
   ChildProcess.execSync('git rev-parse --short HEAD').toString().trim() ||
   process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7)
 
-// https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
+export default defineConfig((config) => {
+  const env = loadEnv(config.mode, process.cwd(), '')
   const skipMkcert = env.SKIP_MKCERT === 'true'
 
   // don't index id.porto.sh except in production
@@ -27,7 +27,6 @@ export default defineConfig(({ mode }) => {
       ['User-agent: *', 'Allow: /'].join('\n'),
     )
   }
-
   return {
     build: {
       sourcemap: true,
@@ -43,7 +42,6 @@ export default defineConfig(({ mode }) => {
             hosts: ['localhost', 'anvil.localhost'],
           }),
       Tailwindcss(),
-      React(),
       Plugins.Icons(),
       process.env.VERCEL_ENV === 'production'
         ? SentryVitePlugin({
@@ -52,10 +50,16 @@ export default defineConfig(({ mode }) => {
             project: 'porto-manager',
           })
         : null,
-      TsconfigPaths(),
-      TanStackRouterVite(),
+      TsconfigPaths({
+        projects: ['./tsconfig.json'],
+      }),
+      tanstackStart({
+        customViteReactPlugin: true,
+      }),
+      // React(),
     ],
     server: {
+      port: Number(env.PORT) ?? 51_74,
       proxy: {
         '/dialog/': {
           changeOrigin: true,

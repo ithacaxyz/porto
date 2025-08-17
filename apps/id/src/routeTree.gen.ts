@@ -8,216 +8,202 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { createServerRootRoute } from '@tanstack/react-start/server'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as PlaygroundImport } from './routes/playground'
-import { Route as LayoutImport } from './routes/_layout'
-import { Route as LayoutIndexImport } from './routes/_layout.index'
-import { Route as LayoutRecoveryImport } from './routes/_layout.recovery'
-import { Route as LayoutAboutImport } from './routes/_layout.about'
-import { Route as LayoutEmailVerifyImport } from './routes/_layout.email.verify'
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/_index'
+import { Route as PlaygroundRouteImport } from './routes/playground'
+import { Route as IndexIndexRouteImport } from './routes/_index/index'
+import { Route as IndexRecoveryRouteImport } from './routes/_index/recovery'
+import { Route as IndexAboutRouteImport } from './routes/_index/about'
+import { Route as IndexEmailVerifyRouteImport } from './routes/_index/email.verify'
+import { ServerRoute as HealthServerRouteImport } from './routes/health'
 
-// Create/Update Routes
+const rootServerRouteImport = createServerRootRoute()
 
-const PlaygroundRoute = PlaygroundImport.update({
+const IndexRoute = IndexRouteImport.update({
+  id: '/_index',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlaygroundRoute = PlaygroundRouteImport.update({
   id: '/playground',
   path: '/playground',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const LayoutRoute = LayoutImport.update({
-  id: '/_layout',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const LayoutIndexRoute = LayoutIndexImport.update({
+const IndexIndexRoute = IndexIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => LayoutRoute,
+  getParentRoute: () => IndexRoute,
 } as any)
-
-const LayoutRecoveryRoute = LayoutRecoveryImport.update({
+const IndexRecoveryRoute = IndexRecoveryRouteImport.update({
   id: '/recovery',
   path: '/recovery',
-  getParentRoute: () => LayoutRoute,
+  getParentRoute: () => IndexRoute,
 } as any)
-
-const LayoutAboutRoute = LayoutAboutImport.update({
+const IndexAboutRoute = IndexAboutRouteImport.update({
   id: '/about',
   path: '/about',
-  getParentRoute: () => LayoutRoute,
+  getParentRoute: () => IndexRoute,
 } as any)
-
-const LayoutEmailVerifyRoute = LayoutEmailVerifyImport.update({
+const IndexEmailVerifyRoute = IndexEmailVerifyRouteImport.update({
   id: '/email/verify',
   path: '/email/verify',
-  getParentRoute: () => LayoutRoute,
+  getParentRoute: () => IndexRoute,
+} as any)
+const HealthServerRoute = HealthServerRouteImport.update({
+  id: '/health',
+  path: '/health',
+  getParentRoute: () => rootServerRouteImport,
 } as any)
 
-// Populate the FileRoutesByPath interface
+export interface FileRoutesByFullPath {
+  '/playground': typeof PlaygroundRoute
+  '/about': typeof IndexAboutRoute
+  '/recovery': typeof IndexRecoveryRoute
+  '/': typeof IndexIndexRoute
+  '/email/verify': typeof IndexEmailVerifyRoute
+}
+export interface FileRoutesByTo {
+  '/playground': typeof PlaygroundRoute
+  '/about': typeof IndexAboutRoute
+  '/recovery': typeof IndexRecoveryRoute
+  '/': typeof IndexIndexRoute
+  '/email/verify': typeof IndexEmailVerifyRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/_index': typeof IndexRouteWithChildren
+  '/playground': typeof PlaygroundRoute
+  '/_index/about': typeof IndexAboutRoute
+  '/_index/recovery': typeof IndexRecoveryRoute
+  '/_index/': typeof IndexIndexRoute
+  '/_index/email/verify': typeof IndexEmailVerifyRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths: '/playground' | '/about' | '/recovery' | '/' | '/email/verify'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/playground' | '/about' | '/recovery' | '/' | '/email/verify'
+  id:
+    | '__root__'
+    | '/_index'
+    | '/playground'
+    | '/_index/about'
+    | '/_index/recovery'
+    | '/_index/'
+    | '/_index/email/verify'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRouteWithChildren
+  PlaygroundRoute: typeof PlaygroundRoute
+}
+export interface FileServerRoutesByFullPath {
+  '/health': typeof HealthServerRoute
+}
+export interface FileServerRoutesByTo {
+  '/health': typeof HealthServerRoute
+}
+export interface FileServerRoutesById {
+  __root__: typeof rootServerRouteImport
+  '/health': typeof HealthServerRoute
+}
+export interface FileServerRouteTypes {
+  fileServerRoutesByFullPath: FileServerRoutesByFullPath
+  fullPaths: '/health'
+  fileServerRoutesByTo: FileServerRoutesByTo
+  to: '/health'
+  id: '__root__' | '/health'
+  fileServerRoutesById: FileServerRoutesById
+}
+export interface RootServerRouteChildren {
+  HealthServerRoute: typeof HealthServerRoute
+}
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_layout': {
-      id: '/_layout'
+    '/_index': {
+      id: '/_index'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof LayoutImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/playground': {
       id: '/playground'
       path: '/playground'
       fullPath: '/playground'
-      preLoaderRoute: typeof PlaygroundImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof PlaygroundRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_layout/about': {
-      id: '/_layout/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof LayoutAboutImport
-      parentRoute: typeof LayoutImport
-    }
-    '/_layout/recovery': {
-      id: '/_layout/recovery'
-      path: '/recovery'
-      fullPath: '/recovery'
-      preLoaderRoute: typeof LayoutRecoveryImport
-      parentRoute: typeof LayoutImport
-    }
-    '/_layout/': {
-      id: '/_layout/'
+    '/_index/': {
+      id: '/_index/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof LayoutIndexImport
-      parentRoute: typeof LayoutImport
+      preLoaderRoute: typeof IndexIndexRouteImport
+      parentRoute: typeof IndexRoute
     }
-    '/_layout/email/verify': {
-      id: '/_layout/email/verify'
+    '/_index/recovery': {
+      id: '/_index/recovery'
+      path: '/recovery'
+      fullPath: '/recovery'
+      preLoaderRoute: typeof IndexRecoveryRouteImport
+      parentRoute: typeof IndexRoute
+    }
+    '/_index/about': {
+      id: '/_index/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof IndexAboutRouteImport
+      parentRoute: typeof IndexRoute
+    }
+    '/_index/email/verify': {
+      id: '/_index/email/verify'
       path: '/email/verify'
       fullPath: '/email/verify'
-      preLoaderRoute: typeof LayoutEmailVerifyImport
-      parentRoute: typeof LayoutImport
+      preLoaderRoute: typeof IndexEmailVerifyRouteImport
+      parentRoute: typeof IndexRoute
+    }
+  }
+}
+declare module '@tanstack/react-start/server' {
+  interface ServerFileRoutesByPath {
+    '/health': {
+      id: '/health'
+      path: '/health'
+      fullPath: '/health'
+      preLoaderRoute: typeof HealthServerRouteImport
+      parentRoute: typeof rootServerRouteImport
     }
   }
 }
 
-// Create and export the route tree
-
-interface LayoutRouteChildren {
-  LayoutAboutRoute: typeof LayoutAboutRoute
-  LayoutRecoveryRoute: typeof LayoutRecoveryRoute
-  LayoutIndexRoute: typeof LayoutIndexRoute
-  LayoutEmailVerifyRoute: typeof LayoutEmailVerifyRoute
+interface IndexRouteChildren {
+  IndexAboutRoute: typeof IndexAboutRoute
+  IndexRecoveryRoute: typeof IndexRecoveryRoute
+  IndexIndexRoute: typeof IndexIndexRoute
+  IndexEmailVerifyRoute: typeof IndexEmailVerifyRoute
 }
 
-const LayoutRouteChildren: LayoutRouteChildren = {
-  LayoutAboutRoute: LayoutAboutRoute,
-  LayoutRecoveryRoute: LayoutRecoveryRoute,
-  LayoutIndexRoute: LayoutIndexRoute,
-  LayoutEmailVerifyRoute: LayoutEmailVerifyRoute,
+const IndexRouteChildren: IndexRouteChildren = {
+  IndexAboutRoute: IndexAboutRoute,
+  IndexRecoveryRoute: IndexRecoveryRoute,
+  IndexIndexRoute: IndexIndexRoute,
+  IndexEmailVerifyRoute: IndexEmailVerifyRoute,
 }
 
-const LayoutRouteWithChildren =
-  LayoutRoute._addFileChildren(LayoutRouteChildren)
-
-export interface FileRoutesByFullPath {
-  '': typeof LayoutRouteWithChildren
-  '/playground': typeof PlaygroundRoute
-  '/about': typeof LayoutAboutRoute
-  '/recovery': typeof LayoutRecoveryRoute
-  '/': typeof LayoutIndexRoute
-  '/email/verify': typeof LayoutEmailVerifyRoute
-}
-
-export interface FileRoutesByTo {
-  '/playground': typeof PlaygroundRoute
-  '/about': typeof LayoutAboutRoute
-  '/recovery': typeof LayoutRecoveryRoute
-  '/': typeof LayoutIndexRoute
-  '/email/verify': typeof LayoutEmailVerifyRoute
-}
-
-export interface FileRoutesById {
-  __root__: typeof rootRoute
-  '/_layout': typeof LayoutRouteWithChildren
-  '/playground': typeof PlaygroundRoute
-  '/_layout/about': typeof LayoutAboutRoute
-  '/_layout/recovery': typeof LayoutRecoveryRoute
-  '/_layout/': typeof LayoutIndexRoute
-  '/_layout/email/verify': typeof LayoutEmailVerifyRoute
-}
-
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/playground' | '/about' | '/recovery' | '/' | '/email/verify'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/playground' | '/about' | '/recovery' | '/' | '/email/verify'
-  id:
-    | '__root__'
-    | '/_layout'
-    | '/playground'
-    | '/_layout/about'
-    | '/_layout/recovery'
-    | '/_layout/'
-    | '/_layout/email/verify'
-  fileRoutesById: FileRoutesById
-}
-
-export interface RootRouteChildren {
-  LayoutRoute: typeof LayoutRouteWithChildren
-  PlaygroundRoute: typeof PlaygroundRoute
-}
+const IndexRouteWithChildren = IndexRoute._addFileChildren(IndexRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  LayoutRoute: LayoutRouteWithChildren,
+  IndexRoute: IndexRouteWithChildren,
   PlaygroundRoute: PlaygroundRoute,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/_layout",
-        "/playground"
-      ]
-    },
-    "/_layout": {
-      "filePath": "_layout.tsx",
-      "children": [
-        "/_layout/about",
-        "/_layout/recovery",
-        "/_layout/",
-        "/_layout/email/verify"
-      ]
-    },
-    "/playground": {
-      "filePath": "playground.tsx"
-    },
-    "/_layout/about": {
-      "filePath": "_layout.about.tsx",
-      "parent": "/_layout"
-    },
-    "/_layout/recovery": {
-      "filePath": "_layout.recovery.tsx",
-      "parent": "/_layout"
-    },
-    "/_layout/": {
-      "filePath": "_layout.index.tsx",
-      "parent": "/_layout"
-    },
-    "/_layout/email/verify": {
-      "filePath": "_layout.email.verify.tsx",
-      "parent": "/_layout"
-    }
-  }
+const rootServerRouteChildren: RootServerRouteChildren = {
+  HealthServerRoute: HealthServerRoute,
 }
-ROUTE_MANIFEST_END */
+export const serverRouteTree = rootServerRouteImport
+  ._addFileChildren(rootServerRouteChildren)
+  ._addFileTypes<FileServerRouteTypes>()
