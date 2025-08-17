@@ -63,6 +63,30 @@ export namespace account_verifyEmail {
   export type Response = typeof Response.Type
 }
 
+export namespace wallet_addFaucetFunds {
+  export const Parameters = Schema.Struct({
+    address: Primitive.Address,
+    token: Primitive.Address,
+    value: Schema.String,
+  }).annotations({
+    identifier: 'Rpc.wallet_addFaucetFunds.Parameters',
+  })
+  export type Parameters = typeof Parameters.Type
+
+  export const Request = Schema.Struct({
+    method: Schema.Literal('wallet_addFaucetFunds'),
+    params: Schema.Tuple(Parameters),
+  }).annotations({
+    identifier: 'Rpc.wallet_addFaucetFunds.Request',
+  })
+  export type Request = typeof Request.Type
+
+  export const Response = Schema.Null.annotations({
+    identifier: 'Rpc.wallet_addFaucetFunds.Response',
+  })
+  export type Response = typeof Response.Type
+}
+
 export namespace wallet_addFunds {
   export const Parameters = Schema.Struct({
     address: Schema.optional(Primitive.Address),

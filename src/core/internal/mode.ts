@@ -49,6 +49,12 @@ export type Mode = {
       value?: string | undefined
     }) => Promise<{ id: Hex.Hex }>
 
+    addFaucetFunds: (parameters: {
+
+      /** Internal properties. */
+      internal: ActionsInternal
+    }) => Promise<{ id: Hex.Hex }>
+
     createAccount: (parameters: {
       /** Admins to grant. */
       admins?: readonly Pick<Key.Key, 'publicKey' | 'type'>[] | undefined
