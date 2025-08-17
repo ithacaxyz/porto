@@ -22,7 +22,6 @@ import { Layout } from '../-components/Layout'
 
 export const Route = createFileRoute('/_index/recovery')({
   beforeLoad: (options) => {
-    console.info('beforeLoad\n\n\n\n', JSON.stringify(options, undefined, 2))
     if (!options.context.account.isConnected) throw redirect({ to: '/' })
 
     return {

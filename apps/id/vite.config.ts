@@ -56,7 +56,6 @@ export default defineConfig((config) => {
       tanstackStart({
         customViteReactPlugin: true,
       }),
-      // React(),
     ],
     server: {
       port: Number(env.PORT) ?? 51_74,
