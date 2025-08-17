@@ -20,12 +20,18 @@ import {
 } from 'wagmi'
 import { DevOnly } from '~/components/DevOnly'
 import { ShowMore } from '~/components/ShowMore'
-import { TokenSymbol } from '~/components/TokenSymbol'
 import { TruncatedAddress } from '~/components/TruncatedAddress'
 import { useAddressTransfers } from '~/hooks/useBlockscoutApi'
 import { useClickOutside } from '~/hooks/useClickOutside'
 import { useSwapAssets } from '~/hooks/useSwapAssets'
-import { ArrayUtils, DateFormatter, ValueFormatter } from '~/utils'
+import { useErc20Info, useErc721Info } from '~/hooks/useTokenInfo'
+import { useTokenStandard } from '~/hooks/useTokenStandard'
+import {
+  ArrayUtils,
+  DateFormatter,
+  StringFormatter,
+  ValueFormatter,
+} from '~/utils'
 import LucideBadgeCheck from '~icons/lucide/badge-check'
 import ClipboardCopyIcon from '~icons/lucide/clipboard-copy'
 import CopyIcon from '~icons/lucide/copy'
@@ -41,6 +47,36 @@ import AccountIcon from '~icons/material-symbols/account-circle-full'
 import NullIcon from '~icons/material-symbols/do-not-disturb-on-outline'
 import WorldIcon from '~icons/tabler/world'
 import { Layout } from './Layout'
+
+function TokenSymbol({
+  address,
+  display,
+}: {
+  address?: Address.Address | undefined
+  display?: 'symbol' | 'name' | 'address'
+}) {
+  const tokenStandard = useTokenStandard(address)
+
+  const { data: tokenInfoErc20 } = useErc20Info({
+    address,
+    enabled: tokenStandard.standard === 'ERC20',
+  })
+
+  const { data: tokenInfo721 } = useErc721Info({
+    address,
+    enabled: tokenStandard.standard === 'ERC721',
+  })
+
+  const tokenInfo =
+    tokenStandard.standard === 'ERC20' ? tokenInfoErc20 : tokenInfo721
+
+  if (!address) return null
+
+  if (!tokenInfo?.symbol || display === 'address')
+    return StringFormatter.truncate(address, { end: 4, start: 4 })
+
+  return display === 'name' ? tokenInfo.name : tokenInfo.symbol
+}
 
 export function Dashboard() {
   const [, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })

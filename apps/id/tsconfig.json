@@ -1,11 +1,31 @@
 {
   "extends": "../tsconfig.base.json",
-  "include": ["src"],
-  "files": ["./vite-env.d.ts"],
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["**/_/**"],
   "compilerOptions": {
+    "target": "ESNext",
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "types": ["unplugin-icons/types/react", "typed-query-selector/strict"],
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": false,
+    "noEmit": true,
+
+    /* Linting */
+    "skipLibCheck": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+    "baseUrl": ".",
     "paths": {
       "~/*": ["./src/*"]
-    },
-    "types": ["unplugin-icons/types/react", "typed-query-selector/strict"]
-  }
+    }
+  },
+  "files": ["./env.d.ts"]
 }
