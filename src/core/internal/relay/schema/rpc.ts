@@ -368,10 +368,6 @@ export namespace wallet_getKeys {
 
   /** Response for `wallet_getKeys`. */
   export const Response = C.authorizeKeys.Response
-  //   Schema.Record({
-  //   key: Primitive.Hex,
-  //   value: C.authorizeKeys.Response,
-  // })
   export type Response = typeof Response.Type
 }
 
