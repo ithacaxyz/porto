@@ -58,6 +58,12 @@ export function AddFunds(props: AddFunds.Props) {
   >('start')
   const [email, setEmail] = React.useState<string>('')
 
+  const onrampMethod = enableOnramp()
+    ? UserAgent.isFirefox() || UserAgent.isAndroid()
+      ? 'google'
+      : 'apple'
+    : 'faucet'
+
   const faucet = useMutation({
     async mutationFn(e: React.FormEvent<HTMLFormElement>) {
       e.preventDefault()
@@ -132,6 +138,7 @@ export function AddFunds(props: AddFunds.Props) {
                 loading={faucet.isPending}
                 onApprove={onApprove}
                 onReject={onReject}
+                onrampMethod={onrampMethod}
               />
             </div>
             <div className="col-span-1 row-span-1">
@@ -183,18 +190,29 @@ export function AddFunds(props: AddFunds.Props) {
               </Button>
             </div>
           </form>
-
-          <p className="mt-3 px-8 text-center text-[12px] text-th_base-secondary">
-            By using the onramp, you are agreeing to Mercuryo's{' '}
-            <a
-              className="text-primary"
-              href="https://mercuryo.io/terms-and-conditions"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              terms & conditions
-            </a>
-          </p>
+          {onrampMethod === 'apple' && (
+            <p className="mt-4 text-center text-[11.5px] text-th_base-secondary">
+              By using our deposit on-ramp, you agree to our{' '}
+              <a
+                className="text-th_base-secondary underline"
+                href="https://porto.sh/terms"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                Terms of Use
+              </a>{' '}
+              and{' '}
+              <a
+                className="text-th_base-secondary underline"
+                href="https://ithaca.xyz/about/privacy-policy"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                Privacy Policy for Porto
+              </a>
+              .
+            </p>
+          )}
         </Layout.Content>
       </Layout>
     )
@@ -387,14 +405,12 @@ export declare namespace AddFunds {
 }
 
 function OnrampView(props: OnrampView.Props) {
-  const { address, amount, loading } = props
+  const { address, amount, loading, onrampMethod } = props
 
   const onrampWidget = getOnrampWidget()
-  const showOnramp = enableOnramp()
-  const isUnsupported = UserAgent.isFirefox() || UserAgent.isAndroid()
 
   const onrampQuery = useQuery({
-    enabled: !!address && !!amount && !isUnsupported,
+    enabled: !!address && !!amount && onrampMethod === 'apple',
     queryFn: async () => {
       const response = await fetch(
         `https://onramp.porto.workers.dev/token?address=${address}`,
@@ -425,7 +441,12 @@ function OnrampView(props: OnrampView.Props) {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: _
   React.useEffect(() => {
-    if (!onrampQuery.data || !onrampQuery.data.merchantTransactionId) return
+    if (
+      onrampMethod !== 'apple' ||
+      !onrampQuery.data ||
+      !onrampQuery.data.merchantTransactionId
+    )
+      return
 
     const {
       widgetId,
@@ -480,7 +501,7 @@ function OnrampView(props: OnrampView.Props) {
     enabled:
       onrampQuery.status === 'success' &&
       !!onrampQuery.data?.merchantTransactionId &&
-      !isUnsupported,
+      onrampMethod === 'apple',
     queryFn: async () => {
       const merchantTransactionId = onrampQuery.data?.merchantTransactionId
       if (!merchantTransactionId) return null
@@ -505,8 +526,7 @@ function OnrampView(props: OnrampView.Props) {
   })
 
   if (
-    showOnramp &&
-    !isUnsupported &&
+    onrampMethod === 'apple' &&
     (onrampQuery.isError || onrampQuery.data?.error)
   ) {
     return (
@@ -524,51 +544,54 @@ function OnrampView(props: OnrampView.Props) {
     )
   }
 
-  return showOnramp ? (
-    <div className="flex flex-col justify-between gap-2">
-      {isUnsupported ? (
-        <PayButton
-          disabled={!address}
-          url={stripeOnrampUrl({
-            address: address!,
-            amount: Number(amount),
-          })}
-          variant="stripe"
-        />
-      ) : (
-        <>
-          <article className="relative mx-auto w-full select-none overflow-hidden rounded-full">
-            <div
-              className="h-[46px] min-h-[44px] w-full min-w-full bg-black dark:bg-white"
-              id="mercuryo-widget"
-            />
-          </article>
-          {transactionQuery.data &&
-            transactionQuery.data.status !== 'not_found' && (
-              <a
-                className="text-center"
-                href={transactionQuery.data.url}
-                target="_blank"
-              >
-                {StringFormatter.truncate(transactionQuery.data.hash)}
-              </a>
-            )}
-        </>
-      )}
-    </div>
-  ) : (
-    <UI.Button
-      className="w-full flex-1"
-      data-testid="buy"
-      disabled={!address || !amount || Number(amount) === 0}
-      loading={loading && 'Adding funds…'}
-      type="submit"
-      variant="primary"
-      width="grow"
-    >
-      Add funds
-    </UI.Button>
-  )
+  if (!onrampMethod || onrampMethod === 'faucet')
+    return (
+      <UI.Button
+        className="w-full flex-1"
+        data-testid="buy"
+        disabled={!address || !amount || Number(amount) === 0}
+        loading={loading && 'Adding funds…'}
+        type="submit"
+        variant="primary"
+        width="grow"
+      >
+        Add funds
+      </UI.Button>
+    )
+
+  if (onrampMethod === 'google')
+    return (
+      <PayButton
+        disabled={!address}
+        url={stripeOnrampUrl({
+          address: address!,
+          amount: Number(amount),
+        })}
+        variant="stripe"
+      />
+    )
+
+  if (onrampMethod === 'apple')
+    return (
+      <div className="flex flex-col justify-between gap-2">
+        <article className="relative mx-auto w-full select-none overflow-hidden rounded-full">
+          <div
+            className="h-[46px] min-h-[44px] w-full min-w-full bg-black dark:bg-white"
+            id="mercuryo-widget"
+          />
+        </article>
+        {transactionQuery.data &&
+          transactionQuery.data.status !== 'not_found' && (
+            <a
+              className="text-center"
+              href={transactionQuery.data.url}
+              target="_blank"
+            >
+              {StringFormatter.truncate(transactionQuery.data.hash)}
+            </a>
+          )}
+      </div>
+    )
 }
 
 export declare namespace OnrampView {
@@ -578,6 +601,7 @@ export declare namespace OnrampView {
     onApprove: (result: { id: Hex.Hex }) => void
     onReject?: () => void
     loading?: boolean
+    onrampMethod?: 'apple' | 'google' | 'faucet'
   }
 }
 
