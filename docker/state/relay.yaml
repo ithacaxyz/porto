@@ -3,14 +3,14 @@ server:
   port: 9119
   metrics_port: 9120
   max_connections: 5000
-chain:
-  endpoints:
-  - http://anvil:8545
-  sequencer_endpoints: {}
-  fee_tokens:
-  - '0x0000000000000000000000000000000000000000'
-  interop_tokens:
-  fee_recipient: '0x0000000000000000000000000000000000000000'
+chains:
+  anvil:
+    assets:
+      ethereum:
+        address: "0x0000000000000000000000000000000000000000"
+        fee_token: true
+        interop: false
+    endpoint: http://anvil:8545
 quote:
   constantRate: 1.0
   gas:
@@ -35,4 +35,5 @@ delegation_proxy:
 simulator:
 funder:
 escrow:
+fee_recipient: '0x0000000000000000000000000000000000000000'
 database_url: null

@@ -66,16 +66,9 @@ yq -i ".delegation_proxy = \"$ACCOUNT_PROXY_ADDRESS\"" /app/shared/relay.yaml
 yq -i ".simulator = \"$SIMULATOR_ADDRESS\"" /app/shared/relay.yaml
 yq -i ".funder = \"$FUNDER_ADDRESS\"" /app/shared/relay.yaml
 yq -i ".escrow = \"$ESCROW_ADDRESS\"" /app/shared/relay.yaml
-yq -i ".chain.fee_tokens[1] = \"$EXP1_ADDRESS\"" /app/shared/relay.yaml
-yq -i ".chain.fee_tokens[2] = \"$EXP2_ADDRESS\"" /app/shared/relay.yaml
-yq -i ".chain.interop_tokens[0] = \"$EXP1_ADDRESS\"" /app/shared/relay.yaml
-yq -i ".chain.interop_tokens[1] = \"$EXP2_ADDRESS\"" /app/shared/relay.yaml
-
-# Update registry.yaml.
-touch /app/shared/registry.yaml
-
-yq -i ".31337[0].address = \"$EXP1_ADDRESS\"" /app/shared/registry.yaml
-yq -i ".31337[0].kind = \"USDT\"" /app/shared/registry.yaml
-yq -i ".31337[1].address = \"$EXP2_ADDRESS\"" /app/shared/registry.yaml
-yq -i ".31337[1].kind = \"USDC\"" /app/shared/registry.yaml
-yq -i ".31337[2].kind = \"ETH\"" /app/shared/registry.yaml
+yq -i ".chains.anvil.assets.exp.address = \"$EXP1_ADDRESS\"" /app/shared/relay.yaml
+yq -i ".chains.anvil.assets.exp.fee_token = true" /app/shared/relay.yaml
+yq -i ".chains.anvil.assets.exp.interop = false" /app/shared/relay.yaml
+yq -i ".chains.anvil.assets.exp2.address = \"$EXP2_ADDRESS\"" /app/shared/relay.yaml
+yq -i ".chains.anvil.assets.exp2.fee_token = true" /app/shared/relay.yaml
+yq -i ".chains.anvil.assets.exp2.interop = false" /app/shared/relay.yaml

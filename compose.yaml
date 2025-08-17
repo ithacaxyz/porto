@@ -37,7 +37,7 @@ services:
     build:
       context: "${DOCKER_BUILD_CONTEXT:-https://github.com/ithacaxyz/porto.git}"
       dockerfile_inline: |
-        FROM ghcr.io/ithacaxyz/relay:v14.1.2
+        FROM ghcr.io/ithacaxyz/relay:v21.0.1
         COPY --from=ghcr.io/foundry-rs/foundry:latest /usr/local/bin/cast /usr/local/bin/cast
     platform: linux/x86_64
     labels:
@@ -49,7 +49,7 @@ services:
     environment:
       RELAY_MNEMONIC: "test test test test test test test test test test test junk"
       RELAY_FUNDER_SIGNER_KEY: "0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6"
-    command: --config-only --registry /app/registry.yaml --funder-signing-key 0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6 --funder-owner-key 0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6
+    command: --config-only --funder-signing-key 0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6 --funder-owner-key 0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6
     healthcheck:
       test: ["CMD", "cast", "rpc", "--rpc-url", "http://localhost:9119", "health"]
       interval: 2s
