@@ -1,28 +1,19 @@
 /// <reference types="vite/client" />
 
 import { TanStackDevtools } from '@tanstack/react-devtools'
-import type { QueryClient } from '@tanstack/react-query'
 import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools'
-import {
-  createRootRouteWithContext,
-  HeadContent,
-  Outlet,
-  Scripts,
-} from '@tanstack/react-router'
+import { createRootRoute, HeadContent, Scripts } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import type { GetAccountReturnType } from '@wagmi/core'
 import type * as React from 'react'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { NotFound } from '~/components/NotFound'
 import baseCss from '~/styles.css?url'
 
-interface RootRouteContext {
-  queryClient: QueryClient
-  account: GetAccountReturnType
-}
-
-export const Route = createRootRouteWithContext<RootRouteContext>()({
-  errorComponent: DefaultCatchBoundary,
+export const Route = createRootRoute({
+  errorComponent: (props) => {
+    console.info('rootRoute errorComponent', props)
+    return <DefaultCatchBoundary {...props} />
+  },
   head: () => ({
     links: [
       { href: baseCss, rel: 'stylesheet' },
@@ -51,9 +42,16 @@ export const Route = createRootRouteWithContext<RootRouteContext>()({
       },
     ],
   }),
-  notFoundComponent: () => <NotFound />,
+  notFoundComponent: (props) => {
+    console.info('rootRoute notFoundComponent', props)
+    return <NotFound />
+  },
+  pendingComponent: (props) => {
+    console.info('rootRoute pendingComponent', props)
+    return <div>[__root.tsx] Loading…</div>
+  },
   shellComponent: RootDocument,
-  // wrapInSuspense: true,
+  wrapInSuspense: true,
 })
 
 function RootDocument(props: Readonly<{ children: React.ReactNode }>) {

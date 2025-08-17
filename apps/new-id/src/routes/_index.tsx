@@ -5,6 +5,14 @@ import { Layout } from './-components/Layout'
 
 export const Route = createFileRoute('/_index')({
   component: RouteComponent,
+  errorComponent: (props) => {
+    console.info('[_index.tsx] errorComponent', props)
+    return <div>[_index.tsx] Error</div>
+  },
+  pendingComponent: (props) => {
+    console.info('[_index.tsx] pendingComponent', props)
+    return <div>[_index.tsx] Loading…</div>
+  },
 })
 
 function RouteComponent() {

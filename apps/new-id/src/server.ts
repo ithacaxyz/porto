@@ -11,6 +11,7 @@ function defineHandler(
 }
 
 export default defineHandler((event) => {
+  console.info('[server.ts] defineHandler', event)
   const startHandler = createStartHandler({
     createRouter,
   })(defaultStreamHandler)
