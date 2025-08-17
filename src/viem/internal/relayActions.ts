@@ -257,7 +257,7 @@ export async function getKeys<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getKeys.Parameters<chain>,
 ): Promise<getKeys.ReturnType> {
-  const { address, chain = client.chain } = parameters
+  const { address, chainIds, chain = client.chain } = parameters
 
   try {
     const method = 'wallet_getKeys' as const
@@ -267,7 +267,7 @@ export async function getKeys<chain extends Chain | undefined>(
       params: [
         Schema.encodeSync(RpcSchema.wallet_getKeys.Parameters)({
           address,
-          chainId: chain?.id!,
+          chainIds: chainIds ?? [chain?.id!],
         }),
       ],
     })

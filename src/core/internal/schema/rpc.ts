@@ -652,10 +652,7 @@ export namespace wallet_getKeys {
   })
   export type Request = typeof Request.Type
 
-  export const Response = Schema.Record({
-    key: Primitive.Hex,
-    value: Schema.Array(Key.WithPermissions),
-  }).annotations({
+  export const Response = Schema.Array(Key.WithPermissions).annotations({
     identifier: 'Rpc.wallet_getKeys.Response',
   })
   export type Response = typeof Response.Type
