@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { cac } from 'cac'
 
-import pkgJson from '../../package.json' with { type: 'json' }
+import pkgJson from '../package.json' with { type: 'json' }
 
 const cli = cac('porto')
 
@@ -24,7 +24,7 @@ cli
     default: 'stg.id.porto.sh',
   })
   .action(async (_, args) => {
-    const Commands = await import('../internal/commands.js')
+    const Commands = await import('../cli/internal/commands.js')
     return Commands.createAccount(null, args)
   })
 

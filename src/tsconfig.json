@@ -12,5 +12,6 @@
   "compilerOptions": {
     "noEmit": true,
     "jsx": "react-jsx"
-  }
+  },
+  "files": ["./bin/index.mjs"]
 }
