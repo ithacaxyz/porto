@@ -1,0 +1,5 @@
+## Fees
+
+Execution of bundles are paid for by the fee payer, which defaults to the EOA. This can be overriden using `feePayer`.
+
+Fees are paid in `feeToken`, which is specified in the capabilities of [`wallet_prepareCalls`](/relay/wallet_prepareCalls). The fee token must be supported on the target chain. The list of supported tokens on each network can be found in the response of [`wallet_getCapabilities`](/relay/wallet_getCapabilities).

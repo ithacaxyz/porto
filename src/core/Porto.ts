@@ -10,7 +10,7 @@ import * as Chains from './Chains.js'
 import { hostUrls } from './Dialog.js'
 import type * as Mode from './internal/mode.js'
 import { dialog } from './internal/modes/dialog.js'
-import { rpcServer } from './internal/modes/rpcServer.js'
+import { relay } from './internal/modes/relay.js'
 import type * as internal from './internal/porto.js'
 import * as Provider from './internal/provider.js'
 import type * as FeeToken from './internal/schema/feeToken.js'
@@ -26,7 +26,7 @@ const browser = typeof window !== 'undefined' && typeof document !== 'undefined'
 export const defaultConfig = {
   announceProvider: true,
   chains: [Chains.baseSepolia, Chains.optimismSepolia],
-  mode: browser ? dialog() : rpcServer(),
+  mode: browser ? dialog() : relay(),
   relay: http(relayUrls.stg.http),
   storage: browser ? Storage.idb() : Storage.memory(),
   storageKey: 'porto.store',
@@ -183,7 +183,7 @@ export function unstable_create(
 ): Porto {
   return create({
     chains: [Chains.base, Chains.arbitrum, Chains.optimism],
-    mode: browser ? dialog({ host: hostUrls.prod }) : rpcServer(),
+    mode: browser ? dialog({ host: hostUrls.prod }) : relay(),
     relay: http(relayUrls.prod.http),
     storageKey: 'prod.porto.store',
     transports: {

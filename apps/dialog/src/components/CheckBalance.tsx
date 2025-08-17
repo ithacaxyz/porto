@@ -1,7 +1,7 @@
 import type { UseQueryResult } from '@tanstack/react-query'
 import type { Address } from 'ox'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
-import type { ServerActions } from 'porto/viem'
+import type { RelayActions } from 'porto/viem'
 import * as React from 'react'
 import { AddFunds } from '~/routes/-components/AddFunds'
 import { Layout } from '~/routes/-components/Layout'
@@ -77,8 +77,8 @@ export namespace CheckBalance {
     feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
     onReject: () => void
     query: UseQueryResult<
-      ServerActions.prepareCalls.ReturnType,
-      ServerActions.prepareCalls.ErrorType
+      RelayActions.prepareCalls.ReturnType,
+      RelayActions.prepareCalls.ErrorType
     >
   }
 }

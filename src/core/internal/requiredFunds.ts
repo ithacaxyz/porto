@@ -1,20 +1,20 @@
 import * as Value from 'ox/Value'
-import type * as Capabilities_rpcServer from './rpcServer/schema/capabilities.js'
+import type * as Capabilities_relay from './relay/schema/capabilities.js'
 import type * as Capabilities from './schema/capabilities.js'
 import type * as FeeToken from './schema/feeToken.js'
 
 /**
- * Transforms into RPC Server-formatted required funds.
+ * Transforms into Relay-formatted required funds.
  *
  * @param requiredFunds - The required funds object to convert.
  * @param options - The options for the conversion.
  * @returns The converted required funds object.
  */
-// TODO: perhaps RPC Server should support `Capabilities.requiredFunds.Request` format.
-export function toRpcServer(
-  requiredFunds: toRpcServer.Value,
-  options: toRpcServer.Options,
-): toRpcServer.ReturnType {
+// TODO: perhaps Relay should support `Capabilities.requiredFunds.Request` format.
+export function toRelay(
+  requiredFunds: toRelay.Value,
+  options: toRelay.Options,
+): toRelay.ReturnType {
   const { feeTokens } = options
 
   const interopTokens = feeTokens.filter((feeToken) => feeToken.interop)
@@ -38,11 +38,11 @@ export function toRpcServer(
   })
 }
 
-export namespace toRpcServer {
+export namespace toRelay {
   export type Value = Capabilities.requiredFunds.Request
 
   export type Options = {
     feeTokens: readonly FeeToken.FeeToken[]
   }
-  export type ReturnType = Capabilities_rpcServer.requiredFunds.Request
+  export type ReturnType = Capabilities_relay.requiredFunds.Request
 }

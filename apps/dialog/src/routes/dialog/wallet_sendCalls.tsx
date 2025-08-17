@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Account, Key } from 'porto'
 import { Actions, Hooks } from 'porto/remote'
-import { ServerActions } from 'porto/viem'
+import { RelayActions } from 'porto/viem'
 import type * as Calls from '~/lib/Calls'
 import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
@@ -23,7 +23,7 @@ function RouteComponent() {
   const { feeToken, merchantRpcUrl, requiredFunds } = capabilities ?? {}
 
   const account = Hooks.useAccount(porto, { address: from })
-  const client = Hooks.useServerClient(porto, { chainId })
+  const client = Hooks.useRelayClient(porto, { chainId })
 
   const respond = useMutation({
     // TODO: use EIP-1193 Provider + `wallet_sendPreparedCalls` in the future
@@ -41,7 +41,7 @@ function RouteComponent() {
         wrap: false,
       })
 
-      const result = await ServerActions.sendPreparedCalls(client, {
+      const result = await RelayActions.sendPreparedCalls(client, {
         capabilities: capabilities.feeSignature
           ? {
               feeSignature: capabilities.feeSignature,

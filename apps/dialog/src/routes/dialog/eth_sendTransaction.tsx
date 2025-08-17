@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Provider } from 'ox'
 import { Account, Key } from 'porto'
 import { Actions, Hooks } from 'porto/remote'
-import { ServerActions } from 'porto/viem'
+import { RelayActions } from 'porto/viem'
 import { waitForCallsStatus } from 'viem/actions'
 import type * as Calls from '~/lib/Calls'
 import { porto } from '~/lib/Porto'
@@ -26,7 +26,7 @@ function RouteComponent() {
   const calls = [{ data, to: to!, value }] as const
 
   const account = Hooks.useAccount(porto, { address: from })
-  const client = Hooks.useServerClient(porto, { chainId })
+  const client = Hooks.useRelayClient(porto, { chainId })
 
   const respond = useMutation({
     // TODO: use EIP-1193 Provider + `wallet_sendPreparedCalls` in the future
@@ -44,7 +44,7 @@ function RouteComponent() {
         wrap: false,
       })
 
-      const { id } = await ServerActions.sendPreparedCalls(client, {
+      const { id } = await RelayActions.sendPreparedCalls(client, {
         capabilities: capabilities.feeSignature
           ? {
               feeSignature: capabilities.feeSignature,

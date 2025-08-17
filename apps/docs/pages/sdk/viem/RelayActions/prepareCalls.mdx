@@ -1,0 +1,96 @@
+# `RelayActions.prepareCalls`
+
+Viem Action for preparing a bundle of calls for execution. Uses [`wallet_prepareCalls`](/relay/wallet_prepareCalls) under the hood.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { RelayActions, Key } from 'porto/viem'
+import { parseEther } from 'viem'
+import { client, account } from './config'
+
+const key = Key.createSecp256k1()
+
+const prepared = await RelayActions.prepareCalls(client, { // [!code focus]
+  account, // [!code focus]
+  calls: [{ // [!code focus]
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+    value: parseEther('0.01'), // [!code focus]
+  }], // [!code focus]
+  key, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.server.ts]
+```
+
+:::
+
+## Parameters
+
+### account
+
+- **Type:** `Account.Account | undefined`
+
+The account to prepare calls for. Defaults to `client.account`.
+
+### authorizeKeys
+
+- **Type:** `readonly Key.Key[]`
+
+Additional keys to authorize on the account.
+
+### calls
+
+- **Type:** `Calls[]`
+
+Array of calls to prepare for execution.
+
+### feeToken
+
+- **Type:** `Address.Address`
+
+Token to use for transaction fees.
+
+### preCalls
+
+- **Type:** `true | readonly { context: RelayActions.prepareCalls.ReturnType['context'], signature: Hex.Hex }[]`
+
+Indicates if the bundle is "pre-calls", and should be executed before
+the main bundle.
+
+Accepts:
+
+- `true`: Indicates this is a "pre-calls" bundle to prepare.
+- An array: Set of signed and prepared "pre-calls".
+
+### key
+
+- **Type:** `Pick<Key.Key, 'publicKey' | 'prehash' | 'type'>`
+
+Key that will be used to sign the calls.
+
+### merchantRpcUrl
+
+- **Type:** `string`
+
+URL of the merchant to front the request (and sponsor calls if needed).
+
+### requiredFunds
+
+- **Type:** `readonly ({ address: "0x${string}"; value: "0x${string}" } | { symbol: string; value: string })[]`
+
+Funds required on the target chain.
+
+### revokeKeys
+
+- **Type:** `readonly Key.Key[]`
+
+Keys to revoke from the account.
+
+## Return Value
+
+See [`wallet_prepareCalls`](/relay/wallet_prepareCalls#response).

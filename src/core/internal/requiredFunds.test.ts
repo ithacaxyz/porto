@@ -5,18 +5,18 @@ import * as FeeTokens from './feeTokens.js'
 import * as RequiredFunds from './requiredFunds.js'
 
 const porto = TestConfig.getPorto()
-const client = TestConfig.getServerClient(porto)
+const client = TestConfig.getRelayClient(porto)
 const feeTokens = await FeeTokens.fetch(client)
 
-describe('toRpcServer', () => {
+describe('toRelay', () => {
   test('param: empty requiredFunds array', async () => {
-    const result = RequiredFunds.toRpcServer([], { feeTokens })
+    const result = RequiredFunds.toRelay([], { feeTokens })
 
     expect(result).toMatchInlineSnapshot('[]')
   })
 
   test('behavior: with address - returns unchanged', async () => {
-    const result = RequiredFunds.toRpcServer(
+    const result = RequiredFunds.toRelay(
       [
         {
           address: '0x1234567890123456789012345678901234567890' as const,
@@ -34,7 +34,7 @@ describe('toRpcServer', () => {
   })
 
   test('behavior: with symbol - converts to address and value', async () => {
-    const result = RequiredFunds.toRpcServer(
+    const result = RequiredFunds.toRelay(
       [
         {
           symbol: 'EXP',
@@ -49,7 +49,7 @@ describe('toRpcServer', () => {
   })
 
   test('behavior: with integer value string', async () => {
-    const result = RequiredFunds.toRpcServer(
+    const result = RequiredFunds.toRelay(
       [
         {
           symbol: 'EXP',
@@ -64,7 +64,7 @@ describe('toRpcServer', () => {
   })
 
   test('behavior: mixed address and symbol entries', async () => {
-    const result = RequiredFunds.toRpcServer(
+    const result = RequiredFunds.toRelay(
       [
         {
           address: '0x1234567890123456789012345678901234567890',
@@ -86,7 +86,7 @@ describe('toRpcServer', () => {
 
   test('behavior: only non-interop tokens available', async () => {
     try {
-      RequiredFunds.toRpcServer(
+      RequiredFunds.toRelay(
         [
           {
             symbol: Anvil.enabled ? 'ETH' : 'USDT',
@@ -104,7 +104,7 @@ describe('toRpcServer', () => {
 
   test('error: symbol not found in interop tokens', async () => {
     expect(() =>
-      RequiredFunds.toRpcServer(
+      RequiredFunds.toRelay(
         [
           {
             symbol: 'UNKNOWN',
@@ -120,7 +120,7 @@ describe('toRpcServer', () => {
 
   test('error: non-existent symbol with existing addresses', async () => {
     expect(() =>
-      RequiredFunds.toRpcServer(
+      RequiredFunds.toRelay(
         [
           {
             address: '0x1234567890123456789012345678901234567890',

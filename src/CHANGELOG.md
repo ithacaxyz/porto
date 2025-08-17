@@ -55,7 +55,7 @@
 
 ### Patch Changes
 
-- [`022b5bc`](https://github.com/ithacaxyz/porto/commit/022b5bc67211f20a3b76d28cac57ab682db7da95) Thanks [@jxom](https://github.com/jxom)! - Added `webAuthn` config option to `Mode.rpcServer`.
+- [`022b5bc`](https://github.com/ithacaxyz/porto/commit/022b5bc67211f20a3b76d28cac57ab682db7da95) Thanks [@jxom](https://github.com/jxom)! - Added `webAuthn` config option to `Mode.relay`.
 
 ## 0.0.62
 
@@ -246,7 +246,7 @@
   });
   ```
 
-- [#563](https://github.com/ithacaxyz/porto/pull/563) [`3cf0a7e`](https://github.com/ithacaxyz/porto/commit/3cf0a7e27a46206569524ba2f73d637d53e81f6c) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `permissionsFeeLimit` on `Mode.rpcServer` in favor of:
+- [#563](https://github.com/ithacaxyz/porto/pull/563) [`3cf0a7e`](https://github.com/ithacaxyz/porto/commit/3cf0a7e27a46206569524ba2f73d637d53e81f6c) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `permissionsFeeLimit` on `Mode.relay` in favor of:
 
   - `feeLimit` on the `wallet_grantPermissions` request
   - `feeLimit` on the `grantPermissions` capability
@@ -366,11 +366,11 @@
 
 ### Patch Changes
 
-- [#397](https://github.com/ithacaxyz/porto/pull/397) [`5c266d0`](https://github.com/ithacaxyz/porto/commit/5c266d0bde59f46e6e3bf97dc8b70c7c55a02aa8) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`porto/viem`):** Removed `ServerActions.prepareCreateAccount`. Use `ServerActions.createAccount` or `ServerActions.upgradeAccount` instead.
+- [#397](https://github.com/ithacaxyz/porto/pull/397) [`5c266d0`](https://github.com/ithacaxyz/porto/commit/5c266d0bde59f46e6e3bf97dc8b70c7c55a02aa8) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`porto/viem`):** Removed `RelayActions.prepareCreateAccount`. Use `RelayActions.createAccount` or `RelayActions.upgradeAccount` instead.
 
-- [#397](https://github.com/ithacaxyz/porto/pull/397) [`5c266d0`](https://github.com/ithacaxyz/porto/commit/5c266d0bde59f46e6e3bf97dc8b70c7c55a02aa8) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`porto/viem`):** Renamed `keys` to `authorizeKeys` on `ServerActions.prepareUpgradeAccount` and `ServerActions.upgradeAccount`.
+- [#397](https://github.com/ithacaxyz/porto/pull/397) [`5c266d0`](https://github.com/ithacaxyz/porto/commit/5c266d0bde59f46e6e3bf97dc8b70c7c55a02aa8) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`porto/viem`):** Renamed `keys` to `authorizeKeys` on `RelayActions.prepareUpgradeAccount` and `RelayActions.upgradeAccount`.
 
-- [#397](https://github.com/ithacaxyz/porto/pull/397) [`5c266d0`](https://github.com/ithacaxyz/porto/commit/5c266d0bde59f46e6e3bf97dc8b70c7c55a02aa8) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`porto/viem`):** Removed `ServerActions.getAccounts`.
+- [#397](https://github.com/ithacaxyz/porto/pull/397) [`5c266d0`](https://github.com/ithacaxyz/porto/commit/5c266d0bde59f46e6e3bf97dc8b70c7c55a02aa8) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`porto/viem`):** Removed `RelayActions.getAccounts`.
 
 - [#397](https://github.com/ithacaxyz/porto/pull/397) [`5c266d0`](https://github.com/ithacaxyz/porto/commit/5c266d0bde59f46e6e3bf97dc8b70c7c55a02aa8) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `wallet_createAccount`. Use `wallet_connect` with the `createAccount` capability instead.
 
@@ -481,9 +481,9 @@
 
 - [#183](https://github.com/ithacaxyz/porto/pull/183) [`81792f5`](https://github.com/ithacaxyz/porto/commit/81792f5994756e42e2406aadd29b941870bae10e) Thanks [@tmm](https://github.com/tmm)! - Added support for dark/light icon types.
 
-- [#234](https://github.com/ithacaxyz/porto/pull/234) [`8b2dff9`](https://github.com/ithacaxyz/porto/commit/8b2dff9095bfdb996747962883b7fd0b2da829a6) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renames "Relay" keyword instances to "RPC Server".
+- [#234](https://github.com/ithacaxyz/porto/pull/234) [`8b2dff9`](https://github.com/ithacaxyz/porto/commit/8b2dff9095bfdb996747962883b7fd0b2da829a6) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renames "Relay" keyword instances to "Relay".
 
-  - `Mode.relay` → `Mode.rpcServer`
+  - `Mode.relay` → `Mode.relay`
   - `import { Relay } from 'porto'` → `import { RpcServer } from 'porto'`
 
 - [`775a687`](https://github.com/ithacaxyz/porto/commit/775a6877920665a0e23ec9efe70945838c51386a) Thanks [@tmm](https://github.com/tmm)! - Added form support to inline iframe.
@@ -494,7 +494,7 @@
 
 - [`2c445a1`](https://github.com/ithacaxyz/porto/commit/2c445a19a2af7a0bd9df6f72f071417d23f28ee7) Thanks [@jxom](https://github.com/jxom)! - Added `Account`, `Key`, `Relay` modules.
 
-- [#237](https://github.com/ithacaxyz/porto/pull/237) [`6ce420e`](https://github.com/ithacaxyz/porto/commit/6ce420ef727aeb7ecc69cd5782c6deda9673f625) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed non-version attributes from `RpcServer.health`. It now returns a `string` indicating the current version of the RPC Server. To get the previous behavior, use `RpcServer.getCapabilities` instead.
+- [#237](https://github.com/ithacaxyz/porto/pull/237) [`6ce420e`](https://github.com/ithacaxyz/porto/commit/6ce420ef727aeb7ecc69cd5782c6deda9673f625) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed non-version attributes from `RpcServer.health`. It now returns a `string` indicating the current version of the Relay. To get the previous behavior, use `RpcServer.getCapabilities` instead.
 
 - [`42107cb`](https://github.com/ithacaxyz/porto/commit/42107cb611533f14761259374c0e39be4391d627) Thanks [@o-az](https://github.com/o-az)! - Set porto default storage to memory on server-side
 

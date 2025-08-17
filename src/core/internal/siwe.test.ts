@@ -4,7 +4,7 @@ import * as Http from '../../../test/src/http.js'
 import * as SiweModule from './siwe.js'
 
 const porto = TestConfig.getPorto()
-const client = TestConfig.getServerClient(porto)
+const client = TestConfig.getRelayClient(porto)
 
 let server: Http.Server | undefined
 afterEach(async () => {

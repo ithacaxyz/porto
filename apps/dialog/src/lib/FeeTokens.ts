@@ -1,12 +1,12 @@
 import * as Query from '@tanstack/react-query'
 import * as FeeTokens from 'porto/core/internal/feeTokens.js'
 import { Hooks } from 'porto/remote'
-import type { ServerClient } from 'porto/viem'
+import type { RelayClient } from 'porto/viem'
 import { porto } from './Porto.js'
 
 export namespace fetch {
   export function queryOptions(
-    client: ServerClient.ServerClient,
+    client: RelayClient.RelayClient,
     parameters: queryOptions.Options = {},
   ) {
     const { addressOrSymbol, enabled } = parameters
@@ -32,7 +32,7 @@ export namespace fetch {
       Pick<Query.UseQueryOptions<Data, Error, Data, QueryKey>, 'enabled'>
 
     export function queryKey<const calls extends readonly unknown[]>(
-      client: ServerClient.ServerClient,
+      client: RelayClient.RelayClient,
       options: queryKey.Options,
     ) {
       return ['feeTokens', options, client.uid] as const
@@ -45,7 +45,7 @@ export namespace fetch {
 
   export function useQuery(parameters: useQuery.Parameters) {
     const { chainId } = parameters
-    const client = Hooks.useServerClient(porto, { chainId })
+    const client = Hooks.useRelayClient(porto, { chainId })
     return Query.useQuery(queryOptions(client, parameters))
   }
 

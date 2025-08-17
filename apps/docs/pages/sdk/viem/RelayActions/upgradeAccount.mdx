@@ -1,0 +1,97 @@
+# `RelayActions.upgradeAccount`
+
+Viem Action for upgrading an Externally-Owned Account (EOA) to a Porto Account. Uses [`wallet_prepareUpgradeAccount`](/relay/wallet_prepareUpgradeAccount) and [`wallet_upgradeAccount`](/relay/wallet_upgradeAccount) under the hood.
+
+## Usage
+
+The example below demonstrates an upgrade of an EOA to a Porto Account
+via the `account` parameter.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account, Key, RelayActions } from 'porto/viem'
+import { client } from './config'
+
+const account = await RelayActions.upgradeAccount(client, { // [!code focus]
+  account: Account.fromPrivateKey('0x...'), // [!code focus]
+  authorizeKeys: [Key.createSecp256k1({ role: 'admin' })], // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.server.ts]
+```
+
+:::
+
+### Prepared Usage
+
+The example below demonstrates "prepared" usage, where the EOA explicitly
+signs over the `digests` provded from `RelayActions.prepareUpgradeAccount`,
+and then passes the `signatures` to `RelayActions.upgradeAccount`.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account, Key, RelayActions } from 'porto/viem'
+import { client } from './config'
+
+const eoa = Account.fromPrivateKey('0x...')
+
+// Prepare the upgrade.
+const request = await RelayActions.prepareUpgradeAccount(client, {
+  address: eoa.address,
+  authorizeKeys: [Key.createSecp256k1({ role: 'admin' })],
+})
+
+// Sign the digests. // [!code focus]
+const signatures = { // [!code focus]
+  auth: await eoa.sign({ hash: request.digests.auth }), // [!code focus]
+  exec: await eoa.sign({ hash: request.digests.exec }), // [!code focus]
+} // [!code focus]
+
+// Complete the upgrade. // [!code focus]
+const account = await RelayActions.upgradeAccount(client, { // [!code focus]
+  ...request, // [!code focus]
+  signatures, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.ts]
+```
+
+:::
+
+## Parameters
+
+The function accepts either unprepared parameters or prepared parameters:
+
+### account
+
+- **Type:** `Account.Account<'privateKey'>`
+
+The EOA account to upgrade.
+
+### authorizeKeys
+
+- **Type:** `readonly Key.Key[]`
+
+Additional keys to authorize on the account (beyond those already on the account).
+
+### context
+
+- **Type:** `prepareUpgradeAccount.ReturnType['context']`
+
+Context from a previous `prepareUpgradeAccount` call.
+
+### signatures
+
+- **Type:** `{ auth: Hex.Hex; exec: Hex.Hex }`
+
+Signatures over the auth and exec digests.
+
+## Return Value
+
+Returns the upgraded Porto Account with authorized keys.

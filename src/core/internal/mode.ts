@@ -4,7 +4,7 @@ import * as Hex from 'ox/Hex'
 
 import type * as Account from '../../viem/Account.js'
 import type * as Key from '../../viem/Key.js'
-import type { ServerClient } from '../../viem/ServerClient.js'
+import type { RelayClient } from '../../viem/RelayClient.js'
 import type * as Chains from '../Chains.js'
 import type * as RpcSchema from '../RpcSchema.js'
 import * as Call from './call.js'
@@ -25,7 +25,7 @@ export type ActionsInternal<
   ],
 > = Pick<Porto.Internal<chains>, 'config' | 'store'> & {
   /** Viem Client. */
-  client: ServerClient
+  client: RelayClient
   /** RPC Request. */
   request: Request
 }
@@ -112,7 +112,7 @@ export type Mode = {
       chainIds: readonly Hex.Hex[]
       /** Internal properties. */
       internal: Omit<ActionsInternal, 'client'> & {
-        getClient: (chainId: Hex.Hex | number) => ServerClient
+        getClient: (chainId: Hex.Hex | number) => RelayClient
       }
     }) => Promise<typeof RpcSchema.wallet_getCapabilities.Response.Encoded>
 

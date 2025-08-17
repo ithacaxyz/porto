@@ -1,6 +1,6 @@
 import * as Address from 'ox/Address'
-import * as ServerActions_internal from '../../viem/internal/serverActions.js'
-import type * as ServerClient from '../../viem/ServerClient.js'
+import * as RelayActions_internal from '../../viem/internal/relayActions.js'
+import type * as RelayClient from '../../viem/RelayClient.js'
 import type * as Chains from '../Chains.js'
 import type { Store } from '../Porto.js'
 import type * as FeeToken_schema from './schema/feeToken.js'
@@ -11,13 +11,13 @@ export type FeeTokens = readonly FeeToken[]
 export async function fetch<
   const chains extends readonly [Chains.Chain, ...Chains.Chain[]],
 >(
-  client: ServerClient.ServerClient,
+  client: RelayClient.RelayClient,
   parameters?: fetch.Parameters<chains> | undefined,
 ): Promise<fetch.ReturnType> {
   const { addressOrSymbol: overrideFeeToken, store } = parameters ?? {}
   const { feeToken: defaultFeeToken } = store?.getState() ?? {}
 
-  const feeTokens = await ServerActions_internal.getCapabilities(client).then(
+  const feeTokens = await RelayActions_internal.getCapabilities(client).then(
     (capabilities) => capabilities.fees.tokens,
   )
   const index = feeTokens?.findIndex((feeToken) => {

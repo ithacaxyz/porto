@@ -13,7 +13,7 @@ describe('execute', () => {
   describe('behavior: authorize', () => {
     test('delegated: false, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
       const porto = TestConfig.getPorto()
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
       const contracts = TestConfig.getContracts(porto)
 
       const { account } = await getAccount(client)
@@ -50,7 +50,7 @@ describe('execute', () => {
     test('delegated: true, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
       const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
       const { account } = await getAccount(client)
 
@@ -91,7 +91,7 @@ describe('execute', () => {
     test('delegated: false, key: owner, keysToAuthorize: [P256], executor: EOA', async () => {
       const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
       const { account, privateKey } = await getAccount(client)
 
@@ -128,7 +128,7 @@ describe('execute', () => {
     test('delegated: true, key: owner, keysToAuthorize: [P256], executor: EOA', async () => {
       const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
       const { account, privateKey } = await getAccount(client)
 
@@ -170,7 +170,7 @@ describe('execute', () => {
     test('key: P256, keysToAuthorize: [P256]', async () => {
       const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
       const { account } = await getAccount(client)
 
@@ -218,7 +218,7 @@ describe('execute', () => {
     test('key: P256, keysToAuthorize: [WebCryptoP256]', async () => {
       const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
       const { account } = await getAccount(client)
 
@@ -279,7 +279,7 @@ describe('execute', () => {
     test('key: p256, executor: JSON-RPC', async () => {
       const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
       const key = Key.createHeadlessWebAuthnP256()
 
@@ -328,7 +328,7 @@ describe('execute', () => {
     test('key: p256, executor: JSON-RPC, mint tokens', async () => {
       const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
       const key = Key.createHeadlessWebAuthnP256()
 
@@ -363,7 +363,7 @@ describe('execute', () => {
     test('key: secp256k1, executor: JSON-RPC', async () => {
       const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
       const key = Key.createSecp256k1()
 
@@ -412,7 +412,7 @@ describe('execute', () => {
     test('key: webcrypto, executor: JSON-RPC', async () => {
       const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
       const key = await Key.createWebCryptoP256({
         role: 'session',
@@ -474,7 +474,7 @@ describe('execute', () => {
     test('key: owner, executor: JSON-RPC', async () => {
       const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
       const { account } = await getAccount(client)
 
@@ -520,7 +520,7 @@ describe('execute', () => {
     test('key: owner, executor: EOA', async () => {
       const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
       const { account, privateKey } = await getAccount(client)
 
@@ -570,7 +570,7 @@ describe('execute', () => {
     test('default', async () => {
       const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
       const key = Key.createHeadlessWebAuthnP256({
         role: 'session',
@@ -645,7 +645,7 @@ describe('execute', () => {
   test.skip('error: insufficient funds', async () => {
     const porto = TestConfig.getPorto()
     const contracts = TestConfig.getContracts(porto)
-    const client = TestConfig.getServerClient(porto)
+    const client = TestConfig.getRelayClient(porto)
 
     const { account } = await getAccount(client)
 
@@ -671,7 +671,7 @@ describe('execute', () => {
 
     const porto = TestConfig.getPorto()
     const contracts = TestConfig.getContracts(porto)
-    const client = TestConfig.getServerClient(porto)
+    const client = TestConfig.getRelayClient(porto)
 
     const { account } = await getAccount(client)
 
@@ -699,7 +699,7 @@ describe('execute', () => {
   test.skip('error: key does not exist ', async () => {
     const porto = TestConfig.getPorto()
     const contracts = TestConfig.getContracts(porto)
-    const client = TestConfig.getServerClient(porto)
+    const client = TestConfig.getRelayClient(porto)
 
     const { account } = await getAccount(client)
 
@@ -726,7 +726,7 @@ describe('prepareExecute', () => {
     test('delegated: false, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
       const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
       const { account } = await getAccount(client)
 
@@ -777,7 +777,7 @@ describe('prepareExecute', () => {
     test('delegated: true, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
       const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
       const { account } = await getAccount(client)
 
@@ -833,7 +833,7 @@ describe('prepareExecute', () => {
     test('delegated: false, key: owner, keysToAuthorize: [P256], executor: EOA', async () => {
       const porto = TestConfig.getPorto()
       const contracts = TestConfig.getContracts(porto)
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
       const { account, privateKey } = await getAccount(client)
 

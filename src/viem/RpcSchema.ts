@@ -1,10 +1,10 @@
 import type * as RpcSchema_ox from 'ox/RpcSchema'
 import type { PublicRpcSchema } from 'viem'
-import type { Schema as Schema_server } from '../core/internal/rpcServer/rpcSchema.js'
+import type { Schema as Schema_relay } from '../core/internal/relay/rpcSchema.js'
 import type { UnionToTuple } from '../core/internal/types.js'
 import type { Schema } from '../core/RpcSchema.js'
 
-export type Server = [...PublicRpcSchema, ...ToViem<Schema_server>]
+export type Relay = [...PublicRpcSchema, ...ToViem<Schema_relay>]
 
 export type Wallet = [
   ...PublicRpcSchema,

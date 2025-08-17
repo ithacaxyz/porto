@@ -1,0 +1,133 @@
+import Keys from './snippets/keys.mdx'
+
+# `wallet_prepareUpgradeAccount`
+
+Prepares an Externally-Owned Account (EOA) to be upgraded into a Porto Account.
+
+The returned `authorization` object and `digest` must be signed by the EOA root key,
+and forwarded to [`wallet_upgradeAccount`](/relay/wallet_upgradeAccount).
+
+:::tip
+This method is intended to be used in conjunction with [`wallet_upgradeAccount`](/relay/wallet_upgradeAccount).
+:::
+
+<Keys />
+
+## Request
+
+```ts twoslash
+import { Address, Hash, Hex } from 'viem'
+
+// ---cut---
+type Request = {
+  method: 'wallet_prepareUpgradeAccount',
+  params: [{
+    // Address of the EOA to upgrade.
+    address: Hex,
+    // Optional chain ID to upgrade on. If not specified, the RPC
+    // Server will handle what chain to upgrade on. This chain will
+    // be the "source"/"home" chain of the account.
+    chainId?: Hex,
+    // Address of the account contract to delegate to.
+    delegation: Address,
+    // Additional capabilities.
+    capabilities: {
+      authorizeKeys: {
+        // See "Keys"
+        key: {
+          expiry?: number,
+          type: 'p256' | 'webauthnp256' | 'secp256k1',
+          role: 'admin' | 'normal' | 'session',
+          publicKey: Hex,
+        },
+        permissions: ({
+          type: 'call',
+          // See "Selectors"
+          selector: string,
+          to: Address,
+        } | {
+          type: 'spend',
+          limit: number,
+          period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year',
+          // defaults to the native token (address zero)
+          token?: Address,
+        })[],
+      }[],
+    },
+  }],
+}
+```
+
+## Response
+
+```ts twoslash
+import { Address, Hash, Hex } from 'viem'
+
+// ---cut---
+type Response = {
+  // Chain ID of the account.
+  chainId: Hex,
+  // Context that includes the prepared pre-call. 
+  context: {
+    // Account address
+    address: Address,
+    // Unsigned authorization object to be signed by the EOA root key.
+    authorization: {
+      // Contract address to delegate to.
+      address: Address,
+      // Permitted chain ID. 
+      // Note: `0x0` allows for replayability across chains.
+      chainId: Hex,
+      // Permitted nonce.
+      nonce: Hex,
+    },
+    // Unsigned pre-call to be signed by the EOA root key.
+    preCall: {
+      eoa: Address,
+      executionData: Hex,
+      nonce: Hex,
+      signature: Hex,
+    },
+  },
+  // Object of digests to be signed by the EOA root key. Includes the
+  // authorization digest and the initialization digest (pre-call).
+  digests: {
+    auth: Hash,
+    exec: Hash,
+  },
+  // EIP-712 typed data of the precall. This can be used to rebuild (and verify)
+  // the provided digest.
+  typedData: any,
+  // Capabilities assigned to the account.
+  capabilities: {
+    authorizeKeys: {
+      // key hash
+      hash: Hash,
+      // See "Keys"
+      key: {
+        expiry?: number,
+        type: 'p256' | 'webauthnp256' | 'secp256k1',
+        role: 'admin' | 'normal' | 'session',
+        publicKey: Hex,
+      },
+      permissions: ({
+        type: 'call',
+        // See "Selectors"
+        selector: string,
+        to: Address,
+      } | {
+        type: 'spend',
+        limit: number,
+        period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year',
+        // defaults to the native token (address zero)
+        token?: Address,
+      })[],
+    }[],
+    // Key revocations.
+    revokeKeys: {
+      hash: Hash,
+      id?: Address
+    }[],
+  }
+}
+```

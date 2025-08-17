@@ -9,4 +9,4 @@ export * as Transport from './core/Transport.js'
 
 export * as Account from './viem/Account.js'
 export * as Key from './viem/Key.js'
-export * as ServerActions from './viem/ServerActions.js'
+export * as RelayActions from './viem/RelayActions.js'

@@ -10,7 +10,7 @@ import { writeContract } from 'viem/actions'
 import * as chains from 'viem/chains'
 import { createLogger, defineConfig, loadEnv } from 'vite'
 import mkcert from 'vite-plugin-mkcert'
-import { Key, ServerActions } from '../../src/index.js'
+import { Key, RelayActions } from '../../src/index.js'
 import { MerchantRpc } from '../../src/server/index.js'
 import {
   accountNewProxyAddress,
@@ -22,7 +22,7 @@ import {
   simulatorAddress,
 } from '../../test/src/_generated/addresses.js'
 import * as Anvil from '../../test/src/anvil.js'
-import { rpcServer } from '../../test/src/prool.js'
+import { relay } from '../../test/src/prool.js'
 
 const commitSha =
   ChildProcess.execSync('git rev-parse --short HEAD').toString().trim() ||
@@ -81,13 +81,13 @@ export default defineConfig(({ mode }) => {
             transport: http(anvilConfig.rpcUrl),
           }).extend(() => ({ mode: 'anvil' }))
 
-          const rpcServerConfig = {
+          const relayConfig = {
             port: 9119,
             rpcUrl: 'http://127.0.0.1:9119',
           }
           const relayClient = createClient({
             chain: chains.anvil,
-            transport: http(rpcServerConfig.rpcUrl),
+            transport: http(relayConfig.rpcUrl),
           })
 
           if (process.env.CLEAN === 'true')
@@ -110,9 +110,9 @@ export default defineConfig(({ mode }) => {
 
           logger.info('Anvil started on ' + anvilConfig.rpcUrl)
 
-          logger.info('Starting RPC Server...')
+          logger.info('Starting Relay...')
 
-          const startRpcServer = async ({
+          const startRelay = async ({
             accountProxy = accountProxyAddress,
             legacyAccountProxy,
           }: {
@@ -121,7 +121,7 @@ export default defineConfig(({ mode }) => {
           } = {}) => {
             const containerName = 'playground'
             ChildProcess.spawnSync('docker', ['rm', '-f', containerName])
-            const stop = await rpcServer({
+            const stop = await relay({
               containerName: 'playground',
               delegationProxy: accountProxy,
               endpoint: anvilConfig.rpcUrl,
@@ -134,7 +134,7 @@ export default defineConfig(({ mode }) => {
               funderOwnerKey: Anvil.account.relay.privateKey,
               funderSigningKey: Anvil.account.relay.privateKey,
               http: {
-                port: rpcServerConfig.port,
+                port: relayConfig.port,
               },
               intentGasBuffer: 100_000n,
               interopToken: exp1Address,
@@ -144,12 +144,12 @@ export default defineConfig(({ mode }) => {
               txGasBuffer: 100_000n,
               version: 'v21.0.1',
             }).start()
-            await fetch(rpcServerConfig.rpcUrl + '/start')
+            await fetch(relayConfig.rpcUrl + '/start')
             return stop
           }
-          let stopRpcServer = await startRpcServer()
+          let stopRelay = await startRelay()
 
-          logger.info('RPC Server started on ' + rpcServerConfig.rpcUrl)
+          logger.info('Relay started on ' + relayConfig.rpcUrl)
 
           // Allow CORS.
           server.middlewares.use(async (_, res, next) => {
@@ -157,12 +157,12 @@ export default defineConfig(({ mode }) => {
             next()
           })
 
-          // Upgrade RPC Server on `/rpc/up`.
+          // Upgrade Relay on `/rpc/up`.
           server.middlewares.use(async (req, res, next) => {
             if (!req.url?.startsWith('/rpc/up')) return next()
 
-            stopRpcServer()
-            stopRpcServer = await startRpcServer({
+            stopRelay()
+            stopRelay = await startRelay({
               accountProxy: accountNewProxyAddress,
               legacyAccountProxy: accountProxyAddress,
             })
@@ -194,7 +194,7 @@ export default defineConfig(({ mode }) => {
 
           // Create merchant account.
           const merchantKey = Key.createSecp256k1()
-          const merchantAccount = await ServerActions.createAccount(
+          const merchantAccount = await RelayActions.createAccount(
             relayClient,
             {
               authorizeKeys: [merchantKey],
@@ -207,7 +207,7 @@ export default defineConfig(({ mode }) => {
             chain: null,
             functionName: 'mint',
           })
-          await ServerActions.sendCalls(relayClient, {
+          await RelayActions.sendCalls(relayClient, {
             account: merchantAccount,
             calls: [],
             feeToken: exp1Address,
@@ -221,7 +221,7 @@ export default defineConfig(({ mode }) => {
             return MerchantRpc.requestListener({
               address: merchantAccount.address,
               key: merchantKey.privateKey!(),
-              relay: http(rpcServerConfig.rpcUrl),
+              relay: http(relayConfig.rpcUrl),
             })(req, res)
           })
         },

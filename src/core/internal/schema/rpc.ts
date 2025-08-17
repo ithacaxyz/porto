@@ -1,6 +1,6 @@
 import * as Schema from 'effect/Schema'
-import * as Quotes from '../rpcServer/schema/quotes.js'
-import * as Rpc_server from '../rpcServer/schema/rpc.js'
+import * as Quotes from '../relay/schema/quotes.js'
+import * as Rpc_relay from '../relay/schema/rpc.js'
 import * as C from './capabilities.js'
 import * as Key from './key.js'
 import * as Permissions from './permissions.js'
@@ -572,15 +572,15 @@ export namespace wallet_disconnect {
 
 export namespace wallet_getAssets {
   /** Parameters  */
-  export const Parameters = Rpc_server.wallet_getAssets.Parameters
+  export const Parameters = Rpc_relay.wallet_getAssets.Parameters
   export type Parameters = typeof Parameters.Type
 
   /** Request for `wallet_getAssets`. */
-  export const Request = Rpc_server.wallet_getAssets.Request
+  export const Request = Rpc_relay.wallet_getAssets.Request
   export type Request = typeof Request.Type
 
   /** Response for `wallet_getAssets`. */
-  export const Response = Rpc_server.wallet_getAssets.Response
+  export const Response = Rpc_relay.wallet_getAssets.Response
   export type Response = typeof Response.Type
 }
 
@@ -720,7 +720,7 @@ export namespace wallet_prepareCalls {
   export const Response = Schema.Struct({
     capabilities: Schema.optional(
       Schema.extend(
-        Rpc_server.wallet_prepareCalls.ResponseCapabilities,
+        Rpc_relay.wallet_prepareCalls.ResponseCapabilities,
         Schema.Struct({
           quote: Schema.optional(Quotes.Signed),
         }),

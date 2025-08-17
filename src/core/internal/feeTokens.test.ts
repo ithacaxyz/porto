@@ -6,7 +6,7 @@ import * as FeeTokens from './feeTokens.js'
 describe.runIf(Anvil.enabled)('resolve', () => {
   test('default', async () => {
     const porto = TestConfig.getPorto()
-    const client = TestConfig.getServerClient(porto)
+    const client = TestConfig.getRelayClient(porto)
 
     const feeTokens = await FeeTokens.fetch(client)
 
@@ -34,7 +34,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
 
   test('behavior: with store', async () => {
     const porto = TestConfig.getPorto()
-    const client = TestConfig.getServerClient(porto)
+    const client = TestConfig.getRelayClient(porto)
 
     const feeTokens = await FeeTokens.fetch(client, {
       store: porto._internal.store,
@@ -64,7 +64,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
 
   test('param: feeToken (as symbol)', async () => {
     const porto = TestConfig.getPorto()
-    const client = TestConfig.getServerClient(porto)
+    const client = TestConfig.getRelayClient(porto)
 
     const feeTokens = await FeeTokens.fetch(client, {
       addressOrSymbol: 'ETH',
@@ -95,7 +95,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
 
   test('param: feeToken (as address)', async () => {
     const porto = TestConfig.getPorto()
-    const client = TestConfig.getServerClient(porto)
+    const client = TestConfig.getRelayClient(porto)
 
     const feeTokens = await FeeTokens.fetch(client, {
       addressOrSymbol: '0x0000000000000000000000000000000000000000',
@@ -126,7 +126,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
 
   test('behavior: default fee token', async () => {
     const porto = TestConfig.getPorto()
-    const client = TestConfig.getServerClient(porto)
+    const client = TestConfig.getRelayClient(porto)
 
     porto._internal.store.setState({
       feeToken: 'ETH',
@@ -160,7 +160,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
 
   test('behavior: falls back to first fee token if override/default not found', async () => {
     const porto = TestConfig.getPorto()
-    const client = TestConfig.getServerClient(porto)
+    const client = TestConfig.getRelayClient(porto)
 
     const feeTokens = await FeeTokens.fetch(client, {
       addressOrSymbol: 'WAGMI',

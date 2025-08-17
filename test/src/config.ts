@@ -1,7 +1,7 @@
 import { type Account, type Chains, Mode, Porto, Storage } from 'porto'
 import { type HttpTransportConfig, http } from 'viem'
 import { relayUrls } from '../../src/core/Transport.js'
-import * as ServerClient from '../../src/viem/ServerClient.js'
+import * as RelayClient from '../../src/viem/RelayClient.js'
 import * as WalletClient from '../../src/viem/WalletClient.js'
 import * as Contracts from './_generated/contracts.js'
 import { getChains } from './chains.js'
@@ -18,7 +18,7 @@ export function getPorto(
   } = {},
 ) {
   const {
-    mode = Mode.rpcServer,
+    mode = Mode.relay,
     merchantRpcUrl,
     relayRpcUrl: overrideRelayRpcUrl = process.env.VITE_RELAY_URL,
   } = parameters
@@ -64,11 +64,11 @@ export function getPorto(
   })
 }
 
-export function getServerClient<
+export function getRelayClient<
   const chains extends readonly [Chains.Chain, ...Chains.Chain[]],
 >(porto: Porto.Porto<chains>, options: { chainId?: number | undefined } = {}) {
   const { chainId } = options
-  return ServerClient.fromPorto(porto, { chainId }).extend(() => ({
+  return RelayClient.fromPorto(porto, { chainId }).extend(() => ({
     mode: 'anvil',
   }))
 }

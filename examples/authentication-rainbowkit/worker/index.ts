@@ -2,8 +2,8 @@ import { env } from 'cloudflare:workers'
 import { Hono } from 'hono'
 import { deleteCookie, setCookie } from 'hono/cookie'
 import * as jwt from 'hono/jwt'
-import { Porto, ServerActions } from 'porto'
-import { ServerClient } from 'porto/viem'
+import { Porto, RelayActions } from 'porto'
+import { RelayClient } from 'porto/viem'
 import { hashMessage } from 'viem'
 import { generateSiweNonce, parseSiweMessage } from 'viem/siwe'
 
@@ -37,8 +37,8 @@ app.post('/siwe/verify', async (c) => {
   await c.env.NONCE_STORE.delete(nonce)
 
   // Verify the signature.
-  const client = ServerClient.fromPorto(porto, { chainId })
-  const valid = ServerActions.verifySignature(client, {
+  const client = RelayClient.fromPorto(porto, { chainId })
+  const valid = RelayActions.verifySignature(client, {
     address: address!,
     digest: hashMessage(message),
     signature,

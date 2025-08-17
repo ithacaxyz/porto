@@ -3,8 +3,8 @@ import { Button } from '@porto/ui'
 import { cx } from 'cva'
 import { type Address, Base64 } from 'ox'
 import type { Chains } from 'porto'
-import type * as Capabilities from 'porto/core/internal/rpcServer/schema/capabilities'
-import type * as Quote_schema from 'porto/core/internal/rpcServer/schema/quotes'
+import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
+import type * as Quote_schema from 'porto/core/internal/relay/schema/quotes'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
 import type * as Rpc from 'porto/core/internal/schema/request'
 import { Hooks } from 'porto/remote'
@@ -56,7 +56,7 @@ export function ActionRequest(props: ActionRequest.Props) {
     requiredFunds,
   })
 
-  // However, to prevent a malicious RPC server from providing a mutated asset
+  // However, to prevent a malicious Relay from providing a mutated asset
   // diff or fee calculations to display to the end-user, we also simulate the prepare calls query
   // without the merchant RPC URL.
   const prepareCallsQuery_noMerchantRpc = Calls.prepareCalls.useQuery({

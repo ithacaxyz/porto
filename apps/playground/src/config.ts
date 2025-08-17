@@ -33,7 +33,7 @@ const dialogModes = {
 } as const
 
 export const modes = {
-  rpc: () => Mode.rpcServer(),
+  rpc: () => Mode.relay(),
   ...dialogModes,
 } as const
 

@@ -5,9 +5,9 @@ import * as ox_Provider from 'ox/Provider'
 import * as RpcResponse from 'ox/RpcResponse'
 import type { ValueOf } from 'viem'
 import * as Account from '../../viem/Account.js'
-import * as Actions from '../../viem/internal/serverActions.js'
+import * as Actions from '../../viem/internal/relayActions.js'
 import type * as Key from '../../viem/Key.js'
-import * as ServerClient from '../../viem/ServerClient.js'
+import * as RelayClient from '../../viem/RelayClient.js'
 import type * as Chains from '../Chains.js'
 import type * as Porto from '../Porto.js'
 import type * as RpcSchema from '../RpcSchema.js'
@@ -43,7 +43,7 @@ export function from<
   function getClient(chainId_?: Hex.Hex | number | undefined) {
     const chainId =
       typeof chainId_ === 'string' ? Hex.toNumber(chainId_) : chainId_
-    return ServerClient.fromPorto({ _internal: parameters }, { chainId })
+    return RelayClient.fromPorto({ _internal: parameters }, { chainId })
   }
 
   const preparedAccounts_internal: Account.Account[] = []

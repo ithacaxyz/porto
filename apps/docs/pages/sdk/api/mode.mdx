@@ -5,7 +5,7 @@
 | Mode | Uses | Best for |
 |------|------|----------|
 | `Mode.dialog` (default)    | Hosted Porto Dialog | Applications |
-| `Mode.rpcServer` | Direct to RPC Server | Wallets or Account Managers |
+| `Mode.relay` | Direct to Relay | Wallets or Account Managers |
 
 ## Mode.dialog
 
@@ -33,7 +33,7 @@ const porto = Porto.create({
 #### fallback
 
 - **Type**: `Mode.Mode`
-- **Default**: `Mode.rpcServer()`
+- **Default**: `Mode.relay()`
 
 Mode to fall back to if the renderer does not support background operations (e.g. popups and web views).
 
@@ -45,7 +45,7 @@ Mode to fall back to if the renderer does not support background operations (e.g
 URL of the dialog embed.
 
 :::tip
-While the application uses `Mode.dialog` to communicate to the Dialog, the dialog host (e.g. `https://id.porto.sh/dialog`) utilizes the `Mode.rpcServer` mode to [communicate](#diagram-1) with the RPC Server.
+While the application uses `Mode.dialog` to communicate to the Dialog, the dialog host (e.g. `https://id.porto.sh/dialog`) utilizes the `Mode.relay` mode to [communicate](#diagram-1) with the Relay.
 :::
 
 ```ts twoslash
@@ -87,23 +87,23 @@ A custom theme to apply to the dialog, where only `colorScheme` is required. See
 
 A controller to manage the dialog theme, created by `Dialog.createThemeController()`. It can be used to change the theme of the dialog without reinitializing it, with `themeController.setTheme()`. This is intended for advanced use cases, `theme` should be sufficient in regular scenarios.
 
-## Mode.rpcServer
+## Mode.relay
 
-Interacts with the **Porto RPC Server** directly. Signing is performed via the SDK. Account management, chain interop, and transaction management is orchestrated on the RPC Server.
+Interacts with the **Porto Relay** directly. Signing is performed via the SDK. Account management, chain interop, and transaction management is orchestrated on the Relay.
 
 :::tip
 
-The `Mode.rpcServer` mode is used internally by the Porto Dialog (`id.porto.sh`). It is possible
-for Wallet vendors to use `Mode.rpcServer` to create their own Dialog.
+The `Mode.relay` mode is used internally by the Porto Dialog (`id.porto.sh`). It is possible
+for Wallet vendors to use `Mode.relay` to create their own Dialog.
 
 :::
 
 ### Diagram
 
-In the diagram below, `Mode.rpcServer` is utilized within the Porto Dialog (`id.porto.sh`) to communicate with the RPC Server.
+In the diagram below, `Mode.relay` is utilized within the Porto Dialog (`id.porto.sh`) to communicate with the Relay.
 
-<img alt="Mode.rpcServer" className="dark:hidden" src="/mode-rpcserver-light.svg" />
-<img alt="Mode.rpcServer" className="hidden dark:block" src="/mode-rpcserver-dark.svg" />
+<img alt="Mode.relay" className="dark:hidden" src="/mode-relay-light.svg" />
+<img alt="Mode.relay" className="hidden dark:block" src="/mode-relay-dark.svg" />
 
 ### Usage
 
@@ -111,13 +111,13 @@ In the diagram below, `Mode.rpcServer` is utilized within the Porto Dialog (`id.
 import { Porto, Mode } from 'porto'
 
 const porto = Porto.create({
-  mode: Mode.rpcServer(), // [!code focus]
+  mode: Mode.relay(), // [!code focus]
 })
 ```
 
 ### Caveats
 
-- When you run `Mode.rpcServer` the Passkey Host (WebAuthn Relying Party) becomes **your domain**, not `id.porto.sh`. Credentials created here cannot be asserted on other domains, which means **users cannot reuse their Porto account** created on `id.porto.sh`.
+- When you run `Mode.relay` the Passkey Host (WebAuthn Relying Party) becomes **your domain**, not `id.porto.sh`. Credentials created here cannot be asserted on other domains, which means **users cannot reuse their Porto account** created on `id.porto.sh`.
 
 ### Options
 
@@ -132,7 +132,7 @@ Keystore host (WebAuthn relying party).
 import { Porto, Mode } from 'porto'
 
 const porto = Porto.create({
-  mode: Mode.rpcServer({
+  mode: Mode.relay({
     keystoreHost: 'https://account.my-wallet.com', // [!code focus]
   }),
 })
@@ -152,7 +152,7 @@ that support a `preCalls` parameter.
 import { Porto, Mode } from 'porto'
 
 const porto = Porto.create({
-  mode: Mode.rpcServer({
+  mode: Mode.relay({
     persistPreCalls: false, // [!code focus]
   }),
 })

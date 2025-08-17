@@ -20,11 +20,11 @@ import type * as FeeToken from '../schema/feeToken.js'
 import * as Schema from '../schema/schema.js'
 import * as Siwe from '../siwe.js'
 import * as U from '../utils.js'
-import { rpcServer } from './rpcServer.js'
+import { relay } from './relay.js'
 
 export function dialog(parameters: dialog.Parameters = {}) {
   const {
-    fallback = rpcServer(),
+    fallback = relay(),
     host = Dialog.hostUrls.stg,
     renderer = Dialog.iframe(),
     theme,
@@ -1063,7 +1063,7 @@ export declare namespace dialog {
      * Mode to fall back to if the renderer does not support background
      * operations (e.g. popups and web views).
      *
-     * @default `Mode.rpcServer()`
+     * @default `Mode.relay()`
      */
     fallback?: Mode.Mode | undefined
     /**

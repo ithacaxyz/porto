@@ -6,7 +6,7 @@ import { defineInstance, toArgs } from 'prool'
 import { execa } from 'prool/processes'
 import YAML from 'yaml'
 
-type RpcServerParameters = {
+type RelayParameters = {
   config?: string | undefined
   containerName?: string | undefined
   constantRate?: number | undefined
@@ -41,8 +41,8 @@ export const poolId =
 
 let pulled = false
 
-export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
-  const args = (parameters || {}) as RpcServerParameters
+export const relay = defineInstance((parameters?: RelayParameters) => {
+  const args = (parameters || {}) as RelayParameters
   const {
     containerName = crypto.randomUUID(),
     endpoint,
@@ -134,7 +134,7 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
           },
           quoteTtl: 30,
           signersMnemonic,
-        } satisfies Partial<RpcServerParameters>),
+        } satisfies Partial<RelayParameters>),
       ]
 
       const debug = process.env.VITE_RPC_DEBUG === 'true'

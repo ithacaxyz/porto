@@ -27,7 +27,7 @@ export const defaultConfig = {
   ...Porto_.defaultConfig,
   messenger,
   methodPolicies: MethodPolicies.methodPolicies,
-  mode: Mode.rpcServer(),
+  mode: Mode.relay(),
   storage: Storage.localStorage(),
 } as const satisfies Config
 

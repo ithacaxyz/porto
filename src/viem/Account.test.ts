@@ -8,7 +8,7 @@ import * as Key from '../viem/Key.js'
 import * as Account from './Account.js'
 
 const porto = TestConfig.getPorto()
-const client = TestConfig.getServerClient(porto)
+const client = TestConfig.getRelayClient(porto)
 
 describe('from', () => {
   test('default', () => {

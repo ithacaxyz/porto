@@ -1,10 +1,10 @@
 import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
-import type * as ServerActions from '../../viem/ServerActions.js'
+import type * as RelayActions from '../../viem/RelayActions.js'
 import type * as Storage from '../Storage.js'
 
 export type PreCalls = readonly {
-  context: ServerActions.prepareCalls.ReturnType['context']
+  context: RelayActions.prepareCalls.ReturnType['context']
   signature: Hex.Hex
 }[]
 
