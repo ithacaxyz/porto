@@ -2,6 +2,8 @@ import * as Anvil from './src/anvil.js'
 import * as Relay from './src/relay.js'
 
 export default async function () {
+  if (!Anvil.enabled) return
+
   // Set up Anvil instances
   const shutdownAnvil = await Promise.all(
     Object.values(Anvil.instances).map(async (instance) => {
