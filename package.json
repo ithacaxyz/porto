@@ -89,6 +89,7 @@
       "**/test/**",
       "contracts/**",
       "scripts/**",
+      "src/bin/**",
       "src/cli/**",
       "wagmi.config.ts"
     ],
