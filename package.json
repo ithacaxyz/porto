@@ -47,7 +47,7 @@
     "@tanstack/react-query": "catalog:",
     "@types/http-proxy": "^1.17.16",
     "@types/node": "catalog:",
-    "@types/react": "catalog:",
+    "@types/react": "^19.1.10",
     "@vitest/browser": "^3.1.1",
     "@vitest/coverage-v8": "^3.1.1",
     "@wagmi/cli": "^2.2.0",
@@ -124,7 +124,6 @@
       "porto": "workspace:*"
     },
     "patchedDependencies": {
-      "@tanstack/react-router": "patches/@tanstack__react-router.patch",
       "@wagmi/cli": "patches/@wagmi__cli.patch",
       "@wagmi/core": "patches/@wagmi__core.patch",
       "@vitest/browser": "patches/@vitest__browser.patch"

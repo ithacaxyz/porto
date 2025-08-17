@@ -1,9 +1,8 @@
 {
-  "name": "id",
+  "name": "idv1",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --port 5174",
     "prebuild": "tsc --build",
     "build": "vite build",
     "check": "biome check --write --unsafe",
@@ -17,7 +16,7 @@
     "@porto/apps": "workspace:*",
     "@sentry/react": "catalog:",
     "@sentry/vite-plugin": "catalog:",
-    "@tanstack/query-sync-storage-persister": "catalog:",
+    "@tanstack/query-async-storage-persister": "catalog:",
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-query-persist-client": "catalog:",
     "@tanstack/react-router": "catalog:",

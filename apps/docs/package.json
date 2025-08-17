@@ -11,7 +11,7 @@
   "dependencies": {
     "@ariakit/react": "catalog:",
     "@porto/apps": "workspace:*",
-    "@tanstack/query-sync-storage-persister": "catalog:",
+    "@tanstack/query-async-storage-persister": "catalog:",
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-query-persist-client": "catalog:",
     "cva": "catalog:",
@@ -28,8 +28,8 @@
   },
   "devDependencies": {
     "@iconify/json": "catalog:",
-    "@tanstack/react-query-devtools": "catalog:",
     "@svgr/core": "catalog:",
+    "@tanstack/react-query-devtools": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "typescript": "catalog:",

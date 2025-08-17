@@ -1,4 +1,4 @@
-import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query'
 import { Json } from 'ox'
 
@@ -25,6 +25,6 @@ export const client: QueryClient = new QueryClient({
   }),
 })
 
-export const persister = createSyncStoragePersister({
+export const persister = createAsyncStoragePersister({
   storage: typeof window !== 'undefined' ? window.localStorage : undefined,
 })

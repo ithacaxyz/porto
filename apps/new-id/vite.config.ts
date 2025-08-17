@@ -55,13 +55,16 @@ export default defineConfig((config) => {
             project: 'porto-manager',
           })
         : null,
-      TsconfigPaths(),
+      TsconfigPaths({
+        projects: ['./tsconfig.json'],
+      }),
       tanstackStart({
         customViteReactPlugin: true,
       }),
       React(),
     ],
     server: {
+      port: Number(env.PORT) ?? 51_74,
       proxy: {
         '/dialog/': {
           changeOrigin: true,
