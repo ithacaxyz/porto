@@ -15,28 +15,33 @@ import { Dashboard } from '../-components/Dashboard'
 import { Layout } from '../-components/Layout'
 
 export const Route = createFileRoute('/_index/')({
-  // wrapInSuspense: true,
-  beforeLoad: async (options) => {
-    console.info('[_index/index.tsx] beforeLoad', options)
-  },
-
   component: RouteComponent,
   errorComponent: (props) => {
-    console.info('[_index/index.tsx] errorComponent', props)
-    return <div>[_index/index.tsx] Error</div>
+    console.info(
+      '[_index/index.tsx] errorComponent',
+      JSON.stringify(props, undefined, 2),
+    )
+    return (
+      <div>
+        <p>[_index/index.tsx] Error</p>
+        <pre>{JSON.stringify(props, undefined, 2)}</pre>
+      </div>
+    )
   },
   pendingComponent: (props) => {
-    console.info('[_index/index.tsx] pendingComponent', props)
-    return <div>[_index/index.tsx] Loading…</div>
+    console.info(
+      '[_index/index.tsx] pendingComponent',
+      JSON.stringify(props, undefined, 2),
+    )
+    return (
+      <div>
+        <p>[_index/index.tsx] Loading…</p>
+        <pre>{JSON.stringify(props, undefined, 2)}</pre>
+      </div>
+    )
   },
-  /**
-   * when ssr is false, the `RouteComponent` doesn't load
-   * and `defaultPendingComponent` in router.tsx renders instead
-
-   * when ssr is true, the `RouteComponent` loads
-   * but this component needs to be client-side only
-   */
   ssr: false,
+  wrapInSuspense: true,
 })
 
 function RouteComponent() {
