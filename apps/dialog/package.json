@@ -18,7 +18,7 @@
     "@react-spring/web": "catalog:",
     "@sentry/react": "catalog:",
     "@sentry/vite-plugin": "catalog:",
-    "@tanstack/query-sync-storage-persister": "catalog:",
+    "@tanstack/query-async-storage-persister": "catalog:",
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-query-persist-client": "catalog:",
     "@tanstack/react-router": "catalog:",

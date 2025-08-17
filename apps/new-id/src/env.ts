@@ -10,9 +10,9 @@ export const env = createEnv({
   clientPrefix: 'VITE_',
   emptyStringAsUndefined: true,
   runtimeEnv: {
-    SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
-    VERCEL_ENV: process.env.VERCEL_ENV,
-    VERCEL_GIT_COMMIT_SHA: process.env.VERCEL_GIT_COMMIT_SHA,
+    SENTRY_AUTH_TOKEN: import.meta.env.SENTRY_AUTH_TOKEN,
+    VERCEL_ENV: import.meta.env.VERCEL_ENV,
+    VERCEL_GIT_COMMIT_SHA: import.meta.env.VERCEL_GIT_COMMIT_SHA,
     VITE_VERCEL_ENV: import.meta.env.VITE_VERCEL_ENV,
   },
   server: {

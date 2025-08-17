@@ -43,6 +43,11 @@ Porto is a Next-Generation Account Stack for Ethereum that provides a secure, sc
 - **[Playwright](https://playwright.dev/docs/intro#installing-playwright):** `>= 1.51`
 - **[Foundry](https://getfoundry.sh/introduction/installation):** `>= 1`
 
+### Used Libs & Frameworks Docs
+
+- [Tanstack Start](https://context7.com/websites/tanstack_com-start-latest)
+- [Tanstack Query](https://context7.com/tanstack/query/llms.txt)
+
 ## Commands
 
 ### Install
