@@ -3,16 +3,12 @@
   "description": "Next-gen Account for Ethereum",
   "version": "0.0.68",
   "type": "module",
-  "bin": {
-    "porto": "./bin/index.mjs"
-  },
   "main": "./_dist/index.js",
   "types": "./_dist/index.d.ts",
   "typings": "./_dist/index.d.ts",
   "sideEffects": false,
   "files": [
     "*",
-    "!**/_/**",
     "!**/_test/**",
     "!**/*.tsbuildinfo",
     "!tsconfig.build.json",

@@ -35,5 +35,6 @@ const exports = getExports({
 })
 
 packageJson.exports = exports.dist
+packageJson.bin = { porto: './_dist/cli/bin/index.js' }
 
 fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
