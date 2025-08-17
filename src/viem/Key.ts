@@ -548,10 +548,7 @@ export declare namespace fromP256 {
  * @param relayKey - Relay key.
  * @returns Key.
  */
-export function fromRelay(
-  relayKey: Relay,
-  options: { chainId: number },
-): Key {
+export function fromRelay(relayKey: Relay, options: { chainId: number }): Key {
   const { chainId } = options
   const { publicKey } = relayKey
 

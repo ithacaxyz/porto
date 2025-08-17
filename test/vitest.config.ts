@@ -33,9 +33,9 @@ export default defineConfig(({ mode }) => {
         {
           extends: true,
           test: {
+            exclude: ['**/*.yaml', 'src/**/*.browser.test.ts'],
             globalSetup: [join(__dirname, './globalSetup.ts')],
             hookTimeout: 20_000,
-            exclude: ['**/*.yaml', 'src/**/*.browser.test.ts'],
             include: [
               'src/**/*.test.ts',
               ...(env.VITE_DEFAULT_ENV !== 'anvil'
