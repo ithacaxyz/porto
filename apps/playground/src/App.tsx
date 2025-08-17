@@ -89,7 +89,7 @@ export function App() {
   }, [options.theme])
 
   return (
-    <main className="flex">
+    <main className="flex w-full overflow-auto">
       <div className="max-w-[768px] p-2">
         <h1>Playground</h1>
 
@@ -223,7 +223,9 @@ function State() {
           </div>
           <div>
             <p>Keys:</p>
-            <pre>{Json.stringify(state.accounts?.[0]?.keys, null, 2)}</pre>
+            <pre className="whitespace-pre-wrap break-all">
+              {Json.stringify(state.accounts?.[0]?.keys, null, 2)}
+            </pre>
           </div>
         </>
       )}
@@ -1097,7 +1099,7 @@ function SendCalls() {
     >
       <h3>wallet_sendCalls</h3>
 
-      <div className="flex gap-2 overflow-auto">
+      <div className="flex flex-wrap gap-2">
         <select name="action">
           <option value="mint">Mint 100 EXP</option>
           <option value="swap-exp1">Swap 10 EXP for 0.1 EXP2</option>
