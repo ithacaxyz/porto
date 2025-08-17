@@ -9,12 +9,20 @@ export function createRouter() {
   const context = RootProviders.getContext()
   const router = createTanstackRouter({
     context: {
-      account: undefined!,
       queryClient: context.queryClient,
     },
-    defaultErrorComponent: DefaultCatchBoundary,
-    defaultNotFoundComponent: () => <NotFound />,
-    defaultPendingComponent: () => <div>Loading...</div>,
+    defaultErrorComponent: (props) => {
+      console.info('[router.tsx] defaultErrorComponent', props)
+      return <DefaultCatchBoundary {...props} />
+    },
+    defaultNotFoundComponent: (props) => {
+      console.info('[router.tsx] defaultNotFoundComponent', props)
+      return <NotFound />
+    },
+    defaultPendingComponent: (props) => {
+      console.info('[router.tsx] defaultPendingComponent', props)
+      return <div>[router.tsx] Loading…</div>
+    },
     /**
      * Since we're using React Query, we don't want loader calls to ever be stale
      * This will ensure that the loader is always called when the route is preloaded or visited
@@ -23,28 +31,21 @@ export function createRouter() {
     defaultPreloadStaleTime: 0,
     routeTree,
     scrollRestoration: true,
-    // InnerWrap: (props) => (
-    //   <WagmiProvider config={Wagmi.config}>
-    //     <PersistQueryClientProvider
-    //       client={Query.client}
-    //       persistOptions={{ persister: Query.persister }}
-    //     >
-    //       {props.children}
-    //     </PersistQueryClientProvider>
-    //   </WagmiProvider>
-    // ),
-    Wrap: (props) => (
-      <RootProviders.RootProvider queryClient={context.queryClient}>
-        {props.children}
-      </RootProviders.RootProvider>
-    ),
+    Wrap: (props) => {
+      console.info('[router.tsx] Wrap', props)
+      return (
+        <RootProviders.RootProvider {...context}>
+          {props.children}
+        </RootProviders.RootProvider>
+      )
+    },
   })
 
   setupRouterSsrQueryIntegration({
-    handleRedirects: true,
+    // handleRedirects: true,
     queryClient: context.queryClient,
     router,
-    wrapQueryClient: true,
+    // wrapQueryClient: true,
   })
 
   return router
