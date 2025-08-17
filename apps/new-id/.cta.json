@@ -1,0 +1,11 @@
+{
+  "chosenAddOns": ["start", "tanstack-query", "t3env"],
+  "framework": "react-cra",
+  "git": true,
+  "mode": "file-router",
+  "packageManager": "pnpm",
+  "projectName": "new-id",
+  "tailwind": true,
+  "typescript": true,
+  "version": 1
+}
