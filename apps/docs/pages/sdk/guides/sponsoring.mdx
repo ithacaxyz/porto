@@ -1,20 +1,20 @@
 import { Example } from '../../../components/guides/Siwe'
 import { GuideDemoContainer } from '../../../components/GuideDemoContainer'
 
-# Fee Sponsoring 
+# Fee Sponsoring
 
-A Porto Merchant (Sponsor) Account lets your app pay gas on behalf of users. 
-It is an admin-controlled account that, via your Merchant RPC server, 
-designates itself as the fee payer and signs fee payments for user calls. 
+A Porto Merchant (Sponsor) Account lets your app pay gas on behalf of users.
+It is an admin-controlled account that, via your Merchant RPC server,
+designates itself as the fee payer and signs fee payments for user calls.
 This flow allows you to sponsor or subsidize any transaction fee.
 
 ## Usage
 
-- Expose a Merchant RPC endpoint that inspects requests and attaches fee sponsorship 
+- Expose a Merchant RPC endpoint that inspects requests and attaches fee sponsorship
 - (Optional) If your server is remote, pass `merchantRpcUrl` to `Porto.create()`
 - You can add conditional rules with the `sponsor` option to control when fees are covered
 
-The guide below will show you how to set up a Merchant RPC server and how to use it with Porto 
+The guide below will show you how to set up a Merchant RPC server and how to use it with Porto
 using a Cloudflare Worker, but you can also use any other server framework (Next.js, Deno, Express, etc).
 
 ## Template
@@ -95,7 +95,7 @@ const porto = await Porto.create({
 
 ### Done
 
-That's it! Once you have a server set up at the `/rpc` path of your app (or another remote URL), 
+That's it! Once you have a server set up at the `/rpc` path of your app (or another remote URL),
 Porto will route through this endpoint for future calls to perform (and sponsor) a transaction.
 
 ::::
