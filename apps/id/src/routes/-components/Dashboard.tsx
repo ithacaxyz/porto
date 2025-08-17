@@ -229,7 +229,7 @@ export function Dashboard() {
                           size="small"
                           type="button"
                         >
-                          <LucidePencil className="size-3.25 " />
+                          <LucidePencil className="size-3.25" />
                           Change email
                         </Button>
                       </Ariakit.Popover>
@@ -265,7 +265,7 @@ export function Dashboard() {
                             type="button"
                             variant="accent"
                           >
-                            <LucideRefreshCw className="size-3.25 " />
+                            <LucideRefreshCw className="size-3.25" />
                             Resend
                           </Button>
                           <Button
@@ -274,7 +274,7 @@ export function Dashboard() {
                             size="small"
                             type="button"
                           >
-                            <LucidePencil className="size-3.25 " />
+                            <LucidePencil className="size-3.25" />
                             Change email
                           </Button>
                         </div>

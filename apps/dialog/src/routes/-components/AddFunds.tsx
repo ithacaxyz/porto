@@ -503,7 +503,7 @@ function OnrampView(props: OnrampView.Props) {
     refetchInterval: 1_000,
   })
 
-  if (onrampQuery.isError) {
+  if (showOnramp && !isFirefox && onrampQuery.isError) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 p-4 text-center">
         <TriangleAlertIcon className="size-6 text-th_field-error" />

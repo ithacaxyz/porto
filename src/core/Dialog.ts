@@ -309,17 +309,7 @@ export function iframe(options: iframe.Options = {}) {
             !headless &&
             (unsupported ||
               insecureProtocol ||
-              /**
-               * the Apple Pay certificate is only valid for prod.id.porto.sh and id.porto.sh
-               * so if experimental flag is enabled and domain is not one of the above,
-               * then no need to open in popup.
-               * otherwise, if experimental flag is enabled and domain is one of the above,
-               * then we need to open in popup.
-               */
               (requests.some((x) => x.request.method === 'wallet_addFunds') &&
-                !['prod.id.porto.sh', 'id.porto.sh'].includes(
-                  window.location.hostname,
-                ) &&
                 internal.config.experimental?.applePayOnramp === true))
           )
             fallback.syncRequests(requests)

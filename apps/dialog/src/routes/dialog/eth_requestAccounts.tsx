@@ -51,7 +51,6 @@ function RouteComponent() {
         },
         {
           selector(result) {
-            // @ts-ignore
             return result.accounts.map((x) => x.address)
           },
         },

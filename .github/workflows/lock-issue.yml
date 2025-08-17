@@ -7,6 +7,8 @@ on:
 jobs:
   lock-issue:
     if: ${{ github.repository_owner == 'ithacaxyz' }}
+    permissions:
+      issues: write
     uses: wevm/actions/.github/workflows/lock-issue.yml@main
     with:
       issue-comment: |

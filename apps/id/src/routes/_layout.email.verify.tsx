@@ -100,7 +100,7 @@ function RouteComponent() {
         </div>
         {verifyEmail.status === 'success' ? (
           <Button
-            className="mt-4 w-full "
+            className="mt-4 w-full"
             render={<Link to="/">Done</Link>}
             variant="accent"
           />

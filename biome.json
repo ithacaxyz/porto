@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.1.2/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.2.0/schema.json",
   "assist": {
     "actions": {
       "source": {
@@ -12,9 +12,13 @@
     "includes": ["**", "!scripts/**"]
   },
   "css": {
+    "assist": {
+      "enabled": true
+    },
     "formatter": {
       "enabled": true
     },
+    "globals": ["@apply", "@source", "@theme", "@custom-variant"],
     "linter": {
       "enabled": true
     }
@@ -22,20 +26,20 @@
   "files": {
     "includes": [
       "**",
-      "!contracts/**",
-      "!coverage/**",
-      "!dist/**",
-      "!extension/.output/**",
-      "!extension/.wxt/**",
-      "!src/core/internal/_generated/**",
-      "!test/**/_generated/**",
+      "!**/contracts",
+      "!**/coverage",
+      "!**/dist",
+      "!**/extension/.output",
+      "!**/extension/.wxt",
+      "!src/core/internal/_generated",
+      "!test/**/_generated",
       "!apps/**/routeTree.gen.ts",
-      "!apps/**/dist/**",
-      "!**/_/**",
-      "!**/_dist/**",
-      "!**/dist/**",
-      "!**/node_modules/**",
-      "!**/.next/**"
+      "!apps/**/dist",
+      "!**/_",
+      "!**/_dist",
+      "!**/dist",
+      "!**/node_modules",
+      "!**/.next"
     ]
   },
   "formatter": {
@@ -106,7 +110,8 @@
       "suspicious": {
         "noAssignInExpressions": "off",
         "noExplicitAny": "off",
-        "noShadowRestrictedNames": "off"
+        "noShadowRestrictedNames": "off",
+        "noUnknownAtRules": "off"
       }
     }
   },
