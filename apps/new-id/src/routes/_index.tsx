@@ -6,13 +6,30 @@ import { Layout } from './-components/Layout'
 export const Route = createFileRoute('/_index')({
   component: RouteComponent,
   errorComponent: (props) => {
-    console.info('[_index.tsx] errorComponent', props)
-    return <div>[_index.tsx] Error</div>
+    console.info(
+      '[_index.tsx] errorComponent',
+      JSON.stringify(props, undefined, 2),
+    )
+    return (
+      <div>
+        <p>[_index.tsx] Error</p>
+        <pre>{JSON.stringify(props, undefined, 2)}</pre>
+      </div>
+    )
   },
   pendingComponent: (props) => {
-    console.info('[_index.tsx] pendingComponent', props)
-    return <div>[_index.tsx] Loading…</div>
+    console.info(
+      '[_index.tsx] pendingComponent',
+      JSON.stringify(props, undefined, 2),
+    )
+    return (
+      <div>
+        <p>[_index.tsx] Loading…</p>
+        <pre>{JSON.stringify(props, undefined, 2)}</pre>
+      </div>
+    )
   },
+  ssr: true,
 })
 
 function RouteComponent() {

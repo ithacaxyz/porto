@@ -9,6 +9,7 @@ export function createRouter() {
   const context = RootProviders.getContext()
   const router = createTanstackRouter({
     context: {
+      account: undefined!,
       queryClient: context.queryClient,
     },
     defaultErrorComponent: (props) => {
@@ -29,23 +30,21 @@ export function createRouter() {
      */
     defaultPreload: 'intent',
     defaultPreloadStaleTime: 0,
+    defaultSsr: 'data-only',
     routeTree,
     scrollRestoration: true,
-    Wrap: (props) => {
-      console.info('[router.tsx] Wrap', props)
-      return (
-        <RootProviders.RootProvider {...context}>
-          {props.children}
-        </RootProviders.RootProvider>
-      )
-    },
+    Wrap: (props) => (
+      <RootProviders.RootProvider queryClient={context.queryClient}>
+        {props.children}
+      </RootProviders.RootProvider>
+    ),
   })
 
   setupRouterSsrQueryIntegration({
-    // handleRedirects: true,
+    handleRedirects: true,
     queryClient: context.queryClient,
     router,
-    // wrapQueryClient: true,
+    wrapQueryClient: true,
   })
 
   return router

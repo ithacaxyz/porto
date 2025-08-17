@@ -1,17 +1,46 @@
 /// <reference types="vite/client" />
 
 import { TanStackDevtools } from '@tanstack/react-devtools'
-import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools'
-import { createRootRoute, HeadContent, Scripts } from '@tanstack/react-router'
+import type { QueryClient } from '@tanstack/react-query'
+import {
+  ReactQueryDevtools,
+  ReactQueryDevtoolsPanel,
+} from '@tanstack/react-query-devtools'
+import {
+  createRootRouteWithContext,
+  HeadContent,
+  Outlet,
+  type RouteComponent,
+  Scripts,
+} from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import type * as React from 'react'
+import type { GetAccountReturnType } from '@wagmi/core'
+import * as React from 'react'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { NotFound } from '~/components/NotFound'
 import baseCss from '~/styles.css?url'
 
-export const Route = createRootRoute({
+interface RootRouteContext {
+  queryClient: QueryClient
+  account: GetAccountReturnType
+}
+
+// @ts-expect-error
+const RootComponent: RouteComponent = (props) => {
+  return (
+    <RootDocument {...props}>
+      <Outlet />
+    </RootDocument>
+  )
+}
+
+export const Route = createRootRouteWithContext<RootRouteContext>()({
+  // component: RootComponent,
   errorComponent: (props) => {
-    console.info('rootRoute errorComponent', props)
+    console.info(
+      '[__root.tsx] errorComponent',
+      JSON.stringify(props, undefined, 2),
+    )
     return <DefaultCatchBoundary {...props} />
   },
   head: () => ({
@@ -43,14 +72,27 @@ export const Route = createRootRoute({
     ],
   }),
   notFoundComponent: (props) => {
-    console.info('rootRoute notFoundComponent', props)
+    console.info(
+      '[__root.tsx] notFoundComponent',
+      JSON.stringify(props, undefined, 2),
+    )
     return <NotFound />
   },
   pendingComponent: (props) => {
-    console.info('rootRoute pendingComponent', props)
-    return <div>[__root.tsx] Loading…</div>
+    console.info(
+      '[__root.tsx] pendingComponent',
+      JSON.stringify(props, undefined, 2),
+    )
+    return (
+      <div>
+        <p>[__root.tsx] Loading…</p>
+        <pre>{JSON.stringify(props, undefined, 2)}</pre>
+      </div>
+    )
   },
+
   shellComponent: RootDocument,
+  ssr: false,
   wrapInSuspense: true,
 })
 
@@ -62,22 +104,27 @@ function RootDocument(props: Readonly<{ children: React.ReactNode }>) {
       </head>
       <body>
         {props.children}
-        <TanStackDevtools
-          config={{
-            position: 'bottom-left',
-          }}
-          plugins={[
-            {
-              name: 'Tanstack Router',
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-            {
-              name: 'Tanstack Query',
-              render: <ReactQueryDevtoolsPanel />,
-            },
-          ]}
-        />
-
+        <React.Suspense fallback={<div>[__root.tsx.devtools] Loading…</div>}>
+          <TanStackDevtools
+            config={{
+              position: 'bottom-left',
+            }}
+            plugins={[
+              {
+                name: 'Tanstack Router',
+                render: <TanStackRouterDevtoolsPanel />,
+              },
+              {
+                name: 'Tanstack Query_',
+                render: <ReactQueryDevtoolsPanel />,
+              },
+              {
+                name: 'Tanstack Query',
+                render: <ReactQueryDevtools />,
+              },
+            ]}
+          />
+        </React.Suspense>
         <Scripts />
       </body>
     </html>

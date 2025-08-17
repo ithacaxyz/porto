@@ -11,3 +11,6 @@ find . -name "_dist" -type d -exec rm -rf {} +
 
 # clean .tanstack recursively
 find . -name ".tanstack" -type d -exec rm -rf {} +
+
+# clean *.tsbuildinfo recursively
+find . -name "*.tsbuildinfo" -type f -exec rm -rf {} +
