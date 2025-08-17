@@ -438,17 +438,16 @@ function OnrampView(props: OnrampView.Props) {
 
   const onrampWidget = getOnrampWidget()
   const showOnramp = enableOnramp()
-  const isFirefox = UserAgent.isFirefox()
+  const isUnsupported = UserAgent.isFirefox() || UserAgent.isAndroid()
 
   const onrampQuery = useQuery({
-    enabled: !!address && !!amount && !isFirefox,
+    enabled: !!address && !!amount && !isUnsupported,
     queryFn: async () => {
       const response = await fetch(
         `https://onramp.porto.workers.dev/token?address=${address}`,
       )
-      if (!response.ok) throw new Error('Failed to fetch auth token')
 
-      return response.json() as Promise<{
+      const data = (await response.json()) as {
         initToken: string
         initTypeToken: string
         widgetId: string
@@ -464,14 +463,16 @@ function OnrampView(props: OnrampView.Props) {
         fiatAmount: string
         fiatCurrency: string
         currency: string
-      }>
+        error: string | null
+      }
+      return data
     },
     queryKey: ['onramp-token', address],
   })
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: _
   React.useEffect(() => {
-    if (!onrampQuery.data) return
+    if (!onrampQuery.data || !onrampQuery.data.merchantTransactionId) return
 
     const {
       widgetId,
@@ -526,7 +527,7 @@ function OnrampView(props: OnrampView.Props) {
     enabled:
       onrampQuery.status === 'success' &&
       !!onrampQuery.data?.merchantTransactionId &&
-      !isFirefox,
+      !isUnsupported,
     queryFn: async () => {
       const merchantTransactionId = onrampQuery.data?.merchantTransactionId
       if (!merchantTransactionId) return null
@@ -550,13 +551,15 @@ function OnrampView(props: OnrampView.Props) {
     refetchInterval: 1_000,
   })
 
-  if (showOnramp && !isFirefox && onrampQuery.isError) {
+  if (
+    showOnramp &&
+    !isUnsupported &&
+    (onrampQuery.isError || onrampQuery.data?.error)
+  ) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 p-4 text-center">
         <TriangleAlertIcon className="size-6 text-th_field-error" />
-        <p className="text-sm text-th_field-error">
-          Failed to load payment options
-        </p>
+        {onrampQuery.data?.error ?? onrampQuery.error?.message}
         <Button
           className="text-xs"
           onClick={() => onrampQuery.refetch()}
@@ -570,7 +573,7 @@ function OnrampView(props: OnrampView.Props) {
 
   return showOnramp ? (
     <div className="flex flex-col justify-between gap-2">
-      {isFirefox ? (
+      {isUnsupported ? (
         <PayButton
           disabled={!address}
           url={stripeOnrampUrl({

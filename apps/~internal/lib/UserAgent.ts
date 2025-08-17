@@ -8,6 +8,13 @@ declare global {
   }
 }
 
+export function isAndroid() {
+  return (
+    /Android/i.test(navigator.userAgent) ||
+    navigator.userAgent.toLowerCase().includes('android')
+  )
+}
+
 export function isBrave() {
   return 'brave' in navigator
 }
