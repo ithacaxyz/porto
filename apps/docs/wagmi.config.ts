@@ -16,6 +16,7 @@ export const portoDialog = Mode.dialog({
 
 export const connector = porto({
   ...portoConfig,
+  feeToken: 'EXP',
   mode: portoDialog,
 })
 
