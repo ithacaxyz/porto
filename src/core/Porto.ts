@@ -82,7 +82,10 @@ export function create(
       persist<State>(
         (_) => ({
           accounts: [],
-          chainIds: config.chains.map((chain) => chain.id),
+          chainIds: config.chains.map((chain) => chain.id) as [
+            number,
+            ...number[],
+          ],
           feeToken: config.feeToken,
           requestQueue: [],
         }),
@@ -262,7 +265,7 @@ export type State<
   ],
 > = {
   accounts: readonly Account.Account[]
-  chainIds: readonly chains[number]['id'][]
+  chainIds: readonly [chains[number]['id'], ...chains[number]['id'][]]
   feeToken: FeeToken.Symbol | undefined
   requestQueue: readonly QueuedRequest[]
 }

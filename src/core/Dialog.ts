@@ -187,11 +187,11 @@ export function iframe(options: iframe.Options = {}) {
         // If the consumer has no compatible chain IDs with the dialog,
         // fall back to the dialog's chain IDs.
         if (compatibleChainIds.length === 0)
-          compatibleChainIds = options.chainIds as number[]
+          compatibleChainIds = options.chainIds as [number, ...number[]]
 
         store.setState((x) => ({
           ...x,
-          chainIds: compatibleChainIds,
+          chainIds: compatibleChainIds as [number, ...number[]],
           feeToken,
         }))
 

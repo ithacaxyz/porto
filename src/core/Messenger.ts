@@ -27,7 +27,7 @@ export type Messenger = {
 }
 
 export type ReadyOptions = {
-  chainIds: readonly number[]
+  chainIds: readonly [number, ...number[]]
   feeToken: Porto.State['feeToken']
   methodPolicies?: MethodPolicies.MethodPolicies | undefined
 }

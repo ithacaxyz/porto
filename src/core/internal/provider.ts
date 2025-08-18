@@ -149,7 +149,7 @@ export function from<
 
         case 'eth_chainId': {
           return Hex.fromNumber(
-            state.chainIds[0]!,
+            state.chainIds[0],
           ) satisfies typeof Rpc.eth_chainId.Response.Encoded
         }
 
@@ -925,7 +925,7 @@ export function from<
           const [_, chainIds] = request.params ?? []
 
           const capabilities = await getMode().actions.getCapabilities({
-            chainIds: chainIds ?? [Hex.fromNumber(state.chainIds[0]!)],
+            chainIds: chainIds ?? [Hex.fromNumber(state.chainIds[0])],
             internal: {
               config,
               getClient,
@@ -1130,7 +1130,7 @@ export function from<
 
       unsubscribe_chain()
       unsubscribe_chain = store.subscribe(
-        (state) => state.chainIds[0]!,
+        (state) => state.chainIds[0],
         (chainId, previousChainId) => {
           if (chainId === previousChainId) return
           emitter.emit('chainChanged', Hex.fromNumber(chainId))

@@ -218,7 +218,7 @@ function State() {
         <>
           <div>Address: {state.accounts[0].address}</div>
           <div>
-            Chain ID: {state.chainIds[0]!}
+            Chain ID: {state.chainIds[0]}
             <SwitchChain />
           </div>
           <div>

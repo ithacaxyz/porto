@@ -1661,7 +1661,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       })
 
       const state = porto._internal.store.getState()
-      expect(state.chainIds[0]!).toBe(targetChain.id)
+      expect(state.chainIds[0]).toBe(targetChain.id)
 
       const nextChainId = await porto.provider.request({
         method: 'eth_chainId',
