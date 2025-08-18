@@ -288,6 +288,7 @@ describe('wallet_getPermissions', () => {
             })),
             spend: x.permissions.spend?.map((x) => ({
               ...x,
+              limit: null,
               token: null,
             })),
           },
