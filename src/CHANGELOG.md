@@ -1,5 +1,24 @@
 # porto
 
+## 0.0.69
+
+### Patch Changes
+
+- [#706](https://github.com/ithacaxyz/porto/pull/706) [`954d291`](https://github.com/ithacaxyz/porto/commit/954d291c5d8fea6d58a19474cfe5334a9919d1b3) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renamed "RPC Server"/"Server" terminology to "Relay".
+
+  ```diff
+  import {
+    Mode,
+  - ServerActions,
+  - ServerClient,
+  + RelayActions,
+  + RelayClient,
+  } from 'porto'
+
+  - Mode.rpcServer(...)
+  + Mode.relay(...)
+  ```
+
 ## 0.0.68
 
 ### Patch Changes
