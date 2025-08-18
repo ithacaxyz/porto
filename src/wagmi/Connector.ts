@@ -43,11 +43,11 @@ export function porto<
   }
 
   return createConnector<Provider, Properties>((wagmiConfig) => {
-    const chains = config.chains ?? wagmiConfig.chains ?? []
+    const chains = wagmiConfig.chains ?? config.chains ?? []
 
     const transports = (() => {
-      if (config.transports) return config.transports
-      return wagmiConfig.transports
+      if (wagmiConfig.transports) return wagmiConfig.transports
+      return config.transports
     })()
 
     const porto = Porto.create({
