@@ -39,7 +39,10 @@ const offInitialized = Events.onInitialized(porto, (payload, event) => {
 
     porto._internal.store.setState((x) => ({
       ...x,
-      chainIds: [chainId, ...chainIds.filter((id) => id !== chainId)] as never,
+      chainIds: [
+        chainId,
+        ...x.chainIds.filter((id) => id !== chainId),
+      ] as never,
     }))
   }
 
