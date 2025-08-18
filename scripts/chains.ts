@@ -52,7 +52,7 @@ for (const environment of environments) {
     supportedChains,
   )
   content = replaceTransportsByEnvironment(
-    file,
+    content,
     environment.name,
     supportedChains,
     environment.transportOverrides,
@@ -120,9 +120,7 @@ function replaceTransportsByEnvironment(
       .map((chain) => {
         const chainId = `${chain}.id`
         const rpcUrl = transportOverrides[chain]
-        const transport = rpcUrl
-          ? `http('${rpcUrl}', Sentry.httpTransportOptions())`
-          : 'http(undefined, Sentry.httpTransportOptions())'
+        const transport = rpcUrl ? `http('${rpcUrl}')` : 'http()'
         return `${baseIndent}[${chainId}]: ${transport},`
       })
       .join('\n')

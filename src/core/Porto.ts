@@ -82,27 +82,11 @@ export function create(
       persist<State>(
         (_) => ({
           accounts: [],
-          chainId: config.chains[0].id,
+          chainIds: config.chains.map((chain) => chain.id),
           feeToken: config.feeToken,
           requestQueue: [],
         }),
         {
-          merge(p, currentState) {
-            const persistedState = p as State
-
-            // Ensure that the persisted chain id is still exists in the current
-            // configuration.
-            const persistedChain = config.chains.find(
-              (chain) => chain.id === persistedState.chainId,
-            )
-            const chainId = persistedChain?.id ?? currentState.chainId
-
-            return {
-              ...currentState,
-              ...persistedState,
-              chainId,
-            }
-          },
           name: config.storageKey,
           partialize(state) {
             return {
@@ -110,7 +94,7 @@ export function create(
                 // omit non-serializable properties (e.g. functions).
                 Utils.normalizeValue(account),
               ),
-              chainId: state.chainId,
+              chainIds: state.chainIds,
               feeToken: state.feeToken,
             } as unknown as State
           },
@@ -278,7 +262,7 @@ export type State<
   ],
 > = {
   accounts: readonly Account.Account[]
-  chainId: chains[number]['id']
+  chainIds: readonly chains[number]['id'][]
   feeToken: FeeToken.Symbol | undefined
   requestQueue: readonly QueuedRequest[]
 }

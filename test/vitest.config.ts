@@ -33,15 +33,16 @@ export default defineConfig(({ mode }) => {
         {
           extends: true,
           test: {
-            exclude: ['**/*.yaml', 'src/**/*.browser.test.ts'],
-            globalSetup: [join(__dirname, './globalSetup.ts')],
-            hookTimeout: 20_000,
-            include: [
-              'src/**/*.test.ts',
+            exclude: [
+              '**/*.yaml',
+              'src/**/*.browser.test.ts',
               ...(env.VITE_DEFAULT_ENV !== 'anvil'
-                ? ['!src/**/*ContractActions.test.ts']
+                ? ['src/**/*ContractActions.test.ts']
                 : []),
             ],
+            globalSetup: [join(__dirname, './globalSetup.ts')],
+            hookTimeout: 20_000,
+            include: ['src/**/*.test.ts'],
             name: 'default',
             poolOptions:
               env.VITE_DEFAULT_ENV !== 'anvil'
@@ -62,11 +63,11 @@ export default defineConfig(({ mode }) => {
           test: {
             browser: {
               enabled: true,
-              headless: true,
+              // headless: true,
               instances: [
                 { browser: 'chromium' },
-                { browser: 'firefox' },
-                { browser: 'webkit' },
+                // { browser: 'firefox' },
+                // { browser: 'webkit' },
               ],
               provider: 'playwright',
               screenshotFailures: false,

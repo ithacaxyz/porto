@@ -39,15 +39,16 @@ export function fromPorto<
   const { chains, relay } = config_
 
   const state = store.getState()
-  const chainId = config.chainId ?? state.chainId
+  const chainId = config.chainId ?? state.chainIds[0]
   const chain = chains.find((chain) => chain.id === chainId)
   if (!chain)
     throw new Error(
       [
-        `Could not find required Porto chain (id: ${chainId}) on the given chain configuration.`,
+        'Could not find a compatible Porto chain on the given chain configuration.',
         '',
         `Provided chains: [${chains.map((chain) => `${chain.name} (id: ${chain.id})`).join(', ')}]`,
-        `Please add chain (id: ${chainId}) to your chain configuration.`,
+        'Please add at least one of the following chains (ids) to your chain configuration:',
+        state.chainIds.map((chainId) => `- ${chainId}`).join('\n'),
       ].join('\n'),
     )
 

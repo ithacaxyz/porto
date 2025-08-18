@@ -87,7 +87,7 @@ export function getWalletClient<
 export function getContracts<
   const chains extends readonly [Chains.Chain, ...Chains.Chain[]],
 >(porto: Porto.Porto<chains>, options: { chainId?: number | undefined } = {}) {
-  const { chainId = porto._internal.store.getState().chainId } = options
+  const { chainId = porto._internal.store.getState().chainIds[0] } = options
 
   const chain = chains.find((chain) => chain.id === chainId)
   if (!chain) throw new Error(`Chain not found: ${chainId}`)

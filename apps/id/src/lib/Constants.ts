@@ -17,6 +17,7 @@ export const ethAsset = {
   symbol: 'ETH',
 } as const
 
+// TODO: extract from `wallet_getCapabilities` instead of hardcoding.
 export const defaultAssets: Record<
   PortoConfig.ChainId,
   ReadonlyArray<{
@@ -111,6 +112,24 @@ export const defaultAssets: Record<
       logo: '/icons/eth.svg',
       name: 'Ethereum',
       symbol: 'ETH',
+    },
+  ],
+  [Chains.arbitrumSepolia.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'Ethereum',
+      symbol: 'ETH',
+    },
+  ],
+  [Chains.bsc.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'BNB',
+      symbol: 'BNB',
     },
   ],
   [Chains.baseSepolia.id]: [
@@ -241,6 +260,15 @@ export const defaultAssets: Record<
       logo: '/icons/cbbtc.png',
       name: 'Coinbase Wrapped BTC',
       symbol: 'CBBTC',
+    },
+  ],
+  [Chains.polygon.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'Polygon',
+      symbol: 'POL',
     },
   ],
 }

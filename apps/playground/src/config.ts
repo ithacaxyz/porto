@@ -2,7 +2,7 @@ import { Env, PortoConfig } from '@porto/apps'
 import { exp1Address, exp2Address } from '@porto/apps/contracts'
 import { createStore } from 'mipd'
 import { Hex, Value } from 'ox'
-import { Dialog, Mode, Porto } from 'porto'
+import { Chains, Dialog, Mode, Porto } from 'porto'
 import type { ThemeFragment } from 'porto/theme'
 
 export type ChainId = (typeof config.chains)[number]['id']
@@ -133,8 +133,17 @@ export const permissions = ({ chainId }: { chainId: ChainId }) => {
 
 const merchant = new URLSearchParams(window.location.search).get('merchant')
 
+const baseChains = [Chains.baseSepolia, Chains.optimismSepolia] as const
+const chains = [
+  ...baseChains,
+  ...config.chains.filter(
+    (chain) => !baseChains.some((x) => x.id === chain.id),
+  ),
+] as const
+
 export const porto = Porto.create({
   ...config,
+  chains,
   experimental: {
     applePayOnramp: Env.get() === 'prod',
   },

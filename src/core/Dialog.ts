@@ -175,15 +175,28 @@ export function iframe(options: iframe.Options = {}) {
       drawerModeQuery.addEventListener('change', onDrawerModeChange)
 
       messenger.on('ready', (options) => {
-        const { chainId, feeToken } = options
+        const { feeToken } = options
+
+        const chainIds = parameters.internal.store.getState().chainIds
+
+        // Derive the compatible chain IDs between the dialog and the application.
+        let compatibleChainIds = chainIds.filter((id) =>
+          options.chainIds.includes(id),
+        )
+
+        // If the consumer has no compatible chain IDs with the dialog,
+        // fall back to the dialog's chain IDs.
+        if (compatibleChainIds.length === 0)
+          compatibleChainIds = options.chainIds as number[]
 
         store.setState((x) => ({
           ...x,
-          chainId,
+          chainIds: compatibleChainIds,
           feeToken,
         }))
 
         messenger.send('__internal', {
+          chainIds: compatibleChainIds,
           mode: 'iframe',
           referrer: getReferrer(),
           theme,

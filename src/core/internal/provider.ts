@@ -149,7 +149,7 @@ export function from<
 
         case 'eth_chainId': {
           return Hex.fromNumber(
-            state.chainId,
+            state.chainIds[0]!,
           ) satisfies typeof Rpc.eth_chainId.Response.Encoded
         }
 
@@ -925,7 +925,7 @@ export function from<
           const [_, chainIds] = request.params ?? []
 
           const capabilities = await getMode().actions.getCapabilities({
-            chainIds: chainIds ?? [Hex.fromNumber(state.chainId)],
+            chainIds: chainIds ?? [Hex.fromNumber(state.chainIds[0]!)],
             internal: {
               config,
               getClient,
@@ -1057,9 +1057,10 @@ export function from<
         case 'wallet_switchEthereumChain': {
           const [parameters] = request._decoded.params
           const { chainId } = parameters
+          const chainId_number = Hex.toNumber(chainId)
 
           const chain = config.chains.find(
-            (chain) => chain.id === Hex.toNumber(chainId),
+            (chain) => chain.id === chainId_number,
           )
           if (!chain) throw new ox_Provider.UnsupportedChainIdError()
 
@@ -1076,7 +1077,10 @@ export function from<
 
           store.setState((state) => ({
             ...state,
-            chainId: Hex.toNumber(chainId),
+            chainIds: [
+              chainId_number,
+              ...state.chainIds.filter((id) => id !== chainId_number),
+            ],
           }))
 
           return undefined
@@ -1126,7 +1130,7 @@ export function from<
 
       unsubscribe_chain()
       unsubscribe_chain = store.subscribe(
-        (state) => state.chainId,
+        (state) => state.chainIds[0]!,
         (chainId, previousChainId) => {
           if (chainId === previousChainId) return
           emitter.emit('chainChanged', Hex.fromNumber(chainId))

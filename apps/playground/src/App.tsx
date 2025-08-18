@@ -218,7 +218,7 @@ function State() {
         <>
           <div>Address: {state.accounts[0].address}</div>
           <div>
-            Chain ID: {state.chainId}
+            Chain ID: {state.chainIds[0]!}
             <SwitchChain />
           </div>
           <div>
@@ -1087,7 +1087,7 @@ function SendCalls() {
                 ...params.capabilities,
                 feeToken: (feeToken === 'ETH'
                   ? '0x0000000000000000000000000000000000000000'
-                  : undefined) as any,
+                  : exp1Address[chainId]) as any,
               },
               from: account,
               version: '1',

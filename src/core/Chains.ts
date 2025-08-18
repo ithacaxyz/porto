@@ -6,10 +6,13 @@ export type { Chain } from 'viem/chains'
 export {
   anvil,
   arbitrum,
+  arbitrumSepolia,
   base,
   baseSepolia,
+  bsc,
   optimism,
   optimismSepolia,
+  polygon,
 } from 'viem/chains'
 
 /** Additional Anvil environment, purposed for interop. */

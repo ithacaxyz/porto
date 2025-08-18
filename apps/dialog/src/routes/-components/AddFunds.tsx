@@ -1,13 +1,13 @@
 import * as Ariakit from '@ariakit/react'
 import { UserAgent } from '@porto/apps'
 import { Button } from '@porto/apps/components'
-import { erc20Abi } from '@porto/apps/contracts'
+import { erc20Abi, exp1Address } from '@porto/apps/contracts'
 import { useCopyToClipboard, usePrevious } from '@porto/apps/hooks'
 import * as UI from '@porto/ui'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Cuer } from 'cuer'
 import { cx } from 'cva'
-import { type Address, Hex, Value } from 'ox'
+import { Address, Hex, Value } from 'ox'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
 import { useBalance, useWatchBlockNumber, useWatchContractEvent } from 'wagmi'
@@ -58,11 +58,16 @@ export function AddFunds(props: AddFunds.Props) {
   >('start')
   const [email, setEmail] = React.useState<string>('')
 
-  const onrampMethod = enableOnramp()
-    ? UserAgent.isFirefox() || UserAgent.isAndroid()
-      ? 'google'
-      : 'apple'
-    : 'faucet'
+  const onrampMethod = React.useMemo(() => {
+    if (
+      tokenAddress &&
+      Address.isEqual(tokenAddress, exp1Address[chain?.id as never])
+    )
+      return 'faucet'
+    if (!enableOnramp()) return 'faucet'
+    if (UserAgent.isFirefox() || UserAgent.isAndroid()) return 'google'
+    return 'apple'
+  }, [chain?.id, tokenAddress])
 
   const faucet = useMutation({
     async mutationFn(e: React.FormEvent<HTMLFormElement>) {

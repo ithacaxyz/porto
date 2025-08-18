@@ -51,6 +51,7 @@ export function create(
 ): Porto {
   const {
     chains = defaultConfig.chains,
+    experimental,
     feeToken,
     mode = defaultConfig.mode,
     messenger = defaultConfig.messenger,
@@ -65,6 +66,7 @@ export function create(
   const porto = Porto_.create({
     announceProvider: false,
     chains,
+    experimental,
     feeToken,
     merchantRpcUrl,
     mode,
@@ -89,11 +91,11 @@ export function create(
     mode,
     async ready() {
       await porto._internal.store.persist.rehydrate()
-      const { chainId, feeToken } = porto._internal.store.getState()
+      const { chainIds, feeToken } = porto._internal.store.getState()
 
       if (!('ready' in messenger)) return
       return (messenger as Messenger.Bridge).ready({
-        chainId,
+        chainIds,
         feeToken,
         methodPolicies,
       })
