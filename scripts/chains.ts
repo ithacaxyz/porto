@@ -10,12 +10,20 @@ const environments = [
   {
     name: 'prod',
     rpc: 'https://rpc.ithaca.xyz',
-    // Record<viemChainName, rpcUrl>
-    // e.g. { base: 'https://rpc.example.com' }
-    transportOverrides: {},
+    transportOverrides: {
+      arbitrum: 'import.meta.env.VITE_RPC_URL_ARBITRUM',
+      base: 'import.meta.env.VITE_RPC_URL_BASE',
+      bsc: 'import.meta.env.VITE_RPC_URL_BSC',
+      optimism: 'import.meta.env.VITE_RPC_URL_OPTIMISM',
+      polygon: 'import.meta.env.VITE_RPC_URL_POLYGON',
+    },
   },
   { name: 'stg', rpc: 'https://stg-rpc.ithaca.xyz', transportOverrides: {} },
-] as const
+] as const satisfies readonly {
+  name: 'prod' | 'stg'
+  rpc: string
+  transportOverrides: Partial<Record<keyof typeof Chains, string>>
+}[]
 
 const configPath = './apps/~internal/lib/PortoConfig.ts'
 const chainsSet = new Set<string>([])
@@ -120,7 +128,11 @@ function replaceTransportsByEnvironment(
       .map((chain) => {
         const chainId = `${chain}.id`
         const rpcUrl = transportOverrides[chain]
-        const transport = rpcUrl ? `http('${rpcUrl}')` : 'http()'
+        const transport = rpcUrl
+          ? rpcUrl.startsWith('http')
+            ? `http('${rpcUrl}')`
+            : `http(${rpcUrl})`
+          : 'http()'
         return `${baseIndent}[${chainId}]: ${transport},`
       })
       .join('\n')
