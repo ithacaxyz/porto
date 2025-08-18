@@ -86,10 +86,10 @@ export function Frame({
       })
     },
     initial: {
-      dialogOpacity: 0,
-      dialogTransform: 'scale3d(0.8, 0.8, 1) translate3d(0, 0px, 0)',
-      drawerTransform: 'translate3d(0, 100%, 0)',
-      overlayOpacity: 0,
+      dialogOpacity: 1,
+      dialogTransform: 'scale3d(1, 1, 1) translate3d(0, 16px, 0)',
+      drawerTransform: 'translate3d(0, 0%, 0)',
+      overlayOpacity: 1,
     },
     leave: (visible) => async (next) => {
       if (!visible) return
