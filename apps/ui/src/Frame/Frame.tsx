@@ -27,7 +27,7 @@ export function Frame({
   onClosed,
   onHeight,
   site,
-  visible,
+  visible = true,
 }: Frame.Props) {
   const frameRef = useRef<HTMLDivElement>(null)
 
@@ -532,16 +532,16 @@ function CloseButton({
 export namespace Frame {
   export interface Props {
     children?: ReactNode
-    colorScheme?: 'light' | 'dark' | 'light dark'
-    loading?: boolean
-    loadingText?: string
+    colorScheme?: 'light' | 'dark' | 'light dark' | undefined
+    loading?: boolean | undefined
+    loadingText?: string | undefined
     mode: Frame.ModeWithVariant
-    onClose?: () => void
-    onClosed?: () => void
-    onHeight?: (height: number) => void
+    onClose?: (() => void) | undefined
+    onClosed?: (() => void) | undefined
+    onHeight?: ((height: number) => void) | undefined
     site: Site
-    screenKey?: string
-    visible: boolean
+    screenKey?: string | undefined
+    visible?: boolean | undefined
   }
 
   export type Mode = 'dialog' | 'full'
@@ -552,11 +552,11 @@ export namespace Frame {
     | { mode: 'full'; variant?: 'medium' | 'large' }
 
   export type Site = {
-    icon?: string | [light: string, dark: string]
-    label: ReactNode
-    labelExtended?: ReactNode
-    tag?: ReactNode
-    verified?: boolean
+    icon?: string | [light: string, dark: string] | undefined
+    label: ReactNode | undefined
+    labelExtended?: ReactNode | undefined
+    tag?: ReactNode | undefined
+    verified?: boolean | undefined
   }
 
   export type Context = {

@@ -46,7 +46,6 @@ export function from<const dialog extends Dialog>(dialog: dialog): dialog {
  * @returns iframe dialog.
  */
 export function iframe(options: iframe.Options = {}) {
-  const { size = defaultSize } = options
   const { skipProtocolCheck, skipUnsupported } = options
 
   // Safari does not support WebAuthn credential creation in iframes.
