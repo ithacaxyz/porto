@@ -2,4 +2,4 @@
 "porto": patch
 ---
 
-Updated chains.
+Added support for more chains.
