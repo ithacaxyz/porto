@@ -35,7 +35,7 @@ const offInitialized = Events.onInitialized(porto, (payload, event) => {
     const dialogChainIds = porto._internal.store.getState().chainIds as number[]
 
     // Only sync if the dialog supports the active chain.
-    if (dialogChainIds.includes(chainId)) {
+    if (dialogChainIds.includes(chainId))
       porto._internal.store.setState((x) => ({
         ...x,
         chainIds: [
@@ -43,7 +43,6 @@ const offInitialized = Events.onInitialized(porto, (payload, event) => {
           ...x.chainIds.filter((id) => id !== chainId),
         ] as never,
       }))
-    }
   }
 
   Dialog.store.setState({
