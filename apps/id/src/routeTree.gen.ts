@@ -8,133 +8,103 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as PlaygroundRouteImport } from './routes/playground'
-import { Route as LayoutRouteImport } from './routes/_layout'
-import { Route as LayoutIndexRouteImport } from './routes/_layout.index'
-import { Route as LayoutRecoveryRouteImport } from './routes/_layout.recovery'
-import { Route as LayoutAboutRouteImport } from './routes/_layout.about'
-import { Route as LayoutEmailVerifyRouteImport } from './routes/_layout.email.verify'
+// Import Routes
 
-const PlaygroundRoute = PlaygroundRouteImport.update({
+import { Route as rootRoute } from './routes/__root'
+import { Route as PlaygroundImport } from './routes/playground'
+import { Route as LayoutImport } from './routes/_layout'
+import { Route as LayoutIndexImport } from './routes/_layout.index'
+import { Route as LayoutRecoveryImport } from './routes/_layout.recovery'
+import { Route as LayoutAboutImport } from './routes/_layout.about'
+import { Route as LayoutEmailVerifyImport } from './routes/_layout.email.verify'
+
+// Create/Update Routes
+
+const PlaygroundRoute = PlaygroundImport.update({
   id: '/playground',
   path: '/playground',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => rootRoute,
 } as any)
-const LayoutRoute = LayoutRouteImport.update({
+
+const LayoutRoute = LayoutImport.update({
   id: '/_layout',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => rootRoute,
 } as any)
-const LayoutIndexRoute = LayoutIndexRouteImport.update({
+
+const LayoutIndexRoute = LayoutIndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => LayoutRoute,
 } as any)
-const LayoutRecoveryRoute = LayoutRecoveryRouteImport.update({
+
+const LayoutRecoveryRoute = LayoutRecoveryImport.update({
   id: '/recovery',
   path: '/recovery',
   getParentRoute: () => LayoutRoute,
 } as any)
-const LayoutAboutRoute = LayoutAboutRouteImport.update({
+
+const LayoutAboutRoute = LayoutAboutImport.update({
   id: '/about',
   path: '/about',
   getParentRoute: () => LayoutRoute,
 } as any)
-const LayoutEmailVerifyRoute = LayoutEmailVerifyRouteImport.update({
+
+const LayoutEmailVerifyRoute = LayoutEmailVerifyImport.update({
   id: '/email/verify',
   path: '/email/verify',
   getParentRoute: () => LayoutRoute,
 } as any)
 
-export interface FileRoutesByFullPath {
-  '/playground': typeof PlaygroundRoute
-  '/about': typeof LayoutAboutRoute
-  '/recovery': typeof LayoutRecoveryRoute
-  '/': typeof LayoutIndexRoute
-  '/email/verify': typeof LayoutEmailVerifyRoute
-}
-export interface FileRoutesByTo {
-  '/playground': typeof PlaygroundRoute
-  '/about': typeof LayoutAboutRoute
-  '/recovery': typeof LayoutRecoveryRoute
-  '/': typeof LayoutIndexRoute
-  '/email/verify': typeof LayoutEmailVerifyRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/_layout': typeof LayoutRouteWithChildren
-  '/playground': typeof PlaygroundRoute
-  '/_layout/about': typeof LayoutAboutRoute
-  '/_layout/recovery': typeof LayoutRecoveryRoute
-  '/_layout/': typeof LayoutIndexRoute
-  '/_layout/email/verify': typeof LayoutEmailVerifyRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/playground' | '/about' | '/recovery' | '/' | '/email/verify'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/playground' | '/about' | '/recovery' | '/' | '/email/verify'
-  id:
-    | '__root__'
-    | '/_layout'
-    | '/playground'
-    | '/_layout/about'
-    | '/_layout/recovery'
-    | '/_layout/'
-    | '/_layout/email/verify'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  LayoutRoute: typeof LayoutRouteWithChildren
-  PlaygroundRoute: typeof PlaygroundRoute
-}
+// Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/playground': {
-      id: '/playground'
-      path: '/playground'
-      fullPath: '/playground'
-      preLoaderRoute: typeof PlaygroundRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_layout': {
       id: '/_layout'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof LayoutRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof LayoutImport
+      parentRoute: typeof rootRoute
     }
-    '/_layout/': {
-      id: '/_layout/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof LayoutIndexRouteImport
-      parentRoute: typeof LayoutRoute
-    }
-    '/_layout/recovery': {
-      id: '/_layout/recovery'
-      path: '/recovery'
-      fullPath: '/recovery'
-      preLoaderRoute: typeof LayoutRecoveryRouteImport
-      parentRoute: typeof LayoutRoute
+    '/playground': {
+      id: '/playground'
+      path: '/playground'
+      fullPath: '/playground'
+      preLoaderRoute: typeof PlaygroundImport
+      parentRoute: typeof rootRoute
     }
     '/_layout/about': {
       id: '/_layout/about'
       path: '/about'
       fullPath: '/about'
-      preLoaderRoute: typeof LayoutAboutRouteImport
-      parentRoute: typeof LayoutRoute
+      preLoaderRoute: typeof LayoutAboutImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/recovery': {
+      id: '/_layout/recovery'
+      path: '/recovery'
+      fullPath: '/recovery'
+      preLoaderRoute: typeof LayoutRecoveryImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/': {
+      id: '/_layout/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof LayoutIndexImport
+      parentRoute: typeof LayoutImport
     }
     '/_layout/email/verify': {
       id: '/_layout/email/verify'
       path: '/email/verify'
       fullPath: '/email/verify'
-      preLoaderRoute: typeof LayoutEmailVerifyRouteImport
-      parentRoute: typeof LayoutRoute
+      preLoaderRoute: typeof LayoutEmailVerifyImport
+      parentRoute: typeof LayoutImport
     }
   }
 }
+
+// Create and export the route tree
 
 interface LayoutRouteChildren {
   LayoutAboutRoute: typeof LayoutAboutRoute
@@ -153,10 +123,101 @@ const LayoutRouteChildren: LayoutRouteChildren = {
 const LayoutRouteWithChildren =
   LayoutRoute._addFileChildren(LayoutRouteChildren)
 
+export interface FileRoutesByFullPath {
+  '': typeof LayoutRouteWithChildren
+  '/playground': typeof PlaygroundRoute
+  '/about': typeof LayoutAboutRoute
+  '/recovery': typeof LayoutRecoveryRoute
+  '/': typeof LayoutIndexRoute
+  '/email/verify': typeof LayoutEmailVerifyRoute
+}
+
+export interface FileRoutesByTo {
+  '/playground': typeof PlaygroundRoute
+  '/about': typeof LayoutAboutRoute
+  '/recovery': typeof LayoutRecoveryRoute
+  '/': typeof LayoutIndexRoute
+  '/email/verify': typeof LayoutEmailVerifyRoute
+}
+
+export interface FileRoutesById {
+  __root__: typeof rootRoute
+  '/_layout': typeof LayoutRouteWithChildren
+  '/playground': typeof PlaygroundRoute
+  '/_layout/about': typeof LayoutAboutRoute
+  '/_layout/recovery': typeof LayoutRecoveryRoute
+  '/_layout/': typeof LayoutIndexRoute
+  '/_layout/email/verify': typeof LayoutEmailVerifyRoute
+}
+
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths: '' | '/playground' | '/about' | '/recovery' | '/' | '/email/verify'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/playground' | '/about' | '/recovery' | '/' | '/email/verify'
+  id:
+    | '__root__'
+    | '/_layout'
+    | '/playground'
+    | '/_layout/about'
+    | '/_layout/recovery'
+    | '/_layout/'
+    | '/_layout/email/verify'
+  fileRoutesById: FileRoutesById
+}
+
+export interface RootRouteChildren {
+  LayoutRoute: typeof LayoutRouteWithChildren
+  PlaygroundRoute: typeof PlaygroundRoute
+}
+
 const rootRouteChildren: RootRouteChildren = {
   LayoutRoute: LayoutRouteWithChildren,
   PlaygroundRoute: PlaygroundRoute,
 }
-export const routeTree = rootRouteImport
+
+export const routeTree = rootRoute
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+/* ROUTE_MANIFEST_START
+{
+  "routes": {
+    "__root__": {
+      "filePath": "__root.tsx",
+      "children": [
+        "/_layout",
+        "/playground"
+      ]
+    },
+    "/_layout": {
+      "filePath": "_layout.tsx",
+      "children": [
+        "/_layout/about",
+        "/_layout/recovery",
+        "/_layout/",
+        "/_layout/email/verify"
+      ]
+    },
+    "/playground": {
+      "filePath": "playground.tsx"
+    },
+    "/_layout/about": {
+      "filePath": "_layout.about.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/recovery": {
+      "filePath": "_layout.recovery.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/": {
+      "filePath": "_layout.index.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/email/verify": {
+      "filePath": "_layout.email.verify.tsx",
+      "parent": "/_layout"
+    }
+  }
+}
+ROUTE_MANIFEST_END */
