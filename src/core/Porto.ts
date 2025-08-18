@@ -99,7 +99,7 @@ export function create(
             } as unknown as State
           },
           storage: config.storage,
-          version: 2,
+          version: 3,
         },
       ),
     ),
