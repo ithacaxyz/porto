@@ -377,9 +377,7 @@ describe('sendCalls', () => {
     ).toBe(100n)
   })
 
-  // TODO: uncomment when interop enabled again for testnets.
-  // test.runIf(!Anvil.enabled)('behavior: required funds', async () => {
-  test.skip('behavior: required funds', async () => {
+  test.runIf(!Anvil.enabled)('behavior: required funds', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],

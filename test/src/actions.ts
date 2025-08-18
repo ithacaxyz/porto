@@ -1,4 +1,3 @@
-import { setTimeout } from 'node:timers/promises'
 import { type Address, Secp256k1 } from 'ox'
 import { parseEther } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -104,6 +103,5 @@ export async function setBalance(
     await waitForTransactionReceipt(client, {
       hash,
     })
-    await setTimeout(2_000)
   }
 }
