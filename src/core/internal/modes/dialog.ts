@@ -25,7 +25,7 @@ import { relay } from './relay.js'
 export function dialog(parameters: dialog.Parameters = {}) {
   const {
     fallback = relay(),
-    host = Dialog.hostUrls.stg,
+    host = Dialog.hostUrls.prod,
     renderer = Dialog.iframe(),
     theme,
     themeController,
@@ -1069,7 +1069,7 @@ export declare namespace dialog {
     fallback?: Mode.Mode | undefined
     /**
      * URL of the dialog embed.
-     * @default 'http://stg.id.porto.sh/dialog'
+     * @default 'http://id.porto.sh/dialog'
      */
     host?: string | undefined
     /**

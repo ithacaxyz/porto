@@ -21,7 +21,7 @@ cli
     },
   )
   .option('-d, --dialog <hostname>', 'Dialog hostname', {
-    default: 'stg.id.porto.sh',
+    default: 'id.porto.sh',
   })
   .action(async (_, args) => {
     const Commands = await import('../internal/commands.js')
