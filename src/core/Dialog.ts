@@ -74,9 +74,18 @@ export function iframe(options: iframe.Options = {}) {
 
       const hostUrl = new URL(host)
 
-      const root = document.createElement('dialog')
+      const root = document.createElement('div')
       root.dataset.porto = ''
-      root.style.top = '-10000px'
+
+      root.setAttribute('role', 'dialog')
+      root.setAttribute('aria-closed', 'true')
+      root.setAttribute('aria-label', 'Porto Wallet')
+      root.setAttribute('hidden', 'until-found')
+      root.setAttribute('data-porto-root', '')
+
+      root.style.position = 'fixed'
+      root.style.inset = '0'
+      root.style.display = 'none'
       document.body.appendChild(root)
 
       const iframe = document.createElement('iframe')
@@ -85,10 +94,6 @@ export function iframe(options: iframe.Options = {}) {
         'allow',
         `publickey-credentials-get ${hostUrl.origin}; publickey-credentials-create ${hostUrl.origin}; clipboard-write`,
       )
-      iframe.setAttribute('aria-closed', 'true')
-      iframe.setAttribute('aria-label', 'Porto Wallet')
-      iframe.setAttribute('hidden', 'until-found')
-      iframe.setAttribute('role', 'dialog')
       iframe.setAttribute('tabindex', '0')
       iframe.setAttribute(
         'sandbox',
@@ -99,53 +104,14 @@ export function iframe(options: iframe.Options = {}) {
       iframe.setAttribute('title', 'Porto')
       Object.assign(iframe.style, {
         ...styles.iframe,
-        display: 'none',
-        position: 'fixed',
+        backgroundColor: 'transparent',
+        colorScheme: 'light dark',
+        height: '100vh',
+        left: '0',
+        position: 'absolute',
+        top: '0',
+        width: '100vw',
       })
-
-      root.appendChild(document.createElement('style')).textContent = `
-        dialog[data-porto]::backdrop {
-          background-color: rgba(0, 0, 0, 0.5);
-        }
-
-        dialog iframe {
-          color-scheme: light dark;
-          background-color: transparent;
-        }
-
-        @media (min-width: 460px) {
-          dialog iframe {
-            animation: porto_fadeFromTop 0.1s cubic-bezier(0.32, 0.72, 0, 1);
-            top: 16px;
-            inset-inline-end: calc(50% - ${size.width}px / 2);
-            width: ${size.width}px;
-          }
-        }
-
-        @media (max-width: 460px) {
-          dialog iframe {
-            animation: porto_slideFromBottom 0.25s cubic-bezier(0.32, 0.72, 0, 1);
-            bottom: 0;
-            left: 0;
-            right: 0;
-            width: 100% !important;
-          }
-        }
-
-        @keyframes porto_fadeFromTop {
-          from { opacity: 0; transform: translateY(-20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes porto_slideFromBottom {
-          from {
-            transform: translate3d(0, 100%, 0);
-          }
-          to {
-            transform: translate3d(0, 0, 0);
-          }
-        }
-      `
 
       root.appendChild(iframe)
 
@@ -204,7 +170,7 @@ export function iframe(options: iframe.Options = {}) {
       })
       messenger.on('__internal', (payload) => {
         if (payload.type === 'resize') {
-          iframe.style.height = `${payload.height}px`
+          // iframe.style.height = `${payload.height}px`
           if (!isMobile()) iframe.style.width = `${payload.width}px`
         }
 
@@ -212,6 +178,12 @@ export function iframe(options: iframe.Options = {}) {
           fallback.open()
           fallback.syncRequests(store.getState().requestQueue)
         }
+
+        if (
+          payload.type === 'dialog-lifecycle' &&
+          payload.action === 'done:close'
+        )
+          postClose()
       })
 
       function onEscape(event: KeyboardEvent) {
@@ -222,38 +194,52 @@ export function iframe(options: iframe.Options = {}) {
 
       // 1password extension adds `inert` attribute to `dialog` and inserts itself (`<com-1password-notification />`) there
       // rendering itself unusable: watch for `inert` on `dialog` and remove it
-      const observer = new MutationObserver((mutations) => {
-        for (const mutation of mutations) {
-          if (mutation.type !== 'attributes') continue
-          const name = mutation.attributeName
-          if (!name) continue
-          if (name !== 'inert') continue
-          root.removeAttribute(name)
-        }
-      })
-      observer.observe(root, { attributeOldValue: true, attributes: true })
+      // const observer = new MutationObserver((mutations) => {
+      //   for (const mutation of mutations) {
+      //     if (mutation.type !== 'attributes') continue
+      //     const name = mutation.attributeName
+      //     if (!name) continue
+      //     if (name !== 'inert') continue
+      //     root.removeAttribute(name)
+      //   }
+      // })
+      // observer.observe(root, { attributeOldValue: true, attributes: true })
+
+      const postClose = () => {
+        Object.assign(document.body.style, bodyStyle ?? '')
+        // firefox: explicitly restore/clear `overflow` directly
+        document.body.style.overflow = bodyStyle.overflow ?? ''
+
+        root.style.display = 'none'
+        root.setAttribute('hidden', 'true')
+        root.setAttribute('aria-closed', 'true')
+
+        // 1password extension sometimes adds `inert` attribute to `dialog` siblings and does not clean up
+        // remove when `dialog` closes (after `<com-1password-notification />` closes)
+        // for (const sibling of root.parentNode
+        //   ? Array.from(root.parentNode.children)
+        //   : []) {
+        //   if (sibling === root) continue
+        //   if (!sibling.hasAttribute('inert')) continue
+        //   sibling.removeAttribute('inert')
+        // }
+
+        messenger.send('__internal', {
+          mode: 'iframe',
+          referrer: getReferrer(),
+          type: 'init',
+        })
+      }
 
       return {
         close() {
           fallback.close()
           open = false
-          root.close()
-          Object.assign(document.body.style, bodyStyle ?? '')
-          // firefox: explicitly restore/clear `overflow` directly
-          document.body.style.overflow = bodyStyle.overflow ?? ''
-          iframe.style.display = 'none'
-          iframe.setAttribute('hidden', 'true')
-          iframe.setAttribute('aria-closed', 'true')
-
-          // 1password extension sometimes adds `inert` attribute to `dialog` siblings and does not clean up
-          // remove when `dialog` closes (after `<com-1password-notification />` closes)
-          for (const sibling of root.parentNode
-            ? Array.from(root.parentNode.children)
-            : []) {
-            if (sibling === root) continue
-            if (!sibling.hasAttribute('inert')) continue
-            sibling.removeAttribute('inert')
-          }
+          messenger.send('__internal', {
+            action: 'request:close',
+            type: 'dialog-lifecycle',
+          })
+          root.style.pointerEvents = 'none'
         },
         destroy() {
           fallback.destroy()
@@ -272,13 +258,18 @@ export function iframe(options: iframe.Options = {}) {
             referrer: getReferrer(),
             type: 'init',
           })
+          messenger.send('__internal', {
+            action: 'request:open',
+            type: 'dialog-lifecycle',
+          })
+          root.style.pointerEvents = 'auto'
 
-          root.showModal()
           document.addEventListener('keydown', onEscape)
           document.body.style.overflow = 'hidden'
-          iframe.removeAttribute('hidden')
-          iframe.removeAttribute('aria-closed')
-          iframe.style.display = 'block'
+
+          root.removeAttribute('hidden')
+          root.removeAttribute('aria-closed')
+          root.style.display = 'block'
         },
         async syncRequests(requests) {
           const { methodPolicies } = await messenger.waitForReady()

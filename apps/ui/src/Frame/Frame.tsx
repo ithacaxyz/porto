@@ -1,3 +1,4 @@
+import { a, useTransition } from '@react-spring/web'
 import type { ReactNode } from 'react'
 import {
   createContext,
@@ -23,8 +24,10 @@ export function Frame({
   colorScheme = 'light dark',
   mode: mode_,
   onClose,
+  onClosed,
   onHeight,
   site,
+  visible,
 }: Frame.Props) {
   const frameRef = useRef<HTMLDivElement>(null)
 
@@ -58,6 +61,49 @@ export function Frame({
   const [currentScreen, setCurrentScreen] = useState<HTMLDivElement | null>(
     null,
   )
+
+  const openTransition = useTransition(visible, {
+    config:
+      mode === 'dialog' && variant === 'drawer'
+        ? { clamp: true, friction: 120, mass: 1, tension: 2000 }
+        : { friction: 120, mass: 1.2, tension: 3000 },
+    enter: (visible) => async (next) => {
+      if (!visible) return
+
+      await next({
+        dialogOpacity: 0,
+        dialogTransform: 'scale3d(0.8, 0.8, 1) translate3d(0, 0px, 0)',
+        drawerTransform: 'translate3d(0, 100%, 0)',
+        immediate: true,
+        overlayOpacity: 0,
+      })
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      await next({
+        dialogOpacity: 1,
+        dialogTransform: 'scale3d(1, 1, 1) translate3d(0, 16px, 0)',
+        drawerTransform: 'translate3d(0, 0%, 0)',
+        overlayOpacity: 1,
+      })
+    },
+    initial: {
+      dialogOpacity: 0,
+      dialogTransform: 'scale3d(0.8, 0.8, 1) translate3d(0, 0px, 0)',
+      drawerTransform: 'translate3d(0, 100%, 0)',
+      overlayOpacity: 0,
+    },
+    leave: (visible) => async (next) => {
+      if (!visible) return
+
+      await next({
+        dialogOpacity: 0,
+        dialogTransform: 'scale3d(1, 1, 1) translate3d(0, 32px, 0)',
+        drawerTransform: 'translate3d(0, 100%, 0)',
+        overlayOpacity: 0,
+      })
+
+      onClosed?.()
+    },
+  })
 
   useSize(
     screenRef,
@@ -120,122 +166,174 @@ export function Frame({
         className={cx(
           css({
             containerType: 'inline-size',
-            display: 'flex',
+            display: 'grid',
+            height: '100%',
+            placeItems: 'center',
+            position: 'relative',
+            width: '100%',
           }),
-          mode === 'dialog' && variant === 'drawer'
-            ? css({
-                inset: 'auto 0 0',
-                position: 'absolute',
-              })
-            : css({
-                height: '100%',
-                width: '100%',
-              }),
+          mode === 'dialog' &&
+            variant === 'drawer' &&
+            css({ alignItems: 'flex-end' }),
         )}
         data-dialog={mode === 'dialog' ? true : undefined}
         ref={frameRef}
         style={{ colorScheme }}
       >
-        <div
-          className={cx(
-            css({
-              display: 'flex',
-              flex: 1,
-              flexDirection: 'column',
-              width: '100%',
-            }),
-            mode === 'dialog' &&
-              css({
-                backgroundColor: 'var(--background-color-th_base)',
-                border: '1px solid var(--border-color-th_frame)',
-                borderRadius: 'var(--radius-th_frame)',
-                overflow: 'hidden',
-              }),
-            contextValue.mode === 'dialog' &&
-              contextValue.variant === 'drawer' &&
-              css({
-                borderBottomRadius: 0,
-              }),
-            mode === 'full' &&
-              css({
-                '@container (min-width: 480px)': {
-                  backgroundColor: 'var(--background-color-th_base-plane)',
-                },
-                backgroundColor: 'var(--background-color-th_base)',
-              }),
-          )}
-        >
-          <FrameBar mode={mode} onClose={onClose} site={site} />
-          <div
-            className={cx(
-              css({
-                display: 'flex',
-                flex: '1 0 auto',
-                justifyContent: 'center',
-                width: '100%',
-              }),
-              mode === 'full' &&
-                css({
-                  '@container (min-width: 480px)': {
-                    alignItems: 'center',
-                    paddingBottom: 60,
-                  },
-                }),
-            )}
-          >
-            <div
-              className={cx(
-                css({
-                  display: 'flex',
-                  flexDirection: 'column',
-                  position: 'relative',
-                  width: '100%',
-                }),
-                mode === 'full' &&
-                  css({
-                    '@container (min-width: 480px)': {
-                      backgroundColor: 'var(--background-color-th_base)',
-                      border: '1px solid var(--border-color-th_frame)',
-                      borderRadius: 'var(--radius-th_large)',
-                      height: 'var(--screen-height)',
-                      maxWidth: 400,
-                      overflow: 'hidden',
-                    },
-                    overflow: 'hidden',
-                  }),
-                mode === 'dialog' &&
-                  css({
-                    height: 'var(--screen-height)',
-                  }),
-              )}
-              ref={containerRef}
-            >
-              <div
+        {openTransition(
+          (styles, visible) =>
+            visible && (
+              <a.div
                 className={cx(
                   css({
-                    display: 'flex',
-                    flexDirection: 'column',
-                    position: 'absolute',
+                    display: 'grid',
+                    height: '100%',
+                    overflowX: 'auto',
+                    overflowY: 'hidden',
                     width: '100%',
                   }),
-                  mode === 'dialog' &&
-                    css({
-                      inset: '0 0 auto',
-                    }),
-                  mode === 'full' &&
-                    css({
-                      '@container (min-width: 480px)': {
-                        inset: '0 0 auto',
-                      },
-                      inset: 0,
-                    }),
+                  mode === 'dialog' && variant === 'drawer'
+                    ? css({ placeItems: 'end center' })
+                    : css({ placeItems: 'start center' }),
                 )}
+                onClick={(event) => {
+                  if (event.target === event.currentTarget) {
+                    onClose?.()
+                  }
+                }}
               >
-                {children}
-              </div>
-            </div>
-          </div>
-        </div>
+                <a.div
+                  className={css({
+                    background: 'rgba(255, 0, 255, 0.5)',
+                    inset: 0,
+                    pointerEvents: 'none',
+                    position: 'fixed',
+                  })}
+                  style={{
+                    opacity: styles.overlayOpacity,
+                  }}
+                />
+                <a.div
+                  className={cx(
+                    css({
+                      display: 'flex',
+                      flex: 1,
+                      flexDirection: 'column',
+                      minWidth: 360,
+                      position: 'relative',
+                      width: '100%',
+                    }),
+                    mode === 'dialog' &&
+                      css({
+                        backgroundColor: 'var(--background-color-th_base)',
+                        border: '1px solid var(--border-color-th_frame)',
+                        borderRadius: 'var(--radius-th_frame)',
+                        flex: 1,
+                        overflow: 'hidden',
+                      }),
+                    contextValue.mode === 'dialog' &&
+                      contextValue.variant === 'drawer'
+                      ? css({
+                          borderBottomRadius: 0,
+                          maxWidth: 460,
+                        })
+                      : css({
+                          maxWidth: 400,
+                        }),
+                    mode === 'full' &&
+                      css({
+                        '@container (min-width: 480px)': {
+                          backgroundColor:
+                            'var(--background-color-th_base-plane)',
+                        },
+                        backgroundColor: 'var(--background-color-th_base)',
+                      }),
+                  )}
+                  style={
+                    contextValue.mode === 'dialog'
+                      ? contextValue.variant === 'drawer'
+                        ? { transform: styles.drawerTransform }
+                        : {
+                            opacity: styles.dialogOpacity,
+                            transform: styles.dialogTransform,
+                          }
+                      : {}
+                  }
+                >
+                  <FrameBar mode={mode} onClose={onClose} site={site} />
+                  <div
+                    className={cx(
+                      css({
+                        display: 'flex',
+                        flex: '1 0 auto',
+                        justifyContent: 'center',
+                        width: '100%',
+                      }),
+                      mode === 'full' &&
+                        css({
+                          '@container (min-width: 480px)': {
+                            alignItems: 'center',
+                            paddingBottom: 60,
+                          },
+                        }),
+                    )}
+                  >
+                    <div
+                      className={cx(
+                        css({
+                          display: 'flex',
+                          flexDirection: 'column',
+                          position: 'relative',
+                          width: '100%',
+                        }),
+                        mode === 'full' &&
+                          css({
+                            '@container (min-width: 480px)': {
+                              backgroundColor:
+                                'var(--background-color-th_base)',
+                              border: '1px solid var(--border-color-th_frame)',
+                              borderRadius: 'var(--radius-th_large)',
+                              height: 'var(--screen-height)',
+                              maxWidth: 400,
+                              overflow: 'hidden',
+                            },
+                            overflow: 'hidden',
+                          }),
+                        mode === 'dialog' &&
+                          css({
+                            height: 'var(--screen-height)',
+                          }),
+                      )}
+                      ref={containerRef}
+                    >
+                      <div
+                        className={cx(
+                          css({
+                            display: 'flex',
+                            flexDirection: 'column',
+                            width: '100%',
+                          }),
+                          mode === 'dialog' &&
+                            css({
+                              inset: '0 0 auto',
+                            }),
+                          mode === 'full' &&
+                            css({
+                              '@container (min-width: 480px)': {
+                                inset: '0 0 auto',
+                              },
+                              inset: 0,
+                            }),
+                        )}
+                      >
+                        {children}
+                      </div>
+                    </div>
+                  </div>
+                </a.div>
+              </a.div>
+            ),
+        )}
       </div>
     </FrameContext.Provider>
   )
@@ -438,10 +536,12 @@ export namespace Frame {
     loading?: boolean
     loadingText?: string
     mode: Frame.ModeWithVariant
-    onClose?: (() => void) | null
+    onClose?: () => void
+    onClosed?: () => void
     onHeight?: (height: number) => void
     site: Site
     screenKey?: string
+    visible: boolean
   }
 
   export type Mode = 'dialog' | 'full'

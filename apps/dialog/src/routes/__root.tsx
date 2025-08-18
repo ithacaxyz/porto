@@ -50,6 +50,7 @@ function RouteComponent() {
   const referrer = Dialog.useStore((state) => state.referrer)
   const customTheme = Dialog.useStore((state) => state.customTheme)
   const display = Dialog.useStore((state) => state.display)
+  const visible = Dialog.useStore((state) => state.visible)
   const search = Route.useSearch() as {
     requireUpdatedAccount?: boolean | undefined
   }
@@ -95,9 +96,15 @@ function RouteComponent() {
         }
         onClose={
           mode === 'inline-iframe' || mode === 'popup-standalone'
-            ? null
+            ? undefined
             : () => Actions.rejectAll(porto)
         }
+        onClosed={() => {
+          porto.messenger.send('__internal', {
+            action: 'done:close',
+            type: 'dialog-lifecycle',
+          })
+        }}
         onHeight={(height) => {
           if (mode !== 'inline-iframe' && mode !== 'popup-standalone')
             porto.messenger.send('__internal', {
@@ -130,6 +137,7 @@ function RouteComponent() {
           tag: env,
           verified: verifyStatus.data?.status === 'whitelisted',
         }}
+        visible={visible}
       >
         <CheckError>
           <CheckUnsupportedBrowser>
