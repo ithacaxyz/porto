@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.70
+
+### Patch Changes
+
+- [#710](https://github.com/ithacaxyz/porto/pull/710) [`f72e541`](https://github.com/ithacaxyz/porto/commit/f72e541d68f36602c06dac1b227102fd2298d809) Thanks [@jxom](https://github.com/jxom)! - Added support for more chains.
+
 ## 0.0.69
 
 ### Patch Changes
