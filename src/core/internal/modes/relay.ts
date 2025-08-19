@@ -57,8 +57,12 @@ export function relay(parameters: relay.Parameters = {}) {
         const { internal, ...params } = parameters
         const { client } = internal
 
-        return await RelayActions_internal.addFaucetFunds(client, params)
+        return await RelayActions_internal.addFaucetFunds(
+          internal.client,
+          params,
+        )
       },
+
       async addFunds() {
         throw new Provider.UnsupportedMethodError()
       },
