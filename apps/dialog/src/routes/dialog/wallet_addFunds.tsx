@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Actions } from 'porto/remote'
 import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
-import { AddFunds } from '../-components/AddFunds'
+import { AddFunds } from '../-components/AddFunds2'
 
 export const Route = createFileRoute('/dialog/wallet_addFunds')({
   component: RouteComponent,
