@@ -14,19 +14,18 @@ We'd love to hear your feedback. Report any issues or feature suggestions [on th
 
 The Relay has a unified endpoint supporting the networks below: `https://rpc.ithaca.xyz`.
 
-Supported mainnet chains:
+**Supported Networks:**
 
-- **Base** (Chain ID: 8453)
-- **Optimism** (Chain ID: 10)
-- **Arbitrum** (Chain ID: 42161)
-- **BNB Chain** (Chain ID: 56)
-- **Polygon** (Chain ID: 137)
-
-Supported testnet chains:
-
-- **Base Sepolia** (Chain ID: 84532)
-- **Optimism Sepolia** (Chain ID: 11155420)
-- **Arbitrum Sepolia** (Chain ID: 421614)
+| Network | Chain ID |
+|---------|----------|
+| Base | 8453 |
+| Optimism | 10 |
+| Arbitrum | 42161 |
+| BNB Chain | 56 |
+| Polygon | 137 |
+| Base Sepolia | 84532 |
+| Optimism Sepolia | 11155420 |
+| Arbitrum Sepolia | 421614 |
 
 ## Local Development
 

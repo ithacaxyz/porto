@@ -24,46 +24,25 @@ type Request = {
 
 ```ts
 type Response = {
+  /** Whether the signature is valid */
+  valid: boolean,
   /** Proof that can be used to verify the signature */
   proof?: {
     /** Address of an account (either delegated or stored) that the signature was verified against */
     account: `0x${string}`,
-    /** Initialization precall. Provided, if account is a stored account which has not been delegated */
+    /** The key hash that signed the digest */
+    keyHash: `0x${string}`,
+    /** Initialization precall. Provided if account is a stored account which has not been delegated */
     initPreCall?: {
       calls: {
         data?: `0x${string}`,
         to: `0x${string}`,
         value?: bigint,
       }[],
-      capabilities: {
-        authorizeKeys?: {
-          keys: {
-            expiry?: number,
-            key: {
-              type: 'p256' | 'webauthnp256' | 'secp256k1',
-              publicKey: `0x${string}`,
-            },
-            permissions: ({
-              type: 'call',
-              selector: string,
-              to: `0x${string}`,
-            } | {
-              type: 'spend',
-              limit: bigint,
-              period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year',
-              token?: `0x${string}`,
-            })[],
-            role: 'admin' | 'normal' | 'session',
-          }[],
-        },
-      },
+      capabilities: object,
       from: `0x${string}`,
     } | null,
-    /** The key hash that signed the digest */
-    keyHash: `0x${string}`,
   } | null,
-  /** Whether the signature is valid */
-  valid: boolean,
 }
 ```
 

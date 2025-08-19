@@ -119,6 +119,10 @@ export default defineConfig({
             text: 'wallet_getKeys',
           },
           {
+            link: '/relay/wallet_getAssets',
+            text: 'wallet_getAssets',
+          },
+          {
             link: '/relay/wallet_prepareCalls',
             text: 'wallet_prepareCalls',
           },
