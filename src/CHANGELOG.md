@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.72
+
+### Patch Changes
+
+- [`156b02f`](https://github.com/ithacaxyz/porto/commit/156b02f63bbe2c01be341d7cb529d0abf587b2d1) Thanks [@jxom](https://github.com/jxom)! - Loosened `eth_accounts` params.
+
 ## 0.0.71
 
 ### Patch Changes
