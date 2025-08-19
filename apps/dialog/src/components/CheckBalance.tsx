@@ -1,5 +1,5 @@
 import type { UseQueryResult } from '@tanstack/react-query'
-import type { Address } from 'ox'
+import { Address } from 'ox'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
 import type { RelayActions } from 'porto/viem'
 import * as React from 'react'
@@ -23,6 +23,10 @@ export function CheckBalance(props: CheckBalance.Props) {
       return quote.feeTokenDeficit > 0n
     })
     if (deficitQuote) {
+      // If we are being sponsored, we will have no deficit.
+      if (!Address.isEqual(deficitQuote.intent.payer, deficitQuote.intent.eoa))
+        return
+
       const { chainId, feeTokenDeficit, intent } = deficitQuote
       return {
         address: intent.paymentToken,
