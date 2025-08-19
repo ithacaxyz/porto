@@ -22,7 +22,7 @@ import {
 
 const porto = TestConfig.getPorto()
 const client = TestConfig.getRelayClient(porto)
-const contracts = TestConfig.getContracts(porto)
+const contracts = await TestConfig.getContracts(porto)
 
 describe('health', () => {
   test('default', async () => {
@@ -622,7 +622,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
     expect(balance_post_source).toBeLessThan(balance_pre_source)
 
-    const contracts_dest = TestConfig.getContracts(porto, {
+    const contracts_dest = await TestConfig.getContracts(porto, {
       chainId: chain_dest!.id,
     })
     const balance_post_destination = await readContract(client_dest, {
@@ -862,7 +862,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
     const request = await prepareUpgradeAccount(client, {
       address: eoa.address,
       authorizeKeys: [adminKey],
-      delegation: contracts.delegation.address,
+      delegation: contracts.accountProxy.address,
     })
 
     const { digests } = request
@@ -947,7 +947,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
     const request = await prepareUpgradeAccount(client, {
       address: eoa.address,
       authorizeKeys: [adminKey, adminKey_2],
-      delegation: contracts.delegation.address,
+      delegation: contracts.accountProxy.address,
     })
 
     const { digests } = request
@@ -1053,7 +1053,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
     const request = await prepareUpgradeAccount(client, {
       address: eoa.address,
       authorizeKeys: [adminKey, sessionKey],
-      delegation: contracts.delegation.address,
+      delegation: contracts.accountProxy.address,
     })
 
     const { digests } = request
@@ -1127,7 +1127,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
             type: 'secp256k1',
           },
         ],
-        delegation: contracts.delegation.address,
+        delegation: contracts.accountProxy.address,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Schema.CoderError: Expected \`0x\${string}\`, actual "INVALID!"
@@ -1158,7 +1158,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
             type: 'secp256k1',
           },
         ],
-        delegation: contracts.delegation.address,
+        delegation: contracts.accountProxy.address,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Schema.CoderError: Expected \`0x\${string}\`, actual "INVALID!"

@@ -8,7 +8,8 @@ const porto = TestConfig.getPorto()
 const client = TestConfig.getRelayClient(porto)
 const feeTokens = await FeeTokens.fetch(client)
 
-describe('toRelay', () => {
+// TODO: unskip when interop supported
+describe.skip('toRelay', () => {
   test('param: empty requiredFunds array', async () => {
     const result = RequiredFunds.toRelay([], { feeTokens })
 

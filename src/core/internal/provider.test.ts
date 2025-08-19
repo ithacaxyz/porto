@@ -96,7 +96,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
     test('default', async () => {
       const porto = getPorto()
       const client = TestConfig.getRelayClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -250,7 +250,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
     test('behavior: with balances', async () => {
       const porto = getPorto()
       const client = TestConfig.getRelayClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -311,7 +311,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
     test('behavior: after transaction', async () => {
       const porto = getPorto()
       const client = TestConfig.getRelayClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -1743,7 +1743,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
     test('default', async () => {
       const porto = getPorto()
       const client = TestConfig.getRelayClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -1801,7 +1801,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       async () => {
         const porto = getPorto()
         const client = TestConfig.getRelayClient(porto)
-        const contracts = TestConfig.getContracts(porto)
+        const contracts = await TestConfig.getContracts(porto)
 
         const {
           accounts: [account],
@@ -1873,7 +1873,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
     test.runIf(type === 'relay')('behavior: merchant fee sponsor', async () => {
       const porto = getPorto()
       const client = TestConfig.getRelayClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const merchantKey = Key.createSecp256k1()
       const merchantAccount = await createAccount(client, {
@@ -1975,7 +1975,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       async () => {
         const p = getPorto()
         const client = TestConfig.getRelayClient(p)
-        const contracts = TestConfig.getContracts(p)
+        const contracts = await TestConfig.getContracts(p)
 
         const merchantKey = Key.createSecp256k1()
         const merchantAccount = await createAccount(client, {
@@ -2075,7 +2075,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
     test('behavior: use inferred permissions', async () => {
       const porto = getPorto()
       const client = TestConfig.getRelayClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -2154,7 +2154,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
     test('behavior: `permissions` capability', async () => {
       const porto = getPorto()
       const client = TestConfig.getRelayClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -2238,7 +2238,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       async () => {
         const porto = getPorto()
         const client = TestConfig.getRelayClient(porto)
-        const contracts = TestConfig.getContracts(porto)
+        const contracts = await TestConfig.getContracts(porto)
 
         const {
           accounts: [account],
@@ -2314,7 +2314,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       async () => {
         const porto = getPorto()
         const client = TestConfig.getRelayClient(porto)
-        const contracts = TestConfig.getContracts(porto)
+        const contracts = await TestConfig.getContracts(porto)
 
         const {
           accounts: [account],
@@ -2417,7 +2417,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
     test('behavior: revoked permission', async () => {
       const porto = getPorto()
       const client = TestConfig.getRelayClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -2527,7 +2527,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
     test('behavior: not provider-managed permission', async () => {
       const porto = getPorto()
       const client = TestConfig.getRelayClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -2595,7 +2595,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
     test('behavior: permission does not exist', async () => {
       const porto = getPorto()
       const client = TestConfig.getRelayClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -2645,7 +2645,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
     test.skip('behavior: required funds (address)', async () => {
       const porto = getPorto()
       const client = TestConfig.getRelayClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -2726,7 +2726,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
     test.skip('behavior: required funds (symbol)', async () => {
       const porto = getPorto()
       const client = TestConfig.getRelayClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -2837,7 +2837,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
     test('default', async () => {
       const porto = getPorto()
       const client = TestConfig.getRelayClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -2889,7 +2889,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
     test('default', async () => {
       const porto = getPorto()
       const client = TestConfig.getRelayClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -2942,7 +2942,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       test('default', async () => {
         const porto = getPorto()
         const client = TestConfig.getRelayClient(porto)
-        const contracts = TestConfig.getContracts(porto)
+        const contracts = await TestConfig.getContracts(porto)
 
         const alice = Hex.random(20)
 
@@ -3041,7 +3041,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       test('WebCryptoP256', async () => {
         const porto = getPorto()
         const client = TestConfig.getRelayClient(porto)
-        const contracts = TestConfig.getContracts(porto)
+        const contracts = await TestConfig.getContracts(porto)
 
         const alice = Hex.random(20)
 
@@ -3145,7 +3145,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       test('Secp256k1', async () => {
         const porto = getPorto()
         const client = TestConfig.getRelayClient(porto)
-        const contracts = TestConfig.getContracts(porto)
+        const contracts = await TestConfig.getContracts(porto)
 
         const alice = Hex.random(20)
 
@@ -3245,7 +3245,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       test('Secp256k1', async () => {
         const porto = getPorto()
         const client = TestConfig.getRelayClient(porto)
-        const contracts = TestConfig.getContracts(porto)
+        const contracts = await TestConfig.getContracts(porto)
 
         const alice = Hex.random(20)
 
@@ -3332,7 +3332,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
     test.runIf(type === 'relay')('behavior: sign typed data', async () => {
       const porto = getPorto()
       const client = TestConfig.getRelayClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const { accounts } = await porto.provider.request({
         method: 'wallet_connect',

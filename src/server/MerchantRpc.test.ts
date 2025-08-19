@@ -11,7 +11,7 @@ import type { ExactPartial } from '../core/internal/types.js'
 
 const porto = TestConfig.getPorto()
 const client = TestConfig.getRelayClient(porto)
-const contracts = TestConfig.getContracts(porto)
+const contracts = await TestConfig.getContracts(porto)
 
 let server: Http.Server | undefined
 async function setup(

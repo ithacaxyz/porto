@@ -1,13 +1,13 @@
 import * as Ariakit from '@ariakit/react'
 import { UserAgent } from '@porto/apps'
 import { Button } from '@porto/apps/components'
-import { erc20Abi } from '@porto/apps/contracts'
+import { erc20Abi, exp1Address } from '@porto/apps/contracts'
 import { useCopyToClipboard, usePrevious } from '@porto/apps/hooks'
 import * as UI from '@porto/ui'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Cuer } from 'cuer'
 import { cx } from 'cva'
-import { type Address, Hex, Value } from 'ox'
+import { Address, Hex, Value } from 'ox'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
 import { useBalance, useWatchBlockNumber, useWatchContractEvent } from 'wagmi'
@@ -52,19 +52,19 @@ export function AddFunds(props: AddFunds.Props) {
   )
 
   const onrampMethod = React.useMemo(() => {
+    if (
+      tokenAddress &&
+      Address.isEqual(tokenAddress, exp1Address[chain?.id as never])
+    )
+      return 'faucet'
     // TODO: uncomment when interop is supported.
-    // if (
-    //   tokenAddress &&
-    //   Address.isEqual(tokenAddress, exp1Address[chain?.id as never])
-    // )
-    //   return 'faucet'
     // if (!enableOnramp()) return undefined
     if (!experimental?.onramp || !Onramp.enableOnramp()) return 'faucet'
     // TODO: ensure that `tokenAddress` is compatible with google onramp.
     if (UserAgent.isFirefox() || UserAgent.isAndroid()) return 'google'
     // TODO: ensure that `tokenAddress` is compatible with apple pay onramp.
     return 'apple'
-  }, [experimental?.onramp])
+  }, [chain?.id, experimental?.onramp, tokenAddress])
 
   const initialView = onrampMethod ? 'default' : 'deposit-crypto'
   const [view, setView] = React.useState<

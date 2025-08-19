@@ -5,8 +5,7 @@ import { z } from 'zod'
 export function enableOnramp() {
   const dialogSearchParams = new URLSearchParams(window.location.search)
   const onrampEnabled = dialogSearchParams.get('onramp') === 'true'
-
-  return Env.get() === 'prod' || onrampEnabled
+  return onrampEnabled
 }
 
 const onrampTokenSchema = z.object({

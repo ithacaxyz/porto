@@ -11,7 +11,7 @@ import * as RelayActions from './RelayActions.js'
 
 const porto = TestConfig.getPorto()
 const client = TestConfig.getRelayClient(porto)
-const contracts = TestConfig.getContracts(porto)
+const contracts = await TestConfig.getContracts(porto)
 
 describe('createAccount', () => {
   test('default', async () => {

@@ -364,7 +364,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
   test('default', async () => {
     const porto = TestConfig.getPorto()
     const relayClient = TestConfig.getRelayClient(porto)
-    const contracts = TestConfig.getContracts(porto)
+    const contracts = await TestConfig.getContracts(porto)
     const walletClient = TestConfig.getWalletClient(porto)
 
     const sessionKey = Key.createSecp256k1()
@@ -432,7 +432,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
   test('behavior: admin key', async () => {
     const porto = TestConfig.getPorto()
     const relayClient = TestConfig.getRelayClient(porto)
-    const contracts = TestConfig.getContracts(porto)
+    const contracts = await TestConfig.getContracts(porto)
     const walletClient = TestConfig.getWalletClient(porto)
 
     const adminKey = Key.createSecp256k1()
@@ -482,7 +482,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
 
   test('behavior: sign typed data', async () => {
     const porto = TestConfig.getPorto()
-    const contracts = TestConfig.getContracts(porto)
+    const contracts = await TestConfig.getContracts(porto)
     const walletClient = TestConfig.getWalletClient(porto)
     const relayClient = TestConfig.getRelayClient(porto)
 
