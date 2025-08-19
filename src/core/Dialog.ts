@@ -323,7 +323,7 @@ export function iframe(options: iframe.Options = {}) {
             (unsupported ||
               insecureProtocol ||
               (requests.some((x) => x.request.method === 'wallet_addFunds') &&
-                internal.config.experimental?.applePayOnramp === true))
+                internal.config.experimental?.onramp === true))
           )
             fallback.syncRequests(requests)
           else {
