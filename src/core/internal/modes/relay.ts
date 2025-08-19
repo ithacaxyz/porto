@@ -55,7 +55,6 @@ export function relay(parameters: relay.Parameters = {}) {
     actions: {
       async addFaucetFunds(parameters) {
         const { internal, ...params } = parameters
-        const { client } = internal
 
         return await RelayActions_internal.addFaucetFunds(
           internal.client,
