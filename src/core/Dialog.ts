@@ -76,15 +76,22 @@ export function iframe(options: iframe.Options = {}) {
       const root = document.createElement('div')
       root.dataset.porto = ''
 
+      root.setAttribute('popover', 'manual')
       root.setAttribute('role', 'dialog')
       root.setAttribute('aria-closed', 'true')
       root.setAttribute('aria-label', 'Porto Wallet')
       root.setAttribute('hidden', 'until-found')
-      root.setAttribute('data-porto-root', '')
 
-      root.style.position = 'fixed'
-      root.style.inset = '0'
-      root.style.display = 'none'
+      Object.assign(root.style, {
+        background: 'transparent',
+        border: '0',
+        height: '100vh',
+        inset: '0',
+        padding: '0',
+        position: 'fixed',
+        width: '100vw',
+      })
+
       document.body.appendChild(root)
 
       const iframe = document.createElement('iframe')
@@ -98,26 +105,20 @@ export function iframe(options: iframe.Options = {}) {
         'sandbox',
         'allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox',
       )
-
       iframe.setAttribute('src', getDialogUrl(host))
       iframe.setAttribute('title', 'Porto')
       Object.assign(iframe.style, {
-        ...styles.iframe,
         backgroundColor: 'transparent',
+        border: '0',
         colorScheme: 'light dark',
         height: '100vh',
         left: '0',
-        position: 'absolute',
+        position: 'fixed',
         top: '0',
         width: '100vw',
       })
 
       root.appendChild(iframe)
-
-      function onBlur() {
-        handleBlur(store)
-      }
-      root.addEventListener('click', onBlur)
 
       const messenger = Messenger.bridge({
         from: Messenger.fromWindow(window, { targetOrigin: hostUrl.origin }),
@@ -168,11 +169,6 @@ export function iframe(options: iframe.Options = {}) {
         handleResponse(store, response)
       })
       messenger.on('__internal', (payload) => {
-        if (payload.type === 'resize') {
-          // iframe.style.height = `${payload.height}px`
-          if (!isMobile()) iframe.style.width = `${payload.width}px`
-        }
-
         if (payload.type === 'switch' && payload.mode === 'popup') {
           fallback.open()
           fallback.syncRequests(store.getState().requestQueue)
@@ -180,70 +176,116 @@ export function iframe(options: iframe.Options = {}) {
 
         if (
           payload.type === 'dialog-lifecycle' &&
-          payload.action === 'done:close'
-        )
-          postClose()
+          payload.action === 'done:close' &&
+          !open
+        ) {
+          hideDialog()
+          messenger.send('__internal', {
+            mode: 'iframe',
+            referrer: getReferrer(),
+            type: 'init',
+          })
+        }
       })
 
-      function onEscape(event: KeyboardEvent) {
+      let bodyStyle: CSSStyleDeclaration | null = null
+
+      // setting inert on body would also set it on the root element, so we
+      // need to set it on all the html & body children (except root) instead.
+      const pageInertMap = new WeakMap<HTMLElement, boolean>()
+      const togglePageInert = (inert: boolean) => {
+        document.querySelectorAll('body > *, html > *').forEach((elt) => {
+          if (
+            elt === root ||
+            elt === document.body ||
+            elt === document.head ||
+            !(elt instanceof HTMLElement)
+          )
+            return
+
+          if (inert) {
+            pageInertMap.set(elt, elt.inert)
+            elt.inert = true
+          } else if (pageInertMap.has(elt)) {
+            elt.inert = pageInertMap.get(elt) ?? false
+            pageInertMap.delete(elt)
+          }
+        })
+      }
+
+      // store the opening element to restore the focus
+      let opener: HTMLElement | null = null
+
+      const onBlur = () => handleBlur(store)
+      const onEscape = (event: KeyboardEvent) => {
         if (event.key === 'Escape') handleBlur(store)
       }
 
-      const bodyStyle = Object.assign({}, document.body.style)
+      // dialog/page interactivity (no visibility change)
+      let dialogActive = false
+      const activatePage = () => {
+        if (!dialogActive) return
+        dialogActive = false
 
-      // 1password extension adds `inert` attribute to `dialog` and inserts itself (`<com-1password-notification />`) there
-      // rendering itself unusable: watch for `inert` on `dialog` and remove it
-      // const observer = new MutationObserver((mutations) => {
-      //   for (const mutation of mutations) {
-      //     if (mutation.type !== 'attributes') continue
-      //     const name = mutation.attributeName
-      //     if (!name) continue
-      //     if (name !== 'inert') continue
-      //     root.removeAttribute(name)
-      //   }
-      // })
-      // observer.observe(root, { attributeOldValue: true, attributes: true })
+        root.removeEventListener('click', onBlur)
+        document.removeEventListener('keydown', onEscape)
+        togglePageInert(false)
+        root.style.pointerEvents = 'none'
+        opener?.focus()
+        opener = null
 
-      const postClose = () => {
         Object.assign(document.body.style, bodyStyle ?? '')
         // firefox: explicitly restore/clear `overflow` directly
-        document.body.style.overflow = bodyStyle.overflow ?? ''
+        document.body.style.overflow = bodyStyle?.overflow ?? ''
+      }
+      const activateDialog = () => {
+        if (dialogActive) return
+        dialogActive = true
 
-        root.style.display = 'none'
+        root.addEventListener('click', onBlur)
+        document.addEventListener('keydown', onEscape)
+        if (document.activeElement instanceof HTMLElement)
+          opener = document.activeElement
+        iframe.focus()
+        togglePageInert(true)
+        root.style.pointerEvents = 'auto'
+
+        bodyStyle = Object.assign({}, document.body.style)
+        document.body.style.overflow = 'hidden'
+      }
+
+      // dialog visibility
+      let visible = false
+      const showDialog = () => {
+        if (visible) return
+        visible = true
+        root.removeAttribute('hidden')
+        root.removeAttribute('aria-closed')
+        root.showPopover()
+      }
+      const hideDialog = () => {
+        if (!visible) return
+        visible = false
         root.setAttribute('hidden', 'true')
         root.setAttribute('aria-closed', 'true')
-
-        // 1password extension sometimes adds `inert` attribute to `dialog` siblings and does not clean up
-        // remove when `dialog` closes (after `<com-1password-notification />` closes)
-        // for (const sibling of root.parentNode
-        //   ? Array.from(root.parentNode.children)
-        //   : []) {
-        //   if (sibling === root) continue
-        //   if (!sibling.hasAttribute('inert')) continue
-        //   sibling.removeAttribute('inert')
-        // }
-
-        messenger.send('__internal', {
-          mode: 'iframe',
-          referrer: getReferrer(),
-          type: 'init',
-        })
+        root.hidePopover()
       }
 
       return {
         close() {
           fallback.close()
           open = false
+
           messenger.send('__internal', {
             action: 'request:close',
             type: 'dialog-lifecycle',
           })
-          root.style.pointerEvents = 'none'
+
+          activatePage()
         },
         destroy() {
           fallback.destroy()
           this.close()
-          document.removeEventListener('keydown', onEscape)
           drawerModeQuery.removeEventListener('change', onDrawerModeChange)
           messenger.destroy()
           root.remove()
@@ -251,6 +293,9 @@ export function iframe(options: iframe.Options = {}) {
         open() {
           if (open) return
           open = true
+
+          showDialog()
+          activateDialog()
 
           messenger.send('__internal', {
             mode: 'iframe',
@@ -261,14 +306,6 @@ export function iframe(options: iframe.Options = {}) {
             action: 'request:open',
             type: 'dialog-lifecycle',
           })
-          root.style.pointerEvents = 'auto'
-
-          document.addEventListener('keydown', onEscape)
-          document.body.style.overflow = 'hidden'
-
-          root.removeAttribute('hidden')
-          root.removeAttribute('aria-closed')
-          root.style.display = 'block'
         },
         async syncRequests(requests) {
           const { methodPolicies } = await messenger.waitForReady()
@@ -498,7 +535,7 @@ export function experimental_inline(options: inline.Options) {
       iframe.setAttribute('src', getDialogUrl(host))
       iframe.setAttribute('title', 'Porto')
       Object.assign(iframe.style, {
-        ...styles.iframe,
+        border: '0',
         height: '100%',
       })
 
@@ -604,20 +641,6 @@ export function createThemeController(): ThemeController {
 }
 
 export const defaultSize = { height: 282, width: 360 }
-
-export const styles = {
-  backdrop: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    display: 'none',
-    height: '100%',
-    position: 'fixed',
-    width: '100%',
-    zIndex: '2147483647',
-  },
-  iframe: {
-    border: 'none',
-  },
-} as const satisfies Record<string, Partial<CSSStyleDeclaration>>
 
 export function requiresConfirmation(
   request: RpcRequest.RpcRequest,

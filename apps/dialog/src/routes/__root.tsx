@@ -90,8 +90,8 @@ function RouteComponent() {
           display === 'full'
             ? 'full'
             : {
-                mode: 'dialog',
-                variant: display === 'drawer' ? 'drawer' : 'normal',
+                name: 'dialog',
+                variant: display === 'drawer' ? 'drawer' : 'floating',
               }
         }
         onClose={

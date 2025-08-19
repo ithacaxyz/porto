@@ -31,29 +31,14 @@ export function Frame({
 }: Frame.Props) {
   const frameRef = useRef<HTMLDivElement>(null)
 
-  const { mode, variant } =
-    typeof mode_ === 'string' ? { mode: mode_, variant: undefined } : mode_
+  const mode = useMemo<Frame.Mode>(() => {
+    if (typeof mode_ !== 'string') return mode_
+    return { name: mode_, variant: 'auto' }
+  }, [JSON.stringify(mode_)])
 
-  // variant for the full mode, used when variant is not specified
-  const [fullVariantAuto, setFullVariantAuto] = useState<'medium' | 'large'>(
-    'medium',
-  )
+  const [large, setLarge] = useState(false)
 
-  useSize(
-    frameRef,
-    ({ width }) => {
-      if (mode === 'dialog' || variant) return
-      if (width < 480 && fullVariantAuto !== 'medium') {
-        setFullVariantAuto('medium')
-        return
-      }
-      if (width >= 480 && fullVariantAuto !== 'large') {
-        setFullVariantAuto('large')
-        return
-      }
-    },
-    [mode, variant, fullVariantAuto],
-  )
+  useSize(frameRef, ({ width }) => setLarge(width >= 480))
 
   const containerRef = useRef<HTMLDivElement | null>(null)
   const screenRef = useRef<HTMLDivElement | null>(null)
@@ -62,45 +47,42 @@ export function Frame({
     null,
   )
 
+  const dialogFramed = mode.name === 'dialog' && mode.variant === 'framed'
+
   const openTransition = useTransition(visible, {
     config:
-      mode === 'dialog' && variant === 'drawer'
+      mode.name === 'dialog' && mode.variant === 'drawer'
         ? { clamp: true, friction: 120, mass: 1, tension: 2000 }
-        : { friction: 120, mass: 1.2, tension: 3000 },
-    enter: (visible) => async (next) => {
-      if (!visible) return
-
+        : { friction: 160, mass: 1.3, tension: 3000 },
+    enter: () => async (next) => {
       await next({
         dialogOpacity: 0,
-        dialogTransform: 'scale3d(0.8, 0.8, 1) translate3d(0, 0px, 0)',
+        dialogTransform: 'translate3d(0, 0px, 0) scale3d(0.92, 0.92, 1)',
         drawerTransform: 'translate3d(0, 100%, 0)',
         immediate: true,
         overlayOpacity: 0,
       })
-      await new Promise((resolve) => setTimeout(resolve, 0))
       await next({
         dialogOpacity: 1,
-        dialogTransform: 'scale3d(1, 1, 1) translate3d(0, 16px, 0)',
+        dialogTransform: 'translate3d(0, 16px, 0) scale3d(1, 1, 1)',
         drawerTransform: 'translate3d(0, 0%, 0)',
         overlayOpacity: 1,
       })
     },
     initial: {
       dialogOpacity: 1,
-      dialogTransform: 'scale3d(1, 1, 1) translate3d(0, 16px, 0)',
+      dialogTransform: 'translate3d(0, 16px, 0) scale3d(1, 1, 1)',
       drawerTransform: 'translate3d(0, 0%, 0)',
       overlayOpacity: 1,
     },
-    leave: (visible) => async (next) => {
-      if (!visible) return
-
+    leave: () => async (next) => {
       await next({
         dialogOpacity: 0,
-        dialogTransform: 'scale3d(1, 1, 1) translate3d(0, 32px, 0)',
+        dialogTransform: 'translate3d(0, 32px, 0) scale3d(1, 1, 1)',
         drawerTransform: 'translate3d(0, 100%, 0)',
         overlayOpacity: 0,
+        immediate: mode.name === 'dialog' && mode.variant !== 'drawer',
       })
-
       onClosed?.()
     },
   })
@@ -109,9 +91,7 @@ export function Frame({
     screenRef,
     ({ height }) => {
       if (height === 0) return
-      if (containerRef.current)
-        containerRef.current.style.setProperty('--screen-height', `${height}px`)
-      if (mode === 'dialog')
+      if (mode.name === 'dialog')
         onHeight?.(
           height +
             33 + // 32px + 1px border for the frame bar in dialog mode
@@ -136,20 +116,26 @@ export function Frame({
   }, [])
 
   const contextValue = useMemo<Frame.Context>(() => {
-    if (mode === 'dialog')
+    if (mode.name === 'dialog')
       return {
         colorScheme,
         mode: 'dialog',
         setScreen,
-        variant: variant || 'normal',
+        variant:
+          mode.variant === 'auto'
+            ? large
+              ? 'floating'
+              : 'drawer'
+            : mode.variant,
       }
     return {
       colorScheme,
       mode: 'full',
       setScreen,
-      variant: variant || fullVariantAuto,
+      variant:
+        mode.variant === 'auto' ? (large ? 'large' : 'medium') : mode.variant,
     }
-  }, [colorScheme, fullVariantAuto, mode, variant, setScreen])
+  }, [colorScheme, large, mode, setScreen, mode.variant])
 
   useEffect(() => {
     if (!onClose) return
@@ -172,11 +158,11 @@ export function Frame({
             position: 'relative',
             width: '100%',
           }),
-          mode === 'dialog' &&
-            variant === 'drawer' &&
+          mode.name === 'dialog' &&
+            mode.variant === 'drawer' &&
             css({ alignItems: 'flex-end' }),
         )}
-        data-dialog={mode === 'dialog' ? true : undefined}
+        data-dialog={mode.name === 'dialog' ? true : undefined}
         ref={frameRef}
         style={{ colorScheme }}
       >
@@ -192,7 +178,7 @@ export function Frame({
                     overflowY: 'hidden',
                     width: '100%',
                   }),
-                  mode === 'dialog' && variant === 'drawer'
+                  mode.name === 'dialog' && mode.variant === 'drawer'
                     ? css({ placeItems: 'end center' })
                     : css({ placeItems: 'start center' }),
                 )}
@@ -202,17 +188,19 @@ export function Frame({
                   }
                 }}
               >
-                <a.div
-                  className={css({
-                    background: 'rgba(255, 0, 255, 0.5)',
-                    inset: 0,
-                    pointerEvents: 'none',
-                    position: 'fixed',
-                  })}
-                  style={{
-                    opacity: styles.overlayOpacity,
-                  }}
-                />
+                {!dialogFramed && (
+                  <a.div
+                    className={css({
+                      background: 'rgba(0, 0, 0, 0.5)',
+                      inset: 0,
+                      pointerEvents: 'none',
+                      position: 'fixed',
+                    })}
+                    style={{
+                      opacity: styles.overlayOpacity,
+                    }}
+                  />
+                )}
                 <a.div
                   className={cx(
                     css({
@@ -223,7 +211,7 @@ export function Frame({
                       position: 'relative',
                       width: '100%',
                     }),
-                    mode === 'dialog' &&
+                    mode.name === 'dialog' &&
                       css({
                         backgroundColor: 'var(--background-color-th_base)',
                         border: '1px solid var(--border-color-th_frame)',
@@ -231,8 +219,7 @@ export function Frame({
                         flex: 1,
                         overflow: 'hidden',
                       }),
-                    contextValue.mode === 'dialog' &&
-                      contextValue.variant === 'drawer'
+                    mode.name === 'dialog' && mode.variant === 'drawer'
                       ? css({
                           borderBottomRadius: 0,
                           maxWidth: 460,
@@ -240,7 +227,7 @@ export function Frame({
                       : css({
                           maxWidth: 400,
                         }),
-                    mode === 'full' &&
+                    mode.name === 'full' &&
                       css({
                         '@container (min-width: 480px)': {
                           backgroundColor:
@@ -250,8 +237,8 @@ export function Frame({
                       }),
                   )}
                   style={
-                    contextValue.mode === 'dialog'
-                      ? contextValue.variant === 'drawer'
+                    mode.name === 'dialog' && !dialogFramed
+                      ? mode.variant === 'drawer'
                         ? { transform: styles.drawerTransform }
                         : {
                             opacity: styles.dialogOpacity,
@@ -269,7 +256,7 @@ export function Frame({
                         justifyContent: 'center',
                         width: '100%',
                       }),
-                      mode === 'full' &&
+                      mode.name === 'full' &&
                         css({
                           '@container (min-width: 480px)': {
                             alignItems: 'center',
@@ -286,22 +273,17 @@ export function Frame({
                           position: 'relative',
                           width: '100%',
                         }),
-                        mode === 'full' &&
+                        mode.name === 'full' &&
                           css({
                             '@container (min-width: 480px)': {
                               backgroundColor:
                                 'var(--background-color-th_base)',
                               border: '1px solid var(--border-color-th_frame)',
                               borderRadius: 'var(--radius-th_large)',
-                              height: 'var(--screen-height)',
                               maxWidth: 400,
                               overflow: 'hidden',
                             },
                             overflow: 'hidden',
-                          }),
-                        mode === 'dialog' &&
-                          css({
-                            height: 'var(--screen-height)',
                           }),
                       )}
                       ref={containerRef}
@@ -313,11 +295,11 @@ export function Frame({
                             flexDirection: 'column',
                             width: '100%',
                           }),
-                          mode === 'dialog' &&
+                          mode.name === 'dialog' &&
                             css({
                               inset: '0 0 auto',
                             }),
-                          mode === 'full' &&
+                          mode.name === 'full' &&
                             css({
                               '@container (min-width: 480px)': {
                                 inset: '0 0 auto',
@@ -366,13 +348,13 @@ function FrameBar({
           whiteSpace: 'nowrap',
           width: '100%',
         }),
-        mode === 'dialog' &&
+        mode.name === 'dialog' &&
           css({
             backgroundColor: 'var(--background-color-th_frame)',
             borderBottom: '1px solid var(--border-color-th_frame)',
             height: 33, // 32 + 1px border
           }),
-        mode === 'full' &&
+        mode.name === 'full' &&
           css({
             '@container (min-width: 480px)': {
               borderBottom: 'none',
@@ -393,7 +375,7 @@ function FrameBar({
             paddingInline: 12,
             verticalAlign: 'middle',
           }),
-          mode === 'full' &&
+          mode.name === 'full' &&
             css({
               paddingInline: 20,
             }),
@@ -410,7 +392,7 @@ function FrameBar({
               fontSize: 13,
               gap: 8,
             }),
-            mode === 'full' &&
+            mode.name === 'full' &&
               css({
                 '@container (min-width: 480px)': {
                   '--icon-radius': 'var(--radius-th_medium)',
@@ -436,8 +418,8 @@ function FrameBar({
             />
           </div>
           <div>
-            <div hidden={mode === 'full'}>{site.label}</div>
-            <div hidden={mode === 'dialog'}>
+            <div hidden={mode.name === 'full'}>{site.label}</div>
+            <div hidden={mode.name === 'dialog'}>
               {site.labelExtended ?? site.label}
             </div>
           </div>
@@ -476,56 +458,46 @@ function FrameBar({
           )}
         </div>
       </div>
-      {onClose && <CloseButton mode={mode} onClick={onClose} />}
-    </div>
-  )
-}
-
-function CloseButton({
-  mode,
-  onClick,
-}: {
-  mode: Frame.Mode
-  onClick?: () => void
-}) {
-  return (
-    <button
-      className={cx(
-        css({
-          _active: {
-            transform: 'translateY(1px)',
-          },
-          _focusVisible: {
-            outline: '2px solid var(--color-th_focus)',
-            outlineOffset: -2,
-          },
-          alignItems: 'center',
-          background: 'transparent',
-          border: 'none',
-          cursor: 'pointer!',
-          display: 'flex',
-          height: '100%',
-          padding: '0 12px',
-        }),
-        mode === 'dialog' &&
-          css({
-            borderTopRightRadius: 'var(--radius-th_frame)',
-            height: '100%',
-            paddingInline: '6px 12px',
-          }),
+      {onClose && (
+        <button
+          className={cx(
+            css({
+              _active: {
+                transform: 'translateY(1px)',
+              },
+              _focusVisible: {
+                outline: '2px solid var(--color-th_focus)',
+                outlineOffset: -2,
+              },
+              alignItems: 'center',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer!',
+              display: 'flex',
+              height: '100%',
+              padding: '0 12px',
+            }),
+            mode.name === 'dialog' &&
+              css({
+                borderTopRightRadius: 'var(--radius-th_frame)',
+                height: '100%',
+                paddingInline: '6px 12px',
+              }),
+          )}
+          onClick={onClose}
+          title="Close Dialog"
+          type="button"
+        >
+          <LucideX
+            className={css({
+              color: 'var(--color-th_frame)',
+              height: 18,
+              width: 18,
+            })}
+          />
+        </button>
       )}
-      onClick={onClick}
-      title="Close Dialog"
-      type="button"
-    >
-      <LucideX
-        className={css({
-          color: 'var(--color-th_frame)',
-          height: 18,
-          width: 18,
-        })}
-      />
-    </button>
+    </div>
   )
 }
 
@@ -535,7 +507,7 @@ export namespace Frame {
     colorScheme?: 'light' | 'dark' | 'light dark' | undefined
     loading?: boolean | undefined
     loadingText?: string | undefined
-    mode: Frame.ModeWithVariant
+    mode: Mode | ModeName
     onClose?: (() => void) | undefined
     onClosed?: (() => void) | undefined
     onHeight?: ((height: number) => void) | undefined
@@ -544,12 +516,24 @@ export namespace Frame {
     visible?: boolean | undefined
   }
 
-  export type Mode = 'dialog' | 'full'
+  export type Mode =
+    | {
+        name: 'dialog'
+        variant:
+          | 'auto' // drawer or floating based on width (used in iframe mode)
+          | 'drawer' // (used in iframe mode)
+          | 'floating' // with overlay & animations (used in iframe mode)
+          | 'framed' // without overlay & animations (used in popup mode)
+      }
+    | {
+        name: 'full'
+        variant:
+          | 'auto' // large or medium, based on width (used in popup mode)
+          | 'large' // large new tab (480px+)
+          | 'medium' // medium new tab (less than 480px)
+      }
 
-  export type ModeWithVariant =
-    | Frame.Mode
-    | { mode: 'dialog'; variant?: 'normal' | 'drawer' }
-    | { mode: 'full'; variant?: 'medium' | 'large' }
+  export type ModeName = Mode['name']
 
   export type Site = {
     icon?: string | [light: string, dark: string] | undefined
@@ -563,8 +547,14 @@ export namespace Frame {
     colorScheme: 'light' | 'dark' | 'light dark'
     setScreen: (element: HTMLDivElement | null, id: string) => void
   } & (
-    | { mode: 'dialog'; variant: 'normal' | 'drawer' }
-    | { mode: 'full'; variant: 'medium' | 'large' }
+    | {
+        mode: 'dialog'
+        variant: 'drawer' | 'floating' | 'framed'
+      }
+    | {
+        mode: 'full'
+        variant: 'large' | 'medium'
+      }
   )
 
   export function useFrame(optional: true): Frame.Context | null
