@@ -176,7 +176,8 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
     })
   })
 
-  describe('wallet_addFaucetFunds', () => {
+  // method has not been deployed to `rpc` or `rpc-stg` yet
+  describe.skip('wallet_addFaucetFunds', () => {
     test('default', async () => {
       const porto = getPorto()
       const client = TestConfig.getRelayClient(porto)
