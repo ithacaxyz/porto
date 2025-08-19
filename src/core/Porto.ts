@@ -25,30 +25,12 @@ const browser = typeof window !== 'undefined' && typeof document !== 'undefined'
 
 export const defaultConfig = {
   announceProvider: true,
-  chains: [
-    Chains.arbitrum,
-    Chains.arbitrumSepolia,
-    Chains.base,
-    Chains.baseSepolia,
-    Chains.bsc,
-    Chains.optimism,
-    Chains.optimismSepolia,
-    Chains.polygon,
-  ],
+  chains: Chains.all,
   mode: browser ? dialog({ host: hostUrls.prod }) : relay(),
   relay: http(relayUrls.prod.http),
   storage: browser ? Storage.idb() : Storage.memory(),
   storageKey: 'porto.store',
-  transports: {
-    [Chains.arbitrum.id]: http(),
-    [Chains.arbitrumSepolia.id]: http(),
-    [Chains.base.id]: http(),
-    [Chains.baseSepolia.id]: http(),
-    [Chains.optimism.id]: http(),
-    [Chains.optimismSepolia.id]: http(),
-    [Chains.polygon.id]: http(),
-  },
-} as const satisfies Config
+} as const satisfies ExactPartial<Config>
 
 /**
  * Instantiates an Porto instance.

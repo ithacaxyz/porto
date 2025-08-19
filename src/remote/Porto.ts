@@ -29,7 +29,7 @@ export const defaultConfig = {
   methodPolicies: MethodPolicies.methodPolicies,
   mode: Mode.relay(),
   storage: Storage.localStorage(),
-} as const satisfies Config
+} as const satisfies Partial<Config>
 
 /**
  * Instantiates an Porto instance to be used in a remote context (e.g. an iframe or popup).
@@ -60,7 +60,7 @@ export function create(
     relay = defaultConfig.relay,
     storage = defaultConfig.storage,
     storageKey = defaultConfig.storageKey,
-    transports = defaultConfig.transports,
+    transports,
   } = parameters
 
   const porto = Porto_.create({
