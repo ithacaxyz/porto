@@ -13,7 +13,7 @@ type Request = {
 ## Response
 
 ```ts
-dontype Response = {
+type Response = {
   status: string;
   version: string;
 }
@@ -27,7 +27,7 @@ cast rpc --rpc-url https://rpc.ithaca.xyz health
 
 ```json
 {
-  "status": "ok",
+  "status": "rpc ok",
   "version": "21.0.2 (93ade40)"
 }
 ```

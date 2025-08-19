@@ -12,7 +12,7 @@ We'd love to hear your feedback. Report any issues or feature suggestions [on th
 
 ### Chain support
 
-The Relay has a unified endpoint supporting all production networks: `https://rpc.ithaca.xyz`
+The Relay has a unified endpoint supporting the networks below: `https://rpc.ithaca.xyz`.
 
 Supported mainnet chains:
 
