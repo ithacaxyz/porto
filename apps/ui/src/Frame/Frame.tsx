@@ -34,7 +34,7 @@ export function Frame({
   const mode = useMemo<Frame.Mode>(() => {
     if (typeof mode_ !== 'string') return mode_
     return { name: mode_, variant: 'auto' }
-  }, [JSON.stringify(mode_)])
+  }, [mode_])
 
   const [large, setLarge] = useState(false)
 
@@ -80,8 +80,8 @@ export function Frame({
         dialogOpacity: 0,
         dialogTransform: 'translate3d(0, 32px, 0) scale3d(1, 1, 1)',
         drawerTransform: 'translate3d(0, 100%, 0)',
-        overlayOpacity: 0,
         immediate: mode.name === 'dialog' && mode.variant !== 'drawer',
+        overlayOpacity: 0,
       })
       onClosed?.()
     },
