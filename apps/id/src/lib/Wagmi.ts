@@ -11,6 +11,7 @@ const chains = [
 ] as const
 
 export const config = createConfig({
+  // TODO: support multichain in manager
   chains,
   connectors: [portoConnector(Porto.config)],
   multiInjectedProviderDiscovery: false,
