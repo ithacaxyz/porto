@@ -770,10 +770,10 @@ Path: params.0.capabilities.grantPermissions.permissions.calls
 Details: Request.Request
 └─ Rpc.wallet_connect.Request
    └─ ["params"]
-      └─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }] | undefined
-         ├─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }]
+      └─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined; readonly chainIds?: ReadonlyArray<(\`0x\${string}\` <-> number)> | undefined }] | undefined
+         ├─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined; readonly chainIds?: ReadonlyArray<(\`0x\${string}\` <-> number)> | undefined }]
          │  └─ [0]
-         │     └─ { readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }
+         │     └─ { readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined; readonly chainIds?: ReadonlyArray<(\`0x\${string}\` <-> number)> | undefined }
          │        └─ ["capabilities"]
          │           └─ Rpc.wallet_connect.Capabilities | undefined
          │              ├─ Rpc.wallet_connect.Capabilities
@@ -798,10 +798,10 @@ Path: params.0.capabilities.grantPermissions.expiry
 Details: Request.Request
 └─ Rpc.wallet_connect.Request
    └─ ["params"]
-      └─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }] | undefined
-         ├─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }]
+      └─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined; readonly chainIds?: ReadonlyArray<(\`0x\${string}\` <-> number)> | undefined }] | undefined
+         ├─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined; readonly chainIds?: ReadonlyArray<(\`0x\${string}\` <-> number)> | undefined }]
          │  └─ [0]
-         │     └─ { readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }
+         │     └─ { readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined; readonly chainIds?: ReadonlyArray<(\`0x\${string}\` <-> number)> | undefined }
          │        └─ ["capabilities"]
          │           └─ Rpc.wallet_connect.Capabilities | undefined
          │              ├─ Rpc.wallet_connect.Capabilities
