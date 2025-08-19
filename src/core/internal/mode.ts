@@ -49,10 +49,12 @@ export type Mode = {
       value?: string | undefined
     }) => Promise<{ id: Hex.Hex }>
 
-    addFaucetFunds: (parameters: {
-      /** Internal properties. */
-      internal: ActionsInternal
-    }) => Promise<RpcSchema.wallet_addFaucetFunds.Response>
+    addFaucetFunds: (
+      parameters: RpcSchema.wallet_addFaucetFunds.Parameters & {
+        /** Internal properties. */
+        internal: ActionsInternal
+      },
+    ) => Promise<RpcSchema.wallet_addFaucetFunds.Response>
 
     createAccount: (parameters: {
       /** Admins to grant. */
