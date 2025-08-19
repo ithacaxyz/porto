@@ -15,22 +15,78 @@ describe('fromPorto', () => {
         "chain": {
           "blockExplorers": {
             "default": {
-              "apiUrl": "https://api.arbiscan.io/api",
-              "name": "Arbiscan",
-              "url": "https://arbiscan.io",
+              "apiUrl": "https://api.basescan.org/api",
+              "name": "Basescan",
+              "url": "https://basescan.org",
             },
           },
-          "blockTime": 250,
+          "blockTime": 2000,
           "contracts": {
+            "disputeGameFactory": {
+              "1": {
+                "address": "0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e",
+              },
+            },
+            "gasPriceOracle": {
+              "address": "0x420000000000000000000000000000000000000F",
+            },
+            "l1Block": {
+              "address": "0x4200000000000000000000000000000000000015",
+            },
+            "l1StandardBridge": {
+              "1": {
+                "address": "0x3154Cf16ccdb4C6d922629664174b904d80F2C35",
+                "blockCreated": 17482143,
+              },
+            },
+            "l2CrossDomainMessenger": {
+              "address": "0x4200000000000000000000000000000000000007",
+            },
+            "l2Erc721Bridge": {
+              "address": "0x4200000000000000000000000000000000000014",
+            },
+            "l2OutputOracle": {
+              "1": {
+                "address": "0x56315b90c40730925ec5485cf004d835058518A0",
+              },
+            },
+            "l2StandardBridge": {
+              "address": "0x4200000000000000000000000000000000000010",
+            },
+            "l2ToL1MessagePasser": {
+              "address": "0x4200000000000000000000000000000000000016",
+            },
             "multicall3": {
               "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 7654707,
+              "blockCreated": 5022,
+            },
+            "portal": {
+              "1": {
+                "address": "0x49048044D57e1C92A77f79988d21Fa8fAF74E97e",
+                "blockCreated": 17482143,
+              },
             },
           },
           "fees": undefined,
-          "formatters": undefined,
-          "id": 42161,
-          "name": "Arbitrum One",
+          "formatters": {
+            "block": {
+              "exclude": undefined,
+              "format": [Function],
+              "type": "block",
+            },
+            "transaction": {
+              "exclude": undefined,
+              "format": [Function],
+              "type": "transaction",
+            },
+            "transactionReceipt": {
+              "exclude": undefined,
+              "format": [Function],
+              "type": "transactionReceipt",
+            },
+          },
+          "id": 8453,
+          "name": "Base",
           "nativeCurrency": {
             "decimals": 18,
             "name": "Ether",
@@ -39,11 +95,14 @@ describe('fromPorto', () => {
           "rpcUrls": {
             "default": {
               "http": [
-                "https://arb1.arbitrum.io/rpc",
+                "https://mainnet.base.org",
               ],
             },
           },
-          "serializers": undefined,
+          "serializers": {
+            "transaction": [Function],
+          },
+          "sourceId": 1,
         },
         "extend": [Function],
         "key": "base",

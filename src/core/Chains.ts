@@ -6,7 +6,10 @@ export type { Chain } from 'viem/chains'
 export { anvil } from 'viem/chains'
 export * from './internal/_generated/chains.js'
 
-export const all = Object.values(chains) as unknown as [Chain, ...Chain[]]
+export const all = [
+  chains.base,
+  ...Object.values(chains).filter((c) => c.id !== chains.base.id),
+] as const satisfies [Chain, ...Chain[]]
 
 /** Additional Anvil environment, purposed for interop. */
 export const anvil2 = /*#__PURE__*/ defineChain({
