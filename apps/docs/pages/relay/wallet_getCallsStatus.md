@@ -41,7 +41,7 @@ import { Address, Hash, Hex } from 'viem'
 type Response = {
   id: Hex,
   status: number, // See "Status Codes"
-  receipts?: {
+  receipts: {
     logs: {
       chainId: Hex,
       address: Address,
@@ -54,6 +54,11 @@ type Response = {
     gasUsed: Hex,
     transactionHash: Hash,
   }[],
+  /** Optional capabilities for cross-chain bundles */
+  capabilities?: {
+    /** Interop bundle status if this is an interop bundle */
+    interopStatus?: 'pending' | 'confirmed' | 'failed',
+  },
 }
 ```
 
