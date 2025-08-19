@@ -16,16 +16,22 @@ The Relay has a unified endpoint supporting the networks below: `https://rpc.ith
 
 **Supported Networks:**
 
-| Network | Chain ID |
-|---------|----------|
-| Base | 8453 |
-| Optimism | 10 |
-| Arbitrum | 42161 |
-| BNB Chain | 56 |
-| Polygon | 137 |
-| Base Sepolia | 84532 |
-| Optimism Sepolia | 11155420 |
-| Arbitrum Sepolia | 421614 |
+| Network | Chain ID | Fee Token Support | Interop Support |
+|---------|----------|-------------------|-----------------|
+| **Base** | 8453 | ETH, USDC | ETH, USDC |
+| **Optimism** | 10 | ETH, USDC | ETH, USDC |
+| **Arbitrum** | 42161 | ETH, USDC | ETH, USDC |
+| **Ethereum** | 1 | ETH, USDC | ETH, USDC |
+| **Celo** | 42220 | CELO, USDC | USDC |
+| **BNB Chain** | 56 | BNB | No |
+| **Polygon** | 137 | POL, USDC | No |
+| **Katana** | 747474 | ETH | No |
+| **Base Sepolia** | 84532 | tETH, EXP1, EXP2 | No |
+| **Optimism Sepolia** | 11155420 | tETH, EXP1, EXP2 | No |
+| **Arbitrum Sepolia** | 421614 | tETH | No |
+
+- **Fee Token Support**: List of tokens that can be used to pay fees
+- **Interop Support**: Whether cross-chain functionality is available and which tokens
 
 ## Local Development
 
