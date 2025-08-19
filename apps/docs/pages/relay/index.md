@@ -10,7 +10,20 @@ We'd love to hear your feedback. Report any issues or feature suggestions [on th
 
 ## Endpoints
 
-The Relay has a single hosted endpoint: `https://rpc.ithaca.xyz`.
+### Chain support 
+The Relay has a unified endpoint supporting all production networks: `https://rpc.ithaca.xyz`
+
+Supported mainnet chains:
+- **Base** (Chain ID: 8453)
+- **Optimism** (Chain ID: 10) 
+- **Arbitrum** (Chain ID: 42161)
+- **BNB Chain** (Chain ID: 56)
+- **Polygon** (Chain ID: 137)
+
+Supported testnet chains:
+- **Base Sepolia** (Chain ID: 84532)
+- **Optimism Sepolia** (Chain ID: 11155420) 
+- **Arbitrum Sepolia** (Chain ID: 421614)
 
 ## Local Development
 

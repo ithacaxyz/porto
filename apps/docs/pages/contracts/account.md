@@ -1,6 +1,6 @@
 # Account
 
-The Porto Account is a keychain that holds user funds, enforces permissions via [Keys](#keys), manages nonces to prevent replay attacks, and enables secure executions from the account.
+The Porto Account is a keychain that holds user funds, enforces permissions via [Keys](#keys), manages nonces to prevent replay attacks, enables secure executions from the account, and provides native cross-chain interoperability.
 
 ## Concepts
 ### Keys
@@ -120,6 +120,15 @@ When a nonce's sequence key begins with the prefix `0xc1d0` (a mnemonic for "cha
 
 This allows the same signature to be valid across multiple chains.
 
+#### Cross-Chain Features
+
+The account includes native cross-chain interoperability capabilities:
+
+- **Merkle Signature Verification**: Built-in support for merkle signature verification in multichain executions
+- **Fund Transfers**: Cross-chain fund transfers with strictly ordered token addresses
+- **Funder Integration**: Native integration with funder contracts for cross-chain execution funding and signature verification
+- **Multichain Execution**: Multichain flag enables advanced signature verification modes for cross-chain operations
+
 ### Execution
 
 The Porto Account uses the [ERC 7821](https://eips.ethereum.org/EIPS/eip-7821) Executor interface.
@@ -210,7 +219,7 @@ account.execute(_ERC7821_BATCH_EXECUTION_MODE, executionData);
 
 ### Orchestrator Integration
 At the time of deployment, an orchestrator address can be set in a porto account. 
-The orchestrator is an immutable privileged entity, that facilitates trustless interactions between the relayer and the account.
+The orchestrator is an immutable privileged entity that facilitates trustless interactions between the relayer and the account, including cross-chain executions.
 
 To do this, it is given 3 special access points into the account. 
 More details about the whole intent flow can be found in the [Orchestrator documentation](/contracts/orchestrator.md).
@@ -475,9 +484,9 @@ These functions are helpers that can be called publicly.
   ```solidity
   function computeDigest(Call[] calldata calls, uint256 nonce) public view virtual returns (bytes32 result)
   ```
-- **Description:** Computes the EIP-712 typed data hash for an `Execute` operation.
-    - If the `nonce` starts with `MULTICHAIN_NONCE_PREFIX` (0xc1d0), the digest is computed without the chain ID (for multichain replay protection).
-    - Otherwise, the standard EIP-712 digest including the chain ID is computed.
+- **Description:** Computes the EIP-712 typed data hash for an `Execute` operation with built-in cross-chain support.
+    - If the `nonce` starts with `MULTICHAIN_NONCE_PREFIX` (0xc1d0), the digest is computed without the chain ID, enabling cross-chain signature replay.
+    - Otherwise, the standard EIP-712 digest including the chain ID is computed for single-chain execution.
 - **Usage:**
     - `calls`: Array of `Call` structs to be executed.
     - `nonce`: The nonce for this execution.

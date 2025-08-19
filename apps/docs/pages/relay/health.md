@@ -13,7 +13,10 @@ type Request = {
 ## Response
 
 ```ts
-type Response = string; // the version
+dontype Response = {
+  status: string;
+  version: string;
+}
 ```
 
 ## Example
@@ -22,6 +25,9 @@ type Response = string; // the version
 cast rpc --rpc-url https://rpc.ithaca.xyz health
 ```
 
-```ts
-"9.0.1-dev (f62ebc7)"
+```json
+{
+  "status": "ok",
+  "version": "21.0.2 (93ade40)"
+}
 ```

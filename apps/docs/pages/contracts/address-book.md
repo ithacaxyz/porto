@@ -1,4 +1,10 @@
-**Base Mainnet**
+# Address Book
+
+Contract addresses for Porto infrastructure. All chains use the same addresses for deterministic deployment.
+
+## Mainnet Deployments
+
+**Supported Networks:** Base, Optimism, Arbitrum, BNB Chain, Polygon
 
 | Contract Name         | Address                                      |
 |-----------------------|----------------------------------------------|
@@ -7,7 +13,9 @@
 | Account Proxy          | [0x96e9ded822ffd4c65d8e09340ee95d2dc8fa209f](https://basescan.org/address/0x96e9ded822ffd4c65d8e09340ee95d2dc8fa209f)   |
 | Simulator             | [0x21d83f97fff3e35ab42d02e4bec8d61a9b645852](https://basescan.org/address/0x21d83f97fff3e35ab42d02e4bec8d61a9b645852)   |
 
-**Base Sepolia Testnet**
+## Testnet Deployments
+
+**Supported Networks:** Base Sepolia, Optimism Sepolia, Arbitrum Sepolia
 
 | Contract Name         | Address                                      |
 |-----------------------|----------------------------------------------|
