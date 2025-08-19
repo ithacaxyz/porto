@@ -52,12 +52,7 @@ export default defineConfig(({ mode }) => {
       skipMkcert
         ? null
         : mkcert({
-            hosts: [
-              'localhost',
-              'prod.localhost',
-              'stg.localhost',
-              'anvil.localhost',
-            ],
+            hosts: ['localhost', 'anvil.localhost'],
           }),
       react(),
       tailwindcss(),
