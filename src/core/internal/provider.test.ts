@@ -176,6 +176,130 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
     })
   })
 
+  describe('wallet_addFaucetFunds', () => {
+    test('default', async () => {
+      const porto = getPorto()
+      const client = TestConfig.getRelayClient(porto)
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
+      })
+
+      const capabilities = await porto.provider.request({
+        method: 'wallet_getCapabilities',
+      })
+      const tokenAddress = Object.values(capabilities)
+        .find(({ feeToken }) => feeToken.tokens.length > 0)
+        ?.feeToken.tokens.at(0)?.address
+
+      const result = await porto.provider.request({
+        method: 'wallet_addFaucetFunds',
+        params: [
+          {
+            address: account!.address,
+            chainId: Hex.fromNumber(client.chain.id),
+            tokenAddress: tokenAddress!,
+            value: '1',
+          },
+        ],
+      })
+
+      expect(result).toBeDefined()
+      expect(result.transactionHash).toBeDefined()
+    })
+
+    test('behavior: with specific chainId', async () => {
+      const porto = getPorto()
+      const client = TestConfig.getRelayClient(porto)
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
+      })
+      const address = account!.address
+
+      const capabilities = await porto.provider.request({
+        method: 'wallet_getCapabilities',
+        params: [undefined, [Hex.fromNumber(client.chain.id)]],
+      })
+      const tokenAddress = Object.values(capabilities)
+        .find(({ feeToken }) => feeToken.tokens.length > 0)
+        ?.feeToken.tokens.at(0)?.address
+
+      const result = await porto.provider.request({
+        method: 'wallet_addFaucetFunds',
+        params: [
+          {
+            address,
+            chainId: Hex.fromNumber(client.chain.id),
+            tokenAddress: tokenAddress!,
+            value: '1',
+          },
+        ],
+      })
+
+      expect(result).toBeDefined()
+      expect(result.transactionHash).toBeDefined()
+    })
+
+    test('behavior: invalid account', async () => {
+      const porto = getPorto()
+      const client = TestConfig.getRelayClient(porto)
+      await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
+      })
+
+      await expect(
+        porto.provider.request({
+          method: 'wallet_addFaucetFunds',
+          params: [
+            {
+              address: '0x0000000000000000000000000000000000000000',
+              chainId: Hex.fromNumber(client.chain.id),
+              tokenAddress: '0x0000000000000000000000000000000000000000',
+              value: '1',
+            },
+          ],
+        }),
+      ).rejects.toThrow()
+    })
+
+    test('behavior: unsupported chain', async () => {
+      const porto = getPorto()
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
+      })
+
+      const capabilities = await porto.provider.request({
+        method: 'wallet_getCapabilities',
+      })
+      const tokenAddress = Object.values(capabilities)
+        .find(({ feeToken }) => feeToken.tokens.length > 0)
+        ?.feeToken.tokens.at(0)?.address
+
+      await expect(
+        porto.provider.request({
+          method: 'wallet_addFaucetFunds',
+          params: [
+            {
+              address: account!.address,
+              chainId: Hex.fromNumber(999999),
+              tokenAddress: tokenAddress!,
+              value: '1',
+            },
+          ],
+        }),
+      ).rejects.toThrow()
+    })
+  })
+
   describe('wallet_grantAdmin', () => {
     test('default', async () => {
       const messages: any[] = []

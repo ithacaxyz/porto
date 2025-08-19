@@ -6,7 +6,6 @@
 
 import * as Schema from 'effect/Schema'
 import * as Primitive from '../../schema/primitive.js'
-import * as Rpc from '../../schema/rpc.js'
 import * as C from './capabilities.js'
 import * as Key from './key.js'
 import * as PreCall from './preCall.js'
@@ -95,7 +94,33 @@ export namespace health {
   export type Response = typeof Response.Type
 }
 
-export const wallet_addFaucetFunds = Rpc.wallet_addFaucetFunds
+export namespace wallet_addFaucetFunds {
+  export const Parameters = Schema.Struct({
+    address: Primitive.Address,
+    chainId: Primitive.Number,
+    tokenAddress: Primitive.Address,
+    value: Schema.String,
+  }).annotations({
+    identifier: 'Rpc.wallet_addFaucetFunds.Parameters',
+  })
+  export type Parameters = typeof Parameters.Type
+
+  export const Request = Schema.Struct({
+    method: Schema.Literal('wallet_addFaucetFunds'),
+    params: Schema.Tuple(Parameters),
+  }).annotations({
+    identifier: 'Rpc.wallet_addFaucetFunds.Request',
+  })
+  export type Request = typeof Request.Type
+
+  export const Response = Schema.Struct({
+    message: Schema.optional(Schema.String),
+    transactionHash: Primitive.Hex,
+  }).annotations({
+    identifier: 'Rpc.wallet_addFaucetFunds.Response',
+  })
+  export type Response = typeof Response.Type
+}
 
 export namespace wallet_getAccounts {
   /** Parameters for `wallet_getAccounts` request. */

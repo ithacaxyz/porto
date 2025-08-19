@@ -139,6 +139,26 @@ export function from<
           return result
         }
 
+        case 'wallet_addFaucetFunds': {
+          const client = getClient()
+
+          const result = await getMode().actions.addFaucetFunds({
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
+          })
+
+          emitter.emit('message', {
+            data: null,
+            type: 'assetsChanged',
+          })
+
+          return result satisfies typeof Rpc.wallet_addFaucetFunds.Response.Encoded
+        }
+
         case 'eth_accounts': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()

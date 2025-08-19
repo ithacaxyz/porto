@@ -66,7 +66,8 @@ export namespace account_verifyEmail {
 export namespace wallet_addFaucetFunds {
   export const Parameters = Schema.Struct({
     address: Primitive.Address,
-    token: Primitive.Address,
+    chainId: Primitive.Number,
+    tokenAddress: Primitive.Address,
     value: Schema.String,
   }).annotations({
     identifier: 'Rpc.wallet_addFaucetFunds.Parameters',
@@ -81,7 +82,10 @@ export namespace wallet_addFaucetFunds {
   })
   export type Request = typeof Request.Type
 
-  export const Response = Schema.Null.annotations({
+  export const Response = Schema.Struct({
+    message: Schema.optional(Schema.String),
+    transactionHash: Primitive.Hex,
+  }).annotations({
     identifier: 'Rpc.wallet_addFaucetFunds.Response',
   })
   export type Response = typeof Response.Type

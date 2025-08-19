@@ -53,6 +53,16 @@ export function relay(parameters: relay.Parameters = {}) {
 
   return Mode.from({
     actions: {
+      async addFaucetFunds(parameters) {
+        const { internal } = parameters
+        const { client, request } = internal
+
+        if (request.method !== 'wallet_addFaucetFunds')
+          throw new Provider.UnsupportedMethodError()
+
+        const [params] = request._decoded.params
+        return await RelayActions_internal.addFaucetFunds(client, params)
+      },
       async addFunds() {
         throw new Provider.UnsupportedMethodError()
       },

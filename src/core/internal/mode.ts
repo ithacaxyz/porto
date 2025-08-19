@@ -52,7 +52,7 @@ export type Mode = {
     addFaucetFunds: (parameters: {
       /** Internal properties. */
       internal: ActionsInternal
-    }) => Promise<{ id: Hex.Hex }>
+    }) => Promise<RpcSchema.wallet_addFaucetFunds.Response>
 
     createAccount: (parameters: {
       /** Admins to grant. */
