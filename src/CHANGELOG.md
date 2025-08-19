@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.73
+
+### Patch Changes
+
+- [`63d8966`](https://github.com/ithacaxyz/porto/commit/63d8966380ca5bbde31ef7db3a1a180bbf54cf99) Thanks [@jxom](https://github.com/jxom)! - Added `mainnet` and `celo` chains.
+
 ## 0.0.72
 
 ### Patch Changes
