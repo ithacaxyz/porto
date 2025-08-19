@@ -1,6 +1,8 @@
+import * as Schema from 'effect/Schema'
 import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import * as Provider from 'ox/Provider'
+import * as Rpc from '../core/internal/schema/rpc.js'
 import type { Payload } from '../core/Messenger.js'
 import * as Actions from './Actions.js'
 import type * as Remote from './Porto.js'
@@ -32,6 +34,7 @@ export function onDialogRequest(
             | undefined
         }
       | undefined
+    requireChainSync?: boolean | undefined
     requireUpdatedAccount?: boolean | undefined
     request: Remote.RemoteState['requests'][number]['request'] | null
     origin: string
@@ -43,6 +46,39 @@ export function onDialogRequest(
     if (!request) {
       cb({ origin: event.origin, request: null })
       return
+    }
+
+    let requireChainSync = false
+    if (request.method === 'wallet_connect') {
+      const params = Schema.decodeUnknownSync(Rpc.wallet_connect.Parameters)(
+        request.params?.[0],
+      )
+
+      // Extract chainIds that the app has requested.
+      const chainIds_app = params?.chainIds
+      if (chainIds_app?.[0]) {
+        const chainIds = porto._internal.store.getState().chainIds
+
+        // Find the first app chain that is supported by the dialog.
+        const chainId = chainIds_app.find((chainId) =>
+          chainIds.includes(chainId),
+        )
+
+        // If the requested chain is not supported, respond with an error.
+        if (!chainId) {
+          Actions.respond(porto, request, {
+            error: new Provider.UnsupportedChainIdError(),
+          }).catch(() => {})
+          return
+        }
+
+        // Update the dialog chainIds so that the app chain is the "active" chain.
+        porto._internal.store.setState((x) => ({
+          ...x,
+          chainIds: [chainId, ...x.chainIds.filter((x) => x !== chainId)],
+        }))
+        requireChainSync = true
+      }
     }
 
     const policy = porto.methodPolicies?.find(
@@ -95,6 +131,7 @@ export function onDialogRequest(
       account: requireConnection ? account : undefined,
       origin: event.origin,
       request,
+      requireChainSync,
       requireUpdatedAccount,
     })
   })

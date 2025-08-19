@@ -4,7 +4,7 @@ import { Events } from 'porto/remote'
 import { Actions } from 'porto/wagmi'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { getConnectors } from 'wagmi/actions'
+import { getConnectors, switchChain } from 'wagmi/actions'
 
 import * as Dialog from '~/lib/Dialog.ts'
 import { porto } from '~/lib/Porto.js'
@@ -74,18 +74,25 @@ const offInitialized = Events.onInitialized(porto, (payload, event) => {
 
 const offDialogRequest = Events.onDialogRequest(
   porto,
-  ({ account, request, requireUpdatedAccount }) => {
+  ({ account, request, requireChainSync, requireUpdatedAccount }) => {
+    const chainId = porto._internal.store.getState().chainIds[0]
     const connectedAccount = porto._internal.store.getState().accounts[0]
-    const needsSync = account && account.address !== connectedAccount?.address
+    const requireAccountSync =
+      account && account.address !== connectedAccount?.address
 
     // Clear errors when the request is null (i.e. when the dialog is closed).
     if (!request) Dialog.store.setState({ error: null })
 
-    if (needsSync)
+    if (requireAccountSync)
       Actions.connect(Wagmi.config, {
         connector: getConnectors(Wagmi.config)[0]!,
         force: true,
         selectAccount: account,
+      })
+
+    if (requireChainSync)
+      switchChain(Wagmi.config, {
+        chainId,
       })
 
     Router.router.navigate({

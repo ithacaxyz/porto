@@ -62,7 +62,7 @@ export async function getCapabilities<
           method,
           params: [chainIds],
         }),
-      { cacheKey: `${client.uid}.${method}` },
+      { cacheKey: `${client.uid}.${method}.${chainIds.join(',')}` },
     )
     const parsed = (() => {
       if (options.raw) return result as never

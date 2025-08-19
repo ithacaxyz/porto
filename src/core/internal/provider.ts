@@ -734,9 +734,10 @@ export function from<
         }
 
         case 'wallet_connect': {
-          const [{ capabilities }] = request._decoded.params ?? [{}]
+          const [{ capabilities, chainIds }] = request._decoded.params ?? [{}]
 
-          const client = getClient()
+          const client = getClient(chainIds?.[0])
+          const chainId = client.chain.id
 
           const {
             createAccount,
@@ -819,21 +820,14 @@ export function from<
 
           store.setState((x) => ({ ...x, accounts }))
 
-          emitter.emit('connect', {
-            chainId: Hex.fromNumber(client.chain.id),
-          })
+          const chainIds_response = [
+            chainId,
+            ...store.getState().chainIds.filter((id) => id !== chainId),
+          ] as const
 
-          const currentChainId = client.chain.id
-          const chainIds = [
-            Hex.fromNumber(currentChainId),
-            ...(config.chains
-              .map((chain) =>
-                chain.id === currentChainId
-                  ? undefined
-                  : Hex.fromNumber(chain.id),
-              )
-              .filter(Boolean) as `0x${string}`[]),
-          ]
+          emitter.emit('connect', {
+            chainId: Hex.fromNumber(chainIds_response[0]),
+          })
 
           return {
             accounts: accounts.map((account) => ({
@@ -851,7 +845,9 @@ export function from<
                 }),
               },
             })),
-            chainIds,
+            chainIds: chainIds_response.map((chainId) =>
+              Hex.fromNumber(chainId),
+            ),
           } satisfies typeof Rpc.wallet_connect.Response.Encoded
         }
 

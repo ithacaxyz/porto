@@ -128,6 +128,7 @@ export async function connect(
   client: Client,
   parameters: connect.Parameters = {},
 ): Promise<connect.ReturnType> {
+  const { chainIds, ...capabilities } = parameters
   const method = 'wallet_connect' as const
   type Method = typeof method
   const response = await client.request<
@@ -135,11 +136,10 @@ export async function connect(
   >({
     method,
     params: [
-      {
-        capabilities: Schema.encodeSync(RpcSchema.wallet_connect.Capabilities)(
-          parameters,
-        ),
-      },
+      Schema.encodeSync(RpcSchema.wallet_connect.Parameters)({
+        capabilities,
+        chainIds,
+      }),
     ],
   })
 
@@ -147,7 +147,8 @@ export async function connect(
 }
 
 export declare namespace connect {
-  type Parameters = RpcSchema.wallet_connect.Capabilities
+  type Parameters = RpcSchema.wallet_connect.Capabilities &
+    Omit<RpcSchema.wallet_connect.Parameters, 'capabilities'>
 
   type ReturnType = RpcSchema.wallet_connect.Response
 }

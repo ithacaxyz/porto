@@ -511,15 +511,15 @@ export namespace wallet_connect {
   })
   export type Capabilities = typeof Capabilities.Type
 
+  export const Parameters = Schema.Struct({
+    capabilities: Schema.optional(Capabilities),
+    chainIds: Schema.optional(Schema.Array(Primitive.Number)),
+  })
+  export type Parameters = typeof Parameters.Type
+
   export const Request = Schema.Struct({
     method: Schema.Literal('wallet_connect'),
-    params: Schema.optional(
-      Schema.Tuple(
-        Schema.Struct({
-          capabilities: Schema.optional(Capabilities),
-        }),
-      ),
-    ),
+    params: Schema.optional(Schema.Tuple(Parameters)),
   }).annotations({
     identifier: 'Rpc.wallet_connect.Request',
   })

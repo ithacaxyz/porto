@@ -143,7 +143,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const account = await (async () => {
           if (request.method === 'wallet_connect') {
             // Extract the capabilities from the request.
-            const [{ capabilities }] = request._decoded.params ?? [{}]
+            const [{ capabilities, chainIds }] = request._decoded.params ?? [{}]
 
             const authUrl = getAuthUrl(
               capabilities?.signInWithEthereum?.authUrl ?? config.authUrl,
@@ -184,6 +184,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                           }
                         : undefined,
                   },
+                  chainIds: chainIds?.map((chainId) => Hex.fromNumber(chainId)),
                 },
               ],
             })
