@@ -3,6 +3,7 @@ import { Address } from 'ox'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
 import type { RelayActions } from 'porto/viem'
 import * as React from 'react'
+import { zeroAddress } from 'viem'
 import { AddFunds } from '~/routes/-components/AddFunds'
 import { Layout } from '~/routes/-components/Layout'
 
@@ -24,7 +25,10 @@ export function CheckBalance(props: CheckBalance.Props) {
     })
     if (deficitQuote) {
       // If we are being sponsored, we will have no deficit.
-      if (!Address.isEqual(deficitQuote.intent.payer, deficitQuote.intent.eoa))
+      if (
+        !Address.isEqual(deficitQuote.intent.payer, zeroAddress) &&
+        !Address.isEqual(deficitQuote.intent.payer, deficitQuote.intent.eoa)
+      )
         return
 
       const { chainId, feeTokenDeficit, intent } = deficitQuote
