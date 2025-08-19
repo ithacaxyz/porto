@@ -1,4 +1,3 @@
-import type { PortoConfig } from '@porto/apps'
 import type { Address } from 'ox'
 import { erc20Abi } from 'viem'
 import {
@@ -12,10 +11,8 @@ import { defaultAssets, ethAsset } from '~/lib/Constants'
 
 export function useReadBalances({
   address,
-  chainId,
 }: {
   address?: Address.Address | undefined
-  chainId: PortoConfig.ChainId
 }) {
   const assets = (defaultAssets[chainId] ?? []).filter(
     (asset) => asset.address !== '0x0000000000000000000000000000000000000000',

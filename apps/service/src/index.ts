@@ -10,7 +10,6 @@ import { trimTrailingSlash } from 'hono/trailing-slash'
 
 import { corsApp } from './routes/cors.ts'
 import { faucetApp } from './routes/faucet.ts'
-import { onrampApp } from './routes/onramp.ts'
 import { snapshotApp } from './routes/snapshot.tsx'
 import { verifyApp } from './routes/verify.ts'
 
@@ -25,7 +24,7 @@ app.use(trimTrailingSlash())
 
 app.get('/', (context) =>
   context.json({
-    routes: ['/cors', '/faucet', '/onramp', '/verify', '/snapshot'],
+    routes: ['/cors', '/verify', '/snapshot'],
     version: context.env.WORKERS_CI_COMMIT_SHA ?? 'running locally',
   }),
 )
@@ -34,7 +33,6 @@ app.get('/health', (context) => context.text('ok'))
 
 app.route('/cors', corsApp)
 app.route('/faucet', faucetApp)
-app.route('/onramp', onrampApp)
 app.route('/verify', verifyApp)
 app.route('/snapshot', snapshotApp)
 

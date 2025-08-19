@@ -1,4 +1,3 @@
-import type { PortoConfig } from '@porto/apps'
 import { porto as portoConnector } from 'porto/wagmi'
 import { createConfig, createStorage } from 'wagmi'
 import * as Porto from './Porto'
@@ -18,7 +17,7 @@ export const mipdConfig = createConfig({
   transports: config._internal.transports,
 })
 
-export const getChainConfig = (chainId: PortoConfig.ChainId) =>
+export const getChainConfig = (chainId: number) =>
   config.chains.find((c) => c.id === chainId)
 
 declare module 'wagmi' {

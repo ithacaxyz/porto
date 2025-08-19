@@ -1,6 +1,5 @@
 import * as Ariakit from '@ariakit/react'
 import { Button, Spinner, Toast } from '@porto/apps/components'
-import { exp1Address } from '@porto/apps/contracts'
 import { useCopyToClipboard } from '@porto/apps/hooks'
 import { Link } from '@tanstack/react-router'
 import { Cuer } from 'cuer'
@@ -12,26 +11,18 @@ import { toast } from 'sonner'
 import { encodeFunctionData, erc20Abi, formatEther, zeroAddress } from 'viem'
 import {
   useAccount,
-  useChainId,
   useDisconnect,
   useSendCalls,
   useWaitForCallsStatus,
   useWatchBlockNumber,
 } from 'wagmi'
-import { DevOnly } from '~/components/DevOnly'
 import { ShowMore } from '~/components/ShowMore'
+import { TokenSymbol } from '~/components/TokenSymbol'
 import { TruncatedAddress } from '~/components/TruncatedAddress'
-import { useAddressTransfers } from '~/hooks/useBlockscoutApi'
 import { useClickOutside } from '~/hooks/useClickOutside'
-import { useSwapAssets } from '~/hooks/useSwapAssets'
-import { useErc20Info, useErc721Info } from '~/hooks/useTokenInfo'
-import { useTokenStandard } from '~/hooks/useTokenStandard'
-import {
-  ArrayUtils,
-  DateFormatter,
-  StringFormatter,
-  ValueFormatter,
-} from '~/utils'
+import { type ChainId, defaultAssets, ethAsset } from '~/lib/Constants'
+import { getChainConfig } from '~/lib/Wagmi'
+import { DateFormatter, ValueFormatter } from '~/utils'
 import LucideBadgeCheck from '~icons/lucide/badge-check'
 import ClipboardCopyIcon from '~icons/lucide/clipboard-copy'
 import CopyIcon from '~icons/lucide/copy'
@@ -43,62 +34,70 @@ import LucideShieldCheck from '~icons/lucide/shield-check'
 import LucideTriangleAlert from '~icons/lucide/triangle-alert'
 import WalletIcon from '~icons/lucide/wallet-cards'
 import XIcon from '~icons/lucide/x'
-import AccountIcon from '~icons/material-symbols/account-circle-full'
 import NullIcon from '~icons/material-symbols/do-not-disturb-on-outline'
 import WorldIcon from '~icons/tabler/world'
 import { Layout } from './Layout'
 
-function TokenSymbol({
-  address,
-  display,
-}: {
-  address?: Address.Address | undefined
-  display?: 'symbol' | 'name' | 'address'
-}) {
-  const tokenStandard = useTokenStandard(address)
-
-  const { data: tokenInfoErc20 } = useErc20Info({
-    address,
-    enabled: tokenStandard.standard === 'ERC20',
-  })
-
-  const { data: tokenInfo721 } = useErc721Info({
-    address,
-    enabled: tokenStandard.standard === 'ERC721',
-  })
-
-  const tokenInfo =
-    tokenStandard.standard === 'ERC20' ? tokenInfoErc20 : tokenInfo721
-
-  if (!address) return null
-
-  if (!tokenInfo?.symbol || display === 'address')
-    return StringFormatter.truncate(address, { end: 4, start: 4 })
-
-  return display === 'name' ? tokenInfo.name : tokenInfo.symbol
-}
-
 export function Dashboard() {
   const [, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
 
-  const chainId = useChainId()
   const account = useAccount()
-
-  const blockExplorer = account.chain?.blockExplorers?.default.url ?? ''
-
   const disconnect = useDisconnect()
   const permissions = Hooks.usePermissions()
 
-  const addressTransfers = useAddressTransfers({ chainId })
-  const swapAssets = useSwapAssets({ chainId })
+  const assets = Hooks.useAssets({
+    query: {
+      enabled: account.status === 'connected',
+    },
+  })
+
+  const serializedAssets = React.useMemo(() => {
+    if (!assets.data) return []
+    const serialized: {
+      address: Address.Address
+      balance: bigint
+      chainId: number
+      logo: string
+      name: string
+      price: number
+      symbol: string
+      decimals: number
+    }[] = []
+    for (const [chainId, balances] of Object.entries(assets.data)) {
+      const assets = defaultAssets[chainId as unknown as ChainId]
+      for (const balance of balances) {
+        const asset =
+          balance.type === 'native'
+            ? ethAsset
+            : assets?.find(
+                (asset) =>
+                  asset?.symbol?.toLowerCase() ===
+                  balance.metadata?.symbol?.toLowerCase(),
+              )
+
+        serialized.push({
+          address:
+            asset?.address || balance.address?.startsWith('0x')
+              ? (balance.address as Address.Address)
+              : zeroAddress,
+          balance: balance.balance,
+          chainId: Number(chainId),
+          decimals: asset?.decimals || balance.metadata?.decimals || 0,
+          logo: asset?.logo || '',
+          name: asset?.name || balance.metadata?.name || '',
+          price: 0,
+          symbol: asset?.symbol || balance.metadata?.symbol || '',
+        })
+      }
+    }
+    return serialized.sort((a, b) => b.chainId - a.chainId)
+  }, [assets.data])
 
   useWatchBlockNumber({
     enabled: account.status === 'connected',
     onBlockNumber: async (_blockNumber) => {
       await Promise.all([
-        swapAssets.refetch().catch((error) => console.error(error)),
         permissions.refetch().catch((error) => console.error(error)),
-        addressTransfers.refetch().catch((error) => console.error(error)),
       ])
     },
     pollingInterval: 1_000,
@@ -106,20 +105,10 @@ export function Dashboard() {
 
   const revokePermissions = Hooks.useRevokePermissions()
 
-  const totalBalance = React.useMemo(() => {
-    if (!swapAssets.data) return 0n
-    return ArrayUtils.sum(
-      swapAssets.data.map(
-        (asset) =>
-          Number(Value.format(asset.balance, asset.decimals)) *
-          (asset.price ?? 0),
-      ),
-    )
-  }, [swapAssets.data])
-
   const admins = Hooks.useAdmins({
     query: {
-      enabled: account.status === 'connected',
+      enabled: account.status !== 'connected',
+      refetchInterval: 5_000,
       select: (data) => ({
         address: data.address,
         keys: data.keys.filter((key) =>
@@ -196,7 +185,6 @@ export function Dashboard() {
 
   return (
     <>
-      <DevOnly />
       <div className="h-3" />
       <Layout.Header
         left={
@@ -333,7 +321,7 @@ export function Dashboard() {
               onClick={() =>
                 addFunds.mutate({
                   address: account.address,
-                  token: exp1Address[chainId as keyof typeof exp1Address],
+                  // token: exp1Address[chainId as keyof typeof exp1Address],
                   // value gets passed from the dialog in this app
                 })
               }
@@ -371,9 +359,7 @@ export function Dashboard() {
         <div className="flex flex-1 flex-col justify-between">
           <div className="font-[500] text-[13px] text-gray10">Your account</div>
           <div>
-            <div className="font-[500] text-[24px] tracking-[-2.8%]">
-              ${ValueFormatter.formatToPrice(totalBalance)}
-            </div>
+            <div className="font-[500] text-[24px] tracking-[-2.8%]">${0}</div>
           </div>
         </div>
         <Ariakit.Button
@@ -402,38 +388,37 @@ export function Dashboard() {
       <hr className="border-gray5" />
       <div className="h-4" />
 
-      <details
-        className="group"
-        open={
-          swapAssets.data &&
-          swapAssets.data?.length > 0 &&
-          swapAssets.data.some((asset) => asset.balance !== 0n)
-        }
-      >
+      <details className="group" open={serializedAssets.length > 0}>
         <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
           <span>Assets</span>
         </summary>
 
         <PaginatedTable
           columns={[
-            { header: 'Name', key: 'name', width: 'w-[40%]' },
+            { header: '', key: 'chain', width: '' },
+            { align: 'left', header: '', key: 'name', width: 'w-[30%]' },
             {
               align: 'right',
-              header: 'Amount',
+              header: '',
               key: 'amount',
               width: 'w-[20%]',
             },
-            { align: 'right', header: 'Value', key: 'value', width: 'w-[20%]' },
+            { align: 'right', header: '', key: 'value', width: 'w-[20%]' },
             { align: 'right', header: '', key: 'action', width: 'w-[20%]' },
             { align: 'right', header: '', key: 'action', width: 'w-[20%]' },
           ]}
-          data={swapAssets.data}
+          data={
+            serializedAssets.some((a) => a.balance > 0n)
+              ? serializedAssets
+              : undefined
+          }
           emptyMessage="No balances available for this account"
           renderRow={(asset) => (
             <AssetRow
-              address={asset.address}
+              address={asset.address!}
+              chainId={asset.chainId}
               decimals={asset.decimals}
-              key={asset.address}
+              key={asset.symbol}
               logo={asset.logo}
               name={asset.name}
               price={asset.price}
@@ -441,109 +426,13 @@ export function Dashboard() {
               value={asset.balance}
             />
           )}
-          showMoreText="more assets"
+          showMoreText={serializedAssets.length > 0 ? 'more assets' : ''}
         />
       </details>
 
       <div className="h-4" />
       <hr className="border-gray5" />
       <div className="h-4" />
-
-      {import.meta.env.DEV && (
-        <>
-          <details
-            className="group tabular-nums"
-            open={!!addressTransfers.data?.items?.length}
-          >
-            <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
-              History
-            </summary>
-
-            <PaginatedTable
-              columns={[
-                { header: 'Time', key: 'time' },
-                { header: 'From', key: 'sender' },
-                { header: 'To', key: 'recipient' },
-                { align: 'right', header: 'Amount', key: 'amount' },
-              ]}
-              data={addressTransfers.data?.items}
-              emptyMessage="No transactions yet"
-              renderRow={(transfer) => {
-                const isErc721Transfer = transfer?.token.type === 'ERC-721'
-                const amount = isErc721Transfer
-                  ? BigInt(1)
-                  : Number.parseFloat(
-                      ValueFormatter.format(
-                        BigInt(transfer?.total.value ?? 0),
-                        Number(transfer?.total.decimals ?? 0),
-                      ),
-                    ).toFixed(2)
-
-                return (
-                  <tr
-                    className="text-xs sm:text-sm"
-                    key={`${transfer?.transaction_hash}-${transfer?.block_number}`}
-                  >
-                    <td className="py-1 text-left">
-                      <a
-                        className="flex flex-row items-center"
-                        href={`${blockExplorer}/tx/${transfer?.transaction_hash}`}
-                        rel="noreferrer"
-                        target="_blank"
-                      >
-                        <ExternalLinkIcon className="mr-1 size-4 text-gray10" />
-                        <span className="min-w-[35px] text-gray11 sm:min-w-[65px]">
-                          {DateFormatter.ago(
-                            new Date(transfer?.timestamp ?? ''),
-                          )}
-                        </span>
-                      </a>
-                    </td>
-                    <td className="py-1 text-left font-medium">
-                      <div className="flex items-center">
-                        <div className="my-0.5 flex flex-row items-center gap-x-2 rounded-full bg-gray3">
-                          <AccountIcon className="hidden size-4 rounded-full text-gray10 sm:block" />
-                        </div>
-                        <TruncatedAddress
-                          address={transfer?.to.hash ?? ''}
-                          className="ml-2"
-                        />
-                      </div>
-                    </td>
-                    <td className="py-1 text-left font-medium">
-                      <div className="flex items-center">
-                        <div className="my-0.5 flex flex-row items-center gap-x-2 rounded-full bg-gray3">
-                          <AccountIcon className="hidden size-4 rounded-full text-gray10 sm:block" />
-                        </div>
-                        <TruncatedAddress
-                          address={transfer?.to.hash ?? ''}
-                          className="ml-2"
-                        />
-                      </div>
-                    </td>
-                    <td className="py-1 text-right text-gray12">
-                      <span className="text-sm sm:text-md">{amount}</span>
-                      <div className="inline-block w-[45px]">
-                        <span className="rounded-2xl bg-gray3 px-2 py-1 font-[500] text-gray10 text-xs">
-                          <TokenSymbol
-                            address={transfer?.token.address as Address.Address}
-                            display="symbol"
-                          />
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              }}
-              showMoreText="more transactions"
-            />
-          </details>
-
-          <div className="h-4" />
-          <hr className="border-gray5" />
-          <div className="h-4" />
-        </>
-      )}
 
       <details
         className="group pb-1 tabular-nums"
@@ -571,9 +460,14 @@ export function Dashboard() {
           emptyMessage="No permissions added yet"
           initialCount={3}
           renderRow={(permission) => {
+            if (!permission.chainId) return null
+
             const [spend] = permission?.permissions?.spend ?? []
             const [calls] = permission?.permissions?.calls ?? []
 
+            const chain = getChainConfig(
+              permission.chainId as unknown as ChainId,
+            )
             const time = DateFormatter.timeToDuration(permission.expiry * 1_000)
 
             const periods = {
@@ -593,7 +487,7 @@ export function Dashboard() {
                 <td className="py-1 text-left">
                   <a
                     className="flex flex-row items-center"
-                    href={`${blockExplorer}/address/${permission.address}`}
+                    href={`${chain?.blockExplorers?.default.url}/address/${permission.address}`}
                     rel="noreferrer"
                     target="_blank"
                   >
@@ -826,7 +720,7 @@ function PaginatedTable<T>({
           ) : (
             <tr>
               <td className="text-center text-gray12" colSpan={columns.length}>
-                <p className="mt-2 text-sm">{emptyMessage}</p>
+                <p className="mt-2 text-xs">{emptyMessage}</p>
               </td>
             </tr>
           )}
@@ -845,32 +739,20 @@ function PaginatedTable<T>({
   )
 }
 
-function AssetRow({
-  address,
-  decimals,
-  logo,
-  name,
-  symbol,
-  value,
-  price,
-}: {
+function AssetRow(props: {
   address: Address.Address
   decimals: number
-  logo: string
   name: string
   symbol: string
   value: bigint
-  price: number
+  logo?: string | undefined
+  price?: number | undefined
+  chainId: number
 }) {
+  const { address, decimals, logo, name, symbol, value, price, chainId } = props
   const [viewState, setViewState] = React.useState<'send' | 'default'>(
     'default',
   )
-
-  const chainId = useChainId()
-
-  const { data: _swapAssets, refetch: refetchSwapAssets } = useSwapAssets({
-    chainId,
-  })
 
   const formattedBalance = React.useMemo(
     () => ValueFormatter.format(value, decimals),
@@ -878,10 +760,10 @@ function AssetRow({
   )
 
   // total value of the asset
-  const totalValue = React.useMemo(
-    () => price * Number(formattedBalance),
-    [price, formattedBalance],
-  )
+  const totalValue = React.useMemo(() => {
+    if (!price) return 0
+    return price * Number(formattedBalance)
+  }, [price, formattedBalance])
 
   const sendCalls = useSendCalls({
     mutation: {
@@ -914,7 +796,7 @@ function AssetRow({
         sendForm.setState('submitSucceed', 0)
       },
       onSuccess: (_data) => {
-        refetchSwapAssets()
+        // refetchSwapAssets()
         sendForm.setState('submitSucceed', (count) => +count + 1)
         sendForm.setState('submitFailed', 0)
       },
@@ -1014,9 +896,16 @@ function AssetRow({
     <tr className="font-normal sm:text-sm">
       {viewState === 'default' ? (
         <>
+          <td className="w-[17.5%]">
+            <span className="font-medium text-sm sm:text-md">{chainId}</span>
+          </td>
           <td className="w-[80%]">
-            <div className="flex items-center gap-x-2 py-2">
-              <img alt="asset icon" className="size-5 sm:size-6" src={logo} />
+            <div className="flex items-center gap-x-3 py-2">
+              <img
+                alt={name}
+                className="size-5 sm:size-6"
+                src={`/icons/${symbol.toLowerCase()}.svg`}
+              />
               <span className="font-medium text-sm sm:text-md">{name}</span>
             </div>
           </td>

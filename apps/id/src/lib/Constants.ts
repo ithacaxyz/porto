@@ -17,6 +17,8 @@ export const ethAsset = {
   symbol: 'ETH',
 } as const
 
+export type ChainId = PortoConfig.ChainId
+
 // TODO: extract from `wallet_getCapabilities` instead of hardcoding.
 export const defaultAssets: Record<
   PortoConfig.ChainId,

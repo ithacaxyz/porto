@@ -5,7 +5,6 @@ Swiss Knife Worker for Porto Services
 ## Routes
 
 - `/cors`
-- `/onramp`
 - `/faucet`
 - `/verify`
 
