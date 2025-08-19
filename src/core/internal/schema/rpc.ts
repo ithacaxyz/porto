@@ -66,6 +66,7 @@ export namespace account_verifyEmail {
 export namespace wallet_addFunds {
   export const Parameters = Schema.Struct({
     address: Schema.optional(Primitive.Address),
+    chainId: Schema.optional(Primitive.Number),
     token: Schema.optional(Primitive.Address),
     value: Schema.optional(Schema.String),
   }).annotations({

@@ -47,8 +47,8 @@ export function fromPorto<
         'Could not find a compatible Porto chain on the given chain configuration.',
         '',
         `Provided chains: [${chains.map((chain) => `${chain.name} (id: ${chain.id})`).join(', ')}]`,
-        'Please add at least one of the following chains (ids) to your chain configuration:',
-        state.chainIds.map((chainId) => `- ${chainId}`).join('\n'),
+        `Needed chain (id): ${chainId}`,
+        'Please add this chain (id) to your chain configuration.',
       ].join('\n'),
     )
 

@@ -23,6 +23,9 @@ cli
   .option('-d, --dialog <hostname>', 'Dialog hostname', {
     default: 'id.porto.sh',
   })
+  .option('-t, --testnet', 'Onboard via testnet', {
+    default: false,
+  })
   .action(async (_, args) => {
     const Commands = await import('../internal/commands.js')
     return Commands.createAccount(null, args)

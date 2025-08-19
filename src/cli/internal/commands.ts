@@ -2,7 +2,9 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { setTimeout } from 'node:timers/promises'
 import * as prompts from '@clack/prompts'
+import { Hex } from 'ox'
 import * as Actions from 'viem/actions'
+import * as Chains from '../../core/Chains.js'
 import * as Key from '../../viem/Key.js'
 import * as WalletActions from '../../viem/WalletActions.js'
 import * as Dialog from '../Dialog.js'
@@ -24,6 +26,7 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
   // Create an account.
   s.start('Creating account (check browser window)...')
   const { accounts } = await WalletActions.connect(client, {
+    chainIds: [client.chain.id],
     createAccount: true,
     grantAdmins: adminKey
       ? [
@@ -43,6 +46,9 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
     params: [
       {
         address: accounts[0]!.address,
+        chainId: args.testnet
+          ? Hex.fromNumber(Chains.baseSepolia.id)
+          : Hex.fromNumber(client.chain.id),
       },
     ],
   })
@@ -61,6 +67,9 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
       params: [
         {
           calls: [],
+          capabilities: {
+            feeToken: args.testnet ? 'EXP' : undefined,
+          },
           key: adminKey,
         },
       ],
@@ -113,5 +122,7 @@ export declare namespace createAccount {
     adminKey?: boolean | undefined
     /** Dialog hostname. */
     dialog?: string | undefined
+    /** Whether to onboard via testnet. */
+    testnet?: boolean | undefined
   }
 }
