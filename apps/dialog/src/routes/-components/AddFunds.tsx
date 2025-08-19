@@ -11,12 +11,11 @@ import { type Address, Hex, Value } from 'ox'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
 import { useBalance, useWatchBlockNumber, useWatchContractEvent } from 'wagmi'
-import { PayButton } from '~/components/PayButton'
+import { z } from 'zod'
 import * as FeeTokens from '~/lib/FeeTokens'
-import { enableOnramp, getOnrampWidget, stripeOnrampUrl } from '~/lib/Onramp.ts'
+import * as Onramp from '~/lib/Onramp.ts'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
-import { StringFormatter } from '~/utils'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
 import CopyIcon from '~icons/lucide/copy'
 import CardIcon from '~icons/lucide/credit-card'
@@ -59,7 +58,7 @@ export function AddFunds(props: AddFunds.Props) {
     // )
     //   return 'faucet'
     // if (!enableOnramp()) return undefined
-    if (!enableOnramp()) return 'faucet'
+    if (!Onramp.enableOnramp()) return 'faucet'
     // TODO: ensure that `tokenAddress` is compatible with google onramp.
     if (UserAgent.isFirefox() || UserAgent.isAndroid()) return 'google'
     // TODO: ensure that `tokenAddress` is compatible with apple pay onramp.
@@ -70,10 +69,19 @@ export function AddFunds(props: AddFunds.Props) {
   const [view, setView] = React.useState<
     'default' | 'deposit-crypto' | 'error' | 'email'
   >(initialView)
-  const [emailView, setEmailView] = React.useState<
-    'start' | 'added' | 'validated' | 'invalidated'
-  >('start')
-  const [email, setEmail] = React.useState<string>('')
+  const walletClient = Hooks.useWalletClient(porto)
+  const { data: tokens } = useQuery({
+    queryFn: async () => {
+      const chainId = Hex.fromNumber(chain?.id!)
+      const response = await walletClient.request({
+        method: 'wallet_getCapabilities',
+        params: [address!, [chainId]],
+      })
+      return response[chainId]?.feeToken.tokens
+    },
+    queryKey: ['capabilities'],
+    select: (data) => data?.map((token) => token.address.toLowerCase()),
+  })
 
   const faucet = useMutation({
     async mutationFn(e: React.FormEvent<HTMLFormElement>) {
@@ -103,6 +111,45 @@ export function AddFunds(props: AddFunds.Props) {
   })
 
   if (faucet.isSuccess) return
+
+  if (view === 'error')
+    return (
+      <Layout>
+        <Layout.Header>
+          <Layout.Header.Default
+            icon={TriangleAlertIcon}
+            title="Deposit failed"
+            variant="destructive"
+          />
+        </Layout.Header>
+
+        <Layout.Content className="px-1">
+          <p className="text-th_base">Your deposit was cancelled or failed.</p>
+          <p className="text-th_base-secondary">
+            No funds have been deposited.
+          </p>
+        </Layout.Content>
+
+        <Layout.Footer>
+          <Layout.Footer.Actions>
+            <Button
+              className="flex-grow"
+              onClick={() => onReject?.()}
+              variant="default"
+            >
+              Close
+            </Button>
+            <Button
+              className="flex-grow"
+              onClick={() => setView('default')}
+              variant="primary"
+            >
+              Try again
+            </Button>
+          </Layout.Footer.Actions>
+        </Layout.Footer>
+      </Layout>
+    )
 
   if (view === 'default')
     return (
@@ -146,6 +193,7 @@ export function AddFunds(props: AddFunds.Props) {
               <OnrampView
                 address={address}
                 amount={amount}
+                feeTokens={tokens}
                 loading={faucet.isPending}
                 onApprove={onApprove}
                 onReject={onReject}
@@ -236,172 +284,12 @@ export function AddFunds(props: AddFunds.Props) {
         onBack={
           initialView === 'default' ? () => setView('default') : undefined
         }
+        tokens={tokens}
       />
     )
 
-  if (view === 'email') {
-    function validateEmail(email: string) {
-      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      return re.test(email)
-    }
-
-    const isValidEmail = validateEmail(email)
-
-    function handleEmailSubmit(e: React.FormEvent) {
-      e.preventDefault()
-      if (isValidEmail) setEmailView('validated')
-      else if (email.length > 0) setEmailView('invalidated')
-      // TODO: add email submit (async)
-    }
-
-    return (
-      <Layout>
-        <Layout.Header>
-          <Layout.Header.Default
-            content={
-              emailView === 'invalidated'
-                ? ''
-                : 'We need this to set up Apple Pay and Google Pay for payment.'
-            }
-            title="Add your email"
-          />
-        </Layout.Header>
-
-        <Layout.Content>
-          <form className="space-y-4" onSubmit={handleEmailSubmit}>
-            <div className="relative">
-              <input
-                autoCapitalize="off"
-                autoComplete="email"
-                autoCorrect="off"
-                // biome-ignore lint/a11y/noAutofocus: _
-                autoFocus
-                className={cx(
-                  'w-full rounded-lg border-[1.5px] bg-th_field px-3 py-3 pr-10 placeholder:text-th_field focus:border-th_focus focus:bg-th_field-focused focus:outline-none',
-                  emailView === 'invalidated'
-                    ? 'border-th_field-error text-th_field-error'
-                    : emailView === 'validated'
-                      ? 'border-th_focus text-th_base'
-                      : 'border-transparent text-th_base',
-                )}
-                disabled={emailView === 'validated'}
-                inputMode="email"
-                onChange={(e) => {
-                  const newEmail = e.target.value
-                  setEmail(newEmail)
-
-                  // Reset view states as user types
-                  if (newEmail === '') setEmailView('start')
-                  else if (validateEmail(newEmail)) setEmailView('validated')
-                  else setEmailView('added')
-                }}
-                placeholder="achel@achal.me"
-                required
-                spellCheck={false}
-                type="email"
-                value={email}
-              />
-              {emailView === 'validated' && (
-                <svg
-                  aria-hidden="true"
-                  aria-label="Valid email"
-                  className="-translate-y-1/2 absolute top-1/2 right-3 size-5 text-green-500"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M5 13l4 4L19 7"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              )}
-              {emailView === 'invalidated' && (
-                <p className="mt-2 text-sm text-th_field-error">
-                  Invalid email
-                </p>
-              )}
-            </div>
-
-            <Button
-              className="w-full"
-              disabled={!isValidEmail}
-              onClick={
-                emailView === 'validated' ? () => setView('default') : undefined
-              }
-              type={emailView === 'validated' ? 'button' : 'submit'}
-              variant="primary"
-            >
-              Continue
-            </Button>
-          </form>
-
-          <p className="mt-4 text-center text-[11.5px] text-th_base-secondary">
-            By using our deposit on-ramp, you agree to our{' '}
-            <a
-              className="text-th_base-secondary underline"
-              href="https://porto.sh/terms"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              Terms of Use
-            </a>{' '}
-            and{' '}
-            <a
-              className="text-th_base-secondary underline"
-              href="https://ithaca.xyz/about/privacy-policy"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              Privacy Policy for Porto
-            </a>
-            .
-          </p>
-        </Layout.Content>
-      </Layout>
-    )
-  }
-
-  if (view === 'error')
-    return (
-      <Layout>
-        <Layout.Header>
-          <Layout.Header.Default
-            icon={TriangleAlertIcon}
-            title="Deposit failed"
-            variant="destructive"
-          />
-        </Layout.Header>
-
-        <Layout.Content className="px-1">
-          <p className="text-th_base">Your deposit was cancelled or failed.</p>
-          <p className="text-th_base-secondary">
-            No funds have been deposited.
-          </p>
-        </Layout.Content>
-
-        <Layout.Footer>
-          <Layout.Footer.Actions>
-            <Button
-              className="flex-grow"
-              onClick={() => onReject?.()}
-              variant="default"
-            >
-              Close
-            </Button>
-            <Button
-              className="flex-grow"
-              onClick={() => setView('default')}
-              variant="primary"
-            >
-              Try again
-            </Button>
-          </Layout.Footer.Actions>
-        </Layout.Footer>
-      </Layout>
-    )
+  if (view === 'email')
+    return <EmailView onApprove={onApprove} onBack={() => setView('default')} />
 
   return null
 }
@@ -417,174 +305,206 @@ export declare namespace AddFunds {
   }
 }
 
+function EmailView(props: EmailView.Props) {
+  const { onApprove: _, onBack } = props
+  const [email, setEmail] = React.useState<string>('')
+  const validEmail = z.email().safeParse(email).success
+  const [emailView, setEmailView] = React.useState<
+    'start' | 'added' | 'validated' | 'invalidated'
+  >('start')
+
+  function handleEmailSubmit(event: React.FormEvent) {
+    event.preventDefault()
+    if (validEmail) setEmailView('validated')
+    else if (email.length > 0) setEmailView('invalidated')
+    // TODO: add email submit (async)
+  }
+
+  return (
+    <Layout>
+      <Layout.Header>
+        <Layout.Header.Default title="Add your email" />
+      </Layout.Header>
+
+      <Layout.Content>
+        <form className="space-y-4" onSubmit={handleEmailSubmit}>
+          <div className="relative">
+            <input
+              autoCapitalize="off"
+              autoComplete="email"
+              autoCorrect="off"
+              // biome-ignore lint/a11y/noAutofocus: _
+              autoFocus
+              className={cx(
+                'w-full rounded-lg border-[1.5px] bg-th_field px-3 py-3 pr-10 placeholder:text-th_field focus:border-th_focus focus:bg-th_field-focused focus:outline-none',
+                emailView === 'invalidated'
+                  ? 'border-th_field-error text-th_field-error'
+                  : emailView === 'validated'
+                    ? 'border-th_focus text-th_base'
+                    : 'border-transparent text-th_base',
+              )}
+              disabled={emailView === 'validated'}
+              inputMode="email"
+              onChange={(e) => {
+                const newEmail = e.target.value
+                setEmail(newEmail)
+                // Reset view states as user types
+                if (newEmail === '') setEmailView('start')
+                else if (validEmail) setEmailView('validated')
+                else setEmailView('added')
+              }}
+              placeholder="achel@achal.me"
+              required
+              spellCheck={false}
+              type="email"
+              value={email}
+            />
+            {emailView === 'validated' && (
+              <svg
+                aria-hidden="true"
+                aria-label="Valid email"
+                className="-translate-y-1/2 absolute top-1/2 right-3 size-5 text-green-500"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M5 13l4 4L19 7"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            )}
+            {emailView === 'invalidated' && (
+              <p className="mt-2 text-sm text-th_field-error">Invalid email</p>
+            )}
+          </div>
+
+          <Button
+            className="w-full"
+            disabled={!validEmail}
+            onClick={emailView === 'validated' ? () => onBack?.() : undefined}
+            type={emailView === 'validated' ? 'button' : 'submit'}
+            variant="primary"
+          >
+            Continue
+          </Button>
+        </form>
+
+        <p className="mt-4 text-center text-[11.5px] text-th_base-secondary">
+          By using our deposit on-ramp, you agree to our{' '}
+          <a
+            className="text-th_base-secondary underline"
+            href="https://porto.sh/terms"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Terms of Use
+          </a>{' '}
+          and{' '}
+          <a
+            className="text-th_base-secondary underline"
+            href="https://ithaca.xyz/about/privacy-policy"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Privacy Policy for Porto
+          </a>
+          .
+        </p>
+      </Layout.Content>
+    </Layout>
+  )
+}
+
+export declare namespace EmailView {
+  export type Props = {
+    onApprove: (result: { id: Hex.Hex }) => void
+    onBack?: (() => void) | undefined
+  }
+}
+
 function OnrampView(props: OnrampView.Props) {
-  const { address, amount, loading, onrampMethod } = props
+  const { address, amount, loading, onrampMethod, feeTokens, tokenAddress } =
+    props
 
-  const onrampWidget = getOnrampWidget()
+  const onrampWidget = Onramp.getOnrampWidget()
 
-  const onrampQuery = useQuery({
+  const onrampAuthQuery = useQuery({
     enabled: !!address && !!amount && onrampMethod === 'apple',
-    queryFn: async () => {
-      const response = await fetch(
-        `https://onramp.porto.workers.dev/token?address=${address}`,
-      )
-
-      const data = (await response.json()) as {
-        initToken: string
-        initTypeToken: string
-        widgetId: string
-        merchantTransactionId: string
-        signature: string
-        widgetFlow: string
-        widgetUrl: string
-        birthdate: string
-        firstName: string
-        lastName: string
-        network: string
-        paymentMethod: string
-        fiatAmount: string
-        fiatCurrency: string
-        currency: string
-        error: string | null
-      }
-      return data
-    },
+    queryFn: () => Onramp.onrampAuthToken(address!),
     queryKey: ['onramp-token', address],
   })
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: _
   React.useEffect(() => {
     if (
       onrampMethod !== 'apple' ||
-      !onrampQuery.data ||
-      !onrampQuery.data.merchantTransactionId
+      !onrampAuthQuery.data ||
+      !onrampAuthQuery.data.merchantTransactionId
     )
       return
+    const { initToken, initTypeToken, ...rest } = onrampAuthQuery.data
+    if (!onrampWidget || !onrampWidget?.run) return
 
-    const {
-      widgetId,
-      widgetUrl,
-      signature,
-      merchantTransactionId,
+    const widgetInstance = onrampWidget?.run({
+      address,
+      amount,
+      host: document.querySelector('div#mercuryo-widget'),
       initToken,
-      initTypeToken,
-      birthdate,
-      currency,
-      firstName,
-      lastName,
-      network,
-      fiatCurrency,
-      widgetFlow,
-    } = onrampQuery.data
+      initTokenType: initTypeToken,
+      ...rest,
+    })
 
-    function checkAndRunWidget() {
-      if (!onrampWidget || !onrampWidget?.run) return
-
-      const widgetInstance = onrampWidget?.run({
-        address,
-        amount,
-        birthdate,
-        currency,
-        fiatAmount: amount,
-        fiatCurrency,
-        firstName,
-        host: document.querySelector('div#mercuryo-widget'),
-        initToken,
-        initTokenType: initTypeToken,
-        lastName,
-        merchantTransactionId,
-        network,
-        paymentMethod: 'apple',
-        signature,
-        widgetFlow,
-        widgetId,
-        widgetUrl,
-      })
-
-      // TODO: use this once it actually indicates that the widget is ready
-      widgetInstance?.onReady(() => {
-        console.info('[onramp] Widget is ready')
-      })
-    }
-
-    checkAndRunWidget()
-  }, [address, amount, onrampQuery.data])
+    // TODO: use this once it actually indicates that the widget is ready
+    widgetInstance?.onReady(() => console.info('[onramp] Widget is ready'))
+  }, [address, amount, onrampAuthQuery.data, onrampMethod, onrampWidget])
 
   const transactionQuery = useQuery({
     enabled:
-      onrampQuery.status === 'success' &&
-      !!onrampQuery.data?.merchantTransactionId &&
+      onrampAuthQuery.status === 'success' &&
+      onrampAuthQuery.data?.merchantTransactionId.includes('_') &&
       onrampMethod === 'apple',
-    queryFn: async () => {
-      const merchantTransactionId = onrampQuery.data?.merchantTransactionId
-      if (!merchantTransactionId) return null
-
-      const searchParams = new URLSearchParams({
-        merchantTransactionId,
-      })
-      const response = await fetch(
-        `https://onramp.porto.workers.dev/transactions?${searchParams.toString()}`,
-      )
-
-      return response.json() as Promise<{
-        url: string
-        hash: string
-        status: string
-        amount: string
-        currency: string
-      }>
-    },
+    queryFn: () =>
+      Onramp.onrampTransactions(onrampAuthQuery.data?.merchantTransactionId!),
     queryKey: ['onramp-transactions', address],
     refetchInterval: 1_000,
   })
 
-  if (
-    onrampMethod === 'apple' &&
-    (onrampQuery.isError || onrampQuery.data?.error)
-  ) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-2 p-4 text-center">
-        <TriangleAlertIcon className="size-6 text-th_field-error" />
-        {onrampQuery.data?.error ?? onrampQuery.error?.message}
-        <Button
-          className="text-xs"
-          onClick={() => onrampQuery.refetch()}
-          variant="default"
-        >
-          Try again
-        </Button>
-      </div>
-    )
-  }
+  const AddFunds = (
+    <UI.Button
+      className="w-full flex-1"
+      data-testid="buy"
+      disabled={!address || !amount || Number(amount) === 0}
+      loading={loading && 'Adding funds…'}
+      type="submit"
+      variant="primary"
+      width="grow"
+    >
+      Add funds
+    </UI.Button>
+  )
 
-  if (onrampMethod === 'faucet')
-    return (
-      <UI.Button
-        className="w-full flex-1"
-        data-testid="buy"
-        disabled={!address || !amount || Number(amount) === 0}
-        loading={loading && 'Adding funds…'}
-        type="submit"
-        variant="primary"
-        width="grow"
-      >
-        Add funds
-      </UI.Button>
-    )
+  if (feeTokens?.includes(tokenAddress!)) return AddFunds
 
-  if (onrampMethod === 'google')
-    return (
-      <PayButton
-        disabled={!address}
-        url={stripeOnrampUrl({
-          address: address!,
-          amount: Number(amount),
-        })}
-        variant="stripe"
-      />
-    )
-
-  if (onrampMethod === 'apple')
+  if (onrampMethod === 'apple') {
+    if (onrampAuthQuery.isError || onrampAuthQuery.data?.error) {
+      return (
+        <div className="flex flex-col items-center justify-center gap-2 p-4 text-center">
+          <TriangleAlertIcon className="size-6 text-th_field-error" />
+          {onrampAuthQuery.data?.error ?? onrampAuthQuery.error?.message}
+          <Button
+            className="text-xs"
+            onClick={() => onrampAuthQuery.refetch()}
+            variant="default"
+          >
+            Try again
+          </Button>
+        </div>
+      )
+    }
+    console.info(transactionQuery.data)
+    const tx = transactionQuery.data?.hash
     return (
       <div className="flex flex-col justify-between gap-2">
         <article className="relative mx-auto w-full select-none overflow-hidden rounded-full">
@@ -600,18 +520,21 @@ function OnrampView(props: OnrampView.Props) {
               href={transactionQuery.data.url}
               target="_blank"
             >
-              {StringFormatter.truncate(transactionQuery.data.hash)}
+              {tx}
             </a>
           )}
       </div>
     )
+  }
 
-  return null
+  return AddFunds
 }
 
 export declare namespace OnrampView {
   export type Props = {
     address: Address.Address | undefined
+    tokenAddress?: Address.Address | undefined
+    feeTokens?: Array<string> | undefined
     amount: string | undefined
     onApprove: (result: { id: Hex.Hex }) => void
     onReject?: () => void
@@ -621,25 +544,10 @@ export declare namespace OnrampView {
 }
 
 function DepositCryptoView(props: DepositCryptoView.Props) {
-  const { address, onBack, onApprove } = props
+  const { address, onBack, onApprove, tokens } = props
 
   const chain = Hooks.useChain(porto)
-
   const [isCopied, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
-
-  const walletClient = Hooks.useWalletClient(porto)
-  const { data: tokens } = useQuery({
-    queryFn: async () => {
-      const chainId = Hex.fromNumber(chain?.id!)
-      const response = await walletClient.request({
-        method: 'wallet_getCapabilities',
-        params: [address!, [chainId]],
-      })
-      return response[chainId]?.feeToken.tokens
-    },
-    queryKey: ['capabilities'],
-    select: (data) => data?.map((token) => token.address.toLowerCase()),
-  })
 
   useWatchContractEvent({
     abi: erc20Abi,
@@ -733,6 +641,7 @@ function DepositCryptoView(props: DepositCryptoView.Props) {
 export declare namespace DepositCryptoView {
   export type Props = {
     address: Address.Address | undefined
+    tokens?: Array<string> | undefined
     onBack?: (() => void) | undefined
     onApprove: (result: { id: Hex.Hex }) => void
   }
