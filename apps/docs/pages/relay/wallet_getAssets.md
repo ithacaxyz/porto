@@ -31,7 +31,7 @@ type Request = {
 
 ```ts
 type Response = {
-  [chainId: string]: {
+  [chainId: `0x${string}`]: {
     address: `0x${string}` | 'native',
     balance: bigint,
     metadata: {
