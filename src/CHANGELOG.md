@@ -1,5 +1,16 @@
 # porto
 
+## 0.0.71
+
+### Patch Changes
+
+- [#719](https://github.com/ithacaxyz/porto/pull/719) [`471d7c8`](https://github.com/ithacaxyz/porto/commit/471d7c8360280e9efba27be4517297d1b47a5774) Thanks [@jxom](https://github.com/jxom)! - Added support for `chainIds` on `wallet_connect`
+
+- [#716](https://github.com/ithacaxyz/porto/pull/716) [`61805bf`](https://github.com/ithacaxyz/porto/commit/61805bfb49a2a027a8b5f16e1ebb39e639a759a8) Thanks [@tmm](https://github.com/tmm)! - **Breaking:** Defaulted Relay RPC URLs to `rpc.ithaca.xyz` (production) instead of `stg-rpc.ithaca.xyz` (staging).
+
+  > [!WARNING]
+  > This release will require you to recreate your testnet account with Porto. We've made fundamental improvements that ensure smoother upgrades in the future.
+
 ## 0.0.70
 
 ### Patch Changes
