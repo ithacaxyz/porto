@@ -1,3 +1,4 @@
+import { PortoConfig } from '@porto/apps'
 import { createFileRoute } from '@tanstack/react-router'
 import { Actions } from 'porto/remote'
 import { porto } from '~/lib/Porto'
@@ -13,6 +14,8 @@ export const Route = createFileRoute('/dialog/wallet_addFunds')({
   },
 })
 
+const config = PortoConfig.getConfig()
+
 function RouteComponent() {
   const request = Route.useSearch()
   const { address, token, value } = request._decoded.params[0]
@@ -20,6 +23,9 @@ function RouteComponent() {
   return (
     <AddFunds
       address={address}
+      experimental={{
+        onramp: config.experimental?.onramp,
+      }}
       onApprove={(result) => Actions.respond(porto, request!, { result })}
       onReject={() => Actions.reject(porto, request)}
       tokenAddress={token}

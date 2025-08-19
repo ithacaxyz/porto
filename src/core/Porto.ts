@@ -206,7 +206,7 @@ export type Config<
    */
   experimental?:
     | {
-        applePayOnramp?: boolean | undefined
+        onramp?: boolean | undefined
       }
     | undefined
   /**

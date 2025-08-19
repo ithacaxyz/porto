@@ -28,6 +28,7 @@ const MAX_AMOUNT = 500
 
 export function AddFunds(props: AddFunds.Props) {
   const {
+    experimental,
     chainId,
     onApprove,
     onReject,
@@ -58,17 +59,18 @@ export function AddFunds(props: AddFunds.Props) {
     // )
     //   return 'faucet'
     // if (!enableOnramp()) return undefined
-    if (!Onramp.enableOnramp()) return 'faucet'
+    if (!experimental?.onramp || !Onramp.enableOnramp()) return 'faucet'
     // TODO: ensure that `tokenAddress` is compatible with google onramp.
     if (UserAgent.isFirefox() || UserAgent.isAndroid()) return 'google'
     // TODO: ensure that `tokenAddress` is compatible with apple pay onramp.
     return 'apple'
-  }, [])
+  }, [experimental?.onramp])
 
   const initialView = onrampMethod ? 'default' : 'deposit-crypto'
   const [view, setView] = React.useState<
     'default' | 'deposit-crypto' | 'error' | 'email'
   >(initialView)
+
   const walletClient = Hooks.useWalletClient(porto)
   const { data: tokens } = useQuery({
     queryFn: async () => {
@@ -302,6 +304,11 @@ export declare namespace AddFunds {
     onReject?: () => void
     tokenAddress?: Address.Address | undefined
     value?: string | undefined
+    experimental?:
+      | {
+          onramp?: boolean | undefined
+        }
+      | undefined
   }
 }
 

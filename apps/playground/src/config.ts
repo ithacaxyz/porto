@@ -145,7 +145,7 @@ export const porto = Porto.create({
   ...config,
   chains,
   experimental: {
-    applePayOnramp: Env.get() === 'prod',
+    onramp: Env.get() === 'prod',
   },
   merchantRpcUrl: merchant ? '/merchant' : undefined,
   // We will be deferring mode setup until after hydration.
