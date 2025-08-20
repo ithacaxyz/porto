@@ -1,26 +1,22 @@
 import type { Address } from 'ox'
 import { erc20Abi } from 'viem'
-import {
-  useAccount,
-  useBalance,
-  useReadContracts,
-  useWatchBlockNumber,
-} from 'wagmi'
-
-import { defaultAssets, ethAsset } from '~/lib/Constants'
+import { useAccount, useReadContracts, useWatchBlockNumber } from 'wagmi'
+import { defaultAssets } from '~/lib/Constants'
 
 export function useReadBalances({
   address,
 }: {
   address?: Address.Address | undefined
 }) {
-  const assets = (defaultAssets[chainId] ?? []).filter(
-    (asset) => asset.address !== '0x0000000000000000000000000000000000000000',
-  )
+  const assets = Object.values(defaultAssets)
+    .flat()
+    .filter(
+      (asset) => asset.address !== '0x0000000000000000000000000000000000000000',
+    )
 
   const account = useAccount()
   const accountAddress = address ?? account.address
-  const { data: ethBalance } = useBalance({ address: accountAddress, chainId })
+  // const { data: ethBalance } = useBalance({ address: accountAddress, chainId })
 
   const { data, isLoading, isPending, refetch } = useReadContracts({
     contracts: assets.map((asset) => ({
@@ -31,7 +27,7 @@ export function useReadBalances({
     })),
     query: {
       select: (data) => {
-        const result = data.map((datum, index) => {
+        return data.map((datum, index) => {
           return {
             balance:
               typeof datum.result === 'bigint'
@@ -40,16 +36,6 @@ export function useReadBalances({
             ...assets[index],
           }
         })
-
-        result.unshift({ balance: ethBalance?.value ?? 0n, ...ethAsset })
-
-        return result as ReadonlyArray<{
-          balance: bigint
-          logo: string
-          symbol: string
-          name: string
-          address: string
-        }>
       },
     },
   })
