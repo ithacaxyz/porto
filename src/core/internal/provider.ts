@@ -160,11 +160,6 @@ export function from<
             value,
           })
 
-          emitter.emit('message', {
-            data: null,
-            type: 'assetsChanged',
-          })
-
           return result satisfies typeof Rpc.wallet_addFaucetFunds.Response.Encoded
         }
 
