@@ -169,35 +169,6 @@ export namespace getAssets {
 }
 
 /**
- * Requests faucet funds to be sent to an address on the Relay.
- */
-export async function addFaucetFunds(
-  client: Client,
-  parameters: addFaucetFunds.Parameters,
-): Promise<RpcSchema.wallet_addFaucetFunds.Response> {
-  try {
-    const method = 'wallet_addFaucetFunds' as const
-    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
-    const result = await client.request<Schema>({
-      method,
-      params: [
-        Schema.encodeSync(RpcSchema.wallet_addFaucetFunds.Parameters)(
-          parameters,
-        ),
-      ],
-    })
-    return result
-  } catch (error) {
-    parseSchemaError(error)
-    throw error
-  }
-}
-
-export namespace addFaucetFunds {
-  export type Parameters = RpcSchema.wallet_addFaucetFunds.Parameters
-}
-
-/**
  * Gets the status of a call bundle.
  *
  * @example
