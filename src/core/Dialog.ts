@@ -281,11 +281,23 @@ export function iframe(options: iframe.Options = {}) {
         root.showPopover()
       }
       const hideDialog = () => {
+        cancelForceHideDelay()
         if (!visible) return
         visible = false
         root.setAttribute('hidden', 'true')
         root.setAttribute('aria-closed', 'true')
         root.hidePopover()
+      }
+
+      // let the iframe a second to send the done:close
+      // event, otherwise we force close the dialog.
+      let forceHideTimer: ReturnType<typeof setTimeout>
+      const startForceHideDelay = () => {
+        clearTimeout(forceHideTimer)
+        forceHideTimer = setTimeout(hideDialog, 1000)
+      }
+      const cancelForceHideDelay = () => {
+        clearTimeout(forceHideTimer)
       }
 
       return {
@@ -299,13 +311,20 @@ export function iframe(options: iframe.Options = {}) {
           })
 
           activatePage()
+          startForceHideDelay()
         },
         destroy() {
+          fallback.close()
+          open = false
+
+          activatePage()
+          hideDialog()
+
           fallback.destroy()
-          this.close()
-          drawerModeQuery.removeEventListener('change', onDrawerModeChange)
           messenger.destroy()
           root.remove()
+
+          drawerModeQuery.removeEventListener('change', onDrawerModeChange)
         },
         open() {
           if (open) return
@@ -410,7 +429,7 @@ export function popup(options: popup.Options = {}) {
       let popup: Window | null = null
 
       const resolvedType =
-        type === 'auto' && UserAgent.isMobile() ? 'page' : 'popup'
+        type === 'auto' ? (UserAgent.isMobile() ? 'page' : 'popup') : type
 
       function onBlur() {
         if (popup) handleBlur(store)
