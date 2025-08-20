@@ -32,10 +32,11 @@ jobs:
       - name: Comment PR
         uses: thollander/actions-comment-pull-request@v3
         with:
+          comment_tag: extension_download
           message: |
             Built extension for [`${{ github.event.pull_request.head.sha }}`](${{ github.event.repository.html_url }}/commit/${{ github.event.pull_request.head.sha }}).
 
-            [Download](${needs.extension.outputs.artifact-url})
+            [Download](${{ needs.extension.outputs.artifact-url }})
 
             ### Instructions
             1. Download the `extension.zip` asset from the link below
