@@ -45,6 +45,13 @@ Porto supports the following operating systems:
 If an operating system is not listed above, it likely works but is not officially supported.
 If you would like to request support, please open up a GitHub issue.
 
+## How does Porto work with my Content Security Policy?
+
+If you’ve deployed a Content Security Policy, the full set of directives that Porto requires are:
+
+- `connect-src` `https://rpc.ithaca.xyz` `https://stg-rpc.ithaca.xyz`
+- `frame-src` `https://id.porto.sh`
+
 ## Why did Ithaca drop PREP in favor of the ephemeral PK approach?
 
 **TL;DR**: PREP was implemented and ran for a number of weeks. After evaluating the pros/cons, it was decided that the pattern did not meet the needs of the Porto Stack. It was replaced with an ephemeral private key that's in-place upgraded to a EIP7702 account, and then forgotten.
