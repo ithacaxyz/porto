@@ -20,12 +20,6 @@ import iconDefaultLight from './icon-default-light.svg'
 const FrameContext = createContext<Frame.Context | null>(null)
 
 const springStyles = {
-  from: {
-    dialogOpacity: 0,
-    dialogTransform: 'translate3d(0, 0px, 0) scale3d(0.92, 0.92, 1)',
-    drawerTransform: 'translate3d(0, 100%, 0)',
-    overlayOpacity: 0,
-  },
   enter: {
     dialogOpacity: 1,
     // temporarily disable anims
@@ -33,6 +27,12 @@ const springStyles = {
     dialogTransform: 'translate3d(0, 0px, 0) scale3d(1, 1, 1)',
     drawerTransform: 'translate3d(0, 0%, 0)',
     overlayOpacity: 1,
+  },
+  from: {
+    dialogOpacity: 0,
+    dialogTransform: 'translate3d(0, 0px, 0) scale3d(0.92, 0.92, 1)',
+    drawerTransform: 'translate3d(0, 100%, 0)',
+    overlayOpacity: 0,
   },
   leave: {
     dialogOpacity: 0,
