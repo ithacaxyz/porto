@@ -1,13 +1,3 @@
-declare global {
-  interface Navigator {
-    userAgentData: {
-      mobile: boolean
-      platform: string
-      brands: Array<{ brand: string; version: string }>
-    }
-  }
-}
-
 export function isAndroid() {
   return (
     /Android/i.test(navigator.userAgent) ||

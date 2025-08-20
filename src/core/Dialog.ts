@@ -46,11 +46,7 @@ export function from<const dialog extends Dialog>(dialog: dialog): dialog {
  * @returns iframe dialog.
  */
 export function iframe(options: iframe.Options = {}) {
-  const {
-    size = iframeDefaultSize,
-    skipProtocolCheck,
-    skipUnsupported,
-  } = options
+  const { skipProtocolCheck, skipUnsupported } = options
 
   // Safari does not support WebAuthn credential creation in iframes.
   // Fall back to popup dialog.
@@ -494,7 +490,7 @@ export function popup(options: popup.Options = {}) {
           themeController?._setup(messenger, false)
 
           messenger.send('__internal', {
-            mode: resolvedType,
+            mode: 'popup',
             referrer: getReferrer(),
             theme: themeController?.getTheme() ?? parameters.theme,
             type: 'init',
