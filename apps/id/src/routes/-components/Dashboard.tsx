@@ -908,7 +908,7 @@ function AssetRow(props: {
           </td>
           <td className="w-[80%]">
             <div className="flex items-center gap-x-3 py-2">
-              =<span className="font-medium text-sm sm:text-md">{name}</span>
+              <span className="font-medium text-sm sm:text-md">{icon}</span>
             </div>
           </td>
           <td className="w-[20%] text-right text-md">{formattedBalance}</td>
