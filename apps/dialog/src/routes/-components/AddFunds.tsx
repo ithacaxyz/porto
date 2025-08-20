@@ -9,6 +9,7 @@ import { Cuer } from 'cuer'
 import { cx } from 'cva'
 import { Address, Hex, Value } from 'ox'
 import { Actions, Hooks } from 'porto/remote'
+import { RelayActions } from 'porto/viem'
 import * as React from 'react'
 import { useBalance, useWatchBlockNumber, useWatchContractEvent } from 'wagmi'
 import { PayButton } from '~/components/PayButton'
@@ -38,6 +39,7 @@ export function AddFunds(props: AddFunds.Props) {
 
   const account = Hooks.useAccount(porto)
   const chain = Hooks.useChain(porto, { chainId })
+  const client = Hooks.useRelayClient(porto)
   const feeTokens = FeeTokens.fetch.useQuery({
     addressOrSymbol: tokenAddress,
   })
@@ -85,20 +87,22 @@ export function AddFunds(props: AddFunds.Props) {
       if (!feeToken) throw new Error('feeToken is required')
 
       const value = Value.from(amount, feeToken.decimals)
-      const params = new URLSearchParams({
+
+      const data = await RelayActions.addFaucetFunds(client, {
         address,
-        chainId: chain.id.toString(),
-        value: value.toString(),
+        chainId: chain.id,
+        tokenAddress: exp1Address[chain.id as never],
+        // TODO: uncomment when interop is supported.
+        // tokenAddress,
+        value,
       })
-      const response = await fetch(
-        `${import.meta.env.VITE_WORKERS_URL}/faucet?${params.toString()}`,
-      )
-      if (!response.ok) throw new Error('Failed to fetch funds')
-      const data = (await response.json()) as { id: Hex.Hex }
+      // relay state can be behind node state. wait to ensure sync.
+      // TODO: figure out how to resolve.
+      await new Promise((resolve) => setTimeout(resolve, 2_000))
       return data
     },
     onSuccess: (data) => {
-      onApprove(data)
+      onApprove({ id: data.transactionHash })
     },
   })
 
