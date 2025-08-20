@@ -11,9 +11,7 @@ declare namespace NodeJS {
   interface ProcessEnv extends EnvironmentVariables {}
 }
 
-interface ImportMetaEnv extends Environment {
-  readonly VITE_FLAGS: string
-}
+interface ImportMetaEnv extends Environment {}
 
 interface ImportMeta {
   readonly env: ImportMetaEnv

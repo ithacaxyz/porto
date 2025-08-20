@@ -21,6 +21,7 @@ import type { GetAccountParameter } from './internal/utils.js'
 import * as Key from './Key.js'
 
 export {
+  addFaucetFunds,
   getAssets,
   getCallsStatus,
   getCapabilities,
