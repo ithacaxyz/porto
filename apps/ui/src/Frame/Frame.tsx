@@ -366,12 +366,12 @@ function FrameBar({
           }),
         mode.name === 'full' &&
           css({
+            '@container (min-width: 380px)': {
+              height: 48,
+            },
             '@container (min-width: 480px)': {
               borderBottom: 'none',
               height: 60,
-            },
-            '@container (min-width: 380px)': {
-              height: 48,
             },
             borderBottom: '1px solid var(--border-color-th_frame)',
             height: 40,
