@@ -46,7 +46,7 @@ export function from<const dialog extends Dialog>(dialog: dialog): dialog {
  * @returns iframe dialog.
  */
 export function iframe(options: iframe.Options = {}) {
-  const { size = defaultSize } = options
+  const { size = iframeDefaultSize } = options
   const { skipProtocolCheck, skipUnsupported } = options
 
   // Safari does not support WebAuthn credential creation in iframes.
@@ -367,7 +367,7 @@ export declare namespace iframe {
  */
 export function popup(options: popup.Options = {}) {
   if (typeof window === 'undefined') return noop()
-  const { type = 'auto', size = defaultSize } = options
+  const { type = 'auto', size = popupDefaultSize } = options
   return from({
     name: 'popup',
     setup(parameters) {
@@ -649,7 +649,8 @@ export function createThemeController(): ThemeController {
   return controller
 }
 
-export const defaultSize = { height: 282, width: 360 }
+export const iframeDefaultSize = { height: 282, width: 360 }
+export const popupDefaultSize = { height: 320, width: 360 }
 
 export const styles = {
   backdrop: {
