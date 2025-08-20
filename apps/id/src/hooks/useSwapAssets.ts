@@ -2,11 +2,11 @@ import type { PortoConfig } from '@porto/apps'
 import { exp1Address, exp2Address } from '@porto/apps/contracts'
 import { useQuery } from '@tanstack/react-query'
 import type { Address } from 'ox'
+import { baseSepolia } from 'porto/core/Chains'
 import type { Prettify } from 'viem'
 import { defaultAssets, ethAsset } from '~/lib/Constants'
 import { getChainConfig } from '~/lib/Wagmi'
 import { useReadBalances } from './useReadBalances'
-import { baseSepolia } from 'porto/core/Chains'
 
 /** returns assets with prices: default assets + assets from balances */
 export function useSwapAssets({ chainId }: { chainId: PortoConfig.ChainId }) {
