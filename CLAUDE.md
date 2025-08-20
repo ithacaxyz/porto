@@ -153,7 +153,6 @@ forge test --config-path ./contracts/demo/foundry.toml
 - **`dialog/`** - Dialog application (`id.porto.sh/dialog`)
 - **`playground/`** - Development playground
 - **`id/`** - Account management application (`id.porto.sh`)
-- **`faucet/`** - Fee token faucet worker (for development)
 - **`wagmi/`** - Wagmi development playground
 - **`verify/`** - Application verification worker
 

@@ -1,8 +1,5 @@
 ENVIRONMENT="local"
 
-# `/faucet` route
-DRIP_PRIVATE_KEY=""
-
 # `/verify` route
 VERIFY_CONFIG_URL=""
 
