@@ -308,7 +308,7 @@ const INITIAL_MODE = 'dialog'
 const FRAME_LOADING_DELAY = 0
 
 function RouteComponent() {
-  const [mode, setMode] = useState<Frame.Mode>(INITIAL_MODE)
+  const [mode, setMode] = useState<Frame.ModeName>(INITIAL_MODE)
   const [screen, setScreen] = useState(0)
   const [frameLoading, setFrameLoading] = useState(true)
 
@@ -372,7 +372,7 @@ function DemoContainer({
   mode,
   children,
 }: {
-  mode: Frame.Mode
+  mode: Frame.ModeName
   children: ReactNode
 }) {
   return mode === 'dialog' ? (

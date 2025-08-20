@@ -244,7 +244,7 @@ export namespace Button {
   export interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
     icon?: ReactNode
     loading?: boolean | ReactNode
-    size?: ButtonSize | Record<Frame.Mode, ButtonSize>
+    size?: ButtonSize | Record<Frame.ModeName, ButtonSize>
     shape?: 'normal' | 'square' // TODO: implement
     variant?:
       | 'negative'

@@ -11,7 +11,7 @@ export const Route = createFileRoute('/Spacer')({
 
 function SpacerComponent() {
   const { colorScheme } = useColorScheme()
-  const [mode, setMode] = useState<Frame.Mode>('dialog')
+  const [mode, setMode] = useState<Frame.ModeName>('dialog')
   const space = mode === 'dialog' ? 8 : 24
 
   const app = (

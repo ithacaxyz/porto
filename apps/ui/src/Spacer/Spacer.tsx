@@ -41,7 +41,7 @@ function SpacerVertical({ size }: Omit<Spacer.Props, 'orientation'>) {
 
 export namespace Spacer {
   export interface Props {
-    size: number | Record<Frame.Mode, number>
+    size: number | Record<Frame.ModeName, number>
     orientation?: 'horizontal' | 'vertical'
   }
 

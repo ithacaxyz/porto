@@ -523,6 +523,7 @@ export function experimental_inline(options: inline.Options) {
       Object.assign(iframe.style, {
         ...styles.iframe,
         height: '100%',
+        width: '100%',
       })
 
       root.appendChild(iframe)

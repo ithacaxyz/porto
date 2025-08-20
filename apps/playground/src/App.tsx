@@ -192,7 +192,7 @@ export function App() {
         <ShowClientCapabilities />
       </div>
       {mode === 'inline-dialog' && (
-        <div className="fixed top-0 bottom-0 left-[calc(768px+var(--spacing)*2)] w-[300px] p-4">
+        <div className="fixed top-0 bottom-0 left-[calc(768px+var(--spacing)*2)] w-[362px] p-4">
           <div
             className="h-full overflow-hidden rounded-md border border-th_frame"
             id="porto"
