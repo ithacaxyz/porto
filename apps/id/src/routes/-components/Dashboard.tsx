@@ -890,8 +890,15 @@ function AssetRow(props: {
   const ref = React.useRef<HTMLTableCellElement | null>(null)
   useClickOutside([ref], () => setViewState('default'))
 
-  if (value === 0n) return null
+  if (value === 0n && !import.meta.env.DEV) return null
 
+  const icon = import.meta.env.DEV ? (
+    <img
+      alt={name}
+      className="size-5 sm:size-6"
+      src={`/icons/${symbol.toLowerCase()}.svg`}
+    />
+  ) : null
   return (
     <tr className="font-normal sm:text-sm">
       {viewState === 'default' ? (
@@ -901,12 +908,7 @@ function AssetRow(props: {
           </td>
           <td className="w-[80%]">
             <div className="flex items-center gap-x-3 py-2">
-              <img
-                alt={name}
-                className="size-5 sm:size-6"
-                src={`/icons/${symbol.toLowerCase()}.svg`}
-              />
-              <span className="font-medium text-sm sm:text-md">{name}</span>
+              =<span className="font-medium text-sm sm:text-md">{name}</span>
             </div>
           </td>
           <td className="w-[20%] text-right text-md">{formattedBalance}</td>
