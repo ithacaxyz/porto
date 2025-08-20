@@ -60,11 +60,17 @@ export function porto<
     let disconnect: Connector['onDisconnect'] | undefined
 
     return {
-      async connect({ chainId, isReconnecting, ...rest } = {}) {
+      async connect({ chainId = chains[0].id, isReconnecting, ...rest } = {}) {
         let accounts: readonly Address[] = []
-        if (isReconnecting) accounts = await this.getAccounts().catch(() => [])
+        let currentChainId: number | undefined
+        if (isReconnecting) {
+          ;[accounts, currentChainId] = await Promise.all([
+            this.getAccounts().catch(() => []),
+            this.getChainId().catch(() => undefined),
+          ])
+        }
 
-        const provider = await this.getProvider()
+        const provider = (await this.getProvider()) as Provider
 
         try {
           if (!accounts?.length && !isReconnecting) {
@@ -75,6 +81,12 @@ export function porto<
                   capabilities: Schema.encodeSync(
                     RpcSchema.wallet_connect.Capabilities,
                   )(rest.capabilities ?? {}),
+                  chainIds: [
+                    numberToHex(chainId),
+                    ...chains
+                      .filter((x) => x.id !== chainId)
+                      .map((x) => numberToHex(x.id)),
+                  ],
                 },
               ] as const
             })()
@@ -83,6 +95,7 @@ export function porto<
               ...(params ? { params } : {}),
             })
             accounts = res.accounts.map((x) => getAddress(x.address))
+            currentChainId = Number(res.chainIds[0])
           }
 
           // Manage EIP-1193 event listeners
@@ -106,17 +119,7 @@ export function porto<
             provider.on('disconnect', disconnect)
           }
 
-          // Switch to chain if provided
-          let currentChainId = await this.getChainId()
-          if (chainId && currentChainId !== chainId) {
-            const chain = await this.switchChain!({ chainId }).catch(
-              (error) => {
-                if (error.code === UserRejectedRequestError.code) throw error
-                return { id: currentChainId }
-              },
-            )
-            currentChainId = chain?.id ?? currentChainId
-          }
+          if (!currentChainId) throw new ChainNotConfiguredError()
 
           return { accounts, chainId: currentChainId }
         } catch (err) {
