@@ -11,7 +11,6 @@ import { toast } from 'sonner'
 import { encodeFunctionData, erc20Abi, formatEther, zeroAddress } from 'viem'
 import {
   useAccount,
-  useChainId,
   useDisconnect,
   useSendCalls,
   useWaitForCallsStatus,
@@ -145,8 +144,6 @@ export function Dashboard() {
       },
     },
   })
-
-  const chainId = useChainId()
 
   // TODO: `useQuery` + `account_email`
   const showManageEmail = false
@@ -321,13 +318,13 @@ export function Dashboard() {
         right={
           <div className="flex gap-2">
             <Button
-              onClick={() => {
-                if (!chainId) return
+              onClick={() =>
                 addFunds.mutate({
                   address: account.address,
-                  chainId,
+                  // token: exp1Address[chainId as keyof typeof exp1Address],
+                  // value gets passed from the dialog in this app
                 })
-              }}
+              }
               size="small"
               variant="accent"
             >
