@@ -24,6 +24,10 @@ export type Schema = RpcSchema_ox.From<
       ReturnType: typeof Rpc.health.Response.Encoded
     }
   | {
+      Request: typeof Rpc.wallet_addFaucetFunds.Request.Encoded
+      ReturnType: typeof Rpc.wallet_addFaucetFunds.Response.Encoded
+    }
+  | {
       Request: typeof Rpc.wallet_feeTokens.Request.Encoded
       ReturnType: typeof Rpc.wallet_feeTokens.Response.Encoded
     }

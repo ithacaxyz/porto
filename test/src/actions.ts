@@ -5,7 +5,6 @@ import { privateKeyToAccount } from 'viem/accounts'
 import {
   setBalance as setBalance_viem,
   waitForCallsStatus,
-  waitForTransactionReceipt,
   writeContract,
 } from 'viem/actions'
 import * as Account from '../../src/viem/Account.js'
@@ -79,31 +78,41 @@ export async function setBalance(
 ) {
   const { address, value = parseEther('10000') } = parameters
 
-  if (Anvil.enabled) {
-    await setBalance_viem(client as any, {
+  if (Anvil.enabled)
+    await addFaucetFunds_anvil(client, {
       address,
       value,
     })
-    await writeContract(client, {
-      abi: Contracts.exp1Abi,
-      account: privateKeyToAccount(Anvil.accounts[0]!.privateKey),
-      address: Contracts.exp1Address[client.chain.id as never],
-      args: [address, value],
-      chain: null,
-      functionName: 'mint',
-    })
-  } else {
-    const privateKey = process.env.VITE_FAUCET_PRIVATE_KEY as `0x${string}`
-    const hash = await writeContract(client, {
-      abi: Contracts.exp1Abi,
-      account: privateKeyToAccount(privateKey),
-      address: Contracts.exp1Address[client.chain.id as never],
-      args: [address, value],
-      functionName: 'mint',
-    })
-    await waitForTransactionReceipt(client, {
-      hash,
+  else {
+    await RelayActions.addFaucetFunds(client, {
+      address,
+      chainId: client.chain.id,
+      tokenAddress: Contracts.exp1Address[client.chain.id as never],
+      value,
     })
     await setTimeout(2_000)
   }
+}
+
+async function addFaucetFunds_anvil(
+  client: RelayClient,
+  parameters: {
+    address: Address.Address
+    value: bigint
+  },
+) {
+  const { address, value } = parameters
+
+  await setBalance_viem(client as any, {
+    address,
+    value,
+  })
+  await writeContract(client, {
+    abi: Contracts.exp1Abi,
+    account: privateKeyToAccount(Anvil.accounts[0]!.privateKey),
+    address: Contracts.exp1Address[client.chain.id as never],
+    args: [address, value],
+    chain: null,
+    functionName: 'mint',
+  })
 }
