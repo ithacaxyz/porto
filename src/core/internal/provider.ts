@@ -140,16 +140,14 @@ export function from<
         }
 
         case 'wallet_addFaucetFunds': {
-          if (state.accounts.length === 0)
-            throw new ox_Provider.DisconnectedError()
+          const { address, chainId, tokenAddress, value } =
+            request._decoded.params[0]!
 
-          const { address, value, tokenAddress, chainId } =
-            request.params[0] ?? {}
           const client = getClient()
 
           const result = await getMode().actions.addFaucetFunds({
             address,
-            chainId: Hex.toNumber(chainId),
+            chainId,
             internal: {
               client,
               config,

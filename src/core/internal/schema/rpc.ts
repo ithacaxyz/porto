@@ -68,7 +68,7 @@ export namespace wallet_addFaucetFunds {
     address: Primitive.Address,
     chainId: Primitive.Number,
     tokenAddress: Primitive.Address,
-    value: Schema.String,
+    value: Primitive.BigInt,
   }).annotations({
     identifier: 'Rpc.wallet_addFaucetFunds.Parameters',
   })

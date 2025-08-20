@@ -178,14 +178,19 @@ export async function addFaucetFunds(
   try {
     const method = 'wallet_addFaucetFunds' as const
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
-    const result = await client.request<Schema>({
-      method,
-      params: [
-        Schema.encodeSync(RpcSchema.wallet_addFaucetFunds.Parameters)(
-          parameters,
-        ),
-      ],
-    })
+    const result = await client.request<Schema>(
+      {
+        method,
+        params: [
+          Schema.encodeSync(RpcSchema.wallet_addFaucetFunds.Parameters)(
+            parameters,
+          ),
+        ],
+      },
+      {
+        retryCount: 0,
+      },
+    )
     return result
   } catch (error) {
     parseSchemaError(error)

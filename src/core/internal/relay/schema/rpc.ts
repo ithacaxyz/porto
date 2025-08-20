@@ -97,9 +97,10 @@ export namespace health {
 export namespace wallet_addFaucetFunds {
   export const Parameters = Schema.Struct({
     address: Primitive.Address,
-    chainId: Primitive.Number,
+    // TODO: `Primitive.Number`
+    chainId: Schema.Number,
     tokenAddress: Primitive.Address,
-    value: Schema.String,
+    value: Primitive.BigInt,
   }).annotations({
     identifier: 'Rpc.wallet_addFaucetFunds.Parameters',
   })
