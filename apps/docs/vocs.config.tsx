@@ -79,6 +79,23 @@ export default defineConfig({
         text: 'Contracts',
       },
       {
+        items: [
+          {
+            link: '/contracts/interop',
+            text: 'Overview',
+          },
+          {
+            link: '/contracts/interop/escrow',
+            text: 'Escrow',
+          },
+          {
+            link: '/contracts/interop/settlement',
+            text: 'Settlement',
+          },
+        ],
+        text: 'Interop',
+      },
+      {
         link: '/contracts/address-book',
         text: 'Address Book',
       },
