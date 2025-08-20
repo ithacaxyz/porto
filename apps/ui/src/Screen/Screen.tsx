@@ -5,12 +5,7 @@ import { css, cx } from '../../styled-system/css'
 import { ButtonArea } from '../ButtonArea/ButtonArea.js'
 import { Frame } from '../Frame/Frame.js'
 
-export function Screen({
-  children,
-  layout,
-  bottomAction,
-  compactPadding = false,
-}: Screen.Props) {
+export function Screen({ children, layout, bottomAction }: Screen.Props) {
   const frame = Frame.useFrame()
   const id = useId()
 
@@ -69,11 +64,6 @@ export function Screen({
                   padding: 12,
                 },
                 flex: '1 1 auto',
-              }),
-            layout === 'compact' &&
-              compactPadding &&
-              css({
-                padding: 16,
               }),
           )}
         >
@@ -256,7 +246,6 @@ export namespace Screen {
     bottomAction?: ButtonHTMLAttributes<HTMLButtonElement> | undefined
     children?: ReactNode
     layout?: Layout | undefined
-    compactPadding?: boolean | undefined // only used to migrate screens, will be removed
   }
 
   export interface HeaderProps {

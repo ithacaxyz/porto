@@ -31,7 +31,6 @@ export const store = createStore(
         error: null,
         mode: 'popup-standalone',
         referrer,
-        visible: true,
       }
     },
     {
@@ -73,7 +72,6 @@ export declare namespace store {
           url?: URL | undefined
         })
       | undefined
-    visible: boolean
   }
 }
 type Payload = Extract<Messenger.Payload<'__internal'>, { type: 'init' }>
