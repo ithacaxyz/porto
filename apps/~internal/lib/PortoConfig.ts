@@ -7,6 +7,8 @@ import {
   base,
   baseSepolia,
   bsc,
+  celo,
+  mainnet,
   optimism,
   optimismSepolia,
   polygon,
@@ -34,6 +36,8 @@ const config = {
       base,
       baseSepolia,
       bsc,
+      celo,
+      mainnet,
       optimism,
       optimismSepolia,
       polygon,
@@ -51,6 +55,8 @@ const config = {
       [base.id]: http(import.meta.env.VITE_RPC_URL_BASE),
       [baseSepolia.id]: http(),
       [bsc.id]: http(import.meta.env.VITE_RPC_URL_BSC),
+      [celo.id]: http(),
+      [mainnet.id]: http(),
       [optimism.id]: http(import.meta.env.VITE_RPC_URL_OPTIMISM),
       [optimismSepolia.id]: http(),
       [polygon.id]: http(import.meta.env.VITE_RPC_URL_POLYGON),
@@ -64,6 +70,8 @@ const config = {
       base,
       baseSepolia,
       bsc,
+      celo,
+      mainnet,
       optimism,
       optimismSepolia,
       polygon,
@@ -82,6 +90,8 @@ const config = {
       [base.id]: http(),
       [baseSepolia.id]: http(),
       [bsc.id]: http(),
+      [celo.id]: http(),
+      [mainnet.id]: http(),
       [optimism.id]: http(),
       [optimismSepolia.id]: http(),
       [polygon.id]: http(),
@@ -95,10 +105,10 @@ const dialogHosts = {
     : 'https://anvil.localhost:5174/dialog/',
   prod: import.meta.env.PROD
     ? 'https://id.porto.sh/dialog/'
-    : 'https://prod.localhost:5174/dialog/',
+    : 'https://localhost:5174/dialog/',
   stg: import.meta.env.PROD
     ? 'https://stg.id.porto.sh/dialog/'
-    : 'https://localhost:5174/dialog/',
+    : 'https://stg.localhost:5174/dialog/',
 } as const satisfies Record<Env.Env, string | undefined>
 
 export function getConfig(

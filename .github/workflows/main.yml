@@ -13,9 +13,14 @@ jobs:
     uses: ./.github/workflows/verify.yml
     secrets: inherit
 
+  extension:
+    name: Extension
+    uses: ./.github/workflows/extension.yml
+    secrets: inherit
+
   changesets:
     name: Changesets
-    needs: verify
+    needs: [verify, extension]
     permissions:
       contents: write
       id-token: write
@@ -46,19 +51,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Zip extension
-        run: |
-          pnpm --filter extension zip
-          pnpm --filter extension zip:firefox
-
-      - name: Upload artifacts
-        id: artifact-upload-step
-        uses: actions/upload-artifact@v4
-        with:
-          name: extension
-          path: ./apps/extension/.output/*.zip
-          include-hidden-files: true
           
       - name: Update latest release with extension artifacts
         if: steps.changesets.outputs.published == 'true'
@@ -71,8 +63,8 @@ jobs:
               repo: context.repo.repo
             });
             
-            // Get artifact URL from upload step
-            const artifactUrl = '${{ steps.artifact-upload-step.outputs.artifact-url }}';
+            // Get artifact URL from extension job
+            const artifactUrl = '${{ needs.extension.outputs.artifact-url }}';
             
             // Create extension section for release notes
             const extensionSection = [

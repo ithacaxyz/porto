@@ -7,7 +7,6 @@ interface Environment {
 }
 
 interface ImportMetaEnv extends Environment {
-  readonly VITE_FLAGS: string
   readonly VITE_WORKERS_URL: string
 }
 

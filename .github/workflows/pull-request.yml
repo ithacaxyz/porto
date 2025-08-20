@@ -13,10 +13,74 @@ jobs:
     uses: ./.github/workflows/verify.yml
     secrets: inherit
 
+  extension:
+    name: Extension
+    uses: ./.github/workflows/extension.yml
+    secrets: inherit
+
+  extension-comment:
+    name: Comment PR with Extension Artifact
+    needs: [extension]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Comment PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const commentMarker = '<!-- extension-download-comment -->'
+            const commitSha = '${{ github.event.pull_request.head.sha }}'
+            const commitUrl = '${{ github.event.repository.html_url }}/commit/${{ github.event.pull_request.head.sha }}'
+            const artifactUrl = '${{ needs.extension.outputs.artifact-url }}'
+
+            const commentBody = `${commentMarker}
+              Built extension for [\`${commitSha}\`](${commitUrl}).
+
+              [Download](${artifactUrl})
+
+              ### Instructions
+              1. Download the \`extension.zip\` asset from the link below
+              2. Unzip the downloaded file
+              3. Open your browser and navigate to extensions
+              4. Enable \`Developer Mode\` in the top right corner
+              5. Click \`Load Unpacked\` in the top left corner
+              6. Select the unzipped folder
+              7. Done!`
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            })
+            const existingComment = comments.find((comment) => comment.body.includes(commentMarker))
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: commentBody,
+              })
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: commentBody,
+              })
+            }
+
   size:
     name: Size
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      pull-requests: write
 
     steps:
       - name: Clone repository

@@ -94,6 +94,35 @@ export namespace health {
   export type Response = typeof Response.Type
 }
 
+export namespace wallet_addFaucetFunds {
+  export const Parameters = Schema.Struct({
+    address: Primitive.Address,
+    // TODO: `Primitive.Number`
+    chainId: Schema.Number,
+    tokenAddress: Primitive.Address,
+    value: Primitive.BigInt,
+  }).annotations({
+    identifier: 'Rpc.wallet_addFaucetFunds.Parameters',
+  })
+  export type Parameters = typeof Parameters.Type
+
+  export const Request = Schema.Struct({
+    method: Schema.Literal('wallet_addFaucetFunds'),
+    params: Schema.Tuple(Parameters),
+  }).annotations({
+    identifier: 'Rpc.wallet_addFaucetFunds.Request',
+  })
+  export type Request = typeof Request.Type
+
+  export const Response = Schema.Struct({
+    message: Schema.optional(Schema.String),
+    transactionHash: Primitive.Hex,
+  }).annotations({
+    identifier: 'Rpc.wallet_addFaucetFunds.Response',
+  })
+  export type Response = typeof Response.Type
+}
+
 export namespace wallet_getAccounts {
   /** Parameters for `wallet_getAccounts` request. */
   export const Parameters = Schema.Struct({

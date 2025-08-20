@@ -191,7 +191,7 @@ export namespace Input {
     invalid?: boolean
     onChange: (value: string) => void
     removeCompletion?: boolean
-    size?: Size | Record<Frame.Mode, Size>
+    size?: Size | Record<Frame.ModeName, Size>
     value: string
     variant?: 'negative' | 'primary' | 'secondary'
   }

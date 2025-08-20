@@ -12,6 +12,7 @@ export type Schema =
       {
         Request: {
           method:
+            | 'wallet_addFaucetFunds'
             | 'wallet_getCapabilities'
             | 'wallet_getAssets'
             | 'wallet_getCallsStatus'
@@ -26,6 +27,10 @@ export type Schema =
       }
     >
   | RpcSchema.From<
+      | {
+          Request: typeof Rpc.wallet_addFaucetFunds.Request.Encoded
+          ReturnType: typeof Rpc.wallet_addFaucetFunds.Response.Encoded
+        }
       | {
           Request: typeof Rpc.account_verifyEmail.Request.Encoded
           ReturnType: typeof Rpc.account_verifyEmail.Response.Encoded

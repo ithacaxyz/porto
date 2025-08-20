@@ -2,6 +2,7 @@ import type * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
 import * as Provider from 'ox/Provider'
 import * as RpcRequest from 'ox/RpcRequest'
+import * as RpcResponse from 'ox/RpcResponse'
 import * as RpcSchema from 'ox/RpcSchema'
 import { waitForCallsStatus } from 'viem/actions'
 import type { ThemeFragment } from '../../../theme/Theme.js'
@@ -122,6 +123,18 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
   return Mode.from({
     actions: {
+      async addFaucetFunds(parameters) {
+        const { internal } = parameters
+        const { request, store } = internal
+
+        if (request.method !== 'wallet_addFaucetFunds')
+          throw new Error(
+            'Cannot add faucet funds for method: ' + request.method,
+          )
+
+        const provider = getProvider(store)
+        return await provider.request(request)
+      },
       async addFunds(parameters) {
         const { internal } = parameters
         const { request, store } = internal
@@ -853,11 +866,15 @@ export function dialog(parameters: dialog.Parameters = {}) {
             if (!response) throw new Error('id not found')
 
             if (asTxHash) {
-              const { receipts } = await waitForCallsStatus(client, {
+              const { receipts, status } = await waitForCallsStatus(client, {
                 id: response.id,
                 pollingInterval: 500,
               })
-              if (!receipts?.[0]) throw new Provider.UnknownBundleIdError()
+              if (!receipts?.[0]) {
+                if (status === 'success')
+                  throw new Provider.UnknownBundleIdError()
+                throw new RpcResponse.TransactionRejectedError()
+              }
               return {
                 id: receipts[0].transactionHash,
               }

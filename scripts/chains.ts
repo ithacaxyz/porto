@@ -41,7 +41,10 @@ for (const environment of environments) {
   let supportedChains: string[] = []
   for (const chainId of supportedChainIds) {
     const entry = allChains.find(([, chain]) => chain.id === chainId)
-    if (!entry) throw new Error(`No chain found for id ${chainId}`)
+    if (!entry) {
+      console.warn(`No chain found for id ${chainId}. Please add it to Viem.`)
+      continue
+    }
     const slug = entry[0]
     supportedChains.push(slug)
     chainsSet.add(slug)

@@ -6,6 +6,7 @@ import * as Json from 'ox/Json'
 import * as PersonalMessage from 'ox/PersonalMessage'
 import * as Provider from 'ox/Provider'
 import * as PublicKey from 'ox/PublicKey'
+import * as RpcResponse from 'ox/RpcResponse'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as TypedData from 'ox/TypedData'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
@@ -52,6 +53,15 @@ export function relay(parameters: relay.Parameters = {}) {
 
   return Mode.from({
     actions: {
+      async addFaucetFunds(parameters) {
+        const { internal, ...params } = parameters
+
+        return await RelayActions_internal.addFaucetFunds(
+          internal.client,
+          params,
+        )
+      },
+
       async addFunds() {
         throw new Provider.UnsupportedMethodError()
       },
@@ -743,11 +753,14 @@ export function relay(parameters: relay.Parameters = {}) {
         })
 
         if (asTxHash) {
-          const { receipts } = await waitForCallsStatus(client, {
+          const { receipts, status } = await waitForCallsStatus(client, {
             id: result.id,
             pollingInterval: 500,
           })
-          if (!receipts?.[0]) throw new Provider.UnknownBundleIdError()
+          if (!receipts?.[0]) {
+            if (status === 'success') throw new Provider.UnknownBundleIdError()
+            throw new RpcResponse.TransactionRejectedError()
+          }
           return {
             id: receipts[0].transactionHash,
           }

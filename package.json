@@ -114,7 +114,7 @@
   },
   "size-limit": [
     {
-      "name": "import * from 'ox'",
+      "name": "import * from 'porto'",
       "path": "./src/_dist/index.js",
       "import": "*"
     }

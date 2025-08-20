@@ -5,6 +5,8 @@ export {
   base,
   baseSepolia,
   bsc,
+  celo,
+  mainnet,
   optimism,
   optimismSepolia,
   polygon,

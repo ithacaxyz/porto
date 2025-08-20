@@ -5,38 +5,53 @@ on:
     types:
       - opened
       - reopened
-      - synchronize
 
 jobs:
   auto-assign:
     permissions:
       pull-requests: write
+      members: read
     runs-on: ubuntu-latest
-    env:
-      REPO: ${{ github.repository }}
-      PR_AUTHOR: ${{ github.event.pull_request.user.login }}
     steps:
       - name: Check Membership
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
         run: |
-          gh api orgs/${{ env.REPO }}/members/${{ env.PR_AUTHOR }} --silent 2> /dev/null \
+          gh api orgs/ithacaxyz/members/${{ env.PR_AUTHOR }} --silent 2> /dev/null \
             && echo "IS_ORG_MEMBER=true" >> $GITHUB_ENV || echo "IS_ORG_MEMBER=false" >> $GITHUB_ENV
 
       - name: Auto assign PR to author
-        if: ${{ env.IS_ORG_MEMBER == 'true' }}
-        env:
-          IS_ORG_MEMBER: ${{ env.IS_ORG_MEMBER }}
+        if: env.IS_ORG_MEMBER == 'true'
         uses: actions/github-script@v7
         with:
           script: |
             const pr = context.payload.pull_request
+            const prAuthor = pr.user.login
 
-            if (pr.assignees.length > 0 || pr.user.type.toLowerCase() === 'bot') return
+            console.log(`PR #${pr.number} author: ${prAuthor}`)
+            console.log(`Current assignees: ${pr.assignees.map(a => a.login).join(', ') || 'none'}`)
 
-            github.rest.issues.addAssignees({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: pr.number,
-              assignees: [${{ env.PR_AUTHOR }}]
-            })
-              .then(() => console.info(`Successfully assigned PR #${pr.number} to ${{ env.PR_AUTHOR }}`))
-              .catch((error) => console.error(error))
+            // Skip if PR already has assignees or author is a bot
+            if (pr.assignees.length > 0) {
+              console.log('PR already has assignees, skipping')
+              return
+            }
+
+            if (pr.user.type.toLowerCase() === 'bot') {
+              console.log('PR author is a bot, skipping')
+              return
+            }
+
+            try {
+              await github.rest.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                assignees: [prAuthor]
+              })
+              console.log(`Successfully assigned PR #${pr.number} to ${prAuthor}`)
+            } catch (error) {
+              console.error(`Failed to assign PR: ${error.message}`)
+              throw error
+            }

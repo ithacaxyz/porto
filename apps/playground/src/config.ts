@@ -1,4 +1,4 @@
-import { Env, PortoConfig } from '@porto/apps'
+import { PortoConfig } from '@porto/apps'
 import { exp1Address, exp2Address } from '@porto/apps/contracts'
 import { createStore } from 'mipd'
 import { Hex, Value } from 'ox'
@@ -144,9 +144,7 @@ const chains = [
 export const porto = Porto.create({
   ...config,
   chains,
-  experimental: {
-    applePayOnramp: Env.get() === 'prod',
-  },
+  feeToken: 'EXP',
   merchantRpcUrl: merchant ? '/merchant' : undefined,
   // We will be deferring mode setup until after hydration.
   mode: null,

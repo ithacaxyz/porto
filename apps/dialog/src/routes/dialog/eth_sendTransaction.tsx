@@ -21,9 +21,11 @@ export const Route = createFileRoute('/dialog/eth_sendTransaction')({
 
 function RouteComponent() {
   const request = Route.useSearch()
+  const capabilities = request.params[0].capabilities
   const { chainId, data, from, to, value } = request._decoded.params[0]
 
   const calls = [{ data, to: to!, value }] as const
+  const feeToken = capabilities?.feeToken
 
   const account = Hooks.useAccount(porto, { address: from })
   const client = Hooks.useRelayClient(porto, { chainId })
@@ -75,6 +77,7 @@ function RouteComponent() {
       address={from}
       calls={calls}
       chainId={chainId}
+      feeToken={feeToken}
       loading={respond.isPending}
       onApprove={(data) => respond.mutate(data)}
       onReject={() => Actions.reject(porto, request)}
