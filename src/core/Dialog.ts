@@ -294,7 +294,14 @@ export function iframe(options: iframe.Options = {}) {
       let forceHideTimer: ReturnType<typeof setTimeout>
       const startForceHideDelay = () => {
         clearTimeout(forceHideTimer)
-        forceHideTimer = setTimeout(hideDialog, 1000)
+        forceHideTimer = setTimeout(() => {
+          hideDialog()
+          messenger.send('__internal', {
+            mode: 'iframe',
+            referrer: getReferrer(),
+            type: 'init',
+          })
+        }, 1000)
       }
       const cancelForceHideDelay = () => {
         clearTimeout(forceHideTimer)
