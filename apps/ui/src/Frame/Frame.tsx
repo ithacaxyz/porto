@@ -22,9 +22,7 @@ const FrameContext = createContext<Frame.Context | null>(null)
 const springStyles = {
   enter: {
     dialogOpacity: 1,
-    // temporarily disable anims
-    // dialogTransform: 'translate3d(0, 16px, 0) scale3d(1, 1, 1)',
-    dialogTransform: 'translate3d(0, 0px, 0) scale3d(1, 1, 1)',
+    dialogTransform: 'translate3d(0, 16px, 0) scale3d(1, 1, 1)',
     drawerTransform: 'translate3d(0, 0%, 0)',
     overlayOpacity: 1,
   },
@@ -36,9 +34,7 @@ const springStyles = {
   },
   leave: {
     dialogOpacity: 0,
-    // temporarily disable anims
-    // dialogTransform: 'translate3d(0, 32px, 0) scale3d(1, 1, 1)',
-    dialogTransform: 'translate3d(0, 0px, 0) scale3d(1, 1, 1)',
+    dialogTransform: 'translate3d(0, 32px, 0) scale3d(1, 1, 1)',
     drawerTransform: 'translate3d(0, 100%, 0)',
     overlayOpacity: 0,
   },
@@ -85,17 +81,13 @@ export function Frame({
       : { friction: 160, mass: 1.3, tension: 3000 },
     enter: () => async (next) => {
       await next({ ...springStyles.from, immediate: true })
-      // temporarily disable anims
-      // await next(springStyles.enter)
-      await next({ ...springStyles.enter, immediate: true })
+      await next(springStyles.enter)
     },
     initial: springStyles.enter,
     leave: () => async (next) => {
       await next({
         ...springStyles.leave,
-        // temporarily disable anims
-        // immediate: mode.name === 'dialog' && !dialogDrawer,
-        immediate: true,
+        immediate: mode.name === 'dialog' && !dialogDrawer,
       })
       onClosed?.()
     },
