@@ -1,5 +1,15 @@
 # porto
 
+## 0.0.74
+
+### Patch Changes
+
+- [#711](https://github.com/ithacaxyz/porto/pull/711) [`048f1af`](https://github.com/ithacaxyz/porto/commit/048f1af7f33fad65f9ae672537a27b843694e55d) Thanks [@o-az](https://github.com/o-az)! - Added support for Relay's `wallet_addFaucetFunds`.
+
+- [`2822c03`](https://github.com/ithacaxyz/porto/commit/2822c034a137d4a935dd1996948eb7e18c134415) Thanks [@jxom](https://github.com/jxom)! - Tweaked error messaging for not found transaction hashes.
+
+- [#731](https://github.com/ithacaxyz/porto/pull/731) [`4de8e3b`](https://github.com/ithacaxyz/porto/commit/4de8e3bc443e4a673972e0ed77ace6f79a1d285a) Thanks [@jxom](https://github.com/jxom)! - Passed through `chainIds` to `wallet_connect` on the `porto` Connector.
+
 ## 0.0.73
 
 ### Patch Changes

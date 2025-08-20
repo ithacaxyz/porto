@@ -24,10 +24,16 @@ const dialogModes = {
       }),
       ...parameters,
     }),
+  'page-dialog': (parameters: Mode.dialog.Parameters) =>
+    Mode.dialog({
+      host,
+      renderer: Dialog.popup({ type: 'page' }),
+      ...parameters,
+    }),
   'popup-dialog': (parameters: Mode.dialog.Parameters) =>
     Mode.dialog({
       host,
-      renderer: Dialog.popup(),
+      renderer: Dialog.popup({ type: 'popup' }),
       ...parameters,
     }),
 } as const

@@ -22,16 +22,6 @@
       "source": "/.well-known/apple-developer-merchantid-domain-association.txt"
     },
     {
-      "destination": "/.well-known/m/apple-prod.txt",
-      "has": [
-        {
-          "type": "host",
-          "value": "prod.id.porto.sh"
-        }
-      ],
-      "source": "/.well-known/apple-developer-merchantid-domain-association.txt"
-    },
-    {
       "destination": "https://:env.dialog.porto.sh/dialog/",
       "has": [
         {
