@@ -76,6 +76,26 @@ export declare namespace addFunds {
   type ReturnType = RpcSchema.wallet_addFunds.Response
 }
 
+export async function addFaucetFunds(
+  client: Client,
+  parameters: addFaucetFunds.Parameters,
+): Promise<void> {
+  const method = 'wallet_addFaucetFunds' as const
+  type Method = typeof method
+  await client.request<
+    Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
+  >({
+    method,
+    params: [
+      Schema.encodeSync(RpcSchema.wallet_addFaucetFunds.Parameters)(parameters),
+    ],
+  })
+}
+
+export declare namespace addFaucetFunds {
+  type Parameters = RpcSchema.wallet_addFaucetFunds.Parameters
+}
+
 export async function getAssets<
   chain extends Chain | undefined,
   account extends Account.Account | undefined,
