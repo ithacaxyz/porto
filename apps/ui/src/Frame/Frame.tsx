@@ -370,8 +370,11 @@ function FrameBar({
               borderBottom: 'none',
               height: 60,
             },
+            '@container (min-width: 380px)': {
+              height: 48,
+            },
             borderBottom: '1px solid var(--border-color-th_frame)',
-            height: 48,
+            height: 40,
           }),
       )}
     >
