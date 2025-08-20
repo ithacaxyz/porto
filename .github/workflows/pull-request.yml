@@ -23,6 +23,8 @@ jobs:
     needs: [extension]
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -48,6 +50,8 @@ jobs:
     name: Size
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      pull-requests: write
 
     steps:
       - name: Clone repository
