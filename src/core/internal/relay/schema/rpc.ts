@@ -97,8 +97,7 @@ export namespace health {
 export namespace wallet_addFaucetFunds {
   export const Parameters = Schema.Struct({
     address: Primitive.Address,
-    // TODO: `Primitive.Number`
-    chainId: Schema.Number,
+    chainId: Primitive.Number,
     tokenAddress: Primitive.Address,
     value: Primitive.BigInt,
   }).annotations({
