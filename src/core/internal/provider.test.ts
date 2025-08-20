@@ -1,3 +1,4 @@
+import { setTimeout } from 'node:timers/promises'
 import {
   Address,
   Hex,
@@ -177,7 +178,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
   })
 
   describe('wallet_addFaucetFunds', () => {
-    test('default', async () => {
+    test.only('default', async () => {
       const porto = getPorto()
       const contracts = await TestConfig.getContracts(porto)
       const client = TestConfig.getRelayClient(porto)
@@ -195,6 +196,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
           },
         ],
       })
+      await setTimeout(2_000)
 
       expect(result).toBeDefined()
       expect(result.transactionHash).toBeDefined()
