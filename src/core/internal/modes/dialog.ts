@@ -866,14 +866,22 @@ export function dialog(parameters: dialog.Parameters = {}) {
             if (!response) throw new Error('id not found')
 
             if (asTxHash) {
-              const { receipts, status } = await waitForCallsStatus(client, {
-                id: response.id,
-                pollingInterval: 500,
-              })
+              const { id, receipts, status } = await waitForCallsStatus(
+                client,
+                {
+                  id: response.id,
+                  pollingInterval: 500,
+                },
+              )
               if (!receipts?.[0]) {
                 if (status === 'success')
-                  throw new Provider.UnknownBundleIdError()
-                throw new RpcResponse.TransactionRejectedError()
+                  throw new Provider.UnknownBundleIdError({
+                    message: 'Call bundle with id: ' + id + ' not found.',
+                  })
+                throw new RpcResponse.TransactionRejectedError({
+                  message:
+                    'Transaction failed under call bundle id: ' + id + '.',
+                })
               }
               return {
                 id: receipts[0].transactionHash,

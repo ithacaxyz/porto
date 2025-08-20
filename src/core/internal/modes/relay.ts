@@ -753,13 +753,18 @@ export function relay(parameters: relay.Parameters = {}) {
         })
 
         if (asTxHash) {
-          const { receipts, status } = await waitForCallsStatus(client, {
+          const { id, receipts, status } = await waitForCallsStatus(client, {
             id: result.id,
             pollingInterval: 500,
           })
           if (!receipts?.[0]) {
-            if (status === 'success') throw new Provider.UnknownBundleIdError()
-            throw new RpcResponse.TransactionRejectedError()
+            if (status === 'success')
+              throw new Provider.UnknownBundleIdError({
+                message: 'Call bundle with id: ' + id + ' not found.',
+              })
+            throw new RpcResponse.TransactionRejectedError({
+              message: 'Transaction failed under call bundle id: ' + id + '.',
+            })
           }
           return {
             id: receipts[0].transactionHash,
