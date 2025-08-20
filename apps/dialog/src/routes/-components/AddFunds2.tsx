@@ -203,6 +203,9 @@ function Content(props: {
     queryKey: ['assets', { chainId, eoaAddress }],
   })
 
+  // if no funds, show no funds screen
+  // if has funds, show send
+
   // if (eoaAddress)
   //   return (
   //     <div>
