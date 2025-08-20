@@ -628,9 +628,9 @@ exports[`contract > wallet_sendCalls > behavior: not provider-managed permission
 
 exports[`contract > wallet_sendCalls > behavior: permission does not exist 1`] = `[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]`;
 
-exports[`rpcServer > eth_accounts > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
+exports[`relay > eth_accounts > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
 
-exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability (provided key) 1`] = `
+exports[`relay > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability (provided key) 1`] = `
 [
   {
     "chainId": undefined,
@@ -680,7 +680,7 @@ exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermi
 ]
 `;
 
-exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability 1`] = `
+exports[`relay > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability 1`] = `
 [
   {
     "chainId": null,
@@ -731,7 +731,7 @@ exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermi
 ]
 `;
 
-exports[`rpcServer > wallet_connect > behavior: \`createAccount\` capability > 
+exports[`relay > wallet_connect > behavior: \`createAccount\` capability > 
         [
           {
             "expiry": null,
@@ -763,17 +763,17 @@ exports[`rpcServer > wallet_connect > behavior: \`createAccount\` capability >
 ]
 `;
 
-exports[`rpcServer > wallet_connect > behavior: \`grantPermissions\` capability (no permissions) 1`] = `
+exports[`relay > wallet_connect > behavior: \`grantPermissions\` capability (no permissions) 1`] = `
 [RpcResponse.InvalidParamsError: Expected an array of at least 1 item(s), actual []
 Path: params.0.capabilities.grantPermissions.permissions.calls
 
 Details: Request.Request
 └─ Rpc.wallet_connect.Request
    └─ ["params"]
-      └─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }] | undefined
-         ├─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }]
+      └─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined; readonly chainIds?: ReadonlyArray<(\`0x\${string}\` <-> number)> | undefined }] | undefined
+         ├─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined; readonly chainIds?: ReadonlyArray<(\`0x\${string}\` <-> number)> | undefined }]
          │  └─ [0]
-         │     └─ { readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }
+         │     └─ { readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined; readonly chainIds?: ReadonlyArray<(\`0x\${string}\` <-> number)> | undefined }
          │        └─ ["capabilities"]
          │           └─ Rpc.wallet_connect.Capabilities | undefined
          │              ├─ Rpc.wallet_connect.Capabilities
@@ -791,17 +791,17 @@ Details: Request.Request
          └─ Expected undefined, actual [{"capabilities":{"createAccount":true,"grantPermissions":{"expiry":9999999,"feeLimit":{"currency":"USD","value":"1"},"permissions":{"calls":[]}}}}]]
 `;
 
-exports[`rpcServer > wallet_connect > behavior: \`grantPermissions\` capability (unlimited expiry) 1`] = `
+exports[`relay > wallet_connect > behavior: \`grantPermissions\` capability (unlimited expiry) 1`] = `
 [RpcResponse.InvalidParamsError: Expected a number greater than or equal to 1, actual 0
 Path: params.0.capabilities.grantPermissions.expiry
 
 Details: Request.Request
 └─ Rpc.wallet_connect.Request
    └─ ["params"]
-      └─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }] | undefined
-         ├─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }]
+      └─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined; readonly chainIds?: ReadonlyArray<(\`0x\${string}\` <-> number)> | undefined }] | undefined
+         ├─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined; readonly chainIds?: ReadonlyArray<(\`0x\${string}\` <-> number)> | undefined }]
          │  └─ [0]
-         │     └─ { readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }
+         │     └─ { readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined; readonly chainIds?: ReadonlyArray<(\`0x\${string}\` <-> number)> | undefined }
          │        └─ ["capabilities"]
          │           └─ Rpc.wallet_connect.Capabilities | undefined
          │              ├─ Rpc.wallet_connect.Capabilities
@@ -817,7 +817,7 @@ Details: Request.Request
          └─ Expected undefined, actual [{"capabilities":{"createAccount":true,"grantPermissions":{"expiry":0,"feeLimit":{"currency":"USD","value":"1"},"permissions":{"calls":[{"signature":"mint()"}]}}}}]]
 `;
 
-exports[`rpcServer > wallet_connect > default 1`] = `
+exports[`relay > wallet_connect > default 1`] = `
 [
   {
     "chainId": null,
@@ -835,29 +835,29 @@ exports[`rpcServer > wallet_connect > default 1`] = `
 ]
 `;
 
-exports[`rpcServer > wallet_disconnect > default 1`] = `
+exports[`relay > wallet_disconnect > default 1`] = `
 [
   [Provider.DisconnectedError: The provider is disconnected from all chains.],
 ]
 `;
 
-exports[`rpcServer > wallet_getAdmins > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
+exports[`relay > wallet_getAdmins > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
 
-exports[`rpcServer > wallet_getCapabilities > behavior: chainId 1`] = `
+exports[`relay > wallet_getCapabilities > behavior: chainId 1`] = `
 [
   "0x7a69",
 ]
 `;
 
-exports[`rpcServer > wallet_getCapabilities > behavior: chainId 2`] = `
+exports[`relay > wallet_getCapabilities > behavior: chainId 2`] = `
 {
   "status": "supported",
 }
 `;
 
-exports[`rpcServer > wallet_getCapabilities > behavior: chainId 3`] = `true`;
+exports[`relay > wallet_getCapabilities > behavior: chainId 3`] = `true`;
 
-exports[`rpcServer > wallet_getCapabilities > behavior: chainId 4`] = `
+exports[`relay > wallet_getCapabilities > behavior: chainId 4`] = `
 [
   {
     "address": "0x0000000000000000000000000000000000000000",
@@ -880,51 +880,51 @@ exports[`rpcServer > wallet_getCapabilities > behavior: chainId 4`] = `
 ]
 `;
 
-exports[`rpcServer > wallet_getCapabilities > behavior: chainId 5`] = `
+exports[`relay > wallet_getCapabilities > behavior: chainId 5`] = `
 {
   "supported": true,
 }
 `;
 
-exports[`rpcServer > wallet_getCapabilities > behavior: chainId 6`] = `
+exports[`relay > wallet_getCapabilities > behavior: chainId 6`] = `
 {
   "supported": true,
 }
 `;
 
-exports[`rpcServer > wallet_getCapabilities > default 1`] = `
+exports[`relay > wallet_getCapabilities > default 1`] = `
 [
   "0x7a69",
 ]
 `;
 
-exports[`rpcServer > wallet_getCapabilities > default 2`] = `
+exports[`relay > wallet_getCapabilities > default 2`] = `
 {
   "status": "supported",
 }
 `;
 
-exports[`rpcServer > wallet_getCapabilities > default 3`] = `true`;
+exports[`relay > wallet_getCapabilities > default 3`] = `true`;
 
-exports[`rpcServer > wallet_getCapabilities > default 4`] = `2`;
+exports[`relay > wallet_getCapabilities > default 4`] = `2`;
 
-exports[`rpcServer > wallet_getCapabilities > default 5`] = `
+exports[`relay > wallet_getCapabilities > default 5`] = `
 {
   "supported": true,
 }
 `;
 
-exports[`rpcServer > wallet_getCapabilities > default 6`] = `
+exports[`relay > wallet_getCapabilities > default 6`] = `
 {
   "supported": true,
 }
 `;
 
-exports[`rpcServer > wallet_getCapabilities > default 7`] = `false`;
+exports[`relay > wallet_getCapabilities > default 7`] = `false`;
 
-exports[`rpcServer > wallet_getCapabilities > default 8`] = `0`;
+exports[`relay > wallet_getCapabilities > default 8`] = `0`;
 
-exports[`rpcServer > wallet_getPermissions > behavior: grant on connect > grant another > get after connect 1`] = `
+exports[`relay > wallet_getPermissions > behavior: grant on connect > grant another > get after connect 1`] = `
 [
   {
     "address": null,
@@ -988,7 +988,7 @@ exports[`rpcServer > wallet_getPermissions > behavior: grant on connect > grant 
 ]
 `;
 
-exports[`rpcServer > wallet_getPermissions > behavior: grant on connect > grant another > get after connect 2`] = `
+exports[`relay > wallet_getPermissions > behavior: grant on connect > grant another > get after connect 2`] = `
 [
   {
     "address": null,
@@ -1056,7 +1056,7 @@ exports[`rpcServer > wallet_getPermissions > behavior: grant on connect > grant 
 ]
 `;
 
-exports[`rpcServer > wallet_getPermissions > behavior: grant on connect > grant another > get after connect 3`] = `
+exports[`relay > wallet_getPermissions > behavior: grant on connect > grant another > get after connect 3`] = `
 [
   {
     "address": null,
@@ -1124,7 +1124,7 @@ exports[`rpcServer > wallet_getPermissions > behavior: grant on connect > grant 
 ]
 `;
 
-exports[`rpcServer > wallet_grantAdmin > default 1`] = `
+exports[`relay > wallet_grantAdmin > default 1`] = `
 {
   "id": "0x0000000000000000000000000000000000069420",
   "publicKey": "0x0000000000000000000000000000000000069420",
@@ -1132,7 +1132,7 @@ exports[`rpcServer > wallet_grantAdmin > default 1`] = `
 }
 `;
 
-exports[`rpcServer > wallet_grantPermissions > behavior: no permissions 1`] = `
+exports[`relay > wallet_grantPermissions > behavior: no permissions 1`] = `
 [RpcResponse.InvalidParamsError: Expected an array of at least 1 item(s), actual []
 Path: params.0.permissions.calls
 
@@ -1150,7 +1150,7 @@ Details: Request.Request
                               └─ Expected an array of at least 1 item(s), actual []]
 `;
 
-exports[`rpcServer > wallet_grantPermissions > behavior: provided key 1`] = `
+exports[`relay > wallet_grantPermissions > behavior: provided key 1`] = `
 {
   "address": null,
   "capabilities": null,
@@ -1178,7 +1178,7 @@ exports[`rpcServer > wallet_grantPermissions > behavior: provided key 1`] = `
 }
 `;
 
-exports[`rpcServer > wallet_grantPermissions > behavior: provided key 2`] = `
+exports[`relay > wallet_grantPermissions > behavior: provided key 2`] = `
 {
   "address": null,
   "capabilities": null,
@@ -1211,7 +1211,7 @@ exports[`rpcServer > wallet_grantPermissions > behavior: provided key 2`] = `
 }
 `;
 
-exports[`rpcServer > wallet_grantPermissions > behavior: provided key 3`] = `
+exports[`relay > wallet_grantPermissions > behavior: provided key 3`] = `
 [
   {
     "chainId": null,
@@ -1300,7 +1300,7 @@ exports[`rpcServer > wallet_grantPermissions > behavior: provided key 3`] = `
 ]
 `;
 
-exports[`rpcServer > wallet_grantPermissions > behavior: unlimited expiry 1`] = `
+exports[`relay > wallet_grantPermissions > behavior: unlimited expiry 1`] = `
 [RpcResponse.InvalidParamsError: Expected a number greater than or equal to 1, actual 0
 Path: params.0.expiry
 
@@ -1316,7 +1316,7 @@ Details: Request.Request
                         └─ Expected a number greater than or equal to 1, actual 0]
 `;
 
-exports[`rpcServer > wallet_grantPermissions > default 1`] = `
+exports[`relay > wallet_grantPermissions > default 1`] = `
 [
   {
     "chainId": null,
@@ -1367,7 +1367,7 @@ exports[`rpcServer > wallet_grantPermissions > default 1`] = `
 ]
 `;
 
-exports[`rpcServer > wallet_revokeAdmin > default 1`] = `
+exports[`relay > wallet_revokeAdmin > default 1`] = `
 [
   {
     "chainId": null,
@@ -1397,7 +1397,7 @@ exports[`rpcServer > wallet_revokeAdmin > default 1`] = `
 ]
 `;
 
-exports[`rpcServer > wallet_revokeAdmin > default 2`] = `
+exports[`relay > wallet_revokeAdmin > default 2`] = `
 [
   {
     "chainId": null,
@@ -1417,9 +1417,9 @@ exports[`rpcServer > wallet_revokeAdmin > default 2`] = `
 ]
 `;
 
-exports[`rpcServer > wallet_revokePermissions > behavior: revoke last admin key 1`] = `[RpcResponse.InternalError: cannot revoke admins.]`;
+exports[`relay > wallet_revokePermissions > behavior: revoke last admin key 1`] = `[RpcResponse.InternalError: cannot revoke admins.]`;
 
-exports[`rpcServer > wallet_revokePermissions > default 1`] = `
+exports[`relay > wallet_revokePermissions > default 1`] = `
 [
   {
     "chainId": null,
@@ -1470,7 +1470,7 @@ exports[`rpcServer > wallet_revokePermissions > default 1`] = `
 ]
 `;
 
-exports[`rpcServer > wallet_revokePermissions > default 2`] = `
+exports[`relay > wallet_revokePermissions > default 2`] = `
 [
   {
     "chainId": null,
@@ -1490,7 +1490,7 @@ exports[`rpcServer > wallet_revokePermissions > default 2`] = `
 ]
 `;
 
-exports[`rpcServer > wallet_sendCalls > behavior: no calls.to 1`] = `
+exports[`relay > wallet_sendCalls > behavior: no calls.to 1`] = `
 [RpcResponse.InvalidParamsError: \`to\` is missing
 Path: params.0.calls.0.to
 
@@ -1508,6 +1508,6 @@ Details: Request.Request
                               └─ is missing]
 `;
 
-exports[`rpcServer > wallet_sendCalls > behavior: not provider-managed permission 1`] = `[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]`;
+exports[`relay > wallet_sendCalls > behavior: not provider-managed permission 1`] = `[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]`;
 
-exports[`rpcServer > wallet_sendCalls > behavior: permission does not exist 1`] = `[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]`;
+exports[`relay > wallet_sendCalls > behavior: permission does not exist 1`] = `[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]`;

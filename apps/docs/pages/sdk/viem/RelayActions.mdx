@@ -1,0 +1,35 @@
+# Server Actions
+
+Porto provides a set of Server Actions for **Wallet & Account Developers**. These Actions are designed to be used with
+a Viem Client that is connected to the [Porto Relay](/relay).
+
+```ts twoslash
+import { createClient, http } from 'viem' 
+import { Chains } from 'porto' 
+import { Key, RelayActions } from 'porto/viem'
+
+// Instantiate a Viem Client with Porto-compatible Chain. 
+const client = createClient({ 
+  chain: Chains.baseSepolia, 
+  transport: http(), 
+}) 
+
+const account = await RelayActions.createAccount(client, { // [!code focus]
+  authorizeKeys: [Key.createSecp256k1()], // [!code focus]
+}) // [!code focus]
+```
+
+---
+
+| Action | Description |
+| ------ | ------ |
+| [`createAccount`](/sdk/viem/RelayActions/createAccount) | Create a new Porto Account. |
+| [`getCallsStatus`](/sdk/viem/RelayActions/getCallsStatus) | Retrieve the status of a call bundle. |
+| [`getCapabilities`](/sdk/viem/RelayActions/getCapabilities) | Retrieve the capabilities of the Relay. |
+| [`getKeys`](/sdk/viem/RelayActions/getKeys) | Retrieve all keys associated with an account. |
+| [`health`](/sdk/viem/RelayActions/health) | Retrieve the health of the server. |
+| [`prepareCalls`](/sdk/viem/RelayActions/prepareCalls) | Prepare a bundle of calls for execution. |
+| [`prepareUpgradeAccount`](/sdk/viem/RelayActions/prepareUpgradeAccount) | Prepare an EOA to be upgraded to a Porto Account. |
+| [`sendPreparedCalls`](/sdk/viem/RelayActions/sendPreparedCalls) | Send a prepared and signed call bundle. |
+| [`upgradeAccount`](/sdk/viem/RelayActions/upgradeAccount) | Upgrade an EOA to a Porto Account. |
+| [`verifySignature`](/sdk/viem/RelayActions/verifySignature) | Verify a signature. |

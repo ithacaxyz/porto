@@ -3,8 +3,7 @@ import { Env } from '@porto/apps'
 export function enableOnramp() {
   const dialogSearchParams = new URLSearchParams(window.location.search)
   const onrampEnabled = dialogSearchParams.get('onramp') === 'true'
-
-  return Env.get() === 'prod' || onrampEnabled
+  return onrampEnabled
 }
 
 const widgetScript = 'https://widget.mercuryo.io/embed.2.1.js'

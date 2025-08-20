@@ -14,7 +14,7 @@ import * as TestConfig from '../../test/src/config.js'
 import * as Key from './Key.js'
 
 const porto = TestConfig.getPorto()
-const client = TestConfig.getServerClient(porto)
+const client = TestConfig.getRelayClient(porto)
 
 describe('createP256', () => {
   test('default', () => {
@@ -445,9 +445,9 @@ describe('fromP256', () => {
   })
 })
 
-describe('fromRpcServer', () => {
+describe('fromRelay', () => {
   test('default', () => {
-    const key = Key.fromRpcServer(
+    const key = Key.fromRelay(
       {
         expiry: 0,
         permissions: [
@@ -711,7 +711,7 @@ describe('serialize', () => {
   })
 })
 
-describe('toRpcServer', () => {
+describe('toRelay', () => {
   test('default', () => {
     const key = Key.fromP256({
       permissions: {
@@ -736,7 +736,7 @@ describe('toRpcServer', () => {
         '0x59ff6b8de3b3b39e94b6f9fc0590cf4e3eaa9b6736e6a49c9a6b324c4f58cb9f',
     })
 
-    expect(Key.toRpcServer(key)).toMatchInlineSnapshot(`
+    expect(Key.toRelay(key)).toMatchInlineSnapshot(`
       {
         "expiry": 0,
         "permissions": [

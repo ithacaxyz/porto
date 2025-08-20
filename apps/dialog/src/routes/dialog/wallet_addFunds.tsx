@@ -15,11 +15,12 @@ export const Route = createFileRoute('/dialog/wallet_addFunds')({
 
 function RouteComponent() {
   const request = Route.useSearch()
-  const { address, token, value } = request._decoded.params[0]
+  const { address, chainId, token, value } = request._decoded.params[0]
 
   return (
     <AddFunds
       address={address}
+      chainId={chainId}
       onApprove={(result) => Actions.respond(porto, request!, { result })}
       onReject={() => Actions.reject(porto, request)}
       tokenAddress={token}

@@ -27,7 +27,7 @@ import type { ChainIdParameter, ConnectorParameter } from './types.js'
 
 export async function connect<config extends Config>(
   config: config,
-  parameters: connect.Parameters<config>,
+  parameters: connect.Parameters,
 ): Promise<connect.ReturnType> {
   // "Register" connector if not already created
   let connector: Connector
@@ -38,17 +38,6 @@ export async function connect<config extends Config>(
   // Check if connector is already connected
   if (connector.uid === config.state.current && !parameters.force)
     throw new ConnectorAlreadyConnectedError()
-
-  if (parameters.chainId && parameters.chainId !== config.state.chainId)
-    throw new ChainMismatchError({
-      chain:
-        config.chains.find((chain) => chain.id === parameters.chainId) ??
-        ({
-          id: parameters.chainId,
-          name: `Chain ${parameters.chainId}`,
-        } as Chain),
-      currentChainId: config.state.chainId,
-    })
 
   try {
     config.setState((x) => ({ ...x, status: 'connecting' }))
@@ -63,10 +52,12 @@ export async function connect<config extends Config>(
       transport: (opts) => custom(provider)({ ...opts, retryCount: 0 }),
     })
 
-    const { accounts, chainIds } = await WalletActions.connect(
-      client,
-      parameters,
-    )
+    const chainIds_request = parameters.chainIds ?? [config.state.chainId]
+
+    const { accounts, chainIds } = await WalletActions.connect(client, {
+      ...parameters,
+      chainIds: chainIds_request,
+    })
     const addresses = accounts.map((x) => x.address) as unknown as readonly [
       Address,
       ...Address[],
@@ -74,7 +65,7 @@ export async function connect<config extends Config>(
 
     // we already connected, but call `connector.connect` so connector even listeners are set up
     await connector.connect({
-      chainId: parameters.chainId,
+      chainId: chainIds_request[0],
       isReconnecting: true,
     })
 
@@ -106,11 +97,11 @@ export async function connect<config extends Config>(
 }
 
 export declare namespace connect {
-  type Parameters<config extends Config = Config> = ChainIdParameter<config> &
-    RpcSchema.wallet_connect.Capabilities & {
-      connector: Connector | CreateConnectorFn
-      force?: boolean | undefined
-    }
+  type Parameters = RpcSchema.wallet_connect.Capabilities & {
+    connector: Connector | CreateConnectorFn
+    chainIds?: readonly [number, ...number[]] | undefined
+    force?: boolean | undefined
+  }
 
   type ReturnType = RpcSchema.wallet_connect.Response
 

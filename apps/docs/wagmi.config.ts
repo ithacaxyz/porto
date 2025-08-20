@@ -1,7 +1,8 @@
 import { PortoConfig } from '@porto/apps'
 import { Dialog, Mode } from 'porto'
 import { porto } from 'porto/wagmi'
-import { createConfig, createStorage } from 'wagmi'
+import { createConfig, createStorage, http } from 'wagmi'
+import { baseSepolia, optimismSepolia } from 'wagmi/chains'
 
 const portoConfig = PortoConfig.getConfig()
 
@@ -15,17 +16,21 @@ export const portoDialog = Mode.dialog({
 
 export const connector = porto({
   ...portoConfig,
+  feeToken: 'EXP',
   mode: portoDialog,
 })
 
 export const config = createConfig({
-  chains: portoConfig.chains,
+  chains: [baseSepolia, optimismSepolia],
   connectors: [connector],
   multiInjectedProviderDiscovery: false,
   storage: createStorage({
     storage: typeof window !== 'undefined' ? localStorage : undefined,
   }),
-  transports: portoConfig.transports,
+  transports: {
+    [baseSepolia.id]: http(),
+    [optimismSepolia.id]: http(),
+  },
 })
 
 declare module 'wagmi' {

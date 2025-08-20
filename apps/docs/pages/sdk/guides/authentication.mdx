@@ -64,8 +64,8 @@ checks on the SIWE message, nonce, token expiration, etc. For a complete example
 import { Hono } from 'hono'
 import { setCookie } from 'hono/cookie' // [!code ++]
 import * as jwt from 'hono/jwt' // [!code ++]
-import { Porto, ServerActions } from 'porto' // [!code ++]
-import { ServerClient } from 'porto/viem' // [!code ++]
+import { Porto, RelayActions } from 'porto' // [!code ++]
+import { RelayClient } from 'porto/viem' // [!code ++]
 import { hashMessage } from 'viem' // [!code ++]
 import { generateSiweNonce, parseSiweMessage } from 'viem/siwe' // [!code ++]
 
@@ -79,8 +79,8 @@ app.post('/siwe/verify', async (c) => {
   const { address, chainId, nonce } = parseSiweMessage(message) // [!code ++]
 
   // Verify the signature. // [!code ++]
-  const client = ServerClient.fromPorto(porto, { chainId }) // [!code ++]
-  const valid = ServerActions.verifySignature(client, { // [!code ++]
+  const client = RelayClient.fromPorto(porto, { chainId }) // [!code ++]
+  const valid = RelayActions.verifySignature(client, { // [!code ++]
     address: address!, // [!code ++]
     digest: hashMessage(message), // [!code ++]
     signature, // [!code ++]

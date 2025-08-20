@@ -1,0 +1,24 @@
+# `RelayActions.getCapabilities`
+
+Viem Action for retrieving the capabilities of the Relay. Uses [`wallet_getCapabilities`](/relay/wallet_getCapabilities) under the hood.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { RelayActions } from 'porto/viem'
+import { client } from './config'
+
+const capabilities = await RelayActions.getCapabilities(client) // [!code focus]
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.server.ts]
+```
+
+:::
+
+## Return Value
+
+See [`wallet_getCapabilities`](/relay/wallet_getCapabilities#response).

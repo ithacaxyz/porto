@@ -56,7 +56,7 @@ pnpm install                   # Install dependencies
 ```bash
 pnpm build                     # Build the core library
 pnpm dev                       # Link library & run dev servers (playground, dialog, id)
-pnpm dev:anvil                 # Run `pnpm dev` with local RPC Server
+pnpm dev:anvil                 # Run `pnpm dev` with local Relay and Anvil services
 pnpm dev:wagmi                 # Run `pnpm dev` with wagmi playground
 ```
 
@@ -122,10 +122,10 @@ forge test --config-path ./contracts/demo/foundry.toml
 #### Core Modules (`src/core/`)
 
 - **`Porto`** - Main stateful Porto module that links together all other modules
-- **`Chains`** - Supported Porto chains and their configuration (e.g. RPC Server endpoints, chain ID, etc.)
+- **`Chains`** - Supported Porto chains
 - **`Dialog`** - Dialog instances
 - **`Messenger`** - Cross-document communication
-- **`Mode`** - Account orchestration mode (e.g. `dialog`, `rpcServer`, `contract`)
+- **`Mode`** - Account orchestration mode (e.g. `dialog`, `relay`, `contract`)
 - **`Storage`** - Storage interfaces
 - **`RpcSchema`** - RPC method schemas and types
 - Internal modules are stored in an `internal/` directory
@@ -135,8 +135,8 @@ forge test --config-path ./contracts/demo/foundry.toml
 - **`Account`** - Viem Account abstraction for Porto Accounts
 - **`Key`** - Account key management and cryptographic operations (e.g. `secp256k1`, `p256`, `webauthn-p256`)
 - **`ContractActions`** - Actions for the Ithaca Account contract.
-- **`ServerActions`** - Actions for the RPC Server
-- **`ServerClient`** - Client helpers for the RPC Server
+- **`RelayActions`** - Actions for the Relay
+- **`RelayClient`** - Client helpers for the Relay
 - **`WalletActions`** - Actions for the Porto Dialog (EIP-1193 Provider)
 - **`WalletClient`** - Client helpers for the Porto Dialog (EIP-1193 Provider)
 
@@ -149,7 +149,7 @@ forge test --config-path ./contracts/demo/foundry.toml
 
 ### Applications (`apps/`)
 
-- **`docs/`** - Documentation site for the SDK (library), RPC Server and Contracts
+- **`docs/`** - Documentation site for the SDK (library), Relay and Contracts
 - **`dialog/`** - Dialog application (`id.porto.sh/dialog`)
 - **`playground/`** - Development playground
 - **`id/`** - Account management application (`id.porto.sh`)

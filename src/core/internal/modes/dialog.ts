@@ -2,6 +2,7 @@ import type * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
 import * as Provider from 'ox/Provider'
 import * as RpcRequest from 'ox/RpcRequest'
+import * as RpcResponse from 'ox/RpcResponse'
 import * as RpcSchema from 'ox/RpcSchema'
 import { waitForCallsStatus } from 'viem/actions'
 import type { ThemeFragment } from '../../../theme/Theme.js'
@@ -20,12 +21,12 @@ import type * as FeeToken from '../schema/feeToken.js'
 import * as Schema from '../schema/schema.js'
 import * as Siwe from '../siwe.js'
 import * as U from '../utils.js'
-import { rpcServer } from './rpcServer.js'
+import { relay } from './relay.js'
 
 export function dialog(parameters: dialog.Parameters = {}) {
   const {
-    fallback = rpcServer(),
-    host = Dialog.hostUrls.stg,
+    fallback = relay(),
+    host = Dialog.hostUrls.prod,
     renderer = Dialog.iframe(),
     theme,
     themeController,
@@ -143,7 +144,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const account = await (async () => {
           if (request.method === 'wallet_connect') {
             // Extract the capabilities from the request.
-            const [{ capabilities }] = request._decoded.params ?? [{}]
+            const [{ capabilities, chainIds }] = request._decoded.params ?? [{}]
 
             const authUrl = getAuthUrl(
               capabilities?.signInWithEthereum?.authUrl ?? config.authUrl,
@@ -184,6 +185,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                           }
                         : undefined,
                   },
+                  chainIds: chainIds?.map((chainId) => Hex.fromNumber(chainId)),
                 },
               ],
             })
@@ -852,11 +854,15 @@ export function dialog(parameters: dialog.Parameters = {}) {
             if (!response) throw new Error('id not found')
 
             if (asTxHash) {
-              const { receipts } = await waitForCallsStatus(client, {
+              const { receipts, status } = await waitForCallsStatus(client, {
                 id: response.id,
                 pollingInterval: 500,
               })
-              if (!receipts?.[0]) throw new Provider.UnknownBundleIdError()
+              if (!receipts?.[0]) {
+                if (status === 'success')
+                  throw new Provider.UnknownBundleIdError()
+                throw new RpcResponse.TransactionRejectedError()
+              }
               return {
                 id: receipts[0].transactionHash,
               }
@@ -1063,12 +1069,12 @@ export declare namespace dialog {
      * Mode to fall back to if the renderer does not support background
      * operations (e.g. popups and web views).
      *
-     * @default `Mode.rpcServer()`
+     * @default `Mode.relay()`
      */
     fallback?: Mode.Mode | undefined
     /**
      * URL of the dialog embed.
-     * @default 'http://stg.id.porto.sh/dialog'
+     * @default 'http://id.porto.sh/dialog'
      */
     host?: string | undefined
     /**

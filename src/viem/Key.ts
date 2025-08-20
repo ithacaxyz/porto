@@ -12,8 +12,8 @@ import * as Signature from 'ox/Signature'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import * as WebCryptoP256 from 'ox/WebCryptoP256'
 import * as Call from '../core/internal/call.js'
-import type * as ServerKey_schema from '../core/internal/rpcServer/schema/key.js'
-import type * as ServerPermission_schema from '../core/internal/rpcServer/schema/permission.js'
+import type * as RelayKey_schema from '../core/internal/relay/schema/key.js'
+import type * as RelayPermission_schema from '../core/internal/relay/schema/permission.js'
 import type * as Key_schema from '../core/internal/schema/key.js'
 import type {
   Compute,
@@ -65,8 +65,8 @@ export type WebAuthnKey = BaseKey<
 
 export type Permissions = Key_schema.Permissions
 
-/** RPC (server-compatible) format of a key. */
-export type Server = ServerKey_schema.WithPermissions
+/** RPC (relay-compatible) format of a key. */
+export type Relay = RelayKey_schema.WithPermissions
 
 /** Serialized (contract-compatible) format of a key. */
 export type Serialized = {
@@ -79,15 +79,15 @@ export type Serialized = {
 export type SpendPermissions = Key_schema.SpendPermissions
 export type SpendPermission = SpendPermissions[number]
 
-/** RPC Server key type to key type mapping. */
-export const fromRpcServerKeyType = {
+/** Relay key type to key type mapping. */
+export const fromRelayKeyType = {
   p256: 'p256',
   secp256k1: 'secp256k1',
   webauthnp256: 'webauthn-p256',
 } as const
 
-/** RPC Server key role to key role mapping. */
-export const fromRpcServerKeyRole = {
+/** Relay key role to key role mapping. */
+export const fromRelayKeyRole = {
   admin: 'admin',
   normal: 'session',
 } as const
@@ -109,16 +109,16 @@ export const fromSerializedSpendPeriod = {
   5: 'year',
 } as const
 
-/** Key type to RPC Server key type mapping. */
-export const toRpcServerKeyType = {
+/** Key type to Relay key type mapping. */
+export const toRelayKeyType = {
   address: 'secp256k1',
   p256: 'p256',
   secp256k1: 'secp256k1',
   'webauthn-p256': 'webauthnp256',
 } as const
 
-/** Key role to RPC Server key role mapping. */
-export const toRpcServerKeyRole = {
+/** Key role to Relay key role mapping. */
+export const toRelayKeyRole = {
   admin: 'admin',
   session: 'normal',
 } as const
@@ -540,20 +540,17 @@ export declare namespace fromP256 {
 }
 
 /**
- * Converts a RPC Server-formatted key to a key.
+ * Converts a Relay-formatted key to a key.
  *
  * @example
  * TODO
  *
- * @param serverKey - RPC Server key.
+ * @param relayKey - Relay key.
  * @returns Key.
  */
-export function fromRpcServer(
-  serverKey: Server,
-  options: { chainId: number },
-): Key {
+export function fromRelay(relayKey: Relay, options: { chainId: number }): Key {
   const { chainId } = options
-  const { publicKey } = serverKey
+  const { publicKey } = relayKey
 
   const isAddress =
     Hex.size(publicKey) === 20 ||
@@ -564,7 +561,7 @@ export function fromRpcServer(
     spend?: Mutable<Key_schema.SpendPermissions> | undefined
   } = {}
 
-  for (const permission of serverKey.permissions) {
+  for (const permission of relayKey.permissions) {
     if (permission.type === 'call') {
       permissions.calls ??= []
       permissions.calls.push({
@@ -584,11 +581,11 @@ export function fromRpcServer(
 
   return from({
     chainId,
-    expiry: serverKey.expiry,
+    expiry: relayKey.expiry,
     permissions: permissions as Permissions,
-    publicKey: serverKey.publicKey,
-    role: fromRpcServerKeyRole[serverKey.role],
-    type: isAddress ? 'address' : fromRpcServerKeyType[serverKey.type],
+    publicKey: relayKey.publicKey,
+    role: fromRelayKeyRole[relayKey.role],
+    type: isAddress ? 'address' : fromRelayKeyType[relayKey.type],
   })
 }
 
@@ -1015,18 +1012,18 @@ export declare namespace sign {
 }
 
 /**
- * Converts a key to a RPC Server-compatible format.
+ * Converts a key to a Relay-compatible format.
  *
  * @example
  * TODO
  *
  * @param key - Key.
- * @returns RPC Server key.
+ * @returns Relay key.
  */
-export function toRpcServer(
-  key: toRpcServer.Value,
-  options: toRpcServer.Options = {},
-): RequiredBy<Server, 'prehash'> {
+export function toRelay(
+  key: toRelay.Value,
+  options: toRelay.Options = {},
+): RequiredBy<Relay, 'prehash'> {
   const { expiry = 0, prehash = false, publicKey, role = 'admin', type } = key
   const { orchestrator } = options
 
@@ -1046,7 +1043,7 @@ export function toRpcServer(
             selector,
             to: to ?? Call.anyTarget,
             type: 'call',
-          } as const satisfies ServerPermission_schema.CallPermission
+          } as const satisfies RelayPermission_schema.CallPermission
         })
       }
       if (key === 'feeLimit') return
@@ -1058,14 +1055,14 @@ export function toRpcServer(
             period,
             token,
             type: 'spend',
-          } as const satisfies ServerPermission_schema.SpendPermission
+          } as const satisfies RelayPermission_schema.SpendPermission
         })
       }
 
       throw new Error(`Invalid permission type "${key}".`)
     })
     .flat()
-    .filter(Boolean) as ServerPermission_schema.Permission[]
+    .filter(Boolean) as RelayPermission_schema.Permission[]
 
   if (key.role === 'session' && orchestrator)
     permissions.push({
@@ -1079,12 +1076,12 @@ export function toRpcServer(
     permissions: permissions ?? [],
     prehash,
     publicKey: serializePublicKey(publicKey),
-    role: toRpcServerKeyRole[role],
-    type: toRpcServerKeyType[type],
+    role: toRelayKeyRole[role],
+    type: toRelayKeyType[type],
   }
 }
 
-export declare namespace toRpcServer {
+export declare namespace toRelay {
   type Value = PartialBy<
     Pick<
       Key,

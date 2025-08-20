@@ -95,55 +95,55 @@ export default defineConfig({
         text: 'Bug Bounty',
       },
     ],
-    '/rpc-server': [
+    '/relay': [
       {
-        link: '/rpc-server',
+        link: '/relay',
         text: 'Overview',
       },
       {
-        link: 'https://github.com/ithacaxyz/rpc-server-issues',
+        link: 'https://github.com/ithacaxyz/relay-issues',
         text: 'GitHub',
       },
       {
         items: [
           {
-            link: '/rpc-server/wallet_getCapabilities',
+            link: '/relay/wallet_getCapabilities',
             text: 'wallet_getCapabilities',
           },
           {
-            link: '/rpc-server/wallet_getAccounts',
+            link: '/relay/wallet_getAccounts',
             text: 'wallet_getAccounts',
           },
           {
-            link: '/rpc-server/wallet_getKeys',
+            link: '/relay/wallet_getKeys',
             text: 'wallet_getKeys',
           },
           {
-            link: '/rpc-server/wallet_prepareCalls',
+            link: '/relay/wallet_prepareCalls',
             text: 'wallet_prepareCalls',
           },
           {
-            link: '/rpc-server/wallet_sendPreparedCalls',
+            link: '/relay/wallet_sendPreparedCalls',
             text: 'wallet_sendPreparedCalls',
           },
           {
-            link: '/rpc-server/wallet_prepareUpgradeAccount',
+            link: '/relay/wallet_prepareUpgradeAccount',
             text: 'wallet_prepareUpgradeAccount',
           },
           {
-            link: '/rpc-server/wallet_upgradeAccount',
+            link: '/relay/wallet_upgradeAccount',
             text: 'wallet_upgradeAccount',
           },
           {
-            link: '/rpc-server/wallet_getCallsStatus',
+            link: '/relay/wallet_getCallsStatus',
             text: 'wallet_getCallsStatus',
           },
           {
-            link: '/rpc-server/wallet_verifySignature',
+            link: '/relay/wallet_verifySignature',
             text: 'wallet_verifySignature',
           },
           {
-            link: '/rpc-server/health',
+            link: '/relay/health',
             text: 'health',
           },
         ],
@@ -440,62 +440,62 @@ export default defineConfig({
                 collapsed: true,
                 items: [
                   {
-                    link: '/sdk/viem/ServerActions',
+                    link: '/sdk/viem/RelayActions',
                     text: 'Overview',
                   },
                   {
-                    link: '/sdk/viem/ServerActions/createAccount',
+                    link: '/sdk/viem/RelayActions/createAccount',
                     text: 'createAccount',
                   },
                   {
-                    link: '/sdk/viem/ServerActions/getAssets',
+                    link: '/sdk/viem/RelayActions/getAssets',
                     text: 'getAssets',
                   },
                   {
-                    link: '/sdk/viem/ServerActions/getCallsStatus',
+                    link: '/sdk/viem/RelayActions/getCallsStatus',
                     text: 'getCallsStatus',
                   },
                   {
-                    link: '/sdk/viem/ServerActions/getCapabilities',
+                    link: '/sdk/viem/RelayActions/getCapabilities',
                     text: 'getCapabilities',
                   },
                   {
-                    link: '/sdk/viem/ServerActions/getKeys',
+                    link: '/sdk/viem/RelayActions/getKeys',
                     text: 'getKeys',
                   },
                   {
-                    link: '/sdk/viem/ServerActions/health',
+                    link: '/sdk/viem/RelayActions/health',
                     text: 'health',
                   },
                   {
-                    link: '/sdk/viem/ServerActions/prepareCalls',
+                    link: '/sdk/viem/RelayActions/prepareCalls',
                     text: 'prepareCalls',
                   },
                   {
-                    link: '/sdk/viem/ServerActions/prepareUpgradeAccount',
+                    link: '/sdk/viem/RelayActions/prepareUpgradeAccount',
                     text: 'prepareUpgradeAccount',
                   },
                   {
-                    link: '/sdk/viem/ServerActions/sendCalls',
+                    link: '/sdk/viem/RelayActions/sendCalls',
                     text: 'sendCalls',
                   },
                   {
-                    link: '/sdk/viem/ServerActions/sendPreparedCalls',
+                    link: '/sdk/viem/RelayActions/sendPreparedCalls',
                     text: 'sendPreparedCalls',
                   },
                   {
-                    link: '/sdk/viem/ServerActions/upgradeAccount',
+                    link: '/sdk/viem/RelayActions/upgradeAccount',
                     text: 'upgradeAccount',
                   },
                   {
-                    link: '/sdk/viem/ServerActions/verifySignature',
+                    link: '/sdk/viem/RelayActions/verifySignature',
                     text: 'verifySignature',
                   },
                 ],
-                text: 'ServerActions',
+                text: 'RelayActions',
               },
             ],
-            text: 'RPC Server',
+            text: 'Relay',
           },
         ],
         text: 'Viem Reference',
@@ -604,8 +604,8 @@ export default defineConfig({
       text: 'SDK',
     },
     {
-      link: '/rpc-server',
-      text: 'RPC Server',
+      link: '/relay',
+      text: 'Relay',
     },
     {
       link: '/contracts',
@@ -619,12 +619,7 @@ export default defineConfig({
   vite: {
     plugins: [
       Mkcert({
-        hosts: [
-          'localhost',
-          'prod.localhost',
-          'stg.localhost',
-          'anvil.localhost',
-        ],
+        hosts: ['localhost', 'anvil.localhost'],
       }),
       Plugins.Icons(),
     ],

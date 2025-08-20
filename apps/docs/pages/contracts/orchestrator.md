@@ -75,9 +75,9 @@ Let's go through each of these fields, to discuss the features enabled by intent
 
 #### Gas Abstraction
 
-One of the most powerful use cases of executing through intents is that rpc servers can abstract gas for users and get compensated in any token the user holds.
+One of the most powerful use cases of executing through intents is that the Relay can abstract gas for users and get compensated in any token the user holds.
 
-We've removed the need for gas refunds and made pre payment of rpc server fees optional. Instead, rpc servers use the `pay` function on the account to request payment in two almost identical tranches:
+We've removed the need for gas refunds and made pre payment of relay fees optional. Instead, Relay uses the `pay` function on the account to request payment in two almost identical tranches:
 
 1. **prePayment** (before executing the user's call bundle):  
    - If successful, the user's **nonce is incremented**, even if the call bundle fails during execution.
@@ -87,17 +87,17 @@ We've removed the need for gas refunds and made pre payment of rpc server fees o
 
 Here's how the flow works:
 
-1. The user sends their calls to the rpc server.
-2. The rpc server analyzes the calls and determines the amount they want to be paid, in the `paymentToken` specified in the intent.
-3. The rpc server can run sophisticated griefing checks to assess risk. Based on this, they split the total payment between `prePayment` and `postPayment`.
-4. The rpc server can also set the `supportedAccountImplementation` field in the intent when sending it onchain, to reduce the risk of the user frontrunning them by upgrading their account.
+1. The user sends their calls to the relay.
+2. The relay analyzes the calls and determines the amount they want to be paid, in the `paymentToken` specified in the intent.
+3. The relay can run sophisticated griefing checks to assess risk. Based on this, they split the total payment between `prePayment` and `postPayment`.
+4. The relay can also set the `supportedAccountImplementation` field in the intent when sending it onchain, to reduce the risk of the user frontrunning them by upgrading their account.
 
 If the `postPayment` fails, the user's entire execution is reverted. This ensures users cannot exploit the system to get free executions.
 
 :::warning
 Beyond this, the contracts do not provide native griefing protection. It is up to the relay to simulate the call and evaluate the risk associated with each intent.
 
-RPC Servers may choose to:
+Relay may choose to:
 - Only support accounts that follow ERC-4337 validation rules.
 - Charge the full fee as `postPayment` if they fully trust the user.
 :::
@@ -107,7 +107,7 @@ We leave the decision of how to split the payment between `prePayment` and `post
 Our recommendations:
 
 1. Including both `prePayment` and `postPayment` in an intent introduces an extra ERC20 transfer, increasing gas costs. This tradeoff should be considered.
-2. RPC Servers should build sophisticated offchain griefing defenses, such as reputation systems and risk premiums for new users.
+2. Relay should build sophisticated offchain griefing defenses, such as reputation systems and risk premiums for new users.
 3. Charging only via `postPayment` allows the user to start execution without upfront funds. This enables use cases where funds become available only after the call—e.g., after withdrawing from a DApp.
 
 :::note
@@ -117,7 +117,7 @@ This is done to make the EIP-712 struct more explicit and readable.
 
 #### Paymasters
 On the topic of payments, DApps might want to sponsor payments for their users. 
-This means that instead of the payment to the RPC server being collected from the user's porto account, it can be collected from any third-party contract that implements the [pay()](/contracts/account#pay) function.
+This means that instead of the payment to the relay being collected from the user's porto account, it can be collected from any third-party contract that implements the [pay()](/contracts/account#pay) function.
 
 To sponsor an intent, you just need to set the `payer` field to the paymaster contract's address. 
 
@@ -145,7 +145,7 @@ PreCalls are an optional sequence of operations that can be embedded within an I
 
 This makes `preCalls` particularly suited to perform key operations for the user, before the main intent is validated.
 
-Although we don't enforce any onchain constraints about the contents of a preCall, it is recommended that rpc servers only allow the following calls to be added as preCalls: 
+Although we don't enforce any onchain constraints about the contents of a preCall, it is recommended that relays only allow the following calls to be added as preCalls: 
 - Authorizing a key (`Account.authorize`)
 - Revoking a key (`Account.revoke`)
 - Setting call permissions on a key (`Account.setCanExecute`)
@@ -155,7 +155,7 @@ Although we don't enforce any onchain constraints about the contents of a preCal
 
 This restriction is recommended because `preCalls` do not have their own payment or gas limits. Although the cost of `preCalls` is expected to be included in the main intent's payment figures, they are executed *before* the main payment is processed. 
 
-Therefore, allowing arbitrary calls within `preCalls` would increase the RPC server's vulnerability to griefing attacks.
+Therefore, allowing arbitrary calls within `preCalls` would increase the Relay's vulnerability to griefing attacks.
 
 **The `SignedCall` Struct**
 PreCalls are added to the `Intent.encodedPreCalls` field as an array of ABI-encoded `SignedCall` structs.

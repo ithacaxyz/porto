@@ -6,7 +6,6 @@ import {
 import {
   type Address,
   getAddress,
-  http,
   numberToHex,
   type ProviderConnectInfo,
   type RpcError,
@@ -14,11 +13,9 @@ import {
   UserRejectedRequestError,
   withRetry,
 } from 'viem'
-import * as Chains from '../core/Chains.js'
-import * as Dialog from '../core/Dialog.js'
+import type * as Chains from '../core/Chains.js'
 import * as Schema from '../core/internal/schema/schema.js'
 import type { ExactPartial } from '../core/internal/types.js'
-import * as Mode from '../core/Mode.js'
 import * as Porto from '../core/Porto.js'
 import * as RpcSchema from '../core/RpcSchema.js'
 
@@ -43,11 +40,11 @@ export function porto<
   }
 
   return createConnector<Provider, Properties>((wagmiConfig) => {
-    const chains = config.chains ?? wagmiConfig.chains ?? []
+    const chains = wagmiConfig.chains ?? config.chains ?? []
 
     const transports = (() => {
-      if (config.transports) return config.transports
-      return wagmiConfig.transports
+      if (wagmiConfig.transports) return wagmiConfig.transports
+      return config.transports
     })()
 
     const porto = Porto.create({
@@ -258,23 +255,5 @@ export function porto<
       },
       type: 'injected',
     }
-  })
-}
-
-export function unstable_porto<
-  const chains extends readonly [Chains.Chain, ...Chains.Chain[]],
->(
-  config?: ExactPartial<Porto.Config<chains>> | undefined,
-): ReturnType<typeof porto>
-export function unstable_porto(config: ExactPartial<Porto.Config> = {}) {
-  return porto({
-    chains: [Chains.base],
-    mode: Mode.dialog({
-      host: Dialog.hostUrls.prod,
-    }),
-    transports: {
-      [Chains.base.id]: http(),
-    },
-    ...config,
   })
 }

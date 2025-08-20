@@ -1,13 +1,13 @@
 import { Env, Query as Query_porto } from '@porto/apps'
 import * as Query from '@tanstack/react-query'
 import type { Address } from 'ox'
-import { Account, ServerActions } from 'porto'
+import { Account, RelayActions } from 'porto'
 import * as PreCalls from 'porto/core/internal/preCalls'
 import * as RequiredFunds from 'porto/core/internal/requiredFunds'
 import type * as Capabilities_schema from 'porto/core/internal/schema/capabilities'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken'
 import { Hooks } from 'porto/remote'
-import type { ServerClient } from 'porto/viem'
+import type { RelayClient } from 'porto/viem'
 
 import * as FeeTokens from './FeeTokens'
 import { porto } from './Porto'
@@ -16,7 +16,7 @@ const multichain = Env.get() !== 'anvil'
 
 export namespace prepareCalls {
   export function queryOptions<const calls extends readonly unknown[]>(
-    client: ServerClient.ServerClient,
+    client: RelayClient.RelayClient,
     options: queryOptions.Options<calls>,
   ) {
     const {
@@ -56,14 +56,14 @@ export namespace prepareCalls {
           storage: porto.config.storage,
         })
 
-        const requiredFunds = RequiredFunds.toRpcServer(
+        const requiredFunds = RequiredFunds.toRelay(
           parameters.requiredFunds ?? [],
           {
             feeTokens,
           },
         )
 
-        return await ServerActions.prepareCalls(client, {
+        return await RelayActions.prepareCalls(client, {
           ...parameters,
           account,
           feeToken: feeTokenAddress,
@@ -86,8 +86,8 @@ export namespace prepareCalls {
   }
 
   export namespace queryOptions {
-    export type Data = ServerActions.prepareCalls.ReturnType
-    export type Error = ServerActions.prepareCalls.ErrorType
+    export type Data = RelayActions.prepareCalls.ReturnType
+    export type Error = RelayActions.prepareCalls.ErrorType
     export type QueryKey = ReturnType<typeof queryKey>
 
     export type Options<calls extends readonly unknown[] = readonly unknown[]> =
@@ -98,7 +98,7 @@ export namespace prepareCalls {
         >
 
     export function queryKey<const calls extends readonly unknown[]>(
-      client: ServerClient.ServerClient,
+      client: RelayClient.RelayClient,
       options: queryKey.Options<calls>,
     ) {
       return ['prepareCalls', options, client.uid] as const
@@ -108,7 +108,7 @@ export namespace prepareCalls {
       export type Options<
         calls extends readonly unknown[] = readonly unknown[],
       > = Pick<
-        ServerActions.prepareCalls.Parameters<calls>,
+        RelayActions.prepareCalls.Parameters<calls>,
         'authorizeKeys' | 'calls' | 'revokeKeys'
       > & {
         account?: Account.Account | undefined
@@ -125,7 +125,7 @@ export namespace prepareCalls {
     const { address, chainId } = props
 
     const account = Hooks.useAccount(porto, { address })
-    const client = Hooks.useServerClient(porto, { chainId })
+    const client = Hooks.useRelayClient(porto, { chainId })
 
     return Query.useQuery(queryOptions(client, { ...props, account }))
   }

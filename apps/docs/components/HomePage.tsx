@@ -644,13 +644,13 @@ export function BuyNow(props: { chainId: ChainId; next: () => void }) {
         onClick={() => {
           const exp1Token =
             exp1Config.address[chainId as keyof (typeof exp1Config)['address']]
-          if (exp1Token) {
+          if (!exp1Token) {
             console.warn(`exp1 address not defined for chainId ${chainId}`)
             return
           }
           const expNft =
             expNftConfig.address[chainId as keyof typeof expNftConfig.address]
-          if (expNft) {
+          if (!expNft) {
             console.warn(`expNft address not defined for chainId ${chainId}`)
             return
           }
@@ -679,12 +679,13 @@ export function BuyNow(props: { chainId: ChainId; next: () => void }) {
               },
             ],
             capabilities: {
-              requiredFunds: [
-                {
-                  symbol: 'EXP',
-                  value: '10',
-                },
-              ],
+              // TODO: uncomment when interop supported on EXP
+              // requiredFunds: [
+              //   {
+              //     symbol: 'EXP',
+              //     value: '10',
+              //   },
+              // ],
             },
           })
         }}
@@ -817,7 +818,7 @@ export function SendTip(props: {
         onClick={() => {
           const exp1Token =
             exp1Config.address[chainId as keyof (typeof exp1Config)['address']]
-          if (exp1Token) {
+          if (!exp1Token) {
             console.warn(`exp1 address not defined for chainId ${chainId}`)
             return
           }
@@ -840,12 +841,13 @@ export function SendTip(props: {
               },
             ],
             capabilities: {
-              requiredFunds: [
-                {
-                  symbol: 'EXP',
-                  value: '1',
-                },
-              ],
+              // TODO: uncomment when interop supported on EXP
+              // requiredFunds: [
+              //   {
+              //     symbol: 'EXP',
+              //     value: '1',
+              //   },
+              // ],
             },
           })
         }}
@@ -936,7 +938,7 @@ export function Subscribe(props: {
 
       const exp1Token =
         exp1Config.address[chainId as keyof (typeof exp1Config)['address']]
-      if (exp1Token) {
+      if (!exp1Token) {
         console.warn(`exp1 address not defined for chainId ${chainId}`)
         return
       }
@@ -1213,14 +1215,16 @@ function Swap(props: {
           permissions: {
             id: null,
           },
-          requiredFunds: [
-            {
-              symbol: fromSymbol === 'exp1' ? 'EXP' : 'EXP2',
-              value: fromValue as `${number}`,
-            },
-          ],
+          // TODO: uncomment when interop supported on EXP
+          // requiredFunds: [
+          //   {
+          //     symbol: fromSymbol === 'exp1' ? 'EXP' : 'EXP2',
+          //     value: fromValue as `${number}`,
+          //   },
+          // ],
         },
-        chainId: expToConfig.chainId,
+        // TODO: uncomment when interop supported on EXP
+        // chainId: expToConfig.chainId,
       })
     } catch (err) {
       const error = (() => {

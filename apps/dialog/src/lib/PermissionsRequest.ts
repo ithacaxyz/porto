@@ -9,7 +9,7 @@ import { porto } from './Porto.js'
 export function useResolve(
   request: typeof PermissionsRequest.Schema.Encoded | undefined,
 ) {
-  const client = Hooks.useServerClient(porto)
+  const client = Hooks.useRelayClient(porto)
 
   return useQuery({
     enabled: !!request,

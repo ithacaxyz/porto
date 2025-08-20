@@ -1,5 +1,5 @@
 import { Hex, Value } from 'ox'
-import { Key, ServerActions } from 'porto'
+import { Key, RelayActions } from 'porto'
 import { MerchantRpc } from 'porto/server'
 import { readContract, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
@@ -10,8 +10,8 @@ import * as Http from '../../test/src/http.js'
 import type { ExactPartial } from '../core/internal/types.js'
 
 const porto = TestConfig.getPorto()
-const client = TestConfig.getServerClient(porto)
-const contracts = TestConfig.getContracts(porto)
+const client = TestConfig.getRelayClient(porto)
+const contracts = await TestConfig.getContracts(porto)
 
 let server: Http.Server | undefined
 async function setup(
@@ -56,7 +56,7 @@ describe('rpcHandler', () => {
       functionName: 'balanceOf',
     })
 
-    const result = await ServerActions.sendCalls(client, {
+    const result = await RelayActions.sendCalls(client, {
       account: userAccount,
       calls: [
         {
@@ -117,7 +117,7 @@ describe('rpcHandler', () => {
         functionName: 'balanceOf',
       })
 
-      const result = await ServerActions.sendCalls(client, {
+      const result = await RelayActions.sendCalls(client, {
         account: userAccount,
         calls: [
           {
@@ -166,7 +166,7 @@ describe('rpcHandler', () => {
         functionName: 'balanceOf',
       })
 
-      const result = await ServerActions.sendCalls(client, {
+      const result = await RelayActions.sendCalls(client, {
         account: userAccount,
         calls: [
           {
@@ -208,12 +208,12 @@ describe('rpcHandler', () => {
     const { server, merchantAccount } = await setup()
 
     const chain_dest = TestConfig.chains[1]
-    const client_dest = TestConfig.getServerClient(porto, {
+    const client_dest = TestConfig.getRelayClient(porto, {
       chainId: chain_dest!.id,
     })
 
     // Deploy merchant account on destination chain.
-    const { id } = await ServerActions.sendCalls(client_dest, {
+    const { id } = await RelayActions.sendCalls(client_dest, {
       account: merchantAccount,
       calls: [],
       feeToken: contracts.exp1.address,
@@ -244,7 +244,7 @@ describe('rpcHandler', () => {
 
     const alice = Hex.random(20)
 
-    const result = await ServerActions.sendCalls(client, {
+    const result = await RelayActions.sendCalls(client, {
       account: userAccount,
       calls: [
         {
@@ -298,7 +298,7 @@ describe('rpcHandler', () => {
     })
 
     await expect(() =>
-      ServerActions.sendCalls(client, {
+      RelayActions.sendCalls(client, {
         account: userAccount,
         calls: [
           {

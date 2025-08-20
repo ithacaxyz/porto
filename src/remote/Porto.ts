@@ -27,9 +27,9 @@ export const defaultConfig = {
   ...Porto_.defaultConfig,
   messenger,
   methodPolicies: MethodPolicies.methodPolicies,
-  mode: Mode.rpcServer(),
+  mode: Mode.relay(),
   storage: Storage.localStorage(),
-} as const satisfies Config
+} as const satisfies Partial<Config>
 
 /**
  * Instantiates an Porto instance to be used in a remote context (e.g. an iframe or popup).
@@ -51,6 +51,7 @@ export function create(
 ): Porto {
   const {
     chains = defaultConfig.chains,
+    experimental,
     feeToken,
     mode = defaultConfig.mode,
     messenger = defaultConfig.messenger,
@@ -59,12 +60,13 @@ export function create(
     relay = defaultConfig.relay,
     storage = defaultConfig.storage,
     storageKey = defaultConfig.storageKey,
-    transports = defaultConfig.transports,
+    transports,
   } = parameters
 
   const porto = Porto_.create({
     announceProvider: false,
     chains,
+    experimental,
     feeToken,
     merchantRpcUrl,
     mode,
@@ -89,11 +91,11 @@ export function create(
     mode,
     async ready() {
       await porto._internal.store.persist.rehydrate()
-      const { chainId, feeToken } = porto._internal.store.getState()
+      const { chainIds, feeToken } = porto._internal.store.getState()
 
       if (!('ready' in messenger)) return
       return (messenger as Messenger.Bridge).ready({
-        chainId,
+        chainIds,
         feeToken,
         methodPolicies,
       })

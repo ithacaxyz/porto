@@ -1,5 +1,5 @@
 import { Value } from 'ox'
-import { Key, ServerActions } from 'porto/viem'
+import { Key, RelayActions } from 'porto/viem'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import * as Actions from 'viem/actions'
 import { describe, expect, test } from 'vitest'
@@ -40,7 +40,7 @@ describe('disconnect', () => {
 describe('grantAdmin', () => {
   test('default', async () => {
     const porto = TestConfig.getPorto()
-    const serverClient = TestConfig.getServerClient(porto)
+    const relayClient = TestConfig.getRelayClient(porto)
     const walletClient = TestConfig.getWalletClient(porto)
 
     const {
@@ -49,7 +49,7 @@ describe('grantAdmin', () => {
       createAccount: true,
     })
 
-    await setBalance(serverClient, {
+    await setBalance(relayClient, {
       address: account!.address,
     })
 
@@ -159,7 +159,7 @@ describe('grantPermissions', () => {
 describe('getAdmins', () => {
   test('default', async () => {
     const porto = TestConfig.getPorto()
-    const serverClient = TestConfig.getServerClient(porto)
+    const relayClient = TestConfig.getRelayClient(porto)
     const walletClient = TestConfig.getWalletClient(porto)
 
     const {
@@ -168,7 +168,7 @@ describe('getAdmins', () => {
       createAccount: true,
     })
 
-    await setBalance(serverClient, {
+    await setBalance(relayClient, {
       address: account!.address,
     })
 
@@ -273,7 +273,7 @@ describe('getPermissions', () => {
 describe('revokeAdmin', () => {
   test('default', async () => {
     const porto = TestConfig.getPorto()
-    const serverClient = TestConfig.getServerClient(porto)
+    const relayClient = TestConfig.getRelayClient(porto)
     const walletClient = TestConfig.getWalletClient(porto)
 
     const {
@@ -281,7 +281,7 @@ describe('revokeAdmin', () => {
     } = await WalletActions.connect(walletClient, {
       createAccount: true,
     })
-    await setBalance(serverClient, {
+    await setBalance(relayClient, {
       address: account!.address,
     })
 
@@ -305,7 +305,7 @@ describe('revokeAdmin', () => {
 describe('revokePermissions', () => {
   test('default', async () => {
     const porto = TestConfig.getPorto()
-    const serverClient = TestConfig.getServerClient(porto)
+    const relayClient = TestConfig.getRelayClient(porto)
     const walletClient = TestConfig.getWalletClient(porto)
 
     const {
@@ -313,7 +313,7 @@ describe('revokePermissions', () => {
     } = await WalletActions.connect(walletClient, {
       createAccount: true,
     })
-    await setBalance(serverClient, {
+    await setBalance(relayClient, {
       address: account!.address,
     })
 
@@ -345,12 +345,12 @@ describe('revokePermissions', () => {
 describe('upgradeAccount', () => {
   test('default', async () => {
     const porto = TestConfig.getPorto()
-    const serverClient = TestConfig.getServerClient(porto)
+    const relayClient = TestConfig.getRelayClient(porto)
     const walletClient = TestConfig.getWalletClient(porto)
 
     const account = privateKeyToAccount(generatePrivateKey())
 
-    await setBalance(serverClient, {
+    await setBalance(relayClient, {
       address: account!.address,
     })
 
@@ -363,8 +363,8 @@ describe('upgradeAccount', () => {
 describe('prepareCalls + sendPreparedCalls', () => {
   test('default', async () => {
     const porto = TestConfig.getPorto()
-    const serverClient = TestConfig.getServerClient(porto)
-    const contracts = TestConfig.getContracts(porto)
+    const relayClient = TestConfig.getRelayClient(porto)
+    const contracts = await TestConfig.getContracts(porto)
     const walletClient = TestConfig.getWalletClient(porto)
 
     const sessionKey = Key.createSecp256k1()
@@ -393,7 +393,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
       },
     })
 
-    await setBalance(serverClient, {
+    await setBalance(relayClient, {
       address: account!.address,
       value: Value.fromEther('10000'),
     })
@@ -431,8 +431,8 @@ describe('prepareCalls + sendPreparedCalls', () => {
 
   test('behavior: admin key', async () => {
     const porto = TestConfig.getPorto()
-    const serverClient = TestConfig.getServerClient(porto)
-    const contracts = TestConfig.getContracts(porto)
+    const relayClient = TestConfig.getRelayClient(porto)
+    const contracts = await TestConfig.getContracts(porto)
     const walletClient = TestConfig.getWalletClient(porto)
 
     const adminKey = Key.createSecp256k1()
@@ -444,7 +444,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
       grantAdmins: [adminKey],
     })
 
-    await setBalance(serverClient, {
+    await setBalance(relayClient, {
       address: account!.address,
       value: Value.fromEther('10000'),
     })
@@ -482,9 +482,9 @@ describe('prepareCalls + sendPreparedCalls', () => {
 
   test('behavior: sign typed data', async () => {
     const porto = TestConfig.getPorto()
-    const contracts = TestConfig.getContracts(porto)
+    const contracts = await TestConfig.getContracts(porto)
     const walletClient = TestConfig.getWalletClient(porto)
-    const serverClient = TestConfig.getServerClient(porto)
+    const relayClient = TestConfig.getRelayClient(porto)
 
     const {
       accounts: [account],
@@ -492,7 +492,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
       createAccount: true,
     })
 
-    await setBalance(serverClient, {
+    await setBalance(relayClient, {
       address: account!.address,
     })
 
@@ -512,7 +512,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
       ...request.typedData,
     })
 
-    const { valid } = await ServerActions.verifySignature(serverClient, {
+    const { valid } = await RelayActions.verifySignature(relayClient, {
       address: account!.address,
       digest: request.digest,
       signature,
@@ -581,7 +581,7 @@ describe('getAssets', () => {
 
   test('behavior: with chainFilter', async () => {
     const porto = TestConfig.getPorto()
-    const serverClient = TestConfig.getServerClient(porto)
+    const relayClient = TestConfig.getRelayClient(porto)
     const walletClient = TestConfig.getWalletClient(porto)
 
     const {
@@ -590,23 +590,23 @@ describe('getAssets', () => {
       createAccount: true,
     })
 
-    await setBalance(serverClient, {
+    await setBalance(relayClient, {
       address: account!.address,
       value: Value.fromEther('50'),
     })
 
     const result = await WalletActions.getAssets(walletClient, {
       account: account!.address,
-      chainFilter: [serverClient.chain.id],
+      chainFilter: [relayClient.chain.id],
     })
 
-    expect(Object.keys(result)).toEqual(['0', serverClient.chain.id.toString()])
-    expect(result[serverClient.chain.id]).toBeDefined()
+    expect(Object.keys(result)).toEqual(['0', relayClient.chain.id.toString()])
+    expect(result[relayClient.chain.id]).toBeDefined()
   })
 
   test('behavior: with assetTypeFilter', async () => {
     const porto = TestConfig.getPorto()
-    const serverClient = TestConfig.getServerClient(porto)
+    const relayClient = TestConfig.getRelayClient(porto)
     const walletClient = TestConfig.getWalletClient(porto)
 
     const {
@@ -615,7 +615,7 @@ describe('getAssets', () => {
       createAccount: true,
     })
 
-    await setBalance(serverClient, {
+    await setBalance(relayClient, {
       address: account!.address,
       value: Value.fromEther('10'),
     })

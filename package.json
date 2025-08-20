@@ -29,6 +29,7 @@
     "docs:build": "pnpm --filter docs build",
     "docs:dev": "pnpm --filter dialog --filter id --filter docs dev",
     "format": "biome format --write",
+    "gen:chains": "tsx ./scripts/chains.ts",
     "postinstall": "git submodule update --init --recursive && pnpm preconstruct",
     "preconstruct": "tsx ./scripts/preconstruct.ts",
     "preinstall": "pnpx only-allow pnpm",

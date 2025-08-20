@@ -21,7 +21,10 @@ cli
     },
   )
   .option('-d, --dialog <hostname>', 'Dialog hostname', {
-    default: 'stg.id.porto.sh',
+    default: 'id.porto.sh',
+  })
+  .option('-t, --testnet', 'Onboard via testnet', {
+    default: false,
   })
   .action(async (_, args) => {
     const Commands = await import('../internal/commands.js')

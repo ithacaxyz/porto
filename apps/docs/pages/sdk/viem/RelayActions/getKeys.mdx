@@ -1,0 +1,69 @@
+# `RelayActions.getKeys`
+
+Viem Action for retrieving all keys associated with an account. Uses [`wallet_getKeys`](/relay/wallet_getKeys) under the hood.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { RelayActions } from 'porto/viem'
+import { client, account } from './config'
+
+const keys = await RelayActions.getKeys(client, { // [!code focus]
+  account, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.server.ts]
+```
+
+:::
+
+## Parameters
+
+### account
+
+- **Type:** `Account.Account | undefined`
+
+The account to get keys for. Defaults to `client.account`.
+
+### chain
+
+- **Type:** `Chain | undefined`
+
+The chain to query keys on. Defaults to `client.chain`.
+
+## Return Value
+
+```ts
+type GetKeysReturnType = readonly Key.Key[]
+
+type Key = {
+  /** Unique key identifier */
+  id: `0x${string}`
+  /** Public key */
+  publicKey: `0x${string}`
+  /** Key type */
+  type: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256'
+  /** Key role */
+  role: 'admin' | 'session'
+  /** Key permissions (for session keys) */
+  permissions?: {
+    /** Call permissions */
+    calls?: {
+      signature?: string
+      to?: `0x${string}`
+    }[]
+    /** Spend permissions */
+    spend?: {
+      limit: bigint
+      period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+      token?: `0x${string}`
+    }[]
+  }
+}
+```
+
+Returns an array of all keys authorized on the account.

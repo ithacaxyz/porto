@@ -1,13 +1,13 @@
 import * as Ariakit from '@ariakit/react'
 import { UserAgent } from '@porto/apps'
 import { Button } from '@porto/apps/components'
-import { erc20Abi } from '@porto/apps/contracts'
+import { erc20Abi, exp1Address } from '@porto/apps/contracts'
 import { useCopyToClipboard, usePrevious } from '@porto/apps/hooks'
 import * as UI from '@porto/ui'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Cuer } from 'cuer'
 import { cx } from 'cva'
-import { type Address, Hex, Value } from 'ox'
+import { Address, Hex, Value } from 'ox'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
 import { useBalance, useWatchBlockNumber, useWatchContractEvent } from 'wagmi'
@@ -50,19 +50,30 @@ export function AddFunds(props: AddFunds.Props) {
       ? Math.ceil(Number(defaultValue)).toString()
       : presetAmounts[0]!,
   )
+
+  const onrampMethod = React.useMemo(() => {
+    if (
+      tokenAddress &&
+      Address.isEqual(tokenAddress, exp1Address[chain?.id as never])
+    )
+      return 'faucet'
+    // TODO: uncomment when interop is supported.
+    // if (!enableOnramp()) return undefined
+    if (!enableOnramp()) return 'faucet'
+    // TODO: ensure that `tokenAddress` is compatible with google onramp.
+    if (UserAgent.isFirefox() || UserAgent.isAndroid()) return 'google'
+    // TODO: ensure that `tokenAddress` is compatible with apple pay onramp.
+    return 'apple'
+  }, [chain?.id, tokenAddress])
+
+  const initialView = onrampMethod ? 'default' : 'deposit-crypto'
   const [view, setView] = React.useState<
     'default' | 'deposit-crypto' | 'error' | 'email'
-  >('default')
+  >(initialView)
   const [emailView, setEmailView] = React.useState<
     'start' | 'added' | 'validated' | 'invalidated'
   >('start')
   const [email, setEmail] = React.useState<string>('')
-
-  const onrampMethod = enableOnramp()
-    ? UserAgent.isFirefox() || UserAgent.isAndroid()
-      ? 'google'
-      : 'apple'
-    : 'faucet'
 
   const faucet = useMutation({
     async mutationFn(e: React.FormEvent<HTMLFormElement>) {
@@ -222,7 +233,9 @@ export function AddFunds(props: AddFunds.Props) {
       <DepositCryptoView
         address={address}
         onApprove={onApprove}
-        onBack={() => setView('default')}
+        onBack={
+          initialView === 'default' ? () => setView('default') : undefined
+        }
       />
     )
 
@@ -544,7 +557,7 @@ function OnrampView(props: OnrampView.Props) {
     )
   }
 
-  if (!onrampMethod || onrampMethod === 'faucet')
+  if (onrampMethod === 'faucet')
     return (
       <UI.Button
         className="w-full flex-1"
@@ -592,6 +605,8 @@ function OnrampView(props: OnrampView.Props) {
           )}
       </div>
     )
+
+  return null
 }
 
 export declare namespace OnrampView {
@@ -718,7 +733,7 @@ function DepositCryptoView(props: DepositCryptoView.Props) {
 export declare namespace DepositCryptoView {
   export type Props = {
     address: Address.Address | undefined
-    onBack: () => void
+    onBack?: (() => void) | undefined
     onApprove: (result: { id: Hex.Hex }) => void
   }
 }

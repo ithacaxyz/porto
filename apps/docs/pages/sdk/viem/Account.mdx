@@ -5,7 +5,7 @@ for [Porto `Key`s](/sdk/viem/Key).
 
 :::tip
 This abstraction is built for [Wallet Developers](/sdk/viem#wallet-developers) interacting with the
-RPC Server directly. If you are an [Application Developer](/sdk/viem#application-developers)
+Relay directly. If you are an [Application Developer](/sdk/viem#application-developers)
 that uses Porto via Wagmi or the EIP-1193 Provider (`porto.provider`), you probably don't need to use this.
 :::
 
@@ -19,7 +19,7 @@ that uses Porto via Wagmi or the EIP-1193 Provider (`porto.provider`), you proba
 :::code-group
 
 ```ts twoslash [example.ts]
-import { Account, Key, ServerActions } from 'porto/viem'
+import { Account, Key, RelayActions } from 'porto/viem'
 import { client } from './config'
 
 const passkey = await Key.createWebAuthnP256({
@@ -30,7 +30,7 @@ const account = Account.fromPrivateKey('0x...', { // [!code hl]
   keys: [passkey] // [!code hl]
 }) // [!code hl]
 
-await ServerActions.upgradeAccount(client, {
+await RelayActions.upgradeAccount(client, {
   account,
 })
 ```

@@ -1,7 +1,7 @@
 # Overview
 
 Porto ships with first-class modules that extend and compose with [Viem](https://viem.sh),
-such as: [Wallet Actions](/sdk/viem/WalletActions), [RPC Server Actions](/sdk/viem/ServerActions), a Porto-specific
+such as: [Wallet Actions](/sdk/viem/WalletActions), [Relay Actions](/sdk/viem/RelayActions), a Porto-specific
 [Account implementation](/sdk/viem/Account), and more.
 
 :::info
@@ -43,16 +43,16 @@ const { id } = await Actions.sendCalls(client, {
 
 ### Wallet Developers
 
-Wallet and Account Developers can use the [Porto RPC Server](https://porto.sh/rpc-server) with Viem by instantiating
+Wallet and Account Developers can use the [Porto Relay](https://porto.sh/relay) with Viem by instantiating
 a [Viem Client](https://viem.sh/docs/clients/intro) with a Porto-compatible Chain.
 
 Once instantiated, you can utilize Viem's [Public Actions](https://viem.sh/docs/actions/public/introduction) or the
-custom [`ServerActions`](/sdk/viem/ServerActions) module to interact with the RPC Server.
+custom [`RelayActions`](/sdk/viem/RelayActions) module to interact with the Relay.
 
 ```ts twoslash
 import { createClient, http } from 'viem' // [!code focus]
 import { Chains } from 'porto' // [!code focus]
-import { Key, ServerActions } from 'porto/viem'
+import { Key, RelayActions } from 'porto/viem'
 import * as Actions from 'viem/actions'
 
 const client = createClient({ // [!code focus]
@@ -60,7 +60,7 @@ const client = createClient({ // [!code focus]
   transport: http(), // [!code focus]
 }) // [!code focus]
 
-const account = await ServerActions.createAccount(client, {
+const account = await RelayActions.createAccount(client, {
   authorizeKeys: [Key.createSecp256k1()],
 })
 

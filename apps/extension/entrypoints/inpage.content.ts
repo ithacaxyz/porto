@@ -2,7 +2,7 @@ import { Dialog, Mode, Porto } from 'porto'
 
 export default defineContentScript({
   main() {
-    const porto = Porto.unstable_create()
+    const porto = Porto.create()
     ;(window as any).ethereum = porto.provider
 
     window.addEventListener('message', (event) => {

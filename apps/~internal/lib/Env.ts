@@ -1,8 +1,8 @@
-export const defaultEnv = (() => {
-  if (import.meta.env.VITE_VERCEL_ENV === 'preview') return 'stg'
+export const defaultEnv: Env = (() => {
+  if (import.meta.env.VITE_VERCEL_ENV === 'preview') return 'prod'
   if (import.meta.env.VITE_DEFAULT_ENV)
     return import.meta.env.VITE_DEFAULT_ENV as Env
-  return 'stg'
+  return 'prod'
 })()
 
 export const envs = ['prod', 'stg', 'anvil'] as const

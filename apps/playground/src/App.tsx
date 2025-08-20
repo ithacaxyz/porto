@@ -103,7 +103,7 @@ export function App() {
             <option value="popup-dialog">Dialog (popup)</option>
             <option value="page-dialog">Dialog (page)</option>
             <option value="inline-dialog">Dialog (inline)</option>
-            <option value="rpc">RPC Server</option>
+            <option value="rpc">Relay</option>
           </select>
         </div>
         <hr />
@@ -193,7 +193,7 @@ export function App() {
         <ShowClientCapabilities />
       </div>
       {mode === 'inline-dialog' && (
-        <div className="fixed top-0 bottom-0 left-[calc(768px+var(--spacing)*2)] w-[300px] p-4">
+        <div className="fixed top-0 bottom-0 left-[calc(768px+var(--spacing)*2)] w-[362px] p-4">
           <div
             className="h-full overflow-hidden rounded-md border border-th_frame"
             id="porto"
@@ -219,7 +219,7 @@ function State() {
         <>
           <div>Address: {state.accounts[0].address}</div>
           <div>
-            Chain ID: {state.chainId}
+            Chain ID: {state.chainIds[0]}
             <SwitchChain />
           </div>
           <div>
@@ -1088,7 +1088,7 @@ function SendCalls() {
                 ...params.capabilities,
                 feeToken: (feeToken === 'ETH'
                   ? '0x0000000000000000000000000000000000000000'
-                  : undefined) as any,
+                  : exp1Address[chainId]) as any,
               },
               from: account,
               version: '1',

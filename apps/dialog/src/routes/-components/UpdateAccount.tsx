@@ -1,7 +1,7 @@
 import { Button } from '@porto/ui'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import type { Address } from 'ox'
-import { Account, Key, ServerActions } from 'porto'
+import { Account, Key, RelayActions } from 'porto'
 import { Call } from 'porto/internal'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
@@ -20,10 +20,10 @@ export function UpdateAccount(props: UpdateAccount.Props) {
   const version = UpdateAccount.useAccountVersion()
   const { current, latest } = version.data ?? {}
 
-  const client = Hooks.useServerClient(porto)
+  const client = Hooks.useRelayClient(porto)
   const getCapabilitiesQuery = useQuery({
     enabled: !!client,
-    queryFn: () => ServerActions.getCapabilities(client),
+    queryFn: () => RelayActions.getCapabilities(client),
     queryKey: ['getCapabilities', client.uid],
   })
   const { contracts } = getCapabilitiesQuery.data ?? {}
@@ -67,7 +67,7 @@ export function UpdateAccount(props: UpdateAccount.Props) {
         payload: digest,
         wrap: false,
       })
-      const { id } = await ServerActions.sendPreparedCalls(client, {
+      const { id } = await RelayActions.sendPreparedCalls(client, {
         ...request,
         key: request.key!,
         signature,

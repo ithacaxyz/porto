@@ -5,9 +5,9 @@ import * as ox_Provider from 'ox/Provider'
 import * as RpcResponse from 'ox/RpcResponse'
 import type { ValueOf } from 'viem'
 import * as Account from '../../viem/Account.js'
-import * as Actions from '../../viem/internal/serverActions.js'
+import * as Actions from '../../viem/internal/relayActions.js'
 import type * as Key from '../../viem/Key.js'
-import * as ServerClient from '../../viem/ServerClient.js'
+import * as RelayClient from '../../viem/RelayClient.js'
 import type * as Chains from '../Chains.js'
 import type * as Porto from '../Porto.js'
 import type * as RpcSchema from '../RpcSchema.js'
@@ -43,7 +43,7 @@ export function from<
   function getClient(chainId_?: Hex.Hex | number | undefined) {
     const chainId =
       typeof chainId_ === 'string' ? Hex.toNumber(chainId_) : chainId_
-    return ServerClient.fromPorto({ _internal: parameters }, { chainId })
+    return RelayClient.fromPorto({ _internal: parameters }, { chainId })
   }
 
   const preparedAccounts_internal: Account.Account[] = []
@@ -149,7 +149,7 @@ export function from<
 
         case 'eth_chainId': {
           return Hex.fromNumber(
-            state.chainId,
+            state.chainIds[0],
           ) satisfies typeof Rpc.eth_chainId.Response.Encoded
         }
 
@@ -734,9 +734,10 @@ export function from<
         }
 
         case 'wallet_connect': {
-          const [{ capabilities }] = request._decoded.params ?? [{}]
+          const [{ capabilities, chainIds }] = request._decoded.params ?? [{}]
 
-          const client = getClient()
+          const client = getClient(chainIds?.[0])
+          const chainId = client.chain.id
 
           const {
             createAccount,
@@ -819,21 +820,14 @@ export function from<
 
           store.setState((x) => ({ ...x, accounts }))
 
-          emitter.emit('connect', {
-            chainId: Hex.fromNumber(client.chain.id),
-          })
+          const chainIds_response = [
+            chainId,
+            ...store.getState().chainIds.filter((id) => id !== chainId),
+          ] as const
 
-          const currentChainId = client.chain.id
-          const chainIds = [
-            Hex.fromNumber(currentChainId),
-            ...(config.chains
-              .map((chain) =>
-                chain.id === currentChainId
-                  ? undefined
-                  : Hex.fromNumber(chain.id),
-              )
-              .filter(Boolean) as `0x${string}`[]),
-          ]
+          emitter.emit('connect', {
+            chainId: Hex.fromNumber(chainIds_response[0]),
+          })
 
           return {
             accounts: accounts.map((account) => ({
@@ -851,7 +845,9 @@ export function from<
                 }),
               },
             })),
-            chainIds,
+            chainIds: chainIds_response.map((chainId) =>
+              Hex.fromNumber(chainId),
+            ),
           } satisfies typeof Rpc.wallet_connect.Response.Encoded
         }
 
@@ -925,7 +921,7 @@ export function from<
           const [_, chainIds] = request.params ?? []
 
           const capabilities = await getMode().actions.getCapabilities({
-            chainIds: chainIds ?? [Hex.fromNumber(state.chainId)],
+            chainIds: chainIds ?? [Hex.fromNumber(state.chainIds[0])],
             internal: {
               config,
               getClient,
@@ -1057,9 +1053,10 @@ export function from<
         case 'wallet_switchEthereumChain': {
           const [parameters] = request._decoded.params
           const { chainId } = parameters
+          const chainId_number = Hex.toNumber(chainId)
 
           const chain = config.chains.find(
-            (chain) => chain.id === Hex.toNumber(chainId),
+            (chain) => chain.id === chainId_number,
           )
           if (!chain) throw new ox_Provider.UnsupportedChainIdError()
 
@@ -1076,7 +1073,10 @@ export function from<
 
           store.setState((state) => ({
             ...state,
-            chainId: Hex.toNumber(chainId),
+            chainIds: [
+              chainId_number,
+              ...state.chainIds.filter((id) => id !== chainId_number),
+            ],
           }))
 
           return undefined
@@ -1126,7 +1126,7 @@ export function from<
 
       unsubscribe_chain()
       unsubscribe_chain = store.subscribe(
-        (state) => state.chainId,
+        (state) => state.chainIds[0],
         (chainId, previousChainId) => {
           if (chainId === previousChainId) return
           emitter.emit('chainChanged', Hex.fromNumber(chainId))

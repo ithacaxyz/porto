@@ -20,7 +20,7 @@ export default async function () {
       })
     })
   })
-  // TODO: use prool rpc server instance directly.
+  // TODO: use prool Relay instance directly.
   let process_playground: process.ChildProcess | undefined
   if (import.meta.env.VITE_DEFAULT_ENV === 'anvil')
     await fetch('http://localhost:5173').catch(() => {

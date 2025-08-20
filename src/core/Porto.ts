@@ -10,7 +10,7 @@ import * as Chains from './Chains.js'
 import { hostUrls } from './Dialog.js'
 import type * as Mode from './internal/mode.js'
 import { dialog } from './internal/modes/dialog.js'
-import { rpcServer } from './internal/modes/rpcServer.js'
+import { relay } from './internal/modes/relay.js'
 import type * as internal from './internal/porto.js'
 import * as Provider from './internal/provider.js'
 import type * as FeeToken from './internal/schema/feeToken.js'
@@ -25,16 +25,12 @@ const browser = typeof window !== 'undefined' && typeof document !== 'undefined'
 
 export const defaultConfig = {
   announceProvider: true,
-  chains: [Chains.baseSepolia, Chains.optimismSepolia],
-  mode: browser ? dialog() : rpcServer(),
-  relay: http(relayUrls.stg.http),
+  chains: Chains.all,
+  mode: browser ? dialog({ host: hostUrls.prod }) : relay(),
+  relay: http(relayUrls.prod.http),
   storage: browser ? Storage.idb() : Storage.memory(),
   storageKey: 'porto.store',
-  transports: {
-    [Chains.baseSepolia.id]: http(),
-    [Chains.optimismSepolia.id]: http(),
-  },
-} as const satisfies Config
+} as const satisfies ExactPartial<Config>
 
 /**
  * Instantiates an Porto instance.
@@ -82,27 +78,14 @@ export function create(
       persist<State>(
         (_) => ({
           accounts: [],
-          chainId: config.chains[0].id,
+          chainIds: config.chains.map((chain) => chain.id) as [
+            number,
+            ...number[],
+          ],
           feeToken: config.feeToken,
           requestQueue: [],
         }),
         {
-          merge(p, currentState) {
-            const persistedState = p as State
-
-            // Ensure that the persisted chain id is still exists in the current
-            // configuration.
-            const persistedChain = config.chains.find(
-              (chain) => chain.id === persistedState.chainId,
-            )
-            const chainId = persistedChain?.id ?? currentState.chainId
-
-            return {
-              ...currentState,
-              ...persistedState,
-              chainId,
-            }
-          },
           name: config.storageKey,
           partialize(state) {
             return {
@@ -110,12 +93,12 @@ export function create(
                 // omit non-serializable properties (e.g. functions).
                 Utils.normalizeValue(account),
               ),
-              chainId: state.chainId,
+              chainIds: state.chainIds,
               feeToken: state.feeToken,
             } as unknown as State
           },
           storage: config.storage,
-          version: 2,
+          version: 3,
         },
       ),
     ),
@@ -158,41 +141,6 @@ export function create(
     },
     provider,
   }
-}
-
-/**
- * Instantiates an Porto instance with future defaults (mainnet configuration).
- *
- * WARNING: This is not recommended for production use yet, and will become
- * stable in a future release.
- *
- * @example
- * ```ts twoslash
- * import { Porto } from 'porto'
- *
- * const porto = Porto.unstable_create()
- *
- * const blockNumber = await porto.provider.request({ method: 'eth_blockNumber' })
- * ```
- */
-export function unstable_create<
-  const chains extends readonly [Chains.Chain, ...Chains.Chain[]],
->(parameters?: ExactPartial<Config<chains>> | undefined): Porto<chains>
-export function unstable_create(
-  parameters: ExactPartial<Config> | undefined = {},
-): Porto {
-  return create({
-    chains: [Chains.base, Chains.arbitrum, Chains.optimism],
-    mode: browser ? dialog({ host: hostUrls.prod }) : rpcServer(),
-    relay: http(relayUrls.prod.http),
-    storageKey: 'prod.porto.store',
-    transports: {
-      [Chains.arbitrum.id]: http(),
-      [Chains.base.id]: http(),
-      [Chains.optimism.id]: http(),
-    },
-    ...parameters,
-  })
 }
 
 export type Config<
@@ -278,7 +226,7 @@ export type State<
   ],
 > = {
   accounts: readonly Account.Account[]
-  chainId: chains[number]['id']
+  chainIds: readonly [chains[number]['id'], ...chains[number]['id'][]]
   feeToken: FeeToken.Symbol | undefined
   requestQueue: readonly QueuedRequest[]
 }

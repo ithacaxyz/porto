@@ -1,3 +1,4 @@
+import { setTimeout } from 'node:timers/promises'
 import { exp1Abi, exp1Address } from '@porto/apps/contracts'
 import { Hono } from 'hono'
 import { getConnInfo } from 'hono/cloudflare-workers'
@@ -81,6 +82,8 @@ faucetApp.on(
       hash,
       pollingInterval: 1_000,
     })
+    // TODO: remove once faucet in relay
+    await setTimeout(2_000)
 
     if (receipt.status === 'success')
       return context.json({ id: receipt.transactionHash }, 200)

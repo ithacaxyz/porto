@@ -1,5 +1,5 @@
 # Simulator
-The Simulator is a versatile utility designed to help offchain services and RPC servers obtain accurate gas estimates for intents efficiently. 
+The Simulator is a versatile utility designed to help offchain services and Relays obtain accurate gas estimates for intents efficiently. 
 
 It functions like an advanced multicall, enabling sophisticated operations such as searching for optimal `combinedGas` values, generating custom execution traces, and providing clearer error messages for transaction reverts.
 It uses the primitive [simulateExecute](/contracts/orchestrator#simulation) function exposed by the orchestrator, and adds custom logic on top of it.

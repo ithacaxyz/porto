@@ -1,7 +1,8 @@
 import { type Account, type Chains, Mode, Porto, Storage } from 'porto'
 import { type HttpTransportConfig, http } from 'viem'
 import { relayUrls } from '../../src/core/Transport.js'
-import * as ServerClient from '../../src/viem/ServerClient.js'
+import * as RelayActions from '../../src/viem/internal/relayActions.js'
+import * as RelayClient from '../../src/viem/RelayClient.js'
 import * as WalletClient from '../../src/viem/WalletClient.js'
 import * as Contracts from './_generated/contracts.js'
 import { getChains } from './chains.js'
@@ -18,7 +19,7 @@ export function getPorto(
   } = {},
 ) {
   const {
-    mode = Mode.rpcServer,
+    mode = Mode.relay,
     merchantRpcUrl,
     relayRpcUrl: overrideRelayRpcUrl = process.env.VITE_RELAY_URL,
   } = parameters
@@ -64,11 +65,11 @@ export function getPorto(
   })
 }
 
-export function getServerClient<
+export function getRelayClient<
   const chains extends readonly [Chains.Chain, ...Chains.Chain[]],
 >(porto: Porto.Porto<chains>, options: { chainId?: number | undefined } = {}) {
   const { chainId } = options
-  return ServerClient.fromPorto(porto, { chainId }).extend(() => ({
+  return RelayClient.fromPorto(porto, { chainId }).extend(() => ({
     mode: 'anvil',
   }))
 }
@@ -84,19 +85,19 @@ export function getWalletClient<
   return WalletClient.fromPorto(porto, config)
 }
 
-export function getContracts<
+export async function getContracts<
   const chains extends readonly [Chains.Chain, ...Chains.Chain[]],
 >(porto: Porto.Porto<chains>, options: { chainId?: number | undefined } = {}) {
-  const { chainId = porto._internal.store.getState().chainId } = options
+  const { chainId = porto._internal.store.getState().chainIds[0] } = options
 
   const chain = chains.find((chain) => chain.id === chainId)
   if (!chain) throw new Error(`Chain not found: ${chainId}`)
 
+  const client = getRelayClient(porto, { chainId })
+  const { contracts } = await RelayActions.getCapabilities(client)
+
   return {
-    delegation: {
-      // TODO: Don't hardcode
-      address: '0xb19b36b1456e65e3a6d514d3f715f204bd59f431',
-    },
+    ...contracts,
     exp1: {
       abi: Contracts.exp1Abi,
       address: Contracts.exp1Address[chain.id],

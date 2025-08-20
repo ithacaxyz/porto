@@ -13,13 +13,15 @@ export async function getWalletClient(options: getWalletClient.Options = {}) {
   const { dialog: host } = options
   const porto = Porto.create({
     announceProvider: false,
-    chains: [Chains.baseSepolia],
+    chains: [Chains.base, Chains.baseSepolia],
     mode: Mode.dialog({
       host: host ? new URL('/dialog', 'https://' + host).toString() : undefined,
       renderer: await Dialog.cli(),
     }),
   })
-  return WalletClient.fromPorto(porto)
+  return WalletClient.fromPorto(porto, {
+    chain: Chains.base,
+  })
 }
 
 export declare namespace getWalletClient {
@@ -29,8 +31,8 @@ export declare namespace getWalletClient {
   }
 }
 
-/** Gets a Viem client for RPC Server. */
-export async function getServerClient(options: getServerClient.Options = {}) {
+/** Gets a Viem client for Relay. */
+export async function getRelayClient(options: getRelayClient.Options = {}) {
   const chain = Utils.kebabToCamel(options.chain!) as keyof typeof Chains
   const client = createClient({
     // biome-ignore lint/performance/noDynamicNamespaceImportAccess: _
@@ -44,11 +46,11 @@ export async function getServerClient(options: getServerClient.Options = {}) {
   return client
 }
 
-export declare namespace getServerClient {
+export declare namespace getRelayClient {
   type Options = {
     /** Chain name. */
     chain?: string | undefined
-    /** RPC Server URL. */
+    /** Relay URL. */
     rpc?: string | undefined
   }
 }

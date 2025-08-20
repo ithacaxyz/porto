@@ -5,6 +5,12 @@ interface ImportMetaEnv {
   readonly VITE_DEFAULT_ENV: string
   readonly VITE_VERCEL_ENV: string
   readonly VITE_VERCEL_BRANCH_URL: string
+
+  readonly VITE_RPC_URL_ARBITRUM: string | undefined
+  readonly VITE_RPC_URL_BASE: string | undefined
+  readonly VITE_RPC_URL_BSC: string | undefined
+  readonly VITE_RPC_URL_OPTIMISM: string | undefined
+  readonly VITE_RPC_URL_POLYGON: string | undefined
 }
 
 interface ImportMeta {

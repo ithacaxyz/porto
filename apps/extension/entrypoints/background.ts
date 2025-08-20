@@ -18,11 +18,11 @@ namespace ContextMenu {
     browser.contextMenus.onClicked.addListener(async (info) => {
       if (info.menuItemId === 'id')
         browser.tabs.create({
-          url: 'https://prod.id.porto.sh',
+          url: 'https://id.porto.sh',
         })
       if (info.menuItemId === 'docs')
         browser.tabs.create({
-          url: 'https://prod.porto.sh',
+          url: 'https://porto.sh',
         })
     })
   }

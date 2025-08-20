@@ -1,0 +1,34 @@
+# `RelayActions.getCallsStatus`
+
+Viem Action for retrieving the status of a call bundle. Uses [`wallet_getCallsStatus`](/relay/wallet_getCallsStatus) under the hood.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { RelayActions } from 'porto/viem'
+import { client } from './config'
+
+const status = await RelayActions.getCallsStatus(client, { // [!code focus]
+  id: '0x1234...', // Bundle ID from sendCalls // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.server.ts]
+```
+
+:::
+
+## Parameters
+
+### id
+
+- **Type:** `Hex.Hex`
+
+The bundle identifier.
+
+## Return Value
+
+See [`wallet_getCallsStatus`](/relay/wallet_getCallsStatus#response).

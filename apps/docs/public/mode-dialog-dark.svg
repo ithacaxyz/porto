@@ -13,7 +13,7 @@
       width="150" stroke="#666" fill="#eaeaea" y="391" x="420" /><text
       style="text-anchor: middle; font-size: 16px; font-weight: 400;" class="actor actor-box"
       alignment-baseline="central" dominant-baseline="central" y="423.5" x="495">
-      <tspan dy="0" x="495">RPC Server</tspan>
+      <tspan dy="0" x="495">Relay</tspan>
     </text>
   </g>
   <g>
@@ -40,7 +40,7 @@
         width="150" stroke="#666" fill="#eaeaea" y="28" x="420" /><text
         style="text-anchor: middle; font-size: 16px; font-weight: 400;" class="actor actor-box"
         alignment-baseline="central" dominant-baseline="central" y="60.5" x="495">
-        <tspan dy="0" x="495">RPC Server</tspan>
+        <tspan dy="0" x="495">Relay</tspan>
       </text>
     </g>
   </g>

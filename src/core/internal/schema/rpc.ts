@@ -1,6 +1,6 @@
 import * as Schema from 'effect/Schema'
-import * as Quotes from '../rpcServer/schema/quotes.js'
-import * as Rpc_server from '../rpcServer/schema/rpc.js'
+import * as Quotes from '../relay/schema/quotes.js'
+import * as Rpc_relay from '../relay/schema/rpc.js'
 import * as C from './capabilities.js'
 import * as Key from './key.js'
 import * as Permissions from './permissions.js'
@@ -66,6 +66,7 @@ export namespace account_verifyEmail {
 export namespace wallet_addFunds {
   export const Parameters = Schema.Struct({
     address: Schema.optional(Primitive.Address),
+    chainId: Schema.optional(Primitive.Number),
     token: Schema.optional(Primitive.Address),
     value: Schema.optional(Schema.String),
   }).annotations({
@@ -93,7 +94,7 @@ export namespace wallet_addFunds {
 export namespace eth_accounts {
   export const Request = Schema.Struct({
     method: Schema.Literal('eth_accounts'),
-    params: Schema.optional(Schema.Undefined),
+    params: Schema.optional(Schema.Unknown),
   }).annotations({
     identifier: 'Rpc.eth_accounts.Request',
   })
@@ -141,6 +142,7 @@ export namespace eth_sendTransaction {
       Schema.Struct({
         capabilities: Schema.optional(
           Schema.Struct({
+            feeToken: Schema.optional(C.feeToken.Request),
             preCalls: Schema.optional(C.preCalls.Request),
           }),
         ),
@@ -511,15 +513,15 @@ export namespace wallet_connect {
   })
   export type Capabilities = typeof Capabilities.Type
 
+  export const Parameters = Schema.Struct({
+    capabilities: Schema.optional(Capabilities),
+    chainIds: Schema.optional(Schema.Array(Primitive.Number)),
+  })
+  export type Parameters = typeof Parameters.Type
+
   export const Request = Schema.Struct({
     method: Schema.Literal('wallet_connect'),
-    params: Schema.optional(
-      Schema.Tuple(
-        Schema.Struct({
-          capabilities: Schema.optional(Capabilities),
-        }),
-      ),
-    ),
+    params: Schema.optional(Schema.Tuple(Parameters)),
   }).annotations({
     identifier: 'Rpc.wallet_connect.Request',
   })
@@ -572,15 +574,15 @@ export namespace wallet_disconnect {
 
 export namespace wallet_getAssets {
   /** Parameters  */
-  export const Parameters = Rpc_server.wallet_getAssets.Parameters
+  export const Parameters = Rpc_relay.wallet_getAssets.Parameters
   export type Parameters = typeof Parameters.Type
 
   /** Request for `wallet_getAssets`. */
-  export const Request = Rpc_server.wallet_getAssets.Request
+  export const Request = Rpc_relay.wallet_getAssets.Request
   export type Request = typeof Request.Type
 
   /** Response for `wallet_getAssets`. */
-  export const Response = Rpc_server.wallet_getAssets.Response
+  export const Response = Rpc_relay.wallet_getAssets.Response
   export type Response = typeof Response.Type
 }
 
@@ -720,7 +722,7 @@ export namespace wallet_prepareCalls {
   export const Response = Schema.Struct({
     capabilities: Schema.optional(
       Schema.extend(
-        Rpc_server.wallet_prepareCalls.ResponseCapabilities,
+        Rpc_relay.wallet_prepareCalls.ResponseCapabilities,
         Schema.Struct({
           quote: Schema.optional(Quotes.Signed),
         }),

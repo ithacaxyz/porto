@@ -10,13 +10,13 @@ import {
 } from 'viem/actions'
 import * as Account from '../../src/viem/Account.js'
 import type * as Key from '../../src/viem/Key.js'
-import * as ServerActions from '../../src/viem/ServerActions.js'
-import type { ServerClient } from '../../src/viem/ServerClient.js'
+import * as RelayActions from '../../src/viem/RelayActions.js'
+import type { RelayClient } from '../../src/viem/RelayClient.js'
 import * as Contracts from './_generated/contracts.js'
 import * as Anvil from './anvil.js'
 
 export async function createAccount(
-  client: ServerClient,
+  client: RelayClient,
   parameters: {
     deploy?: boolean | undefined
     keys: readonly Key.Key[]
@@ -27,13 +27,13 @@ export async function createAccount(
 
   const { account } = await getAccount(client, { keys, setBalance })
 
-  await ServerActions.upgradeAccount(client, {
+  await RelayActions.upgradeAccount(client, {
     account,
     authorizeKeys: keys,
   })
 
   if (deploy) {
-    const { id } = await ServerActions.sendCalls(client, {
+    const { id } = await RelayActions.sendCalls(client, {
       account,
       calls: [],
       feeToken: Contracts.exp1Address[client.chain.id as never],
@@ -47,7 +47,7 @@ export async function createAccount(
 }
 
 export async function getAccount(
-  client: ServerClient,
+  client: RelayClient,
   parameters: {
     keys?: readonly Key.Key[] | undefined
     setBalance?: false | bigint | undefined
@@ -71,7 +71,7 @@ export async function getAccount(
 }
 
 export async function setBalance(
-  client: ServerClient,
+  client: RelayClient,
   parameters: {
     address: Address.Address
     value?: bigint | undefined

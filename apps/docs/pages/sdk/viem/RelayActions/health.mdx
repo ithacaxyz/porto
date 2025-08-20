@@ -1,0 +1,28 @@
+# `RelayActions.health`
+
+Viem Action for retrieving the health status of the Relay. Uses [`health`](/relay/health) under the hood.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { RelayActions } from 'porto/viem'
+import { client } from './config'
+
+const health = await RelayActions.health(client) // [!code focus]
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.server.ts]
+```
+
+:::
+
+## Parameters
+
+This action takes no parameters.
+
+## Return Value
+
+See [`health`](/relay/health#response).

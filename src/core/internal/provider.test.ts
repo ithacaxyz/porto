@@ -26,12 +26,12 @@ import { createAccount, setBalance } from '../../../test/src/actions.js'
 import * as Anvil from '../../../test/src/anvil.js'
 import * as TestConfig from '../../../test/src/config.js'
 import * as Http from '../../../test/src/http.js'
-import * as RpcServer from '../../../test/src/rpcServer.js'
-import * as ServerActions from '../../viem/ServerActions.js'
-import * as ServerClient from '../../viem/ServerClient.js'
+import * as Relay from '../../../test/src/relay.js'
+import * as RelayActions from '../../viem/RelayActions.js'
+import * as RelayClient from '../../viem/RelayClient.js'
 import * as WalletClient from '../../viem/WalletClient.js'
 
-describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
+describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
   if (!mode) return
 
   const getPorto = (
@@ -95,8 +95,8 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
   describe('eth_sendTransaction', () => {
     test('default', async () => {
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const client = TestConfig.getRelayClient(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -181,7 +181,7 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
       const messages: any[] = []
 
       const porto = getPorto()
-      const client = ServerClient.fromPorto(porto).extend(() => ({
+      const client = RelayClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -223,7 +223,7 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
     })
   })
 
-  describe.runIf(type === 'rpcServer')('wallet_getAssets', () => {
+  describe.runIf(type === 'relay')('wallet_getAssets', () => {
     test('default', async () => {
       const porto = getPorto()
       const {
@@ -249,8 +249,8 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
 
     test('behavior: with balances', async () => {
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const client = TestConfig.getRelayClient(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -310,8 +310,8 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
 
     test('behavior: after transaction', async () => {
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const client = TestConfig.getRelayClient(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -378,7 +378,7 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
 
     test('behavior: multiple chains; one unsupported', async () => {
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
       const {
         accounts: [account],
@@ -746,7 +746,7 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
 
     test('behavior: grant on connect > grant another > get after connect', async () => {
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
       const walletClient = TestConfig.getWalletClient(porto)
 
       const { accounts } = await porto.provider.request({
@@ -893,7 +893,7 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
   describe('wallet_revokeAdmin', () => {
     test('default', async () => {
       const porto = getPorto()
-      const client = ServerClient.fromPorto(porto).extend(() => ({
+      const client = RelayClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -967,7 +967,7 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
   describe('wallet_revokePermissions', () => {
     test('default', async () => {
       const porto = getPorto()
-      const client = ServerClient.fromPorto(porto).extend(() => ({
+      const client = RelayClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -1074,9 +1074,9 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
   describe('wallet_getAccountVersion', () => {
     test('default', async () => {
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
-      const capabilities = await ServerActions.getCapabilities(client)
+      const capabilities = await RelayActions.getCapabilities(client)
 
       await porto.provider.request({
         method: 'wallet_connect',
@@ -1096,9 +1096,9 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
 
     test('behavior: provided address', async () => {
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
-      const capabilities = await ServerActions.getCapabilities(client)
+      const capabilities = await RelayActions.getCapabilities(client)
 
       const {
         accounts: [account],
@@ -1152,11 +1152,11 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
 
     test.runIf(Anvil.enabled)('behavior: outdated account', async () => {
       const porto = getPorto()
-      const client = ServerClient.fromPorto(porto).extend(() => ({
+      const client = RelayClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
-      const capabilities = await ServerActions.getCapabilities(client)
+      const capabilities = await RelayActions.getCapabilities(client)
 
       const {
         accounts: [account],
@@ -1204,13 +1204,13 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
   })
 
   describe('wallet_updateAccount', () => {
-    test.runIf(Anvil.enabled && type === 'rpcServer')('default', async () => {
+    test.runIf(Anvil.enabled && type === 'relay')('default', async () => {
       const porto = getPorto()
-      const client = ServerClient.fromPorto(porto).extend(() => ({
+      const client = RelayClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
-      const capabilities = await ServerActions.getCapabilities(client)
+      const capabilities = await RelayActions.getCapabilities(client)
 
       const {
         accounts: [account],
@@ -1253,7 +1253,7 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
       )
 
       const porto_newAccount = getPorto({
-        relayRpcUrl: RpcServer.instances.anvil_newAccount.rpcUrl,
+        relayRpcUrl: Relay.instances.anvil_newAccount.rpcUrl,
       })
       porto_newAccount._internal.store.setState(
         porto._internal.store.getState(),
@@ -1329,7 +1329,7 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
       const messages: any[] = []
 
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
       porto.provider.on('connect', (message) => messages.push(message))
 
@@ -1365,7 +1365,7 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
       const messages: any[] = []
 
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
       porto.provider.on('connect', (message) => messages.push(message))
 
@@ -1412,7 +1412,7 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
       const messages: any[] = []
 
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
       porto.provider.on('connect', (message) => messages.push(message))
 
@@ -1464,7 +1464,7 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
       const messages: any[] = []
 
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
       porto.provider.on('connect', (message) => messages.push(message))
 
@@ -1595,7 +1595,7 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
         res.accounts.at(0)?.capabilities?.signInWithEthereum ?? {}
       if (message && signature) {
         switch (type) {
-          case 'rpcServer': {
+          case 'relay': {
             const { valid } = await porto.provider.request({
               method: 'wallet_verifySignature',
               params: [
@@ -1638,7 +1638,7 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
   describe('wallet_switchEthereumChain', () => {
     test('default', async () => {
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
       await porto.provider.request({
         method: 'wallet_connect',
@@ -1661,7 +1661,7 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
       })
 
       const state = porto._internal.store.getState()
-      expect(state.chainId).toBe(targetChain.id)
+      expect(state.chainIds[0]).toBe(targetChain.id)
 
       const nextChainId = await porto.provider.request({
         method: 'eth_chainId',
@@ -1715,7 +1715,7 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
 
     test('behavior: chainId', async () => {
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
+      const client = TestConfig.getRelayClient(porto)
 
       const capabilities = await porto.provider.request({
         method: 'wallet_getCapabilities',
@@ -1742,8 +1742,8 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
   describe('wallet_sendCalls', () => {
     test('default', async () => {
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const client = TestConfig.getRelayClient(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -1796,12 +1796,12 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
       ).toBe(69420n)
     })
 
-    test.runIf(type === 'rpcServer' && Anvil.enabled)(
+    test.runIf(type === 'relay' && Anvil.enabled)(
       'behavior: `feeToken` capability',
       async () => {
         const porto = getPorto()
-        const client = TestConfig.getServerClient(porto)
-        const contracts = TestConfig.getContracts(porto)
+        const client = TestConfig.getRelayClient(porto)
+        const contracts = await TestConfig.getContracts(porto)
 
         const {
           accounts: [account],
@@ -1870,115 +1870,112 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
       },
     )
 
-    test.runIf(type === 'rpcServer')(
-      'behavior: merchant fee sponsor',
-      async () => {
-        const porto = getPorto()
-        const client = TestConfig.getServerClient(porto)
-        const contracts = TestConfig.getContracts(porto)
+    test.runIf(type === 'relay')('behavior: merchant fee sponsor', async () => {
+      const porto = getPorto()
+      const client = TestConfig.getRelayClient(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
-        const merchantKey = Key.createSecp256k1()
-        const merchantAccount = await createAccount(client, {
-          deploy: true,
-          keys: [merchantKey],
-        })
+      const merchantKey = Key.createSecp256k1()
+      const merchantAccount = await createAccount(client, {
+        deploy: true,
+        keys: [merchantKey],
+      })
 
-        const listener = MerchantRpc.requestListener({
-          ...porto.config,
-          address: merchantAccount.address,
-          key: {
-            privateKey: merchantKey.privateKey!(),
-            type: merchantKey.type,
+      const listener = MerchantRpc.requestListener({
+        ...porto.config,
+        address: merchantAccount.address,
+        key: {
+          privateKey: merchantKey.privateKey!(),
+          type: merchantKey.type,
+        },
+      })
+      const server = await Http.createServer(listener)
+
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: { createAccount: true },
           },
-        })
-        const server = await Http.createServer(listener)
+        ],
+      })
+      const address = account!.address
 
-        const {
-          accounts: [account],
-        } = await porto.provider.request({
-          method: 'wallet_connect',
-          params: [
-            {
-              capabilities: { createAccount: true },
-            },
-          ],
-        })
-        const address = account!.address
+      await setBalance(client, {
+        address,
+        value: Value.fromEther('10000'),
+      })
 
-        await setBalance(client, {
-          address,
-          value: Value.fromEther('10000'),
-        })
+      const userBalance_pre = await readContract(client, {
+        abi: contracts.exp1.abi,
+        address: contracts.exp1.address,
+        args: [address],
+        functionName: 'balanceOf',
+      })
+      const merchantBalance_pre = await readContract(client, {
+        abi: contracts.exp1.abi,
+        address: contracts.exp1.address,
+        args: [merchantAccount.address],
+        functionName: 'balanceOf',
+      })
 
-        const userBalance_pre = await readContract(client, {
-          abi: contracts.exp1.abi,
-          address: contracts.exp1.address,
-          args: [address],
-          functionName: 'balanceOf',
-        })
-        const merchantBalance_pre = await readContract(client, {
-          abi: contracts.exp1.abi,
-          address: contracts.exp1.address,
-          args: [merchantAccount.address],
-          functionName: 'balanceOf',
-        })
-
-        const { id } = await porto.provider.request({
-          method: 'wallet_sendCalls',
-          params: [
-            {
-              calls: [
-                {
-                  data: encodeFunctionData({
-                    abi: contracts.exp1.abi,
-                    args: [Hex.random(20), Value.fromEther('1')],
-                    functionName: 'transfer',
-                  }),
-                  to: contracts.exp1.address,
-                },
-              ],
-              capabilities: {
-                merchantRpcUrl: server.url,
+      const { id } = await porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            calls: [
+              {
+                data: encodeFunctionData({
+                  abi: contracts.exp1.abi,
+                  args: [Hex.random(20), Value.fromEther('1')],
+                  functionName: 'transfer',
+                }),
+                to: contracts.exp1.address,
               },
-              from: address,
-              version: '1',
+            ],
+            capabilities: {
+              merchantRpcUrl: server.url,
             },
-          ],
-        })
+            from: address,
+            version: '1',
+          },
+        ],
+      })
 
-        expect(id).toBeDefined()
+      expect(id).toBeDefined()
 
-        await waitForCallsStatus(WalletClient.fromPorto(porto), {
-          id,
-        })
+      await waitForCallsStatus(WalletClient.fromPorto(porto), {
+        id,
+      })
 
-        const userBalance_post = await readContract(client, {
-          abi: contracts.exp1.abi,
-          address: contracts.exp1.address,
-          args: [address],
-          functionName: 'balanceOf',
-        })
-        const merchantBalance_post = await readContract(client, {
-          abi: contracts.exp1.abi,
-          address: contracts.exp1.address,
-          args: [merchantAccount.address],
-          functionName: 'balanceOf',
-        })
+      const userBalance_post = await readContract(client, {
+        abi: contracts.exp1.abi,
+        address: contracts.exp1.address,
+        args: [address],
+        functionName: 'balanceOf',
+      })
+      const merchantBalance_post = await readContract(client, {
+        abi: contracts.exp1.abi,
+        address: contracts.exp1.address,
+        args: [merchantAccount.address],
+        functionName: 'balanceOf',
+      })
 
-        // Check if user was debited 1 EXP.
-        expect(userBalance_post).toBe(userBalance_pre - Value.fromEther('1'))
+      // Check if user was debited 1 EXP.
+      expect(userBalance_post).toBe(userBalance_pre - Value.fromEther('1'))
 
-        // Check if merchant was debited the fee payment.
-        expect(merchantBalance_post).toBeLessThan(merchantBalance_pre)
-      },
-    )
+      // Check if merchant was debited the fee payment.
+      expect(merchantBalance_post).toBeLessThan(merchantBalance_pre)
+    })
 
-    test.runIf(type === 'rpcServer')(
+    test.runIf(type === 'relay')(
       'behavior: merchant fee sponsor (porto config)',
       async () => {
         const p = getPorto()
-        const client = TestConfig.getServerClient(p)
-        const contracts = TestConfig.getContracts(p)
+        const client = TestConfig.getRelayClient(p)
+        const contracts = await TestConfig.getContracts(p)
 
         const merchantKey = Key.createSecp256k1()
         const merchantAccount = await createAccount(client, {
@@ -2077,8 +2074,8 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
 
     test('behavior: use inferred permissions', async () => {
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const client = TestConfig.getRelayClient(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -2156,8 +2153,8 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
 
     test('behavior: `permissions` capability', async () => {
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const client = TestConfig.getRelayClient(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -2236,12 +2233,12 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
     })
 
     // TODO: remove condition once Anvil supports reverts on delegated accounts.
-    test.runIf(type === 'rpcServer')(
+    test.runIf(type === 'relay')(
       'behavior: `permissions.calls` unauthorized',
       async () => {
         const porto = getPorto()
-        const client = TestConfig.getServerClient(porto)
-        const contracts = TestConfig.getContracts(porto)
+        const client = TestConfig.getRelayClient(porto)
+        const contracts = await TestConfig.getContracts(porto)
 
         const {
           accounts: [account],
@@ -2312,12 +2309,12 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
     )
 
     // TODO: remove condition once Anvil supports reverts on delegated accounts.
-    test.runIf(type === 'rpcServer')(
+    test.runIf(type === 'relay')(
       'behavior: `permissions.spend` exceeded',
       async () => {
         const porto = getPorto()
-        const client = TestConfig.getServerClient(porto)
-        const contracts = TestConfig.getContracts(porto)
+        const client = TestConfig.getRelayClient(porto)
+        const contracts = await TestConfig.getContracts(porto)
 
         const {
           accounts: [account],
@@ -2419,8 +2416,8 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
 
     test('behavior: revoked permission', async () => {
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const client = TestConfig.getRelayClient(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -2529,8 +2526,8 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
 
     test('behavior: not provider-managed permission', async () => {
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const client = TestConfig.getRelayClient(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -2597,8 +2594,8 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
 
     test('behavior: permission does not exist', async () => {
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const client = TestConfig.getRelayClient(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -2644,11 +2641,11 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
     })
 
     // TODO: uncomment when interop enabled again for testnets.
-    // test.runIf(!Anvil.enabled && type === 'rpcServer')(
+    // test.runIf(!Anvil.enabled && type === 'relay')(
     test.skip('behavior: required funds (address)', async () => {
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const client = TestConfig.getRelayClient(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -2710,7 +2707,7 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
       })
       expect(balance).toBeLessThan(initialBalance)
 
-      const client_dest = TestConfig.getServerClient(porto, {
+      const client_dest = TestConfig.getRelayClient(porto, {
         chainId: chainId_dest,
       })
 
@@ -2725,11 +2722,11 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
     })
 
     // TODO: uncomment when interop enabled again for testnets.
-    // test.runIf(!Anvil.enabled && type === 'rpcServer')(
+    // test.runIf(!Anvil.enabled && type === 'relay')(
     test.skip('behavior: required funds (symbol)', async () => {
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const client = TestConfig.getRelayClient(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -2791,7 +2788,7 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
       })
       expect(balance).toBeLessThan(initialBalance)
 
-      const client_dest = TestConfig.getServerClient(porto, {
+      const client_dest = TestConfig.getRelayClient(porto, {
         chainId: chainId_dest,
       })
 
@@ -2839,8 +2836,8 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
   describe('wallet_getCallsStatus', () => {
     test('default', async () => {
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const client = TestConfig.getRelayClient(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -2891,8 +2888,8 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
   describe('wallet_getCallsStatus', () => {
     test('default', async () => {
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const client = TestConfig.getRelayClient(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -2944,8 +2941,8 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
     describe('behavior: permissions', () => {
       test('default', async () => {
         const porto = getPorto()
-        const client = TestConfig.getServerClient(porto)
-        const contracts = TestConfig.getContracts(porto)
+        const client = TestConfig.getRelayClient(porto)
+        const contracts = await TestConfig.getContracts(porto)
 
         const alice = Hex.random(20)
 
@@ -3043,8 +3040,8 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
 
       test('WebCryptoP256', async () => {
         const porto = getPorto()
-        const client = TestConfig.getServerClient(porto)
-        const contracts = TestConfig.getContracts(porto)
+        const client = TestConfig.getRelayClient(porto)
+        const contracts = await TestConfig.getContracts(porto)
 
         const alice = Hex.random(20)
 
@@ -3147,8 +3144,8 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
 
       test('Secp256k1', async () => {
         const porto = getPorto()
-        const client = TestConfig.getServerClient(porto)
-        const contracts = TestConfig.getContracts(porto)
+        const client = TestConfig.getRelayClient(porto)
+        const contracts = await TestConfig.getContracts(porto)
 
         const alice = Hex.random(20)
 
@@ -3247,8 +3244,8 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
     describe('behavior: admin', () => {
       test('Secp256k1', async () => {
         const porto = getPorto()
-        const client = TestConfig.getServerClient(porto)
-        const contracts = TestConfig.getContracts(porto)
+        const client = TestConfig.getRelayClient(porto)
+        const contracts = await TestConfig.getContracts(porto)
 
         const alice = Hex.random(20)
 
@@ -3332,10 +3329,10 @@ describe.each([['rpcServer', Mode.rpcServer]] as const)('%s', (type, mode) => {
       })
     })
 
-    test.runIf(type === 'rpcServer')('behavior: sign typed data', async () => {
+    test.runIf(type === 'relay')('behavior: sign typed data', async () => {
       const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
-      const contracts = TestConfig.getContracts(porto)
+      const client = TestConfig.getRelayClient(porto)
+      const contracts = await TestConfig.getContracts(porto)
 
       const { accounts } = await porto.provider.request({
         method: 'wallet_connect',

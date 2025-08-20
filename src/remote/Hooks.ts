@@ -5,7 +5,7 @@ import { useShallow } from 'zustand/shallow'
 
 import type * as Chains from '../core/Chains.js'
 import type * as Porto from '../core/Porto.js'
-import * as ServerClient from '../viem/ServerClient.js'
+import * as RelayClient from '../viem/RelayClient.js'
 import * as WalletClient from '../viem/WalletClient.js'
 import type * as Remote from './Porto.js'
 
@@ -63,7 +63,7 @@ export function useChain<
   parameters: useChain.Parameters = {},
 ) {
   return usePortoStore(porto, (state) => {
-    const chainId = parameters.chainId ?? state.chainId
+    const chainId = parameters.chainId ?? state.chainIds[0]
     return porto._internal.config.chains.find((x) => x.id === chainId) as
       | chains[number]
       | undefined
@@ -153,23 +153,23 @@ export function useRequest<
 }
 
 /**
- * Hook to access and subscribe to the server client of the Porto instance.
+ * Hook to access and subscribe to the Relay Client of the Porto instance.
  *
  * @param porto - Porto instance.
- * @returns Server Client.
+ * @returns Relay Client.
  */
-export function useServerClient<
+export function useRelayClient<
   chains extends readonly [Chains.Chain, ...Chains.Chain[]],
 >(
   porto: Pick<Remote.Porto<chains>, '_internal'>,
-  parameters: useServerClient.Parameters = {},
+  parameters: useRelayClient.Parameters = {},
 ) {
   const defaultChainId = useChain(porto)?.id
   const chainId = parameters.chainId ?? defaultChainId
-  return ServerClient.fromPorto(porto, { chainId })
+  return RelayClient.fromPorto(porto, { chainId })
 }
 
-export namespace useServerClient {
+export namespace useRelayClient {
   export type Parameters = {
     chainId?: number | undefined
   }

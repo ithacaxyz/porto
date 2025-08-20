@@ -291,7 +291,7 @@ export function useConnect<
   context = unknown,
 >(
   parameters: useConnect.Parameters<config, context> = {},
-): useConnect.ReturnType<config, context> {
+): useConnect.ReturnType<context> {
   const { mutation } = parameters
   const config = useConfig(parameters)
   return useMutation({
@@ -312,19 +312,16 @@ export declare namespace useConnect {
       | UseMutationParameters<
           connect.ReturnType,
           connect.ErrorType,
-          connect.Parameters<config>,
+          connect.Parameters,
           context
         >
       | undefined
   }
 
-  type ReturnType<
-    config extends Config = Config,
-    context = unknown,
-  > = UseMutationResult<
+  type ReturnType<context = unknown> = UseMutationResult<
     connect.ReturnType,
     connect.ErrorType,
-    connect.Parameters<config>,
+    connect.Parameters,
     context
   >
 }
