@@ -34,10 +34,9 @@ export function Frame({
   const mode = useMemo<Frame.Mode>(() => {
     if (typeof mode_ !== 'string') return mode_
     return { name: mode_, variant: 'auto' }
-  }, [JSON.stringify(mode_)])
+  }, [mode_])
 
   const [large, setLarge] = useState(false)
-
   useSize(frameRef, ({ width }) => setLarge(width >= 480))
 
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -47,13 +46,18 @@ export function Frame({
     null,
   )
 
-  const dialogFramed = mode.name === 'dialog' && mode.variant === 'framed'
+  const dialogDrawer =
+    mode.name === 'dialog' &&
+    (mode.variant === 'drawer' || (mode.variant === 'auto' && !large))
+
+  const dialogFloating =
+    mode.name === 'dialog' &&
+    (mode.variant === 'floating' || (mode.variant === 'auto' && large))
 
   const openTransition = useTransition(visible, {
-    config:
-      mode.name === 'dialog' && mode.variant === 'drawer'
-        ? { clamp: true, friction: 120, mass: 1, tension: 2000 }
-        : { friction: 160, mass: 1.3, tension: 3000 },
+    config: dialogDrawer
+      ? { clamp: true, friction: 120, mass: 1, tension: 2000 }
+      : { friction: 160, mass: 1.3, tension: 3000 },
     enter: () => async (next) => {
       await next({
         dialogOpacity: 0,
@@ -80,8 +84,8 @@ export function Frame({
         dialogOpacity: 0,
         dialogTransform: 'translate3d(0, 32px, 0) scale3d(1, 1, 1)',
         drawerTransform: 'translate3d(0, 100%, 0)',
+        immediate: mode.name === 'dialog' && !dialogDrawer,
         overlayOpacity: 0,
-        immediate: mode.name === 'dialog' && mode.variant !== 'drawer',
       })
       onClosed?.()
     },
@@ -123,9 +127,9 @@ export function Frame({
         setScreen,
         variant:
           mode.variant === 'auto'
-            ? large
-              ? 'floating'
-              : 'drawer'
+            ? dialogDrawer
+              ? 'drawer'
+              : 'floating'
             : mode.variant,
       }
     return {
@@ -135,7 +139,7 @@ export function Frame({
       variant:
         mode.variant === 'auto' ? (large ? 'large' : 'medium') : mode.variant,
     }
-  }, [colorScheme, large, mode, setScreen, mode.variant])
+  }, [colorScheme, large, mode, setScreen, mode.variant, dialogDrawer])
 
   useEffect(() => {
     if (!onClose) return
@@ -153,14 +157,17 @@ export function Frame({
           css({
             containerType: 'inline-size',
             display: 'grid',
-            height: '100%',
             placeItems: 'center',
             position: 'relative',
             width: '100%',
           }),
-          mode.name === 'dialog' &&
-            mode.variant === 'drawer' &&
-            css({ alignItems: 'flex-end' }),
+          css({
+            height: '100%',
+          }),
+          dialogDrawer &&
+            css({
+              alignItems: 'flex-end',
+            }),
         )}
         data-dialog={mode.name === 'dialog' ? true : undefined}
         ref={frameRef}
@@ -173,29 +180,26 @@ export function Frame({
                 className={cx(
                   css({
                     display: 'grid',
-                    height: '100%',
                     overflowX: 'auto',
-                    overflowY: 'hidden',
+                    overflowY: mode.name === 'full' ? 'auto' : 'hidden',
                     width: '100%',
                   }),
-                  mode.name === 'dialog' && mode.variant === 'drawer'
+                  dialogDrawer
                     ? css({ placeItems: 'end center' })
                     : css({ placeItems: 'start center' }),
+                  css({
+                    height: '100%',
+                  }),
                 )}
-                onClick={(event) => {
-                  if (event.target === event.currentTarget) {
-                    onClose?.()
-                  }
-                }}
               >
-                {!dialogFramed && (
+                {(dialogDrawer || dialogFloating) && (
                   <a.div
                     className={css({
                       background: 'rgba(0, 0, 0, 0.5)',
                       inset: 0,
-                      pointerEvents: 'none',
                       position: 'fixed',
                     })}
+                    onClick={onClose}
                     style={{
                       opacity: styles.overlayOpacity,
                     }}
@@ -219,14 +223,12 @@ export function Frame({
                         flex: 1,
                         overflow: 'hidden',
                       }),
-                    mode.name === 'dialog' && mode.variant === 'drawer'
-                      ? css({
-                          borderBottomRadius: 0,
-                          maxWidth: 460,
-                        })
-                      : css({
-                          maxWidth: 400,
-                        }),
+                    dialogDrawer &&
+                      css({
+                        borderBottomRadius: 0,
+                        maxWidth: 460,
+                      }),
+                    dialogFloating && css({ maxWidth: 400 }),
                     mode.name === 'full' &&
                       css({
                         '@container (min-width: 480px)': {
@@ -234,17 +236,20 @@ export function Frame({
                             'var(--background-color-th_base-plane)',
                         },
                         backgroundColor: 'var(--background-color-th_base)',
+                        height: '100%',
                       }),
                   )}
                   style={
-                    mode.name === 'dialog' && !dialogFramed
-                      ? mode.variant === 'drawer'
-                        ? { transform: styles.drawerTransform }
-                        : {
+                    dialogDrawer
+                      ? {
+                          transform: styles.drawerTransform,
+                        }
+                      : dialogFloating
+                        ? {
                             opacity: styles.dialogOpacity,
                             transform: styles.dialogTransform,
                           }
-                      : {}
+                        : {}
                   }
                 >
                   <FrameBar mode={mode} onClose={onClose} site={site} />
@@ -295,16 +300,11 @@ export function Frame({
                             flexDirection: 'column',
                             width: '100%',
                           }),
-                          mode.name === 'dialog' &&
-                            css({
-                              inset: '0 0 auto',
-                            }),
+                          mode.name === 'dialog' && css({}),
                           mode.name === 'full' &&
                             css({
-                              '@container (min-width: 480px)': {
-                                inset: '0 0 auto',
-                              },
-                              inset: 0,
+                              '@container (min-width: 480px)': {},
+                              height: '100%',
                             }),
                         )}
                       >
@@ -372,12 +372,17 @@ function FrameBar({
             display: 'flex',
             flex: 1,
             minWidth: 0,
-            paddingInline: 12,
-            verticalAlign: 'middle',
           }),
+          mode.name === 'dialog' &&
+            css({
+              paddingInline: 12,
+            }),
           mode.name === 'full' &&
             css({
-              paddingInline: 20,
+              '@container (min-width: 480px)': {
+                paddingInline: 20,
+              },
+              paddingInline: 12,
             }),
         )}
       >
@@ -469,6 +474,9 @@ function FrameBar({
                 outline: '2px solid var(--color-th_focus)',
                 outlineOffset: -2,
               },
+              '@container (min-width: 480px)': {
+                padding: '0 20px',
+              },
               alignItems: 'center',
               background: 'transparent',
               border: 'none',
@@ -523,7 +531,6 @@ export namespace Frame {
           | 'auto' // drawer or floating based on width (used in iframe mode)
           | 'drawer' // (used in iframe mode)
           | 'floating' // with overlay & animations (used in iframe mode)
-          | 'framed' // without overlay & animations (used in popup mode)
       }
     | {
         name: 'full'
@@ -549,7 +556,7 @@ export namespace Frame {
   } & (
     | {
         mode: 'dialog'
-        variant: 'drawer' | 'floating' | 'framed'
+        variant: 'drawer' | 'floating'
       }
     | {
         mode: 'full'

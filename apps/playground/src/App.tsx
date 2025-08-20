@@ -101,6 +101,7 @@ export function App() {
           >
             <option value="iframe-dialog">Dialog (iframe)</option>
             <option value="popup-dialog">Dialog (popup)</option>
+            <option value="page-dialog">Dialog (page)</option>
             <option value="inline-dialog">Dialog (inline)</option>
             <option value="rpc">RPC Server</option>
           </select>

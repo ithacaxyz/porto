@@ -1,4 +1,4 @@
-import { Button, css, Frame, Input, Screen, Separator, Spacer } from '@porto/ui'
+import { Button, Frame, Input, Screen, Separator, Spacer } from '@porto/ui'
 import { createFileRoute } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
@@ -21,7 +21,7 @@ function GetStartedDemo() {
   const emailFilled = Boolean(email.trim())
 
   return (
-    <Screen>
+    <Screen compactPadding>
       <Screen.Header
         content={
           <>
@@ -61,7 +61,7 @@ function GetStartedDemo() {
 
 function SignInDemo() {
   return (
-    <Screen>
+    <Screen compactPadding>
       <Screen.Header
         content={
           <>
@@ -85,47 +85,47 @@ function ActionRequestDemo() {
   const [viewDetails, setViewDetails] = useState(false)
 
   return (
-    <Screen>
+    <Screen compactPadding>
       <Screen.Header icon={<PhStarFourBold />} title="Review action" />
       <div
-        className={css({
+        style={{
           display: 'flex',
           flexDirection: 'column',
           gap: 16,
-        })}
+        }}
       >
         <div
-          className={css({
+          style={{
             backgroundColor: 'var(--background-color-th_frame-alt)',
             borderRadius: 'var(--border-radius-th_medium)',
             padding: 12,
             transition: 'all 0.3s ease-in-out',
-          })}
+          }}
         >
           <div
-            className={css({
+            style={{
               display: 'flex',
               flexDirection: 'column',
               gap: 12,
-            })}
+            }}
           >
             <div
-              className={css({
+              style={{
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 8,
-              })}
+              }}
             >
               <div
-                className={css({
+                style={{
                   alignItems: 'center',
                   display: 'flex',
                   fontWeight: 500,
                   gap: 8,
-                })}
+                }}
               >
                 <div
-                  className={css({
+                  style={{
                     alignItems: 'center',
                     backgroundColor: 'var(--background-color-th_badge)',
                     borderRadius: '50%',
@@ -133,22 +133,22 @@ function ActionRequestDemo() {
                     height: 24,
                     justifyContent: 'center',
                     width: 24,
-                  })}
+                  }}
                 >
                   <LucideArrowUpRight
-                    className={css({
+                    style={{
                       color: 'var(--text-color-th_badge)',
                       height: 16,
                       width: 16,
-                    })}
+                    }}
                   />
                 </div>
                 <span>
                   Send{' '}
                   <span
-                    className={css({
+                    style={{
                       color: 'var(--text-color-th_base-secondary)',
-                    })}
+                    }}
                   >
                     0.05
                   </span>{' '}
@@ -157,15 +157,15 @@ function ActionRequestDemo() {
               </div>
 
               <div
-                className={css({
+                style={{
                   alignItems: 'center',
                   display: 'flex',
                   fontWeight: 500,
                   gap: 8,
-                })}
+                }}
               >
                 <div
-                  className={css({
+                  style={{
                     alignItems: 'center',
                     backgroundColor:
                       'var(--background-color-th_badge-positive)',
@@ -174,22 +174,22 @@ function ActionRequestDemo() {
                     height: 24,
                     justifyContent: 'center',
                     width: 24,
-                  })}
+                  }}
                 >
                   <LucideArrowDownLeft
-                    className={css({
+                    style={{
                       color: 'var(--text-color-th_badge-positive)',
                       height: 16,
                       width: 16,
-                    })}
+                    }}
                   />
                 </div>
                 <span>
                   Receive{' '}
                   <span
-                    className={css({
+                    style={{
                       color: 'var(--text-color-th_base-positive)',
-                    })}
+                    }}
                   >
                     125.50
                   </span>{' '}
@@ -199,72 +199,73 @@ function ActionRequestDemo() {
             </div>
 
             <div
-              className={css({
+              style={{
                 backgroundColor: 'var(--background-color-th_separator)',
                 height: 1,
-              })}
+              }}
             />
 
             {viewDetails ? (
               <div
-                className={css({
+                style={{
                   display: 'flex',
                   flexDirection: 'column',
                   gap: 6,
-                })}
+                }}
               >
                 <div
-                  className={css({
+                  style={{
                     display: 'flex',
                     fontSize: 14,
                     justifyContent: 'space-between',
-                  })}
+                  }}
                 >
                   <span
-                    className={css({
+                    style={{
                       color: 'var(--text-color-th_base-secondary)',
-                    })}
+                    }}
                   >
                     Fees (est.)
                   </span>
-                  <span className={css({ fontWeight: 500 })}>$2.50</span>
+                  <span style={{ fontWeight: 500 }}>$2.50</span>
                 </div>
                 <div
-                  className={css({
+                  style={{
                     display: 'flex',
                     fontSize: 14,
                     justifyContent: 'space-between',
-                  })}
+                  }}
                 >
                   <span
-                    className={css({
+                    style={{
                       color: 'var(--text-color-th_base-secondary)',
-                    })}
+                    }}
                   >
                     Duration (est.)
                   </span>
-                  <span className={css({ fontWeight: 500 })}>2 seconds</span>
+                  <span style={{ fontWeight: 500 }}>2 seconds</span>
                 </div>
                 <div
-                  className={css({
+                  style={{
                     display: 'flex',
                     fontSize: 14,
                     justifyContent: 'space-between',
-                  })}
+                  }}
                 >
                   <span
-                    className={css({
+                    style={{
                       color: 'var(--text-color-th_base-secondary)',
-                    })}
+                    }}
                   >
                     Network
                   </span>
-                  <span className={css({ fontWeight: 500 })}>Ethereum</span>
+                  <span style={{ fontWeight: 500 }}>Ethereum</span>
                 </div>
               </div>
             ) : (
               <button
-                className={css({
+                onClick={() => setViewDetails(true)}
+                style={{
                   background: 'none',
                   border: 'none',
                   color: 'var(--text-color-th_base-secondary)',
@@ -274,25 +275,24 @@ function ActionRequestDemo() {
                   justifyContent: 'space-between',
                   padding: 0,
                   width: '100%',
-                })}
-                onClick={() => setViewDetails(true)}
+                }}
                 type="button"
               >
                 <span>More details</span>
-                <LucideChevronDown className={css({ height: 16, width: 16 })} />
+                <LucideChevronDown style={{ height: 16, width: 16 }} />
               </button>
             )}
           </div>
         </div>
-        <div className={css({ display: 'flex', gap: 8 })}>
+        <div style={{ display: 'flex', gap: 8 }}>
           <Button
             onClick={() => setViewDetails(false)}
             variant="secondary"
-            width="full"
+            width="grow"
           >
             Cancel
           </Button>
-          <Button variant="primary" width="full">
+          <Button variant="primary" width="grow">
             Confirm
           </Button>
         </div>
@@ -308,7 +308,7 @@ const INITIAL_MODE = 'dialog'
 const FRAME_LOADING_DELAY = 0
 
 function RouteComponent() {
-  const [mode, setMode] = useState<Frame.Mode>(INITIAL_MODE)
+  const [mode, setMode] = useState<Frame.ModeName>(INITIAL_MODE)
   const [screen, setScreen] = useState(0)
   const [frameLoading, setFrameLoading] = useState(true)
 
@@ -372,11 +372,11 @@ function DemoContainer({
   mode,
   children,
 }: {
-  mode: Frame.Mode
+  mode: Frame.ModeName
   children: ReactNode
 }) {
   return mode === 'dialog' ? (
-    <div className={'flex w-[360px]'}>{children}</div>
+    <div className="flex w-[360px]">{children}</div>
   ) : (
     <DemoBrowser>
       <div className="flex w-full flex-col">{children}</div>

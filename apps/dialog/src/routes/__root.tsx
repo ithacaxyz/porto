@@ -105,13 +105,6 @@ function RouteComponent() {
             type: 'dialog-lifecycle',
           })
         }}
-        onHeight={(height) => {
-          if (mode !== 'inline-iframe' && mode !== 'popup-standalone')
-            porto.messenger.send('__internal', {
-              height: Math.ceil(height),
-              type: 'resize',
-            })
-        }}
         screenKey={`${location.pathname}${request?.id}`}
         site={{
           icon: typeof icon === 'object' ? [icon.light, icon.dark] : icon,

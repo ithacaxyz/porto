@@ -31,7 +31,7 @@ export const store = createStore(
         error: null,
         mode: 'popup-standalone',
         referrer,
-        visible: false,
+        visible: true,
       }
     },
     {

@@ -50,6 +50,9 @@ const offInitialized = Events.onInitialized(porto, (payload, event) => {
     ...(theme
       ? { customTheme: Theme.parseJsonTheme(JSON.stringify(theme)) }
       : {}),
+
+    // Only the iframe mode starts hidden until request:open is sent
+    visible: mode !== 'iframe',
   })
 })
 

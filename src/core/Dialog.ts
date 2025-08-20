@@ -379,8 +379,9 @@ export declare namespace iframe {
  *
  * @returns Popup dialog.
  */
-export function popup() {
+export function popup(options: popup.Options = {}) {
   if (typeof window === 'undefined') return noop()
+  const { type = 'auto', size = defaultSize } = options
   return from({
     name: 'popup',
     setup(parameters) {
@@ -391,15 +392,16 @@ export function popup() {
 
       let popup: Window | null = null
 
+      // TODO
+      const resolvedType = type === 'auto' ? 'popup' : type
+
       function onBlur() {
         if (popup) handleBlur(store)
       }
 
       const offDetectClosed = (() => {
         const timer = setInterval(() => {
-          if (popup?.closed) {
-            handleBlur(store)
-          }
+          if (popup?.closed) handleBlur(store)
         }, 100)
         return () => clearInterval(timer)
       })()
@@ -421,7 +423,19 @@ export function popup() {
           offDetectClosed()
         },
         open() {
-          popup = window.open(getDialogUrl(host), '_blank')
+          if (resolvedType === 'popup') {
+            const left = (window.innerWidth - size.width) / 2 + window.screenX
+            const top = window.screenY + 100
+
+            popup = window.open(
+              getDialogUrl(host),
+              '_blank',
+              `width=${size.width},height=${size.height},left=${left},top=${top}`,
+            )
+          } else {
+            popup = window.open(getDialogUrl(host), '_blank')
+          }
+
           if (!popup) throw new Error('Failed to open popup')
 
           messenger = Messenger.bridge({
@@ -437,7 +451,7 @@ export function popup() {
           themeController?._setup(messenger, false)
 
           messenger.send('__internal', {
-            mode: 'popup',
+            mode: resolvedType,
             referrer: getReferrer(),
             theme: themeController?.getTheme() ?? parameters.theme,
             type: 'init',
@@ -447,8 +461,7 @@ export function popup() {
             handleResponse(store, response),
           )
 
-          messenger.on('__internal', (_payload) => {})
-
+          window.removeEventListener('focus', onBlur)
           window.addEventListener('focus', onBlur)
         },
         async syncRequests(requests) {
@@ -469,8 +482,17 @@ export function popup() {
 
 export declare namespace popup {
   export type Options = {
-    /** Size is not used anymore in popup dialogs.
-     * @deprecated
+    /**
+     * The type of popup window to create.
+     * - 'auto': Automatically decide based on context (default)
+     * - 'popup': Popup window with controlled height
+     * - 'page': Full page/tab
+     * @default 'auto'
+     */
+    type?: 'auto' | 'popup' | 'page' | undefined
+    /**
+     * Initial size of the popup window when type is 'popup' or 'auto' resolves to popup.
+     * @default { width: 360, height: 282 }
      */
     size?: { width: number; height: number } | undefined
   }
