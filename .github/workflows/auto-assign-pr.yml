@@ -9,7 +9,9 @@ on:
 jobs:
   auto-assign:
     permissions:
+      issues: write
       pull-requests: write
+      members: read
     runs-on: ubuntu-latest
     steps:
       - name: Check Membership
