@@ -9,16 +9,14 @@ console.log('Fetching chains for environments.')
 const environments = [
   {
     name: 'prod',
-    rpc: 'https://rpc.ithaca.xyz',
-    transportOverrides: {
-      arbitrum: 'import.meta.env.VITE_RPC_URL_ARBITRUM',
-      base: 'import.meta.env.VITE_RPC_URL_BASE',
-      bsc: 'import.meta.env.VITE_RPC_URL_BSC',
-      optimism: 'import.meta.env.VITE_RPC_URL_OPTIMISM',
-      polygon: 'import.meta.env.VITE_RPC_URL_POLYGON',
-    },
+    rpc: 'https://rise-testnet-porto.fly.dev',
+    transportOverrides: {},
   },
-  { name: 'stg', rpc: 'https://stg-rpc.ithaca.xyz', transportOverrides: {} },
+  {
+    name: 'stg',
+    rpc: 'https://rise-testnet-porto.fly.dev',
+    transportOverrides: {},
+  },
 ] as const satisfies readonly {
   name: 'prod' | 'stg'
   rpc: string
