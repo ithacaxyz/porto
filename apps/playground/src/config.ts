@@ -139,7 +139,7 @@ export const permissions = ({ chainId }: { chainId: ChainId }) => {
 
 const merchant = new URLSearchParams(window.location.search).get('merchant')
 
-const baseChains = [Chains.baseSepolia, Chains.optimismSepolia] as const
+const baseChains = [Chains.riseTestnet] as const
 const chains = [
   ...baseChains,
   ...config.chains.filter(

@@ -6,8 +6,8 @@ export type { Chain } from 'viem/chains'
 export * from './internal/_generated/chains.js'
 
 export const all = [
-  chains.base,
-  ...Object.values(chains).filter((c) => c.id !== chains.base.id),
+  chains.riseTestnet,
+  ...Object.values(chains).filter((c) => c.id !== chains.riseTestnet.id),
 ] as const satisfies [Chain, ...Chain[]]
 
 export const anvil = /*#__PURE__*/ defineChain({
