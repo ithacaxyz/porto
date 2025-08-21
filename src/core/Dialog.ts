@@ -379,7 +379,9 @@ export function popup(options: popup.Options = {}) {
       let popup: Window | null = null
 
       const resolvedType =
-        type === 'auto' && UserAgent.isMobile() ? 'page' : 'popup'
+        type === 'page' || (type === 'auto' && UserAgent.isMobile())
+          ? 'page'
+          : 'popup'
 
       function onBlur() {
         if (popup) handleBlur(store)
@@ -437,7 +439,7 @@ export function popup(options: popup.Options = {}) {
           themeController?._setup(messenger, false)
 
           messenger.send('__internal', {
-            mode: 'popup',
+            mode: resolvedType === 'page' ? 'page' : 'popup',
             referrer: getReferrer(),
             theme: themeController?.getTheme() ?? parameters.theme,
             type: 'init',

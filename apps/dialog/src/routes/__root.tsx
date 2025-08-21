@@ -70,6 +70,14 @@ function RouteComponent() {
   const location = useLocation()
   const request = Hooks.useRequest(porto)
 
+  const [controlledSize, setControlledSize] = React.useState(mode === 'popup')
+  const heightUpdateCheckTimer =
+    React.useRef<ReturnType<typeof setTimeout>>(undefined)
+
+  React.useEffect(() => {
+    setControlledSize(mode === 'popup')
+  }, [mode])
+
   return (
     <>
       <HeadContent />
@@ -87,7 +95,10 @@ function RouteComponent() {
         loading={!request}
         mode={
           display === 'full'
-            ? 'full'
+            ? {
+                name: 'full',
+                variant: controlledSize ? 'content-height' : 'auto',
+              }
             : {
                 name: 'dialog',
                 variant: display === 'drawer' ? 'drawer' : 'floating',
@@ -99,7 +110,23 @@ function RouteComponent() {
             : () => Actions.rejectAll(porto)
         }
         onHeight={(height) => {
-          if (mode !== 'inline-iframe' && mode !== 'popup-standalone')
+          if (controlledSize) {
+            const outerWindowHeight = window.outerHeight - window.innerHeight
+            const height_ = Math.ceil(height)
+            window.resizeTo(window.outerWidth, height_ + outerWindowHeight)
+
+            clearTimeout(heightUpdateCheckTimer.current)
+            heightUpdateCheckTimer.current = setTimeout(() => {
+              const success = height_ === window.innerHeight
+              if (!success) setControlledSize(false)
+            }, 0)
+          }
+
+          if (
+            mode !== 'inline-iframe' &&
+            mode !== 'popup-standalone' &&
+            mode !== 'page'
+          )
             porto.messenger.send('__internal', {
               height: Math.ceil(height),
               type: 'resize',
