@@ -75,7 +75,6 @@ export function iframe(options: iframe.Options = {}) {
 
       const root = document.createElement('dialog')
       root.dataset.porto = ''
-      root.style.top = '-10000px'
 
       root.setAttribute('role', 'dialog')
       root.setAttribute('aria-closed', 'true')
@@ -87,8 +86,10 @@ export function iframe(options: iframe.Options = {}) {
         border: '0',
         height: '100vh',
         inset: '0',
+        outline: '0',
         padding: '0',
         position: 'fixed',
+        top: '-10000px',
         width: '100vw',
       })
 
@@ -203,29 +204,6 @@ export function iframe(options: iframe.Options = {}) {
 
       let bodyStyle: CSSStyleDeclaration | null = null
 
-      // setting inert on body would also set it on the root element, so we
-      // need to set it on all the html & body children (except root) instead.
-      const pageInertMap = new WeakMap<HTMLElement, boolean>()
-      const togglePageInert = (inert: boolean) => {
-        document.querySelectorAll('body > *, html > *').forEach((elt) => {
-          if (
-            elt === root ||
-            elt === document.body ||
-            elt === document.head ||
-            !(elt instanceof HTMLElement)
-          )
-            return
-
-          if (inert) {
-            pageInertMap.set(elt, elt.inert)
-            elt.inert = true
-          } else if (pageInertMap.has(elt)) {
-            elt.inert = pageInertMap.get(elt) ?? false
-            pageInertMap.delete(elt)
-          }
-        })
-      }
-
       // store the opening element to restore the focus
       let opener: HTMLElement | null = null
 
@@ -259,7 +237,6 @@ export function iframe(options: iframe.Options = {}) {
 
         root.removeEventListener('click', onBlur)
         document.removeEventListener('keydown', onEscape)
-        togglePageInert(false)
         root.style.pointerEvents = 'none'
         opener?.focus()
         opener = null
@@ -274,10 +251,7 @@ export function iframe(options: iframe.Options = {}) {
 
         root.addEventListener('click', onBlur)
         document.addEventListener('keydown', onEscape)
-        if (document.activeElement instanceof HTMLElement)
-          opener = document.activeElement
         iframe.focus()
-        togglePageInert(true)
         root.style.pointerEvents = 'auto'
 
         bodyStyle = Object.assign({}, document.body.style)
@@ -290,6 +264,10 @@ export function iframe(options: iframe.Options = {}) {
         if (visible) return
         visible = true
         cancelForceHideDelay()
+
+        if (document.activeElement instanceof HTMLElement)
+          opener = document.activeElement
+
         root.removeAttribute('hidden')
         root.removeAttribute('aria-closed')
         root.showModal()
