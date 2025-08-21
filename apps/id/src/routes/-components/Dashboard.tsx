@@ -14,6 +14,7 @@ import {
   useAccount,
   useDisconnect,
   useSendCalls,
+  useSwitchChain,
   useWaitForCallsStatus,
   useWatchBlockNumber,
 } from 'wagmi'
@@ -109,12 +110,6 @@ export function Dashboard() {
     query: {
       enabled: account.status !== 'connected',
       refetchInterval: 5_000,
-      select: (data) => ({
-        address: data.address,
-        keys: data.keys.filter((key) =>
-          ['address', 'secp256k1'].includes(key.type),
-        ),
-      }),
     },
   })
 
@@ -185,6 +180,9 @@ export function Dashboard() {
 
   return (
     <>
+      <pre className="absolute top-0 left-0 text-[7px]">
+        {account.chain?.id}
+      </pre>
       <div className="h-3" />
       <Layout.Header
         left={
@@ -318,7 +316,7 @@ export function Dashboard() {
         right={
           <div className="flex gap-2">
             <Button
-              onClick={() =>
+              onClick={async () =>
                 addFunds.mutate({
                   address: account.address,
                   chainId: Chains.baseSepolia.id,
@@ -358,7 +356,7 @@ export function Dashboard() {
         <div className="flex flex-1 flex-col justify-between">
           <div className="font-[500] text-[13px] text-gray10">Your account</div>
           <div>
-            <div className="font-[500] text-[24px] tracking-[-2.8%]">${0}</div>
+            {/* <div className="font-[500] text-[24px] tracking-[-2.8%]">${0}</div> */}
           </div>
         </div>
         <Ariakit.Button
@@ -389,14 +387,7 @@ export function Dashboard() {
 
       <details
         className="group"
-        open={
-          true
-          // assets.data && assets?.data?.[0]?.balance > 0
-          // &&
-          // Object.values(assets.data).some(
-          //   (asset) => asset?.address?.length > 0,
-          // )
-        }
+        open={!!assets.data?.length && assets.data.length > 0}
       >
         <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
           <span>Assets</span>
@@ -417,7 +408,11 @@ export function Dashboard() {
             { align: 'right', header: '', key: 'action', width: 'w-[20%]' },
           ]}
           data={assets.data}
-          emptyMessage="No balances available for this account"
+          emptyMessage={
+            assets.status === 'pending'
+              ? ''
+              : 'No balances available for this account'
+          }
           renderRow={(asset) => (
             <AssetRow
               address={asset.address}
@@ -546,6 +541,7 @@ export function Dashboard() {
                     onClick={() => {
                       revokePermissions.mutate({
                         address: account.address,
+                        chainId: permission.chainId as never,
                         id: permission.id,
                       })
                     }}
@@ -764,9 +760,12 @@ function AssetRow(props: {
     price,
     chainId,
   } = props
+
   const [viewState, setViewState] = React.useState<'send' | 'default'>(
     'default',
   )
+
+  const { switchChain, status: _switchChainStatus } = useSwitchChain()
 
   const formattedBalance = React.useMemo(
     () => ValueFormatter.format(value, decimals),
@@ -810,7 +809,6 @@ function AssetRow(props: {
         sendForm.setState('submitSucceed', 0)
       },
       onSuccess: (_data) => {
-        // refetchSwapAssets()
         sendForm.setState('submitSucceed', (count) => +count + 1)
         sendForm.setState('submitFailed', 0)
       },
@@ -820,6 +818,15 @@ function AssetRow(props: {
   const callStatus = useWaitForCallsStatus({
     id: sendCalls.data?.id,
   })
+
+  const account = useAccount()
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: _
+  React.useEffect(() => {
+    if (callStatus.data?.id) {
+      toast.info(`success sending ${sendFormState.values.sendAmount} ${symbol}`)
+    }
+  }, [callStatus.data?.id, symbol, callStatus.data?.id])
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: _
   React.useEffect(() => {
@@ -849,6 +856,7 @@ function AssetRow(props: {
       sendRecipient: '',
     },
   })
+
   const sendFormState = Ariakit.useStoreState(sendForm)
 
   sendForm.useValidate(async (state) => {
@@ -861,6 +869,9 @@ function AssetRow(props: {
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) {
     event.preventDefault()
+
+    if (account.chain?.id !== props.chainId)
+      switchChain({ chainId: props.chainId as never })
 
     if (
       !Address.validate(sendFormState.values.sendRecipient) ||
@@ -882,7 +893,7 @@ function AssetRow(props: {
         capabilities: {
           feeToken: zeroAddress,
         },
-        chainId: chainId as never,
+        chainId: props.chainId as never,
       })
     } else
       sendCalls.sendCalls({
@@ -899,6 +910,7 @@ function AssetRow(props: {
             to: address,
           },
         ],
+        chainId: props.chainId as never,
       })
   }
 
@@ -907,13 +919,6 @@ function AssetRow(props: {
 
   if (props.value === 0n && !import.meta.env.DEV) return null
 
-  // const icon = import.meta.env.DEV ? (
-  //   <img
-  //     alt={name}
-  //     className="size-5 sm:size-6"
-  //     src={`/icons/${symbol.toLowerCase()}.svg`}
-  //   />
-  // ) : null
   return (
     <tr className="font-normal sm:text-sm">
       {viewState === 'default' ? (
