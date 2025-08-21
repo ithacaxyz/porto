@@ -60,17 +60,27 @@ type Response = {
         address: Address,
         version?: string | null,
       },
+      /** Funder contract address. */
+      funder: {
+        address: Address,
+        version?: string | null,
+      },
+      /** Escrow contract address. */
+      escrow: {
+        address: Address,
+        version?: string | null,
+      },
     },
     fees: {
       quoteConfig: {
         /** Sets a constant rate for the price oracle. Used for testing. */
         constantRate?: number | null,
         /** Gas estimate configuration. */
-        gas?: {
+        gas: {
           /** Extra buffer added to Intent gas estimates. */
-          intentBuffer?: number,
+          intentBuffer: number,
           /** Extra buffer added to transaction gas estimates. */
-          txBuffer?: number,
+          txBuffer: number,
         },
         /** The lifetime of a price rate. */
         rateTtl: number,
@@ -121,29 +131,37 @@ cast rpc --rpc-url https://rpc.ithaca.xyz wallet_getCapabilities '["0x8453"]'
         "simulator": {
           "address": "0x21d83f97fff3e35ab42d02e4bec8d61a9b645852",
           "version": null
+        },
+        "funder": {
+          "address": "0x1234567890123456789012345678901234567890",
+          "version": null
+        },
+        "escrow": {
+          "address": "0x0987654321098765432109876543210987654321",
+          "version": null
         }
     },
     "fees": {
       "quoteConfig": {
         "gas": {
-          "txBuffer": "0x186a0",
-          "intentBuffer": "0x186a0"
+          "txBuffer": 10000,
+          "intentBuffer": 20000
         },
-        "rateTtl": "0x12c",
-        "ttl": "0x1e"
+        "rateTtl": 300,
+        "ttl": 30
       },
       "recipient": "0x0000000000000000000000000000000000000000",
       "tokens": [
         {
           "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
-          "decimals": "0x6",
+          "decimals": 6,
           "nativeRate": "0x8ac7230489e80000",
           "symbol": "USDC",
           "uid": "usdc"
         },
         {
           "address": "0x0000000000000000000000000000000000000000",
-          "decimals": "0x12",
+          "decimals": 18,
           "nativeRate": "0xde0b6b3a7640000",
           "symbol": "ETH",
           "uid": "ethereum"

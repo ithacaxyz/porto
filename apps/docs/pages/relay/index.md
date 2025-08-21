@@ -12,26 +12,34 @@ We'd love to hear your feedback. Report any issues or feature suggestions [on th
 
 ### Chain support
 
-The Relay has a unified endpoint supporting the networks below: `https://rpc.ithaca.xyz`.
+The Relay exposes a unified JSON-RPC endpoint: `https://rpc.ithaca.xyz`.
+
+You can query supported chains, contracts, and fee tokens via `wallet_getCapabilities`. Calling it with an empty params array returns all supported chains.
+
+Example:
+
+```sh
+cast rpc --rpc-url https://rpc.ithaca.xyz wallet_getCapabilities '[]'
+```
 
 **Supported Networks:**
 
 | Network | Chain ID | Fee Token Support | Interop Support |
 |---------|----------|-------------------|-----------------|
-| **Base** | 8453 | ETH, USDC | ETH, USDC |
-| **Optimism** | 10 | ETH, USDC | ETH, USDC |
-| **Arbitrum** | 42161 | ETH, USDC | ETH, USDC |
-| **Ethereum** | 1 | ETH, USDC | ETH, USDC |
-| **Celo** | 42220 | CELO, USDC | USDC |
-| **BNB Chain** | 56 | BNB | No |
-| **Polygon** | 137 | POL, USDC | No |
+| **Base** | 8453 | ETH, USDC, USDT | ETH, USDC, USDT |
+| **Optimism** | 10 | ETH, USDC, USDT | ETH, USDC, USDT |
+| **Arbitrum** | 42161 | ETH, USDC, USDT | ETH, USDC, USDT |
+| **Ethereum** | 1 | ETH, USDC, USDT | ETH, USDC, USDT |
+| **Celo** | 42220 | CELO, USDC, USDT | USDC, USDT |
+| **BNB Chain** | 56 | BNB, USDT | No |
+| **Polygon** | 137 | POL, USDC, USDT | USDC, USDT |
 | **Katana** | 747474 | ETH | No |
-| **Base Sepolia** | 84532 | tETH, EXP1, EXP2 | No |
-| **Optimism Sepolia** | 11155420 | tETH, EXP1, EXP2 | No |
+| **Base Sepolia** | 84532 | tETH, EXP1, EXP2 | tETH, EXP1, EXP2 |
+| **Optimism Sepolia** | 11155420 | tETH, EXP1, EXP2 | tETH, EXP1, EXP2 |
 | **Arbitrum Sepolia** | 421614 | tETH | No |
 
-- **Fee Token Support**: List of tokens that can be used to pay fees
-- **Interop Support**: Whether cross-chain functionality is available and which tokens
+- **Fee Token Support**: Tokens accepted to pay execution fees on that chain.
+- **Interop Support**: Cross-chain supported tokens (from the Relay interop dashboard).
 
 ## Local Development
 
@@ -49,7 +57,16 @@ cast rpc --rpc-url http://localhost:9200 wallet_getCapabilities "[31337]"
 
 :::tip
 If you have [OrbStack](https://orbstack.dev/) installed, you can also query the Relay at `https://relay.local`.
+
+:::note
+Production RPC URL: `https://rpc.ithaca.xyz` (JSON-RPC 2.0 over HTTP). All examples on this page target this endpoint unless stated otherwise.
 :::
+
+## Testnet Faucet (dev)
+
+Need test funds for Dialog/Playground flows? Use the development faucet RPC.
+
+See: [`wallet_addFaucetFunds`](/relay/wallet_addFaucetFunds)
 
 ## Account management
 
@@ -65,7 +82,6 @@ Upgrading an existing EOA is split into two steps:
 ### Account information
 
 - [`wallet_getKeys`]: Get all keys attached to an account.
-- [`wallet_getAccounts`]: Get all accounts a key is attached to.
 
 For more details on how accounts work, see the [Account documentation](#TODO).
 
@@ -79,7 +95,6 @@ The Relay will validate that the quote is still valid, that the intent was signe
 [`wallet_prepareUpgradeAccount`]: /relay/wallet_prepareUpgradeAccount
 [`wallet_upgradeAccount`]: /relay/wallet_upgradeAccount
 [`wallet_getKeys`]: /relay/wallet_getKeys
-[`wallet_getAccounts`]: /relay/wallet_getAccounts
 [`wallet_prepareCalls`]: /relay/wallet_prepareCalls
 [`wallet_sendPreparedCalls`]: /relay/wallet_sendPreparedCalls
 [`wallet_getCallsStatus`]: /relay/wallet_getCallsStatus

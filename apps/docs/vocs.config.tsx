@@ -128,10 +128,6 @@ export default defineConfig({
             text: 'wallet_getCapabilities',
           },
           {
-            link: '/relay/wallet_getAccounts',
-            text: 'wallet_getAccounts',
-          },
-          {
             link: '/relay/wallet_getKeys',
             text: 'wallet_getKeys',
           },
