@@ -1,11 +1,11 @@
 import * as Ariakit from '@ariakit/react'
 import { Button, Spinner, Toast } from '@porto/apps/components'
-import { exp1Address } from '@porto/apps/contracts'
 import { useCopyToClipboard } from '@porto/apps/hooks'
 import { Link } from '@tanstack/react-router'
 import { Cuer } from 'cuer'
 import { cx } from 'cva'
 import { Address, Hex, Value } from 'ox'
+import { Chains } from 'porto'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
@@ -318,15 +318,12 @@ export function Dashboard() {
         right={
           <div className="flex gap-2">
             <Button
-              onClick={() => {
-                if (!account.chainId) return
+              onClick={() =>
                 addFunds.mutate({
                   address: account.address,
-                  chainId: account.chainId as never,
-                  // @ts-expect-error TODO: update addFunds token type
-                  tokenAddress: exp1Address[account.chainId],
+                  chainId: Chains.baseSepolia.id,
                 })
-              }}
+              }
               size="small"
               variant="accent"
             >
