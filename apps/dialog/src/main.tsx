@@ -145,10 +145,14 @@ const rootElement = document.querySelector('div#root')
 if (!rootElement) throw new Error('Root element not found')
 
 createRoot(rootElement, {
-  onCaughtError: Sentry.reactErrorHandler(),
-  onRecoverableError: Sentry.reactErrorHandler(),
-  onUncaughtError: Sentry.reactErrorHandler((error, errorInfo) => {
-    console.warn('Uncaught error', error, errorInfo.componentStack)
+  onCaughtError: Sentry.reactErrorHandler((error) => {
+    console.error(error)
+  }),
+  onRecoverableError: Sentry.reactErrorHandler((error) => {
+    console.error(error)
+  }),
+  onUncaughtError: Sentry.reactErrorHandler((error) => {
+    console.error(error)
   }),
 }).render(
   <StrictMode>

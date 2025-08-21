@@ -12,7 +12,7 @@ import { permissions } from './constants'
 
 const idOrigin = import.meta.env.DEV
   ? `https://${Env.get()}.localhost:5174`
-  : `https://${Env.get()}.id.porto.sh`
+  : 'https://id.porto.sh'
 
 export function Connect(props: Connect.Props) {
   const { variant = 'default', signInText = 'Sign in' } = props

@@ -55,6 +55,7 @@ export function AddFunds(props: AddFunds.Props) {
 
   const onrampMethod = React.useMemo(() => {
     if (
+      exp1Address[chain?.id as never] &&
       tokenAddress &&
       Address.isEqual(tokenAddress, exp1Address[chain?.id as never])
     )

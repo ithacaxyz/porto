@@ -63,11 +63,21 @@ export function porto<
       async connect({ chainId = chains[0].id, isReconnecting, ...rest } = {}) {
         let accounts: readonly Address[] = []
         let currentChainId: number | undefined
+
         if (isReconnecting) {
           ;[accounts, currentChainId] = await Promise.all([
             this.getAccounts().catch(() => []),
             this.getChainId().catch(() => undefined),
           ])
+          if (chainId && currentChainId !== chainId) {
+            const chain = await this.switchChain!({ chainId }).catch(
+              (error) => {
+                if (error.code === UserRejectedRequestError.code) throw error
+                return { id: currentChainId }
+              },
+            )
+            currentChainId = chain?.id ?? currentChainId
+          }
         }
 
         const provider = (await this.getProvider()) as Provider

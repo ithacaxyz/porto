@@ -1,4 +1,3 @@
-import { setTimeout } from 'node:timers/promises'
 import {
   Address,
   Hex,
@@ -174,59 +173,6 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         ],
       })
       expect(valid).toBe(true)
-    })
-  })
-
-  describe('wallet_addFaucetFunds', () => {
-    test('default', async () => {
-      const porto = getPorto()
-      const contracts = await TestConfig.getContracts(porto)
-      const client = TestConfig.getRelayClient(porto)
-
-      const alice = Hex.random(20)
-
-      const result = await porto.provider.request({
-        method: 'wallet_addFaucetFunds',
-        params: [
-          {
-            address: alice,
-            chainId: Hex.fromNumber(client.chain.id),
-            tokenAddress: contracts.exp1.address,
-            value: Hex.fromNumber(Value.fromEther('10')),
-          },
-        ],
-      })
-      await setTimeout(2_000)
-
-      expect(result).toBeDefined()
-      expect(result.transactionHash).toBeDefined()
-
-      const balance = await readContract(client, {
-        abi: contracts.exp1.abi,
-        address: contracts.exp1.address,
-        args: [alice],
-        functionName: 'balanceOf',
-      })
-      expect(balance).toBe(Value.fromEther('10'))
-    })
-
-    test('behavior: unsupported chain', async () => {
-      const porto = getPorto()
-      const contracts = await TestConfig.getContracts(porto)
-
-      await expect(
-        porto.provider.request({
-          method: 'wallet_addFaucetFunds',
-          params: [
-            {
-              address: Hex.random(20),
-              chainId: Hex.fromNumber(999999),
-              tokenAddress: contracts.exp1.address,
-              value: Hex.fromNumber(Value.fromEther('1')),
-            },
-          ],
-        }),
-      ).rejects.toThrow()
     })
   })
 
