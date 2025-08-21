@@ -22,9 +22,7 @@ import {
   useConnect,
   useDisconnect,
   useSendCalls,
-  useSendTransaction,
   useWaitForCallsStatus,
-  useWaitForTransactionReceipt,
   useWatchBlockNumber,
   WagmiProvider,
 } from 'wagmi'
@@ -178,7 +176,7 @@ export function AddFunds(props: AddFunds.Props) {
 
       <Layout.Content>
         <div className="flex flex-col gap-3">
-          {view === 'default' && (
+          {view === 'default' && chain?.testnet && (
             <>
               <Faucet
                 address={address}
@@ -186,6 +184,7 @@ export function AddFunds(props: AddFunds.Props) {
                 decimals={feeTokens?.[0]?.decimals}
                 defaultValue={defaultValue}
                 onApprove={onApprove}
+                tokenAddress={tokenAddress}
               />
               <div className="my-auto flex w-full flex-row items-center gap-2 *:border-th_separator">
                 <hr className="flex-1 border-th_separator" />
@@ -200,7 +199,9 @@ export function AddFunds(props: AddFunds.Props) {
               <DepositCrypto
                 address={address}
                 chainId={chain?.id}
+                minValue={defaultValue}
                 setView={setView}
+                tokenAddress={tokenAddress}
                 view={view}
               />
             </QueryClientProvider>
@@ -227,9 +228,11 @@ function Faucet(props: {
   chainId: number | undefined
   defaultValue: string | undefined
   decimals: number | undefined
+  tokenAddress: Address.Address | undefined
   onApprove: (result: { id: Hex.Hex }) => void
 }) {
-  const { address, chainId, defaultValue, decimals, onApprove } = props
+  const { address, chainId, defaultValue, decimals, tokenAddress, onApprove } =
+    props
 
   const [amount, setAmount] = React.useState<string>(
     defaultValue
@@ -252,9 +255,7 @@ function Faucet(props: {
       const data = await RelayActions.addFaucetFunds(client, {
         address,
         chainId: chainId,
-        tokenAddress: exp1Address[chainId as never],
-        // TODO: uncomment when interop is supported.
-        // tokenAddress,
+        tokenAddress: tokenAddress ?? exp1Address[chainId as never],
         value,
       })
       // relay state can be behind node state. wait to ensure sync.
@@ -315,10 +316,12 @@ function Faucet(props: {
 function DepositCrypto(props: {
   address: Address.Address | undefined
   chainId: number | undefined
+  minValue: string | undefined
+  tokenAddress: Address.Address | undefined
   view: View
   setView: (view: View) => void
 }) {
-  const { address, chainId, view, setView } = props
+  const { address, chainId, minValue, tokenAddress, view, setView } = props
 
   const { address: account, connector } = useAccount()
   const disconnect = useDisconnect()
@@ -333,6 +336,8 @@ function DepositCrypto(props: {
             params: [{ account, chainFilter: [hexChainId] }],
           })
           const assets = response[hexChainId] ?? []
+          const minAssetBalance = minValue ? BigInt(minValue) : 0n
+
           const nonZeroAssets = assets.filter(
             (asset) => asset.balance !== '0x0',
           )
@@ -345,8 +350,20 @@ function DepositCrypto(props: {
               ]),
             ),
           )
+
+          const hasRequiredTokenAmount = assets.some((asset) => {
+            const assetBalance = Hex.toBigInt(asset.balance, {
+              size: asset.metadata?.decimals,
+            })
+            return (
+              assetBalance > minAssetBalance &&
+              (tokenAddress
+                ? asset.address?.toLowerCase() === tokenAddress.toLowerCase()
+                : true)
+            )
+          })
           setView(
-            nonZeroAssets.length
+            hasRequiredTokenAmount
               ? 'connected-wallet-transfer'
               : 'connected-wallet-no-funds',
           )
@@ -383,8 +400,6 @@ function DepositCrypto(props: {
   const { isLoading: isConfirming } = useWaitForCallsStatus({
     id: sendCalls.data?.id,
   })
-  const sendTransaction = useSendTransaction()
-  const { isLoading: isTransactionConfirming } = useWaitForTransactionReceipt()
   form.useSubmit(async (state) => {
     if (!address) throw new Error('address is required')
     if (!connector) throw new Error('connector is required')
@@ -414,12 +429,7 @@ function DepositCrypto(props: {
             } as const),
       )
     }
-    if (
-      connector.id === 'com.coinbase.wallet' ||
-      connector.id === 'app.phantom'
-    )
-      await sendTransaction.sendTransactionAsync(calls[0]!)
-    else await sendCalls.sendCallsAsync({ calls })
+    await sendCalls.sendCallsAsync({ calls, experimental_fallback: true })
   })
   const state = Ariakit.useStoreState(form)
   const submittable = React.useMemo(() => {
@@ -446,7 +456,7 @@ function DepositCrypto(props: {
       view === 'connected-wallet-no-funds') &&
     account
   ) {
-    if (nonZeroAssets.length)
+    if (view === 'connected-wallet-transfer')
       return (
         <div className="flex flex-col gap-2">
           <Ariakit.Form className="flex flex-col gap-2" store={form}>
@@ -459,6 +469,12 @@ function DepositCrypto(props: {
                 >
                   <div>{asset.metadata?.symbol ?? asset.type}</div>
                   <Ariakit.FormCheckbox
+                    disabled={
+                      tokenAddress
+                        ? (asset.address ?? zeroAddress).toLowerCase() ===
+                          tokenAddress.toLowerCase()
+                        : false
+                    }
                     name={form.names[asset.address ?? zeroAddress] as string}
                   />
                 </label>
@@ -488,12 +504,11 @@ function DepositCrypto(props: {
                     className="font-semibold"
                     disabled={!submittable}
                     loading={
-                      sendCalls.isPending ||
-                      isConfirming ||
-                      sendTransaction.isPending ||
-                      isTransactionConfirming
+                      sendCalls.isPending
                         ? 'Check Wallet'
-                        : undefined
+                        : isConfirming
+                          ? 'Confirming'
+                          : undefined
                     }
                     variant="strong"
                     width="grow"
