@@ -1,32 +1,57 @@
 import * as Ariakit from '@ariakit/react'
-import { UserAgent } from '@porto/apps'
-import { Button } from '@porto/apps/components'
-import { erc20Abi, exp1Address } from '@porto/apps/contracts'
+import { exp1Address } from '@porto/apps/contracts'
 import { useCopyToClipboard, usePrevious } from '@porto/apps/hooks'
-import * as UI from '@porto/ui'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { Button, PresetsInput, Spinner } from '@porto/ui'
+import {
+  QueryClient,
+  QueryClientProvider,
+  useMutation,
+  useQuery,
+} from '@tanstack/react-query'
 import { Cuer } from 'cuer'
-import { cx } from 'cva'
-import { Address, Hex, Value } from 'ox'
-import { Actions, Hooks } from 'porto/remote'
+import { type Address, Hex, Value } from 'ox'
+import { Actions, Hooks as RemoteHooks } from 'porto/remote'
 import { RelayActions } from 'porto/viem'
+import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
-import { useBalance, useWatchBlockNumber, useWatchContractEvent } from 'wagmi'
-import { PayButton } from '~/components/PayButton'
+import { encodeFunctionData, erc20Abi, zeroAddress } from 'viem'
+import {
+  createConfig,
+  useAccount,
+  useAccountEffect,
+  useConnect,
+  useDisconnect,
+  useSendCalls,
+  useSendTransaction,
+  useWaitForCallsStatus,
+  useWaitForTransactionReceipt,
+  useWatchBlockNumber,
+  WagmiProvider,
+} from 'wagmi'
 import * as FeeTokens from '~/lib/FeeTokens'
-import { enableOnramp, getOnrampWidget, stripeOnrampUrl } from '~/lib/Onramp.ts'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
-import { StringFormatter } from '~/utils'
-import ArrowRightIcon from '~icons/lucide/arrow-right'
-import CopyIcon from '~icons/lucide/copy'
-import CardIcon from '~icons/lucide/credit-card'
-import QrCodeIcon from '~icons/lucide/qr-code'
+import LucideCopy from '~icons/lucide/copy'
+import LucideCopyCheck from '~icons/lucide/copy-check'
+import LucideOctagonAlert from '~icons/lucide/octagon-alert'
 import TriangleAlertIcon from '~icons/lucide/triangle-alert'
 
 const presetAmounts = ['30', '50', '100', '250'] as const
-
 const MAX_AMOUNT = 500
+
+const config = createConfig({
+  chains: porto._internal.config.chains,
+  multiInjectedProviderDiscovery: true,
+  storage: null,
+  transports: porto._internal.config.transports,
+})
+const queryClient = new QueryClient()
+
+type View =
+  | 'connected-wallet-no-funds'
+  | 'connected-wallet-transfer'
+  | 'default'
+  | 'error'
 
 export function AddFunds(props: AddFunds.Props) {
   const {
@@ -37,336 +62,58 @@ export function AddFunds(props: AddFunds.Props) {
     value: defaultValue,
   } = props
 
-  const account = Hooks.useAccount(porto)
-  const chain = Hooks.useChain(porto, { chainId })
-  const client = Hooks.useRelayClient(porto)
-  const feeTokens = FeeTokens.fetch.useQuery({
+  const [view, setView] = React.useState<View>('default')
+
+  const account = RemoteHooks.useAccount(porto)
+  const address = props.address ?? account?.address
+  const chain = RemoteHooks.useChain(porto, { chainId })
+  const { data: feeTokens } = FeeTokens.fetch.useQuery({
     addressOrSymbol: tokenAddress,
   })
-  const feeToken = feeTokens.data?.[0]
 
-  const address = props.address ?? account?.address
-
-  const [amount, setAmount] = React.useState<string>(
-    defaultValue
-      ? Math.ceil(Number(defaultValue)).toString()
-      : presetAmounts[0]!,
-  )
-
-  const onrampMethod = React.useMemo(() => {
-    if (
-      tokenAddress &&
-      Address.isEqual(tokenAddress, exp1Address[chain?.id as never])
-    )
-      return 'faucet'
-    // TODO: uncomment when interop is supported.
-    // if (!enableOnramp()) return undefined
-    if (!enableOnramp()) return 'faucet'
-    // TODO: ensure that `tokenAddress` is compatible with google onramp.
-    if (UserAgent.isFirefox() || UserAgent.isAndroid()) return 'google'
-    // TODO: ensure that `tokenAddress` is compatible with apple pay onramp.
-    return 'apple'
-  }, [chain?.id, tokenAddress])
-
-  const initialView = onrampMethod ? 'default' : 'deposit-crypto'
-  const [view, setView] = React.useState<
-    'default' | 'deposit-crypto' | 'error' | 'email'
-  >(initialView)
-  const [emailView, setEmailView] = React.useState<
-    'start' | 'added' | 'validated' | 'invalidated'
-  >('start')
-  const [email, setEmail] = React.useState<string>('')
-
-  const faucet = useMutation({
-    async mutationFn(e: React.FormEvent<HTMLFormElement>) {
-      e.preventDefault()
-      e.stopPropagation()
-
-      if (!address) throw new Error('address is required')
-      if (!chain) throw new Error('chain is required')
-      if (!feeToken) throw new Error('feeToken is required')
-
-      const value = Value.from(amount, feeToken.decimals)
-
-      const data = await RelayActions.addFaucetFunds(client, {
-        address,
-        chainId: chain.id,
-        tokenAddress: exp1Address[chain.id as never],
-        // TODO: uncomment when interop is supported.
-        // tokenAddress,
-        value,
-      })
-      // relay state can be behind node state. wait to ensure sync.
-      // TODO: figure out how to resolve.
-      await new Promise((resolve) => setTimeout(resolve, 2_000))
-      return data
-    },
-    onSuccess: (data) => {
-      onApprove({ id: data.transactionHash })
+  const { data: assets, refetch: refetchAssets } = Hooks.useAssets({
+    account: account?.address,
+    chainFilter: chain ? [chain.id] : undefined,
+    query: {
+      enabled: Boolean(account?.address && chain?.id),
+      select(data) {
+        return data[chain?.id ?? 0]
+      },
     },
   })
-
-  if (faucet.isSuccess) return
-
-  if (view === 'default')
-    return (
-      <Layout>
-        <Layout.Header>
-          <Layout.Header.Default
-            content="Select how much you will deposit."
-            title="Deposit funds"
-          />
-        </Layout.Header>
-
-        <Layout.Content>
-          <form
-            className="grid h-min grid-flow-row auto-rows-min grid-cols-1 space-y-3"
-            onSubmit={(e) => faucet.mutate(e)}
-          >
-            <div className="col-span-1 row-span-1">
-              <UI.PresetsInput
-                adornments={{
-                  end: {
-                    label: `Max. $${MAX_AMOUNT}`,
-                    type: 'fill',
-                    value: String(MAX_AMOUNT),
-                  },
-                  start: '$',
-                }}
-                inputMode="decimal"
-                max={MAX_AMOUNT}
-                min={0}
-                onChange={setAmount}
-                placeholder="Enter amount"
-                presets={presetAmounts.map((value) => ({
-                  label: `$${value}`,
-                  value,
-                }))}
-                type="number"
-                value={amount}
-              />
-            </div>
-            <div className="col-span-1 row-span-1 space-y-3.5">
-              <OnrampView
-                address={address}
-                amount={amount}
-                loading={faucet.isPending}
-                onApprove={onApprove}
-                onReject={onReject}
-                onrampMethod={onrampMethod}
-              />
-            </div>
-            <div className="col-span-1 row-span-1">
-              <div className="my-auto flex w-full flex-row items-center gap-2 *:border-th_separator">
-                <hr className="flex-1 border-th_separator" />
-                <span className="px-3 text-th_base-secondary">or</span>
-                <hr className="flex-1 border-th_separator" />
-              </div>
-            </div>
-            <div className="col-span-1 row-span-1 space-y-2">
-              <Button
-                className="w-full px-3!"
-                disabled={faucet.isPending}
-                onClick={() => setView('deposit-crypto')}
-                type="button"
-              >
-                <div className="flex w-full flex-row items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <QrCodeIcon className="size-5" />
-                    <span>Deposit crypto</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="ml-auto font-normal text-sm text-th_base-secondary">
-                      Instant
-                    </span>
-                    <ArrowRightIcon className="size-4 text-th_base-secondary" />
-                  </div>
-                </div>
-              </Button>
-              <Button
-                className="w-full px-3! disabled:opacity-50"
-                disabled
-                hidden
-                title="Coming soon"
-                type="button"
-              >
-                <div className="flex w-full flex-row items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <CardIcon className="size-5" />
-                    <span>Debit or Credit</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="ml-auto font-normal text-sm text-th_base-secondary">
-                      ~5 mins
-                      <ArrowRightIcon className="ml-1 inline size-4" />
-                    </span>
-                  </div>
-                </div>
-              </Button>
-            </div>
-          </form>
-          {onrampMethod === 'apple' && (
-            <p className="mt-4 text-center text-[11.5px] text-th_base-secondary">
-              By using our deposit on-ramp, you agree to our{' '}
-              <a
-                className="text-th_base-secondary underline"
-                href="https://porto.sh/terms"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                Terms of Use
-              </a>{' '}
-              and{' '}
-              <a
-                className="text-th_base-secondary underline"
-                href="https://ithaca.xyz/about/privacy-policy"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                Privacy Policy for Porto
-              </a>
-              .
-            </p>
-          )}
-        </Layout.Content>
-      </Layout>
-    )
-
-  if (view === 'deposit-crypto')
-    return (
-      <DepositCryptoView
-        address={address}
-        onApprove={onApprove}
-        onBack={
-          initialView === 'default' ? () => setView('default') : undefined
-        }
-      />
-    )
-
-  if (view === 'email') {
-    function validateEmail(email: string) {
-      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      return re.test(email)
+  const balanceMap = React.useMemo(() => {
+    const addressBalanceMap = new Map<Address.Address, bigint>()
+    if (!assets || !feeTokens) return addressBalanceMap
+    const feeTokenAddressMap = new Map<Address.Address, boolean>()
+    for (const feeToken of feeTokens)
+      feeTokenAddressMap.set(feeToken.address, true)
+    for (const asset of assets) {
+      const address =
+        (asset.address === 'native' || asset.type === 'native'
+          ? zeroAddress
+          : asset.address) ?? zeroAddress
+      if (feeTokenAddressMap.has(address))
+        addressBalanceMap.set(address, asset.balance)
     }
+    return addressBalanceMap
+  }, [assets, feeTokens])
+  useWatchBlockNumber({
+    enabled: Boolean(account?.address),
+    onBlockNumber() {
+      refetchAssets()
+    },
+  })
+  const previousBalanceMap = usePrevious({ value: balanceMap })
 
-    const isValidEmail = validateEmail(email)
-
-    function handleEmailSubmit(e: React.FormEvent) {
-      e.preventDefault()
-      if (isValidEmail) setEmailView('validated')
-      else if (email.length > 0) setEmailView('invalidated')
-      // TODO: add email submit (async)
+  // Close dialog when one of the fee token is greater than before
+  React.useEffect(() => {
+    if (typeof previousBalanceMap === 'undefined') return
+    for (const [address, balance] of balanceMap) {
+      const previousBalance = previousBalanceMap.get(address)
+      if (!previousBalance) continue
+      if (balance > previousBalance) Actions.rejectAll(porto)
     }
-
-    return (
-      <Layout>
-        <Layout.Header>
-          <Layout.Header.Default
-            content={
-              emailView === 'invalidated'
-                ? ''
-                : 'We need this to set up Apple Pay and Google Pay for payment.'
-            }
-            title="Add your email"
-          />
-        </Layout.Header>
-
-        <Layout.Content>
-          <form className="space-y-4" onSubmit={handleEmailSubmit}>
-            <div className="relative">
-              <input
-                autoCapitalize="off"
-                autoComplete="email"
-                autoCorrect="off"
-                // biome-ignore lint/a11y/noAutofocus: _
-                autoFocus
-                className={cx(
-                  'w-full rounded-lg border-[1.5px] bg-th_field px-3 py-3 pr-10 placeholder:text-th_field focus:border-th_focus focus:bg-th_field-focused focus:outline-none',
-                  emailView === 'invalidated'
-                    ? 'border-th_field-error text-th_field-error'
-                    : emailView === 'validated'
-                      ? 'border-th_focus text-th_base'
-                      : 'border-transparent text-th_base',
-                )}
-                disabled={emailView === 'validated'}
-                inputMode="email"
-                onChange={(e) => {
-                  const newEmail = e.target.value
-                  setEmail(newEmail)
-
-                  // Reset view states as user types
-                  if (newEmail === '') setEmailView('start')
-                  else if (validateEmail(newEmail)) setEmailView('validated')
-                  else setEmailView('added')
-                }}
-                placeholder="achel@achal.me"
-                required
-                spellCheck={false}
-                type="email"
-                value={email}
-              />
-              {emailView === 'validated' && (
-                <svg
-                  aria-hidden="true"
-                  aria-label="Valid email"
-                  className="-translate-y-1/2 absolute top-1/2 right-3 size-5 text-green-500"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M5 13l4 4L19 7"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              )}
-              {emailView === 'invalidated' && (
-                <p className="mt-2 text-sm text-th_field-error">
-                  Invalid email
-                </p>
-              )}
-            </div>
-
-            <Button
-              className="w-full"
-              disabled={!isValidEmail}
-              onClick={
-                emailView === 'validated' ? () => setView('default') : undefined
-              }
-              type={emailView === 'validated' ? 'button' : 'submit'}
-              variant="primary"
-            >
-              Continue
-            </Button>
-          </form>
-
-          <p className="mt-4 text-center text-[11.5px] text-th_base-secondary">
-            By using our deposit on-ramp, you agree to our{' '}
-            <a
-              className="text-th_base-secondary underline"
-              href="https://porto.sh/terms"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              Terms of Use
-            </a>{' '}
-            and{' '}
-            <a
-              className="text-th_base-secondary underline"
-              href="https://ithaca.xyz/about/privacy-policy"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              Privacy Policy for Porto
-            </a>
-            .
-          </p>
-        </Layout.Content>
-      </Layout>
-    )
-  }
+  }, [balanceMap, previousBalanceMap])
 
   if (view === 'error')
     return (
@@ -391,7 +138,7 @@ export function AddFunds(props: AddFunds.Props) {
             <Button
               className="flex-grow"
               onClick={() => onReject?.()}
-              variant="default"
+              variant="secondary"
             >
               Close
             </Button>
@@ -407,7 +154,61 @@ export function AddFunds(props: AddFunds.Props) {
       </Layout>
     )
 
-  return null
+  return (
+    <Layout>
+      <Layout.Header>
+        {view === 'connected-wallet-no-funds' ? (
+          <Layout.Header.Default
+            content="You do not have any transferrable assets in this wallet."
+            icon={LucideOctagonAlert}
+            title="No funds found"
+            variant="destructive"
+          />
+        ) : (
+          <Layout.Header.Default
+            content={
+              view === 'connected-wallet-transfer'
+                ? 'Select which assets you want to deposit to your Porto wallet.'
+                : 'Deposit via crypto or credit card.'
+            }
+            title="Add funds"
+          />
+        )}
+      </Layout.Header>
+
+      <Layout.Content>
+        <div className="flex flex-col gap-3">
+          {view === 'default' && (
+            <>
+              <Faucet
+                address={address}
+                chainId={chain?.id}
+                decimals={feeTokens?.[0]?.decimals}
+                defaultValue={defaultValue}
+                onApprove={onApprove}
+              />
+              <div className="my-auto flex w-full flex-row items-center gap-2 *:border-th_separator">
+                <hr className="flex-1 border-th_separator" />
+                <span className="px-3 text-th_base-secondary">or</span>
+                <hr className="flex-1 border-th_separator" />
+              </div>
+            </>
+          )}
+
+          <WagmiProvider config={config} reconnectOnMount={false}>
+            <QueryClientProvider client={queryClient}>
+              <DepositCrypto
+                address={address}
+                chainId={chain?.id}
+                setView={setView}
+                view={view}
+              />
+            </QueryClientProvider>
+          </WagmiProvider>
+        </div>
+      </Layout.Content>
+    </Layout>
+  )
 }
 
 export declare namespace AddFunds {
@@ -421,323 +222,669 @@ export declare namespace AddFunds {
   }
 }
 
-function OnrampView(props: OnrampView.Props) {
-  const { address, amount, loading, onrampMethod } = props
+function Faucet(props: {
+  address: Address.Address | undefined
+  chainId: number | undefined
+  defaultValue: string | undefined
+  decimals: number | undefined
+  onApprove: (result: { id: Hex.Hex }) => void
+}) {
+  const { address, chainId, defaultValue, decimals, onApprove } = props
 
-  const onrampWidget = getOnrampWidget()
+  const [amount, setAmount] = React.useState<string>(
+    defaultValue
+      ? Math.ceil(Number(defaultValue)).toString()
+      : presetAmounts[0]!,
+  )
 
-  const onrampQuery = useQuery({
-    enabled: !!address && !!amount && onrampMethod === 'apple',
-    queryFn: async () => {
-      const response = await fetch(
-        `https://onramp.porto.workers.dev/token?address=${address}`,
-      )
+  const client = RemoteHooks.useRelayClient(porto)
+  const faucet = useMutation({
+    async mutationFn(e: React.FormEvent<HTMLFormElement>) {
+      e.preventDefault()
+      e.stopPropagation()
 
-      const data = (await response.json()) as {
-        initToken: string
-        initTypeToken: string
-        widgetId: string
-        merchantTransactionId: string
-        signature: string
-        widgetFlow: string
-        widgetUrl: string
-        birthdate: string
-        firstName: string
-        lastName: string
-        network: string
-        paymentMethod: string
-        fiatAmount: string
-        fiatCurrency: string
-        currency: string
-        error: string | null
-      }
+      if (!address) throw new Error('address is required')
+      if (!chainId) throw new Error('chainId is required')
+      if (!decimals) throw new Error('decimals is required')
+
+      const value = Value.from(amount, decimals)
+
+      const data = await RelayActions.addFaucetFunds(client, {
+        address,
+        chainId: chainId,
+        tokenAddress: exp1Address[chainId as never],
+        // TODO: uncomment when interop is supported.
+        // tokenAddress,
+        value,
+      })
+      // relay state can be behind node state. wait to ensure sync.
+      // TODO: figure out how to resolve.
+      await new Promise((resolve) => setTimeout(resolve, 2_000))
       return data
     },
-    queryKey: ['onramp-token', address],
-  })
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: _
-  React.useEffect(() => {
-    if (
-      onrampMethod !== 'apple' ||
-      !onrampQuery.data ||
-      !onrampQuery.data.merchantTransactionId
-    )
-      return
-
-    const {
-      widgetId,
-      widgetUrl,
-      signature,
-      merchantTransactionId,
-      initToken,
-      initTypeToken,
-      birthdate,
-      currency,
-      firstName,
-      lastName,
-      network,
-      fiatCurrency,
-      widgetFlow,
-    } = onrampQuery.data
-
-    function checkAndRunWidget() {
-      if (!onrampWidget || !onrampWidget?.run) return
-
-      const widgetInstance = onrampWidget?.run({
-        address,
-        amount,
-        birthdate,
-        currency,
-        fiatAmount: amount,
-        fiatCurrency,
-        firstName,
-        host: document.querySelector('div#mercuryo-widget'),
-        initToken,
-        initTokenType: initTypeToken,
-        lastName,
-        merchantTransactionId,
-        network,
-        paymentMethod: 'apple',
-        signature,
-        widgetFlow,
-        widgetId,
-        widgetUrl,
-      })
-
-      // TODO: use this once it actually indicates that the widget is ready
-      widgetInstance?.onReady(() => {
-        console.info('[onramp] Widget is ready')
-      })
-    }
-
-    checkAndRunWidget()
-  }, [address, amount, onrampQuery.data])
-
-  const transactionQuery = useQuery({
-    enabled:
-      onrampQuery.status === 'success' &&
-      !!onrampQuery.data?.merchantTransactionId &&
-      onrampMethod === 'apple',
-    queryFn: async () => {
-      const merchantTransactionId = onrampQuery.data?.merchantTransactionId
-      if (!merchantTransactionId) return null
-
-      const searchParams = new URLSearchParams({
-        merchantTransactionId,
-      })
-      const response = await fetch(
-        `https://onramp.porto.workers.dev/transactions?${searchParams.toString()}`,
-      )
-
-      return response.json() as Promise<{
-        url: string
-        hash: string
-        status: string
-        amount: string
-        currency: string
-      }>
+    onSuccess(data) {
+      onApprove({ id: data.transactionHash })
     },
-    queryKey: ['onramp-transactions', address],
-    refetchInterval: 1_000,
   })
+
+  return (
+    <form
+      className="grid h-min grid-flow-row auto-rows-min grid-cols-1 space-y-3"
+      onSubmit={(e) => faucet.mutate(e)}
+    >
+      <div className="col-span-1 row-span-1">
+        <PresetsInput
+          adornments={{
+            end: {
+              label: `Max. $${MAX_AMOUNT}`,
+              type: 'fill',
+              value: String(MAX_AMOUNT),
+            },
+            start: '$',
+          }}
+          inputMode="decimal"
+          max={MAX_AMOUNT}
+          min={0}
+          onChange={setAmount}
+          placeholder="Enter amount"
+          presets={presetAmounts.map((value) => ({
+            label: `$${value}`,
+            value,
+          }))}
+          type="number"
+          value={amount}
+        />
+      </div>
+      <div className="col-span-1 row-span-1 space-y-3.5">
+        <Button
+          className="w-full flex-1"
+          data-testid="buy"
+          disabled={!address || !amount || Number(amount) === 0}
+          loading={faucet.isPending && 'Adding funds…'}
+          type="submit"
+          variant="primary"
+          width="grow"
+        >
+          Add faucet funds
+        </Button>
+      </div>
+    </form>
+  )
+}
+
+function DepositCrypto(props: {
+  address: Address.Address | undefined
+  chainId: number | undefined
+  view: View
+  setView: (view: View) => void
+}) {
+  const { address, chainId, view, setView } = props
+
+  const { address: account, connector } = useAccount()
+  const disconnect = useDisconnect()
+  const connect = useConnect({
+    mutation: {
+      async onSuccess(data) {
+        if (chainId) {
+          const account = data.accounts[0]
+          const hexChainId = Hex.fromNumber(chainId)
+          const response = await porto.provider.request({
+            method: 'wallet_getAssets',
+            params: [{ account, chainFilter: [hexChainId] }],
+          })
+          const assets = response[hexChainId] ?? []
+          const nonZeroAssets = assets.filter(
+            (asset) => asset.balance !== '0x0',
+          )
+          queryClient.setQueryData(['assets', { account, chainId }], assets)
+          form.setValues(
+            Object.fromEntries(
+              nonZeroAssets.map((asset) => [
+                asset.address ?? zeroAddress,
+                true,
+              ]),
+            ),
+          )
+          setView(
+            nonZeroAssets.length
+              ? 'connected-wallet-transfer'
+              : 'connected-wallet-no-funds',
+          )
+        }
+      },
+    },
+  })
+
+  const { data: assets = [] } = useQuery({
+    enabled: Boolean(account && chainId),
+    async queryFn() {
+      if (!chainId) throw new Error('Missing chainId')
+      const hexChainId = Hex.fromNumber(chainId)
+      const response = await porto.provider.request({
+        method: 'wallet_getAssets',
+        params: [{ account: account! }],
+      })
+      return response[hexChainId]
+    },
+    queryKey: ['assets', { account, chainId }],
+  })
+  const nonZeroAssets = React.useMemo(() => {
+    return assets.filter((asset) => asset.balance !== '0x0')
+  }, [assets])
+
+  useAccountEffect({
+    onDisconnect() {
+      setView('default')
+    },
+  })
+
+  const form = Ariakit.useFormStore({})
+  const sendCalls = useSendCalls()
+  const { isLoading: isConfirming } = useWaitForCallsStatus({
+    id: sendCalls.data?.id,
+  })
+  const sendTransaction = useSendTransaction()
+  const { isLoading: isTransactionConfirming } = useWaitForTransactionReceipt()
+  form.useSubmit(async (state) => {
+    if (!address) throw new Error('address is required')
+    if (!connector) throw new Error('connector is required')
+    const calls = []
+    for (const [key, value] of Object.entries(state.values)) {
+      if (!value) continue
+      const asset = assets.find(
+        (asset) => (asset.address ?? zeroAddress) === key,
+      )
+      if (!asset) throw new Error('asset is required')
+      const amount = Hex.toBigInt(asset.balance, {
+        size: asset.metadata?.decimals,
+      })
+      calls.push(
+        key === zeroAddress
+          ? ({
+              to: address as Address.Address,
+              value: amount / 2n,
+            } as const)
+          : ({
+              data: encodeFunctionData({
+                abi: erc20Abi,
+                args: [address, amount],
+                functionName: 'transfer',
+              }),
+              to: key as Address.Address,
+            } as const),
+      )
+    }
+    if (
+      connector.id === 'com.coinbase.wallet' ||
+      connector.id === 'app.phantom'
+    )
+      await sendTransaction.sendTransactionAsync(calls[0]!)
+    else await sendCalls.sendCallsAsync({ calls })
+  })
+  const state = Ariakit.useStoreState(form)
+  const submittable = React.useMemo(() => {
+    return Object.values(state.values).some((value) => value)
+  }, [state.values])
+
+  const options = React.useMemo(
+    () =>
+      [
+        { icon: <MetaMask />, name: 'MetaMask', rdns: 'io.metamask' },
+        { icon: <Phantom />, name: 'Phantom', rdns: 'app.phantom' },
+        { icon: <Coinbase />, name: 'Coinbase', rdns: 'com.coinbase.wallet' },
+      ].map((option) => ({
+        ...option,
+        connector: connect.connectors.find(
+          (connector) => option.rdns === connector.id,
+        ),
+      })),
+    [connect.connectors],
+  )
 
   if (
-    onrampMethod === 'apple' &&
-    (onrampQuery.isError || onrampQuery.data?.error)
+    (view === 'connected-wallet-transfer' ||
+      view === 'connected-wallet-no-funds') &&
+    account
   ) {
+    if (nonZeroAssets.length)
+      return (
+        <div className="flex flex-col gap-2">
+          <Ariakit.Form className="flex flex-col gap-2" store={form}>
+            <div className="flex flex-col gap-2">
+              {nonZeroAssets.map((asset) => (
+                // biome-ignore lint/a11y/noLabelWithoutControl: Label contains checkbox
+                <label
+                  className="flex h-9 w-full items-center justify-between rounded-th_medium bg-th_secondary px-2"
+                  key={asset.address ?? asset.type}
+                >
+                  <div>{asset.metadata?.symbol ?? asset.type}</div>
+                  <Ariakit.FormCheckbox
+                    name={form.names[asset.address ?? zeroAddress] as string}
+                  />
+                </label>
+              ))}
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                disabled={Object.values(state.values).every((value) => value)}
+                onClick={() =>
+                  form.setValues(
+                    Object.fromEntries(
+                      assets.map((asset) => [
+                        asset.address ?? zeroAddress,
+                        true,
+                      ]),
+                    ),
+                  )
+                }
+                width="grow"
+              >
+                Select all
+              </Button>
+              <Ariakit.FormSubmit
+                render={
+                  <Button
+                    className="font-semibold"
+                    disabled={!submittable}
+                    loading={
+                      sendCalls.isPending ||
+                      isConfirming ||
+                      sendTransaction.isPending ||
+                      isTransactionConfirming
+                        ? 'Check Wallet'
+                        : undefined
+                    }
+                    variant="strong"
+                    width="grow"
+                  >
+                    Confirm
+                  </Button>
+                }
+              />
+            </div>
+          </Ariakit.Form>
+          <button
+            className="text-center text-[13px] text-th_base-secondary"
+            onClick={() => {
+              disconnect.disconnect()
+              setView('default')
+            }}
+            type="button"
+          >
+            Go back
+          </button>
+        </div>
+      )
     return (
-      <div className="flex flex-col items-center justify-center gap-2 p-4 text-center">
-        <TriangleAlertIcon className="size-6 text-th_field-error" />
-        {onrampQuery.data?.error ?? onrampQuery.error?.message}
+      <div className="flex flex-col gap-3">
+        <QRCard address={address ?? ''} />
         <Button
-          className="text-xs"
-          onClick={() => onrampQuery.refetch()}
-          variant="default"
+          onClick={() => {
+            disconnect.disconnect()
+            setView('default')
+          }}
+          width="full"
         >
-          Try again
+          Go back
         </Button>
       </div>
     )
   }
 
-  if (onrampMethod === 'faucet')
-    return (
-      <UI.Button
-        className="w-full flex-1"
-        data-testid="buy"
-        disabled={!address || !amount || Number(amount) === 0}
-        loading={loading && 'Adding funds…'}
-        type="submit"
-        variant="primary"
-        width="grow"
-      >
-        Add funds
-      </UI.Button>
-    )
-
-  if (onrampMethod === 'google')
-    return (
-      <PayButton
-        disabled={!address}
-        url={stripeOnrampUrl({
-          address: address!,
-          amount: Number(amount),
-        })}
-        variant="stripe"
-      />
-    )
-
-  if (onrampMethod === 'apple')
-    return (
-      <div className="flex flex-col justify-between gap-2">
-        <article className="relative mx-auto w-full select-none overflow-hidden rounded-full">
-          <div
-            className="h-[46px] min-h-[44px] w-full min-w-full bg-black dark:bg-white"
-            id="mercuryo-widget"
-          />
-        </article>
-        {transactionQuery.data &&
-          transactionQuery.data.status !== 'not_found' && (
-            <a
-              className="text-center"
-              href={transactionQuery.data.url}
-              target="_blank"
-            >
-              {StringFormatter.truncate(transactionQuery.data.hash)}
-            </a>
-          )}
-      </div>
-    )
-
-  return null
-}
-
-export declare namespace OnrampView {
-  export type Props = {
-    address: Address.Address | undefined
-    amount: string | undefined
-    onApprove: (result: { id: Hex.Hex }) => void
-    onReject?: () => void
-    loading?: boolean
-    onrampMethod?: 'apple' | 'google' | 'faucet'
-  }
-}
-
-function DepositCryptoView(props: DepositCryptoView.Props) {
-  const { address, onBack, onApprove } = props
-
-  const chain = Hooks.useChain(porto)
-
-  const [isCopied, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
-
-  const walletClient = Hooks.useWalletClient(porto)
-  const { data: tokens } = useQuery({
-    queryFn: async () => {
-      const chainId = Hex.fromNumber(chain?.id!)
-      const response = await walletClient.request({
-        method: 'wallet_getCapabilities',
-        params: [address!, [chainId]],
-      })
-      return response[chainId]?.feeToken.tokens
-    },
-    queryKey: ['capabilities'],
-    select: (data) => data?.map((token) => token.address.toLowerCase()),
-  })
-
-  useWatchContractEvent({
-    abi: erc20Abi,
-    args: {
-      to: address,
-    },
-    eventName: 'Transfer',
-    onLogs: (events) => {
-      for (const event of events) {
-        if (tokens?.includes(event.address.toLowerCase()))
-          onApprove({ id: event.transactionHash })
-      }
-    },
-  })
-
-  const { data: balance, ...nativeBalance } = useBalance({
-    address: address!,
-    chainId: chain?.id!,
-    query: {
-      enabled: !!address && !!chain,
-      select: (data) => data?.value,
-    },
-  })
-  const previousBalance = usePrevious({ value: balance })
-
-  React.useEffect(() => {
-    if (typeof previousBalance === 'undefined' || previousBalance === 0n) return
-    if (previousBalance !== balance) Actions.rejectAll(porto)
-  }, [previousBalance, balance])
-
-  useWatchBlockNumber({
-    onBlockNumber: () => nativeBalance.refetch(),
-  })
-
   return (
-    <Layout>
-      <Layout.Content className="py-3 text-center">
-        <Ariakit.Button
-          className="mx-auto flex h-[148px] items-center justify-center gap-4 rounded-lg border border-th_secondary bg-th_secondary p-4 hover:cursor-pointer!"
-          onClick={() => copyToClipboard(address ?? '')}
-        >
-          <Cuer.Root errorCorrection="low" value={address ?? ''}>
-            <Cuer.Cells />
-            <Cuer.Finder radius={1} />
-          </Cuer.Root>
-          <p className="min-w-[6ch] max-w-[6ch] text-pretty break-all font-mono font-normal text-th_base-secondary text-xs">
-            {address}
-          </p>
-        </Ariakit.Button>
-
-        <div className="h-4" />
-
-        <div className="font-medium text-[18px]">Deposit funds</div>
-        <div className="h-1" />
-        <div className="text-th_base-secondary">
-          Send crypto to fund your account.
-        </div>
-      </Layout.Content>
-
-      <Layout.Footer>
-        <Layout.Footer.Actions>
+    <div className="flex flex-col gap-3">
+      <div className="flex gap-1">
+        {options.map((option) => (
           <Button
-            className="w-full text-[14px]"
-            onClick={onBack}
+            className="disabled:opacity-75"
+            disabled={!option.connector}
+            key={option.name}
+            onClick={async () => {
+              if (option.connector) {
+                if (option.connector.id === connector?.id)
+                  await disconnect.disconnectAsync()
+                connect.connect({
+                  chainId: chainId as never,
+                  connector: option.connector,
+                })
+              }
+            }}
             type="button"
-            variant="default"
+            width="grow"
           >
-            Back
+            {option.icon}
+            {connect.isPending &&
+              'id' in connect.variables.connector &&
+              connect.variables.connector.id === option.connector?.id && (
+                <Spinner />
+              )}
           </Button>
-          <Button
-            className="w-full text-[14px]"
-            onClick={() => copyToClipboard(address ?? '')}
-            type="button"
-            variant="default"
-          >
-            <CopyIcon className="mr-1.5 size-4" />
-            {isCopied ? 'Copied' : 'Copy'}
-          </Button>
-        </Layout.Footer.Actions>
+        ))}
+      </div>
 
-        {chain && (
-          <div className="px-3 text-center text-sm text-th_base-secondary">
-            Only send assets on {chain.name}. Support for more networks soon.
-          </div>
-        )}
-      </Layout.Footer>
-    </Layout>
+      <QRCard address={address ?? ''} />
+    </div>
   )
 }
 
-export declare namespace DepositCryptoView {
-  export type Props = {
-    address: Address.Address | undefined
-    onBack?: (() => void) | undefined
-    onApprove: (result: { id: Hex.Hex }) => void
-  }
+function QRCard(props: { address: string }) {
+  const { address } = props
+  const [isCopied, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
+  return (
+    <div className="flex items-center justify-between rounded-th_medium bg-th_secondary p-2">
+      <div className="flex gap-2">
+        <div className="size-11.5">
+          <Cuer.Root errorCorrection="low" value={address}>
+            <Cuer.Cells />
+            <Cuer.Finder radius={1} />
+          </Cuer.Root>
+        </div>
+        <div className="flex flex-col gap-0.5">
+          <div className="font-medium text-[13px]">Send directly</div>
+          <div className="min-w-[21ch] max-w-[21ch] text-pretty break-all font-mono font-normal text-[10px] text-th_base-secondary leading-[14px]">
+            {address}
+          </div>
+        </div>
+      </div>
+      <Button
+        className="w-[38px] px-0!"
+        onClick={() => copyToClipboard(address ?? '')}
+        variant={isCopied ? 'positive' : 'strong'}
+      >
+        {isCopied ? <LucideCopyCheck /> : <LucideCopy />}
+      </Button>
+    </div>
+  )
+}
+
+function Coinbase() {
+  return (
+    <svg
+      className="rounded-full"
+      fill="none"
+      height="20"
+      viewBox="0 0 28 28"
+      width="20"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <title>Coinbase Wallet</title>
+      <rect fill="#2C5FF6" height="28" width="28" />
+      <path
+        clipRule="evenodd"
+        d="M14 23.8C19.4124 23.8 23.8 19.4124 23.8 14C23.8 8.58761 19.4124 4.2 14 4.2C8.58761 4.2 4.2 8.58761 4.2 14C4.2 19.4124 8.58761 23.8 14 23.8ZM11.55 10.8C11.1358 10.8 10.8 11.1358 10.8 11.55V16.45C10.8 16.8642 11.1358 17.2 11.55 17.2H16.45C16.8642 17.2 17.2 16.8642 17.2 16.45V11.55C17.2 11.1358 16.8642 10.8 16.45 10.8H11.55Z"
+        fill="white"
+        fillRule="evenodd"
+      />
+    </svg>
+  )
+}
+function Phantom() {
+  return (
+    <svg
+      fill="none"
+      height="19"
+      viewBox="0 0 22 19"
+      width="22"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <title>Phantom</title>
+      <path
+        d="M0.5 15.972C0.5 18.4334 1.7181 19 2.98493 19C5.66472 19 7.67866 16.4679 8.88051 14.4669C8.73434 14.9096 8.65314 15.3523 8.65314 15.7773C8.65314 16.946 9.27031 17.7782 10.4884 17.7782C12.1613 17.7782 13.9478 16.1845 14.8736 14.4669C14.8086 14.7148 14.7761 14.945 14.7761 15.1575C14.7761 15.972 15.1984 16.4855 16.0592 16.4855C18.7715 16.4855 21.5 11.2619 21.5 6.69337C21.5 3.1342 19.8434 0 15.6856 0C8.37704 0 0.5 9.70363 0.5 15.972ZM13.1682 6.30381C13.1682 5.41845 13.623 4.79871 14.2889 4.79871C14.9385 4.79871 15.3933 5.41845 15.3933 6.30381C15.3933 7.18919 14.9385 7.82665 14.2889 7.82665C13.623 7.82665 13.1682 7.18919 13.1682 6.30381ZM16.6439 6.30381C16.6439 5.41845 17.0986 4.79871 17.7645 4.79871C18.4142 4.79871 18.8689 5.41845 18.8689 6.30381C18.8689 7.18919 18.4142 7.82665 17.7645 7.82665C17.0986 7.82665 16.6439 7.18919 16.6439 6.30381Z"
+        fill="#AB9FF2"
+      />
+    </svg>
+  )
+}
+function MetaMask() {
+  return (
+    <svg
+      fill="none"
+      height="20"
+      viewBox="0 0 21 20"
+      width="21"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <title>MetaMask</title>
+      <g clipPath="url(#clip0_1310_10495)">
+        <path
+          d="M19.6722 0.666504L11.8687 6.49984L13.3086 3.06124L19.6722 0.666504Z"
+          fill="#E2761B"
+          stroke="#E2761B"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M1.65479 0.666504L9.39731 6.5551L8.02452 3.06124L1.65479 0.666504Z"
+          fill="#E4761B"
+          stroke="#E4761B"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M16.8652 14.1938L14.7847 17.3991L19.2325 18.6272L20.5077 14.2614L16.8652 14.1938Z"
+          fill="#E4761B"
+          stroke="#E4761B"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M0.831055 14.2614L2.10012 18.6272L6.54796 17.3991L4.46742 14.1938L0.831055 14.2614Z"
+          fill="#E4761B"
+          stroke="#E4761B"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M6.29813 8.77813L5.05957 10.6632L9.4769 10.8597L9.31826 6.08252L6.29813 8.77813Z"
+          fill="#E4761B"
+          stroke="#E4761B"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M15.0291 8.77773L11.9663 6.02686L11.8687 10.8593L16.2738 10.6628L15.0291 8.77773Z"
+          fill="#E4761B"
+          stroke="#E4761B"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M6.54834 17.399L9.2024 16.0973L6.90831 14.292L6.54834 17.399Z"
+          fill="#E4761B"
+          stroke="#E4761B"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M12.1245 16.0973L14.7847 17.399L14.4186 14.292L12.1245 16.0973Z"
+          fill="#E4761B"
+          stroke="#E4761B"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M14.7847 17.3989L12.1245 16.0972L12.3381 17.841L12.3137 18.5717L14.7847 17.3989Z"
+          fill="#D7C1B3"
+          stroke="#D7C1B3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M6.54834 17.3989L9.01936 18.5717L9.00105 17.841L9.2024 16.0972L6.54834 17.3989Z"
+          fill="#D7C1B3"
+          stroke="#D7C1B3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M9.05583 13.1435L6.84717 12.4865L8.4091 11.7681L9.05583 13.1435Z"
+          fill="#233447"
+          stroke="#233447"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M12.2651 13.1435L12.918 11.7681L14.486 12.4865L12.2651 13.1435Z"
+          fill="#233447"
+          stroke="#233447"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M6.54831 17.3991L6.92659 14.1938L4.46777 14.2614L6.54831 17.3991Z"
+          fill="#CD6116"
+          stroke="#CD6116"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M14.4067 14.1938L14.785 17.3991L16.8656 14.2614L14.4067 14.1938Z"
+          fill="#CD6116"
+          stroke="#CD6116"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M16.2738 10.6631L11.8687 10.8596L12.2774 13.1438L12.9242 11.7683L14.4922 12.4868L16.2738 10.6631Z"
+          fill="#CD6116"
+          stroke="#CD6116"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M6.84725 12.4868L8.41527 11.7683L9.05591 13.1438L9.4769 10.8596L5.05957 10.6631L6.84725 12.4868Z"
+          fill="#CD6116"
+          stroke="#CD6116"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M5.05957 10.6631L6.90826 14.292L6.84725 12.4868L5.05957 10.6631Z"
+          fill="#E4751F"
+          stroke="#E4751F"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M14.4922 12.4868L14.4189 14.292L16.2737 10.6631L14.4922 12.4868Z"
+          fill="#E4751F"
+          stroke="#E4751F"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M9.47665 10.8594L9.05566 13.1436L9.57427 15.8331L9.6963 12.2901L9.47665 10.8594Z"
+          fill="#E4751F"
+          stroke="#E4751F"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M11.8683 10.8594L11.6548 12.2839L11.7463 15.8331L12.2771 13.1436L11.8683 10.8594Z"
+          fill="#E4751F"
+          stroke="#E4751F"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M12.2774 13.1438L11.7466 15.8333L12.1249 16.0973L14.4189 14.2921L14.4922 12.4868L12.2774 13.1438Z"
+          fill="#F6851B"
+          stroke="#F6851B"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M6.84717 12.4868L6.90818 14.2921L9.20226 16.0973L9.57444 15.8333L9.05583 13.1438L6.84717 12.4868Z"
+          fill="#F6851B"
+          stroke="#F6851B"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M12.3141 18.5717L12.3385 17.841L12.1432 17.663H9.18409L9.00105 17.841L9.01936 18.5717L6.54834 17.3989L7.40862 18.1051L9.15969 19.3331H12.1676L13.9248 18.1051L14.7851 17.3989L12.3141 18.5717Z"
+          fill="#C0AD9E"
+          stroke="#C0AD9E"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M12.1248 16.097L11.7466 15.833H9.5745L9.20232 16.097L9.00098 17.8409L9.18401 17.6628H12.1431L12.3384 17.8409L12.1248 16.097Z"
+          fill="#161616"
+          stroke="#161616"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M20.0013 6.88054L20.6663 3.663L19.6718 0.666504L12.1245 6.30335L15.0287 8.77791L19.1288 9.98142L20.0379 8.91914L19.6474 8.63668L20.2758 8.05949L19.7877 7.67879L20.4162 7.19984L20.0013 6.88054Z"
+          fill="#763D16"
+          stroke="#763D16"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M0.666504 3.663L1.33154 6.88054L0.910555 7.19984L1.53899 7.67879L1.05699 8.05949L1.68542 8.63668L1.29494 8.91914L2.19793 9.98142L6.29799 8.77791L9.2022 6.30335L1.65491 0.666504L0.666504 3.663Z"
+          fill="#763D16"
+          stroke="#763D16"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M19.1291 9.98134L15.0291 8.77783L16.2737 10.6629L14.4189 14.2919L16.8656 14.2612H20.508L19.1291 9.98134Z"
+          fill="#F6851B"
+          stroke="#F6851B"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M6.2978 8.77783L2.19774 9.98134L0.831055 14.2612H4.46742L6.90793 14.2919L5.05924 10.6629L6.2978 8.77783Z"
+          fill="#F6851B"
+          stroke="#F6851B"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+        <path
+          d="M11.8682 10.8598L12.1245 6.30363L13.3203 3.06152H8.02441L9.20196 6.30363L9.47652 10.8598L9.56804 12.2966L9.57414 15.8335H11.7462L11.7645 12.2966L11.8682 10.8598Z"
+          fill="#F6851B"
+          stroke="#F6851B"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="0.0502197"
+        />
+      </g>
+      <defs>
+        <clipPath id="clip0_1310_10495">
+          <rect fill="white" height="20" rx="4" width="20" x="0.666504" />
+        </clipPath>
+      </defs>
+    </svg>
+  )
 }
