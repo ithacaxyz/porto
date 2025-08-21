@@ -96,8 +96,8 @@ export function create(
                 .filter((id) => id !== currentChainId),
             ] as const
             return {
-              ...persistedState,
               ...currentState,
+              ...persistedState,
               chainIds,
             }
           },
