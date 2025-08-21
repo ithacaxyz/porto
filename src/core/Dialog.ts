@@ -237,7 +237,7 @@ export function iframe(options: iframe.Options = {}) {
       // 1password extension adds `inert` attribute to `dialog` and inserts
       // itself (`<com-1password-notification />`) there rendering itself unusable:
       // watch for `inert` on `dialog` and remove it
-      const observer = new MutationObserver((mutations) => {
+      const inertObserver = new MutationObserver((mutations) => {
         for (const mutation of mutations) {
           if (mutation.type !== 'attributes') continue
           const name = mutation.attributeName
@@ -246,7 +246,10 @@ export function iframe(options: iframe.Options = {}) {
           root.removeAttribute(name)
         }
       })
-      observer.observe(root, { attributeOldValue: true, attributes: true })
+      inertObserver.observe(root, {
+        attributeOldValue: true,
+        attributes: true,
+      })
 
       // dialog/page interactivity (no visibility change)
       let dialogActive = false
@@ -352,6 +355,7 @@ export function iframe(options: iframe.Options = {}) {
           fallback.destroy()
           messenger.destroy()
           root.remove()
+          inertObserver.disconnect()
 
           drawerModeQuery.removeEventListener('change', onDrawerModeChange)
         },
