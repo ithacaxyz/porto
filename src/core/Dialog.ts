@@ -272,14 +272,15 @@ export function iframe(options: iframe.Options = {}) {
       const showDialog = () => {
         if (visible) return
         visible = true
+        cancelForceHideDelay()
         root.removeAttribute('hidden')
         root.removeAttribute('aria-closed')
         root.showPopover()
       }
       const hideDialog = () => {
-        cancelForceHideDelay()
         if (!visible) return
         visible = false
+        cancelForceHideDelay()
         root.setAttribute('hidden', 'true')
         root.setAttribute('aria-closed', 'true')
         root.hidePopover()
