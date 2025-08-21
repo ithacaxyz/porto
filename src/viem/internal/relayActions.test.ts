@@ -8,6 +8,7 @@ import * as TestConfig from '../../../test/src/config.js'
 import * as Key from '../Key.js'
 import { sendCalls } from '../RelayActions.js'
 import {
+  addFaucetFunds,
   getAssets,
   getCallsStatus,
   getCapabilities,
@@ -23,6 +24,44 @@ import {
 const porto = TestConfig.getPorto()
 const client = TestConfig.getRelayClient(porto)
 const contracts = await TestConfig.getContracts(porto)
+
+describe('addFaucetFunds', () => {
+  test('default', async () => {
+    const alice = Hex.random(20)
+
+    const result = await addFaucetFunds(client, {
+      address: alice,
+      chainId: client.chain.id,
+      tokenAddress: contracts.exp1.address,
+      value: Value.fromEther('10'),
+    })
+
+    expect(result).toBeDefined()
+    expect(result.transactionHash).toBeDefined()
+
+    // Wait for funds to be added
+    await new Promise((resolve) => setTimeout(resolve, 2_000))
+
+    const balance = await readContract(client, {
+      abi: contracts.exp1.abi,
+      address: contracts.exp1.address,
+      args: [alice],
+      functionName: 'balanceOf',
+    })
+    expect(balance).toBe(Value.fromEther('10'))
+  })
+
+  test('behavior: unsupported chain', async () => {
+    await expect(() =>
+      addFaucetFunds(client, {
+        address: Hex.random(20),
+        chainId: 999999,
+        tokenAddress: contracts.exp1.address,
+        value: Value.fromEther('1'),
+      }),
+    ).rejects.toThrow()
+  })
+})
 
 describe('health', () => {
   test('default', async () => {
