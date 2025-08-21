@@ -1,4 +1,3 @@
-import { setTimeout } from 'node:timers/promises'
 import {
   Address,
   Hex,
@@ -174,59 +173,6 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         ],
       })
       expect(valid).toBe(true)
-    })
-  })
-
-  describe('wallet_addFaucetFunds', () => {
-    test('default', async () => {
-      const porto = getPorto()
-      const contracts = await TestConfig.getContracts(porto)
-      const client = TestConfig.getRelayClient(porto)
-
-      const alice = Hex.random(20)
-
-      const result = await porto.provider.request({
-        method: 'wallet_addFaucetFunds',
-        params: [
-          {
-            address: alice,
-            chainId: Hex.fromNumber(client.chain.id),
-            tokenAddress: contracts.exp1.address,
-            value: Hex.fromNumber(Value.fromEther('10')),
-          },
-        ],
-      })
-      await setTimeout(2_000)
-
-      expect(result).toBeDefined()
-      expect(result.transactionHash).toBeDefined()
-
-      const balance = await readContract(client, {
-        abi: contracts.exp1.abi,
-        address: contracts.exp1.address,
-        args: [alice],
-        functionName: 'balanceOf',
-      })
-      expect(balance).toBe(Value.fromEther('10'))
-    })
-
-    test('behavior: unsupported chain', async () => {
-      const porto = getPorto()
-      const contracts = await TestConfig.getContracts(porto)
-
-      await expect(
-        porto.provider.request({
-          method: 'wallet_addFaucetFunds',
-          params: [
-            {
-              address: Hex.random(20),
-              chainId: Hex.fromNumber(999999),
-              tokenAddress: contracts.exp1.address,
-              value: Hex.fromNumber(Value.fromEther('1')),
-            },
-          ],
-        }),
-      ).rejects.toThrow()
     })
   })
 
@@ -2694,167 +2640,169 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       ).rejects.matchSnapshot()
     })
 
-    // TODO: uncomment when interop enabled again for testnets.
-    // test.runIf(!Anvil.enabled && type === 'relay')(
-    test.skip('behavior: required funds (address)', async () => {
-      const porto = getPorto()
-      const client = TestConfig.getRelayClient(porto)
-      const contracts = await TestConfig.getContracts(porto)
+    test.runIf(!Anvil.enabled && type === 'relay')(
+      'behavior: required funds (address)',
+      async () => {
+        const porto = getPorto()
+        const client = TestConfig.getRelayClient(porto)
+        const contracts = await TestConfig.getContracts(porto)
 
-      const {
-        accounts: [account],
-      } = await porto.provider.request({
-        method: 'wallet_connect',
-        params: [{ capabilities: { createAccount: true } }],
-      })
-      const address = account!.address
+        const {
+          accounts: [account],
+        } = await porto.provider.request({
+          method: 'wallet_connect',
+          params: [{ capabilities: { createAccount: true } }],
+        })
+        const address = account!.address
 
-      const initialBalance = Value.fromEther('10000')
-      await setBalance(client, {
-        address,
-        value: initialBalance,
-      })
+        const initialBalance = Value.fromEther('10000')
+        await setBalance(client, {
+          address,
+          value: initialBalance,
+        })
 
-      const alice = Hex.random(20)
-      const chainId_dest = TestConfig.chains[1]!.id
+        const alice = Hex.random(20)
+        const chainId_dest = TestConfig.chains[1]!.id
 
-      const { id } = await porto.provider.request({
-        method: 'wallet_sendCalls',
-        params: [
-          {
-            calls: [
-              {
-                data: encodeFunctionData({
-                  abi: contracts.exp1.abi,
-                  args: [alice, Value.fromEther('50')],
-                  functionName: 'transfer',
-                }),
-                to: contracts.exp1.address,
-              },
-            ],
-            capabilities: {
-              requiredFunds: [
+        const { id } = await porto.provider.request({
+          method: 'wallet_sendCalls',
+          params: [
+            {
+              calls: [
                 {
-                  address: contracts.exp1.address,
-                  value: Hex.fromNumber(Value.fromEther('50')),
+                  data: encodeFunctionData({
+                    abi: contracts.exp1.abi,
+                    args: [alice, Value.fromEther('50')],
+                    functionName: 'transfer',
+                  }),
+                  to: contracts.exp1.address,
                 },
               ],
-            },
-            chainId: Hex.fromNumber(chainId_dest),
-            from: address,
-            version: '1',
-          },
-        ],
-      })
-
-      expect(id).toBeDefined()
-
-      await waitForCallsStatus(WalletClient.fromPorto(porto), {
-        id,
-      })
-
-      const balance = await readContract(client, {
-        abi: contracts.exp1.abi,
-        address: contracts.exp1.address,
-        args: [address],
-        functionName: 'balanceOf',
-      })
-      expect(balance).toBeLessThan(initialBalance)
-
-      const client_dest = TestConfig.getRelayClient(porto, {
-        chainId: chainId_dest,
-      })
-
-      const balance_dest = await readContract(client_dest, {
-        abi: contracts.exp1.abi,
-        address: contracts.exp1.address,
-        args: [alice],
-        functionName: 'balanceOf',
-      })
-      expect(balance_dest).toBeGreaterThanOrEqual(Value.fromEther('50'))
-      expect(balance_dest).toBeLessThan(Value.fromEther('50.0005'))
-    })
-
-    // TODO: uncomment when interop enabled again for testnets.
-    // test.runIf(!Anvil.enabled && type === 'relay')(
-    test.skip('behavior: required funds (symbol)', async () => {
-      const porto = getPorto()
-      const client = TestConfig.getRelayClient(porto)
-      const contracts = await TestConfig.getContracts(porto)
-
-      const {
-        accounts: [account],
-      } = await porto.provider.request({
-        method: 'wallet_connect',
-        params: [{ capabilities: { createAccount: true } }],
-      })
-      const address = account!.address
-
-      const initialBalance = Value.fromEther('10000')
-      await setBalance(client, {
-        address,
-        value: initialBalance,
-      })
-
-      const alice = Hex.random(20)
-      const chainId_dest = TestConfig.chains[1]!.id
-
-      const { id } = await porto.provider.request({
-        method: 'wallet_sendCalls',
-        params: [
-          {
-            calls: [
-              {
-                data: encodeFunctionData({
-                  abi: contracts.exp1.abi,
-                  args: [alice, Value.fromEther('50')],
-                  functionName: 'transfer',
-                }),
-                to: contracts.exp1.address,
+              capabilities: {
+                requiredFunds: [
+                  {
+                    address: contracts.exp1.address,
+                    value: Hex.fromNumber(Value.fromEther('50')),
+                  },
+                ],
               },
-            ],
-            capabilities: {
-              requiredFunds: [
+              chainId: Hex.fromNumber(chainId_dest),
+              from: address,
+              version: '1',
+            },
+          ],
+        })
+
+        expect(id).toBeDefined()
+
+        await waitForCallsStatus(WalletClient.fromPorto(porto), {
+          id,
+        })
+
+        const balance = await readContract(client, {
+          abi: contracts.exp1.abi,
+          address: contracts.exp1.address,
+          args: [address],
+          functionName: 'balanceOf',
+        })
+        expect(balance).toBeLessThan(initialBalance)
+
+        const client_dest = TestConfig.getRelayClient(porto, {
+          chainId: chainId_dest,
+        })
+
+        const balance_dest = await readContract(client_dest, {
+          abi: contracts.exp1.abi,
+          address: contracts.exp1.address,
+          args: [alice],
+          functionName: 'balanceOf',
+        })
+        expect(balance_dest).toBeGreaterThanOrEqual(Value.fromEther('50'))
+        expect(balance_dest).toBeLessThan(Value.fromEther('50.0005'))
+      },
+    )
+
+    test.runIf(!Anvil.enabled && type === 'relay')(
+      'behavior: required funds (symbol)',
+      async () => {
+        const porto = getPorto()
+        const client = TestConfig.getRelayClient(porto)
+        const contracts = await TestConfig.getContracts(porto)
+
+        const {
+          accounts: [account],
+        } = await porto.provider.request({
+          method: 'wallet_connect',
+          params: [{ capabilities: { createAccount: true } }],
+        })
+        const address = account!.address
+
+        const initialBalance = Value.fromEther('10000')
+        await setBalance(client, {
+          address,
+          value: initialBalance,
+        })
+
+        const alice = Hex.random(20)
+        const chainId_dest = TestConfig.chains[1]!.id
+
+        const { id } = await porto.provider.request({
+          method: 'wallet_sendCalls',
+          params: [
+            {
+              calls: [
                 {
-                  symbol: 'EXP',
-                  value: '50',
+                  data: encodeFunctionData({
+                    abi: contracts.exp1.abi,
+                    args: [alice, Value.fromEther('50')],
+                    functionName: 'transfer',
+                  }),
+                  to: contracts.exp1.address,
                 },
               ],
+              capabilities: {
+                requiredFunds: [
+                  {
+                    symbol: 'EXP',
+                    value: '50',
+                  },
+                ],
+              },
+              chainId: Hex.fromNumber(chainId_dest),
+              from: address,
+              version: '1',
             },
-            chainId: Hex.fromNumber(chainId_dest),
-            from: address,
-            version: '1',
-          },
-        ],
-      })
+          ],
+        })
 
-      expect(id).toBeDefined()
+        expect(id).toBeDefined()
 
-      await waitForCallsStatus(WalletClient.fromPorto(porto), {
-        id,
-      })
+        await waitForCallsStatus(WalletClient.fromPorto(porto), {
+          id,
+        })
 
-      const balance = await readContract(client, {
-        abi: contracts.exp1.abi,
-        address: contracts.exp1.address,
-        args: [address],
-        functionName: 'balanceOf',
-      })
-      expect(balance).toBeLessThan(initialBalance)
+        const balance = await readContract(client, {
+          abi: contracts.exp1.abi,
+          address: contracts.exp1.address,
+          args: [address],
+          functionName: 'balanceOf',
+        })
+        expect(balance).toBeLessThan(initialBalance)
 
-      const client_dest = TestConfig.getRelayClient(porto, {
-        chainId: chainId_dest,
-      })
+        const client_dest = TestConfig.getRelayClient(porto, {
+          chainId: chainId_dest,
+        })
 
-      const balance_dest = await readContract(client_dest, {
-        abi: contracts.exp1.abi,
-        address: contracts.exp1.address,
-        args: [alice],
-        functionName: 'balanceOf',
-      })
-      expect(balance_dest).toBeGreaterThanOrEqual(Value.fromEther('50'))
-      expect(balance_dest).toBeLessThan(Value.fromEther('50.0005'))
-    })
+        const balance_dest = await readContract(client_dest, {
+          abi: contracts.exp1.abi,
+          address: contracts.exp1.address,
+          args: [alice],
+          functionName: 'balanceOf',
+        })
+        expect(balance_dest).toBeGreaterThanOrEqual(Value.fromEther('50'))
+        expect(balance_dest).toBeLessThan(Value.fromEther('50.0005'))
+      },
+    )
 
     test('behavior: no calls.to', async () => {
       const porto = getPorto()

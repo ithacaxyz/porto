@@ -11,9 +11,6 @@ interface EnvironmentVariables {
   readonly SANDBOX_STRIPE_API_KEY: string
   readonly SANDBOX_STRIPE_PUBLISHABLE_KEY: string
 
-  /** `/faucet` route */
-  readonly DRIP_PRIVATE_KEY: `0x${string}`
-
   /** `/verify` route */
   readonly VERIFY_CONFIG_URL: string
 }

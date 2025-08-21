@@ -143,40 +143,46 @@ type Response = {
   // relay is returned.
   context: {
     quote: {
-      chainId: Hex,
-      intent: {
-        eoa: Address,
-        executionData: Hex,
-        nonce: Hex,
-        payer: Address,
-        paymentToken: Address,
-        prePaymentMaxAmount: Hex,
-        totalPaymentMaxAmount: Hex,
-        combinedGas: Hex,
-        encodedPreCalls: Hex[],
-        prePaymentAmount: Hex,
-        totalPaymentAmount: Hex,
-        paymentRecipient: Address,
-        signature: Hex,
-        paymentSignature: Hex,
-        supportedAccountImplementation: Address,
-      },
-      txGas: Hex,
-      nativeFeeEstimate: {
-        maxFeePerGas: number,
-        maxPriorityFeePerGas: number,
-      },
-      // UNIX timestamp the quote expires at.
+      /** Array of quotes for single or multi-chain execution */
+      quotes: {
+        chainId: Hex,
+        intent: {
+          eoa: Address,
+          executionData: Hex,
+          nonce: Hex,
+          payer: Address,
+          paymentToken: Address,
+          prePaymentMaxAmount: Hex,
+          totalPaymentMaxAmount: Hex,
+          combinedGas: Hex,
+          encodedPreCalls: Hex[],
+          prePaymentAmount: Hex,
+          totalPaymentAmount: Hex,
+          paymentRecipient: Address,
+          signature: Hex,
+          paymentSignature: Hex,
+          supportedAccountImplementation: Address,
+        },
+        txGas: Hex,
+        nativeFeeEstimate: {
+          maxFeePerGas: number,
+          maxPriorityFeePerGas: number,
+        },
+        authorizationAddress?: Address,
+        orchestrator: Address,
+        feeTokenDeficit?: Hex,
+      }[],
+      /** UNIX timestamp the quotes expire at */
       ttl: number,
-      authorizationAddress?: Address,
-      entrypoint: Address,
-      // The Relays signature over the quote.
+      /** Optional merkle root for multi-chain execution */
+      multiChainRoot?: Hash,
+      /** The Relay's signature over the quotes */
       signature: {
         y_parity: boolean,
         r: Hex,
         s: Hex,
       },
-      // The hash of the quote.
+      /** The hash of the quotes */
       hash: Hash,
     },
   } | {

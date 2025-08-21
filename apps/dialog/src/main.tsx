@@ -69,6 +69,9 @@ const offInitialized = Events.onInitialized(porto, (payload, event) => {
     ...(theme
       ? { customTheme: Theme.parseJsonTheme(JSON.stringify(theme)) }
       : {}),
+
+    // Only the iframe mode starts hidden until request:open is sent
+    visible: mode !== 'iframe',
   })
 })
 
@@ -136,6 +139,13 @@ porto.messenger.on('__internal', (payload) => {
     Dialog.store.setState({
       customTheme: Theme.parseJsonTheme(JSON.stringify(payload.theme)),
     })
+
+  if (payload.type === 'dialog-lifecycle') {
+    if (payload.action === 'request:open')
+      Dialog.store.setState({ visible: true })
+    if (payload.action === 'request:close')
+      Dialog.store.setState({ visible: false })
+  }
 })
 
 porto.ready()
@@ -145,10 +155,14 @@ const rootElement = document.querySelector('div#root')
 if (!rootElement) throw new Error('Root element not found')
 
 createRoot(rootElement, {
-  onCaughtError: Sentry.reactErrorHandler(),
-  onRecoverableError: Sentry.reactErrorHandler(),
-  onUncaughtError: Sentry.reactErrorHandler((error, errorInfo) => {
-    console.warn('Uncaught error', error, errorInfo.componentStack)
+  onCaughtError: Sentry.reactErrorHandler((error) => {
+    console.error(error)
+  }),
+  onRecoverableError: Sentry.reactErrorHandler((error) => {
+    console.error(error)
+  }),
+  onUncaughtError: Sentry.reactErrorHandler((error) => {
+    console.error(error)
   }),
 }).render(
   <StrictMode>

@@ -9,7 +9,6 @@ import { secureHeaders } from 'hono/secure-headers'
 import { trimTrailingSlash } from 'hono/trailing-slash'
 
 import { corsApp } from './routes/cors.ts'
-import { faucetApp } from './routes/faucet.ts'
 import { snapshotApp } from './routes/snapshot.tsx'
 import { verifyApp } from './routes/verify.ts'
 
@@ -32,7 +31,6 @@ app.get('/', (context) =>
 app.get('/health', (context) => context.text('ok'))
 
 app.route('/cors', corsApp)
-app.route('/faucet', faucetApp)
 app.route('/verify', verifyApp)
 app.route('/snapshot', snapshotApp)
 

@@ -1,15 +1,20 @@
 import { PortoConfig } from '@porto/apps'
-import { Mode } from 'porto'
+import { type Chains, Mode } from 'porto'
 import { porto } from 'porto/wagmi'
 import { createConfig, createStorage } from 'wagmi'
 
 export const config = PortoConfig.getConfig()
 
+const testnet = new URLSearchParams(window.location.search).get('testnets')
+
 export const wagmiConfig = createConfig({
-  chains: config.chains,
+  chains: config.chains.filter((c) =>
+    testnet ? c.testnet : !c.testnet,
+  ) as unknown as [Chains.Chain, ...Chains.Chain[]],
   connectors: [
     porto({
       ...config,
+      feeToken: testnet ? 'EXP' : undefined,
       mode: Mode.dialog({
         host: PortoConfig.getDialogHost(),
       }),

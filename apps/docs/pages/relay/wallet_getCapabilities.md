@@ -30,52 +30,72 @@ type Response = {
   // the chain ID as hex
   [chainId: Hex]: {
     contracts: {
-      delegationImplementation: {
+      /** Account implementation address. */
+      accountImplementation: {
         address: Address,
-        version?: string,
+        version?: string | null,
       },
-      delegationProxy: {
+      /** Account proxy address. */
+      accountProxy: {
         address: Address,
-        version?: string,
+        version?: string | null,
       },
-      entrypoint: {
+      /** Legacy account implementation addresses. */
+      legacyAccountImplementations: {
         address: Address,
-        version?: string,
-      },
-      legacyDelegations?: {
-        address: Address,
-        version?: string,
+        version?: string | null,
       }[],
-      legacyEntrypoints?: {
+      /** Legacy orchestrator addresses. */
+      legacyOrchestrators: {
         address: Address,
-        version?: string,
+        version?: string | null,
       }[],
+      /** Orchestrator address. */
+      orchestrator: {
+        address: Address,
+        version?: string | null,
+      },
+      /** Simulator address. */
       simulator: {
         address: Address,
-        version?: string,
+        version?: string | null,
+      },
+      /** Funder contract address. */
+      funder: {
+        address: Address,
+        version?: string | null,
+      },
+      /** Escrow contract address. */
+      escrow: {
+        address: Address,
+        version?: string | null,
       },
     },
     fees: {
       quoteConfig: {
-        // only present on development environments
-        constantRate?: number,
+        /** Sets a constant rate for the price oracle. Used for testing. */
+        constantRate?: number | null,
+        /** Gas estimate configuration. */
         gas: {
-          txBuffer: number,
+          /** Extra buffer added to Intent gas estimates. */
           intentBuffer: number,
+          /** Extra buffer added to transaction gas estimates. */
+          txBuffer: number,
         },
-        // price feed ttl
+        /** The lifetime of a price rate. */
         rateTtl: number,
-        // the ttl of RPC quotes
+        /** The lifetime of a fee quote. */
         ttl: number,
       },
-      // the recipient of fees
-      // if this is the zero address, fees are accumulated in the entrypoint
+      /** Fee recipient address. */
       recipient: Address,
+      /** Tokens the fees can be paid in. */
       tokens: {
         address: Address,
         decimals: number,
-        // the rate of the fee token to native tokens
-        nativeRate: Hex,
+        interop?: boolean,
+        /** The rate of the fee token to native tokens. */
+        nativeRate?: bigint,
         symbol: string,
         uid: string
       }[],
@@ -87,38 +107,45 @@ type Response = {
 ## Example
 
 ```sh
-cast rpc --rpc-url https://porto-dev.rpc.ithaca.xyz wallet_getCapabilities '[28404]'
+cast rpc --rpc-url https://rpc.ithaca.xyz wallet_getCapabilities '["0x8453"]'
 ```
 
-```ts
+```json
 {
-  "0x14a34": {
+  "0x8453": {
     "contracts": {
-        "delegationImplementation": {
-          "address": "0x5c4fd1f648a89802b7fcd0bced8a35567d99cf15",
-          "version": "0.1.2"
+        "accountImplementation": {
+          "address": "0xb292da8879c26ecd558bbea87f581cdd608ffc3c",
+          "version": "0.2.0"
         },
-        "delegationProxy": {
-          "address": "0xc49cc88a576cf77053ba11b1c3a3011b42da0f34",
+        "accountProxy": {
+          "address": "0x96e9ded822ffd4c65d8e09340ee95d2dc8fa209f",
           "version": null
         },
-        "entrypoint": {
-          "address": "0x2e71297e895fd480019810605360cd09dbb8783b",
-          "version": "0.1.2"
+        "orchestrator": {
+          "address": "0x883ac1afd6bf920755ccee253669515683634930",
+          "version": "0.2.0"
         },
-        "legacyDelegations": [],
-        "legacyEntrypoints": [],
+        "legacyAccountImplementations": [],
+        "legacyOrchestrators": [],
         "simulator": {
-          "address": "0x45b65d48e60a9414872ecd092ddf5b37c6bf4d06",
+          "address": "0x21d83f97fff3e35ab42d02e4bec8d61a9b645852",
+          "version": null
+        },
+        "funder": {
+          "address": "0x1234567890123456789012345678901234567890",
+          "version": null
+        },
+        "escrow": {
+          "address": "0x0987654321098765432109876543210987654321",
           "version": null
         }
     },
     "fees": {
       "quoteConfig": {
-        "constantRate": null,
         "gas": {
-          "txBuffer": 100000,
-          "intentBuffer": 100000
+          "txBuffer": 10000,
+          "intentBuffer": 20000
         },
         "rateTtl": 300,
         "ttl": 30
@@ -126,18 +153,11 @@ cast rpc --rpc-url https://porto-dev.rpc.ithaca.xyz wallet_getCapabilities '[284
       "recipient": "0x0000000000000000000000000000000000000000",
       "tokens": [
         {
-          "address": "0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa",
-          "decimals": 18,
-          "nativeRate": "0x17a503c0a7000",
-          "symbol": "EXP",
-          "uid": "exp2"
-        },
-        {
-          "address": "0x502ff46e72c47b8c3183db8919700377eed66d2e",
-          "decimals": 18,
-          "nativeRate": "0x17a503c0a7000",
-          "symbol": "EXP",
-          "uid": "exp"
+          "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+          "decimals": 6,
+          "nativeRate": "0x8ac7230489e80000",
+          "symbol": "USDC",
+          "uid": "usdc"
         },
         {
           "address": "0x0000000000000000000000000000000000000000",

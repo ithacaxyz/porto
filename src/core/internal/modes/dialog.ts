@@ -123,18 +123,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
   return Mode.from({
     actions: {
-      async addFaucetFunds(parameters) {
-        const { internal } = parameters
-        const { request, store } = internal
-
-        if (request.method !== 'wallet_addFaucetFunds')
-          throw new Error(
-            'Cannot add faucet funds for method: ' + request.method,
-          )
-
-        const provider = getProvider(store)
-        return await provider.request(request)
-      },
       async addFunds(parameters) {
         const { internal } = parameters
         const { request, store } = internal
@@ -1007,6 +995,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         if (request.method !== 'wallet_switchEthereumChain')
           throw new Error('Cannot switch chain for method: ' + request.method)
+
+        if (!renderer.supportsHeadless) return
 
         const provider = getProvider(store)
         return await provider.request(request)

@@ -45,5 +45,11 @@ type Request = {
 ## Response
 
 ```ts
-type Response = void
+type Response = {
+  /** Call bundles that were executed */
+  bundles: {
+    /** The ID of the call bundle */
+    id: Hex,
+  }[]
+}
 ```

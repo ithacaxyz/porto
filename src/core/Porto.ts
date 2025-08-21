@@ -86,6 +86,21 @@ export function create(
           requestQueue: [],
         }),
         {
+          merge(p, currentState) {
+            const persistedState = p as State
+            const currentChainId = persistedState.chainIds[0]
+            const chainIds = [
+              currentChainId,
+              ...config.chains
+                .map((chain) => chain.id)
+                .filter((id) => id !== currentChainId),
+            ] as const
+            return {
+              ...currentState,
+              ...persistedState,
+              chainIds,
+            }
+          },
           name: config.storageKey,
           partialize(state) {
             return {

@@ -8,6 +8,7 @@ import * as TestConfig from '../../../test/src/config.js'
 import * as Key from '../Key.js'
 import { sendCalls } from '../RelayActions.js'
 import {
+  addFaucetFunds,
   getAssets,
   getCallsStatus,
   getCapabilities,
@@ -23,6 +24,44 @@ import {
 const porto = TestConfig.getPorto()
 const client = TestConfig.getRelayClient(porto)
 const contracts = await TestConfig.getContracts(porto)
+
+describe('addFaucetFunds', () => {
+  test('default', async () => {
+    const alice = Hex.random(20)
+
+    const result = await addFaucetFunds(client, {
+      address: alice,
+      chainId: client.chain.id,
+      tokenAddress: contracts.exp1.address,
+      value: Value.fromEther('10'),
+    })
+
+    expect(result).toBeDefined()
+    expect(result.transactionHash).toBeDefined()
+
+    // Wait for funds to be added
+    await new Promise((resolve) => setTimeout(resolve, 2_000))
+
+    const balance = await readContract(client, {
+      abi: contracts.exp1.abi,
+      address: contracts.exp1.address,
+      args: [alice],
+      functionName: 'balanceOf',
+    })
+    expect(balance).toBe(Value.fromEther('10'))
+  })
+
+  test('behavior: unsupported chain', async () => {
+    await expect(() =>
+      addFaucetFunds(client, {
+        address: Hex.random(20),
+        chainId: 999999,
+        tokenAddress: contracts.exp1.address,
+        value: Value.fromEther('1'),
+      }),
+    ).rejects.toThrow()
+  })
+})
 
 describe('health', () => {
   test('default', async () => {
@@ -543,183 +582,185 @@ describe('prepareCalls + sendPreparedCalls', () => {
   })
 
   // TODO: enable interop on anvil
-  // TODO: uncomment when interop enabled again for testnets.
-  // test.runIf(!Anvil.enabled)(
-  test.skip('behavior: required funds (prefunded on all chains)', async () => {
-    const key = Key.createHeadlessWebAuthnP256()
-    const account = await TestActions.createAccount(client, {
-      keys: [key],
-    })
+  test.runIf(!Anvil.enabled)(
+    'behavior: required funds (prefunded on all chains)',
+    async () => {
+      const key = Key.createHeadlessWebAuthnP256()
+      const account = await TestActions.createAccount(client, {
+        keys: [key],
+      })
 
-    const chain_dest = TestConfig.chains[1]
+      const chain_dest = TestConfig.chains[1]
 
-    // fund account on destination chain
-    const client_dest = TestConfig.getRelayClient(porto, {
-      chainId: chain_dest!.id,
-    })
-    await TestActions.setBalance(client_dest, {
-      address: account.address,
-      value: Value.fromEther('2'),
-    })
+      // fund account on destination chain
+      const client_dest = TestConfig.getRelayClient(porto, {
+        chainId: chain_dest!.id,
+      })
+      await TestActions.setBalance(client_dest, {
+        address: account.address,
+        value: Value.fromEther('2'),
+      })
 
-    const balance_pre_source = await readContract(client, {
-      abi: contracts.exp1.abi,
-      address: contracts.exp1.address,
-      args: [account.address],
-      functionName: 'balanceOf',
-    })
+      const balance_pre_source = await readContract(client, {
+        abi: contracts.exp1.abi,
+        address: contracts.exp1.address,
+        args: [account.address],
+        functionName: 'balanceOf',
+      })
 
-    const request = await prepareCalls(client, {
-      address: account.address,
-      calls: [
-        {
-          abi: contracts.exp1.abi,
-          args: [account.address, Value.fromEther('5')],
-          functionName: 'transfer',
-          to: contracts.exp1.address,
-        },
-      ],
-      capabilities: {
-        meta: {
-          feeToken: contracts.exp1.address,
-        },
-        requiredFunds: [
+      const request = await prepareCalls(client, {
+        address: account.address,
+        calls: [
           {
-            address: contracts.exp1.address,
-            value: Value.fromEther('5'),
+            abi: contracts.exp1.abi,
+            args: [account.address, Value.fromEther('5')],
+            functionName: 'transfer',
+            to: contracts.exp1.address,
           },
         ],
-      },
-      chain: chain_dest,
-      key: {
-        prehash: false,
-        publicKey: key.publicKey,
-        type: 'webauthnp256',
-      },
-    })
+        capabilities: {
+          meta: {
+            feeToken: contracts.exp1.address,
+          },
+          requiredFunds: [
+            {
+              address: contracts.exp1.address,
+              value: Value.fromEther('5'),
+            },
+          ],
+        },
+        chain: chain_dest,
+        key: {
+          prehash: false,
+          publicKey: key.publicKey,
+          type: 'webauthnp256',
+        },
+      })
 
-    const signature = await Key.sign(key, {
-      payload: request.digest,
-      wrap: false,
-    })
+      const signature = await Key.sign(key, {
+        payload: request.digest,
+        wrap: false,
+      })
 
-    const { id } = await sendPreparedCalls(client, {
-      context: request.context,
-      key: request.key!,
-      signature,
-    })
+      const { id } = await sendPreparedCalls(client, {
+        context: request.context,
+        key: request.key!,
+        signature,
+      })
 
-    const { status } = await waitForCallsStatus(client, {
-      id,
-    })
-    expect(status).toBe('success')
+      const { status } = await waitForCallsStatus(client, {
+        id,
+      })
+      expect(status).toBe('success')
 
-    const balance_post_source = await readContract(client, {
-      abi: contracts.exp1.abi,
-      address: contracts.exp1.address,
-      args: [account.address],
-      functionName: 'balanceOf',
-    })
-    expect(balance_post_source).toBeLessThan(balance_pre_source)
+      const balance_post_source = await readContract(client, {
+        abi: contracts.exp1.abi,
+        address: contracts.exp1.address,
+        args: [account.address],
+        functionName: 'balanceOf',
+      })
+      expect(balance_post_source).toBeLessThan(balance_pre_source)
 
-    const contracts_dest = await TestConfig.getContracts(porto, {
-      chainId: chain_dest!.id,
-    })
-    const balance_post_destination = await readContract(client_dest, {
-      abi: contracts_dest.exp1.abi,
-      address: contracts_dest.exp1.address,
-      args: [account.address],
-      functionName: 'balanceOf',
-    })
-    expect(balance_post_destination).toBeGreaterThan(Value.fromEther('5'))
-    expect(balance_post_destination).toBeLessThan(Value.fromEther('5.0005'))
-  })
+      const contracts_dest = await TestConfig.getContracts(porto, {
+        chainId: chain_dest!.id,
+      })
+      const balance_post_destination = await readContract(client_dest, {
+        abi: contracts_dest.exp1.abi,
+        address: contracts_dest.exp1.address,
+        args: [account.address],
+        functionName: 'balanceOf',
+      })
+      expect(balance_post_destination).toBeGreaterThan(Value.fromEther('5'))
+      expect(balance_post_destination).toBeLessThan(Value.fromEther('5.0005'))
+    },
+  )
 
   // TODO: enable interop on anvil
-  // TODO: uncomment when interop enabled again for testnets.
-  // test.runIf(!Anvil.enabled)(
-  test.skip('behavior: required funds (not prefunded on destination chain)', async () => {
-    const key = Key.createHeadlessWebAuthnP256()
-    const account = await TestActions.createAccount(client, {
-      keys: [key],
-    })
+  test.runIf(!Anvil.enabled)(
+    'behavior: required funds (not prefunded on destination chain)',
+    async () => {
+      const key = Key.createHeadlessWebAuthnP256()
+      const account = await TestActions.createAccount(client, {
+        keys: [key],
+      })
 
-    const balance_pre = await readContract(client, {
-      abi: contracts.exp1.abi,
-      address: contracts.exp1.address,
-      args: [account.address],
-      functionName: 'balanceOf',
-    })
+      const balance_pre = await readContract(client, {
+        abi: contracts.exp1.abi,
+        address: contracts.exp1.address,
+        args: [account.address],
+        functionName: 'balanceOf',
+      })
 
-    const alice = Hex.random(20)
-    const chain_dest = TestConfig.chains[1]
+      const alice = Hex.random(20)
+      const chain_dest = TestConfig.chains[1]
 
-    const request = await prepareCalls(client, {
-      address: account.address,
-      calls: [
-        {
-          abi: contracts.exp1.abi,
-          args: [alice, Value.fromEther('50')],
-          functionName: 'transfer',
-          to: contracts.exp1.address,
-        },
-      ],
-      capabilities: {
-        meta: {
-          feeToken: contracts.exp1.address,
-        },
-        requiredFunds: [
+      const request = await prepareCalls(client, {
+        address: account.address,
+        calls: [
           {
-            address: contracts.exp1.address,
-            value: Value.fromEther('50'),
+            abi: contracts.exp1.abi,
+            args: [alice, Value.fromEther('50')],
+            functionName: 'transfer',
+            to: contracts.exp1.address,
           },
         ],
-      },
-      chain: chain_dest,
-      key: {
-        prehash: false,
-        publicKey: key.publicKey,
-        type: 'webauthnp256',
-      },
-    })
+        capabilities: {
+          meta: {
+            feeToken: contracts.exp1.address,
+          },
+          requiredFunds: [
+            {
+              address: contracts.exp1.address,
+              value: Value.fromEther('50'),
+            },
+          ],
+        },
+        chain: chain_dest,
+        key: {
+          prehash: false,
+          publicKey: key.publicKey,
+          type: 'webauthnp256',
+        },
+      })
 
-    const signature = await Key.sign(key, {
-      payload: request.digest,
-      wrap: false,
-    })
+      const signature = await Key.sign(key, {
+        payload: request.digest,
+        wrap: false,
+      })
 
-    const { id } = await sendPreparedCalls(client, {
-      context: request.context,
-      key: request.key!,
-      signature,
-    })
+      const { id } = await sendPreparedCalls(client, {
+        context: request.context,
+        key: request.key!,
+        signature,
+      })
 
-    const { status } = await waitForCallsStatus(client, {
-      id,
-    })
-    expect(status).toBe('success')
+      const { status } = await waitForCallsStatus(client, {
+        id,
+      })
+      expect(status).toBe('success')
 
-    const client_dest = TestConfig.getRelayClient(porto, {
-      chainId: chain_dest!.id,
-    })
+      const client_dest = TestConfig.getRelayClient(porto, {
+        chainId: chain_dest!.id,
+      })
 
-    const balance_post = await readContract(client, {
-      abi: contracts.exp1.abi,
-      address: contracts.exp1.address,
-      args: [account.address],
-      functionName: 'balanceOf',
-    })
-    expect(balance_post).toBeLessThan(balance_pre)
+      const balance_post = await readContract(client, {
+        abi: contracts.exp1.abi,
+        address: contracts.exp1.address,
+        args: [account.address],
+        functionName: 'balanceOf',
+      })
+      expect(balance_post).toBeLessThan(balance_pre)
 
-    const balance_dest = await readContract(client_dest, {
-      abi: contracts.exp1.abi,
-      address: contracts.exp1.address,
-      args: [alice],
-      functionName: 'balanceOf',
-    })
-    expect(balance_dest).toBeGreaterThanOrEqual(Value.fromEther('50'))
-    expect(balance_dest).toBeLessThan(Value.fromEther('50.0005'))
-  })
+      const balance_dest = await readContract(client_dest, {
+        abi: contracts.exp1.abi,
+        address: contracts.exp1.address,
+        args: [alice],
+        functionName: 'balanceOf',
+      })
+      expect(balance_dest).toBeGreaterThanOrEqual(Value.fromEther('50'))
+      expect(balance_dest).toBeLessThan(Value.fromEther('50.0005'))
+    },
+  )
 
   test('behavior: contract calls', async () => {
     const key = Key.createHeadlessWebAuthnP256()
