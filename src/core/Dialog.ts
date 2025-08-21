@@ -436,7 +436,7 @@ export declare namespace iframe {
  */
 export function popup(options: popup.Options = {}) {
   if (typeof window === 'undefined') return noop()
-  const { type = 'auto', size = popupDefaultSize } = options
+  const { type = 'auto', size = defaultSize } = options
   return from({
     name: 'popup',
     setup(parameters) {
@@ -720,8 +720,7 @@ export function createThemeController(): ThemeController {
   return controller
 }
 
-export const iframeDefaultSize = { height: 282, width: 360 }
-export const popupDefaultSize = { height: 320, width: 360 }
+export const defaultSize = { height: 282, width: 360 }
 
 export function requiresConfirmation(
   request: RpcRequest.RpcRequest,

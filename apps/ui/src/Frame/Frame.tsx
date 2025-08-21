@@ -96,14 +96,14 @@ export function Frame({
   useSize(
     screenRef,
     ({ width, height }) => {
-      if (height === 0) return
+      if (height === 0 || width === 0) return
       if (mode.name === 'dialog')
         onHeight?.(
           height +
             33 + // 32px + 1px border for the frame bar in dialog mode
             2, // frame top & bottom borders
         )
-      if (mode.name === 'full')
+      if (mode.name === 'full' && mode.variant === 'content-height')
         onHeight?.(
           height +
             (width >= 480 ? 60 : width >= 380 ? 48 : 40) + // frame bar height
@@ -189,7 +189,10 @@ export function Frame({
                   css({
                     display: 'grid',
                     overflowX: 'auto',
-                    overflowY: mode.name === 'full' ? 'auto' : 'hidden',
+                    overflowY:
+                      mode.name === 'full' && mode.variant !== 'content-height'
+                        ? 'auto'
+                        : 'hidden',
                     width: '100%',
                   }),
                   dialogDrawer
@@ -309,7 +312,6 @@ export function Frame({
                               border: '1px solid var(--border-color-th_frame)',
                               borderRadius: 'var(--radius-th_large)',
                               maxWidth: 400,
-                              overflow: 'hidden',
                             },
                             overflow: 'hidden',
                           }),
