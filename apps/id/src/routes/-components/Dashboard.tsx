@@ -77,7 +77,7 @@ export function Dashboard() {
           for (const asset of chainAssets) {
             const address =
               asset.address === 'native' ? zeroAddress : asset.address
-            if (!address) continue
+            if (!address || asset.balance === 0n) continue
             formattedAssets.push({
               address,
               balance: asset.balance,
