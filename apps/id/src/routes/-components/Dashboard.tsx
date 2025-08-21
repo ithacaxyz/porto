@@ -13,7 +13,6 @@ import { toast } from 'sonner'
 import { encodeFunctionData, erc20Abi, formatEther, zeroAddress } from 'viem'
 import {
   useAccount,
-  useChainId,
   useDisconnect,
   useSendCalls,
   useWaitForCallsStatus,
@@ -119,8 +118,6 @@ export function Dashboard() {
       }),
     },
   })
-
-  const chainId = useChainId()
 
   const revokeAdmin = Hooks.useRevokeAdmin({
     mutation: {
@@ -324,14 +321,11 @@ export function Dashboard() {
             <Button
               onClick={() => {
                 if (!account.chainId) return
-                console.info(account.chainId)
-                console.info(chainId)
                 addFunds.mutate({
                   address: account.address,
                   chainId: Chains.baseSepolia.id,
-                  // token: exp1Address[Chains.baseSepolia.id],
-                  // @ts-expect-error
-                  tokenAddress: exp1Address[Chains.baseSepolia.id],
+                  // @ts-expect-error TODO: update addFunds token type
+                  tokenAddress: exp1Address[account.chainId],
                 })
               }}
               size="small"
