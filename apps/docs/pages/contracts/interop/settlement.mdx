@@ -1,0 +1,358 @@
+# Settlement
+
+Settlement providers enable cross-chain transaction finality verification, serving as the bridge between multi-chain operations and on-chain escrow resolution.
+
+## Overview
+
+The settlement system provides a standardized interface for verifying cross-chain messages and transactions. Porto includes multiple settlement implementations, each optimized for different trust models and use cases.
+
+## ISettler Interface
+
+All settlement providers implement the core `ISettler` interface:
+
+```solidity
+interface ISettler {
+    function send(
+        bytes32 settlementId,
+        bytes calldata settlerContext
+    ) external payable;
+    
+    function read(
+        bytes32 settlementId,
+        address attester,
+        uint256 chainId
+    ) external view returns (bool isSettled);
+}
+```
+
+### Methods
+
+- **`send`**: Initiates settlement attestation to target chains
+- **`read`**: Verifies if a settlement has been confirmed from a specific chain
+
+## Settlement Providers
+
+### SimpleSettler
+
+A signature-based settlement system ideal for trusted environments and rapid settlement.
+
+#### Features
+
+- **Owner-controlled settlement**: Direct write access for trusted operator
+- **Signature verification**: Permissionless settlement with EIP-712 signatures
+- **Gas efficient**: Minimal on-chain operations
+- **Instant settlement**: No waiting for cross-chain messages
+
+#### Usage
+
+```solidity
+// Owner directly writes settlement
+simpleSettler.write(senderAddress, settlementId, chainId);
+
+// Or use signature for permissionless settlement
+bytes memory signature = signSettlement(sender, settlementId, chainId);
+simpleSettler.write(sender, settlementId, chainId, signature);
+
+// Verify settlement
+bool isSettled = simpleSettler.read(settlementId, sender, chainId);
+```
+
+#### When to Use
+
+- Centralized applications with trusted operators
+- Development and testing environments
+- Time-sensitive operations requiring instant settlement
+- Lower-value transactions where trust assumptions are acceptable
+
+### LayerZeroSettler
+
+Decentralized cross-chain settlement using LayerZero v2 messaging protocol.
+
+#### Features
+
+- **Trustless verification**: No dependency on centralized parties
+- **Self-executing model**: Automatic message relay without external executors
+- **Multi-chain support**: Simultaneous settlement to multiple chains
+- **Cryptographic security**: LayerZero's proven message verification
+
+#### Architecture
+
+```
+Chain A (Source)                  Chain B (Destination)
+┌─────────────┐                   ┌─────────────┐
+│   Escrow    │                   │   Escrow    │
+└──────┬──────┘                   └──────▲──────┘
+       │                                  │
+       │ send()                           │ read()
+       ▼                                  │
+┌─────────────┐    LayerZero      ┌─────────────┐
+│ LZ Settler  │◄──────────────────►│ LZ Settler  │
+└─────────────┘                   └─────────────┘
+```
+
+#### Usage
+
+```solidity
+// Step 1: Mark settlement as valid to send
+bytes32 settlementId = keccak256("unique-settlement");
+uint32[] memory destChainIds = new uint32[](2);
+destChainIds[0] = 10; // Optimism
+destChainIds[1] = 137; // Polygon
+
+layerZeroSettler.send{value: msgFee}(
+    settlementId,
+    abi.encode(destChainIds)
+);
+
+// Step 2: Execute the cross-chain send
+layerZeroSettler.executeSend{value: lzFees}(
+    senderAddress,
+    settlementId,
+    abi.encode(destChainIds)
+);
+
+// On destination chains: automatic settlement recording
+// Verification happens automatically via _lzReceive
+```
+
+#### Fee Management
+
+LayerZero requires fees for cross-chain messaging:
+
+```solidity
+// Quote fees before sending
+uint32[] memory chains = new uint32[](1);
+chains[0] = destChainId;
+
+MessagingFee memory fee = layerZeroSettler.quote(
+    destChainId,
+    abi.encode(settlementId, sender, block.chainid),
+    options,
+    false
+);
+
+// Send with exact fees
+layerZeroSettler.executeSend{value: fee.nativeFee}(
+    sender,
+    settlementId,
+    abi.encode(chains)
+);
+```
+
+#### Peer Configuration
+
+LayerZeroSettler uses automatic peer resolution by default:
+
+```solidity
+// Default: Same address on all chains
+// Custom peers can be set by owner if needed
+layerZeroSettler.setPeer(chainId, peerAddress);
+```
+
+#### When to Use
+
+- Production environments requiring trustless operation
+- High-value transactions needing cryptographic guarantees
+- Multi-chain DeFi protocols
+- Any application prioritizing decentralization
+
+## Implementing Custom Settlers
+
+Create custom settlement logic by implementing `ISettler`:
+
+```solidity
+contract CustomSettler is ISettler {
+    mapping(bytes32 => mapping(address => mapping(uint256 => bool))) 
+        public settlements;
+    
+    function send(
+        bytes32 settlementId,
+        bytes calldata settlerContext
+    ) external payable override {
+        // Custom logic for initiating settlement
+        // Could integrate with oracles, bridges, etc.
+    }
+    
+    function read(
+        bytes32 settlementId,
+        address attester,
+        uint256 chainId
+    ) external view override returns (bool) {
+        // Custom verification logic
+        return settlements[settlementId][attester][chainId];
+    }
+}
+```
+
+### Custom Implementation Ideas
+
+#### Oracle-Based Settler
+```solidity
+// Verify settlements through Chainlink oracles
+function read(...) returns (bool) {
+    return oracleContract.verifySettlement(settlementId);
+}
+```
+
+#### Multi-Sig Settler
+```solidity
+// Require N-of-M signatures for settlement
+function read(...) returns (bool) {
+    return signatureCount[settlementId] >= threshold;
+}
+```
+
+#### Time-Locked Settler
+```solidity
+// Auto-settle after time period
+function read(...) returns (bool) {
+    return settlementTime[settlementId] <= block.timestamp;
+}
+```
+
+## Security Considerations
+
+### SimpleSettler Security
+
+- **Trust assumption**: Relies on owner honesty
+- **Signature replay**: Signatures can be replayed (by design)
+- **Access control**: Critical to protect owner key
+
+### LayerZeroSettler Security
+
+- **Message integrity**: Guaranteed by LayerZero protocol
+- **Peer validation**: Automatic peer resolution prevents spoofing
+- **Fee handling**: Excess fees refunded to caller
+- **No griefing**: Failed messages don't affect settlement state
+
+### General Best Practices
+
+1. **Choose appropriate settler**: Match trust model to use case
+2. **Validate parameters**: Always verify settlement context
+3. **Handle failures gracefully**: Implement proper error handling
+4. **Monitor events**: Track settlement status through events
+5. **Test thoroughly**: Verify cross-chain flows in testnet
+
+## Events
+
+### SimpleSettler Events
+
+```solidity
+event Sent(
+    address indexed sender,
+    bytes32 indexed settlementId,
+    uint256 receiverChainId
+);
+```
+
+### LayerZeroSettler Events
+
+```solidity
+event Settled(
+    address indexed sender,
+    bytes32 indexed settlementId,
+    uint256 senderChainId
+);
+```
+
+## Comparison
+
+| Feature | SimpleSettler | LayerZeroSettler |
+|---------|--------------|------------------|
+| Trust Model | Centralized | Decentralized |
+| Settlement Speed | Instant | ~1-3 minutes |
+| Gas Cost | Low | Medium |
+| Cross-chain Fees | None | Required |
+| Security | Signature-based | Cryptographic |
+| Complexity | Simple | Moderate |
+| Best For | Development, trusted ops | Production, trustless |
+
+## Integration Example
+
+### Complete Cross-Chain Trade
+
+```solidity
+// 1. Create escrow with LayerZeroSettler
+Escrow memory escrowData = Escrow({
+    settler: address(layerZeroSettler),
+    settlementId: tradeId,
+    senderChainId: 137, // Expecting from Polygon
+    // ... other fields
+});
+
+// 2. On source chain (Polygon): Send settlement
+layerZeroSettler.send(tradeId, abi.encode([1])); // To Ethereum
+layerZeroSettler.executeSend{value: fee}(
+    orchestrator,
+    tradeId,
+    abi.encode([1])
+);
+
+// 3. On destination chain: Settlement auto-recorded via _lzReceive
+
+// 4. Settle the escrow
+escrow.settle([escrowId]); // Automatically verified with settler
+```
+
+## Gas Optimization
+
+### Batch Settlement
+
+Both settlers support batch operations:
+
+```solidity
+// SimpleSettler: Multiple signatures in one tx
+for (uint i = 0; i < settlements.length; i++) {
+    simpleSettler.write(
+        settlements[i].sender,
+        settlements[i].id,
+        settlements[i].chainId,
+        signatures[i]
+    );
+}
+
+// LayerZeroSettler: Multiple chains in one message
+uint32[] memory chains = new uint32[](5);
+// ... populate chains
+layerZeroSettler.executeSend{value: totalFees}(
+    sender,
+    settlementId,
+    abi.encode(chains)
+);
+```
+
+### Context Optimization
+
+Minimize `settlerContext` size to reduce calldata costs:
+
+```solidity
+// Efficient: Pack chain IDs
+bytes memory context = abi.encodePacked(
+    uint32(chainA),
+    uint32(chainB)
+);
+
+// Inefficient: Full encoding
+bytes memory context = abi.encode(
+    [chainA, chainB]
+);
+```
+
+## Troubleshooting
+
+### Settlement Not Confirming
+
+1. **Check settler status**: Verify `read()` returns true
+2. **Validate parameters**: Ensure settlementId, sender, chainId match
+3. **Monitor events**: Look for Sent/Settled events
+4. **Verify fees**: Ensure sufficient fees for LayerZero
+
+### LayerZero Issues
+
+1. **Insufficient fees**: Use `quote()` to get exact amounts
+2. **Peer mismatch**: Verify peer configuration
+3. **Message stuck**: Check LayerZero explorer for status
+
+## Contract Addresses
+
+Settlement contracts are deployed across all supported chains. Refer to the [Address Book](/contracts/address-book) for current deployments and the [GitHub repository](https://github.com/ithacaxyz/account) for source code.

@@ -1,0 +1,218 @@
+# Escrow
+
+The Escrow contract facilitates secure token holding with cross-chain settlement capabilities, enabling trustless multi-party transactions with automatic refund mechanisms.
+
+## Overview
+
+The escrow system allows depositors to lock tokens that can be released to recipients upon successful cross-chain settlement verification. If settlement doesn't occur within the specified timeframe, funds are automatically refundable to both parties according to pre-defined splits.
+
+## Core Concepts
+
+### Escrow Structure
+
+Each escrow contains:
+
+```solidity
+struct Escrow {
+    bytes12 salt;               // Unique identifier component
+    address depositor;          // Party depositing funds
+    address recipient;          // Party receiving funds on settlement
+    address token;              // Token address (0x0 for native)
+    uint256 escrowAmount;       // Total amount escrowed
+    uint256 refundAmount;       // Amount refundable to depositor
+    uint256 refundTimestamp;    // When refunds become available
+    address settler;            // Settlement verification contract
+    address sender;             // Expected cross-chain message sender
+    bytes32 settlementId;       // Unique settlement identifier
+    uint256 senderChainId;      // Origin chain of settlement
+}
+```
+
+### Escrow States
+
+```solidity
+enum EscrowStatus {
+    NULL,              // Escrow doesn't exist
+    CREATED,           // Funds deposited, awaiting settlement
+    REFUND_DEPOSIT,    // Depositor refunded
+    REFUND_RECIPIENT,  // Recipient refunded
+    FINALIZED          // Settlement complete or fully refunded
+}
+```
+
+## Workflow
+
+### 1. Creating an Escrow
+
+Depositors create escrows by transferring tokens to the contract:
+
+```solidity
+// Single escrow
+Escrow memory escrowData = Escrow({
+    salt: bytes12(keccak256("unique-id")),
+    depositor: msg.sender,
+    recipient: recipientAddress,
+    token: tokenAddress, // or address(0) for ETH
+    escrowAmount: 1000e18,
+    refundAmount: 100e18, // 10% refund to depositor if not settled
+    refundTimestamp: block.timestamp + 7 days,
+    settler: settlerContract,
+    sender: orchestratorAddress,
+    settlementId: keccak256("settlement-123"),
+    senderChainId: 137 // Polygon
+});
+
+// Create escrow (include msg.value for native token)
+escrow.escrow([escrowData]);
+```
+
+### 2. Settlement Process
+
+Settlement occurs when the designated settler contract confirms the cross-chain message:
+
+```solidity
+// Settlement is triggered when conditions are met
+bytes32[] memory escrowIds = new bytes32[](1);
+escrowIds[0] = keccak256(abi.encode(escrowData));
+escrow.settle(escrowIds);
+
+// The escrow contract verifies with the settler
+// settler.read(settlementId, sender, senderChainId) must return true
+```
+
+Upon successful settlement:
+- Full `escrowAmount` transfers to the recipient
+- Escrow status becomes `FINALIZED`
+- `EscrowSettled` event is emitted
+
+### 3. Refund Mechanism
+
+After `refundTimestamp` passes, refunds become available:
+
+```solidity
+// Refund both parties in one transaction
+escrow.refund(escrowIds);
+
+// Or refund individually (useful if one party is unresponsive)
+escrow.refundDepositor(escrowIds);
+escrow.refundRecipient(escrowIds);
+```
+
+Refund distribution:
+- **Depositor receives**: `refundAmount`
+- **Recipient receives**: `escrowAmount - refundAmount`
+
+## Integration with Settlers
+
+The escrow system is settler-agnostic, working with any contract implementing the `ISettler` interface:
+
+```solidity
+interface ISettler {
+    function read(
+        bytes32 settlementId,
+        address attester, 
+        uint256 chainId
+    ) external view returns (bool isSettled);
+}
+```
+
+This allows integration with various settlement mechanisms:
+- Signature-based verification (SimpleSettler)
+- Cross-chain messaging protocols (LayerZeroSettler)
+- Oracle-based confirmation
+- Custom verification logic
+
+## Security Features
+
+### Atomic Operations
+- All escrow operations are atomic - either fully complete or revert
+- Multiple escrows can be created/settled/refunded in single transaction
+
+### Protected Refunds
+- Refunds only available after `refundTimestamp`
+- Partial refund amounts protect both parties
+- Individual refund functions prevent griefing
+
+### Status Validation
+- Every operation validates current escrow status
+- Prevents double-spending and reentrancy
+- Clear state transitions with events
+
+## Gas Optimization
+
+### Batch Operations
+Process multiple escrows efficiently:
+
+```solidity
+// Create multiple escrows
+Escrow[] memory escrows = new Escrow[](3);
+// ... populate escrows
+escrow.escrow(escrows);
+
+// Settle multiple
+bytes32[] memory ids = new bytes32[](3);
+// ... populate ids
+escrow.settle(ids);
+```
+
+### Storage Efficiency
+- Escrow data hashed for unique ID generation
+- Minimal storage slots per escrow
+- Status tracked separately for gas-efficient updates
+
+## Events
+
+```solidity
+event EscrowCreated(bytes32 escrowId);
+event EscrowRefundedDepositor(bytes32 escrowId);
+event EscrowRefundedRecipient(bytes32 escrowId);
+event EscrowSettled(bytes32 escrowId);
+```
+
+## Example Use Cases
+
+### Cross-Chain Token Sale
+```solidity
+// Seller creates escrow for tokens on Chain A
+// Buyer sends payment on Chain B
+// LayerZeroSettler confirms payment
+// Tokens release to buyer automatically
+```
+
+### Trustless OTC Trade
+```solidity
+// Party A escrows Token X
+// Party B escrows Token Y on different chain
+// Both settlements verified atomically
+// Automatic refund if either side fails
+```
+
+### Conditional Payments
+```solidity
+// Escrow funds with custom settler logic
+// Release based on oracle data, time locks, or multi-sig
+// Partial refunds for milestone-based releases
+```
+
+## Best Practices
+
+### Setting Refund Amounts
+- Consider transaction costs when setting `refundAmount`
+- Use partial refunds to incentivize settlement
+- Set reasonable `refundTimestamp` based on expected settlement time
+
+### Settler Selection
+- Use SimpleSettler for trusted, centralized operations
+- Use LayerZeroSettler for decentralized cross-chain verification
+- Implement custom settlers for specific business logic
+
+### Error Handling
+Always handle these potential errors:
+- `InvalidStatus()` - Operation not allowed in current state
+- `InvalidEscrow()` - Invalid parameters (e.g., refund > escrow)
+- `RefundInvalid()` - Refund attempted before deadline
+- `SettlementInvalid()` - Settler rejected the settlement
+
+## Contract Addresses
+
+Escrow contracts are deployed deterministically across all supported chains. Check the [Address Book](/contracts/address-book) for current deployments.

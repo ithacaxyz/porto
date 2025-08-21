@@ -1,5 +1,15 @@
 # porto
 
+## 0.0.75
+
+### Patch Changes
+
+- [`9f28daf`](https://github.com/ithacaxyz/porto/commit/9f28daf21df4bfc32b408f89f66a7d644f6be487) Thanks [@jxom](https://github.com/jxom)! - Fixed `wallet_switchEthereumChain` in `popup` mode.
+
+- [#741](https://github.com/ithacaxyz/porto/pull/741) [`412dc29`](https://github.com/ithacaxyz/porto/commit/412dc2998583f9636b794bdaf00941ce3e70a2f5) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `addFaucetFunds` from `Mode`.
+
+- [`33ce384`](https://github.com/ithacaxyz/porto/commit/33ce3847b887c9b671ea31c37720284b088a600e) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where `porto` Connector would not switch to target chain on reconnect.
+
 ## 0.0.74
 
 ### Patch Changes

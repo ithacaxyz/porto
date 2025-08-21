@@ -106,6 +106,10 @@ export type Schema = [
           type: 'set-theme'
           theme: Theme.ThemeFragment
         }
+      | {
+          type: 'dialog-lifecycle'
+          action: 'done:close' | 'done:open' | 'request:close' | 'request:open'
+        }
     response: undefined
   },
 ]

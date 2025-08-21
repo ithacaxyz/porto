@@ -364,7 +364,7 @@ function Swap({ chainId }: { chainId: Exclude<ChainId, 0> }) {
               exp1Config.address[
                 chainId as keyof (typeof exp1Config)['address']
               ]
-            if (exp1Token) {
+            if (!exp1Token) {
               console.warn(`exp1 address not defined for chainId ${chainId}`)
               return
             }
@@ -372,7 +372,7 @@ function Swap({ chainId }: { chainId: Exclude<ChainId, 0> }) {
               exp2Config.address[
                 chainId as keyof (typeof exp2Config)['address']
               ]
-            if (exp2Token) {
+            if (!exp2Token) {
               console.warn(`exp2 address not defined for chainId ${chainId}`)
               return
             }

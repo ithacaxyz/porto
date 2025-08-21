@@ -16,29 +16,43 @@ It is only possible to validate signatures for admin keys.
 
 ```ts
 type Request = {
-  // id of the key to verify the signature with or an address of an account.
-  // If address is specified, signature will be attempted to verify against
-  // all of account keys until a match is found.
-  keyIdOrAddress: `0x${string}`,
-  // digest of the message to verify
-  digest: `0x${string}`,
-  // signature bytes
-  signature: `0x${string}`,
-  chainId: `0x${string}`,
+  method: 'wallet_verifySignature',
+  params: [{
+    /** Account address */
+    address: `0x${string}`,
+    /** Chain ID of the account with the given key configured */
+    chainId: number,
+    /** Digest of the message to verify */
+    digest: `0x${string}`,
+    /** Signature to verify */
+    signature: `0x${string}`,
+  }],
 }
-````
+```
 
 ## Response
 
 ```ts
 type Response = {
+  /** Whether the signature is valid */
   valid: boolean,
+  /** Proof that can be used to verify the signature */
   proof?: {
-    // address of an account (either delegated or stored) that the signature was verified against.
+    /** Address of an account (either delegated or stored) that the signature was verified against */
     account: `0x${string}`,
-    // the key hash that signed the digest.
+    /** The key hash that signed the digest */
     keyHash: `0x${string}`,
-  }
+    /** Initialization precall. Provided if account is a stored account which has not been delegated */
+    initPreCall?: {
+      calls: {
+        data?: `0x${string}`,
+        to: `0x${string}`,
+        value?: bigint,
+      }[],
+      capabilities: object,
+      from: `0x${string}`,
+    } | null,
+  } | null,
 }
 ```
 
@@ -54,3 +68,20 @@ To verify that provided account is indeed tied to the provided `keyId`, user can
 
 To verify that the signature is valid for the returned account, user can call
 `unwrapAndValidateSignature` on the returned account.
+
+## Example
+
+```sh
+cast rpc --rpc-url https://rpc.ithaca.xyz wallet_verifySignature '[{"address": "0x1234567890123456789012345678901234567890", "chainId": 8453, "digest": "0xabcd", "signature": "0x1234"}]'
+```
+
+```json
+{
+  "valid": true,
+  "proof": {
+    "account": "0x1234567890123456789012345678901234567890",
+    "keyHash": "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+    "initPreCall": null
+  }
+}
+```

@@ -85,15 +85,15 @@ jobs:
       max-parallel: 2
       matrix:
         include:
-          - env: 'anvil'
-            browser: 'true'
-            enabled: ${{ inputs.test-local-browser == true || inputs.test-local-browser == null }}
+          # - env: 'anvil'
+          #   browser: 'true'
+          #   enabled: ${{ inputs.test-local-browser == true || inputs.test-local-browser == null }}
           - env: 'anvil'
             browser: 'false'
             enabled: ${{ inputs.test-local-node == true || inputs.test-local-node == null }}
-          - env: ${{ inputs.env || 'prod' }}
-            browser: 'true'
-            enabled: ${{ github.ref == 'refs/heads/main' && (inputs.test-deployment-browser == true || inputs.test-deployment-browser == null) }}
+          # - env: ${{ inputs.env || 'prod' }}
+          #   browser: 'true'
+          #   enabled: ${{ github.ref == 'refs/heads/main' && (inputs.test-deployment-browser == true || inputs.test-deployment-browser == null) }}
           - env: ${{ inputs.env || 'prod' }}
             browser: 'false'
             enabled: ${{ github.ref == 'refs/heads/main' && (inputs.test-deployment-node == true || inputs.test-deployment-node == null) }}

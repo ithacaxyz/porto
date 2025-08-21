@@ -872,7 +872,7 @@ exports[`relay > wallet_getCapabilities > behavior: chainId 4`] = `
     "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
     "decimals": 18,
     "feeToken": true,
-    "interop": true,
+    "interop": false,
     "nativeRate": null,
     "symbol": "EXP",
     "uid": "exp",

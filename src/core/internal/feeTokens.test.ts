@@ -23,7 +23,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
           "decimals": 18,
-          "interop": true,
+          "interop": false,
           "nativeRate": 1000000000000000000n,
           "symbol": "EXP",
           "uid": "exp",
@@ -45,7 +45,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
           "decimals": 18,
-          "interop": true,
+          "interop": false,
           "nativeRate": 1000000000000000000n,
           "symbol": "EXP",
           "uid": "exp",
@@ -84,7 +84,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
           "decimals": 18,
-          "interop": true,
+          "interop": false,
           "nativeRate": 1000000000000000000n,
           "symbol": "EXP",
           "uid": "exp",
@@ -115,7 +115,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
           "decimals": 18,
-          "interop": true,
+          "interop": false,
           "nativeRate": 1000000000000000000n,
           "symbol": "EXP",
           "uid": "exp",
@@ -149,7 +149,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
           "decimals": 18,
-          "interop": true,
+          "interop": false,
           "nativeRate": 1000000000000000000n,
           "symbol": "EXP",
           "uid": "exp",

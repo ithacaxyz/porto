@@ -679,13 +679,12 @@ export function BuyNow(props: { chainId: ChainId; next: () => void }) {
               },
             ],
             capabilities: {
-              // TODO: uncomment when interop supported on EXP
-              // requiredFunds: [
-              //   {
-              //     symbol: 'EXP',
-              //     value: '10',
-              //   },
-              // ],
+              requiredFunds: [
+                {
+                  symbol: 'EXP',
+                  value: '10',
+                },
+              ],
             },
           })
         }}
@@ -841,13 +840,12 @@ export function SendTip(props: {
               },
             ],
             capabilities: {
-              // TODO: uncomment when interop supported on EXP
-              // requiredFunds: [
-              //   {
-              //     symbol: 'EXP',
-              //     value: '1',
-              //   },
-              // ],
+              requiredFunds: [
+                {
+                  symbol: 'EXP',
+                  value: '1',
+                },
+              ],
             },
           })
         }}
@@ -1215,16 +1213,14 @@ function Swap(props: {
           permissions: {
             id: null,
           },
-          // TODO: uncomment when interop supported on EXP
-          // requiredFunds: [
-          //   {
-          //     symbol: fromSymbol === 'exp1' ? 'EXP' : 'EXP2',
-          //     value: fromValue as `${number}`,
-          //   },
-          // ],
+          requiredFunds: [
+            {
+              symbol: fromSymbol === 'exp1' ? 'EXP' : 'EXP2',
+              value: fromValue as `${number}`,
+            },
+          ],
         },
-        // TODO: uncomment when interop supported on EXP
-        // chainId: expToConfig.chainId,
+        chainId: expToConfig.chainId,
       })
     } catch (err) {
       const error = (() => {

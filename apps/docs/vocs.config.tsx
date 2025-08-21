@@ -79,6 +79,23 @@ export default defineConfig({
         text: 'Contracts',
       },
       {
+        items: [
+          {
+            link: '/contracts/interop',
+            text: 'Overview',
+          },
+          {
+            link: '/contracts/interop/escrow',
+            text: 'Escrow',
+          },
+          {
+            link: '/contracts/interop/settlement',
+            text: 'Settlement',
+          },
+        ],
+        text: 'Interop',
+      },
+      {
         link: '/contracts/address-book',
         text: 'Address Book',
       },
@@ -111,12 +128,12 @@ export default defineConfig({
             text: 'wallet_getCapabilities',
           },
           {
-            link: '/relay/wallet_getAccounts',
-            text: 'wallet_getAccounts',
-          },
-          {
             link: '/relay/wallet_getKeys',
             text: 'wallet_getKeys',
+          },
+          {
+            link: '/relay/wallet_getAssets',
+            text: 'wallet_getAssets',
           },
           {
             link: '/relay/wallet_prepareCalls',

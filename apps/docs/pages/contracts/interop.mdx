@@ -1,0 +1,103 @@
+# Interoperability
+
+The Porto Stack provides native cross-chain interoperability through a comprehensive settlement system, enabling trustless multi-chain operations and secure token escrow capabilities.
+
+## Overview
+
+Porto's interoperability layer consists of three main components that work together to facilitate cross-chain transactions:
+
+### Settlement System
+
+The settlement system enables cross-chain transaction finality through merkle signature verification and messaging protocols. Porto supports multiple settlement mechanisms:
+
+- **SimpleSettler**: Signature-based settlement for trusted environments
+- **LayerZeroSettler**: Cross-chain messaging using LayerZero v2 protocol for decentralized settlement
+
+### Escrow
+
+The escrow system provides secure token holding with configurable settlement conditions and automatic refunds. Key features include:
+
+- Multi-token support with native and ERC20 tokens
+- Configurable refund amounts and deadlines
+- Integration with any settlement provider
+- Atomic settlement verification
+
+### Cross-Chain Execution
+
+The Porto Account includes native support for multi-chain operations:
+
+- **Multichain Nonces**: Special nonce prefix (`0xc1d0`) enables signature replay across chains
+- **Merkle Signature Verification**: Built-in support for merkle proofs in multi-chain executions
+- **Cross-Chain Fund Transfers**: Secure token transfers with strictly ordered addresses
+
+## Funder Interface
+
+The Funder interface enables cross-chain execution funding, allowing relayers and third parties to sponsor transactions across multiple chains.
+
+### Interface
+
+```solidity
+interface IFunder {
+    struct Transfer {
+        address token;
+        uint256 amount;
+    }
+    
+    function fund(
+        bytes32 digest,
+        Transfer[] memory transfers, 
+        bytes memory funderSignature
+    ) external;
+}
+```
+
+### SimpleFunder Implementation
+
+Porto provides a reference implementation that demonstrates:
+
+- **Pull-based funding model**: Authorized relayers can pull funds on-demand
+- **Signature verification**: Ensures only authorized funding requests are processed
+- **Risk management**: Separate controls for token and native currency withdrawals
+- **Multi-chain support**: Coordinates funding across different chains for interop operations
+
+The SimpleFunder serves as both a production-ready contract and a template for custom funder implementations tailored to specific use cases.
+
+## Architecture Benefits
+
+### Trustless Operations
+- No dependency on centralized bridges
+- Cryptographic verification of cross-chain messages
+- Automatic fallback mechanisms with time-based refunds
+
+### Flexibility
+- Pluggable settlement providers
+- Support for multiple messaging protocols
+- Customizable escrow conditions
+
+### Security
+- Atomic settlement guarantees
+- Protected refund mechanisms
+- Signature verification at every step
+
+## Use Cases
+
+### Cross-Chain DeFi
+Execute swaps and provide liquidity across multiple chains with guaranteed settlement or automatic refunds.
+
+### Multi-Chain NFT Purchases
+Purchase NFTs on one chain using tokens from another, with escrow protection ensuring delivery.
+
+### Cross-Chain Subscriptions
+Manage recurring payments across different chains with automatic settlement verification.
+
+### Interchain Governance
+Participate in governance across multiple chains with unified signature schemes.
+
+## Getting Started
+
+Explore the detailed documentation for each component:
+
+- [Escrow System](/contracts/interop/escrow) - Learn about secure token escrow with cross-chain settlement
+- [Settlement Providers](/contracts/interop/settlement) - Understand different settlement mechanisms and their trade-offs
+
+For implementation examples and integration guides, refer to the test suite in the [account repository](https://github.com/ithacaxyz/account).
