@@ -1,10 +1,12 @@
 import * as Ariakit from '@ariakit/react'
 import { Button, Spinner, Toast } from '@porto/apps/components'
+import { exp1Address } from '@porto/apps/contracts'
 import { useCopyToClipboard } from '@porto/apps/hooks'
 import { Link } from '@tanstack/react-router'
 import { Cuer } from 'cuer'
 import { cx } from 'cva'
 import { Address, Hex, Value } from 'ox'
+import { Chains } from 'porto'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
@@ -21,7 +23,7 @@ import { ShowMore } from '~/components/ShowMore'
 import { TokenSymbol } from '~/components/TokenSymbol'
 import { TruncatedAddress } from '~/components/TruncatedAddress'
 import { useClickOutside } from '~/hooks/useClickOutside'
-import { type ChainId, defaultAssets, ethAsset } from '~/lib/Constants'
+import type { ChainId } from '~/lib/Constants'
 import { getChainConfig } from '~/lib/Wagmi'
 import { DateFormatter, ValueFormatter } from '~/utils'
 import LucideBadgeCheck from '~icons/lucide/badge-check'
@@ -49,50 +51,49 @@ export function Dashboard() {
   const assets = Hooks.useAssets({
     query: {
       enabled: account.status === 'connected',
+      select: (data) => {
+        const formattedAssets: Array<
+          {
+            address: Address.Address
+            chainId: number
+            balance: bigint
+          } & (
+            | {
+                metadata: null
+                type: 'native'
+              }
+            | {
+                type: 'erc20'
+                metadata: {
+                  name: string
+                  symbol: string
+                  decimals: number
+                  logo?: string | undefined
+                }
+              }
+          )
+        > = []
+        for (const chainId in data) {
+          const chainAssets = data[chainId]
+          if (chainId === '0' || !chainAssets) continue
+          for (const asset of chainAssets) {
+            const address =
+              asset.address === 'native' ? zeroAddress : asset.address
+            if (!address) continue
+            formattedAssets.push({
+              address,
+              balance: asset.balance,
+              chainId: Number(chainId),
+              metadata: asset.metadata,
+              type: asset.type as any,
+            })
+          }
+        }
+
+        return formattedAssets.sort((a, b) => (a.balance > b.balance ? -1 : 1))
+      },
     },
   })
-
-  const serializedAssets = React.useMemo(() => {
-    if (!assets.data) return []
-    const serialized: {
-      address: Address.Address
-      balance: bigint
-      chainId: number
-      logo: string
-      name: string
-      price: number
-      symbol: string
-      decimals: number
-    }[] = []
-    for (const [chainId, balances] of Object.entries(assets.data)) {
-      const assets = defaultAssets[chainId as unknown as ChainId]
-      for (const balance of balances) {
-        const asset =
-          balance.type === 'native'
-            ? ethAsset
-            : assets?.find(
-                (asset) =>
-                  asset?.symbol?.toLowerCase() ===
-                  balance.metadata?.symbol?.toLowerCase(),
-              )
-
-        serialized.push({
-          address:
-            asset?.address || balance.address?.startsWith('0x')
-              ? (balance.address as Address.Address)
-              : zeroAddress,
-          balance: balance.balance,
-          chainId: Number(chainId),
-          decimals: asset?.decimals || balance.metadata?.decimals || 0,
-          logo: asset?.logo || '',
-          name: asset?.name || balance.metadata?.name || '',
-          price: 0,
-          symbol: asset?.symbol || balance.metadata?.symbol || '',
-        })
-      }
-    }
-    return serialized.sort((a, b) => b.chainId - a.chainId)
-  }, [assets.data])
 
   useWatchBlockNumber({
     enabled: account.status === 'connected',
@@ -118,6 +119,8 @@ export function Dashboard() {
       }),
     },
   })
+
+  const chainId = useChainId()
 
   const revokeAdmin = Hooks.useRevokeAdmin({
     mutation: {
@@ -183,8 +186,6 @@ export function Dashboard() {
       },
     },
   })
-
-  const chainId = useChainId()
 
   return (
     <>
@@ -321,9 +322,18 @@ export function Dashboard() {
         right={
           <div className="flex gap-2">
             <Button
-              onClick={() =>
-                addFunds.mutate({ address: account.address, chainId })
-              }
+              onClick={() => {
+                if (!account.chainId) return
+                console.info(account.chainId)
+                console.info(chainId)
+                addFunds.mutate({
+                  address: account.address,
+                  chainId: Chains.baseSepolia.id,
+                  // token: exp1Address[Chains.baseSepolia.id],
+                  // @ts-expect-error
+                  tokenAddress: exp1Address[Chains.baseSepolia.id],
+                })
+              }}
               size="small"
               variant="accent"
             >
@@ -387,7 +397,17 @@ export function Dashboard() {
       <hr className="border-gray5" />
       <div className="h-4" />
 
-      <details className="group" open={serializedAssets.length > 0}>
+      <details
+        className="group"
+        open={
+          true
+          // assets.data && assets?.data?.[0]?.balance > 0
+          // &&
+          // Object.values(assets.data).some(
+          //   (asset) => asset?.address?.length > 0,
+          // )
+        }
+      >
         <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
           <span>Assets</span>
         </summary>
@@ -406,26 +426,22 @@ export function Dashboard() {
             { align: 'right', header: '', key: 'action', width: 'w-[20%]' },
             { align: 'right', header: '', key: 'action', width: 'w-[20%]' },
           ]}
-          data={
-            serializedAssets.some((a) => a.balance > 0n)
-              ? serializedAssets
-              : undefined
-          }
+          data={assets.data}
           emptyMessage="No balances available for this account"
           renderRow={(asset) => (
             <AssetRow
-              address={asset.address!}
+              address={asset.address}
               chainId={asset.chainId}
-              decimals={asset.decimals}
-              key={asset.symbol}
-              logo={asset.logo}
-              name={asset.name}
-              price={asset.price}
-              symbol={asset.symbol}
+              decimals={asset.metadata?.decimals ?? 18}
+              key={asset.metadata?.symbol}
+              logo={asset.metadata?.logo ?? undefined}
+              name={asset.metadata?.name ?? ''}
+              price={0}
+              symbol={asset.metadata?.symbol ?? ''}
               value={asset.balance}
             />
           )}
-          showMoreText={serializedAssets.length > 0 ? 'more assets' : ''}
+          showMoreText={assets.data ? 'more assets' : ''}
         />
       </details>
 
@@ -662,9 +678,9 @@ export function Dashboard() {
 }
 
 function PaginatedTable<T>({
+  columns,
   data,
   emptyMessage,
-  columns,
   renderRow,
   showMoreText,
   initialCount = 5,
@@ -748,7 +764,16 @@ function AssetRow(props: {
   price?: number | undefined
   chainId: number
 }) {
-  const { address, decimals, logo, name, symbol, value, price, chainId } = props
+  const {
+    address,
+    decimals,
+    logo: _,
+    name,
+    symbol,
+    value,
+    price,
+    chainId,
+  } = props
   const [viewState, setViewState] = React.useState<'send' | 'default'>(
     'default',
   )
@@ -867,6 +892,7 @@ function AssetRow(props: {
         capabilities: {
           feeToken: zeroAddress,
         },
+        chainId: chainId as never,
       })
     } else
       sendCalls.sendCalls({
@@ -889,15 +915,15 @@ function AssetRow(props: {
   const ref = React.useRef<HTMLTableCellElement | null>(null)
   useClickOutside([ref], () => setViewState('default'))
 
-  if (value === 0n && !import.meta.env.DEV) return null
+  if (props.value === 0n && !import.meta.env.DEV) return null
 
-  const icon = import.meta.env.DEV ? (
-    <img
-      alt={name}
-      className="size-5 sm:size-6"
-      src={`/icons/${symbol.toLowerCase()}.svg`}
-    />
-  ) : null
+  // const icon = import.meta.env.DEV ? (
+  //   <img
+  //     alt={name}
+  //     className="size-5 sm:size-6"
+  //     src={`/icons/${symbol.toLowerCase()}.svg`}
+  //   />
+  // ) : null
   return (
     <tr className="font-normal sm:text-sm">
       {viewState === 'default' ? (
@@ -907,7 +933,8 @@ function AssetRow(props: {
           </td>
           <td className="w-[80%]">
             <div className="flex items-center gap-x-3 py-2">
-              <span className="font-medium text-sm sm:text-md">{icon}</span>
+              {/* <span className="font-medium text-sm sm:text-md">{icon}</span> */}
+              <span className="font-medium text-sm sm:text-md">{name}</span>
             </div>
           </td>
           <td className="w-[20%] text-right text-md">{formattedBalance}</td>
@@ -937,7 +964,11 @@ function AssetRow(props: {
             store={sendForm}
           >
             <div className="flex w-[75px] flex-row items-center gap-x-2 border-gray6 border-r pr-1.5 pl-1 sm:w-[85px] sm:pl-2">
-              <img alt="asset icon" className="size-8" src={logo} />
+              <img
+                alt="asset icon"
+                className="size-8"
+                src={`/icons/${symbol.toLowerCase()}.svg`}
+              />
             </div>
             <div className="ml-3 flex w-full flex-row gap-y-1 border-gray7 border-r pr-3">
               <div className="flex w-full flex-col gap-y-1">

@@ -4,7 +4,6 @@ import { routeTree } from '~/routeTree.gen.ts'
 
 export const router = createRouter({
   context: {
-    account: undefined!,
     queryClient: Query.client,
   },
   // TODO: add custom 404 and error pages once design is ready

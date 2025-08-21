@@ -1,21 +1,10 @@
-import type { QueryClient } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import {
-  createRootRouteWithContext,
-  HeadContent,
-  Outlet,
-} from '@tanstack/react-router'
+import { createRootRoute, HeadContent, Outlet } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-import type { GetAccountReturnType } from '@wagmi/core'
 import * as React from 'react'
 import { Toaster } from 'sonner'
 
-type RouterContext = {
-  queryClient: QueryClient
-  account: GetAccountReturnType
-}
-
-export const Route = createRootRouteWithContext<RouterContext>()({
+export const Route = createRootRoute({
   component: RouteComponent,
   head: () => ({
     meta: [
