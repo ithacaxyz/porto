@@ -230,7 +230,10 @@ export function Frame({
                         borderBottomRadius: 0,
                         maxWidth: 460,
                       }),
-                    dialogFloating && css({ maxWidth: 400 }),
+                    dialogFloating &&
+                      css({
+                        maxWidth: 360,
+                      }),
                     mode.name === 'full' &&
                       css({
                         '@container (min-width: 480px)': {
