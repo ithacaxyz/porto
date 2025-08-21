@@ -120,6 +120,20 @@ export function iframe(options: iframe.Options = {}) {
 
       root.appendChild(iframe)
 
+      // move 1password notifications to the top layer
+      const mutObserver = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+          mutation.addedNodes.forEach((node) => {
+            if (
+              node.nodeName === 'COM-1PASSWORD-NOTIFICATION' &&
+              node.parentElement !== root
+            )
+              root.appendChild(node)
+          })
+        }
+      })
+      mutObserver.observe(document.body, { childList: true })
+
       const messenger = Messenger.bridge({
         from: Messenger.fromWindow(window, { targetOrigin: hostUrl.origin }),
         to: Messenger.fromWindow(iframe.contentWindow!, {
@@ -326,6 +340,7 @@ export function iframe(options: iframe.Options = {}) {
 
           fallback.destroy()
           messenger.destroy()
+          mutObserver.disconnect()
           root.remove()
 
           drawerModeQuery.removeEventListener('change', onDrawerModeChange)
