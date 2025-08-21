@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.76
+
+### Patch Changes
+
+- [#744](https://github.com/ithacaxyz/porto/pull/744) [`073d0da`](https://github.com/ithacaxyz/porto/commit/073d0daec4bcefd5eb9af0b26f13e5d3d7979426) Thanks [@jxom](https://github.com/jxom)! - Ensured that chains are rehydrated on state initialization.
+
 ## 0.0.75
 
 ### Patch Changes
