@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.77
+
+### Patch Changes
+
+- [#749](https://github.com/ithacaxyz/porto/pull/749) [`342284b`](https://github.com/ithacaxyz/porto/commit/342284bc253da73b5f8e7746878affcf8b8a93af) Thanks [@bpierre](https://github.com/bpierre)! - Switched back to `<dialog>` for `iframe` renderer.
+
 ## 0.0.76
 
 ### Patch Changes
