@@ -1,12 +1,13 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { css, cx } from '../../styled-system/css'
 
-export interface TextButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement> {
-  children?: ReactNode
-}
-
-export function TextButton({ children, className, ...props }: TextButtonProps) {
+export function TextButton({
+  children,
+  className,
+  color = 'inherit',
+  style,
+  ...props
+}: TextButton.Props) {
   return (
     <button
       className={cx(
@@ -24,11 +25,35 @@ export function TextButton({ children, className, ...props }: TextButtonProps) {
           fontSize: 'inherit',
           whiteSpace: 'nowrap',
         }),
+        className,
       )}
+      style={{
+        color: TextButton.isSpecialColor(color)
+          ? TextButton.specialColors[color]
+          : color,
+        ...style,
+      }}
       type="button"
       {...props}
     >
       {children}
     </button>
   )
+}
+
+export namespace TextButton {
+  export interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
+    children?: ReactNode
+    color?: keyof typeof specialColors | (string & {}) | undefined
+  }
+
+  export const specialColors = {
+    link: 'var(--color-th_link)',
+  } as const
+
+  export function isSpecialColor(
+    color: string,
+  ): color is keyof typeof specialColors {
+    return Object.hasOwn(specialColors, color)
+  }
 }
