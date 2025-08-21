@@ -73,10 +73,10 @@ export function iframe(options: iframe.Options = {}) {
 
       const hostUrl = new URL(host)
 
-      const root = document.createElement('div')
+      const root = document.createElement('dialog')
       root.dataset.porto = ''
+      root.style.top = '-10000px'
 
-      root.setAttribute('popover', 'manual')
       root.setAttribute('role', 'dialog')
       root.setAttribute('aria-closed', 'true')
       root.setAttribute('aria-label', 'Porto Wallet')
@@ -119,20 +119,6 @@ export function iframe(options: iframe.Options = {}) {
       })
 
       root.appendChild(iframe)
-
-      // move 1password notifications to the top layer
-      const mutObserver = new MutationObserver((mutations) => {
-        for (const mutation of mutations) {
-          mutation.addedNodes.forEach((node) => {
-            if (
-              node.nodeName === 'COM-1PASSWORD-NOTIFICATION' &&
-              node.parentElement !== root
-            )
-              root.appendChild(node)
-          })
-        }
-      })
-      mutObserver.observe(document.body, { childList: true })
 
       const messenger = Messenger.bridge({
         from: Messenger.fromWindow(window, { targetOrigin: hostUrl.origin }),
@@ -289,7 +275,7 @@ export function iframe(options: iframe.Options = {}) {
         cancelForceHideDelay()
         root.removeAttribute('hidden')
         root.removeAttribute('aria-closed')
-        root.showPopover()
+        root.showModal()
       }
       const hideDialog = () => {
         if (!visible) return
@@ -297,7 +283,18 @@ export function iframe(options: iframe.Options = {}) {
         cancelForceHideDelay()
         root.setAttribute('hidden', 'true')
         root.setAttribute('aria-closed', 'true')
-        root.hidePopover()
+        root.close()
+
+        // 1password extension sometimes adds `inert` attribute to `dialog`
+        // siblings and does not clean up remove when `dialog` closes
+        // (after `<com-1password-notification />` closes)
+        for (const sibling of root.parentNode
+          ? Array.from(root.parentNode.children)
+          : []) {
+          if (sibling === root) continue
+          if (!sibling.hasAttribute('inert')) continue
+          sibling.removeAttribute('inert')
+        }
       }
 
       // let the iframe a second to send the done:close
@@ -340,7 +337,6 @@ export function iframe(options: iframe.Options = {}) {
 
           fallback.destroy()
           messenger.destroy()
-          mutObserver.disconnect()
           root.remove()
 
           drawerModeQuery.removeEventListener('change', onDrawerModeChange)
