@@ -2,7 +2,7 @@ import * as AbiFunction from 'ox/AbiFunction'
 import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import * as Key from '../../viem/Key.js'
-import * as IthacaAccount from './_generated/contracts/IthacaAccount.js'
+import * as IthacaAccount from './_generated/contracts/PortoAccount.js'
 
 /** Stub address for self-execution. */
 export const selfAddress = '0x2323232323232323232323232323232323232323'

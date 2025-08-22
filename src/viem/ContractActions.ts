@@ -29,7 +29,7 @@ import {
   encodeExecuteData,
   getExecuteError as getExecuteError_viem,
 } from 'viem/experimental/erc7821'
-import * as IthacaAccount from '../core/internal/_generated/contracts/IthacaAccount.js'
+import * as IthacaAccount from '../core/internal/_generated/contracts/PortoAccount.js'
 import * as Call from '../core/internal/call.js'
 import type { OneOf } from '../core/internal/types.js'
 import type * as Storage from '../core/Storage.js'
@@ -40,7 +40,7 @@ import * as Key from './Key.js'
 export {
   abi,
   code,
-} from '../core/internal/_generated/contracts/IthacaAccount.js'
+} from '../core/internal/_generated/contracts/PortoAccount.js'
 
 /**
  * Executes a set of calls on a delegated account.
