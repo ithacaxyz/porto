@@ -54,7 +54,6 @@ export function PresetsInput({
 
   const presetsTransition = useTransition(customMode ? [] : presets, {
     config: SPRING_CONFIG,
-    immediate: ui?.reducedMotion,
     enter: {
       labelBlur: 'blur(0px)',
       opacity: 1,
@@ -65,6 +64,7 @@ export function PresetsInput({
       opacity: 0,
       transform: 'scale3d(1.15, 1.3, 1)',
     },
+    immediate: ui?.reducedMotion,
     initial: {
       labelBlur: 'blur(0px)',
       opacity: 1,
@@ -81,7 +81,6 @@ export function PresetsInput({
 
   const customInputTransition = useTransition(customMode, {
     config: SPRING_CONFIG,
-    immediate: ui?.reducedMotion,
     enter: {
       buttonTransform: 'scale(1)',
       inputTransform: 'scale(1, 1)',
@@ -92,6 +91,7 @@ export function PresetsInput({
       inputTransform: 'scale(0.96, 0.92)',
       opacity: 0,
     },
+    immediate: ui?.reducedMotion,
     initial: {
       buttonTransform: 'scale(1)',
       inputTransform: 'scale(1, 1)',

@@ -9,10 +9,10 @@ export const Route = createFileRoute('/ShowAfter')({
 function ShowAfterComponent() {
   return (
     <ComponentScreen title="ShowAfter">
-      <ComponentScreen.Section title="Delays" surface="base">
+      <ComponentScreen.Section surface="base" title="Delays">
         <div className="space-y-4">
           {[0, 500, 1000, 2000].map((delay) => (
-            <ShowAfter key={delay} delay={delay}>
+            <ShowAfter delay={delay} key={delay}>
               Appears after {delay}ms
             </ShowAfter>
           ))}
@@ -21,4 +21,3 @@ function ShowAfterComponent() {
     </ComponentScreen>
   )
 }
-

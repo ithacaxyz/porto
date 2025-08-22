@@ -14,9 +14,9 @@ import { useSize } from '~/hooks/useSize.js'
 import { LightDarkImage } from '~/LightDarkImage/LightDarkImage.js'
 import LucideBadgeCheck from '~icons/lucide/badge-check'
 import LucideX from '~icons/lucide/x'
+import { Ui } from '../Ui/Ui.js'
 import iconDefaultDark from './icon-default-dark.svg'
 import iconDefaultLight from './icon-default-light.svg'
-import { Ui } from '../Ui/Ui.js'
 
 const FrameContext = createContext<Frame.Context | null>(null)
 
@@ -82,11 +82,11 @@ function FrameWithUi({
     config: dialogDrawer
       ? { clamp: true, friction: 120, mass: 1, tension: 2000 }
       : { friction: 160, mass: 1.3, tension: 3000 },
-    immediate: ui.reducedMotion,
     enter: () => async (next) => {
       await next({ ...springStyles.from, immediate: true })
       await next({ ...springStyles.enter, immediate: ui.reducedMotion })
     },
+    immediate: ui.reducedMotion,
     initial: springStyles.enter,
     leave: () => async (next) => {
       await next({
@@ -170,10 +170,10 @@ function FrameWithUi({
           css({
             containerType: 'inline-size',
             display: 'grid',
+            height: '100%',
             placeItems: 'center',
             position: 'relative',
             width: '100%',
-            height: '100%',
           }),
           dialogDrawer &&
             css({

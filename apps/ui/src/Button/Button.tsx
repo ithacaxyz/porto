@@ -3,8 +3,8 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { useRef } from 'react'
 import { css, cva, cx } from '../../styled-system/css'
 import { Frame } from '../Frame/Frame.js'
-import { Ui } from '../Ui/Ui.js'
 import { Spinner } from '../Spinner/Spinner.js'
+import { Ui } from '../Ui/Ui.js'
 
 type ButtonSize = 'small' | 'medium' | 'large'
 

@@ -1,6 +1,6 @@
 import { useReducedMotion } from '@react-spring/web'
-import { createContext, useContext } from 'react'
 import type { ReactNode } from 'react'
+import { createContext, useContext } from 'react'
 
 const UiContext = createContext<null | Ui.Context>(null)
 

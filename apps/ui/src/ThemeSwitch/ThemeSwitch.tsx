@@ -1,9 +1,9 @@
 import { a, useSpring } from '@react-spring/web'
 import type { ButtonHTMLAttributes } from 'react'
 import { css, cx } from '../../styled-system/css'
+import { Ui } from '../Ui/Ui.js'
 import { IconMoon } from './IconMoon.js'
 import { IconSun } from './IconSun.js'
-import { Ui } from '../Ui/Ui.js'
 
 type ColorScheme = 'light' | 'dark'
 

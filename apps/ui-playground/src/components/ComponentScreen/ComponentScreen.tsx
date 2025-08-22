@@ -1,6 +1,6 @@
+import { Ui } from '@porto/ui'
 import { cx } from 'cva'
 import type { ReactNode } from 'react'
-import { Ui } from '@porto/ui'
 
 export function ComponentScreen({
   children,

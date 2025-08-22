@@ -21,8 +21,8 @@ export namespace ShowAfter {
         tension: 2000,
       },
       delay,
-      immediate: ui?.reducedMotion,
       from: { opacity: 0, transform: 'scale(0.97)' },
+      immediate: ui?.reducedMotion,
       to: { opacity: 1, transform: 'scale(1)' },
     })
   }
