@@ -1,6 +1,5 @@
 import * as Ariakit from '@ariakit/react'
 import { Button, Spinner, Toast } from '@porto/apps/components'
-import { exp1Address } from '@porto/apps/contracts'
 import { useCopyToClipboard } from '@porto/apps/hooks'
 import { Link } from '@tanstack/react-router'
 import { Cuer } from 'cuer'
@@ -13,6 +12,7 @@ import { toast } from 'sonner'
 import { encodeFunctionData, erc20Abi, formatEther, zeroAddress } from 'viem'
 import {
   useAccount,
+  useCapabilities,
   useDisconnect,
   useSendCalls,
   useSwitchChain,
@@ -104,6 +104,10 @@ export function Dashboard() {
     },
     pollingInterval: 1_000,
   })
+  const { switchChainAsync } = useSwitchChain()
+
+  const capabilities = useCapabilities()
+  // console.info(capabilities.data)
 
   const revokePermissions = Hooks.useRevokePermissions()
 
@@ -317,15 +321,33 @@ export function Dashboard() {
         right={
           <div className="flex gap-2">
             <Button
-              onClick={async () =>
+              onClick={async () => {
+                // if url has testnet search param
+                const urlHashTestnet =
+                  window.location.search.includes('testnet')
+                if (!urlHashTestnet) {
+                  addFunds.mutate({
+                    address: account.address,
+                  })
+                  return
+                }
+                await switchChainAsync({
+                  chainId: Chains.baseSepolia.id,
+                }).catch()
+                if (!capabilities.data) return
+                console.info(capabilities.data)
+                const exp1 = capabilities.data?.[
+                  Chains.baseSepolia.id
+                ]?.feeToken?.tokens?.find((t) => t.uid === 'exp1')
+                if (!exp1) return
                 addFunds.mutate({
                   address: account.address,
                   chainId: Chains.baseSepolia.id,
-                  token: exp1Address[Chains.baseSepolia.id],
+                  token: exp1?.address as Address.Address,
                   // @ts-expect-error TODO: fix type
-                  tokenAddress: exp1Address[Chains.baseSepolia.id],
+                  tokenAddress: exp1?.address as Address.Address,
                 })
-              }
+              }}
               size="small"
               variant="accent"
             >
