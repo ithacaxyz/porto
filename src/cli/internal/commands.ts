@@ -1,4 +1,5 @@
 import * as fs from 'node:fs'
+import * as os from 'node:os'
 import * as path from 'node:path'
 import { setTimeout } from 'node:timers/promises'
 import * as prompts from '@clack/prompts'
@@ -19,6 +20,73 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
   const s = prompts.spinner()
 
   const adminKey = args.adminKey ? Key.createSecp256k1() : undefined
+
+  // persist admin key immediately to a secure temp file
+  let tempKeyFile: string | undefined
+  if (adminKey) {
+    try {
+      const tmpDir = path.join(os.tmpdir(), 'porto')
+      fs.mkdirSync(tmpDir, { mode: 0o700, recursive: true })
+      tempKeyFile = path.join(
+        tmpDir,
+        `admin-key-${Date.now()}-${Math.random().toString(36).slice(2)}.key`,
+      )
+      fs.writeFileSync(tempKeyFile, adminKey.privateKey!()!, { mode: 0o600 })
+    } catch {}
+  }
+
+  let shouldPrintKeyOnExit = Boolean(adminKey)
+  function cleanup(label?: string, err?: unknown) {
+    if (!shouldPrintKeyOnExit) return process.exit(1)
+    try {
+      s.stop('Interrupted.')
+    } catch {}
+    if (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      prompts.log.info(`${label ?? 'Error'}: ${message}`)
+    }
+    if (adminKey) {
+      if (tempKeyFile) {
+        prompts.log.info(
+          `Admin key saved securely to temporary file: ${tempKeyFile}`,
+        )
+      } else {
+        prompts.log.warn(
+          'Admin key could not be saved to a temporary file. Please rerun to generate a new key.',
+        )
+      }
+    }
+    shouldPrintKeyOnExit = false
+    process.exit(1)
+  }
+
+  const onSigint = () => cleanup('SIGINT')
+  const onSigterm = () => cleanup('SIGTERM')
+  const onUncaught = (error: unknown) => cleanup('uncaughtException', error)
+  const onUnhandled = (reason: unknown) => cleanup('unhandledRejection', reason)
+  const onExit = () => {
+    if (!shouldPrintKeyOnExit) return
+    if (adminKey) {
+      if (tempKeyFile) {
+        prompts.log.info(
+          `Admin key saved securely to temporary file: ${tempKeyFile}`,
+        )
+      } else {
+        prompts.log.warn(
+          'Admin key could not be saved to a temporary file. Please rerun to generate a new key.',
+        )
+      }
+    }
+    shouldPrintKeyOnExit = false
+  }
+
+  if (adminKey) {
+    process.on('SIGINT', onSigint)
+    process.on('SIGTERM', onSigterm)
+    process.on('uncaughtException', onUncaught)
+    process.on('unhandledRejection', onUnhandled as never)
+    process.on('exit', onExit)
+  }
 
   // Register public key for verification.
   if (adminKey) Dialog.messenger.registerPublicKey(adminKey.publicKey)
@@ -99,8 +167,9 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
     })
 
     prompts.log.info('Address: ' + accounts[0]!.address)
-    if (reveal) prompts.log.info('Private key: ' + adminKey?.privateKey!()!)
-    else {
+    if (reveal) {
+      prompts.log.info('Private key: ' + adminKey?.privateKey!()!)
+    } else {
       const keyFile = path.join(
         import.meta.dirname,
         `${accounts[0]!.address}.key`,
@@ -109,8 +178,24 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
       fs.chmodSync(keyFile, 0o600)
       prompts.log.info(`Private key saved securely to: ${keyFile}`)
     }
+    // Clean up temp file if it exists now that the user has the key.
+    if (tempKeyFile) {
+      try {
+        fs.rmSync(tempKeyFile)
+      } catch {}
+    }
   }
   prompts.log.info('Manage your account at: https://id.porto.sh')
+
+  // Successful completion – do not print key on exit anymore and remove listeners.
+  shouldPrintKeyOnExit = false
+  if (adminKey) {
+    process.off('SIGINT', onSigint)
+    process.off('SIGTERM', onSigterm)
+    process.off('uncaughtException', onUncaught)
+    process.off('unhandledRejection', onUnhandled as never)
+    process.off('exit', onExit)
+  }
 
   await setTimeout(1_000)
   process.exit(0)
