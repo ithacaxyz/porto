@@ -110,11 +110,11 @@ export function iframe(options: iframe.Options = {}) {
         backgroundColor: 'transparent',
         border: '0',
         colorScheme: 'light dark',
-        height: '100svh',
+        height: '100%',
         left: '0',
         position: 'fixed',
         top: '0',
-        width: '100svw',
+        width: '100%',
       })
 
       root.appendChild(iframe)
