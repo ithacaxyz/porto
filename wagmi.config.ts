@@ -1,8 +1,8 @@
 import * as fs from 'node:fs'
 import { defineConfig } from '@wagmi/cli'
 import { foundry } from '@wagmi/cli/plugins'
-import type { Address } from 'viem'
-import capabilities from './scripts/capabilities.ts'
+import { type Address, createClient, http } from 'viem'
+import { getCapabilities } from 'viem/actions'
 import {
   anvil,
   anvil2,
@@ -13,6 +13,12 @@ import {
   optimismSepolia,
 } from './src/core/Chains.js'
 import * as anvilAddresses from './test/src/_generated/addresses.js'
+
+const client = createClient({
+  transport: http('https://rpc.ithaca.xyz'),
+})
+
+const capabilities = await getCapabilities(client)
 
 const getTokenAddress = (chainId: number, tokenUid: 'exp1' | 'exp2') => {
   const token = capabilities[chainId].fees.tokens.find(
@@ -57,7 +63,7 @@ const examples = fs
   .filter((dir) => fs.statSync(`examples/${dir}`).isDirectory())
   .map((dir) => `examples/${dir}/src`)
 
-export default defineConfig([
+export default defineConfig(async () => [
   ...['apps/wagmi/src', ...examples].map((path) => ({
     contracts: [],
     out: `${path}/contracts.ts`,
