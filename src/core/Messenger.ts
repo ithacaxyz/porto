@@ -76,7 +76,12 @@ export type Schema = [
       | {
           type: 'init'
           chainIds?: readonly number[] | undefined
-          mode: 'inline-iframe' | 'iframe' | 'popup' | 'popup-standalone'
+          mode:
+            | 'inline-iframe'
+            | 'iframe'
+            | 'popup'
+            | 'popup-standalone'
+            | 'page'
           referrer: {
             icon?: string | { light: string; dark: string } | undefined
             title: string
@@ -85,7 +90,12 @@ export type Schema = [
         }
       | {
           type: 'switch'
-          mode: 'inline-iframe' | 'iframe' | 'popup' | 'popup-standalone'
+          mode:
+            | 'inline-iframe'
+            | 'iframe'
+            | 'popup'
+            | 'popup-standalone'
+            | 'page'
         }
       | {
           type: 'resize'

@@ -71,6 +71,15 @@ function RouteComponent() {
   const location = useLocation()
   const request = Hooks.useRequest(porto)
 
+  const [controlledSize, setControlledSize] = React.useState(mode === 'popup')
+  const heightUpdateCheckTimer =
+    React.useRef<ReturnType<typeof setTimeout>>(undefined)
+  const onNextResize = React.useRef<() => void>(() => {})
+
+  React.useEffect(() => {
+    setControlledSize(mode === 'popup')
+  }, [mode])
+
   return (
     <>
       <HeadContent />
@@ -88,7 +97,10 @@ function RouteComponent() {
         loading={!request}
         mode={
           display === 'full'
-            ? 'full'
+            ? {
+                name: 'full',
+                variant: controlledSize ? 'content-height' : 'auto',
+              }
             : {
                 name: 'dialog',
                 variant: display === 'drawer' ? 'drawer' : 'floating',
@@ -104,6 +116,36 @@ function RouteComponent() {
             action: 'done:close',
             type: 'dialog-lifecycle',
           })
+        }}
+        onHeight={(height) => {
+          if (controlledSize) {
+            clearTimeout(heightUpdateCheckTimer.current)
+            window.removeEventListener('resize', onNextResize.current)
+
+            const outerWindowHeight = window.outerHeight - window.innerHeight
+            const height_ = Math.ceil(height)
+
+            heightUpdateCheckTimer.current = setTimeout(() => {
+              window.removeEventListener('resize', onNextResize.current)
+              onNextResize.current = () => {
+                if (height_ !== window.innerHeight) setControlledSize(false)
+              }
+              window.addEventListener('resize', onNextResize.current, {
+                once: true,
+              })
+              window.resizeTo(window.outerWidth, height_ + outerWindowHeight)
+            }, 100) // chrome might be resizing and give us a wrong height on the next resize, so we wait a bit
+          }
+
+          if (
+            mode !== 'inline-iframe' &&
+            mode !== 'popup-standalone' &&
+            mode !== 'page'
+          )
+            porto.messenger.send('__internal', {
+              height: Math.ceil(height),
+              type: 'resize',
+            })
         }}
         screenKey={`${location.pathname}${request?.id}`}
         site={{

@@ -1,5 +1,5 @@
 import { Input } from '@porto/apps/components'
-import { Button } from '@porto/ui'
+import { Button, TextButton } from '@porto/ui'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
 import * as Dialog from '~/lib/Dialog'
@@ -163,15 +163,14 @@ export function Email(props: Email.Props) {
               <span className="text-th_base-secondary">Using</span>{' '}
               {displayName}
             </div>
-            <button
-              className="text-th_link"
+            <TextButton
+              color="link"
               onClick={() => {
                 onApprove({ selectAccount: true, signIn: true })
               }}
-              type="button"
             >
               Switch
-            </button>
+            </TextButton>
           </div>
         )}
       </div>

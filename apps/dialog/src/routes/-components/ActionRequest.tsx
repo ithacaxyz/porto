@@ -164,8 +164,8 @@ export namespace ActionRequest {
       <div className="space-y-2">
         {assetDiff.map((balance) => {
           if (balance.type === 'erc721')
-            return <AssetDiff.Erc721Row {...balance} />
-          return <AssetDiff.CoinRow {...balance} />
+            return <AssetDiff.Erc721Row key={balance.symbol} {...balance} />
+          return <AssetDiff.CoinRow key={balance.symbol} {...balance} />
         })}
       </div>
     )

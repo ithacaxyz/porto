@@ -95,12 +95,18 @@ export function Frame({
 
   useSize(
     screenRef,
-    ({ height }) => {
-      if (height === 0) return
+    ({ width, height }) => {
+      if (height === 0 || width === 0) return
       if (mode.name === 'dialog')
         onHeight?.(
           height +
             33 + // 32px + 1px border for the frame bar in dialog mode
+            2, // frame top & bottom borders
+        )
+      if (mode.name === 'full' && mode.variant === 'content-height')
+        onHeight?.(
+          height +
+            (width >= 480 ? 60 : width >= 380 ? 48 : 40) + // frame bar height
             2, // frame top & bottom borders
         )
     },
@@ -183,7 +189,10 @@ export function Frame({
                   css({
                     display: 'grid',
                     overflowX: 'auto',
-                    overflowY: mode.name === 'full' ? 'auto' : 'hidden',
+                    overflowY:
+                      mode.name === 'full' && mode.variant !== 'content-height'
+                        ? 'auto'
+                        : 'hidden',
                     width: '100%',
                   }),
                   dialogDrawer
@@ -211,7 +220,6 @@ export function Frame({
                   className={cx(
                     css({
                       display: 'flex',
-                      flex: 1,
                       flexDirection: 'column',
                       minWidth: 360,
                       position: 'relative',
@@ -241,7 +249,20 @@ export function Frame({
                             'var(--background-color-th_base-plane)',
                         },
                         backgroundColor: 'var(--background-color-th_base)',
+                      }),
+                    mode.name === 'full' &&
+                      mode.variant !== 'content-height' &&
+                      css({
                         height: '100%',
+                      }),
+                    dialogDrawer &&
+                      css({
+                        borderBottomRadius: 0,
+                        maxWidth: 460,
+                      }),
+                    dialogFloating &&
+                      css({
+                        maxWidth: 400,
                       }),
                   )}
                   style={
@@ -291,7 +312,6 @@ export function Frame({
                               border: '1px solid var(--border-color-th_frame)',
                               borderRadius: 'var(--radius-th_large)',
                               maxWidth: 400,
-                              overflow: 'hidden',
                             },
                             overflow: 'hidden',
                           }),
@@ -345,6 +365,7 @@ function FrameBar({
       className={cx(
         css({
           alignItems: 'center',
+          borderBottom: '1px solid var(--border-color-th_frame)',
           color: 'var(--text-color-th_frame)',
           display: 'flex',
           flex: '0 0 auto',
@@ -356,7 +377,6 @@ function FrameBar({
         mode.name === 'dialog' &&
           css({
             backgroundColor: 'var(--background-color-th_frame)',
-            borderBottom: '1px solid var(--border-color-th_frame)',
             height: 33, // 32 + 1px border
           }),
         mode.name === 'full' &&
@@ -368,7 +388,6 @@ function FrameBar({
               borderBottom: 'none',
               height: 60,
             },
-            borderBottom: '1px solid var(--border-color-th_frame)',
             height: 40,
           }),
       )}
@@ -543,9 +562,10 @@ export namespace Frame {
     | {
         name: 'full'
         variant:
-          | 'auto' // large or medium, based on width (used in popup mode)
+          | 'auto' // large or medium, based on width
           | 'large' // large new tab (480px+)
           | 'medium' // medium new tab (less than 480px)
+          | 'content-height' // similar to medium, but height is based on content
       }
 
   export type ModeName = Mode['name']
@@ -568,7 +588,7 @@ export namespace Frame {
       }
     | {
         mode: 'full'
-        variant: 'large' | 'medium'
+        variant: 'large' | 'medium' | 'content-height'
       }
   )
 
