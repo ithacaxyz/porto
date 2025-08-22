@@ -102,19 +102,16 @@ export function Dashboard() {
         permissions.refetch().catch((error) => console.error(error)),
       ])
     },
-    pollingInterval: 1_000,
   })
   const { switchChainAsync } = useSwitchChain()
 
   const capabilities = useCapabilities()
-  // console.info(capabilities.data)
 
   const revokePermissions = Hooks.useRevokePermissions()
 
   const admins = Hooks.useAdmins({
     query: {
       enabled: account.status !== 'connected',
-      refetchInterval: 5_000,
     },
   })
 
