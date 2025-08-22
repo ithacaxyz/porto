@@ -69,7 +69,7 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
     if (adminKey) {
       if (tempKeyFile) {
         prompts.log.info(
-          `Admin key saved securely to temporary file: ${tempKeyFile}`,
+          `Admin key saved securely to temporary file:\n${tempKeyFile}`,
         )
       } else {
         prompts.log.warn(
@@ -178,7 +178,6 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
       fs.chmodSync(keyFile, 0o600)
       prompts.log.info(`Private key saved securely to: ${keyFile}`)
     }
-    // Clean up temp file if it exists now that the user has the key.
     if (tempKeyFile) {
       try {
         fs.rmSync(tempKeyFile)
@@ -187,7 +186,6 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
   }
   prompts.log.info('Manage your account at: https://id.porto.sh')
 
-  // Successful completion – do not print key on exit anymore and remove listeners.
   shouldPrintKeyOnExit = false
   if (adminKey) {
     process.off('SIGINT', onSigint)
