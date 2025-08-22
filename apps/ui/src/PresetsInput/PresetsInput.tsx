@@ -6,6 +6,7 @@ import LucidePencil from '~icons/lucide/pencil'
 import LucideX from '~icons/lucide/x'
 import { css, cx } from '../../styled-system/css'
 import { Input } from '../Input/Input.js'
+import { Ui } from '../Ui/Ui.js'
 
 const SPRING_CONFIG = {
   friction: 120,
@@ -49,8 +50,11 @@ export function PresetsInput({
     }
   }
 
+  const ui = Ui.useUi(true)
+
   const presetsTransition = useTransition(customMode ? [] : presets, {
     config: SPRING_CONFIG,
+    immediate: ui?.reducedMotion,
     enter: {
       labelBlur: 'blur(0px)',
       opacity: 1,
@@ -77,6 +81,7 @@ export function PresetsInput({
 
   const customInputTransition = useTransition(customMode, {
     config: SPRING_CONFIG,
+    immediate: ui?.reducedMotion,
     enter: {
       buttonTransform: 'scale(1)',
       inputTransform: 'scale(1, 1)',

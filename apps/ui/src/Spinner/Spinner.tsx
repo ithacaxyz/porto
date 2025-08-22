@@ -1,5 +1,6 @@
 import { a, useSpring } from '@react-spring/web'
 import { css } from '~/../styled-system/css'
+import { Ui } from '../Ui/Ui.js'
 
 const CIRCLES = [
   {
@@ -34,12 +35,14 @@ export function Spinner({
 
   thickness ??= size / 10
 
+  const ui = Ui.useUi(true)
+
   const rotateAnim = useSpring({
     config: {
       friction: 200,
       mass: 3,
       precision: 0.1,
-      tension: 300,
+      tension: ui?.reducedMotion ? 5 : 300,
     },
     from: { progress: 0 },
     loop: true,

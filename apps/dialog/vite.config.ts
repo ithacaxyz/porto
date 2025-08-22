@@ -29,6 +29,8 @@ export default defineConfig(({ mode }) => {
     define: {
       __APP_VERSION__: JSON.stringify(commitSha),
       'import.meta.env.ANVIL': process.env.ANVIL === 'true',
+      'import.meta.env.FORCE_REDUCED_MOTION':
+        process.env.FORCE_REDUCED_MOTION === 'true',
       'import.meta.env.VITE_WORKERS_URL':
         process.env.ANVIL === 'true'
           ? mode === 'test'

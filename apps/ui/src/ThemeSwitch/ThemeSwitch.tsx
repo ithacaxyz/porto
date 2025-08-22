@@ -1,8 +1,9 @@
 import { a, useSpring } from '@react-spring/web'
 import type { ButtonHTMLAttributes } from 'react'
 import { css, cx } from '../../styled-system/css'
-import { IconMoon } from './IconMoon'
-import { IconSun } from './IconSun'
+import { IconMoon } from './IconMoon.js'
+import { IconSun } from './IconSun.js'
+import { Ui } from '../Ui/Ui.js'
 
 type ColorScheme = 'light' | 'dark'
 
@@ -63,6 +64,7 @@ function ColorSchemeIcon({
   current: ColorScheme
   colorScheme: ColorScheme
 }) {
+  const ui = Ui.useUi(true)
   const active = colorScheme === current
   const styles = useSpring({
     config: {
@@ -76,10 +78,22 @@ function ColorSchemeIcon({
     },
     to: active
       ? [
-          { immediate: true, transform: 'scale(0.6)' },
-          { opacity: 1, transform: 'scale(1)' },
+          {
+            immediate: true,
+            transform: 'scale(0.6)',
+          },
+          {
+            immediate: ui?.reducedMotion,
+            opacity: 1,
+            transform: 'scale(1)',
+          },
         ]
-      : [{ transform: 'scale(1)' }],
+      : [
+          {
+            immediate: ui?.reducedMotion,
+            transform: 'scale(1)',
+          },
+        ],
   })
   return (
     <a.div

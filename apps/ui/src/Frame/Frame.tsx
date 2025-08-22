@@ -16,6 +16,7 @@ import LucideBadgeCheck from '~icons/lucide/badge-check'
 import LucideX from '~icons/lucide/x'
 import iconDefaultDark from './icon-default-dark.svg'
 import iconDefaultLight from './icon-default-light.svg'
+import { Ui } from '../Ui/Ui.js'
 
 const FrameContext = createContext<Frame.Context | null>(null)
 
@@ -40,7 +41,7 @@ const springStyles = {
   },
 } as const
 
-export function Frame({
+function FrameWithUi({
   children,
   colorScheme = 'light dark',
   mode: mode_,
@@ -49,7 +50,7 @@ export function Frame({
   onHeight,
   site,
   visible = true,
-}: Frame.Props) {
+}: Omit<Frame.Props, 'reducedMotion'>) {
   const frameRef = useRef<HTMLDivElement>(null)
 
   const mode = useMemo<Frame.Mode>(() => {
@@ -75,19 +76,23 @@ export function Frame({
     mode.name === 'dialog' &&
     (mode.variant === 'floating' || (mode.variant === 'auto' && large))
 
+  const ui = Ui.useUi()
+
   const openTransition = useTransition(visible, {
     config: dialogDrawer
       ? { clamp: true, friction: 120, mass: 1, tension: 2000 }
       : { friction: 160, mass: 1.3, tension: 3000 },
+    immediate: ui.reducedMotion,
     enter: () => async (next) => {
       await next({ ...springStyles.from, immediate: true })
-      await next(springStyles.enter)
+      await next({ ...springStyles.enter, immediate: ui.reducedMotion })
     },
     initial: springStyles.enter,
     leave: () => async (next) => {
       await next({
         ...springStyles.leave,
-        immediate: mode.name === 'dialog' && !dialogDrawer,
+        immediate:
+          ui.reducedMotion || (mode.name === 'dialog' && !dialogDrawer),
       })
       onClosed?.()
     },
@@ -168,8 +173,6 @@ export function Frame({
             placeItems: 'center',
             position: 'relative',
             width: '100%',
-          }),
-          css({
             height: '100%',
           }),
           dialogDrawer &&
@@ -179,7 +182,9 @@ export function Frame({
         )}
         data-dialog={mode.name === 'dialog' ? true : undefined}
         ref={frameRef}
-        style={{ colorScheme }}
+        style={{
+          colorScheme,
+        }}
       >
         {openTransition(
           (styles, visible) =>
@@ -343,6 +348,17 @@ export function Frame({
         )}
       </div>
     </FrameContext.Provider>
+  )
+}
+
+export function Frame({ reducedMotion, ...props }: Frame.Props) {
+  const ui = Ui.useUi(true)
+  return ui && reducedMotion === undefined ? (
+    <FrameWithUi {...props} />
+  ) : (
+    <Ui reducedMotion={reducedMotion}>
+      <FrameWithUi {...props} />
+    </Ui>
   )
 }
 
@@ -546,6 +562,7 @@ export namespace Frame {
     onClose?: (() => void) | undefined
     onClosed?: (() => void) | undefined
     onHeight?: ((height: number) => void) | undefined
+    reducedMotion?: boolean | undefined
     site: Site
     screenKey?: string | undefined
     visible?: boolean | undefined

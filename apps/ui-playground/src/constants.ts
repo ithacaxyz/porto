@@ -10,6 +10,7 @@ export const sections = [
       'Input',
       'PresetsInput',
       'Separator',
+      'ShowAfter',
       'Spinner',
       'ThemeSwitch',
     ],

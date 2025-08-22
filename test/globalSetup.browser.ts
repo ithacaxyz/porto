@@ -12,6 +12,7 @@ export default async function () {
             ...(process as any).env,
             ...import.meta.env,
             ANVIL: (import.meta.env.VITE_DEFAULT_ENV === 'anvil').toString(),
+            FORCE_REDUCED_MOTION: true,
           },
         },
       )

@@ -1,5 +1,6 @@
 import { cx } from 'cva'
 import type { ReactNode } from 'react'
+import { Ui } from '@porto/ui'
 
 export function ComponentScreen({
   children,
@@ -9,10 +10,12 @@ export function ComponentScreen({
   title: ReactNode
 }) {
   return (
-    <div className="flex max-w-2xl flex-col gap-4 py-4">
-      <h1 className="mb-4 text-2xl text-th_base">{title}</h1>
-      <div className="w-full space-y-6">{children}</div>
-    </div>
+    <Ui>
+      <div className="flex max-w-2xl flex-col gap-4 py-4">
+        <h1 className="mb-4 text-2xl text-th_base">{title}</h1>
+        <div className="w-full space-y-6">{children}</div>
+      </div>
+    </Ui>
   )
 }
 

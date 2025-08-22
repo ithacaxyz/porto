@@ -14,6 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as ThemeSwitchImport } from './routes/ThemeSwitch'
 import { Route as SpinnerImport } from './routes/Spinner'
 import { Route as SpacerImport } from './routes/Spacer'
+import { Route as ShowAfterImport } from './routes/ShowAfter'
 import { Route as SeparatorImport } from './routes/Separator'
 import { Route as ScreenImport } from './routes/Screen'
 import { Route as PresetsInputImport } from './routes/PresetsInput'
@@ -41,6 +42,12 @@ const SpinnerRoute = SpinnerImport.update({
 const SpacerRoute = SpacerImport.update({
   id: '/Spacer',
   path: '/Spacer',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ShowAfterRoute = ShowAfterImport.update({
+  id: '/ShowAfter',
+  path: '/ShowAfter',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -165,6 +172,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SeparatorImport
       parentRoute: typeof rootRoute
     }
+    '/ShowAfter': {
+      id: '/ShowAfter'
+      path: '/ShowAfter'
+      fullPath: '/ShowAfter'
+      preLoaderRoute: typeof ShowAfterImport
+      parentRoute: typeof rootRoute
+    }
     '/Spacer': {
       id: '/Spacer'
       path: '/Spacer'
@@ -201,6 +215,7 @@ export interface FileRoutesByFullPath {
   '/PresetsInput': typeof PresetsInputRoute
   '/Screen': typeof ScreenRoute
   '/Separator': typeof SeparatorRoute
+  '/ShowAfter': typeof ShowAfterRoute
   '/Spacer': typeof SpacerRoute
   '/Spinner': typeof SpinnerRoute
   '/ThemeSwitch': typeof ThemeSwitchRoute
@@ -216,6 +231,7 @@ export interface FileRoutesByTo {
   '/PresetsInput': typeof PresetsInputRoute
   '/Screen': typeof ScreenRoute
   '/Separator': typeof SeparatorRoute
+  '/ShowAfter': typeof ShowAfterRoute
   '/Spacer': typeof SpacerRoute
   '/Spinner': typeof SpinnerRoute
   '/ThemeSwitch': typeof ThemeSwitchRoute
@@ -232,6 +248,7 @@ export interface FileRoutesById {
   '/PresetsInput': typeof PresetsInputRoute
   '/Screen': typeof ScreenRoute
   '/Separator': typeof SeparatorRoute
+  '/ShowAfter': typeof ShowAfterRoute
   '/Spacer': typeof SpacerRoute
   '/Spinner': typeof SpinnerRoute
   '/ThemeSwitch': typeof ThemeSwitchRoute
@@ -249,6 +266,7 @@ export interface FileRouteTypes {
     | '/PresetsInput'
     | '/Screen'
     | '/Separator'
+    | '/ShowAfter'
     | '/Spacer'
     | '/Spinner'
     | '/ThemeSwitch'
@@ -263,6 +281,7 @@ export interface FileRouteTypes {
     | '/PresetsInput'
     | '/Screen'
     | '/Separator'
+    | '/ShowAfter'
     | '/Spacer'
     | '/Spinner'
     | '/ThemeSwitch'
@@ -277,6 +296,7 @@ export interface FileRouteTypes {
     | '/PresetsInput'
     | '/Screen'
     | '/Separator'
+    | '/ShowAfter'
     | '/Spacer'
     | '/Spinner'
     | '/ThemeSwitch'
@@ -293,6 +313,7 @@ export interface RootRouteChildren {
   PresetsInputRoute: typeof PresetsInputRoute
   ScreenRoute: typeof ScreenRoute
   SeparatorRoute: typeof SeparatorRoute
+  ShowAfterRoute: typeof ShowAfterRoute
   SpacerRoute: typeof SpacerRoute
   SpinnerRoute: typeof SpinnerRoute
   ThemeSwitchRoute: typeof ThemeSwitchRoute
@@ -308,6 +329,7 @@ const rootRouteChildren: RootRouteChildren = {
   PresetsInputRoute: PresetsInputRoute,
   ScreenRoute: ScreenRoute,
   SeparatorRoute: SeparatorRoute,
+  ShowAfterRoute: ShowAfterRoute,
   SpacerRoute: SpacerRoute,
   SpinnerRoute: SpinnerRoute,
   ThemeSwitchRoute: ThemeSwitchRoute,
@@ -332,6 +354,7 @@ export const routeTree = rootRoute
         "/PresetsInput",
         "/Screen",
         "/Separator",
+        "/ShowAfter",
         "/Spacer",
         "/Spinner",
         "/ThemeSwitch"
@@ -363,6 +386,9 @@ export const routeTree = rootRoute
     },
     "/Separator": {
       "filePath": "Separator.tsx"
+    },
+    "/ShowAfter": {
+      "filePath": "ShowAfter.tsx"
     },
     "/Spacer": {
       "filePath": "Spacer.tsx"

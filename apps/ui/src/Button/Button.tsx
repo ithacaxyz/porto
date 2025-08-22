@@ -3,6 +3,7 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { useRef } from 'react'
 import { css, cva, cx } from '../../styled-system/css'
 import { Frame } from '../Frame/Frame.js'
+import { Ui } from '../Ui/Ui.js'
 import { Spinner } from '../Spinner/Spinner.js'
 
 type ButtonSize = 'small' | 'medium' | 'large'
@@ -21,6 +22,8 @@ export function Button({
   ...props
 }: Button.Props) {
   const frame = Frame.useFrame(true)
+  const ui = Ui.useUi(true)
+
   size ??= { dialog: 'medium', full: 'large' }
 
   if (loading === true) loading = 'Loading…'
@@ -40,23 +43,20 @@ export function Button({
       containerWidth: 0,
       labelOpacity: 1,
       loadingOpacity: 1,
-      position: 'static',
     },
     to: async (next) => {
       const targetRef = loading ? loadingRef : labelRef
       const width = targetRef.current?.clientWidth ?? 0
       if (width === 0) return
-      if (labelRef.current) labelRef.current.style.position = 'absolute'
-      if (loadingRef.current) loadingRef.current.style.position = 'absolute'
       await Promise.all([
         next({
-          immediate: true,
-          position: 'static',
-          ...(loading ? { labelOpacity: 0 } : { loadingOpacity: 0 }),
+          immediate: ui?.reducedMotion,
+          labelOpacity: 0,
+          loadingOpacity: 0,
         }),
         next({
           containerWidth: width,
-          immediate: !firstAnimDone.current,
+          immediate: ui?.reducedMotion || !firstAnimDone.current,
           labelOpacity: loading ? 0 : 1,
           loadingOpacity: loading ? 1 : 0,
         }),
