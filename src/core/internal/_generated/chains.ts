@@ -10,4 +10,5 @@ export {
   optimism,
   optimismSepolia,
   polygon,
+  sepolia,
 } from 'viem/chains'
