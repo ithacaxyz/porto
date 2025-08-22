@@ -63,7 +63,7 @@ const examples = fs
   .filter((dir) => fs.statSync(`examples/${dir}`).isDirectory())
   .map((dir) => `examples/${dir}/src`)
 
-export default defineConfig(async () => [
+export default defineConfig([
   ...['apps/wagmi/src', ...examples].map((path) => ({
     contracts: [],
     out: `${path}/contracts.ts`,
