@@ -84,13 +84,11 @@ export function iframe(options: iframe.Options = {}) {
       Object.assign(root.style, {
         background: 'transparent',
         border: '0',
-        height: '100vh',
         inset: '0',
         outline: '0',
         padding: '0',
         position: 'fixed',
         top: '-10000px',
-        width: '100vw',
       })
 
       document.body.appendChild(root)
@@ -112,11 +110,11 @@ export function iframe(options: iframe.Options = {}) {
         backgroundColor: 'transparent',
         border: '0',
         colorScheme: 'light dark',
-        height: '100vh',
+        height: '100%',
         left: '0',
         position: 'fixed',
         top: '0',
-        width: '100vw',
+        width: '100%',
       })
 
       root.appendChild(iframe)
