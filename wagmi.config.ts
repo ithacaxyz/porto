@@ -1,15 +1,27 @@
 import * as fs from 'node:fs'
 import { defineConfig } from '@wagmi/cli'
 import { foundry } from '@wagmi/cli/plugins'
+import type { Address } from 'viem'
+import capabilities from './scripts/capabilities.ts'
 import {
   anvil,
   anvil2,
   anvil3,
+  arbitrumSepolia,
   base,
   baseSepolia,
   optimismSepolia,
 } from './src/core/Chains.js'
 import * as anvilAddresses from './test/src/_generated/addresses.js'
+
+const getTokenAddress = (chainId: number, tokenUid: 'exp1' | 'exp2') => {
+  const token = capabilities[chainId].fees.tokens.find(
+    (t) => t.uid === tokenUid,
+  )
+  if (!token)
+    throw new Error(`Token ${tokenUid} not found for chain ${chainId}`)
+  return token.address as Address
+}
 
 const address = {
   exp1: {
@@ -17,16 +29,18 @@ const address = {
     [anvil.id]: anvilAddresses.exp1Address,
     [anvil2.id]: anvilAddresses.exp1Address,
     [base.id]: '0x074C9c3273F31651a9dae896C1A1d68E868b6998',
-    [baseSepolia.id]: '0x3a9b126bf65c518f1e02602bd77bd1288147f94c',
-    [optimismSepolia.id]: '0x3a9b126bf65c518f1e02602bd77bd1288147f94c',
+    [baseSepolia.id]: getTokenAddress(baseSepolia.id, 'exp1'),
+    [optimismSepolia.id]: getTokenAddress(optimismSepolia.id, 'exp1'),
+    [arbitrumSepolia.id]: getTokenAddress(arbitrumSepolia.id, 'exp1'),
   },
   exp2: {
     [anvil3.id]: anvilAddresses.exp2Address,
     [anvil.id]: anvilAddresses.exp2Address,
     [anvil2.id]: anvilAddresses.exp2Address,
     [base.id]: '0xFcc74F42621D03Fd234d5f40931D8B82923E4D29',
-    [baseSepolia.id]: '0x6795f10304557a454b94a5c04e9217677cc9b598',
-    [optimismSepolia.id]: '0x6795f10304557a454b94a5c04e9217677cc9b598',
+    [baseSepolia.id]: getTokenAddress(baseSepolia.id, 'exp2'),
+    [optimismSepolia.id]: getTokenAddress(optimismSepolia.id, 'exp2'),
+    [arbitrumSepolia.id]: getTokenAddress(arbitrumSepolia.id, 'exp2'),
   },
   expNft: {
     [anvil3.id]: anvilAddresses.expNftAddress,
