@@ -1,5 +1,6 @@
 import * as Ariakit from '@ariakit/react'
 import { Button, Spinner, Toast } from '@porto/apps/components'
+import { exp1Address } from '@porto/apps/contracts'
 import { useCopyToClipboard } from '@porto/apps/hooks'
 import { Link } from '@tanstack/react-router'
 import { Cuer } from 'cuer'
@@ -320,6 +321,9 @@ export function Dashboard() {
                 addFunds.mutate({
                   address: account.address,
                   chainId: Chains.baseSepolia.id,
+                  token: exp1Address[Chains.baseSepolia.id],
+                  // @ts-expect-error TODO: fix type
+                  tokenAddress: exp1Address[Chains.baseSepolia.id],
                 })
               }
               size="small"
