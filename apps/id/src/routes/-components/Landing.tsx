@@ -68,10 +68,7 @@ export function Landing() {
                     event.preventDefault()
                     connect.connect({
                       capabilities: {
-                        createAccount: {
-                          chainId: undefined,
-                          label: email,
-                        },
+                        createAccount: { label: email },
                         email: true,
                       },
                       connector: connector!,
@@ -91,7 +88,7 @@ export function Landing() {
                       onChange={(e) => setEmail(e.target.value)}
                       pattern=".*@.*\..+"
                       placeholder="example@ithaca.xyz"
-                      required={false}
+                      required
                       spellCheck={false}
                       type="email"
                       value={email}
