@@ -9,7 +9,7 @@ export namespace PriceFormatter {
    */
   export function format(value: number | bigint) {
     if (abs(value) < 0.01)
-      return `${value < 0 ? '-' : ''}<${numberIntl.format(value == 0 ? '0' : '0.01')}`
+      return `${value < 0 ? '-' : ''}<${numberIntl.format(value === 0 ? '0' : '0.01')}`
     return numberIntl.format(value)
   }
 
