@@ -12,13 +12,13 @@ await Fs.writeFile(
   await Fs.readFile(
     Path.resolve(
       import.meta.dirname,
-      '../contracts/account/src/IthacaAccount.sol',
+      '../contracts/account/src/PortoAccount.sol',
     ),
     'utf-8',
   ).then((content) =>
     content
       .replace(/version = "\d+\.\d+\.\d+";/, 'version = "0.0.1";')
-      .replace('contract IthacaAccount', 'contract IthacaAccountOld'),
+      .replace('contract PortoAccount', 'contract IthacaAccountOld'),
   ),
 )
 
@@ -33,12 +33,12 @@ await Fs.writeFile(
   await Fs.readFile(
     Path.resolve(
       import.meta.dirname,
-      '../contracts/account/src/IthacaAccount.sol',
+      '../contracts/account/src/PortoAccount.sol',
     ),
     'utf-8',
   ).then((content) =>
     content
       .replace(/version = "\d+\.\d+\.\d+";/, 'version = "69.0.0";')
-      .replace('contract IthacaAccount', 'contract IthacaAccountNew'),
+      .replace('contract PortoAccount', 'contract IthacaAccountNew'),
   ),
 )
