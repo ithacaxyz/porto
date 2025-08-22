@@ -896,6 +896,12 @@ function AssetRow(props: {
   ) {
     event.preventDefault()
 
+    // if amount is greater than balance or equal balance, reject
+    if (Number(sendFormState.values.sendAmount) >= Number(formattedBalance)) {
+      toast.error('Amount is too high')
+      return
+    }
+
     if (account.chain?.id !== props.chainId)
       switchChain({ chainId: props.chainId as never })
 
@@ -1110,6 +1116,14 @@ function AssetRow(props: {
               className="mx-0.5 my-auto text-gray11! text-xs! sm:mx-1"
               onClick={(event) => {
                 event.preventDefault()
+                if (
+                  Number(sendFormState.values.sendAmount) >=
+                  Number(formattedBalance)
+                ) {
+                  toast.error('Amount is too high')
+                  return
+                }
+
                 sendForm.setValue(
                   sendForm.names.sendAmount,
                   Number(formattedBalance),
