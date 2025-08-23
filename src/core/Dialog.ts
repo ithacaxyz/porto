@@ -84,11 +84,9 @@ export function iframe(options: iframe.Options = {}) {
       Object.assign(root.style, {
         background: 'transparent',
         border: '0',
-        inset: '0',
         outline: '0',
         padding: '0',
         position: 'fixed',
-        top: '-10000px',
       })
 
       document.body.appendChild(root)
@@ -117,6 +115,14 @@ export function iframe(options: iframe.Options = {}) {
         width: '100%',
       })
 
+      const style = document.createElement('style')
+      style.innerHTML = `
+        dialog[data-porto]::backdrop {
+          background: transparent!important;
+        }
+      `
+
+      root.appendChild(style)
       root.appendChild(iframe)
 
       const messenger = Messenger.bridge({
