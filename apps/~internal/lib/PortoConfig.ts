@@ -12,6 +12,7 @@ import {
   optimism,
   optimismSepolia,
   polygon,
+  sepolia,
 } from 'viem/chains'
 
 import * as Env from './Env'
@@ -41,6 +42,7 @@ const config = {
       optimism,
       optimismSepolia,
       polygon,
+      sepolia,
     ],
     feeToken: 'ETH',
     mode: Mode.relay({
@@ -60,6 +62,7 @@ const config = {
       [optimism.id]: http(import.meta.env.VITE_RPC_URL_OPTIMISM),
       [optimismSepolia.id]: http(),
       [polygon.id]: http(import.meta.env.VITE_RPC_URL_POLYGON),
+      [sepolia.id]: http(),
     },
   },
   stg: {
@@ -75,6 +78,7 @@ const config = {
       optimism,
       optimismSepolia,
       polygon,
+      sepolia,
     ],
     feeToken: 'EXP',
     mode: Mode.relay({
@@ -95,6 +99,7 @@ const config = {
       [optimism.id]: http(),
       [optimismSepolia.id]: http(),
       [polygon.id]: http(),
+      [sepolia.id]: http(),
     },
   },
 } as const satisfies Record<Env.Env, Partial<Porto.Config>>
