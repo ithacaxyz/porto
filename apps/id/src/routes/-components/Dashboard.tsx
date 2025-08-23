@@ -862,8 +862,6 @@ function AssetRow(props: {
   })
 
   sendForm.useSubmit(() => {
-    console.info(sendFormState.values.sendAmount)
-
     if (Number(sendFormState.values.sendAmount) >= Number(formattedBalance)) {
       // if amount is greater than balance or equal balance, reject
       toast.error('Amount is too high')
