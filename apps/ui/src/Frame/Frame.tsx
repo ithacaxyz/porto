@@ -225,6 +225,7 @@ function FrameWithUi({
                   mode.name === 'dialog' &&
                     mode.variant === 'drawer' &&
                     css({
+                      borderBottom: 0,
                       borderBottomRadius: 0,
                       maxWidth: 460,
                     }),
