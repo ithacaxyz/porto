@@ -98,6 +98,7 @@ export function Button({
           display: 'inline-flex',
           flex: '0 0 auto',
           justifyContent: 'center',
+          touchAction: 'none',
           whiteSpace: 'nowrap',
         }),
         width === 'full' && css({ width: '100%' }),
