@@ -305,4 +305,13 @@ export const defaultAssets: Record<
       symbol: 'POL',
     },
   ],
+  [Chains.sepolia.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'Ethereum',
+      symbol: 'ETH',
+    },
+  ],
 }
