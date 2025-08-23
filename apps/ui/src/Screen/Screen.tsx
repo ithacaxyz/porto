@@ -1,5 +1,4 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
-import { useId } from 'react'
 import ChevronRight from '~icons/lucide/chevron-right'
 import { css, cx } from '../../styled-system/css'
 import { ButtonArea } from '../ButtonArea/ButtonArea.js'
@@ -12,7 +11,6 @@ export function Screen({
   compactPadding = false,
 }: Screen.Props) {
   const frame = Frame.useFrame()
-  const id = useId()
 
   layout ??= frame.mode === 'dialog' ? 'compact' : 'full'
 
@@ -39,9 +37,6 @@ export function Screen({
             overflowY: 'auto',
           }),
       )}
-      ref={(el) => {
-        frame.setScreen(el, id)
-      }}
     >
       <div
         className={cx(
