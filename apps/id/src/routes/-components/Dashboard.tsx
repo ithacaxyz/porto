@@ -6,6 +6,7 @@ import { Cuer } from 'cuer'
 import { cx } from 'cva'
 import { Address, Hex, Value } from 'ox'
 import { Chains } from 'porto'
+import { base, baseSepolia } from 'porto/core/Chains'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
@@ -17,7 +18,6 @@ import {
   useSendCalls,
   useSwitchChain,
   useWaitForCallsStatus,
-  useWatchBlockNumber,
 } from 'wagmi'
 import { ShowMore } from '~/components/ShowMore'
 import { TokenSymbol } from '~/components/TokenSymbol'
@@ -95,14 +95,6 @@ export function Dashboard() {
     },
   })
 
-  useWatchBlockNumber({
-    enabled: account.status === 'connected',
-    onBlockNumber: async (_blockNumber) => {
-      await Promise.all([
-        permissions.refetch().catch((error) => console.error(error)),
-      ])
-    },
-  })
   const { switchChainAsync } = useSwitchChain()
 
   const capabilities = useCapabilities()
@@ -448,7 +440,7 @@ export function Dashboard() {
               key={asset.metadata?.symbol}
               logo={asset.metadata?.logo ?? undefined}
               name={asset.metadata?.name ?? ''}
-              price={0}
+              price={1}
               symbol={asset.metadata?.symbol ?? ''}
               value={asset.balance}
             />
@@ -662,8 +654,13 @@ export function Dashboard() {
                         className="size-8 rounded-full p-1 text-gray11 hover:bg-red-100 hover:text-red-500"
                         onClick={() => {
                           if (!id || !address) return
+                          const chainId =
+                            import.meta.env.VITE_VERCEL_ENV === 'production'
+                              ? base.id
+                              : baseSepolia.id
                           revokeAdmin.mutate({
                             address: account.address,
+                            chainId,
                             id: key.id,
                           })
                         }}
@@ -848,34 +845,6 @@ function AssetRow(props: {
 
   const account = useAccount()
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: _
-  React.useEffect(() => {
-    if (callStatus.data?.id) {
-      toast.info(`success sending ${sendFormState.values.sendAmount} ${symbol}`)
-    }
-  }, [callStatus.data?.id, symbol, callStatus.data?.id])
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: _
-  React.useEffect(() => {
-    if (callStatus.isSuccess) {
-      const [receipt] = callStatus.data?.receipts ?? []
-      const hash = receipt?.transactionHash
-      if (!hash) return
-      toast.custom(
-        (t) => (
-          <Toast
-            className={t}
-            description={`You successfully sent ${sendFormState.values.sendAmount} ${symbol}`}
-            kind="success"
-            title="Transaction completed"
-          />
-        ),
-
-        { duration: 4_500 },
-      )
-    }
-  }, [callStatus.data?.id])
-
   const sendForm = Ariakit.useFormStore({
     defaultValues: {
       sendAmount: '',
@@ -892,13 +861,11 @@ function AssetRow(props: {
     }
   })
 
-  async function submitForm(
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-  ) {
-    event.preventDefault()
+  sendForm.useSubmit(() => {
+    console.info(sendFormState.values.sendAmount)
 
-    // if amount is greater than balance or equal balance, reject
     if (Number(sendFormState.values.sendAmount) >= Number(formattedBalance)) {
+      // if amount is greater than balance or equal balance, reject
       toast.error('Amount is too high')
       return
     }
@@ -906,16 +873,15 @@ function AssetRow(props: {
     if (account.chain?.id !== props.chainId)
       switchChain({ chainId: props.chainId as never })
 
-    if (
-      !Address.validate(sendFormState.values.sendRecipient) ||
-      !sendFormState.values.sendAmount
-    )
+    if (!Address.validate(sendFormState.values.sendRecipient)) {
+      toast.error('Invalid recipient address')
       return
-
-    // ETH should have `to` as the recipient, `value` as the amount, and `data` as the empty string
-    // ERC20 should have `to` as the token address, `data` as the encoded function data, and `value` as the empty string
+    }
 
     if (address === zeroAddress) {
+      // ETH should have `to` as the recipient, `value` as the amount, and `data` as the empty string
+      // ERC20 should have `to` as the token address, `data` as the encoded function data, and `value` as the empty string
+
       sendCalls.sendCalls({
         calls: [
           {
@@ -945,10 +911,48 @@ function AssetRow(props: {
         ],
         chainId: props.chainId as never,
       })
-  }
+  })
 
   const ref = React.useRef<HTMLTableCellElement | null>(null)
   useClickOutside([ref], () => setViewState('default'))
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: _
+  React.useEffect(() => {
+    if (!callStatus.data?.id) return
+
+    toast.info(`Transaction status: ${callStatus.data.status}`)
+  }, [callStatus.data?.id])
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: _
+  React.useEffect(() => {
+    if (callStatus.data?.id) {
+      const [receipt] = callStatus.data?.receipts ?? []
+      const hash = receipt?.transactionHash
+      if (!hash) return
+      toast.info('Transaction completed')
+    }
+  }, [callStatus.data?.receipts])
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: _
+  React.useEffect(() => {
+    if (callStatus.isSuccess) {
+      const [receipt] = callStatus.data?.receipts ?? []
+      const hash = receipt?.transactionHash
+      if (!hash) return
+      toast.custom(
+        (t) => (
+          <Toast
+            className={t}
+            description={`You successfully sent ${sendFormState.values.sendAmount} ${symbol}`}
+            kind="success"
+            title="Transaction completed"
+          />
+        ),
+
+        { duration: 4_500 },
+      )
+    }
+  }, [callStatus.data?.id])
 
   if (props.value === 0n && !import.meta.env.DEV) return null
 
@@ -1098,12 +1102,6 @@ function AssetRow(props: {
                   inputMode="decimal"
                   max={formattedBalance}
                   name={sendForm.names.sendAmount}
-                  onInput={(event) => {
-                    sendForm.setValue(
-                      sendForm.names.sendAmount,
-                      event.currentTarget.value,
-                    )
-                  }}
                   placeholder="0.00"
                   required={true}
                   spellCheck={false}
@@ -1150,8 +1148,8 @@ function AssetRow(props: {
                   ? 'bg-accent text-white hover:bg-accentHover'
                   : 'cursor-not-allowed bg-gray4 *:text-gray8! hover:bg-gray7',
               )}
-              onClick={submitForm}
-              type="button"
+              // onClick={submitForm}
+              // type="button"
             >
               {sendCalls.isPending || callStatus.isFetching ? (
                 <Spinner className="size-3! sm:size-4!" />
