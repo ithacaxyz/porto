@@ -1,10 +1,9 @@
-import { Chains } from 'porto'
 import { porto as portoConnector } from 'porto/wagmi'
 import { createConfig, createStorage } from 'wagmi'
 import * as Porto from './Porto'
 
 export const config = createConfig({
-  chains: Chains.all,
+  chains: Porto.config.chains,
   connectors: [portoConnector(Porto.config)],
   multiInjectedProviderDiscovery: false,
   storage: createStorage({ storage: localStorage }),
@@ -12,7 +11,7 @@ export const config = createConfig({
 })
 
 export const mipdConfig = createConfig({
-  chains: Chains.all,
+  chains: Porto.config.chains,
   multiInjectedProviderDiscovery: true,
   storage: null,
   transports: config._internal.transports,

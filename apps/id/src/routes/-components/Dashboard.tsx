@@ -111,7 +111,11 @@ export function Dashboard() {
 
   const admins = Hooks.useAdmins({
     query: {
-      enabled: account.status !== 'connected',
+      enabled: account.status === 'connected',
+      select: (data) => ({
+        ...data,
+        keys: data.keys.filter((key) => key.type === 'address'),
+      }),
     },
   })
 
@@ -318,11 +322,12 @@ export function Dashboard() {
         right={
           <div className="flex gap-2">
             <Button
-              onClick={async () => {
+              onClick={async (event) => {
+                event.preventDefault()
+                event.stopPropagation()
                 // if url has testnet search param
-                const urlHashTestnet =
-                  window.location.search.includes('testnet')
-                if (!urlHashTestnet) {
+                const urlHasTestnet = window.location.search.includes('testnet')
+                if (!urlHasTestnet) {
                   addFunds.mutate({
                     address: account.address,
                   })
@@ -332,7 +337,6 @@ export function Dashboard() {
                   chainId: Chains.baseSepolia.id,
                 }).catch()
                 if (!capabilities.data) return
-                console.info(capabilities.data)
                 const exp1 = capabilities.data?.[
                   Chains.baseSepolia.id
                 ]?.feeToken?.tokens?.find((t) => t.uid === 'exp1')
