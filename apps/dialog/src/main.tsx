@@ -48,7 +48,7 @@ const offInitialized = Events.onInitialized(porto, (payload, event) => {
       }))
   }
 
-  Dialog.store.setState({
+  Dialog.store.setState((state) => ({
     mode,
     referrer: {
       ...referrer,
@@ -71,8 +71,11 @@ const offInitialized = Events.onInitialized(porto, (payload, event) => {
       : {}),
 
     // Only the iframe mode starts hidden until request:open is sent
-    visible: mode !== 'iframe',
-  })
+    visible:
+      mode !== 'iframe' ||
+      // only set visible:false on the first iframe init call
+      (state.mode !== 'iframe' ? false : state.visible),
+  }))
 })
 
 const offDialogRequest = Events.onDialogRequest(
