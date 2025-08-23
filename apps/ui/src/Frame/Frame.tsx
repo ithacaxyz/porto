@@ -78,29 +78,37 @@ function FrameWithUi({
 
   const ui = Ui.useUi()
 
+  const animateLeave =
+    !ui.reducedMotion && mode.name === 'dialog' && mode.variant === 'drawer'
+
   const openTransition = useTransition(visible, {
     config:
       mode.name === 'dialog' && mode.variant === 'drawer'
-        ? { clamp: true, friction: 120, mass: 1, tension: 2000 }
+        ? { clamp: true, friction: 100, mass: 1, tension: 2000 }
         : { friction: 120, mass: 1, tension: 3000 },
     enter: () => async (next) => {
       await next({ ...springStyles.from, immediate: true })
       await next({ ...springStyles.enter, immediate: ui.reducedMotion })
     },
-    immediate: ui.reducedMotion,
     initial: springStyles.enter,
     leave: () => async (next) => {
       await next({
         ...springStyles.leave,
-        immediate:
-          ui.reducedMotion ||
-          !(mode.name === 'dialog' && mode.variant === 'drawer'),
+        immediate: !animateLeave,
       })
     },
     onRest() {
-      if (!visible) onClosed?.()
+      if (!visible && animateLeave) onClosed?.()
     },
   })
+
+  // make sure onClosed gets called when visible = false,
+  // even when there is no leaving animation
+  const wasVisible = useRef(visible)
+  if (wasVisible.current !== visible) {
+    wasVisible.current = visible
+    if (!visible && !animateLeave) onClosed?.()
+  }
 
   useSize(
     screenRef,
@@ -165,7 +173,7 @@ function FrameWithUi({
               colorScheme,
             }}
           >
-            <a.div
+            <div
               className={cx(
                 css({
                   display: 'grid',
@@ -311,7 +319,7 @@ function FrameWithUi({
                   </div>
                 </div>
               </a.div>
-            </a.div>
+            </div>
           </div>
         </FrameContext.Provider>
       ),
