@@ -154,11 +154,6 @@ export function from<
         }
 
         case 'eth_requestAccounts': {
-          if (state.accounts.length > 0)
-            return state.accounts.map(
-              (account) => account.address,
-            ) satisfies typeof Rpc.eth_requestAccounts.Response.Encoded
-
           const client = getClient()
 
           const { accounts } = await getMode().actions.loadAccounts({
