@@ -708,7 +708,6 @@ export const ownableAbi = [
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - [__View Contract on Base Basescan__](https://basescan.org/address/0x833589fcd6edb6e08f4c7c32d4f71b54bda02913)
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x74e294e9d05bace256796040ca6dc0c47efb9fff)
  * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x74e294e9d05bace256796040ca6dc0c47efb9fff)
@@ -1013,7 +1012,6 @@ export const exp1Abi = [
 ] as const
 
 /**
- * - [__View Contract on Base Basescan__](https://basescan.org/address/0x833589fcd6edb6e08f4c7c32d4f71b54bda02913)
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x74e294e9d05bace256796040ca6dc0c47efb9fff)
  * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x74e294e9d05bace256796040ca6dc0c47efb9fff)
@@ -1021,7 +1019,6 @@ export const exp1Abi = [
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x74e294e9d05bace256796040ca6dc0c47efb9fff)
  */
 export const exp1Address = {
-  8453: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
   31337: '0x8ce361602B935680E8DeC218b820ff5056BeB7af',
   31338: '0x8ce361602B935680E8DeC218b820ff5056BeB7af',
   31339: '0x8ce361602B935680E8DeC218b820ff5056BeB7af',
@@ -1032,7 +1029,6 @@ export const exp1Address = {
 } as const
 
 /**
- * - [__View Contract on Base Basescan__](https://basescan.org/address/0x833589fcd6edb6e08f4c7c32d4f71b54bda02913)
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x74e294e9d05bace256796040ca6dc0c47efb9fff)
  * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x74e294e9d05bace256796040ca6dc0c47efb9fff)
@@ -1046,7 +1042,6 @@ export const exp1Config = { address: exp1Address, abi: exp1Abi } as const
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - [__View Contract on Base Basescan__](https://basescan.org/address/0x0000000000000000000000000000000000000000)
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2ace05bcb50b49953aaa4c00f318db908a512d99)
  * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x2ace05bcb50b49953aaa4c00f318db908a512d99)
@@ -1351,7 +1346,6 @@ export const exp2Abi = [
 ] as const
 
 /**
- * - [__View Contract on Base Basescan__](https://basescan.org/address/0x0000000000000000000000000000000000000000)
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2ace05bcb50b49953aaa4c00f318db908a512d99)
  * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x2ace05bcb50b49953aaa4c00f318db908a512d99)
@@ -1359,7 +1353,6 @@ export const exp2Abi = [
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x2ace05bcb50b49953aaa4c00f318db908a512d99)
  */
 export const exp2Address = {
-  8453: '0x0000000000000000000000000000000000000000',
   31337: '0xe1Aa25618fA0c7A1CFDab5d6B456af611873b629',
   31338: '0xe1Aa25618fA0c7A1CFDab5d6B456af611873b629',
   31339: '0xe1Aa25618fA0c7A1CFDab5d6B456af611873b629',
@@ -1370,7 +1363,6 @@ export const exp2Address = {
 } as const
 
 /**
- * - [__View Contract on Base Basescan__](https://basescan.org/address/0x0000000000000000000000000000000000000000)
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2ace05bcb50b49953aaa4c00f318db908a512d99)
  * - [__View Contract on Arbitrum Sepolia Arbiscan__](https://sepolia.arbiscan.io/address/0x2ace05bcb50b49953aaa4c00f318db908a512d99)

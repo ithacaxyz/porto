@@ -899,7 +899,7 @@ function SendCalls() {
           await porto.provider.request({
             method: 'eth_chainId',
           }),
-        ) as keyof typeof expNftAddress
+        ) as keyof typeof exp1Address
         const account = result[0]!
         const recipient = address || account
 
@@ -1004,7 +1004,7 @@ function SendCalls() {
                 {
                   data: AbiFunction.encodeData(
                     AbiFunction.fromAbi(exp1Abi, 'approve'),
-                    [expNftAddress[chainId], Value.fromEther('10')],
+                    [expNftAddress[chainId as never], Value.fromEther('10')],
                   ),
                   to: exp1Address[chainId],
                 },
@@ -1012,7 +1012,7 @@ function SendCalls() {
                   data: AbiFunction.encodeData(
                     AbiFunction.fromAbi(expNftAbi, 'mint'),
                   ),
-                  to: expNftAddress[chainId],
+                  to: expNftAddress[chainId as never],
                 },
               ],
               capabilities: {
@@ -1048,7 +1048,7 @@ function SendCalls() {
                 {
                   data: AbiFunction.encodeData(
                     AbiFunction.fromAbi(exp1Abi, 'approve'),
-                    [expNftAddress[chainId], Value.fromEther('10')],
+                    [expNftAddress[chainId as never], Value.fromEther('10')],
                   ),
                   to: exp1Address[chainId],
                 },
@@ -1056,7 +1056,7 @@ function SendCalls() {
                   data: AbiFunction.encodeData(
                     AbiFunction.fromAbi(expNftAbi, 'mint'),
                   ),
-                  to: expNftAddress[chainId],
+                  to: expNftAddress[chainId as never],
                 },
               ],
               capabilities: {
