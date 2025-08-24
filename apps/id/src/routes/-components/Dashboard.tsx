@@ -178,7 +178,12 @@ export function Dashboard() {
 
   return (
     <>
-      <pre className="absolute top-0 left-0 text-[7px]">
+      <pre
+        className={cx(
+          'absolute top-0 left-0 text-[7px]',
+          import.meta.env.DEV ? 'opacity-100' : 'hidden opacity-0',
+        )}
+      >
         {account.chain?.id}
       </pre>
       <div className="h-3" />
