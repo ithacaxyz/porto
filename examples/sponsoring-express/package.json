@@ -3,9 +3,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch server/index.ts",
-    "start": "NODE_ENV=production tsx server/index.ts",
+    "dev": "node --watch server/index.ts",
+    "start": "NODE_ENV=production node server/index.ts",
     "build": "vite build"
+  },
+  "engines": {
+    "node": ">=22.18"
   },
   "dependencies": {
     "@tanstack/react-query": "^5",
@@ -26,7 +29,6 @@
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",
     "globals": "^16.0.0",
-    "tsx": "^4.20.3",
     "typescript": "~5.8.3",
     "vite": "^6.3.5"
   }

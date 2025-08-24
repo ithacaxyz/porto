@@ -4,15 +4,15 @@
   "type": "module",
   "scripts": {
     "build": "pnpm clean && tsc --project ./tsconfig.build.json && pnpm build:cli",
-    "build:anvil-state": "tsx scripts/build:anvil-state.ts",
+    "build:anvil-state": "node scripts/build:anvil-state.ts",
     "build:cli": "tsdown --config ./src/cli/tsdown.config.ts",
-    "build:contracts": "tsx scripts/prebuild:contracts.ts && forge build --config-path ./contracts/account/foundry.toml && forge build --config-path ./contracts/demo/foundry.toml && tsx scripts/postbuild:contracts.ts && pnpm wagmi generate",
-    "changeset:prepublish": "pnpm build && tsx ./scripts/prepublish.ts",
+    "build:contracts": "node scripts/prebuild:contracts.ts && forge build --config-path ./contracts/account/foundry.toml && forge build --config-path ./contracts/demo/foundry.toml && node scripts/postbuild:contracts.ts && pnpm wagmi generate",
+    "changeset:prepublish": "pnpm build && node ./scripts/prepublish.ts",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish",
     "changeset:version": "changeset version && pnpm format",
     "check": "biome check . --fix --unsafe",
     "check:markdown": "markdownlint-cli2 --config .github/.markdownlint-cli2.jsonc '**/*.md' '**/*.mdx'",
-    "check:build": "tsx ./scripts/prepublish.ts && publint --strict ./src && attw --pack ./src --profile esm-only",
+    "check:build": "node ./scripts/prepublish.ts && publint --strict ./src && attw --pack ./src --profile esm-only",
     "check:knip": "knip --production",
     "check:repo": "sherif --ignore-rule packages-without-package-json",
     "check:size": "size-limit",
@@ -21,7 +21,7 @@
     "deps": "pnpx taze -r",
     "dev": "pnpm preconstruct && pnpm --filter dialog --filter id --filter playground dev",
     "dev:anvil": "pnpm preconstruct && ANVIL=true pnpm --filter playground --filter dialog --filter id dev",
-    "dev:cli": "tsx src/cli/bin/index.ts",
+    "dev:cli": "node src/cli/bin/index.ts",
     "dev:ext": "pnpm --filter extension dev",
     "dev:interop": "pnpm preconstruct && pnpm --filter dialog --filter id --filter playground-interop dev",
     "dev:theme": "pnpm preconstruct && pnpm --filter dialog --filter id --filter playground --filter theme dev",
@@ -29,9 +29,9 @@
     "docs:build": "pnpm --filter docs build",
     "docs:dev": "pnpm --filter dialog --filter id --filter docs dev",
     "format": "biome format --write",
-    "gen:chains": "tsx ./scripts/chains.ts",
+    "gen:chains": "node ./scripts/chains.ts",
     "postinstall": "git submodule update --init --recursive && pnpm preconstruct",
-    "preconstruct": "tsx ./scripts/preconstruct.ts",
+    "preconstruct": "node ./scripts/preconstruct.ts",
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
     "test": "vitest -c ./test/vitest.config.ts --project default",
@@ -64,7 +64,6 @@
     "simple-git-hooks": "^2.11.1",
     "size-limit": "^11.1.6",
     "tsdown": "^0.12.8",
-    "tsx": "^4.20.3",
     "typed-query-selector": "^2.12.0",
     "typescript": "catalog:",
     "viem": "catalog:",
@@ -75,7 +74,7 @@
   },
   "packageManager": "pnpm@10.14.0",
   "engines": {
-    "node": ">=22.5"
+    "node": ">=22.18"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm check"
