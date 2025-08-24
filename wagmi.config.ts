@@ -7,16 +7,10 @@ import {
   anvil,
   anvil2,
   anvil3,
-  arbitrum,
   arbitrumSepolia,
   base,
   baseSepolia,
-  bsc,
-  celo,
-  mainnet,
-  optimism,
   optimismSepolia,
-  polygon,
   sepolia,
 } from './src/core/Chains.js'
 import * as anvilAddresses from './test/src/_generated/addresses.js'
@@ -26,16 +20,11 @@ const client = createClient({
 })
 
 const capabilities = await getCapabilities(client)
+if (!capabilities) throw new Error('No capabilities found')
 
 const getTokenAddress = (
   chainId: keyof typeof capabilities,
-  tokenUid:
-    | 'exp1'
-    | 'exp2'
-    | 'usd-coin'
-    | 'tether'
-    | 'ethereum'
-    | 'binancecoin',
+  tokenUid: 'exp1' | 'exp2',
 ) => {
   const token = capabilities[chainId].fees.tokens.find(
     (t: { uid: string }) => t.uid === tokenUid,
@@ -50,13 +39,7 @@ const address = {
     [anvil3.id]: anvilAddresses.exp1Address,
     [anvil.id]: anvilAddresses.exp1Address,
     [anvil2.id]: anvilAddresses.exp1Address,
-    [base.id]: getTokenAddress(base.id, 'usd-coin'),
-    [arbitrum.id]: getTokenAddress(arbitrum.id, 'usd-coin'),
-    [bsc.id]: getTokenAddress(bsc.id, 'tether'),
-    [celo.id]: getTokenAddress(celo.id, 'usd-coin'),
-    [mainnet.id]: getTokenAddress(mainnet.id, 'usd-coin'),
-    [polygon.id]: getTokenAddress(polygon.id, 'usd-coin'),
-    [optimism.id]: getTokenAddress(optimism.id, 'usd-coin'),
+    [base.id]: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
     [sepolia.id]: getTokenAddress(sepolia.id, 'exp1'),
     [baseSepolia.id]: getTokenAddress(baseSepolia.id, 'exp1'),
     [optimismSepolia.id]: getTokenAddress(optimismSepolia.id, 'exp1'),
@@ -66,13 +49,7 @@ const address = {
     [anvil3.id]: anvilAddresses.exp2Address,
     [anvil.id]: anvilAddresses.exp2Address,
     [anvil2.id]: anvilAddresses.exp2Address,
-    [base.id]: getTokenAddress(base.id, 'tether'),
-    [arbitrum.id]: getTokenAddress(arbitrum.id, 'tether'),
-    [bsc.id]: getTokenAddress(bsc.id, 'binancecoin'),
-    [celo.id]: getTokenAddress(celo.id, 'tether'),
-    [mainnet.id]: getTokenAddress(mainnet.id, 'tether'),
-    [polygon.id]: getTokenAddress(polygon.id, 'tether'),
-    [optimism.id]: getTokenAddress(optimism.id, 'tether'),
+    [base.id]: '0x0000000000000000000000000000000000000000',
     [sepolia.id]: getTokenAddress(sepolia.id, 'exp2'),
     [baseSepolia.id]: getTokenAddress(baseSepolia.id, 'exp2'),
     [optimismSepolia.id]: getTokenAddress(optimismSepolia.id, 'exp2'),
