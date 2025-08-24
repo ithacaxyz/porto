@@ -1,6 +1,6 @@
 import * as fs from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
-import { getExports } from './utils/exports.js'
+import { getExports } from './utils/exports.ts'
 
 console.log('Setting up packages for development.')
 

@@ -223,9 +223,6 @@ importers:
       tsdown:
         specifier: ^0.12.8
         version: 0.12.8(publint@0.3.12)(typescript@5.8.3)
-      tsx:
-        specifier: ^4.20.3
-        version: 4.20.3
       typed-query-selector:
         specifier: ^2.12.0
         version: 2.12.0
@@ -1327,9 +1324,6 @@ importers:
       globals:
         specifier: ^16.0.0
         version: 16.2.0
-      tsx:
-        specifier: ^4.20.3
-        version: 4.20.3
       typescript:
         specifier: ~5.8.3
         version: 5.8.3
