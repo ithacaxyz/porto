@@ -1,9 +1,10 @@
 import type { UseQueryResult } from '@tanstack/react-query'
-import { Address } from 'ox'
+import { Address, Value } from 'ox'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
 import type { RelayActions } from 'porto/viem'
 import * as React from 'react'
 import { zeroAddress } from 'viem'
+import * as FeeTokens from '~/lib/FeeTokens'
 import { AddFunds } from '~/routes/-components/AddFunds'
 import { Layout } from '~/routes/-components/Layout'
 
@@ -12,6 +13,9 @@ export function CheckBalance(props: CheckBalance.Props) {
 
   const [step, setStep] = React.useState<'default' | 'success'>('default')
 
+  const feeTokens = FeeTokens.fetch.useQuery({
+    addressOrSymbol: props.feeToken,
+  })
   const quotes = query.data?.capabilities.quote.quotes ?? []
 
   // Check to see if the user has insufficient funds.
@@ -47,7 +51,10 @@ export function CheckBalance(props: CheckBalance.Props) {
     if (!insufficientFundsMatch) {
       // TODO: Remove once other pattern is back
       const pattern = /InsufficientBalance/
-      if (pattern.test(errorMessage)) return {}
+      if (pattern.test(errorMessage))
+        return {
+          address: feeTokens.data?.[0]?.address,
+        } as const
       return undefined
     }
 
@@ -57,7 +64,19 @@ export function CheckBalance(props: CheckBalance.Props) {
       chainId: Number(chainId!),
       value: BigInt(value!),
     }
-  }, [quotes, query.error?.cause])
+  }, [quotes, query.error?.cause, feeTokens.data])
+
+  const value = React.useMemo(() => {
+    if (!deficitToken) return undefined
+    if (!deficitToken.address) return undefined
+    if (!deficitToken.value) return undefined
+    if (deficitToken.value === 0n) return undefined
+    const feeToken = feeTokens.data?.find((token) =>
+      Address.isEqual(token.address, deficitToken.address),
+    )
+    if (!feeToken) return undefined
+    return Value.format(deficitToken.value, feeToken.decimals)
+  }, [deficitToken, feeTokens.data])
 
   if (step === 'success') return children
   if (query.isPending) return <Layout loading />
@@ -73,6 +92,7 @@ export function CheckBalance(props: CheckBalance.Props) {
       }}
       onReject={onReject}
       tokenAddress={deficitToken.address}
+      value={value}
     />
   )
 }

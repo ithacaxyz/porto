@@ -2,7 +2,6 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { setTimeout } from 'node:timers/promises'
 import * as prompts from '@clack/prompts'
-import { Hex } from 'ox'
 import * as Actions from 'viem/actions'
 import * as Chains from '../../core/Chains.js'
 import * as Key from '../../viem/Key.js'
@@ -26,7 +25,7 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
   // Create an account.
   s.start('Creating account (check browser window)...')
   const { accounts } = await WalletActions.connect(client, {
-    chainIds: [client.chain.id],
+    chainIds: [args.testnet ? Chains.baseSepolia.id : Chains.base.id],
     createAccount: true,
     grantAdmins: adminKey
       ? [
@@ -39,16 +38,16 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
   })
   s.stop('Account created.')
 
-  // Onramp the account.
+  // Onramp the account (needed for delegation on next step).
   s.start('Onramping (check browser window)...')
   await client.request({
     method: 'wallet_addFunds',
     params: [
       {
         address: accounts[0]!.address,
-        chainId: args.testnet
-          ? Hex.fromNumber(Chains.baseSepolia.id)
-          : Hex.fromNumber(client.chain.id),
+        token: args.testnet
+          ? undefined
+          : '0x0000000000000000000000000000000000000000',
       },
     ],
   })
@@ -75,7 +74,10 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
       ],
     })
 
-    const signature = await Key.sign(adminKey, { payload: digest, wrap: false })
+    const signature = await Key.sign(adminKey, {
+      payload: digest,
+      wrap: false,
+    })
 
     const result = await client.request({
       method: 'wallet_sendPreparedCalls',
@@ -88,7 +90,10 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
     })
 
     s.start('Initializing account...')
-    await Actions.waitForCallsStatus(client, { id: result[0]!.id })
+    await Actions.waitForCallsStatus(client, {
+      id: result[0]!.id,
+      throwOnFailure: true,
+    })
     s.stop('Account initialized.')
   }
 

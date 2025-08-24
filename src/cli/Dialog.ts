@@ -1,7 +1,5 @@
 import open from 'open'
-import { RpcRequest } from 'ox'
 import * as Dialog from '../core/Dialog.js'
-import type * as RpcSchema from '../core/RpcSchema.js'
 import * as Messenger from './Messenger.js'
 
 export const messenger = await Messenger.cliRelay()
@@ -12,8 +10,6 @@ export const messenger = await Messenger.cliRelay()
  * @returns CLI dialog.
  */
 export async function cli() {
-  const store = RpcRequest.createStore<RpcSchema.Schema>()
-
   let isOpen = false
 
   return Dialog.from({
@@ -28,13 +24,8 @@ export async function cli() {
         destroy() {
           messenger.destroy()
         },
-        open(p: { request: RpcRequest.RpcRequest }) {
-          const request = store.prepare(p.request)
-
+        open() {
           const search = new URLSearchParams([
-            ['id', request.id.toString()],
-            ['method', request.method],
-            ['params', JSON.stringify(request.params)],
             [
               'referrer',
               JSON.stringify({
@@ -46,7 +37,7 @@ export async function cli() {
           ])
 
           const host = parameters.host.replace(/\/$/, '')
-          const url = host + '/' + request.method + '?' + search.toString()
+          const url = host + '/?' + search.toString()
 
           open(url)
 
@@ -59,10 +50,9 @@ export async function cli() {
             )
           if (!requests[0]?.request) return
 
-          const request = store.prepare(requests[0]!.request)
-
-          if (!isOpen) this.open({ request })
-          else messenger.send('rpc-requests', requests)
+          if (!isOpen) this.open()
+          await messenger.waitForReady()
+          messenger.send('rpc-requests', requests)
         },
       }
     },

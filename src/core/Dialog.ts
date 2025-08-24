@@ -146,8 +146,6 @@ export function iframe(options: iframe.Options = {}) {
       drawerModeQuery.addEventListener('change', onDrawerModeChange)
 
       messenger.on('ready', (options) => {
-        const { feeToken } = options
-
         const chainIds = parameters.internal.store.getState().chainIds
 
         // Derive the compatible chain IDs between the dialog and the application.
@@ -163,7 +161,6 @@ export function iframe(options: iframe.Options = {}) {
         store.setState((x) => ({
           ...x,
           chainIds: compatibleChainIds as [number, ...number[]],
-          feeToken,
         }))
 
         messenger.send('__internal', {

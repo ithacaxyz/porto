@@ -26,17 +26,22 @@ export type Messenger = {
   ) => Promise<Response<topic>>
 }
 
+export type WithReady = Messenger & {
+  ready: (options: ReadyOptions) => void
+}
+
 export type ReadyOptions = {
   chainIds: readonly [number, ...number[]]
-  feeToken: Porto.State['feeToken']
   methodPolicies?: MethodPolicies.MethodPolicies | undefined
 }
 
 /** Bridge messenger. */
-export type Bridge = Messenger & {
-  ready: (options: ReadyOptions) => void
+export type Bridge = WithReady & {
   waitForReady: () => Promise<ReadyOptions>
 }
+
+/** CLI relay messenger. */
+export type CliRelay = WithReady
 
 /** Messenger schema. */
 export type Schema = [
@@ -280,7 +285,7 @@ export function noop(): Bridge {
  * @param options - Options.
  * @returns Local relay messenger.
  */
-export function cliRelay(options: cliRelay.Options): Messenger {
+export function cliRelay(options: cliRelay.Options): CliRelay {
   const { relayUrl } = options
 
   let eventSource: EventSource | null = null
@@ -352,6 +357,10 @@ export function cliRelay(options: cliRelay.Options): Messenger {
         listeners.delete(listener)
         if (listeners.size === 0) listenerSets.delete(topic)
       }
+    },
+    async ready(options) {
+      await new Promise((resolve) => setTimeout(resolve, 32))
+      void this.send('ready', options)
     },
     async send(topic, payload) {
       const { id } = await request(topic, payload)

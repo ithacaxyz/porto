@@ -91,12 +91,11 @@ export function create(
     mode,
     async ready() {
       await porto._internal.store.persist.rehydrate()
-      const { chainIds, feeToken } = porto._internal.store.getState()
+      const { chainIds } = porto._internal.store.getState()
 
       if (!('ready' in messenger)) return
-      return (messenger as Messenger.Bridge).ready({
+      return (messenger as Messenger.WithReady).ready({
         chainIds,
-        feeToken,
         methodPolicies,
       })
     },
@@ -110,7 +109,7 @@ export type Porto<
   ],
 > = Porto_.Porto<chains> & {
   mode: Mode.Mode
-  messenger: OneOf<Messenger.Bridge | Messenger.Messenger>
+  messenger: OneOf<Messenger.WithReady | Messenger.Messenger>
   methodPolicies?: MethodPolicies.MethodPolicies | undefined
   ready: () => Promise<void>
   _internal: Porto_.Porto<chains>['_internal'] & {

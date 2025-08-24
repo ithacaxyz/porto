@@ -15,7 +15,6 @@ import {
   type Calls,
   type Chain,
   type Client,
-  ethAddress,
   type GetChainParameter,
   type Narrow,
   type Transport,
@@ -349,19 +348,13 @@ export async function prepareCalls<
     }
   })
 
-  const feeToken = capabilities.meta.feeToken
+  const feeToken = capabilities.meta.feeToken ?? zeroAddress
 
   // In order to avoid a fee token deficit on the destination chain when a fee
   // balance exists on the source chains, we must include the fee token in
   // the required funds.
   const feeRequiredFunds = (() => {
     if (!capabilities.requiredFunds) return undefined
-    if (!feeToken) return undefined
-    if (
-      Address.isEqual(feeToken, zeroAddress) ||
-      Address.isEqual(feeToken, ethAddress)
-    )
-      return undefined
     const requiredFunds = capabilities.requiredFunds.find((fund) =>
       Address.isEqual(fund.address, feeToken),
     )

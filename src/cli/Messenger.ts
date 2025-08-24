@@ -1,12 +1,14 @@
 import type { ServerResponse } from 'node:http'
 import * as Url from 'node:url'
 import { Json } from 'ox'
+import * as promise from '../core/internal/promise.js'
 import type * as Messenger from '../core/Messenger.js'
 import * as Http from './internal/http.js'
 
 export type CliRelay = Messenger.Messenger & {
   relayUrl: string
   registerPublicKey: (publicKey: string) => void
+  waitForReady: () => Promise<Messenger.ReadyOptions>
 }
 
 export async function cliRelay(): Promise<CliRelay> {
@@ -88,7 +90,9 @@ export async function cliRelay(): Promise<CliRelay> {
 
   const relayUrl = server.url
 
-  return {
+  const ready = promise.withResolvers<Messenger.ReadyOptions>()
+
+  const messenger = {
     destroy() {
       listenerSets.clear()
       for (const stream of streams)
@@ -133,5 +137,11 @@ export async function cliRelay(): Promise<CliRelay> {
     async sendAsync() {
       throw new Error('Not implemented')
     },
-  }
+    waitForReady() {
+      messenger.on('ready', ready.resolve)
+      return ready.promise
+    },
+  } satisfies CliRelay
+
+  return messenger
 }

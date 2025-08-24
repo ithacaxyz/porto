@@ -4,6 +4,8 @@ import { Hooks } from 'porto/remote'
 import type { RelayClient } from 'porto/viem'
 import { porto } from './Porto.js'
 
+export type { FeeToken, FeeTokens } from 'porto/core/internal/feeTokens.js'
+
 export namespace fetch {
   export function queryOptions(
     client: RelayClient.RelayClient,

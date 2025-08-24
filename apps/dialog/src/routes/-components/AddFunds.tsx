@@ -10,11 +10,11 @@ import {
 } from '@tanstack/react-query'
 import { Cuer } from 'cuer'
 import { type Address, Hex, Value } from 'ox'
-import { Actions, Hooks as RemoteHooks } from 'porto/remote'
+import { Hooks as RemoteHooks } from 'porto/remote'
 import { RelayActions } from 'porto/viem'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
-import { encodeFunctionData, erc20Abi, zeroAddress } from 'viem'
+import { encodeFunctionData, erc20Abi, zeroAddress, zeroHash } from 'viem'
 import {
   createConfig,
   useAccount,
@@ -33,6 +33,7 @@ import LucideCopy from '~icons/lucide/copy'
 import LucideCopyCheck from '~icons/lucide/copy-check'
 import LucideOctagonAlert from '~icons/lucide/octagon-alert'
 import TriangleAlertIcon from '~icons/lucide/triangle-alert'
+import { ValueFormatter } from '../../utils'
 
 const presetAmounts = ['30', '50', '100', '250'] as const
 const MAX_AMOUNT = 500
@@ -52,13 +53,9 @@ type View =
   | 'error'
 
 export function AddFunds(props: AddFunds.Props) {
-  const {
-    chainId,
-    onApprove,
-    onReject,
-    tokenAddress,
-    value: defaultValue,
-  } = props
+  const { chainId, onApprove, onReject, tokenAddress, value } = props
+
+  console.log(tokenAddress)
 
   const [view, setView] = React.useState<View>('default')
 
@@ -68,14 +65,16 @@ export function AddFunds(props: AddFunds.Props) {
   const { data: feeTokens } = FeeTokens.fetch.useQuery({
     addressOrSymbol: tokenAddress,
   })
+  const feeToken = feeTokens?.[0]
 
   const { data: assets, refetch: refetchAssets } = Hooks.useAssets({
     account: account?.address,
-    chainFilter: chain ? [chain.id] : undefined,
     query: {
-      enabled: Boolean(account?.address && chain?.id),
+      enabled: Boolean(account?.address),
       select(data) {
-        return data[chain?.id ?? 0]
+        // As we support interop, we can listen to the aggregated assets across
+        // all supported chains.
+        return data[0]
       },
     },
   })
@@ -108,10 +107,10 @@ export function AddFunds(props: AddFunds.Props) {
     if (typeof previousBalanceMap === 'undefined') return
     for (const [address, balance] of balanceMap) {
       const previousBalance = previousBalanceMap.get(address)
-      if (!previousBalance) continue
-      if (balance > previousBalance) Actions.rejectAll(porto)
+      if (typeof previousBalance === 'undefined') continue
+      if (balance > previousBalance) onApprove?.({ id: zeroHash })
     }
-  }, [balanceMap, previousBalanceMap])
+  }, [balanceMap, onApprove, previousBalanceMap])
 
   if (view === 'error')
     return (
@@ -181,8 +180,8 @@ export function AddFunds(props: AddFunds.Props) {
               <Faucet
                 address={address}
                 chainId={chain?.id}
-                decimals={feeTokens?.[0]?.decimals}
-                defaultValue={defaultValue}
+                decimals={feeToken?.decimals}
+                defaultValue={value}
                 onApprove={onApprove}
                 tokenAddress={tokenAddress}
               />
@@ -199,7 +198,8 @@ export function AddFunds(props: AddFunds.Props) {
               <DepositCrypto
                 address={address}
                 chainId={chain?.id}
-                minValue={defaultValue}
+                feeToken={feeToken}
+                minValue={value}
                 nativeTokenName={chain?.nativeCurrency?.symbol}
                 setView={setView}
                 tokenAddress={tokenAddress}
@@ -317,6 +317,7 @@ function Faucet(props: {
 function DepositCrypto(props: {
   address: Address.Address | undefined
   chainId: number | undefined
+  feeToken: FeeTokens.FeeToken | undefined
   minValue: string | undefined
   nativeTokenName: string | undefined
   tokenAddress: Address.Address | undefined
@@ -326,6 +327,7 @@ function DepositCrypto(props: {
   const {
     address,
     chainId,
+    feeToken,
     minValue,
     nativeTokenName,
     tokenAddress,
@@ -546,7 +548,11 @@ function DepositCrypto(props: {
       )
     return (
       <div className="flex flex-col gap-3">
-        <QRCard address={address ?? ''} />
+        <QRCard
+          address={address ?? ''}
+          feeToken={feeToken}
+          minValue={minValue}
+        />
         <Button
           onClick={() => {
             disconnect.disconnect()
@@ -591,13 +597,17 @@ function DepositCrypto(props: {
         ))}
       </div>
 
-      <QRCard address={address ?? ''} />
+      <QRCard address={address ?? ''} feeToken={feeToken} minValue={minValue} />
     </div>
   )
 }
 
-function QRCard(props: { address: string }) {
-  const { address } = props
+function QRCard(props: {
+  address: string
+  feeToken: FeeTokens.FeeToken | undefined
+  minValue: string | undefined
+}) {
+  const { address, feeToken, minValue } = props
   const [isCopied, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
   return (
     <div className="flex items-center justify-between rounded-th_medium bg-th_secondary p-2">
@@ -609,7 +619,11 @@ function QRCard(props: { address: string }) {
           </Cuer.Root>
         </div>
         <div className="flex flex-col gap-0.5">
-          <div className="font-medium text-[13px]">Send directly</div>
+          <div className="font-medium text-[13px]">
+            Send{' '}
+            {minValue ? `${ValueFormatter.format(Number(minValue))} ` : ' '}
+            {feeToken?.symbol}
+          </div>
           <div className="min-w-[21ch] max-w-[21ch] text-pretty break-all font-mono font-normal text-[10px] text-th_base-secondary leading-[14px]">
             {address}
           </div>
