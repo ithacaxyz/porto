@@ -1,9 +1,7 @@
 * text=auto
 .gitattributes !filter !diff
 
-.dev.vars linguist-language=Dotenv
 .env.example linguist-language=Dotenv
-.dev.vars.example linguist-language=Dotenv
 .vscode/*.json linguist-language=JSON-with-Comments
 wrangler.json linguist-language=JSON-with-Comments
 
