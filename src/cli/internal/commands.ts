@@ -93,7 +93,7 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
   // Create an account.
   s.start('Creating account (check browser window)...')
   const { accounts } = await WalletActions.connect(client, {
-    chainIds: [args.testnet ? Chains.baseSepolia.id : Chains.base.id],
+    chainIds: [Chains.riseTestnet.id],
     createAccount: true,
     grantAdmins: adminKey
       ? [
