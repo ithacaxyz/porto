@@ -177,11 +177,10 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
       fs.chmodSync(keyFile, 0o600)
       prompts.log.info(`Private key saved securely to: ${keyFile}`)
     }
-    if (tempKeyFile) {
+    if (tempKeyFile)
       try {
         fs.rmSync(tempKeyFile)
       } catch {}
-    }
   }
   prompts.log.info('Manage your account at: https://id.porto.sh')
 
