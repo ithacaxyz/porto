@@ -55,8 +55,6 @@ type View =
 export function AddFunds(props: AddFunds.Props) {
   const { chainId, onApprove, onReject, tokenAddress, value } = props
 
-  console.log(tokenAddress)
-
   const [view, setView] = React.useState<View>('default')
 
   const account = RemoteHooks.useAccount(porto)
