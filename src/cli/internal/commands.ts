@@ -167,9 +167,8 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
     })
 
     prompts.log.info('Address: ' + accounts[0]!.address)
-    if (reveal) {
-      prompts.log.info('Private key: ' + adminKey?.privateKey!()!)
-    } else {
+    if (reveal) prompts.log.info('Private key: ' + adminKey?.privateKey!()!)
+    else {
       const keyFile = path.join(
         import.meta.dirname,
         `${accounts[0]!.address}.key`,
