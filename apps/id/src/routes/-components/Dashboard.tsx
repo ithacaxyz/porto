@@ -73,7 +73,6 @@ export function Dashboard() {
   const capabilities = useCapabilities({
     query: { enabled: account.status === 'connected' },
   })
-  console.info('Capabilities:', JSON.stringify(capabilities.data, undefined, 2))
 
   const assets = Hooks.useAssets({
     query: {
@@ -104,6 +103,8 @@ export function Dashboard() {
               metadata: {
                 ...asset.metadata,
                 decimals: isNative ? 18 : asset.metadata!.decimals,
+                name: isNative ? 'Ether' : asset.metadata!.name,
+                symbol: isNative ? 'ETH' : asset.metadata!.symbol,
               },
               type: asset.type as any,
             })
@@ -114,7 +115,6 @@ export function Dashboard() {
       },
     },
   })
-  // console.info(Json.stringify(assets.data, undefined, 2))
 
   const { switchChainAsync } = useSwitchChain()
 
@@ -197,14 +197,6 @@ export function Dashboard() {
 
   return (
     <>
-      <pre
-        className={cx(
-          'absolute top-0 left-0 text-[7px]',
-          import.meta.env.DEV ? 'opacity-100' : 'hidden opacity-0',
-        )}
-      >
-        {account.chain?.id}
-      </pre>
       <div className="h-3" />
       <Layout.Header
         left={
@@ -794,17 +786,12 @@ function AssetRow(
 ) {
   const {
     address,
-    // decimals,
-    // logo: _,
-    // name,
-    // symbol,
     value,
     price,
     chainId,
     feeToken: isFeeToken,
     metadata,
   } = props
-  // const decimals = address metadata?.decimals
 
   const [viewState, setViewState] = React.useState<'send' | 'default'>(
     'default',
@@ -931,19 +918,15 @@ function AssetRow(
             to: address,
           },
         ],
+        capabilities: {
+          feeToken: isFeeToken ? address : zeroAddress,
+        },
         chainId: props.chainId as never,
       })
   })
 
   const ref = React.useRef<HTMLTableCellElement | null>(null)
   useClickOutside([ref], () => setViewState('default'))
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: _
-  React.useEffect(() => {
-    if (!callStatus.data?.id) return
-
-    toast.info(`Transaction status: ${callStatus.data.status}`)
-  }, [callStatus.data?.id])
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: _
   React.useEffect(() => {
@@ -974,6 +957,9 @@ function AssetRow(
         { duration: 4_500 },
       )
     }
+    if (!callStatus.data?.id) return
+
+    toast.info(`Transaction status: ${callStatus.data.status}`)
   }, [callStatus.data?.id])
 
   if (props.value === 0n && !import.meta.env.DEV) return null
@@ -999,7 +985,7 @@ function AssetRow(
                 src={`/icons/${metadata?.symbol?.toLowerCase()}.svg`}
               />
               <span className="font-medium text-sm sm:text-md">
-                {metadata?.symbol}
+                {metadata?.name}
               </span>
             </div>
           </td>
