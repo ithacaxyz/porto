@@ -41,6 +41,28 @@ import NullIcon from '~icons/material-symbols/do-not-disturb-on-outline'
 import WorldIcon from '~icons/tabler/world'
 import { Layout } from './Layout'
 
+type Asset = {
+  address: Address.Address
+  chainId: number
+  balance: bigint
+} & (
+  | {
+      metadata: null
+      type: 'native'
+      feeToken: boolean
+    }
+  | {
+      type: 'erc20'
+      metadata: {
+        name?: string
+        symbol?: string
+        decimals: number
+        logo?: string | undefined
+      }
+      feeToken: boolean
+    }
+)
+
 export function Dashboard() {
   const [, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
 
@@ -48,43 +70,41 @@ export function Dashboard() {
   const disconnect = useDisconnect()
   const permissions = Hooks.usePermissions()
 
+  const capabilities = useCapabilities({
+    query: { enabled: account.status === 'connected' },
+  })
+  console.info('Capabilities:', JSON.stringify(capabilities.data, undefined, 2))
+
   const assets = Hooks.useAssets({
     query: {
       enabled: account.status === 'connected',
       select: (data) => {
-        const formattedAssets: Array<
-          {
-            address: Address.Address
-            chainId: number
-            balance: bigint
-          } & (
-            | {
-                metadata: null
-                type: 'native'
-              }
-            | {
-                type: 'erc20'
-                metadata: {
-                  name: string
-                  symbol: string
-                  decimals: number
-                  logo?: string | undefined
-                }
-              }
-          )
-        > = []
+        const formattedAssets: Array<Asset> = []
         for (const chainId in data) {
           const chainAssets = data[chainId]
           if (chainId === '0' || !chainAssets) continue
+
+          const feeTokens =
+            capabilities?.data?.[Number(chainId)]?.feeToken.tokens
           for (const asset of chainAssets) {
-            const address =
-              asset.address === 'native' ? zeroAddress : asset.address
+            const isNative = asset.type === 'native'
+
+            const address = isNative
+              ? zeroAddress
+              : (asset.address as Address.Address)
             if (!address || asset.balance === 0n) continue
             formattedAssets.push({
               address,
               balance: asset.balance,
               chainId: Number(chainId),
-              metadata: asset.metadata,
+              feeToken: isNative
+                ? true
+                : (feeTokens?.some((token) => token.address === address) ??
+                  false),
+              metadata: {
+                ...asset.metadata,
+                decimals: isNative ? 18 : asset.metadata!.decimals,
+              },
               type: asset.type as any,
             })
           }
@@ -94,10 +114,9 @@ export function Dashboard() {
       },
     },
   })
+  // console.info(Json.stringify(assets.data, undefined, 2))
 
   const { switchChainAsync } = useSwitchChain()
-
-  const capabilities = useCapabilities()
 
   const revokePermissions = Hooks.useRevokePermissions()
 
@@ -438,15 +457,16 @@ export function Dashboard() {
               : 'No balances available for this account'
           }
           renderRow={(asset) => (
+            // @ts-expect-error
             <AssetRow
               address={asset.address}
+              balance={asset.balance}
               chainId={asset.chainId}
-              decimals={asset.metadata?.decimals ?? 18}
+              feeToken={asset.feeToken}
               key={asset.metadata?.symbol}
-              logo={asset.metadata?.logo ?? undefined}
-              name={asset.metadata?.name ?? ''}
+              metadata={asset.metadata}
               price={1}
-              symbol={asset.metadata?.symbol ?? ''}
+              type={asset.type}
               value={asset.balance}
             />
           )}
@@ -769,26 +789,22 @@ function PaginatedTable<T>({
   )
 }
 
-function AssetRow(props: {
-  address: Address.Address
-  decimals: number
-  name: string
-  symbol: string
-  value: bigint
-  logo?: string | undefined
-  price?: number | undefined
-  chainId: number
-}) {
+function AssetRow(
+  props: Asset & { price?: number | undefined; value: bigint },
+) {
   const {
     address,
-    decimals,
-    logo: _,
-    name,
-    symbol,
+    // decimals,
+    // logo: _,
+    // name,
+    // symbol,
     value,
     price,
     chainId,
+    feeToken: isFeeToken,
+    metadata,
   } = props
+  // const decimals = address metadata?.decimals
 
   const [viewState, setViewState] = React.useState<'send' | 'default'>(
     'default',
@@ -797,8 +813,8 @@ function AssetRow(props: {
   const { switchChain, status: _switchChainStatus } = useSwitchChain()
 
   const formattedBalance = React.useMemo(
-    () => ValueFormatter.format(value, decimals),
-    [value, decimals],
+    () => ValueFormatter.format(value, metadata?.decimals),
+    [value, metadata?.decimals],
   )
 
   // total value of the asset
@@ -889,11 +905,14 @@ function AssetRow(props: {
         calls: [
           {
             to: sendFormState.values.sendRecipient,
-            value: Value.from(sendFormState.values.sendAmount, decimals),
+            value: Value.from(
+              sendFormState.values.sendAmount,
+              metadata?.decimals,
+            ),
           },
         ],
         capabilities: {
-          feeToken: zeroAddress,
+          feeToken: isFeeToken ? address : zeroAddress,
         },
         chainId: props.chainId as never,
       })
@@ -905,7 +924,7 @@ function AssetRow(props: {
               abi: erc20Abi,
               args: [
                 sendFormState.values.sendRecipient,
-                Value.from(sendFormState.values.sendAmount, decimals),
+                Value.from(sendFormState.values.sendAmount, metadata?.decimals),
               ],
               functionName: 'transfer',
             }),
@@ -946,7 +965,7 @@ function AssetRow(props: {
         (t) => (
           <Toast
             className={t}
-            description={`You successfully sent ${sendFormState.values.sendAmount} ${symbol}`}
+            description={`You successfully sent ${sendFormState.values.sendAmount} ${metadata?.symbol}`}
             kind="success"
             title="Transaction completed"
           />
@@ -963,13 +982,25 @@ function AssetRow(props: {
     <tr className="font-normal sm:text-sm">
       {viewState === 'default' ? (
         <>
-          <td className="w-[17.5%]">
-            <span className="font-medium text-sm sm:text-md">{chainId}</span>
+          <td className="w-[10.5%] text-center">
+            <span className="text-right font-medium text-sm sm:text-md">
+              {chainId}
+            </span>
           </td>
           <td className="w-[80%]">
             <div className="flex items-center gap-x-3 py-2">
-              {/* <span className="font-medium text-sm sm:text-md">{icon}</span> */}
-              <span className="font-medium text-sm sm:text-md">{name}</span>
+              <img
+                alt="asset icon"
+                className="ml-3 size-6"
+                onError={(event) => [
+                  (event.currentTarget.src = '/icons/fallback.svg'),
+                  (event.currentTarget.onerror = null),
+                ]}
+                src={`/icons/${metadata?.symbol?.toLowerCase()}.svg`}
+              />
+              <span className="font-medium text-sm sm:text-md">
+                {metadata?.symbol}
+              </span>
             </div>
           </td>
           <td className="w-[20%] text-right text-md">{formattedBalance}</td>
@@ -978,7 +1009,7 @@ function AssetRow(props: {
           </td>
           <td className="w-[20%] pr-1.5 pl-3 text-left text-sm">
             <span className="rounded-2xl bg-gray3 px-2 py-1 font-[500] text-gray10 text-xs">
-              {symbol}
+              {metadata?.symbol}
             </span>
           </td>
           <td className="text-right text-sm">
@@ -1002,7 +1033,11 @@ function AssetRow(props: {
               <img
                 alt="asset icon"
                 className="size-8"
-                src={`/icons/${symbol.toLowerCase()}.svg`}
+                onError={(event) => {
+                  event.currentTarget.src = '/icons/fallback.svg'
+                  event.currentTarget.onerror = null
+                }}
+                src={`/icons/${metadata?.symbol?.toLowerCase()}.svg`}
               />
             </div>
             <div className="ml-3 flex w-full flex-row gap-y-1 border-gray7 border-r pr-3">
