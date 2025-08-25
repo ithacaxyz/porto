@@ -80,8 +80,7 @@ const offInitialized = Events.onInitialized(porto, (payload, event) => {
 
 const offDialogRequest = Events.onDialogRequest(
   porto,
-  async ({ account, request, requireChainSync, requireUpdatedAccount }) => {
-    const chainId = porto._internal.store.getState().chainIds[0]
+  async ({ account, request, requireUpdatedAccount }) => {
     const connectedAccount = porto._internal.store.getState().accounts[0]
     const requireAccountSync =
       account && account.address !== connectedAccount?.address
@@ -89,7 +88,7 @@ const offDialogRequest = Events.onDialogRequest(
     // Clear errors when the request is null (i.e. when the dialog is closed).
     if (!request) Dialog.store.setState({ error: null })
 
-    if (requireAccountSync || requireChainSync)
+    if (requireAccountSync)
       await Router.router.navigate({
         to: '/dialog/pending',
       })
@@ -99,11 +98,6 @@ const offDialogRequest = Events.onDialogRequest(
         connector: getConnectors(Wagmi.config)[0]!,
         force: true,
         selectAccount: account,
-      }).catch(() => {})
-
-    if (requireChainSync)
-      await switchChain(Wagmi.config, {
-        chainId,
       }).catch(() => {})
 
     await Router.router.navigate({
@@ -118,6 +112,17 @@ const offDialogRequest = Events.onDialogRequest(
       },
       to: '/dialog/' + (request?.method ?? ''),
     })
+  },
+)
+
+// TODO: scope "active" chainId by app.
+porto._internal.store.subscribe(
+  (state) => state.chainIds[0],
+  async (chainId) => {
+    if (chainId)
+      await switchChain(Wagmi.config, {
+        chainId,
+      }).catch(() => {})
   },
 )
 
