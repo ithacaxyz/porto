@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.79
+
+### Patch Changes
+
+- [`e24b58b`](https://github.com/ithacaxyz/porto/commit/e24b58b9fefae38674c95d60ed706d7eea97e5e7) Thanks [@jxom](https://github.com/jxom)! - Fixed `undefined` capabilities issue.
+
 ## 0.0.78
 
 ### Patch Changes
