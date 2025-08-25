@@ -1,5 +1,13 @@
 # porto
 
+## 0.0.78
+
+### Patch Changes
+
+- [`a9acd3f`](https://github.com/ithacaxyz/porto/commit/a9acd3f5b5e930405511e6864e67dcf0e731b153) Thanks [@jxom](https://github.com/jxom)! - Laxed `eth_chainId` and `eth_requestAccounts` schema.
+
+- [#757](https://github.com/ithacaxyz/porto/pull/757) [`ef63343`](https://github.com/ithacaxyz/porto/commit/ef6334304b2e79f3f9455e3761f183082a85befe) Thanks [@jxom](https://github.com/jxom)! - Removed caching from `eth_requestAccounts`.
+
 ## 0.0.77
 
 ### Patch Changes
