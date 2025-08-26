@@ -161,7 +161,7 @@ export function AddFunds(props: AddFunds.Props) {
       <Layout.Header>
         {view === 'connected-wallet-no-funds' ? (
           <Layout.Header.Default
-            content="You do not have any transferrable assets in this wallet."
+            content="You do not have any transferable assets in this wallet."
             icon={LucideOctagonAlert}
             title="No funds found"
             variant="destructive"
