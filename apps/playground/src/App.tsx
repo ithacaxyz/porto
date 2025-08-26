@@ -20,7 +20,7 @@ import {
 } from 'ox'
 import { Dialog } from 'porto'
 import * as React from 'react'
-import { hashMessage, hashTypedData } from 'viem'
+import { hashMessage, hashTypedData, isAddress } from 'viem'
 import {
   generatePrivateKey,
   privateKeyToAccount,
@@ -171,6 +171,7 @@ export function App() {
         <SendTransaction />
         <SignMessage />
         <SignTypedData />
+        <SignTypedMessage />
         <div>
           <br />
           <hr />
@@ -1401,6 +1402,198 @@ function SignTypedData() {
         {valid !== null && <pre>{valid ? 'valid' : 'invalid'}</pre>}
       </form>
     </>
+  )
+}
+
+function SignTypedMessage() {
+  const [signature, setSignature] = React.useState<string | null>(null)
+  const [error, setError] = React.useState<string | null>(null)
+
+  const signMessage = async () => {
+    const [account] = await porto.provider.request({
+      method: 'eth_accounts',
+    })
+    return porto.provider.request({
+      method: 'eth_signTypedData_v4',
+      params: [account, TypedData.serialize(typedData)],
+    })
+  }
+
+  const signPermit = async ({
+    deadline,
+    spender,
+    value,
+  }: {
+    deadline: bigint
+    spender: null | `0x${string}`
+    value: bigint
+  }) => {
+    const [account, chainId] = await Promise.all([
+      porto.provider
+        .request({ method: 'eth_accounts' })
+        .then(([account]) => account),
+      porto.provider
+        .request({ method: 'eth_chainId' })
+        .then(Hex.toNumber) as Promise<ChainId>,
+    ])
+
+    if (spender !== null && !isAddress(spender))
+      throw new Error(`invalid spender address: ${spender}`)
+
+    if (!spender) spender = account
+
+    const tokenAddress = exp1Address[chainId as keyof typeof exp1Address]
+    if (!tokenAddress) throw new Error(`no EXP on chain ${chainId}`)
+
+    const symbolFn = AbiFunction.fromAbi(exp1Abi, 'symbol')
+    const noncesFn = AbiFunction.fromAbi(exp1Abi, 'nonces')
+    const [name, nonce] = await Promise.all([
+      porto.provider
+        .request({
+          method: 'eth_call',
+          params: [
+            {
+              data: AbiFunction.encodeData(symbolFn),
+              to: tokenAddress,
+            },
+          ],
+        })
+        .then((result) => AbiFunction.decodeResult(symbolFn, result)),
+      porto.provider
+        .request({
+          method: 'eth_call',
+          params: [
+            {
+              data: AbiFunction.encodeData(noncesFn, [account]),
+              to: tokenAddress,
+            },
+          ],
+        })
+        .then((result) => AbiFunction.decodeResult(noncesFn, result)),
+    ])
+
+    return porto.provider.request({
+      method: 'eth_signTypedData_v4',
+      params: [
+        account,
+        TypedData.serialize({
+          domain: {
+            chainId: chainId,
+            name,
+            verifyingContract: tokenAddress,
+            version: '1',
+          },
+          message: {
+            deadline: BigInt(deadline),
+            nonce: BigInt(nonce),
+            owner: account,
+            spender: spender,
+            value: value,
+          },
+          primaryType: 'Permit',
+          types: {
+            Permit: [
+              { name: 'owner', type: 'address' },
+              { name: 'spender', type: 'address' },
+              { name: 'value', type: 'uint256' },
+              { name: 'nonce', type: 'uint256' },
+              { name: 'deadline', type: 'uint256' },
+            ],
+          },
+        }),
+      ],
+    })
+  }
+
+  return (
+    <div className="flex flex-col gap-4 pt-6 pb-3">
+      <h3 className="m-0 pb-0">eth_signTypedData_v4</h3>
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault()
+          setError(null)
+          setSignature(null)
+
+          try {
+            setSignature(await signMessage())
+          } catch (err) {
+            console.error(err)
+            setError(err instanceof Error ? err.message : String(err))
+          }
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            gap: 8,
+          }}
+        >
+          <button className="bg-th_negative px-2 py-1 text-sm" type="submit">
+            Sign ERC-712 Typed Message
+          </button>
+        </div>
+      </form>
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault()
+          setError(null)
+          setSignature(null)
+
+          const formData = new FormData(e.target as HTMLFormElement)
+          const amount = formData.get('amount') as string | null
+          const spender = formData.get('spender') as string | null
+
+          try {
+            setSignature(
+              await signPermit({
+                deadline: BigInt(Math.floor(Date.now() / 1000) + 60 * 10),
+                spender: spender && isAddress(spender) ? spender : null,
+                value: Value.fromEther(amount ?? '100'),
+              }),
+            )
+          } catch (err) {
+            console.error(err)
+            setError(String(err))
+          }
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            gap: 8,
+          }}
+        >
+          <input
+            className="px-2 py-1"
+            name="spender"
+            placeholder="Spender address (default: self)"
+          />
+          <input
+            className="px-2 py-1"
+            name="amount"
+            placeholder="Amount in EXP (default: 100)"
+          />
+          <button className="bg-th_negative px-2 py-1 text-sm" type="submit">
+            Sign ERC-2612 Permit
+          </button>
+        </div>
+      </form>
+
+      {error && <div className="pt-4">Error: {error}</div>}
+
+      {signature && (
+        <div className="flex flex-col gap-2">
+          <h4 className="m-0">Signed message:</h4>
+          <textarea
+            className="wrap-anywhere m-0 min-h-40 pb-2"
+            onFocus={(e) => e.target.select()}
+            readOnly
+          >
+            {signature}
+          </textarea>
+        </div>
+      )}
+    </div>
   )
 }
 
