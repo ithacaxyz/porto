@@ -493,9 +493,6 @@ function FrameBar({
                 outline: '2px solid var(--color-th_focus)',
                 outlineOffset: -2,
               },
-              '@container (min-width: 480px)': {
-                padding: '0 20px',
-              },
               alignItems: 'center',
               background: 'transparent',
               border: 'none',
@@ -504,6 +501,12 @@ function FrameBar({
               height: '100%',
               padding: '0 12px',
             }),
+            mode.name === 'full' &&
+              css({
+                '@container (min-width: 480px)': {
+                  padding: '0 20px',
+                },
+              }),
             mode.name === 'dialog' &&
               css({
                 borderTopRightRadius: 'var(--radius-th_frame)',
