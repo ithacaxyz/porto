@@ -2,10 +2,11 @@ import * as Schema from 'effect/Schema'
 
 export const TypedMessageSchema = Schema.Struct({
   domain: Schema.Struct({
-    chainId: Schema.Number,
-    name: Schema.String,
-    verifyingContract: Schema.String,
-    version: Schema.String,
+    chainId: Schema.optional(Schema.Union(Schema.Number, Schema.BigInt)),
+    name: Schema.optional(Schema.String),
+    salt: Schema.optional(Schema.String),
+    verifyingContract: Schema.optional(Schema.String),
+    version: Schema.optional(Schema.String),
   }),
   message: Schema.Record({
     key: Schema.String,
