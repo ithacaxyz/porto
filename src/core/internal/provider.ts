@@ -510,7 +510,7 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [{ address, chainId }] = request._decoded.params ?? [{}]
+          const [{ address }] = request._decoded.params ?? [{}]
 
           const account = address
             ? state.accounts.find((account) =>
@@ -519,7 +519,7 @@ export function from<
             : state.accounts[0]
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          const client = getClient(chainId)
+          const client = getClient()
 
           const keys = await getMode().actions.getKeys({
             account,
