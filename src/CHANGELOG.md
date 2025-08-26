@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.80
+
+### Patch Changes
+
+- [#767](https://github.com/ithacaxyz/porto/pull/767) [`4b1008a`](https://github.com/ithacaxyz/porto/commit/4b1008afaf4905409ff9c6861a98ba90761b6048) Thanks [@tmm](https://github.com/tmm)! - Switched requests from `rpc.ithaca.xyz` to `rpc.porto.sh`.
+
 ## 0.0.79
 
 ### Patch Changes
