@@ -7,6 +7,15 @@ import {
 export type TailwindCustomTheme = {
   colorScheme: PortoTheme.ThemeColorScheme
   tailwindCss: string
+  labels?: {
+    signInPrompt?: string
+    signInButton?: string
+    signUpButton?: string
+    createAccount?: string
+    continueButton?: string
+    dialogTitle?: string
+    exampleEmail?: string
+  }
 }
 
 /** Formats a JSON theme string into a Tailwind theme declaration.
@@ -39,9 +48,14 @@ export function parseJsonTheme(
       css += `\n    ${tailwindVar}: ${formatCssValue(value, type, theme.colorScheme)};`
   }
 
+  // Extract labels from the theme
+  const themeObj = theme as Record<string, unknown>
+  const labels = themeObj.labels as TailwindCustomTheme['labels'] | undefined
+
   return {
     colorScheme: theme.colorScheme,
     tailwindCss: `@layer theme {\n  :root, :host {${css}\n  }\n}`,
+    labels,
   }
 }
 

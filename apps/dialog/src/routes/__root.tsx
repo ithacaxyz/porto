@@ -51,6 +51,8 @@ function RouteComponent() {
   const customTheme = Dialog.useStore((state) => state.customTheme)
   const display = Dialog.useStore((state) => state.display)
   const visible = Dialog.useStore((state) => state.visible)
+
+
   const search = Route.useSearch() as {
     requireUpdatedAccount?: boolean | undefined
   }
@@ -74,7 +76,7 @@ function RouteComponent() {
   const [controlledSize, setControlledSize] = React.useState(mode === 'popup')
   const heightUpdateCheckTimer =
     React.useRef<ReturnType<typeof setTimeout>>(undefined)
-  const onNextResize = React.useRef<() => void>(() => {})
+  const onNextResize = React.useRef<() => void>(() => { })
 
   React.useEffect(() => {
     setControlledSize(mode === 'popup')
@@ -98,13 +100,13 @@ function RouteComponent() {
         mode={
           display === 'full'
             ? {
-                name: 'full',
-                variant: controlledSize ? 'content-height' : 'auto',
-              }
+              name: 'full',
+              variant: controlledSize ? 'content-height' : 'auto',
+            }
             : {
-                name: 'dialog',
-                variant: display === 'drawer' ? 'drawer' : 'floating',
-              }
+              name: 'dialog',
+              variant: display === 'drawer' ? 'drawer' : 'floating',
+            }
         }
         onClose={
           mode === 'inline-iframe' || mode === 'popup-standalone'
@@ -168,7 +170,7 @@ function RouteComponent() {
                   <div>{domain}</div>
                 </div>
               ) : (
-                'Porto'
+                customTheme?.labels?.dialogTitle || 'Porto'
               )}
             </div>
           ),
@@ -214,23 +216,23 @@ function CheckError(props: CheckError.Props) {
   const mainAction =
     error.action === 'retry-in-popup'
       ? {
-          label: 'Try in popup',
-          onClick: () => {
-            // clear error state and switch to popup mode
-            porto.messenger.send('__internal', {
-              mode: 'popup',
-              type: 'switch',
-            })
-            // prevents screen change while the popup opens
-            setTimeout(() => {
-              Dialog.store.setState({ error: null })
-            }, 100)
-          },
-        }
+        label: 'Try in popup',
+        onClick: () => {
+          // clear error state and switch to popup mode
+          porto.messenger.send('__internal', {
+            mode: 'popup',
+            type: 'switch',
+          })
+          // prevents screen change while the popup opens
+          setTimeout(() => {
+            Dialog.store.setState({ error: null })
+          }, 100)
+        },
+      }
       : {
-          label: 'Close',
-          onClick: () => Actions.rejectAll(porto),
-        }
+        label: 'Close',
+        onClick: () => Actions.rejectAll(porto),
+      }
 
   const secondaryAction = error.action !== 'close' && {
     label: 'Cancel',
@@ -479,16 +481,16 @@ const TanStackRouterDevtools =
   import.meta.env.PROD || window !== window.parent || Boolean(window.opener)
     ? () => null
     : React.lazy(() =>
-        import('@tanstack/react-router-devtools').then((res) => ({
-          default: res.TanStackRouterDevtools,
-        })),
-      )
+      import('@tanstack/react-router-devtools').then((res) => ({
+        default: res.TanStackRouterDevtools,
+      })),
+    )
 
 const TanStackQueryDevtools =
   import.meta.env.PROD || window !== window.parent || Boolean(window.opener)
     ? () => null
     : React.lazy(() =>
-        import('@tanstack/react-query-devtools').then((res) => ({
-          default: res.ReactQueryDevtools,
-        })),
-      )
+      import('@tanstack/react-query-devtools').then((res) => ({
+        default: res.ReactQueryDevtools,
+      })),
+    )
