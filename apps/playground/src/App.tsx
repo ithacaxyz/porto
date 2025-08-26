@@ -170,7 +170,6 @@ export function App() {
         <SendCalls />
         <SendTransaction />
         <SignMessage />
-        <SignTypedData />
         <SignTypedMessage />
         <div>
           <br />
@@ -1339,84 +1338,28 @@ function SignMessage() {
   )
 }
 
-function SignTypedData() {
-  const [signature, setSignature] = React.useState<string | null>(null)
-  const [valid, setValid] = React.useState<boolean | null>(null)
-
-  return (
-    <>
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault()
-
-          const [account] = await porto.provider.request({
-            method: 'eth_accounts',
-          })
-          const result = await porto.provider.request({
-            method: 'eth_signTypedData_v4',
-            params: [account, TypedData.serialize(typedData)],
-          })
-          setSignature(result)
-        }}
-      >
-        <h3>eth_signTypedData_v4</h3>
-        <button type="submit">Sign</button>
-        <pre
-          style={{
-            maxWidth: '500px',
-            overflowWrap: 'anywhere',
-            // @ts-expect-error
-            textWrapMode: 'wrap',
-          }}
-        >
-          {signature}
-        </pre>
-      </form>
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault()
-          const formData = new FormData(e.target as HTMLFormElement)
-          const signature = formData.get('signature') as `0x${string}`
-
-          const [account] = await porto.provider.request({
-            method: 'eth_accounts',
-          })
-
-          const { valid } = await porto.provider.request({
-            method: 'wallet_verifySignature',
-            params: [
-              {
-                address: account,
-                digest: hashTypedData(typedData),
-                signature,
-              },
-            ],
-          })
-          setValid(valid)
-        }}
-      >
-        <div>
-          <textarea name="signature" placeholder="signature" />
-        </div>
-        <button type="submit">Verify</button>
-        {valid !== null && <pre>{valid ? 'valid' : 'invalid'}</pre>}
-      </form>
-    </>
-  )
-}
-
 function SignTypedMessage() {
-  const [signature, setSignature] = React.useState<string | null>(null)
   const [error, setError] = React.useState<string | null>(null)
+  const [typedMessage, setTypedMessage] = React.useState<null | {
+    hash: `0x${string}`
+    signature: `0x${string}`
+  }>(null)
+  const [verifyStatus, setVerifyStatus] = React.useState<
+    null | 'verifying' | 'valid' | 'invalid'
+  >(null)
 
   const signMessage = async () => {
     const [account] = await porto.provider.request({
       method: 'eth_accounts',
     })
-    return porto.provider.request({
+    const signature = await porto.provider.request({
       method: 'eth_signTypedData_v4',
       params: [account, TypedData.serialize(typedData)],
     })
+    return {
+      hash: hashTypedData(typedData),
+      signature,
+    }
   }
 
   const signPermit = async ({
@@ -1472,79 +1415,131 @@ function SignTypedMessage() {
         .then((result) => AbiFunction.decodeResult(noncesFn, result)),
     ])
 
-    return porto.provider.request({
+    const message = {
+      domain: {
+        chainId: chainId,
+        name,
+        verifyingContract: tokenAddress,
+        version: '1',
+      },
+      message: {
+        deadline: BigInt(deadline),
+        nonce: BigInt(nonce),
+        owner: account,
+        spender: spender,
+        value: value,
+      },
+      primaryType: 'Permit',
+      types: {
+        Permit: [
+          { name: 'owner', type: 'address' },
+          { name: 'spender', type: 'address' },
+          { name: 'value', type: 'uint256' },
+          { name: 'nonce', type: 'uint256' },
+          { name: 'deadline', type: 'uint256' },
+        ],
+      },
+    } as const
+
+    const signature = await porto.provider.request({
       method: 'eth_signTypedData_v4',
-      params: [
-        account,
-        TypedData.serialize({
-          domain: {
-            chainId: chainId,
-            name,
-            verifyingContract: tokenAddress,
-            version: '1',
-          },
-          message: {
-            deadline: BigInt(deadline),
-            nonce: BigInt(nonce),
-            owner: account,
-            spender: spender,
-            value: value,
-          },
-          primaryType: 'Permit',
-          types: {
-            Permit: [
-              { name: 'owner', type: 'address' },
-              { name: 'spender', type: 'address' },
-              { name: 'value', type: 'uint256' },
-              { name: 'nonce', type: 'uint256' },
-              { name: 'deadline', type: 'uint256' },
-            ],
-          },
-        }),
-      ],
+      params: [account, TypedData.serialize(message)],
     })
+
+    return {
+      hash: hashTypedData(message),
+      signature,
+    }
   }
+
+  React.useEffect(() => {
+    if (verifyStatus !== 'verifying' || !typedMessage) return
+
+    let cancel = false
+
+    const verifySignature = async () => {
+      try {
+        const [account] = await porto.provider.request({
+          method: 'eth_accounts',
+        })
+
+        const { valid } = await porto.provider.request({
+          method: 'wallet_verifySignature',
+          params: [
+            {
+              address: account,
+              digest: typedMessage.hash,
+              signature: typedMessage.signature,
+            },
+          ],
+        })
+
+        if (cancel) return
+        setVerifyStatus(valid ? 'valid' : 'invalid')
+      } catch (err) {
+        if (cancel) return
+        console.error(err)
+        setVerifyStatus(null)
+        setError(String(err))
+      }
+    }
+    verifySignature()
+
+    return () => {
+      cancel = true
+    }
+  }, [typedMessage, verifyStatus])
+
+  const [copied, setCopied] = React.useState(false)
+  React.useEffect(() => {
+    if (!copied) return
+    const timeout = setTimeout(() => setCopied(false), 300)
+    return () => clearTimeout(timeout)
+  }, [copied])
 
   return (
     <div className="flex flex-col gap-4 pt-6 pb-3">
       <h3 className="m-0 pb-0">eth_signTypedData_v4</h3>
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault()
-          setError(null)
-          setSignature(null)
-
-          try {
-            setSignature(await signMessage())
-          } catch (err) {
-            console.error(err)
-            setError(err instanceof Error ? err.message : String(err))
-          }
+      <div
+        style={{
+          display: 'flex',
+          gap: 8,
+          height: 32,
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            gap: 8,
+        <button
+          className="px-2 h-full box-border"
+          type="submit"
+          onClick={async () => {
+            setError(null)
+            setTypedMessage(null)
+            setVerifyStatus(null)
+
+            try {
+              setTypedMessage(await signMessage())
+            } catch (err) {
+              console.error(err)
+              setError(String(err))
+            }
           }}
         >
-          <button className="bg-th_negative px-2 py-1 text-sm" type="submit">
-            Sign ERC-712 Typed Message
-          </button>
-        </div>
-      </form>
+          Sign ERC-712 Typed Message
+        </button>
+      </div>
+
       <form
         onSubmit={async (e) => {
           e.preventDefault()
           setError(null)
-          setSignature(null)
+          setTypedMessage(null)
+          setVerifyStatus(null)
 
           const formData = new FormData(e.target as HTMLFormElement)
           const amount = formData.get('amount') as string | null
           const spender = formData.get('spender') as string | null
 
           try {
-            setSignature(
+            setTypedMessage(
               await signPermit({
                 deadline: BigInt(Math.floor(Date.now() / 1000) + 60 * 10),
                 spender: spender && isAddress(spender) ? spender : null,
@@ -1561,37 +1556,67 @@ function SignTypedMessage() {
           style={{
             display: 'flex',
             gap: 8,
+            height: 32,
           }}
         >
           <input
-            className="px-2 py-1"
+            className="px-2 h-full box-border"
             name="spender"
             placeholder="Spender address (default: self)"
           />
           <input
-            className="px-2 py-1"
+            className="px-2 h-full flex box-border"
             name="amount"
             placeholder="Amount in EXP (default: 100)"
           />
-          <button className="bg-th_negative px-2 py-1 text-sm" type="submit">
+          <button className="px-2 h-full box-border" type="submit">
             Sign ERC-2612 Permit
           </button>
         </div>
       </form>
 
-      {error && <div className="pt-4">Error: {error}</div>}
-
-      {signature && (
+      {error ? (
         <div className="flex flex-col gap-2">
-          <h4 className="m-0">Signed message:</h4>
-          <textarea
-            className="wrap-anywhere m-0 min-h-40 pb-2"
-            onFocus={(e) => e.target.select()}
-            readOnly
-          >
-            {signature}
-          </textarea>
+          <h4 className="m-0">Signing error</h4>
+          <div className="">{error}</div>
         </div>
+      ) : (
+        typedMessage && (
+          <div className="flex flex-col gap-2">
+            <h4 className="m-0">Signature</h4>
+            <div className="wrap-anywhere m-0 min-h-40 pb-2 font-mono text-xs">
+              {typedMessage.signature}
+            </div>
+            <div className="flex gap-2 items-center">
+              <button
+                className="px-2 py-1 text-sm"
+                onClick={() => {
+                  navigator.clipboard.writeText(typedMessage.signature ?? '')
+                  setCopied(true)
+                }}
+                type="button"
+                disabled={copied}
+              >
+                {copied ? 'Copied.' : 'Copy'}
+              </button>
+              <button
+                className="px-2 py-1 text-sm"
+                onClick={() => setVerifyStatus('verifying')}
+                type="button"
+                disabled={verifyStatus === 'verifying'}
+              >
+                {verifyStatus === 'verifying' ? 'Verifying…' : 'Verify'}
+              </button>
+
+              {(verifyStatus === 'valid' || verifyStatus === 'invalid') && (
+                <div>
+                  Message signature{' '}
+                  {verifyStatus === 'valid' ? 'valid' : 'invalid'}.
+                </div>
+              )}
+            </div>
+          </div>
+        )
       )}
     </div>
   )

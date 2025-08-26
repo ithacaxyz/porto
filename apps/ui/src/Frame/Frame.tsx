@@ -179,17 +179,16 @@ function FrameWithUi({
                   display: 'grid',
                   overflowX: 'auto',
                   overflowY:
-                    mode.name === 'full' && mode.variant !== 'content-height'
+                    mode.name === 'dialog' ||
+                    (mode.name === 'full' && mode.variant !== 'content-height')
                       ? 'auto'
                       : 'hidden',
                   width: '100%',
+                  height: '100%',
                 }),
                 mode.name === 'dialog' && mode.variant === 'drawer'
                   ? css({ placeItems: 'end center' })
                   : css({ placeItems: 'start center' }),
-                css({
-                  height: '100%',
-                }),
               )}
             >
               {mode.name === 'dialog' && (
