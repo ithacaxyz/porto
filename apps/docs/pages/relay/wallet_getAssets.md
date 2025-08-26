@@ -47,7 +47,7 @@ type Response = {
 ## Example
 
 ```sh
-cast rpc --rpc-url https://rpc.ithaca.xyz wallet_getAssets '[{"account": "0x1234567890123456789012345678901234567890"}]'
+cast rpc --rpc-url https://rpc.porto.sh wallet_getAssets '[{"account": "0x1234567890123456789012345678901234567890"}]'
 ```
 
 ```json

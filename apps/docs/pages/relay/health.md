@@ -22,7 +22,7 @@ type Response = {
 ## Example
 
 ```sh
-cast rpc --rpc-url https://rpc.ithaca.xyz health
+cast rpc --rpc-url https://rpc.porto.sh health
 ```
 
 ```json

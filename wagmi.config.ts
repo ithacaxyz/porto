@@ -16,7 +16,7 @@ import {
 import * as anvilAddresses from './test/src/_generated/addresses.js'
 
 const client = createClient({
-  transport: http('https://rpc.ithaca.xyz'),
+  transport: http('https://rpc.porto.sh'),
 })
 
 const capabilities = await getCapabilities(client)

@@ -107,7 +107,7 @@ type Response = {
 ## Example
 
 ```sh
-cast rpc --rpc-url https://rpc.ithaca.xyz wallet_getCapabilities '["0x8453"]'
+cast rpc --rpc-url https://rpc.porto.sh wallet_getCapabilities '["0x8453"]'
 ```
 
 ```json

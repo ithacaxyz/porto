@@ -120,7 +120,7 @@
   import { Porto } from "porto";
   import { http } from "viem";
 
-  const porto = Porto.create({ relay: http("https://rpc.ithaca.xyz") });
+  const porto = Porto.create({ relay: http("https://rpc.porto.sh") });
   ```
 
   **Note:** `relay` supports multiple chains via `chainId`. If using your own relay implementation, make sure you take this into consideration.
