@@ -257,7 +257,7 @@ export type Store<
 >
 
 export type QueuedRequest<result = unknown> = {
-  /** Account to assert the request for, and sync if neccessary. */
+  /** Account to assert the request for, and sync if necessary. */
   account:
     | {
         /** Address of the account. */
