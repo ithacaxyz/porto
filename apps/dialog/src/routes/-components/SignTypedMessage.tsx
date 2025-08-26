@@ -90,7 +90,7 @@ function TypedMessageRow({
       <div className="text-nowrap font-medium text-[14px] text-th_accent">
         {keyName}
       </div>
-      <div className="flex h-[24px] min-w-0 flex-shrink items-center gap-[4px]">
+      <div className="flex h-[24px] min-w-0 flex-shrink items-center gap-[8px]">
         <div
           className="flex-shrink truncate text-nowrap text-[14px] text-th_base"
           title={valueStr}
