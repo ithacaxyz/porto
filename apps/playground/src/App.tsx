@@ -1508,8 +1508,7 @@ function SignTypedMessage() {
         }}
       >
         <button
-          className="px-2 h-full box-border"
-          type="submit"
+          className="box-border h-full px-2"
           onClick={async () => {
             setError(null)
             setTypedMessage(null)
@@ -1522,6 +1521,7 @@ function SignTypedMessage() {
               setError(String(err))
             }
           }}
+          type="submit"
         >
           Sign ERC-712 Typed Message
         </button>
@@ -1560,16 +1560,16 @@ function SignTypedMessage() {
           }}
         >
           <input
-            className="px-2 h-full box-border"
+            className="box-border h-full px-2"
             name="spender"
             placeholder="Spender address (default: self)"
           />
           <input
-            className="px-2 h-full flex box-border"
+            className="box-border flex h-full px-2"
             name="amount"
             placeholder="Amount in EXP (default: 100)"
           />
-          <button className="px-2 h-full box-border" type="submit">
+          <button className="box-border h-full px-2" type="submit">
             Sign ERC-2612 Permit
           </button>
         </div>
@@ -1587,23 +1587,23 @@ function SignTypedMessage() {
             <div className="wrap-anywhere m-0 min-h-40 pb-2 font-mono text-xs">
               {typedMessage.signature}
             </div>
-            <div className="flex gap-2 items-center">
+            <div className="flex items-center gap-2">
               <button
                 className="px-2 py-1 text-sm"
+                disabled={copied}
                 onClick={() => {
                   navigator.clipboard.writeText(typedMessage.signature ?? '')
                   setCopied(true)
                 }}
                 type="button"
-                disabled={copied}
               >
                 {copied ? 'Copied.' : 'Copy'}
               </button>
               <button
                 className="px-2 py-1 text-sm"
+                disabled={verifyStatus === 'verifying'}
                 onClick={() => setVerifyStatus('verifying')}
                 type="button"
-                disabled={verifyStatus === 'verifying'}
               >
                 {verifyStatus === 'verifying' ? 'Verifying…' : 'Verify'}
               </button>

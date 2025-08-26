@@ -177,6 +177,7 @@ function FrameWithUi({
               className={cx(
                 css({
                   display: 'grid',
+                  height: '100%',
                   overflowX: 'auto',
                   overflowY:
                     mode.name === 'dialog' ||
@@ -184,7 +185,6 @@ function FrameWithUi({
                       ? 'auto'
                       : 'hidden',
                   width: '100%',
-                  height: '100%',
                 }),
                 mode.name === 'dialog' && mode.variant === 'drawer'
                   ? css({ placeItems: 'end center' })
