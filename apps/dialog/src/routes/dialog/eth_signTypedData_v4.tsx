@@ -19,7 +19,7 @@ export const Route = createFileRoute('/dialog/eth_signTypedData_v4')({
 
 function RouteComponent() {
   const request = Route.useSearch()
-  const [address, data] = request.params
+  const [_address, data] = request.params
 
   const respond = useMutation({
     mutationFn() {
