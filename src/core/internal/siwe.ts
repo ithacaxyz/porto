@@ -4,6 +4,19 @@ import * as Siwe from 'ox/Siwe'
 import type { Chain, Client, Transport } from 'viem'
 import type * as Capabilities from './schema/capabilities.js'
 
+/** Error thrown when SIWE endpoint returns an error */
+export class SiweEndpointError extends Error {
+  constructor(
+    message: string,
+    public endpoint: string,
+    public status: number,
+    public response: any,
+  ) {
+    super(message)
+    this.name = 'SiweEndpointError'
+  }
+}
+
 /** Set of authentication endpoints. */
 export type AuthUrl = {
   /** Endpoint to logout the user. (e.g. `/logout`) */
@@ -21,7 +34,7 @@ export async function authenticate(
 
   const { chainId } = Siwe.parseMessage(message)
 
-  return await fetch(authUrl.verify, {
+  const response = await fetch(authUrl.verify, {
     body: JSON.stringify({
       address,
       chainId,
@@ -35,7 +48,25 @@ export async function authenticate(
       'Content-Type': 'application/json',
     },
     method: 'POST',
-  }).then((res) => res.json())
+  })
+
+  if (!response.ok) {
+    let errorResponse
+    try {
+      errorResponse = await response.json()
+    } catch {
+      errorResponse = { error: 'Unknown error' }
+    }
+
+    throw new SiweEndpointError(
+      `SIWE verify endpoint failed: ${response.status} ${response.statusText}`,
+      authUrl.verify,
+      response.status,
+      errorResponse,
+    )
+  }
+
+  return await response.json()
 }
 
 export declare namespace authenticate {
@@ -78,6 +109,7 @@ export async function buildMessage<chain extends Chain | undefined>(
     if (siwe.nonce) return siwe.nonce
     if (!authUrl?.nonce)
       throw new Error('`nonce` or `authUrl.nonce` is required.')
+
     const response = await fetch(authUrl.nonce, {
       body: JSON.stringify({
         address,
@@ -89,8 +121,33 @@ export async function buildMessage<chain extends Chain | undefined>(
       },
       method: 'POST',
     })
-    const res = await response.json().catch(() => undefined)
-    if (!res?.nonce) throw new Error('`nonce` or `authUrl.nonce` is required.')
+
+    if (!response.ok) {
+      let errorResponse
+      try {
+        errorResponse = await response.json()
+      } catch {
+        errorResponse = { error: 'Unknown error' }
+      }
+
+      throw new SiweEndpointError(
+        `SIWE nonce endpoint failed: ${response.status} ${response.statusText}`,
+        authUrl.nonce,
+        response.status,
+        errorResponse,
+      )
+    }
+
+    const res = await response.json()
+    if (!res?.nonce) {
+      throw new SiweEndpointError(
+        'SIWE nonce endpoint did not return a nonce',
+        authUrl.nonce,
+        response.status,
+        res,
+      )
+    }
+
     return res.nonce
   })()
 
@@ -111,6 +168,48 @@ export async function buildMessage<chain extends Chain | undefined>(
 export declare namespace buildMessage {
   type Options = {
     address: Address.Address
+  }
+}
+
+export async function logout(
+  parameters: logout.Parameters,
+): Promise<logout.ReturnType> {
+  const { authUrl } = parameters
+
+  const response = await fetch(authUrl.logout, {
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    method: 'POST',
+  })
+
+  if (!response.ok) {
+    let errorResponse
+    try {
+      errorResponse = await response.json()
+    } catch {
+      errorResponse = { error: 'Unknown error' }
+    }
+
+    throw new SiweEndpointError(
+      `SIWE logout endpoint failed: ${response.status} ${response.statusText}`,
+      authUrl.logout,
+      response.status,
+      errorResponse,
+    )
+  }
+
+  return await response.json()
+}
+
+export declare namespace logout {
+  type Parameters = {
+    authUrl: AuthUrl
+  }
+
+  type ReturnType = {
+    success?: boolean | undefined
   }
 }
 

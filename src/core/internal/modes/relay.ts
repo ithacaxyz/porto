@@ -76,13 +76,13 @@ export function relay(parameters: relay.Parameters = {}) {
 
         const adminKey = !mock
           ? await Key.createWebAuthnP256({
-              createFn: webAuthn?.createFn,
-              label:
-                label ||
-                `${eoa.address.slice(0, 8)}\u2026${eoa.address.slice(-6)}`,
-              rpId: keystoreHost,
-              userId: Bytes.from(eoa.address),
-            })
+            createFn: webAuthn?.createFn,
+            label:
+              label ||
+              `${eoa.address.slice(0, 8)}\u2026${eoa.address.slice(-6)}`,
+            rpId: keystoreHost,
+            userId: Bytes.from(eoa.address),
+          })
           : Key.createHeadlessWebAuthnP256()
         const sessionKey = await PermissionsRequest.toKey(permissions, {
           feeTokens,
@@ -232,19 +232,19 @@ export function relay(parameters: relay.Parameters = {}) {
                 ...base,
                 ...(capabilities
                   ? {
-                      feeToken: {
-                        supported: true,
-                        tokens: capabilities.fees.tokens,
-                      },
-                      requiredFunds: {
-                        supported: Boolean(multichain),
-                        tokens: multichain
-                          ? capabilities.fees.tokens.filter(
-                              (token) => token.interop,
-                            )
-                          : [],
-                      },
-                    }
+                    feeToken: {
+                      supported: true,
+                      tokens: capabilities.fees.tokens,
+                    },
+                    requiredFunds: {
+                      supported: Boolean(multichain),
+                      tokens: multichain
+                        ? capabilities.fees.tokens.filter(
+                          (token) => token.interop,
+                        )
+                        : [],
+                    },
+                  }
                   : {}),
               },
             } as const
@@ -587,12 +587,12 @@ export function relay(parameters: relay.Parameters = {}) {
 
         const adminKey = !mock
           ? await Key.createWebAuthnP256({
-              createFn: webAuthn?.createFn,
-              label:
-                label || `${address.slice(0, 8)}\u2026${address.slice(-6)}`,
-              rpId: keystoreHost,
-              userId: Bytes.from(address),
-            })
+            createFn: webAuthn?.createFn,
+            label:
+              label || `${address.slice(0, 8)}\u2026${address.slice(-6)}`,
+            rpId: keystoreHost,
+            userId: Bytes.from(address),
+          })
           : Key.createHeadlessWebAuthnP256()
         const sessionKey = await PermissionsRequest.toKey(permissions, {
           chainId: client.chain.id,
@@ -627,7 +627,7 @@ export function relay(parameters: relay.Parameters = {}) {
         if (
           key.type === 'webauthn-p256' &&
           account.keys?.filter((key) => key.type === 'webauthn-p256').length ===
-            1
+          1
         )
           throw new Error('revoke the only WebAuthn key left.')
 
@@ -935,13 +935,13 @@ export declare namespace relay {
      * WebAuthn configuration.
      */
     webAuthn?:
-      | {
-          createFn?:
-            | WebAuthnP256.createCredential.Options['createFn']
-            | undefined
-          getFn?: WebAuthnP256.sign.Options['getFn'] | undefined
-        }
+    | {
+      createFn?:
+      | WebAuthnP256.createCredential.Options['createFn']
       | undefined
+      getFn?: WebAuthnP256.sign.Options['getFn'] | undefined
+    }
+    | undefined
   }
 }
 
