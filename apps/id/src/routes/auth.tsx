@@ -1,0 +1,122 @@
+import { Button, Toast } from '@porto/apps/components'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import * as React from 'react'
+import { toast } from 'sonner'
+import { useConnect, useConnectors } from 'wagmi'
+import LucideCircleCheck from '~icons/lucide/circle-check'
+import LucideCircleX from '~icons/lucide/circle-x'
+import IconScanFace from '~icons/porto/scan-face'
+
+export const Route = createFileRoute('/auth')({
+  beforeLoad(opts) {
+    const { context } = opts
+    if (context.account.address) throw redirect({ to: '/' })
+  },
+  component: RouteComponent,
+})
+
+function RouteComponent() {
+  const navigate = useNavigate()
+  const connect = useConnect({
+    mutation: {
+      onError(error) {
+        if (error.message.includes('email already verified'))
+          toast.custom((t) => (
+            <Toast
+              className={t}
+              description="Email already verified for account."
+              kind="error"
+              title="Create account failed"
+            />
+          ))
+      },
+      async onSuccess() {
+        await navigate({ to: '/' })
+      },
+    },
+  })
+  const [connector] = useConnectors()
+  const [email, setEmail] = React.useState('')
+  return (
+    <div>
+      <form
+        onSubmit={async (event) => {
+          event.preventDefault()
+          connect.connect({
+            capabilities: {
+              createAccount: { label: email },
+              email: true,
+            },
+            connector: connector!,
+          })
+        }}
+      >
+        <div className="group peer flex h-12.5 items-center rounded-4xl border border-gray7 bg-gray1 py-2 pr-2 pl-4">
+          <label className="sr-only" htmlFor="label">
+            Email
+          </label>
+          <input
+            autoCapitalize="off"
+            autoComplete="off"
+            className="w-full font-[500] text-[19px] focus:outline-none focus:ring-0"
+            maxLength={32}
+            name="label"
+            onChange={(e) => setEmail(e.target.value)}
+            pattern=".*@.*\..+"
+            placeholder="example@ithaca.xyz"
+            required
+            spellCheck={false}
+            type="email"
+            value={email}
+          />
+          <div className="hidden rounded-full bg-successTint p-2 group-has-[:valid]:block">
+            <LucideCircleCheck className="size-5 text-success" />
+          </div>
+          <div className="hidden rounded-full bg-destructiveTint p-2 group-has-[:user-invalid]:block">
+            <LucideCircleX className="size-5 text-destructive" />
+          </div>
+        </div>
+
+        <div className="-tracking-[2.8%] mt-3 hidden w-full rounded-full bg-red3 p-2 text-center text-[15px] text-red9 leading-[24px] peer-has-[:user-invalid]:block">
+          This email is not a valid one.
+        </div>
+
+        <div className="h-4" />
+
+        <Button
+          className="h-12.5! w-full bg-gray12! text-gray1! text-lg! hover:bg-gray12/90!"
+          type="submit"
+          variant="default"
+        >
+          Create account
+        </Button>
+      </form>
+
+      <div className="h-3" />
+
+      <div className="h-3.5 border-gray7 border-b-1 text-center">
+        <span className="my-auto bg-gray2 px-2 font-[500] text-gray10">or</span>
+      </div>
+
+      <div className="h-6" />
+
+      <Button
+        className="flex h-12.5! w-full items-center gap-2 text-lg!"
+        onClick={() =>
+          connect.connect({
+            capabilities: {
+              createAccount: false,
+              selectAccount: true,
+            },
+            connector: connector!,
+          })
+        }
+        type="button"
+        variant="accent"
+      >
+        <IconScanFace className="size-5.25" />
+        Sign in
+      </Button>
+    </div>
+  )
+}
