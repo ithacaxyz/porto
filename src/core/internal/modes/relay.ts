@@ -305,7 +305,7 @@ export function relay(parameters: relay.Parameters = {}) {
 
         // Parse permissions request into a structured key.
         const authorizeKey = await PermissionsRequest.toKey(permissions, {
-          chainId: client.chain.id,
+          chainId: permissions?.chainId,
           feeTokens,
         })
         if (!authorizeKey) throw new Error('key to authorize not found.')
@@ -335,7 +335,8 @@ export function relay(parameters: relay.Parameters = {}) {
           store: internal.store,
         })
         const authorizeKey = await PermissionsRequest.toKey(permissions, {
-          chainId: client.chain.id,
+          // Respect request chainId when provided; otherwise leave undefined
+          chainId: (permissions as any)?.chainId ?? undefined,
           feeTokens,
         })
 
@@ -595,7 +596,8 @@ export function relay(parameters: relay.Parameters = {}) {
             })
           : Key.createHeadlessWebAuthnP256()
         const sessionKey = await PermissionsRequest.toKey(permissions, {
-          chainId: client.chain.id,
+          // Respect request chainId when provided; otherwise leave undefined
+          chainId: (permissions as any)?.chainId ?? undefined,
           feeTokens,
         })
 

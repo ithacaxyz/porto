@@ -510,7 +510,7 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [{ address, chainId }] = request._decoded.params ?? [{}]
+          const [{ address }] = request._decoded.params ?? [{}]
 
           const account = address
             ? state.accounts.find((account) =>
@@ -519,20 +519,18 @@ export function from<
             : state.accounts[0]
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          const client = getClient(chainId)
-
           const keys = await getMode().actions.getKeys({
             account,
             internal: {
-              client,
+              client: getClient(),
               config,
               request,
               store,
             },
           })
+          // Return permissions across all chains (no filter by current chain)
           const permissions = getActivePermissions(keys, {
             address: account.address,
-            chainId: client.chain.id,
           })
 
           return permissions satisfies typeof Rpc.wallet_getPermissions.Response.Encoded

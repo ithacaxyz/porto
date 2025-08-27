@@ -459,7 +459,6 @@ export function usePermissions<
 
   const config = useConfig(rest)
   const queryClient = useQueryClient()
-  const chainId = useChainId({ config })
   const { address, connector, status } = useAccount()
   const activeConnector = parameters.connector ?? connector
 
@@ -472,10 +471,9 @@ export function usePermissions<
     () =>
       getPermissionsQueryKey({
         address,
-        chainId: parameters.chainId ?? chainId,
         connector: activeConnector,
       }),
-    [address, chainId, parameters.chainId, activeConnector],
+    [address, activeConnector],
   )
 
   const provider = useRef<EIP1193Provider | undefined>(undefined)
@@ -523,7 +521,7 @@ export declare namespace usePermissions {
   type Parameters<
     config extends Config = Config,
     selectData = getPermissions.ReturnType,
-  > = getPermissions.Parameters<config> &
+  > = getPermissions.Parameters &
     ConfigParameter<config> & {
       query?:
         | Omit<

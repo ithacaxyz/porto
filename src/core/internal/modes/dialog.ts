@@ -158,7 +158,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
             const key = await PermissionsRequest.toKey(
               capabilities?.grantPermissions,
               {
-                chainId: client.chain.id,
+                // Respect request chainId when provided; otherwise leave undefined
+                chainId: capabilities?.grantPermissions?.chainId,
               },
             )
 
@@ -412,7 +413,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
       async grantPermissions(parameters) {
         const { account, internal } = parameters
         const {
-          client,
           config: { storage },
           request,
           store,
@@ -427,7 +427,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         // Parse permissions request into a structured key.
         const key = await PermissionsRequest.toKey(permissions, {
-          chainId: client.chain.id,
+          chainId: permissions?.chainId,
         })
         if (!key) throw new Error('no key found.')
 
@@ -449,12 +449,10 @@ export function dialog(parameters: dialog.Parameters = {}) {
             storage,
           })
 
-        const key_response = await PermissionsRequest.toKey(
-          Schema.decodeSync(PermissionsRequest.Schema)(response),
-          {
-            chainId: client.chain.id,
-          },
-        )
+        const decoded = Schema.decodeSync(PermissionsRequest.Schema)(response)
+        const key_response = await PermissionsRequest.toKey(decoded, {
+          chainId: decoded?.chainId ?? undefined,
+        })
 
         return {
           key: { ...key_response, ...key } as Key.Key,
@@ -463,7 +461,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
       async loadAccounts(parameters) {
         const { internal } = parameters
-        const { client, config, store } = internal
+        const { config, store } = internal
         const { storage } = config
 
         const provider = getProvider(store)
@@ -495,7 +493,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
           const key = await PermissionsRequest.toKey(
             capabilities?.grantPermissions,
             {
-              chainId: client.chain.id,
+              // Respect request chainId when provided; otherwise leave undefined
+              chainId: capabilities?.grantPermissions?.chainId,
             },
           )
 

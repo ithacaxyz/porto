@@ -1,28 +1,37 @@
-import { porto as portoConnector } from 'porto/wagmi'
+import { PortoConfig } from '@porto/apps'
+import { Mode } from 'porto'
+import { porto } from 'porto/wagmi'
 import { createConfig, createStorage } from 'wagmi'
-import * as Porto from './Porto'
 
-export const config = createConfig({
-  chains: Porto.config.chains,
-  connectors: [portoConnector(Porto.config)],
+const config = PortoConfig.getConfig()
+
+export const wagmiConfig = createConfig({
+  chains: config.chains,
+  connectors: [
+    porto({
+      ...config,
+      mode: Mode.dialog({
+        host: PortoConfig.getDialogHost(),
+      }),
+    }),
+  ],
   multiInjectedProviderDiscovery: false,
   storage: createStorage({ storage: localStorage }),
-  transports: Porto.config.transports,
+  transports: config.transports,
 })
 
 export const mipdConfig = createConfig({
-  chains: Porto.config.chains,
+  chains: config.chains,
   multiInjectedProviderDiscovery: true,
   storage: null,
-  transports: config._internal.transports,
+  transports: config.transports,
 })
 
-// export const client = getWalletClient(config)
 export const getChainConfig = (chainId: number) =>
   config.chains.find((c) => c.id === chainId)
 
 declare module 'wagmi' {
   interface Register {
-    config: typeof config
+    config: typeof wagmiConfig
   }
 }
