@@ -9,7 +9,7 @@ console.log('Fetching chains for environments.')
 const environments = [
   {
     name: 'prod',
-    rpc: 'https://rpc.ithaca.xyz',
+    rpc: 'https://rpc.porto.sh',
     transportOverrides: {
       arbitrum: 'import.meta.env.VITE_RPC_URL_ARBITRUM',
       base: 'import.meta.env.VITE_RPC_URL_BASE',
@@ -18,7 +18,7 @@ const environments = [
       polygon: 'import.meta.env.VITE_RPC_URL_POLYGON',
     },
   },
-  { name: 'stg', rpc: 'https://stg-rpc.ithaca.xyz', transportOverrides: {} },
+  { name: 'stg', rpc: 'https://stg-rpc.porto.sh', transportOverrides: {} },
 ] as const satisfies readonly {
   name: 'prod' | 'stg'
   rpc: string

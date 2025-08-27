@@ -34,7 +34,6 @@ export function onDialogRequest(
             | undefined
         }
       | undefined
-    requireChainSync?: boolean | undefined
     requireUpdatedAccount?: boolean | undefined
     request: Remote.RemoteState['requests'][number]['request'] | null
     origin: string
@@ -48,7 +47,6 @@ export function onDialogRequest(
       return
     }
 
-    let requireChainSync = false
     if (request.method === 'wallet_connect') {
       const params = Schema.decodeUnknownSync(Rpc.wallet_connect.Parameters)(
         request.params?.[0],
@@ -77,7 +75,6 @@ export function onDialogRequest(
           ...x,
           chainIds: [chainId, ...x.chainIds.filter((x) => x !== chainId)],
         }))
-        requireChainSync = true
       }
     }
 
@@ -131,7 +128,6 @@ export function onDialogRequest(
       account: requireConnection ? account : undefined,
       origin: event.origin,
       request,
-      requireChainSync,
       requireUpdatedAccount,
     })
   })

@@ -480,7 +480,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
           throw new Error('Cannot load accounts for method: ' + request.method)
 
         const accounts = await (async () => {
-          const [{ capabilities }] = request._decoded.params ?? [{}]
+          const [params] = request._decoded.params ?? []
+          const { capabilities } = params ?? {}
 
           const authUrl = getAuthUrl(
             capabilities?.signInWithEthereum?.authUrl ?? config.authUrl,

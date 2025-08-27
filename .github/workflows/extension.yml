@@ -21,6 +21,13 @@ jobs:
       - name: Set up pnpm
         uses: wevm/actions/.github/actions/pnpm@main
 
+      - name: Set extension version
+        run: |
+          cd src
+          PORTO_VERSION=$(pnpm pkg get version | sed 's/"//g')
+          cd ../apps/extension
+          pnpm pkg set version=$PORTO_VERSION
+
       - name: Zip extension
         run: |
           pnpm --filter extension zip

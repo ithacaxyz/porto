@@ -12,14 +12,14 @@ We'd love to hear your feedback. Report any issues or feature suggestions [on th
 
 ### Chain support
 
-The Relay exposes a unified JSON-RPC endpoint: `https://rpc.ithaca.xyz`.
+The Relay exposes a unified JSON-RPC endpoint: `https://rpc.porto.sh`.
 
-You can query supported chains, contracts, and fee tokens via `wallet_getCapabilities`. Calling it with an empty params array returns all supported chains.
+You can query supported chains, contracts, and fee tokens via `wallet_getCapabilities`.
 
 Example:
 
 ```sh
-cast rpc --rpc-url https://rpc.ithaca.xyz wallet_getCapabilities '[]'
+cast rpc --rpc-url https://rpc.porto.sh wallet_getCapabilities
 ```
 
 **Supported Networks:**
@@ -59,7 +59,7 @@ cast rpc --rpc-url http://localhost:9200 wallet_getCapabilities "[31337]"
 If you have [OrbStack](https://orbstack.dev/) installed, you can also query the Relay at `https://relay.local`.
 
 :::note
-Production RPC URL: `https://rpc.ithaca.xyz` (JSON-RPC 2.0 over HTTP). All examples on this page target this endpoint unless stated otherwise.
+Production RPC URL: `https://rpc.porto.sh` (JSON-RPC 2.0 over HTTP). All examples on this page target this endpoint unless stated otherwise.
 :::
 
 ## Testnet Faucet (dev)

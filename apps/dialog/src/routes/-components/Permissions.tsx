@@ -1,6 +1,6 @@
 import { Spinner } from '@porto/apps/components'
 import { useMemo } from 'react'
-import { erc20Abi } from 'viem'
+import { erc20Abi, zeroAddress } from 'viem'
 import { useReadContract } from 'wagmi'
 import { ValueFormatter } from '~/utils'
 import LucideBanknote from '~icons/lucide/banknote'
@@ -53,7 +53,7 @@ function SpendPermission(props: SpendPermission.Props) {
     address: token,
     functionName: 'symbol',
     query: {
-      enabled: !!token,
+      enabled: !!token && token !== zeroAddress,
     },
   })
   const decimals = useReadContract({
@@ -61,12 +61,13 @@ function SpendPermission(props: SpendPermission.Props) {
     address: token,
     functionName: 'decimals',
     query: {
-      enabled: !!token,
+      enabled: !!token && token !== zeroAddress,
     },
   })
 
   const displayAmount = useMemo(() => {
-    if (!decimals.data && token) return null
+    if (token === zeroAddress) return ValueFormatter.format(limit, 18)
+    if (!decimals.data) return null
     return ValueFormatter.format(limit, decimals.data)
   }, [limit, decimals.data, token])
 

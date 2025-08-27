@@ -1,5 +1,17 @@
 # porto
 
+## 0.0.80
+
+### Patch Changes
+
+- [#767](https://github.com/ithacaxyz/porto/pull/767) [`4b1008a`](https://github.com/ithacaxyz/porto/commit/4b1008afaf4905409ff9c6861a98ba90761b6048) Thanks [@tmm](https://github.com/tmm)! - Switched requests from `rpc.ithaca.xyz` to `rpc.porto.sh`.
+
+## 0.0.79
+
+### Patch Changes
+
+- [`e24b58b`](https://github.com/ithacaxyz/porto/commit/e24b58b9fefae38674c95d60ed706d7eea97e5e7) Thanks [@jxom](https://github.com/jxom)! - Fixed `undefined` capabilities issue.
+
 ## 0.0.78
 
 ### Patch Changes
@@ -114,7 +126,7 @@
   import { Porto } from "porto";
   import { http } from "viem";
 
-  const porto = Porto.create({ relay: http("https://rpc.ithaca.xyz") });
+  const porto = Porto.create({ relay: http("https://rpc.porto.sh") });
   ```
 
   **Note:** `relay` supports multiple chains via `chainId`. If using your own relay implementation, make sure you take this into consideration.
