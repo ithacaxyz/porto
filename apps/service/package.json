@@ -12,6 +12,7 @@
     "deploy": "pnpm dlx wrangler@latest --config='wrangler.json' deploy --keep-vars"
   },
   "dependencies": {
+    "@effect/schema": "^0.75.5",
     "@porto/apps": "workspace:*",
     "hono": "^4.8.5",
     "porto": "workspace:*",

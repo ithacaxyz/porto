@@ -9,6 +9,7 @@ import { secureHeaders } from 'hono/secure-headers'
 import { trimTrailingSlash } from 'hono/trailing-slash'
 
 import { corsApp } from './routes/cors.ts'
+import { extensionApp } from './routes/extension.ts'
 import { snapshotApp } from './routes/snapshot.tsx'
 import { verifyApp } from './routes/verify.ts'
 
@@ -23,7 +24,7 @@ app.use(trimTrailingSlash())
 
 app.get('/', (context) =>
   context.json({
-    routes: ['/cors', '/verify', '/snapshot'],
+    routes: ['/cors', '/verify', '/snapshot', '/extension'],
     version: context.env.WORKERS_CI_COMMIT_SHA ?? 'running locally',
   }),
 )
@@ -33,5 +34,6 @@ app.get('/health', (context) => context.text('ok'))
 app.route('/cors', corsApp)
 app.route('/verify', verifyApp)
 app.route('/snapshot', snapshotApp)
+app.route('/extension', extensionApp)
 
 export default app satisfies ExportedHandler<Cloudflare.Env>

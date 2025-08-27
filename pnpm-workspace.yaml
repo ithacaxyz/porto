@@ -3,7 +3,6 @@ packages:
   - "docker/*"
   - "examples/*"
   - "src"
-  - "test/e2e"
 
 catalog:
   "@ariakit/react": "^0.4.17"
