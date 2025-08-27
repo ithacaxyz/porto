@@ -12,11 +12,9 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as PlaygroundImport } from './routes/playground'
-import { Route as LayoutImport } from './routes/_layout'
-import { Route as LayoutIndexImport } from './routes/_layout.index'
-import { Route as LayoutRecoveryImport } from './routes/_layout.recovery'
-import { Route as LayoutAboutImport } from './routes/_layout.about'
-import { Route as LayoutEmailVerifyImport } from './routes/_layout.email.verify'
+import { Route as AuthImport } from './routes/auth'
+import { Route as DashImport } from './routes/_dash'
+import { Route as DashIndexImport } from './routes/_dash/index'
 
 // Create/Update Routes
 
@@ -26,44 +24,39 @@ const PlaygroundRoute = PlaygroundImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const LayoutRoute = LayoutImport.update({
-  id: '/_layout',
+const AuthRoute = AuthImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRoute,
 } as any)
 
-const LayoutIndexRoute = LayoutIndexImport.update({
+const DashRoute = DashImport.update({
+  id: '/_dash',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DashIndexRoute = DashIndexImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => LayoutRoute,
-} as any)
-
-const LayoutRecoveryRoute = LayoutRecoveryImport.update({
-  id: '/recovery',
-  path: '/recovery',
-  getParentRoute: () => LayoutRoute,
-} as any)
-
-const LayoutAboutRoute = LayoutAboutImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => LayoutRoute,
-} as any)
-
-const LayoutEmailVerifyRoute = LayoutEmailVerifyImport.update({
-  id: '/email/verify',
-  path: '/email/verify',
-  getParentRoute: () => LayoutRoute,
+  getParentRoute: () => DashRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_layout': {
-      id: '/_layout'
+    '/_dash': {
+      id: '/_dash'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof LayoutImport
+      preLoaderRoute: typeof DashImport
+      parentRoute: typeof rootRoute
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthImport
       parentRoute: typeof rootRoute
     }
     '/playground': {
@@ -73,106 +66,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlaygroundImport
       parentRoute: typeof rootRoute
     }
-    '/_layout/about': {
-      id: '/_layout/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof LayoutAboutImport
-      parentRoute: typeof LayoutImport
-    }
-    '/_layout/recovery': {
-      id: '/_layout/recovery'
-      path: '/recovery'
-      fullPath: '/recovery'
-      preLoaderRoute: typeof LayoutRecoveryImport
-      parentRoute: typeof LayoutImport
-    }
-    '/_layout/': {
-      id: '/_layout/'
+    '/_dash/': {
+      id: '/_dash/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof LayoutIndexImport
-      parentRoute: typeof LayoutImport
-    }
-    '/_layout/email/verify': {
-      id: '/_layout/email/verify'
-      path: '/email/verify'
-      fullPath: '/email/verify'
-      preLoaderRoute: typeof LayoutEmailVerifyImport
-      parentRoute: typeof LayoutImport
+      preLoaderRoute: typeof DashIndexImport
+      parentRoute: typeof DashImport
     }
   }
 }
 
 // Create and export the route tree
 
-interface LayoutRouteChildren {
-  LayoutAboutRoute: typeof LayoutAboutRoute
-  LayoutRecoveryRoute: typeof LayoutRecoveryRoute
-  LayoutIndexRoute: typeof LayoutIndexRoute
-  LayoutEmailVerifyRoute: typeof LayoutEmailVerifyRoute
+interface DashRouteChildren {
+  DashIndexRoute: typeof DashIndexRoute
 }
 
-const LayoutRouteChildren: LayoutRouteChildren = {
-  LayoutAboutRoute: LayoutAboutRoute,
-  LayoutRecoveryRoute: LayoutRecoveryRoute,
-  LayoutIndexRoute: LayoutIndexRoute,
-  LayoutEmailVerifyRoute: LayoutEmailVerifyRoute,
+const DashRouteChildren: DashRouteChildren = {
+  DashIndexRoute: DashIndexRoute,
 }
 
-const LayoutRouteWithChildren =
-  LayoutRoute._addFileChildren(LayoutRouteChildren)
+const DashRouteWithChildren = DashRoute._addFileChildren(DashRouteChildren)
 
 export interface FileRoutesByFullPath {
-  '': typeof LayoutRouteWithChildren
+  '': typeof DashRouteWithChildren
+  '/auth': typeof AuthRoute
   '/playground': typeof PlaygroundRoute
-  '/about': typeof LayoutAboutRoute
-  '/recovery': typeof LayoutRecoveryRoute
-  '/': typeof LayoutIndexRoute
-  '/email/verify': typeof LayoutEmailVerifyRoute
+  '/': typeof DashIndexRoute
 }
 
 export interface FileRoutesByTo {
+  '/auth': typeof AuthRoute
   '/playground': typeof PlaygroundRoute
-  '/about': typeof LayoutAboutRoute
-  '/recovery': typeof LayoutRecoveryRoute
-  '/': typeof LayoutIndexRoute
-  '/email/verify': typeof LayoutEmailVerifyRoute
+  '/': typeof DashIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/_layout': typeof LayoutRouteWithChildren
+  '/_dash': typeof DashRouteWithChildren
+  '/auth': typeof AuthRoute
   '/playground': typeof PlaygroundRoute
-  '/_layout/about': typeof LayoutAboutRoute
-  '/_layout/recovery': typeof LayoutRecoveryRoute
-  '/_layout/': typeof LayoutIndexRoute
-  '/_layout/email/verify': typeof LayoutEmailVerifyRoute
+  '/_dash/': typeof DashIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/playground' | '/about' | '/recovery' | '/' | '/email/verify'
+  fullPaths: '' | '/auth' | '/playground' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/playground' | '/about' | '/recovery' | '/' | '/email/verify'
-  id:
-    | '__root__'
-    | '/_layout'
-    | '/playground'
-    | '/_layout/about'
-    | '/_layout/recovery'
-    | '/_layout/'
-    | '/_layout/email/verify'
+  to: '/auth' | '/playground' | '/'
+  id: '__root__' | '/_dash' | '/auth' | '/playground' | '/_dash/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-  LayoutRoute: typeof LayoutRouteWithChildren
+  DashRoute: typeof DashRouteWithChildren
+  AuthRoute: typeof AuthRoute
   PlaygroundRoute: typeof PlaygroundRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  LayoutRoute: LayoutRouteWithChildren,
+  DashRoute: DashRouteWithChildren,
+  AuthRoute: AuthRoute,
   PlaygroundRoute: PlaygroundRoute,
 }
 
@@ -186,37 +140,26 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/_layout",
+        "/_dash",
+        "/auth",
         "/playground"
       ]
     },
-    "/_layout": {
-      "filePath": "_layout.tsx",
+    "/_dash": {
+      "filePath": "_dash.tsx",
       "children": [
-        "/_layout/about",
-        "/_layout/recovery",
-        "/_layout/",
-        "/_layout/email/verify"
+        "/_dash/"
       ]
+    },
+    "/auth": {
+      "filePath": "auth.tsx"
     },
     "/playground": {
       "filePath": "playground.tsx"
     },
-    "/_layout/about": {
-      "filePath": "_layout.about.tsx",
-      "parent": "/_layout"
-    },
-    "/_layout/recovery": {
-      "filePath": "_layout.recovery.tsx",
-      "parent": "/_layout"
-    },
-    "/_layout/": {
-      "filePath": "_layout.index.tsx",
-      "parent": "/_layout"
-    },
-    "/_layout/email/verify": {
-      "filePath": "_layout.email.verify.tsx",
-      "parent": "/_layout"
+    "/_dash/": {
+      "filePath": "_dash/index.tsx",
+      "parent": "/_dash"
     }
   }
 }
