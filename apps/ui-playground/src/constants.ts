@@ -13,6 +13,7 @@ export const sections = [
       'ShowAfter',
       'Spinner',
       'ThemeSwitch',
+      'TokenIcon',
     ],
     title: 'Base',
   },

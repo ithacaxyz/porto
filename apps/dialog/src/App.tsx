@@ -1,4 +1,5 @@
 import { Query } from '@porto/apps'
+import { Ui } from '@porto/ui'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { RouterProvider } from '@tanstack/react-router'
 import { WagmiProvider } from 'wagmi'
@@ -13,7 +14,14 @@ export function App() {
         client={Query.client}
         persistOptions={{ persister: Query.persister }}
       >
-        <RouterProvider router={Router.router} />
+        <Ui
+          assetsBaseUrl="/dialog/ui"
+          reducedMotion={
+            import.meta.env.FORCE_REDUCED_MOTION === true ? true : undefined
+          }
+        >
+          <RouterProvider router={Router.router} />
+        </Ui>
       </PersistQueryClientProvider>
     </WagmiProvider>
   )
