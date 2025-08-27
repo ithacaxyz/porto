@@ -1427,7 +1427,7 @@ function SignTypedMessage() {
         nonce: BigInt(nonce),
         owner: account,
         spender: spender,
-        value: value,
+        value,
       },
       primaryType: 'Permit',
       types: {
@@ -1543,7 +1543,7 @@ function SignTypedMessage() {
               await signPermit({
                 deadline: BigInt(Math.floor(Date.now() / 1000) + 60 * 10),
                 spender: spender && isAddress(spender) ? spender : null,
-                value: Value.fromEther(amount ?? '100'),
+                value: Value.fromEther(amount || '98797971.987239723'),
               }),
             )
           } catch (err) {

@@ -147,9 +147,6 @@ function RouteComponent() {
               type: 'resize',
             })
         }}
-        reducedMotion={
-          import.meta.env.FORCE_REDUCED_MOTION === true ? true : undefined
-        }
         screenKey={`${location.pathname}${request?.id}`}
         site={{
           icon: typeof icon === 'object' ? [icon.light, icon.dark] : icon,

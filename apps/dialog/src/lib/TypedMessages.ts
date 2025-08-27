@@ -1,11 +1,13 @@
 import * as Schema from 'effect/Schema'
 
+const SchemaAddress = Schema.TemplateLiteral('0x', Schema.String)
+
 export const TypedMessageSchema = Schema.Struct({
   domain: Schema.Struct({
     chainId: Schema.optional(Schema.Union(Schema.Number, Schema.BigInt)),
     name: Schema.optional(Schema.String),
     salt: Schema.optional(Schema.String),
-    verifyingContract: Schema.optional(Schema.String),
+    verifyingContract: Schema.optional(SchemaAddress),
     version: Schema.optional(Schema.String),
   }),
   message: Schema.Record({
@@ -30,8 +32,8 @@ export const PermitSchema = Schema.Struct({
   message: Schema.Struct({
     deadline: Schema.String,
     nonce: Schema.String,
-    owner: Schema.String,
-    spender: Schema.String,
+    owner: SchemaAddress,
+    spender: SchemaAddress,
     value: Schema.String,
   }),
   primaryType: Schema.Literal('Permit'),
