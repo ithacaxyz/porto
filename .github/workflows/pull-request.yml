@@ -43,19 +43,19 @@ jobs:
 
               [Download](${artifactUrl})
 
-              ### Instructions (Chrome)
+              ### Instructions
               1. Download the \`extension.zip\` asset from the link below
               2. Unzip the downloaded file
-              3. Open Chrome and navigate to \`chrome://extensions\`
-              4. Enable \`Developer Mode\` in the top right corner
-              5. Click \`Load Unpacked\` in the top left corner
-              6. Unzip the Chrome directory
+
+              #### Chrome
+              3. Unzip the Chrome directory
+              4. Open Chrome and navigate to \`chrome://extensions\`
+              5. Enable \`Developer Mode\` in the top right corner
+              6. Click \`Load Unpacked\` in the top left corner
               7. Select the unzipped Chrome directory
               8. Done!
 
-              #### Setup Instructions (Firefox)
-              1. Download the \`extension.zip\` asset from the link below
-              2. Unzip the downloaded file
+              #### Firefox
               3. Open your browser and navigate to \`about:debugging#/runtime/this-firefox\`
               4. Click \`Load Temporary Add-on...\` in the top right corner
               5. Select the zipped Firefox directory
