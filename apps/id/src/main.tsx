@@ -4,10 +4,10 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import * as Router from '~/lib/Router.js'
-import { App } from './App.js'
+import { App, Providers } from './App.js'
 import './styles.css'
 
-if (import.meta.env.PROD) {
+if (import.meta.env.PROD)
   Sentry.init({
     dsn: 'https://1b4e28921c688e2b03d1b63f8d018913@o4509056062849024.ingest.us.sentry.io/4509080371724288',
     environment: Env.get(),
@@ -18,12 +18,9 @@ if (import.meta.env.PROD) {
     replaysOnErrorSampleRate: 1.0,
     replaysSessionSampleRate: 0.1,
   })
-}
 
 const rootElement = document.querySelector('div#root')
-
 if (!rootElement) throw new Error('Root element not found')
-
 createRoot(rootElement, {
   onCaughtError: Sentry.reactErrorHandler(),
   onRecoverableError: Sentry.reactErrorHandler(),
@@ -32,7 +29,9 @@ createRoot(rootElement, {
   }),
 }).render(
   <StrictMode>
-    <App />
+    <Providers>
+      <App />
+    </Providers>
   </StrictMode>,
 )
 
