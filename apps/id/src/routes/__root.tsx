@@ -90,7 +90,6 @@ export const Route = createRootRouteWithContext<RootRouteContext>()({
       </div>
     )
   },
-
   shellComponent: RootDocument,
   ssr: false,
   wrapInSuspense: true,

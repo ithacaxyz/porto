@@ -17,6 +17,9 @@ export const ethAsset = {
   symbol: 'ETH',
 } as const
 
+export type ChainId = PortoConfig.ChainId
+
+// TODO: extract from `wallet_getCapabilities` instead of hardcoding.
 export const defaultAssets: Record<
   PortoConfig.ChainId,
   ReadonlyArray<{
@@ -113,6 +116,24 @@ export const defaultAssets: Record<
       symbol: 'ETH',
     },
   ],
+  [Chains.arbitrumSepolia.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'Ethereum',
+      symbol: 'ETH',
+    },
+  ],
+  [Chains.bsc.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'BNB',
+      symbol: 'BNB',
+    },
+  ],
   [Chains.baseSepolia.id]: [
     {
       address: '0x0000000000000000000000000000000000000000',
@@ -185,6 +206,38 @@ export const defaultAssets: Record<
       symbol: 'CBBTC',
     },
   ],
+  [Chains.celo.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'Ethereum',
+      symbol: 'ETH',
+    },
+    {
+      address: '0xceba9300f2b948710d2653dd7b07f33a8b32118c',
+      decimals: 6,
+      logo: '/icons/usdc.svg',
+      name: 'USD Coin',
+      symbol: 'USDC',
+    },
+  ],
+  [Chains.mainnet.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'Ethereum',
+      symbol: 'ETH',
+    },
+    {
+      address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      decimals: 6,
+      logo: '/icons/usdc.svg',
+      name: 'USD Coin',
+      symbol: 'USDC',
+    },
+  ],
   [Chains.optimism.id]: [
     {
       address: '0x0000000000000000000000000000000000000000',
@@ -241,6 +294,24 @@ export const defaultAssets: Record<
       logo: '/icons/cbbtc.png',
       name: 'Coinbase Wrapped BTC',
       symbol: 'CBBTC',
+    },
+  ],
+  [Chains.polygon.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'Polygon',
+      symbol: 'POL',
+    },
+  ],
+  [Chains.sepolia.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'Ethereum',
+      symbol: 'ETH',
     },
   ],
 }

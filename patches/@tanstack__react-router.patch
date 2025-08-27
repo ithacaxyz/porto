@@ -1,17 +1,18 @@
 diff --git a/dist/esm/useNavigate.js b/dist/esm/useNavigate.js
-index a00398bfa382722316586dc6879de9e41fa2069a..05c5a9514701acc06e414329179e31b0e0e8a0cb 100644
+index d7815852d1030da81320d3de47965283ae7ea77e..7580d213fa13de63bce4e2d5f9d3b0f1cc2f2a08 100644
 --- a/dist/esm/useNavigate.js
 +++ b/dist/esm/useNavigate.js
-@@ -4,12 +4,9 @@ function useNavigate(_defaultOpts) {
-   const { navigate } = useRouter();
+@@ -10,13 +10,10 @@ function useNavigate(_defaultOpts) {
    return React.useCallback(
      (options) => {
+       const from = options.from ?? (_defaultOpts == null ? void 0 : _defaultOpts.from) ?? state.matches[matchIndex].fullPath;
 -      return navigate({
--        from: _defaultOpts == null ? void 0 : _defaultOpts.from,
--        ...options
+-        ...options,
+-        from
 -      });
 +      return navigate(options);
      },
+     // eslint-disable-next-line react-hooks/exhaustive-deps
 -    [_defaultOpts == null ? void 0 : _defaultOpts.from, navigate]
 +    [navigate]
    );

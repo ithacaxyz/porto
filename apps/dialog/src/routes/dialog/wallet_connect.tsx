@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import { CatchBoundary, createFileRoute } from '@tanstack/react-router'
 import * as Provider from 'ox/Provider'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
@@ -178,36 +178,57 @@ function RouteComponent() {
 
   if (capabilities?.email ?? true)
     return (
-      <Email
-        actions={actions}
-        defaultValue={
-          typeof capabilities?.createAccount === 'object'
-            ? capabilities?.createAccount?.label || ''
-            : undefined
-        }
-        onApprove={(options) => respond.mutate(options)}
-        permissions={grantPermissions?.permissions}
-        status={status}
-      />
+      <CatchBoundary
+        getResetKey={() => 'email'}
+        onCatch={(error) => {
+          console.error(error)
+        }}
+      >
+        <Email
+          actions={actions}
+          defaultValue={
+            typeof capabilities?.createAccount === 'object'
+              ? capabilities?.createAccount?.label || ''
+              : undefined
+          }
+          onApprove={(options) => respond.mutate(options)}
+          permissions={grantPermissions?.permissions}
+          status={status}
+        />
+      </CatchBoundary>
     )
 
   if (actions.includes('sign-up'))
     return (
-      <SignUp
-        enableSignIn={actions.includes('sign-in')}
-        onApprove={(options) => respond.mutate(options)}
-        onReject={() => Actions.reject(porto, request)}
-        permissions={grantPermissions?.permissions}
-        status={status}
-      />
+      <CatchBoundary
+        getResetKey={() => 'sign-up'}
+        onCatch={(error) => {
+          console.error(error)
+        }}
+      >
+        <SignUp
+          enableSignIn={actions.includes('sign-in')}
+          onApprove={(options) => respond.mutate(options)}
+          onReject={() => Actions.reject(porto, request)}
+          permissions={grantPermissions?.permissions}
+          status={status}
+        />
+      </CatchBoundary>
     )
 
   return (
-    <SignIn
-      onApprove={(options) => respond.mutate(options)}
-      permissions={grantPermissions?.permissions}
-      status={status}
-    />
+    <CatchBoundary
+      getResetKey={() => 'sign-in'}
+      onCatch={(error) => {
+        console.error(error)
+      }}
+    >
+      <SignIn
+        onApprove={(options) => respond.mutate(options)}
+        permissions={grantPermissions?.permissions}
+        status={status}
+      />
+    </CatchBoundary>
   )
 }
 
