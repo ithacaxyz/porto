@@ -1,5 +1,5 @@
 import { PortoConfig } from '@porto/apps'
-import { Mode } from 'porto'
+import { Mode, Storage } from 'porto'
 import { porto } from 'porto/wagmi'
 import { createConfig, createStorage } from 'wagmi'
 
@@ -10,9 +10,11 @@ export const wagmiConfig = createConfig({
   connectors: [
     porto({
       ...config,
+      chains: config.chains,
       mode: Mode.dialog({
         host: PortoConfig.getDialogHost(),
       }),
+      storage: Storage.combine(Storage.cookie(), Storage.localStorage()),
     }),
   ],
   multiInjectedProviderDiscovery: false,
