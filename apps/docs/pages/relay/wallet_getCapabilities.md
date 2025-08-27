@@ -107,64 +107,78 @@ type Response = {
 ## Example
 
 ```sh
-cast rpc --rpc-url https://rpc.porto.sh wallet_getCapabilities '["0x8453"]'
+cast rpc --rpc-url https://rpc.porto.sh wallet_getCapabilities '["0x14a34"]'
 ```
 
 ```json
 {
-  "0x8453": {
+  "0x14a34": {
     "contracts": {
-        "accountImplementation": {
-          "address": "0xb292da8879c26ecd558bbea87f581cdd608ffc3c",
-          "version": "0.2.0"
-        },
-        "accountProxy": {
-          "address": "0x96e9ded822ffd4c65d8e09340ee95d2dc8fa209f",
-          "version": null
-        },
-        "orchestrator": {
-          "address": "0x883ac1afd6bf920755ccee253669515683634930",
-          "version": "0.2.0"
-        },
-        "legacyAccountImplementations": [],
-        "legacyOrchestrators": [],
-        "simulator": {
-          "address": "0x21d83f97fff3e35ab42d02e4bec8d61a9b645852",
-          "version": null
-        },
-        "funder": {
-          "address": "0x1234567890123456789012345678901234567890",
-          "version": null
-        },
-        "escrow": {
-          "address": "0x0987654321098765432109876543210987654321",
-          "version": null
-        }
+      "orchestrator": {
+        "address": "0xb447ba5a2fb841406cdac4585fdc28027d7ae503",
+        "version": "0.4.6"
+      },
+      "accountImplementation": {
+        "address": "0xc4e1dc6045234b913db45e8f51e770d6d12e42a1",
+        "version": "0.4.11"
+      },
+      "legacyOrchestrators": [],
+      "legacyAccountImplementations": [],
+      "accountProxy": {
+        "address": "0x5874f358359ee96d2b3520409018f1a6f59a2cdc",
+        "version": null
+      },
+      "simulator": {
+        "address": "0xcb80788813c39d90c48c2733b43b3e47e23a2d3f",
+        "version": null
+      },
+      "funder": {
+        "address": "0x665efbf4b831aac6b712471c6bbfdb11e1721b4f",
+        "version": null
+      },
+      "escrow": {
+        "address": "0x55626138525a47af075322aafe1df8f68993b11d",
+        "version": null
+      }
     },
     "fees": {
+      "recipient": "0x665efbf4b831aac6b712471c6bbfdb11e1721b4f",
       "quoteConfig": {
+        "constantRate": null,
         "gas": {
-          "txBuffer": 10000,
-          "intentBuffer": 20000
+          "intentBuffer": 20000,
+          "txBuffer": 10000
         },
-        "rateTtl": 300,
-        "ttl": 30
+        "ttl": 30,
+        "rateTtl": 300
       },
-      "recipient": "0x0000000000000000000000000000000000000000",
       "tokens": [
         {
-          "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
-          "decimals": 6,
-          "nativeRate": "0x8ac7230489e80000",
-          "symbol": "USDC",
-          "uid": "usdc"
+          "uid": "exp2",
+          "address": "0x2ace05bcb50b49953aaa4c00f318db908a512d99",
+          "decimals": 18,
+          "feeToken": true,
+          "interop": true,
+          "symbol": "EXP2",
+          "nativeRate": "0xc536acbc02a4"
         },
         {
+          "uid": "exp1",
+          "address": "0x74e294e9d05bace256796040ca6dc0c47efb9fff",
+          "decimals": 18,
+          "feeToken": true,
+          "interop": true,
+          "symbol": "EXP",
+          "nativeRate": "0xc536acbc02a4"
+        },
+        {
+          "uid": "teth",
           "address": "0x0000000000000000000000000000000000000000",
           "decimals": 18,
-          "nativeRate": "0xde0b6b3a7640000",
+          "feeToken": true,
+          "interop": true,
           "symbol": "ETH",
-          "uid": "ethereum"
+          "nativeRate": "0xde0b6b3a7640000"
         }
       ]
     }

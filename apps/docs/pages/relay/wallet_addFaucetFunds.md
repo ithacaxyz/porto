@@ -38,12 +38,12 @@ type Response = {
 
 ```sh
 cast rpc --rpc-url https://rpc.porto.sh \
-  wallet_addFaucetFunds '[{"address":"0xYourAddress","chainId":84532,"tokenAddress":"0x3a9b126bf65c518f1e02602bd77bd1288147f94c","value":25}]'
+  wallet_addFaucetFunds '[{"address":"0xYourAddress","chainId":84532,"tokenAddress":"0x3a9b126bf65c518f1e02602bd77bd1288147f94c","value":25}]' --raw
 ```
 
 ```sh
 cast rpc --rpc-url https://rpc.porto.sh \
-  wallet_addFaucetFunds '[{"address":"0xYourAddress","chainId":11155420,"tokenAddress":"0x6795f10304557a454b94a5c04e9217677cc9b598"}]'
+  wallet_addFaucetFunds '[{"address":"0xYourAddress","chainId":11155420,"tokenAddress":"0x6795f10304557a454b94a5c04e9217677cc9b598"}]' --raw
 ```
 
 ## Notes

@@ -14,12 +14,12 @@ We'd love to hear your feedback. Report any issues or feature suggestions [on th
 
 The Relay exposes a unified JSON-RPC endpoint: `https://rpc.porto.sh`.
 
-You can query supported chains, contracts, and fee tokens via `wallet_getCapabilities`. Calling it with an empty params array returns all supported chains.
+You can query supported chains, contracts, and fee tokens via `wallet_getCapabilities`.
 
 Example:
 
 ```sh
-cast rpc --rpc-url https://rpc.porto.sh wallet_getCapabilities '[]'
+cast rpc --rpc-url https://rpc.porto.sh wallet_getCapabilities
 ```
 
 **Supported Networks:**
