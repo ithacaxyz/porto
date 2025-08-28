@@ -23,6 +23,7 @@ export function SignTypedMessage({
   isPending,
 }: SignTypedMessage.Props) {
   const frame = Frame.useFrame()
+  const chainId = Number(data.domain.chainId)
   return (
     <Layout>
       <Layout.Header>
@@ -48,7 +49,7 @@ export function SignTypedMessage({
             <div className="wrap-anywhere font-mono text-[12px] text-th_base leading-6">
               <div
                 className="px-3 text-th_accent"
-                title={`${data.domain.name} (${data.domain.version}) at ${data.domain.chainId}`}
+                title={`${data.domain.name} (${data.domain.version}) at ${chainId}`}
               >
                 {data.domain.name}
               </div>
@@ -226,6 +227,7 @@ export function SignPermit({
   isPending,
 }: SignPermit.Props) {
   const tokenContract = data.domain.verifyingContract
+  const chainId = Number(data.domain.chainId)
   const tokenResult = useReadContracts({
     allowFailure: false,
     contracts: [
@@ -291,8 +293,7 @@ export function SignPermit({
               <div className="flex h-[33px] w-full items-center justify-between gap-[6px] rounded-th_medium bg-th_base-alt px-[12px] text-[13px]">
                 <span className="text-th_base-secondary">Network</span>
                 <span className="font-medium text-th_base">
-                  {Chains.all.find((c) => c.id === data.domain.chainId)?.name ||
-                    'Unknown'}
+                  {Chains.all.find((c) => c.id === chainId)?.name || 'Unknown'}
                 </span>
               </div>
             ) : (

@@ -5,7 +5,13 @@ const SchemaAddress = Schema.TemplateLiteral('0x', Schema.String)
 // EIP-712
 export const TypedMessageSchema = Schema.Struct({
   domain: Schema.Struct({
-    chainId: Schema.optional(Schema.Union(Schema.Number, Schema.BigInt)),
+    chainId: Schema.optional(
+      Schema.Union(
+        Schema.Number,
+        Schema.BigInt,
+        Schema.String.pipe(Schema.pattern(/^\d+$/)),
+      ),
+    ),
     name: Schema.optional(Schema.String),
     salt: Schema.optional(Schema.String),
     verifyingContract: Schema.optional(SchemaAddress),
