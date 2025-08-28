@@ -179,7 +179,7 @@ export function SignTypedMessageInvalid({
               frame.mode === 'dialog' && 'max-h-[200px]',
             )}
           >
-            <div className="wrap-anywhere font-mono text-[12px] leading-6 px-[12px] text-th_base-secondary">
+            <div className="wrap-anywhere px-[12px] font-mono text-[12px] text-th_base-secondary leading-6">
               {data}
             </div>
           </div>
