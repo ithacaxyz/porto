@@ -4,11 +4,6 @@ export const abi = [
     "name": "fund",
     "inputs": [
       {
-        "name": "account",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
         "name": "digest",
         "type": "bytes32",
         "internalType": "bytes32"
