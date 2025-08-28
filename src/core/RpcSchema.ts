@@ -75,10 +75,6 @@ export type Schema =
           ReturnType: undefined
         }
       | {
-          Request: typeof Rpc.wallet_updateAccount.Request.Encoded
-          ReturnType: typeof Rpc.wallet_updateAccount.Response.Encoded
-        }
-      | {
           Request: typeof Rpc.wallet_connect.Request.Encoded
           ReturnType: typeof Rpc.wallet_connect.Response.Encoded
         }

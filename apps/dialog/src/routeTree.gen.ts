@@ -13,7 +13,6 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
 import { Route as DialogIndexImport } from './routes/dialog/index'
-import { Route as DialogWalletupdateAccountImport } from './routes/dialog/wallet_updateAccount'
 import { Route as DialogWalletsendCallsImport } from './routes/dialog/wallet_sendCalls'
 import { Route as DialogWalletrevokePermissionsImport } from './routes/dialog/wallet_revokePermissions'
 import { Route as DialogWalletrevokeAdminImport } from './routes/dialog/wallet_revokeAdmin'
@@ -43,12 +42,6 @@ const IndexRoute = IndexImport.update({
 const DialogIndexRoute = DialogIndexImport.update({
   id: '/dialog/',
   path: '/dialog/',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const DialogWalletupdateAccountRoute = DialogWalletupdateAccountImport.update({
-  id: '/dialog/wallet_updateAccount',
-  path: '/dialog/wallet_updateAccount',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -287,13 +280,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DialogWalletsendCallsImport
       parentRoute: typeof rootRoute
     }
-    '/dialog/wallet_updateAccount': {
-      id: '/dialog/wallet_updateAccount'
-      path: '/dialog/wallet_updateAccount'
-      fullPath: '/dialog/wallet_updateAccount'
-      preLoaderRoute: typeof DialogWalletupdateAccountImport
-      parentRoute: typeof rootRoute
-    }
     '/dialog/': {
       id: '/dialog/'
       path: '/dialog'
@@ -325,7 +311,6 @@ export interface FileRoutesByFullPath {
   '/dialog/wallet_revokeAdmin': typeof DialogWalletrevokeAdminRoute
   '/dialog/wallet_revokePermissions': typeof DialogWalletrevokePermissionsRoute
   '/dialog/wallet_sendCalls': typeof DialogWalletsendCallsRoute
-  '/dialog/wallet_updateAccount': typeof DialogWalletupdateAccountRoute
   '/dialog': typeof DialogIndexRoute
 }
 
@@ -348,7 +333,6 @@ export interface FileRoutesByTo {
   '/dialog/wallet_revokeAdmin': typeof DialogWalletrevokeAdminRoute
   '/dialog/wallet_revokePermissions': typeof DialogWalletrevokePermissionsRoute
   '/dialog/wallet_sendCalls': typeof DialogWalletsendCallsRoute
-  '/dialog/wallet_updateAccount': typeof DialogWalletupdateAccountRoute
   '/dialog': typeof DialogIndexRoute
 }
 
@@ -372,7 +356,6 @@ export interface FileRoutesById {
   '/dialog/wallet_revokeAdmin': typeof DialogWalletrevokeAdminRoute
   '/dialog/wallet_revokePermissions': typeof DialogWalletrevokePermissionsRoute
   '/dialog/wallet_sendCalls': typeof DialogWalletsendCallsRoute
-  '/dialog/wallet_updateAccount': typeof DialogWalletupdateAccountRoute
   '/dialog/': typeof DialogIndexRoute
 }
 
@@ -397,7 +380,6 @@ export interface FileRouteTypes {
     | '/dialog/wallet_revokeAdmin'
     | '/dialog/wallet_revokePermissions'
     | '/dialog/wallet_sendCalls'
-    | '/dialog/wallet_updateAccount'
     | '/dialog'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -419,7 +401,6 @@ export interface FileRouteTypes {
     | '/dialog/wallet_revokeAdmin'
     | '/dialog/wallet_revokePermissions'
     | '/dialog/wallet_sendCalls'
-    | '/dialog/wallet_updateAccount'
     | '/dialog'
   id:
     | '__root__'
@@ -441,7 +422,6 @@ export interface FileRouteTypes {
     | '/dialog/wallet_revokeAdmin'
     | '/dialog/wallet_revokePermissions'
     | '/dialog/wallet_sendCalls'
-    | '/dialog/wallet_updateAccount'
     | '/dialog/'
   fileRoutesById: FileRoutesById
 }
@@ -465,7 +445,6 @@ export interface RootRouteChildren {
   DialogWalletrevokeAdminRoute: typeof DialogWalletrevokeAdminRoute
   DialogWalletrevokePermissionsRoute: typeof DialogWalletrevokePermissionsRoute
   DialogWalletsendCallsRoute: typeof DialogWalletsendCallsRoute
-  DialogWalletupdateAccountRoute: typeof DialogWalletupdateAccountRoute
   DialogIndexRoute: typeof DialogIndexRoute
 }
 
@@ -489,7 +468,6 @@ const rootRouteChildren: RootRouteChildren = {
   DialogWalletrevokeAdminRoute: DialogWalletrevokeAdminRoute,
   DialogWalletrevokePermissionsRoute: DialogWalletrevokePermissionsRoute,
   DialogWalletsendCallsRoute: DialogWalletsendCallsRoute,
-  DialogWalletupdateAccountRoute: DialogWalletupdateAccountRoute,
   DialogIndexRoute: DialogIndexRoute,
 }
 
@@ -521,7 +499,6 @@ export const routeTree = rootRoute
         "/dialog/wallet_revokeAdmin",
         "/dialog/wallet_revokePermissions",
         "/dialog/wallet_sendCalls",
-        "/dialog/wallet_updateAccount",
         "/dialog/"
       ]
     },
@@ -578,9 +555,6 @@ export const routeTree = rootRoute
     },
     "/dialog/wallet_sendCalls": {
       "filePath": "dialog/wallet_sendCalls.tsx"
-    },
-    "/dialog/wallet_updateAccount": {
-      "filePath": "dialog/wallet_updateAccount.tsx"
     },
     "/dialog/": {
       "filePath": "dialog/index.tsx"
