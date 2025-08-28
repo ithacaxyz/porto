@@ -48,11 +48,11 @@ function RouteComponent() {
         amount={BigInt(parsedData.message.value)}
         chainId={Number(parsedData.domain.chainId)}
         deadline={Number(parsedData.message.deadline)}
-        spender={parsedData.message.spender}
-        tokenContract={parsedData.message.owner}
         isPending={respond.isPending}
         onReject={handleReject}
         onSign={handleSign}
+        spender={parsedData.message.spender}
+        tokenContract={parsedData.domain.verifyingContract}
       />
     )
 
@@ -62,11 +62,11 @@ function RouteComponent() {
         amount={BigInt(parsedData.message.details.amount)}
         chainId={Number(parsedData.domain.chainId)}
         deadline={Number(parsedData.message.details.expiration)}
-        spender={parsedData.message.spender}
-        tokenContract={parsedData.message.details.token}
         isPending={respond.isPending}
         onReject={handleReject}
         onSign={handleSign}
+        spender={parsedData.message.spender}
+        tokenContract={parsedData.message.details.token}
       />
     )
 

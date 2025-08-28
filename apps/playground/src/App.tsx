@@ -1414,7 +1414,7 @@ function SignTypedMessage() {
 
     const message = {
       domain: {
-        chainId: chainId,
+        chainId,
         name,
         verifyingContract: tokenAddress,
         version: '1',
