@@ -1,8 +1,6 @@
 @import "@porto/apps/styles.css";
 @import "@ariakit/tailwind";
 
-@custom-variant dark (&:is(.scheme-light-dark *));
-
 @custom-variant hocus (&:hover, &:focus);
 
 @theme {
