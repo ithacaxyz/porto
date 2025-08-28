@@ -17,7 +17,6 @@ export const mipdConfig = createConfig({
   transports: config._internal.transports,
 })
 
-// export const client = getWalletClient(config)
 export const getChainConfig = (chainId: number) =>
   config.chains.find((c) => c.id === chainId)
 
