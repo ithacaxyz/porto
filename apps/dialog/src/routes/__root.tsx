@@ -14,7 +14,6 @@ import { porto } from '~/lib/Porto'
 import * as Referrer from '~/lib/Referrer'
 import LucideCircleAlert from '~icons/lucide/circle-alert'
 import { Layout } from './-components/Layout'
-import { UpdateAccount } from './-components/UpdateAccount'
 
 export const Route = createRootRoute({
   component: RouteComponent,
@@ -43,17 +42,11 @@ function RouteComponent() {
     porto.ready()
   }, [])
 
-  // Optimistically fetch account version (populate cache).
-  UpdateAccount.useAccountVersion()
-
   const mode = Dialog.useStore((state) => state.mode)
   const referrer = Dialog.useStore((state) => state.referrer)
   const customTheme = Dialog.useStore((state) => state.customTheme)
   const display = Dialog.useStore((state) => state.display)
   const visible = Dialog.useStore((state) => state.visible)
-  const search = Route.useSearch() as {
-    requireUpdatedAccount?: boolean | undefined
-  }
   const verifyStatus = Referrer.useVerify()
 
   const { domain, subdomain, icon, url } = React.useMemo(() => {
@@ -177,13 +170,7 @@ function RouteComponent() {
         <CheckError>
           <CheckUnsupportedBrowser>
             <CheckReferrer>
-              {search.requireUpdatedAccount ? (
-                <UpdateAccount.CheckUpdate>
-                  <Outlet />
-                </UpdateAccount.CheckUpdate>
-              ) : (
-                <Outlet />
-              )}
+              <Outlet />
             </CheckReferrer>
           </CheckUnsupportedBrowser>
         </CheckError>
