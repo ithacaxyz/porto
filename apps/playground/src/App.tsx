@@ -135,7 +135,6 @@ export function App() {
         <Disconnect />
         <UpgradeAccount />
         <GetAccountVersion />
-        <UpdateAccount />
         <div>
           <br />
           <hr />
@@ -722,27 +721,6 @@ function RevokeAdmin() {
         <button type="submit">Revoke Admin</button>
       </form>
       {revoked && <p>Admin revoked.</p>}
-    </div>
-  )
-}
-
-function UpdateAccount() {
-  const [result, setResult] = React.useState<unknown>(null)
-
-  return (
-    <div>
-      <h3>wallet_updateAccount</h3>
-      <button
-        onClick={() =>
-          porto.provider
-            .request({ method: 'wallet_updateAccount' })
-            .then(setResult)
-        }
-        type="button"
-      >
-        Update Account
-      </button>
-      {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
     </div>
   )
 }
