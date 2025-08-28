@@ -1,3 +1,4 @@
+// https://github.com/radix-ui/colors/blob/8a03dad3bc93ea4ed48ce2b70847a3538097e02f/src/dark.ts
 export const grayDark = {
   gray1: '#111111',
   gray2: '#191919',

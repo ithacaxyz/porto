@@ -93,7 +93,7 @@ function ColorButton({
       type="button"
     >
       <div>{mode}</div>
-      <div className="flex flex-col items-end mt-1">
+      <div className="mt-1 flex flex-col items-end">
         <div className="relative">
           <div className="absolute right-[calc(100%+8px)] flex h-full items-center">
             {mountCopy && <CopyIndicator ref={copyRef} />}
