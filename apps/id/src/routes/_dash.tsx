@@ -48,7 +48,7 @@ function RouteComponent() {
   }, [])
 
   return (
-    <div className="mx-auto flex h-full max-w-384 flex-col gap-4 px-7.5 py-6 pb-7.5 md:flex-row">
+    <div className="mx-auto flex h-full max-w-384 flex-col gap-4 bg-gray2 px-7.5 py-6 pb-7.5 md:flex-row">
       <div className="flex w-full items-center justify-between md:h-full md:min-w-72.75 md:max-w-72.75 md:flex-col md:items-stretch md:justify-start md:gap-6 md:rounded-2xl md:bg-gray3">
         <header className="flex h-fit justify-between md:px-9 md:pt-8">
           <div>
@@ -71,22 +71,22 @@ function RouteComponent() {
               <path
                 d="M9.08984 9.00008C9.32495 8.33175 9.789 7.76819 10.3998 7.40921C11.0106 7.05024 11.7287 6.91902 12.427 7.03879C13.1253 7.15857 13.7587 7.52161 14.2149 8.06361C14.6712 8.60561 14.9209 9.2916 14.9198 10.0001C14.9198 12.0001 11.9198 13.0001 11.9198 13.0001"
                 stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
               />
               <path
                 d="M12 17H12.01"
                 stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
               />
             </svg>
           </div>
         </header>
 
-        <nav className="-translate-x-1/2 fixed inset-x-auto bottom-5 left-1/2 flex h-15.5 flex-row items-center rounded-full border border-gray4 bg-gray1 px-2 md:relative md:inset-x-0 md:bottom-0 md:left-auto md:h-auto md:translate-x-0 md:flex-col md:rounded-none md:border-none md:bg-transparent md:px-5">
+        <nav className="-translate-x-1/2 fixed inset-x-auto bottom-5 left-1/2 flex h-15.5 flex-row items-center rounded-full border border-gray4 bg-gray1 px-2 md:relative md:inset-x-0 md:bottom-0 md:left-auto md:h-auto md:translate-x-0 md:flex-col md:gap-px md:rounded-none md:border-none md:bg-transparent md:px-5">
           {links.map((link) => (
             <Link
               activeProps={{
