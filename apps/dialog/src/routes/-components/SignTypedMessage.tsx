@@ -1,13 +1,13 @@
+import type { PortoConfig } from '@porto/apps'
 import { useCopyToClipboard } from '@porto/apps/hooks'
 import { Button, ButtonArea, Frame, Spinner, TokenIcon } from '@porto/ui'
-import { PortoConfig } from '@porto/apps'
 import { a, useTransition } from '@react-spring/web'
 import { cx } from 'cva'
 import { Value } from 'ox'
 import { Chains } from 'porto'
 import * as React from 'react'
 import { erc20Abi } from 'viem'
-import { useReadContracts, useChains } from 'wagmi'
+import { useChains, useReadContracts } from 'wagmi'
 import type * as TypedMessages from '~/lib/TypedMessages'
 import { StringFormatter } from '~/utils'
 import LucideCopy from '~icons/lucide/copy'
@@ -275,7 +275,7 @@ export function SignPermit({
         <div className="flex flex-col gap-[8px]">
           <div className="flex flex-col gap-[10px] rounded-th_medium bg-th_base-alt p-[10px]">
             {tokenResult.error || !chain ? (
-              <div className="w-full overflow-auto max-h-[200px]">
+              <div className="max-h-[200px] w-full overflow-auto">
                 <div className="flex items-center gap-2">
                   <div className="text-xs">
                     {!chain
@@ -380,11 +380,11 @@ export namespace SignPermit {
       leave: { immediate: true, opacity: 0 },
     })
     return (
-      <div className="relative flex items-center text-th_base h-[36px]">
+      <div className="relative flex h-[36px] items-center text-th_base">
         {loadingTransition((style, loading) =>
           loading ? (
             <a.div
-              className="grid h-full w-full select-none place-items-center absolute"
+              className="absolute grid h-full w-full select-none place-items-center"
               style={style}
             >
               <div className="flex items-center gap-2">
