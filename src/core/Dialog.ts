@@ -380,13 +380,7 @@ export function iframe(options: iframe.Options = {}) {
             requests.map((x) => x.request),
           )
 
-          if (
-            !headless &&
-            (unsupported ||
-              insecureProtocol ||
-              (requests.some((x) => x.request.method === 'wallet_addFunds') &&
-                internal.config.experimental?.applePayOnramp === true))
-          )
+          if (!headless && (unsupported || insecureProtocol))
             fallback.syncRequests(requests)
           else {
             const requiresConfirm = requests.some((x) =>

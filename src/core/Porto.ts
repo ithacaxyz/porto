@@ -180,11 +180,7 @@ export type Config<
   /**
    * Experimental flags.
    */
-  experimental?:
-    | {
-        applePayOnramp?: boolean | undefined
-      }
-    | undefined
+  experimental?: {} | undefined
   /**
    * Token to use to pay for fees.
    * @default 'USDC'
