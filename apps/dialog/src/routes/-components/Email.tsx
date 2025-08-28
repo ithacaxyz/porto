@@ -126,22 +126,27 @@ export function Email(props: Email.Props) {
                 <div className="ms-2 h-px w-full bg-th_separator" />
               </div>
             )}
-            <div className="relative flex items-center">
-              <label className="sr-only" htmlFor="email">
-                Email
-              </label>
-              <Input
-                className="w-full user-invalid:bg-th_field user-invalid:ring-th_base-negative"
-                defaultValue={defaultValue}
-                disabled={status === 'loading' || signingIn}
-                name="email"
-                placeholder={exampleEmail}
-                type="email"
-              />
-              <div className="-tracking-[2.8%] absolute end-3 text-[12px] text-th_base-secondary leading-normal">
-                Optional
+            {!customTheme?.hideOptionalLabel && (
+              <div className="relative flex items-center">
+                <label className="sr-only" htmlFor="email">
+                  Email
+                </label>
+                <Input
+                  className="w-full user-invalid:bg-th_field user-invalid:ring-th_base-negative"
+                  defaultValue={defaultValue}
+                  disabled={status === 'loading' || signingIn}
+                  name="email"
+                  placeholder={exampleEmail}
+                  type="email"
+                />
+                <div className="-tracking-[2.8%] absolute end-3 text-[12px] text-th_base-secondary leading-normal">
+                  Optional
+                </div>
               </div>
-            </div>
+            )}
+            {customTheme?.hideOptionalLabel && (
+              <input type="hidden" name="email" value="" />
+            )}
             <Button
               data-testid="sign-up"
               disabled={status === 'loading' || signingIn}

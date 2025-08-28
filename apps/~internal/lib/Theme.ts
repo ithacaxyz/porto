@@ -7,6 +7,7 @@ import {
 export type TailwindCustomTheme = {
   colorScheme: PortoTheme.ThemeColorScheme
   tailwindCss: string
+  hideOptionalLabel?: boolean
   labels?: {
     signInPrompt?: string
     signInButton?: string
@@ -48,13 +49,15 @@ export function parseJsonTheme(
       css += `\n    ${tailwindVar}: ${formatCssValue(value, type, theme.colorScheme)};`
   }
 
-  // Extract labels from the theme
+  // Extract labels and other options from the theme
   const themeObj = theme as Record<string, unknown>
   const labels = themeObj.labels as TailwindCustomTheme['labels'] | undefined
+  const hideOptionalLabel = themeObj.hideOptionalLabel as boolean | undefined
 
   return {
     colorScheme: theme.colorScheme,
     tailwindCss: `@layer theme {\n  :root, :host {${css}\n  }\n}`,
+    hideOptionalLabel,
     labels,
   }
 }
