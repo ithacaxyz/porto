@@ -63,7 +63,6 @@ export function create(
       parameters.announceProvider ?? defaultConfig.announceProvider,
     authUrl: parameters.authUrl,
     chains,
-    experimental: parameters.experimental,
     feeToken: parameters.feeToken,
     merchantRpcUrl: parameters.merchantRpcUrl,
     mode: parameters.mode ?? defaultConfig.mode,
@@ -177,10 +176,6 @@ export type Config<
    * List of supported chains.
    */
   chains: chains
-  /**
-   * Experimental flags.
-   */
-  experimental?: {} | undefined
   /**
    * Token to use to pay for fees.
    * @default 'USDC'
