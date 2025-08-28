@@ -150,6 +150,75 @@ export namespace SignTypedMessage {
   }
 }
 
+export function SignTypedMessageInvalid({
+  data,
+  onSign,
+  onReject,
+  isPending,
+}: SignTypedMessageInvalid.Props) {
+  const frame = Frame.useFrame()
+  return (
+    <Layout>
+      <Layout.Header>
+        <Layout.Header.Default
+          content="The message format appears to be invalid."
+          icon={LucidePencilLine}
+          title="Sign message"
+          variant="default"
+        />
+      </Layout.Header>
+
+      <div className="flex-shrink flex-grow p-[12px] pt-0">
+        <div className="flex-shrink flex-grow rounded-lg bg-th_base-alt py-2">
+          <div className="px-[12px] pb-[4px] font-medium text-[12px] text-th_base-secondary">
+            Contents
+          </div>
+          <div
+            className={cx(
+              'flex-shrink flex-grow overflow-auto',
+              frame.mode === 'dialog' && 'max-h-[200px]',
+            )}
+          >
+            <div className="wrap-anywhere font-mono text-[12px] leading-6 px-[12px] text-th_base-secondary">
+              {data}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <Layout.Footer>
+        <Layout.Footer.Actions>
+          <Button
+            disabled={isPending}
+            onClick={onReject}
+            variant="secondary"
+            width="grow"
+          >
+            Deny
+          </Button>
+          <Button
+            loading={isPending && 'Signing…'}
+            onClick={onSign}
+            variant="negative"
+            width="grow"
+          >
+            Approve anyway
+          </Button>
+        </Layout.Footer.Actions>
+      </Layout.Footer>
+    </Layout>
+  )
+}
+
+export namespace SignTypedMessageInvalid {
+  export type Props = {
+    data: string
+    onSign: () => void
+    onReject: () => void
+    isPending: boolean
+  }
+}
+
 export function SignPermit({
   data,
   onSign,

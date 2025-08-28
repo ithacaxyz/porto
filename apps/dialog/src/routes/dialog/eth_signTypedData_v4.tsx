@@ -6,7 +6,11 @@ import * as React from 'react'
 import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
 import * as TypedMessages from '~/lib/TypedMessages'
-import { SignPermit, SignTypedMessage } from '../-components/SignTypedMessage'
+import {
+  SignPermit,
+  SignTypedMessage,
+  SignTypedMessageInvalid,
+} from '../-components/SignTypedMessage'
 
 export const Route = createFileRoute('/dialog/eth_signTypedData_v4')({
   component: RouteComponent,
@@ -30,7 +34,13 @@ function RouteComponent() {
   const handleSign = () => respond.mutate()
   const handleReject = () => Actions.reject(porto, request)
 
-  const parsedData = React.useMemo(() => JSON.parse(data), [data])
+  const parsedData = React.useMemo(() => {
+    try {
+      return JSON.parse(data)
+    } catch {
+      return null
+    }
+  }, [data])
 
   if (TypedMessages.isPermit(parsedData))
     return (
@@ -52,5 +62,12 @@ function RouteComponent() {
       />
     )
 
-  throw new Error('Invalid typed data format')
+  return (
+    <SignTypedMessageInvalid
+      data={data}
+      isPending={respond.isPending}
+      onReject={handleReject}
+      onSign={handleSign}
+    />
+  )
 }

@@ -1348,18 +1348,15 @@ function SignTypedMessage() {
     null | 'verifying' | 'valid' | 'invalid'
   >(null)
 
-  const signMessage = async () => {
+  const signMessage = async (message: string, hash: `0x${string}`) => {
     const [account] = await porto.provider.request({
       method: 'eth_accounts',
     })
     const signature = await porto.provider.request({
       method: 'eth_signTypedData_v4',
-      params: [account, TypedData.serialize(typedData)],
+      params: [account, message],
     })
-    return {
-      hash: hashTypedData(typedData),
-      signature,
-    }
+    return { hash, signature }
   }
 
   const signPermit = async ({
@@ -1515,15 +1512,40 @@ function SignTypedMessage() {
             setVerifyStatus(null)
 
             try {
-              setTypedMessage(await signMessage())
+              setTypedMessage(
+                await signMessage(
+                  TypedData.serialize(typedData),
+                  hashTypedData(typedData),
+                ),
+              )
             } catch (err) {
               console.error(err)
               setError(String(err))
             }
           }}
-          type="submit"
+          type="button"
         >
           Sign ERC-712 Typed Message
+        </button>
+        <button
+          className="box-border h-full px-2"
+          onClick={async () => {
+            setError(null)
+            setTypedMessage(null)
+            setVerifyStatus(null)
+
+            try {
+              setTypedMessage(
+                await signMessage('invalid'.repeat(40), '0xinvalid'),
+              )
+            } catch (err) {
+              console.error(err)
+              setError(String(err))
+            }
+          }}
+          type="button"
+        >
+          Sign Invalid Typed Message
         </button>
       </div>
 

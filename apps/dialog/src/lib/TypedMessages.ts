@@ -2,6 +2,7 @@ import * as Schema from 'effect/Schema'
 
 const SchemaAddress = Schema.TemplateLiteral('0x', Schema.String)
 
+// EIP-712
 export const TypedMessageSchema = Schema.Struct({
   domain: Schema.Struct({
     chainId: Schema.optional(Schema.Union(Schema.Number, Schema.BigInt)),
@@ -27,6 +28,7 @@ export const TypedMessageSchema = Schema.Struct({
 })
 export const isTypedMessage = Schema.is(TypedMessageSchema)
 
+// ERC-2612
 export const PermitSchema = Schema.Struct({
   ...TypedMessageSchema.fields,
   message: Schema.Struct({
