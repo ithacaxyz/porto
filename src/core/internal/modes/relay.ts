@@ -17,7 +17,6 @@ import * as RelayActions_internal from '../../../viem/internal/relayActions.js'
 import * as Key from '../../../viem/Key.js'
 import * as RelayActions from '../../../viem/RelayActions.js'
 import type { RelayClient } from '../../../viem/RelayClient.js'
-import * as Call from '../call.js'
 import * as FeeTokens from '../feeTokens.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
@@ -819,40 +818,6 @@ export function relay(parameters: relay.Parameters = {}) {
         })
 
         return signature
-      },
-
-      async updateAccount(parameters) {
-        const { account, internal } = parameters
-        const {
-          client,
-          config: { storage: _ },
-        } = internal
-
-        const key = account.keys?.find(
-          (key) => key.role === 'admin' && key.privateKey,
-        )
-        if (!key) throw new Error('admin key not found.')
-
-        const { contracts } = await RelayActions.getCapabilities(client)
-        const { accountImplementation } = contracts
-        if (!accountImplementation)
-          throw new Error('accountImplementation not found.')
-
-        const [feeToken] = await FeeTokens.fetch(client, {
-          store: internal.store,
-        })
-
-        return await RelayActions.sendCalls(client, {
-          account,
-          calls: [
-            Call.upgradeProxyAccount({
-              address: accountImplementation.address,
-              to: account.address,
-            }),
-          ],
-          feeToken: feeToken.address,
-          key,
-        })
       },
 
       async upgradeAccount(parameters) {

@@ -19,14 +19,13 @@ import {
   waitForCallsStatus,
   waitForTransactionReceipt,
 } from 'viem/actions'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 import { accountOldProxyAddress } from '../../../test/src/_generated/addresses.js'
 import { createAccount, setBalance } from '../../../test/src/actions.js'
 import * as Anvil from '../../../test/src/anvil.js'
 import * as TestConfig from '../../../test/src/config.js'
 import * as Http from '../../../test/src/http.js'
-import * as Relay from '../../../test/src/relay.js'
 import * as RelayActions from '../../viem/RelayActions.js'
 import * as RelayClient from '../../viem/RelayClient.js'
 import * as WalletClient from '../../viem/WalletClient.js'
@@ -1200,95 +1199,6 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       expect(version.latest).toMatch(
         capabilities.contracts.accountImplementation.version!,
       )
-    })
-  })
-
-  describe('wallet_updateAccount', () => {
-    test.runIf(Anvil.enabled && type === 'relay')('default', async () => {
-      const porto = getPorto()
-      const client = RelayClient.fromPorto(porto).extend(() => ({
-        mode: 'anvil',
-      }))
-
-      const capabilities = await RelayActions.getCapabilities(client)
-
-      const {
-        accounts: [account],
-      } = await porto.provider.request({
-        method: 'wallet_connect',
-        params: [{ capabilities: { createAccount: true } }],
-      })
-      const address = account!.address
-
-      await setBalance(client, {
-        address,
-        value: Value.fromEther('10000'),
-      })
-
-      const { id } = await porto.provider.request({
-        method: 'wallet_sendCalls',
-        params: [
-          {
-            calls: [],
-            from: address,
-            version: '1',
-          },
-        ],
-      })
-
-      await waitForCallsStatus(WalletClient.fromPorto(porto), {
-        id,
-      })
-
-      vi.resetAllMocks()
-
-      const version = await porto.provider.request({
-        method: 'wallet_getAccountVersion',
-      })
-      expect(version.current).toMatch(
-        capabilities.contracts.accountImplementation.version!,
-      )
-      expect(version.latest).toMatch(
-        capabilities.contracts.accountImplementation.version!,
-      )
-
-      const porto_newAccount = getPorto({
-        relayRpcUrl: Relay.instances.anvil_newAccount.rpcUrl,
-      })
-      porto_newAccount._internal.store.setState(
-        porto._internal.store.getState(),
-      )
-
-      {
-        const version = await porto_newAccount.provider.request({
-          method: 'wallet_getAccountVersion',
-        })
-        expect(version.current).toMatch(
-          capabilities.contracts.accountImplementation.version!,
-        )
-        expect(version.latest).toMatch('69.0.0')
-      }
-
-      const { id: id2 } = await porto_newAccount.provider.request({
-        method: 'wallet_updateAccount',
-      })
-
-      if (id2)
-        await waitForCallsStatus(WalletClient.fromPorto(porto_newAccount), {
-          id: id2,
-        })
-
-      {
-        const version = await porto_newAccount.provider.request({
-          method: 'wallet_getAccountVersion',
-        })
-        expect(version).toMatchInlineSnapshot(`
-          {
-            "current": "69.0.0",
-            "latest": "69.0.0",
-          }
-        `)
-      }
     })
   })
 

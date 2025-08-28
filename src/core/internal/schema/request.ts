@@ -24,7 +24,6 @@ export const Request = Schema.Union(
   RpcRequest.wallet_prepareUpgradeAccount.Request,
   RpcRequest.wallet_revokeAdmin.Request,
   RpcRequest.wallet_revokePermissions.Request,
-  RpcRequest.wallet_updateAccount.Request,
   RpcRequest.wallet_upgradeAccount.Request,
   RpcRequest.personal_sign.Request,
   RpcRequest.porto_ping.Request,

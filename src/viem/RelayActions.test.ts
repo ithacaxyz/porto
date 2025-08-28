@@ -1,9 +1,10 @@
 import { Hex, Value } from 'ox'
-import { readContract, waitForCallsStatus } from 'viem/actions'
+import { getEip712Domain, readContract, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import * as TestActions from '../../test/src/actions.js'
 import * as Anvil from '../../test/src/anvil.js'
 import * as TestConfig from '../../test/src/config.js'
+import * as Relay from '../../test/src/relay.js'
 import * as AccountContract from './ContractActions.js'
 import { ContractActions } from './index.js'
 import * as Key from './Key.js'
@@ -1499,6 +1500,66 @@ describe('e2e', () => {
           key: sessionKey,
         }),
       ).rejects.toThrowError('Error: InsufficientBalance()')
+    })
+  })
+
+  describe.runIf(Anvil.enabled)('behavior: update account', () => {
+    test('default', async () => {
+      const key = Key.createHeadlessWebAuthnP256()
+      const account = await TestActions.createAccount(client, {
+        deploy: true,
+        keys: [key],
+      })
+
+      {
+        const { contracts } = await RelayActions.getCapabilities(client)
+        const { accountImplementation } = contracts
+        const { domain: current } = await getEip712Domain(client, {
+          address: account.address,
+        })
+        const { domain: latest } = await getEip712Domain(client, {
+          address: accountImplementation.address,
+        })
+        expect(current.version).toBe(latest.version)
+      }
+
+      const porto_newAccount = TestConfig.getPorto({
+        relayRpcUrl: Relay.instances.anvil_newAccount.rpcUrl,
+      })
+      porto_newAccount._internal.store.setState(
+        porto._internal.store.getState(),
+      )
+
+      {
+        const client = TestConfig.getRelayClient(porto_newAccount)
+        const {
+          contracts: { accountImplementation },
+        } = await RelayActions.getCapabilities(client)
+
+        const { domain: current } = await getEip712Domain(client, {
+          address: account.address,
+        })
+        const { domain: latest } = await getEip712Domain(client, {
+          address: accountImplementation.address,
+        })
+        expect(current.version).not.toBe(latest.version)
+
+        const { id } = await RelayActions.sendCalls(client, {
+          account,
+          calls: [],
+          feeToken: contracts.exp1.address,
+        })
+        await waitForCallsStatus(client, {
+          id,
+        })
+
+        {
+          const { domain: current } = await getEip712Domain(client, {
+            address: account.address,
+          })
+          expect(current.version).toBe(latest.version)
+        }
+      }
     })
   })
 })

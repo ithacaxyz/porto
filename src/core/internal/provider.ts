@@ -642,31 +642,6 @@ export function from<
           return
         }
 
-        case 'wallet_updateAccount': {
-          if (state.accounts.length === 0)
-            throw new ox_Provider.DisconnectedError()
-
-          const [{ address }] = request._decoded.params ?? [{}]
-
-          const account = address
-            ? state.accounts.find((account) =>
-                Address.isEqual(account.address, address),
-              )
-            : state.accounts[0]
-          if (!account) throw new ox_Provider.UnauthorizedError()
-
-          const client = getClient()
-
-          const { id } = await getMode().actions.updateAccount({
-            account,
-            internal: { client, config, request, store },
-          })
-
-          return {
-            id,
-          } satisfies typeof Rpc.wallet_updateAccount.Response.Encoded
-        }
-
         case 'wallet_upgradeAccount': {
           const [{ context, signatures }] = request._decoded.params ?? [{}]
 

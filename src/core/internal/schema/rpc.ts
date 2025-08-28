@@ -396,30 +396,6 @@ export namespace wallet_switchEthereumChain {
   export type Request = typeof Request.Type
 }
 
-export namespace wallet_updateAccount {
-  export const Parameters = Schema.Struct({
-    address: Schema.optional(Primitive.Address),
-  }).annotations({
-    identifier: 'Rpc.wallet_updateAccount.Parameters',
-  })
-  export type Parameters = typeof Parameters.Type
-
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_updateAccount'),
-    params: Schema.optional(Schema.Tuple(Parameters)),
-  }).annotations({
-    identifier: 'Rpc.wallet_updateAccount.Request',
-  })
-  export type Request = typeof Request.Type
-
-  export const Response = Schema.Struct({
-    id: Schema.optional(Primitive.Hex),
-  }).annotations({
-    identifier: 'Rpc.wallet_updateAccount.Response',
-  })
-  export type Response = typeof Response.Type
-}
-
 export namespace wallet_upgradeAccount {
   export const Parameters = Schema.Struct({
     context: Schema.Unknown,

@@ -1008,17 +1008,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
         return await provider.request(request)
       },
 
-      async updateAccount(parameters) {
-        const { internal } = parameters
-        const { store, request } = internal
-
-        if (request.method !== 'wallet_updateAccount')
-          throw new Error('Cannot update account for method: ' + request.method)
-
-        const provider = getProvider(store)
-        return await provider.request(request)
-      },
-
       async upgradeAccount(parameters) {
         const { account, internal } = parameters
         const { store, request } = internal
