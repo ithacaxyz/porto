@@ -1,12 +1,13 @@
 import { useCopyToClipboard } from '@porto/apps/hooks'
 import { Button, ButtonArea, Frame, Spinner, TokenIcon } from '@porto/ui'
+import { PortoConfig } from '@porto/apps'
 import { a, useTransition } from '@react-spring/web'
 import { cx } from 'cva'
 import { Value } from 'ox'
 import { Chains } from 'porto'
 import * as React from 'react'
 import { erc20Abi } from 'viem'
-import { useReadContracts } from 'wagmi'
+import { useReadContracts, useChains } from 'wagmi'
 import type * as TypedMessages from '~/lib/TypedMessages'
 import { StringFormatter } from '~/utils'
 import LucideCopy from '~icons/lucide/copy'
@@ -15,6 +16,8 @@ import LucideInfo from '~icons/lucide/info'
 import LucideLockKeyholeOpen from '~icons/lucide/lock-keyhole-open'
 import LucidePencilLine from '~icons/lucide/pencil-line'
 import { Layout } from '../-components/Layout'
+
+type ChainId = ReturnType<typeof PortoConfig.getConfig>['chains'][number]['id']
 
 export function SignTypedMessage({
   data,
@@ -221,29 +224,36 @@ export namespace SignTypedMessageInvalid {
 }
 
 export function SignPermit({
-  data,
+  amount,
+  chainId,
+  deadline,
+  spender,
+  tokenContract,
   onSign,
   onReject,
   isPending,
 }: SignPermit.Props) {
-  const tokenContract = data.domain.verifyingContract
-  const chainId = Number(data.domain.chainId)
+  const chains = useChains()
+  const chain = chains.find((c) => c.id === chainId)
+
   const tokenResult = useReadContracts({
     allowFailure: false,
     contracts: [
       {
         abi: erc20Abi,
-        address: tokenContract as `0x${string}`,
+        address: tokenContract,
+        chainId: chain?.id as ChainId | undefined,
         functionName: 'decimals',
       },
       {
         abi: erc20Abi,
-        address: tokenContract as `0x${string}`,
+        address: tokenContract,
+        chainId: chain?.id as ChainId | undefined,
         functionName: 'symbol',
       },
     ],
     query: {
-      enabled: Boolean(tokenContract),
+      enabled: Boolean(chain),
     },
   })
 
@@ -264,29 +274,39 @@ export function SignPermit({
       <Layout.Content>
         <div className="flex flex-col gap-[8px]">
           <div className="flex flex-col gap-[10px] rounded-th_medium bg-th_base-alt p-[10px]">
-            <SignPermit.AllowanceRow
-              amount={
-                tokenResult.data &&
-                Value.format(BigInt(data.message.value), decimals)
-              }
-              error={tokenResult.error}
-              expiresAt={new Date(Number(data.message.deadline) * 1000)}
-              loading={tokenResult.isLoading}
-              symbol={symbol}
-            />
-            <hr className="-mx-[10px] border-th_separator" />
-            <div className="flex flex-row items-center gap-4">
-              <div className="whitespace-nowrap font-medium text-[14px] text-th_base-secondary">
-                Requested by
+            {tokenResult.error || !chain ? (
+              <div className="w-full overflow-auto max-h-[200px]">
+                <div className="flex items-center gap-2">
+                  <div className="text-xs">
+                    {!chain
+                      ? 'Error: the specified chain is not supported.'
+                      : String(tokenResult.error)}{' '}
+                  </div>
+                </div>
               </div>
-              <div
-                className="flex flex-grow items-center justify-end gap-2 truncate text-[14px] text-th_base"
-                title={data.message.spender}
-              >
-                {StringFormatter.truncate(data.message.spender)}
-                <SignTypedMessage.CopyButton value={data.message.spender} />
-              </div>
-            </div>
+            ) : (
+              <>
+                <SignPermit.AllowanceRow
+                  amount={tokenResult.data && Value.format(amount, decimals)}
+                  expiresAt={new Date(deadline * 1000)}
+                  loading={tokenResult.isLoading}
+                  symbol={symbol}
+                />
+                <hr className="-mx-[10px] border-th_separator" />
+                <div className="flex flex-row items-center gap-4">
+                  <div className="whitespace-nowrap font-medium text-[14px] text-th_base-secondary">
+                    Requested by
+                  </div>
+                  <div
+                    className="flex flex-grow items-center justify-end gap-2 truncate text-[14px] text-th_base"
+                    title={spender}
+                  >
+                    {StringFormatter.truncate(spender)}
+                    <SignTypedMessage.CopyButton value={spender} />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
           <div className="-mb-[4px]">
             {showDetails ? (
@@ -320,7 +340,7 @@ export function SignPermit({
             Deny
           </Button>
           <Button
-            disabled={tokenResult.isLoading || tokenResult.isError}
+            disabled={tokenResult.isLoading || tokenResult.isError || !chain}
             loading={isPending && 'Approving…'}
             onClick={onSign}
             variant="positive"
@@ -336,46 +356,39 @@ export function SignPermit({
 
 export namespace SignPermit {
   export type Props = {
-    data: typeof TypedMessages.PermitSchema.Type
+    amount: bigint
+    chainId: number
+    deadline: number
     isPending: boolean
     onReject: () => void
     onSign: () => void
+    spender: `0x${string}`
+    tokenContract: `0x${string}`
   }
 
   export function AllowanceRow({
     amount,
-    error,
     expiresAt,
     loading,
     symbol,
   }: AllowanceRow.Props) {
-    const loadingTransition = useTransition(
-      { error, loading },
-      {
-        config: { friction: 60, tension: 1600 },
-        enter: { opacity: 1, transform: 'scale(1)' },
-        from: { opacity: 0, transform: 'scale(0.95)' },
-        initial: { opacity: 1, transform: 'scale(1)' },
-        keys: `${loading}-${error}`,
-        leave: { immediate: true, opacity: 0 },
-      },
-    )
+    const loadingTransition = useTransition(loading, {
+      config: { friction: 60, tension: 1600 },
+      enter: { opacity: 1, transform: 'scale(1)' },
+      from: { opacity: 0, transform: 'scale(0.95)' },
+      initial: { opacity: 1, transform: 'scale(1)' },
+      leave: { immediate: true, opacity: 0 },
+    })
     return (
-      <div className="relative flex h-[36px] items-center text-th_base">
-        {loadingTransition((style, { loading, error }) =>
-          loading || error ? (
+      <div className="relative flex items-center text-th_base h-[36px]">
+        {loadingTransition((style, loading) =>
+          loading ? (
             <a.div
-              className="absolute grid h-full w-full select-none place-items-center"
+              className="grid h-full w-full select-none place-items-center absolute"
               style={style}
             >
               <div className="flex items-center gap-2">
-                {error ? (
-                  <>{String(error)} </>
-                ) : (
-                  <>
-                    <Spinner /> fetching data…
-                  </>
-                )}
+                <Spinner /> fetching data…
               </div>
             </a.div>
           ) : (
@@ -418,7 +431,6 @@ export namespace SignPermit {
   export namespace AllowanceRow {
     export type Props = {
       amount?: string | undefined
-      error: Error | null
       expiresAt: Date
       loading: boolean
       symbol?: string | undefined

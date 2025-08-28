@@ -1449,6 +1449,51 @@ function SignTypedMessage() {
     }
   }
 
+  const signPermit2 = async ({
+    deadline,
+    spender,
+    value,
+  }: {
+    deadline: bigint
+    spender: null | `0x${string}`
+    value: bigint
+  }) => {
+    const [account, chainId] = await Promise.all([
+      porto.provider
+        .request({ method: 'eth_accounts' })
+        .then(([account]) => account),
+      porto.provider
+        .request({ method: 'eth_chainId' })
+        .then(Hex.toNumber) as Promise<ChainId>,
+    ])
+
+    if (spender !== null && !isAddress(spender))
+      throw new Error(`invalid spender address: ${spender}`)
+
+    if (!spender) spender = account
+
+    const tokenAddress = exp1Address[chainId as keyof typeof exp1Address]
+    if (!tokenAddress) throw new Error(`no EXP on chain ${chainId}`)
+
+    const message = getPermit2Data(
+      chainId,
+      value,
+      deadline,
+      spender,
+      tokenAddress,
+    )
+
+    const signature = await porto.provider.request({
+      method: 'eth_signTypedData_v4',
+      params: [account, TypedData.serialize(message)],
+    })
+
+    return {
+      hash: hashTypedData(message),
+      signature,
+    }
+  }
+
   React.useEffect(() => {
     if (verifyStatus !== 'verifying' || !typedMessage) return
 
@@ -1593,6 +1638,54 @@ function SignTypedMessage() {
           />
           <button className="box-border h-full px-2" type="submit">
             Sign ERC-2612 Permit
+          </button>
+        </div>
+      </form>
+
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault()
+          setError(null)
+          setTypedMessage(null)
+          setVerifyStatus(null)
+
+          const formData = new FormData(e.target as HTMLFormElement)
+          const amount = formData.get('amount') as string | null
+          const spender = formData.get('spender') as string | null
+
+          try {
+            setTypedMessage(
+              await signPermit2({
+                deadline: BigInt(Math.floor(Date.now() / 1000) + 60 * 10),
+                spender: spender && isAddress(spender) ? spender : null,
+                value: Value.fromEther(amount || '100'),
+              }),
+            )
+          } catch (err) {
+            console.error(err)
+            setError(String(err))
+          }
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            gap: 8,
+            height: 32,
+          }}
+        >
+          <input
+            className="box-border h-full px-2"
+            name="spender"
+            placeholder="Spender address (default: self)"
+          />
+          <input
+            className="box-border flex h-full px-2"
+            name="amount"
+            placeholder="Amount in EXP (default: 100)"
+          />
+          <button className="box-border h-full px-2" type="submit">
+            Sign Permit2
           </button>
         </div>
       </form>
@@ -1948,3 +2041,48 @@ const typedData = {
     ],
   },
 } as const
+
+const getPermit2Data = (
+  chainId: ChainId,
+  amount: bigint,
+  deadline: bigint,
+  spender: `0x${string}`,
+  token: `0x${string}`,
+) => {
+  return {
+    domain: {
+      chainId: BigInt(chainId),
+      name: 'Permit2',
+      verifyingContract: '0x000000000022d473030f116ddee9f6b43ac78ba3',
+    },
+    message: {
+      details: {
+        amount,
+        expiration: Number(deadline),
+        nonce: 0,
+        token,
+      },
+      sigDeadline: deadline,
+      spender,
+    },
+    primaryType: 'PermitSingle',
+    types: {
+      EIP712Domain: [
+        { name: 'name', type: 'string' },
+        { name: 'chainId', type: 'uint256' },
+        { name: 'verifyingContract', type: 'address' },
+      ],
+      PermitDetails: [
+        { name: 'token', type: 'address' },
+        { name: 'amount', type: 'uint160' },
+        { name: 'expiration', type: 'uint48' },
+        { name: 'nonce', type: 'uint48' },
+      ],
+      PermitSingle: [
+        { name: 'details', type: 'PermitDetails' },
+        { name: 'spender', type: 'address' },
+        { name: 'sigDeadline', type: 'uint256' },
+      ],
+    },
+  } as const
+}
