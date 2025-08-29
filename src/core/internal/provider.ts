@@ -519,17 +519,18 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [{ address, chainId }] = request._decoded.params ?? [{}]
+          const [{ address, chainIds }] = request._decoded.params ?? [{}]
 
           const account = state.accounts.find((account) =>
             Address.isEqual(account.address, address),
           )
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          const client = getClient(chainId)
+          const client = getClient()
 
           const keys = await getMode().actions.getKeys({
             account,
+            chainIds,
             internal: { client, config, request, store },
           })
 
@@ -540,7 +541,7 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [{ address, chainId }] = request._decoded.params ?? [{}]
+          const [{ address, chainIds }] = request._decoded.params ?? [{}]
 
           const account = address
             ? state.accounts.find((account) =>
@@ -549,10 +550,11 @@ export function from<
             : state.accounts[0]
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          const client = getClient(chainId)
+          const client = getClient()
 
           const keys = await getMode().actions.getKeys({
             account,
+            chainIds,
             internal: {
               client,
               config,
@@ -562,7 +564,6 @@ export function from<
           })
           const permissions = getActivePermissions(keys, {
             address: account.address,
-            chainId: client.chain.id,
           })
 
           return permissions satisfies typeof Rpc.wallet_getPermissions.Response.Encoded
@@ -1217,17 +1218,14 @@ function getAdmins(
 
 function getActivePermissions(
   keys: readonly Key.Key[],
-  {
-    address,
-    chainId,
-  }: { address: Address.Address; chainId?: number | undefined },
+  { address }: { address: Address.Address },
 ): typeof Rpc.wallet_getPermissions.Response.Encoded {
   return keys
     .map((key) => {
+      if (!key.chainId) return undefined
       if (key.role !== 'session') return undefined
       if (key.expiry > 0 && key.expiry < BigInt(Math.floor(Date.now() / 1000)))
         return undefined
-      if (chainId && key.chainId !== chainId) return undefined
       try {
         return Schema.encodeSync(Permissions.Schema)(
           Permissions.fromKey(key, { address }),
