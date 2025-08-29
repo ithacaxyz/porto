@@ -20,7 +20,7 @@ import {
 } from 'ox'
 import { Dialog } from 'porto'
 import * as React from 'react'
-import { hashMessage, hashTypedData, isAddress } from 'viem'
+import { hashMessage, hashTypedData, isAddress, maxUint256 } from 'viem'
 import {
   generatePrivateKey,
   privateKeyToAccount,
@@ -1191,6 +1191,40 @@ function SendTransaction() {
             ] as const
           }
 
+          if (action === 'approve') {
+            const token = exp1Address[chainId as never]
+            if (!token)
+              throw new Error(`exp1 address not defined for chainId ${chainId}`)
+            const spender = '0x1234567890123456789012345678901234567890'
+            return [
+              {
+                data: AbiFunction.encodeData(
+                  AbiFunction.fromAbi(exp1Abi, 'approve'),
+                  [spender, Value.fromEther('50')],
+                ),
+                from: account,
+                to: token,
+              },
+            ] as const
+          }
+
+          if (action === 'approve-infinite') {
+            const token = exp1Address[chainId as never]
+            if (!token)
+              throw new Error(`exp1 address not defined for chainId ${chainId}`)
+            const spender = '0x1234567890123456789012345678901234567890'
+            return [
+              {
+                data: AbiFunction.encodeData(
+                  AbiFunction.fromAbi(exp1Abi, 'approve'),
+                  [spender, maxUint256],
+                ),
+                from: account,
+                to: token,
+              },
+            ] as const
+          }
+
           return [
             {
               from: account,
@@ -1210,6 +1244,8 @@ function SendTransaction() {
       <h3>eth_sendTransaction</h3>
       <select name="action">
         <option value="mint">Mint 100 EXP</option>
+        <option value="approve">Approve 50 EXP</option>
+        <option value="approve-infinite">Approve Infinite EXP</option>
         <option value="noop">Noop</option>
       </select>
       <button type="submit">Send</button>
@@ -1542,13 +1578,7 @@ function SignTypedMessage() {
   return (
     <div className="flex flex-col gap-4 pt-6 pb-3">
       <h3 className="m-0 pb-0">eth_signTypedData_v4</h3>
-      <div
-        style={{
-          display: 'flex',
-          gap: 8,
-          height: 32,
-        }}
-      >
+      <div className="flex gap-[8px] h-[28px]">
         <button
           className="box-border h-full px-2"
           onClick={async () => {
@@ -1619,22 +1649,16 @@ function SignTypedMessage() {
           }
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            gap: 8,
-            height: 32,
-          }}
-        >
+        <div className="flex gap-[8px] h-[28px]">
           <input
             className="box-border h-full px-2"
             name="spender"
-            placeholder="Spender address (default: self)"
+            placeholder="Spender (default: self)"
           />
           <input
             className="box-border flex h-full px-2"
             name="amount"
-            placeholder="Amount in EXP (default: 100)"
+            placeholder="Amount (default: 100)"
           />
           <button className="box-border h-full px-2" type="submit">
             Sign ERC-2612 Permit
@@ -1667,22 +1691,16 @@ function SignTypedMessage() {
           }
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            gap: 8,
-            height: 32,
-          }}
-        >
+        <div className="flex gap-[8px] h-[28px]">
           <input
             className="box-border h-full px-2"
             name="spender"
-            placeholder="Spender address (default: self)"
+            placeholder="Spender (default: self)"
           />
           <input
             className="box-border flex h-full px-2"
             name="amount"
-            placeholder="Amount in EXP (default: 100)"
+            placeholder="Amount (default: 100)"
           />
           <button className="box-border h-full px-2" type="submit">
             Sign Permit2

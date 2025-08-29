@@ -1,23 +1,12 @@
-import type { PortoConfig } from '@porto/apps'
-import { useCopyToClipboard } from '@porto/apps/hooks'
-import { Button, ButtonArea, Frame, Spinner, TokenIcon } from '@porto/ui'
-import { a, useTransition } from '@react-spring/web'
+import { Button, Frame } from '@porto/ui'
 import { cx } from 'cva'
-import { Value } from 'ox'
-import { Chains } from 'porto'
-import * as React from 'react'
-import { erc20Abi } from 'viem'
-import { useChains, useReadContracts } from 'wagmi'
+import { useChains } from 'wagmi'
 import type * as TypedMessages from '~/lib/TypedMessages'
-import { StringFormatter } from '~/utils'
-import LucideCopy from '~icons/lucide/copy'
-import LucideCopyCheck from '~icons/lucide/copy-check'
-import LucideInfo from '~icons/lucide/info'
 import LucideLockKeyholeOpen from '~icons/lucide/lock-keyhole-open'
 import LucidePencilLine from '~icons/lucide/pencil-line'
+import { Approve } from './Approve'
 import { Layout } from '../-components/Layout'
-
-type ChainId = ReturnType<typeof PortoConfig.getConfig>['chains'][number]['id']
+import { CopyButton } from '~/components/CopyButton'
 
 export function SignTypedMessage({
   data,
@@ -100,29 +89,6 @@ export namespace SignTypedMessage {
     onSign: () => void
     onReject: () => void
     isPending: boolean
-  }
-
-  export function CopyButton({ value }: { value: string }) {
-    const [isCopied, copyToClipboard] = useCopyToClipboard({ timeout: 800 })
-    const transition = useTransition(isCopied ? LucideCopyCheck : LucideCopy, {
-      config: { friction: 60, tension: 1600 },
-      enter: { opacity: 1, transform: 'scale(1)' },
-      from: { opacity: 1, transform: 'scale(0.2)' },
-      leave: { immediate: true, opacity: 0 },
-    })
-    return (
-      <ButtonArea
-        className="relative flex h-[16px] w-[16px] flex-shrink-0 items-center justify-center rounded-[2px] pb-[1px] text-th_base-secondary"
-        onClick={() => copyToClipboard(value)}
-        title={isCopied ? 'Copied' : 'Copy to clipboard'}
-      >
-        {transition((style, Icon) => (
-          <a.div className="absolute" style={style}>
-            <Icon height={14} width={14} />
-          </a.div>
-        ))}
-      </ButtonArea>
-    )
   }
 
   export function DataRow({ keyName, value }: DataRow.Props) {
@@ -223,134 +189,63 @@ export namespace SignTypedMessageInvalid {
   }
 }
 
-export function SignPermit({
-  amount,
-  chainId,
-  deadline,
-  spender,
-  tokenContract,
-  onSign,
-  onReject,
-  isPending,
-}: SignPermit.Props) {
+export function SignPermit(props: SignPermit.Props) {
+  const {
+    amount,
+    chainId,
+    deadline,
+    spender,
+    tokenContract,
+    onSign,
+    onReject,
+    isPending,
+  } = props
+
   const chains = useChains()
   const chain = chains.find((c) => c.id === chainId)
 
-  const tokenResult = useReadContracts({
-    allowFailure: false,
-    contracts: [
-      {
-        abi: erc20Abi,
-        address: tokenContract,
-        chainId: chain?.id as ChainId | undefined,
-        functionName: 'decimals',
-      },
-      {
-        abi: erc20Abi,
-        address: tokenContract,
-        chainId: chain?.id as ChainId | undefined,
-        functionName: 'symbol',
-      },
-    ],
-    query: {
-      enabled: Boolean(chain),
-    },
-  })
-
-  const [decimals, symbol] = tokenResult.data || []
-
-  const [showDetails, setShowDetails] = React.useState(false)
+  if (!chain)
+    return (
+      <Layout>
+        <Layout.Header>
+          <Layout.Header.Default
+            icon={LucideLockKeyholeOpen}
+            title="Authorize spend"
+            variant="default"
+          />
+        </Layout.Header>
+        <Layout.Content>
+          <div className="flex items-center gap-2 p-4">
+            <div className="text-sm text-th_base-secondary">
+              Error: the specified chain is not supported.
+            </div>
+          </div>
+        </Layout.Content>
+        <Layout.Footer>
+          <Layout.Footer.Actions>
+            <Button
+              onClick={onReject}
+              variant="negative-secondary"
+              width="grow"
+            >
+              Cancel
+            </Button>
+          </Layout.Footer.Actions>
+        </Layout.Footer>
+      </Layout>
+    )
 
   return (
-    <Layout>
-      <Layout.Header>
-        <Layout.Header.Default
-          icon={LucideLockKeyholeOpen}
-          title="Authorize spend"
-          variant="default"
-        />
-      </Layout.Header>
-
-      <Layout.Content>
-        <div className="flex flex-col gap-[8px]">
-          <div className="flex flex-col gap-[10px] rounded-th_medium bg-th_base-alt p-[10px]">
-            {tokenResult.error || !chain ? (
-              <div className="max-h-[200px] w-full overflow-auto">
-                <div className="flex items-center gap-2">
-                  <div className="text-xs">
-                    {!chain
-                      ? 'Error: the specified chain is not supported.'
-                      : String(tokenResult.error)}{' '}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <>
-                <SignPermit.AllowanceRow
-                  amount={tokenResult.data && Value.format(amount, decimals)}
-                  expiresAt={new Date(deadline * 1000)}
-                  loading={tokenResult.isLoading}
-                  symbol={symbol}
-                />
-                <hr className="-mx-[10px] border-th_separator" />
-                <div className="flex flex-row items-center gap-4">
-                  <div className="whitespace-nowrap font-medium text-[14px] text-th_base-secondary">
-                    Requested by
-                  </div>
-                  <div
-                    className="flex flex-grow items-center justify-end gap-2 truncate text-[14px] text-th_base"
-                    title={spender}
-                  >
-                    {StringFormatter.truncate(spender)}
-                    <SignTypedMessage.CopyButton value={spender} />
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-          <div className="-mb-[4px]">
-            {showDetails ? (
-              <div className="flex h-[33px] w-full items-center justify-between gap-[6px] rounded-th_medium bg-th_base-alt px-[12px] text-[13px]">
-                <span className="text-th_base-secondary">Network</span>
-                <span className="font-medium text-th_base">
-                  {Chains.all.find((c) => c.id === chainId)?.name || 'Unknown'}
-                </span>
-              </div>
-            ) : (
-              <ButtonArea
-                className="flex h-[33px] w-full items-center justify-center gap-[6px] rounded-th_medium bg-th_base-alt text-[13px] text-th_base-secondary"
-                onClick={() => setShowDetails(true)}
-              >
-                <LucideInfo className="size-4" />
-                <span>Show more details</span>
-              </ButtonArea>
-            )}
-          </div>
-        </div>
-      </Layout.Content>
-
-      <Layout.Footer>
-        <Layout.Footer.Actions>
-          <Button
-            disabled={isPending}
-            onClick={onReject}
-            variant="negative-secondary"
-            width="grow"
-          >
-            Deny
-          </Button>
-          <Button
-            disabled={tokenResult.isLoading || tokenResult.isError || !chain}
-            loading={isPending && 'Approving…'}
-            onClick={onSign}
-            variant="positive"
-            width="grow"
-          >
-            Approve
-          </Button>
-        </Layout.Footer.Actions>
-      </Layout.Footer>
-    </Layout>
+    <Approve
+      amount={amount}
+      chainId={chain.id}
+      expiresAt={new Date(deadline * 1000)}
+      isPending={isPending}
+      onApprove={onSign}
+      onReject={onReject}
+      spender={spender}
+      tokenAddress={tokenContract}
+    />
   )
 }
 
@@ -364,76 +259,5 @@ export namespace SignPermit {
     onSign: () => void
     spender: `0x${string}`
     tokenContract: `0x${string}`
-  }
-
-  export function AllowanceRow({
-    amount,
-    expiresAt,
-    loading,
-    symbol,
-  }: AllowanceRow.Props) {
-    const loadingTransition = useTransition(loading, {
-      config: { friction: 60, tension: 1600 },
-      enter: { opacity: 1, transform: 'scale(1)' },
-      from: { opacity: 0, transform: 'scale(0.95)' },
-      initial: { opacity: 1, transform: 'scale(1)' },
-      leave: { immediate: true, opacity: 0 },
-    })
-    return (
-      <div className="relative flex h-[36px] items-center text-th_base">
-        {loadingTransition((style, loading) =>
-          loading ? (
-            <a.div
-              className="absolute grid h-full w-full select-none place-items-center"
-              style={style}
-            >
-              <div className="flex items-center gap-2">
-                <Spinner /> fetching data…
-              </div>
-            </a.div>
-          ) : (
-            <a.div
-              className="absolute flex h-full w-full items-center gap-[8px]"
-              style={style}
-            >
-              <TokenIcon className="shrink-0" symbol={symbol} />
-              <div className="flex flex-1 flex-col gap-[4px]">
-                <div className="text-nowrap font-medium text-[14px]">
-                  Spend {symbol}
-                </div>
-                <div className="text-nowrap text-[12px] text-th_base-secondary">
-                  Expires{' '}
-                  <time
-                    className="font-[600]"
-                    dateTime={expiresAt.toISOString()}
-                    title={expiresAt.toLocaleString('en-US')}
-                  >
-                    {expiresAt.toLocaleDateString('en-US', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: '2-digit',
-                    })}
-                  </time>
-                </div>
-              </div>
-              <div className="truncate font-medium text-[13px] text-th_base-secondary">
-                {Intl.NumberFormat('en-US', {
-                  maximumFractionDigits: 4,
-                }).format(Number(amount))}
-              </div>
-            </a.div>
-          ),
-        )}
-      </div>
-    )
-  }
-
-  export namespace AllowanceRow {
-    export type Props = {
-      amount?: string | undefined
-      expiresAt: Date
-      loading: boolean
-      symbol?: string | undefined
-    }
   }
 }

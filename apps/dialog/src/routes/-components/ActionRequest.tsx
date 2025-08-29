@@ -9,7 +9,7 @@ import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
 import type * as Rpc from 'porto/core/internal/schema/request'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
-import { type Call, ethAddress } from 'viem'
+import { type Call, ethAddress, decodeFunctionData, erc20Abi } from 'viem'
 import { CheckBalance } from '~/components/CheckBalance'
 import * as Calls from '~/lib/Calls'
 import { porto } from '~/lib/Porto'
@@ -25,6 +25,7 @@ import TriangleAlert from '~icons/lucide/triangle-alert'
 import LucideVideo from '~icons/lucide/video'
 import Star from '~icons/ph/star-four-bold'
 import IconArrowRightCircle from '~icons/porto/arrow-right-circle'
+import { Approve } from './Approve'
 
 export function ActionRequest(props: ActionRequest.Props) {
   const {
@@ -81,6 +82,22 @@ export function ActionRequest(props: ActionRequest.Props) {
     assetDiff: assetDiffs,
   })
 
+  const approval = React.useMemo(() => {
+    const [call] = calls
+    if (!call || !call.data) return null
+    try {
+      const decoded = decodeFunctionData({ abi: erc20Abi, data: call.data })
+      if (decoded.functionName === 'approve')
+        return {
+          amount: decoded.args[1],
+          spender: decoded.args[0],
+          tokenAddress: call.to,
+        }
+    } catch {
+      return null
+    }
+  }, [calls])
+
   return (
     <CheckBalance
       address={address}
@@ -88,55 +105,69 @@ export function ActionRequest(props: ActionRequest.Props) {
       onReject={onReject}
       query={prepareCallsQuery}
     >
-      <Layout>
-        <Layout.Header>
-          <Layout.Header.Default
-            icon={prepareCallsQuery.isError ? TriangleAlert : Star}
-            title="Review action"
-            variant={prepareCallsQuery.isError ? 'warning' : 'default'}
-          />
-        </Layout.Header>
+      {approval ? (
+        <Approve
+          amount={approval.amount}
+          chainId={chainId ?? 1} // TODO
+          isPending={Boolean(prepareCallsQuery.isPending || loading)}
+          onApprove={() =>
+            prepareCallsQuery.data && onApprove(prepareCallsQuery.data)
+          }
+          onReject={onReject}
+          spender={approval.spender}
+          tokenAddress={approval.tokenAddress}
+        />
+      ) : (
+        <Layout>
+          <Layout.Header>
+            <Layout.Header.Default
+              icon={prepareCallsQuery.isError ? TriangleAlert : Star}
+              title="Review action"
+              variant={prepareCallsQuery.isError ? 'warning' : 'default'}
+            />
+          </Layout.Header>
 
-        <Layout.Content className="pb-2!">
-          <ActionRequest.PaneWithDetails
-            error={prepareCallsQuery.error}
-            errorMessage="An error occurred while simulating the action. Proceed with caution."
-            feeTotals={feeTotals}
-            quotes={quotes}
-            status={prepareCallsQuery.status}
-          >
-            {assetDiff.length > 0 ? (
-              <ActionRequest.AssetDiff assetDiff={assetDiff} />
-            ) : undefined}
-          </ActionRequest.PaneWithDetails>
-        </Layout.Content>
-
-        <Layout.Footer>
-          <Layout.Footer.Actions>
-            <Button
-              disabled={prepareCallsQuery.isPending || loading}
-              onClick={onReject}
-              variant="negative-secondary"
+          <Layout.Content className="pb-2!">
+            <ActionRequest.PaneWithDetails
+              error={prepareCallsQuery.error}
+              errorMessage="An error occurred while simulating the action. Proceed with caution."
+              feeTotals={feeTotals}
+              quotes={quotes}
+              status={prepareCallsQuery.status}
             >
-              Deny
-            </Button>
-            <Button
-              data-testid="confirm"
-              disabled={!prepareCallsQuery.isSuccess}
-              loading={loading && 'Sending…'}
-              onClick={() => onApprove(prepareCallsQuery.data!)}
-              variant="positive"
-              width="grow"
-            >
-              {prepareCallsQuery.isError ? 'Approve anyway' : 'Approve'}
-            </Button>
-          </Layout.Footer.Actions>
+              {assetDiff.length > 0 ? (
+                <ActionRequest.AssetDiff assetDiff={assetDiff} />
+              ) : undefined}
+            </ActionRequest.PaneWithDetails>
+          </Layout.Content>
 
-          {account?.address && (
-            <Layout.Footer.Account address={account.address} />
-          )}
-        </Layout.Footer>
-      </Layout>
+          <Layout.Footer>
+            <Layout.Footer.Actions>
+              <Button
+                disabled={prepareCallsQuery.isPending || loading}
+                onClick={onReject}
+                variant="negative-secondary"
+              >
+                Deny
+              </Button>
+              <Button
+                data-testid="confirm"
+                disabled={!prepareCallsQuery.isSuccess}
+                loading={loading && 'Sending…'}
+                onClick={() => onApprove(prepareCallsQuery.data!)}
+                variant="positive"
+                width="grow"
+              >
+                {prepareCallsQuery.isError ? 'Approve anyway' : 'Approve'}
+              </Button>
+            </Layout.Footer.Actions>
+
+            {account?.address && (
+              <Layout.Footer.Account address={account.address} />
+            )}
+          </Layout.Footer>
+        </Layout>
+      )}
     </CheckBalance>
   )
 }
