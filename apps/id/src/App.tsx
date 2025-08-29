@@ -8,7 +8,7 @@ import * as Wagmi from '~/lib/Wagmi.ts'
 
 export function App() {
   return (
-    <WagmiProvider config={Wagmi.config}>
+    <WagmiProvider config={Wagmi.wagmiConfig}>
       <PersistQueryClientProvider
         client={Query.client}
         persistOptions={{ persister: Query.persister }}
