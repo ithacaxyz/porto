@@ -5,11 +5,11 @@ import { Chains } from 'porto'
 import * as React from 'react'
 import { erc20Abi, maxUint256 } from 'viem'
 import { useReadContracts } from 'wagmi'
+import { CopyButton } from '~/components/CopyButton'
 import { StringFormatter } from '~/utils'
 import LucideInfo from '~icons/lucide/info'
 import LucideLockKeyholeOpen from '~icons/lucide/lock-keyhole-open'
 import { Layout } from './Layout'
-import { CopyButton } from '~/components/CopyButton'
 
 export function Approve(props: Approve.Props) {
   const {
@@ -231,4 +231,3 @@ export namespace Approve {
     }
   }
 }
-

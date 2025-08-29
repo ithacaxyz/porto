@@ -1,12 +1,12 @@
 import { Button, Frame } from '@porto/ui'
 import { cx } from 'cva'
 import { useChains } from 'wagmi'
+import { CopyButton } from '~/components/CopyButton'
 import type * as TypedMessages from '~/lib/TypedMessages'
 import LucideLockKeyholeOpen from '~icons/lucide/lock-keyhole-open'
 import LucidePencilLine from '~icons/lucide/pencil-line'
-import { Approve } from './Approve'
 import { Layout } from '../-components/Layout'
-import { CopyButton } from '~/components/CopyButton'
+import { Approve } from './Approve'
 
 export function SignTypedMessage({
   data,

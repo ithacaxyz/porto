@@ -1,16 +1,16 @@
 import { useCopyToClipboard } from '@porto/apps/hooks'
+import { ButtonArea } from '@porto/ui'
 import { a, useTransition } from '@react-spring/web'
 import LucideCopy from '~icons/lucide/copy'
-import { ButtonArea } from '@porto/ui'
 import LucideCopyCheck from '~icons/lucide/copy-check'
 
 export function CopyButton({ value }: { value: string }) {
   const [isCopied, copyToClipboard] = useCopyToClipboard({ timeout: 800 })
   const transition = useTransition(isCopied ? LucideCopyCheck : LucideCopy, {
     config: { friction: 60, tension: 1600 },
-    initial: { opacity: 1, transform: 'scale(1)' },
     enter: { opacity: 1, transform: 'scale(1)' },
     from: { opacity: 1, transform: 'scale(0.2)' },
+    initial: { opacity: 1, transform: 'scale(1)' },
     leave: { immediate: true, opacity: 0 },
   })
   return (

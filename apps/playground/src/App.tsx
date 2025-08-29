@@ -1578,7 +1578,7 @@ function SignTypedMessage() {
   return (
     <div className="flex flex-col gap-4 pt-6 pb-3">
       <h3 className="m-0 pb-0">eth_signTypedData_v4</h3>
-      <div className="flex gap-[8px] h-[28px]">
+      <div className="flex h-[28px] gap-[8px]">
         <button
           className="box-border h-full px-2"
           onClick={async () => {
@@ -1649,7 +1649,7 @@ function SignTypedMessage() {
           }
         }}
       >
-        <div className="flex gap-[8px] h-[28px]">
+        <div className="flex h-[28px] gap-[8px]">
           <input
             className="box-border h-full px-2"
             name="spender"
@@ -1691,7 +1691,7 @@ function SignTypedMessage() {
           }
         }}
       >
-        <div className="flex gap-[8px] h-[28px]">
+        <div className="flex h-[28px] gap-[8px]">
           <input
             className="box-border h-full px-2"
             name="spender"
