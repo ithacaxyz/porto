@@ -1223,7 +1223,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
 })
 
 describe.runIf(!Anvil.enabled)('verifySignature', () => {
-  // TODO(relay-v23): make digest replay-safe
+  // TODO(relay-v23): unskip once relay implements replay-safe digests on `wallet_verifySignature`.
   test.skip('default', async () => {
     const key1 = Key.createHeadlessWebAuthnP256()
     const key2 = Key.createSecp256k1()
@@ -1232,6 +1232,7 @@ describe.runIf(!Anvil.enabled)('verifySignature', () => {
     })
 
     const digest = Hex.random(32)
+    const domain = await Key.getSignDomain(client, account)
 
     {
       const signature = await Key.sign(key1, {
@@ -1266,7 +1267,7 @@ describe.runIf(!Anvil.enabled)('verifySignature', () => {
     }
   })
 
-  // TODO: make replay-safe
+  // TODO(relay-v23): unskip once relay implements replay-safe digests on `wallet_verifySignature`.
   test.skip('behavior: invalid', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {

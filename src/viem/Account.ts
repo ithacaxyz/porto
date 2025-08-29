@@ -5,15 +5,18 @@ import * as Signature from 'ox/Signature'
 import * as TypedData from 'ox/TypedData'
 import type * as WebAuthnP256 from 'ox/WebAuthnP256'
 import {
+  type Client,
   hashMessage,
   hashTypedData,
   type LocalAccount,
   type PartialBy,
 } from 'viem'
 import { toAccount } from 'viem/accounts'
+import { getEip712Domain } from 'viem/actions'
 import type { Assign, Compute } from '../core/internal/types.js'
 import type * as Storage from '../core/Storage.js'
 import * as Key from './Key.js'
+import * as RelayActions from './RelayActions.js'
 
 export type Account<
   source extends 'porto' | 'privateKey' = 'porto' | 'privateKey',
@@ -179,6 +182,41 @@ export declare namespace getKey {
 }
 
 /**
+ * Gets the domain to use for signing.
+ *
+ * @param client - The client to use.
+ * @param parameters - The parameters to use.
+ * @returns The domain.
+ */
+export async function getSignDomain(
+  client: Client,
+  account: Account | Address.Address,
+) {
+  const address = typeof account === 'string' ? account : account.address
+
+  try {
+    // Attempt to extract the domain from the account.
+    const {
+      domain: { chainId, salt, ...domain },
+    } = await getEip712Domain(client, {
+      address,
+    })
+    return domain
+  } catch {
+    // If failure (e.g. not delegated yet), fall back to extracting
+    // the domain from the account implementation.
+    const { contracts } = await RelayActions.getCapabilities(client)
+    const { accountImplementation } = contracts
+    const {
+      domain: { chainId, salt, ...domain },
+    } = await getEip712Domain(client, {
+      address: accountImplementation.address,
+    })
+    return { ...domain, verifyingContract: address }
+  }
+}
+
+/**
  * Extracts a signing key from a delegated account and signs a payload.
  *
  * @example
@@ -233,6 +271,12 @@ export async function sign(
 
 export declare namespace sign {
   type Parameters = {
+    /**
+     * Domain to use for replay-safe signing.
+     */
+    domain?:
+      | Pick<TypedData.Domain, 'name' | 'verifyingContract' | 'version'>
+      | undefined
     /**
      * Key to sign the payloads with.
      *

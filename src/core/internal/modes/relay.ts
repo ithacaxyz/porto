@@ -106,10 +106,14 @@ export function relay(parameters: relay.Parameters = {}) {
         const signInWithEthereum_response = await (async () => {
           if (!signInWithEthereum) return undefined
 
-          const message = await Siwe.buildMessage(client, signInWithEthereum, {
-            address: account.address,
-          })
+          const [message, domain] = await Promise.all([
+            Siwe.buildMessage(client, signInWithEthereum, {
+              address: account.address,
+            }),
+            Account.getSignDomain(client, account),
+          ])
           const signature = await Account.sign(eoa, {
+            domain,
             payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
           })
           const signature_erc8010 = await Erc8010.wrap(client, {
@@ -777,7 +781,9 @@ export function relay(parameters: relay.Parameters = {}) {
         )
         if (!key) throw new Error('cannot find admin key to sign with.')
 
+        const domain = await Account.getSignDomain(client, account)
         const signature = await Account.sign(account, {
+          domain,
           key,
           payload: PersonalMessage.getSignPayload(data),
           webAuthn,
@@ -799,6 +805,7 @@ export function relay(parameters: relay.Parameters = {}) {
         const data = Json.parse(parameters.data)
         const isOrchestrator = data.domain?.name === 'Orchestrator'
         const signature = await Account.sign(account, {
+          domain,
           key,
           payload: TypedData.getSignPayload(data),
           // If the domain is the Orchestrator, we don't need to replay-safe sign.
@@ -840,7 +847,9 @@ export function relay(parameters: relay.Parameters = {}) {
         )
         if (!key) throw new Error('cannot find admin key to sign with.')
 
+        const domain = await Account.getSignDomain(client, account)
         const signature = await Account.sign(account, {
+          domain,
           key,
           payload: Hash.keccak256(Hex.fromString(`${email}${token}`)),
           webAuthn,
