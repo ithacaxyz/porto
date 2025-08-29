@@ -95,6 +95,40 @@ export type Theme<
   fieldErrorBorder: SchemeColor
   fieldFocusedBackground: SchemeColor
   fieldFocusedContent: SchemeColor
+
+  /**
+   * Customizable text labels for the dialog interface.
+   */
+  labels?: {
+    /**
+     * Text shown in the sign-in prompt (e.g., "Use Porto to sign in to")
+     */
+    signInPrompt?: string
+    /**
+     * Text for the sign-in button (e.g., "Sign in with Porto")
+     */
+    signInButton?: string
+    /**
+     * Text for the sign-up button (e.g., "Sign up with Porto")
+     */
+    signUpButton?: string
+    /**
+     * Text for the create account option (e.g., "Create Porto account")
+     */
+    createAccount?: string
+    /**
+     * Text for the continue button (e.g., "Continue with Porto")
+     */
+    continueButton?: string
+    /**
+     * Title for the dialog window (e.g., "Porto")
+     */
+    dialogTitle?: string
+    /**
+     * Example email address for the sign-up form (e.g., "example@ithaca.xyz")
+     */
+    exampleEmail?: string
+  }
 }
 
 type PartialTheme<Th extends Theme<ThemeColorScheme>> = Partial<

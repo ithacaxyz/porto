@@ -552,10 +552,10 @@ export function noop() {
     name: 'noop',
     setup() {
       return {
-        close() {},
-        destroy() {},
-        open() {},
-        async syncRequests() {},
+        close() { },
+        destroy() { },
+        open() { },
+        async syncRequests() { },
       }
     },
     supportsHeadless: true,
@@ -632,7 +632,7 @@ export function experimental_inline(options: inline.Options) {
       )
 
       return {
-        close() {},
+        close() { },
         destroy() {
           messenger.destroy()
           root.remove()
@@ -701,7 +701,7 @@ export function createThemeController(): ThemeController {
           theme,
           type: 'set-theme',
         })
-        .catch(() => {})
+        .catch(() => { })
     },
   }
   return controller
