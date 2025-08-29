@@ -2,16 +2,20 @@ import * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
+import * as TypedData from 'ox/TypedData'
 import {
+  type Client,
   hashMessage,
   hashTypedData,
   type LocalAccount,
   type PartialBy,
 } from 'viem'
 import { toAccount } from 'viem/accounts'
+import { getEip712Domain } from 'viem/actions'
 import type { Assign, Compute } from '../core/internal/types.js'
 import type * as Storage from '../core/Storage.js'
 import * as Key from './Key.js'
+import * as RelayActions from './RelayActions.js'
 
 export type Account<
   source extends 'porto' | 'privateKey' = 'porto' | 'privateKey',
@@ -43,21 +47,19 @@ export function from<const account extends from.Parameters>(
     address: account.address,
     sign({ hash }) {
       if (account.source === 'privateKey') return account.sign!({ hash })
-      return sign(account as never, {
-        payload: hash,
-      })
+      throw new Error('`sign` not supported on porto accounts.')
     },
     signMessage({ message }) {
-      return sign(account as never, {
-        payload: hashMessage(message),
+      return this.sign!({
+        hash: hashMessage(message),
       })
     },
     signTransaction() {
       throw new Error('`signTransaction` not supported on porto accounts.')
     },
     signTypedData(typedData) {
-      return sign(account as never, {
-        payload: hashTypedData(typedData),
+      return this.sign!({
+        hash: hashTypedData(typedData),
       })
     },
   })
@@ -173,6 +175,41 @@ export declare namespace getKey {
 }
 
 /**
+ * Gets the domain to use for signing.
+ *
+ * @param client - The client to use.
+ * @param parameters - The parameters to use.
+ * @returns The domain.
+ */
+export async function getSignDomain(
+  client: Client,
+  account: Account | Address.Address,
+) {
+  const address = typeof account === 'string' ? account : account.address
+
+  try {
+    // Attempt to extract the domain from the account.
+    const {
+      domain: { chainId, salt, ...domain },
+    } = await getEip712Domain(client, {
+      address,
+    })
+    return domain
+  } catch {
+    // If failure (e.g. not delegated yet), fall back to extracting
+    // the domain from the account implementation.
+    const { contracts } = await RelayActions.getCapabilities(client)
+    const { accountImplementation } = contracts
+    const {
+      domain: { chainId, salt, ...domain },
+    } = await getEip712Domain(client, {
+      address: accountImplementation.address,
+    })
+    return { ...domain, verifyingContract: address }
+  }
+}
+
+/**
  * Extracts a signing key from a delegated account and signs a payload.
  *
  * @example
@@ -185,9 +222,23 @@ export async function sign(
   account: Account,
   parameters: sign.Parameters,
 ): Promise<Compute<Hex.Hex>> {
-  const { payload, storage } = parameters
+  const { domain, storage } = parameters
 
   const key = getKey(account, parameters)
+
+  const payload = (() => {
+    if (!domain) return parameters.payload
+    return TypedData.getSignPayload({
+      domain,
+      message: {
+        digest: parameters.payload,
+      },
+      primaryType: 'ERC1271Sign',
+      types: {
+        ERC1271Sign: [{ name: 'digest', type: 'bytes32' }],
+      },
+    })
+  })()
 
   const sign = (() => {
     if (account.source === 'privateKey') return account.sign
@@ -208,6 +259,12 @@ export async function sign(
 
 export declare namespace sign {
   type Parameters = {
+    /**
+     * Domain to use for replay-safe signing.
+     */
+    domain?:
+      | Pick<TypedData.Domain, 'name' | 'verifyingContract' | 'version'>
+      | undefined
     /**
      * Key to sign the payloads with.
      *
