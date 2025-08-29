@@ -253,11 +253,11 @@ export namespace getCallsStatus {
  * @param parameters - Parameters.
  * @returns Result.
  */
-export async function getKeys<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: getKeys.Parameters<chain>,
+export async function getKeys(
+  client: Client,
+  parameters: getKeys.Parameters,
 ): Promise<getKeys.ReturnType> {
-  const { address, chain = client.chain } = parameters
+  const { address, chainIds } = parameters
 
   try {
     const method = 'wallet_getKeys' as const
@@ -267,7 +267,7 @@ export async function getKeys<chain extends Chain | undefined>(
       params: [
         Schema.encodeSync(RpcSchema.wallet_getKeys.Parameters)({
           address,
-          chainId: chain?.id!,
+          chainIds,
         }),
       ],
     })
@@ -279,9 +279,7 @@ export async function getKeys<chain extends Chain | undefined>(
 }
 
 export namespace getKeys {
-  export type Parameters<chain extends Chain | undefined = Chain | undefined> =
-    Omit<RpcSchema.wallet_getKeys.Parameters, 'chainId'> &
-      GetChainParameter<chain>
+  export type Parameters = RpcSchema.wallet_getKeys.Parameters
 
   export type ReturnType = RpcSchema.wallet_getKeys.Response
 

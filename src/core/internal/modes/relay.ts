@@ -259,10 +259,13 @@ export function relay(parameters: relay.Parameters = {}) {
       },
 
       async getKeys(parameters) {
-        const { account, internal } = parameters
+        const { account, chainIds, internal } = parameters
         const { client } = internal
 
-        const keys = await RelayActions.getKeys(client, { account })
+        const keys = await RelayActions.getKeys(client, {
+          account,
+          chainIds,
+        })
 
         return U.uniqBy(
           [...keys, ...(account.keys ?? [])],
@@ -815,7 +818,7 @@ export function relay(parameters: relay.Parameters = {}) {
       },
 
       async signTypedData(parameters) {
-        const { account, data, internal } = parameters
+        const { account, internal } = parameters
         const { client } = internal
 
         // Only admin keys can sign typed data.
@@ -824,11 +827,15 @@ export function relay(parameters: relay.Parameters = {}) {
         )
         if (!key) throw new Error('cannot find admin key to sign with.')
 
-        const domain = await Account.getSignDomain(client, account)
+        const data = Json.parse(parameters.data)
+        const domain =
+          data.domain?.name === 'Orchestrator'
+            ? undefined
+            : await Account.getSignDomain(client, account)
         const signature = await Account.sign(account, {
           domain,
           key,
-          payload: TypedData.getSignPayload(Json.parse(data)),
+          payload: TypedData.getSignPayload(data),
         })
 
         return signature
