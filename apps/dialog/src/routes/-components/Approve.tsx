@@ -135,14 +135,13 @@ export function Approve(props: Approve.Props) {
 export namespace Approve {
   export type Props = {
     amount: bigint
-    chainId?: number | undefined
+    chain?: Chains.Chain | undefined
     expiresAt?: Date
     fees?: Capabilities.feeTotals.Response | undefined
     isLoading?: boolean | undefined
     isPending: boolean
     onApprove: () => void
     onReject: () => void
-    chain?: Chains.Chain | undefined
     spender: `0x${string}`
     tokenAddress: `0x${string}`
   }

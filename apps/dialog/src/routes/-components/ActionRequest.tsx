@@ -69,7 +69,9 @@ export function ActionRequest(props: ActionRequest.Props) {
     ? prepareCallsQuery_noMerchantRpc
     : prepareCallsQuery
 
-  const { assetDiffs, feeTotals } = query_noMerchantRpc.data?.capabilities || {}
+  const capabilities = query_noMerchantRpc.data?.capabilities
+  const { assetDiffs, feeTotals } = capabilities ?? {}
+
   const quotes = prepareCallsQuery.data?.capabilities?.quote?.quotes
 
   const assetDiff = ActionRequest.AssetDiff.useAssetDiff({
