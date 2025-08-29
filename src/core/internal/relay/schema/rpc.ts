@@ -350,8 +350,8 @@ export namespace wallet_getKeys {
   export const Parameters = Schema.Struct({
     /** The address to get the keys for. */
     address: Primitive.Address,
-    /** Target chain ID. */
-    chainId: Primitive.Number,
+    /** Target chain IDs. */
+    chainIds: Schema.optional(Schema.Array(Primitive.Number)),
   }).annotations({
     identifier: 'Rpc.wallet_getKeys.Parameters',
   })
@@ -367,7 +367,10 @@ export namespace wallet_getKeys {
   export type Request = typeof Request.Type
 
   /** Response for `wallet_getKeys`. */
-  export const Response = C.authorizeKeys.Response
+  export const Response = Schema.Record({
+    key: Primitive.Hex,
+    value: C.authorizeKeys.Response,
+  })
   export type Response = typeof Response.Type
 }
 

@@ -347,7 +347,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
       },
 
       async getKeys(parameters) {
-        const { account, internal } = parameters
+        const { account, chainIds, internal } = parameters
         const { store } = internal
 
         const keys = await (async () => {
@@ -358,9 +358,10 @@ export function dialog(parameters: dialog.Parameters = {}) {
           const result = await provider.request({
             method: 'wallet_getKeys',
             params: [
-              {
+              Schema.encodeSync(RpcSchema_porto.wallet_getKeys.Parameters)({
                 address: account.address,
-              },
+                chainIds,
+              }),
             ],
           })
 
