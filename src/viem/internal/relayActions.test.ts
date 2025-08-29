@@ -1223,7 +1223,8 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
 })
 
 describe.runIf(!Anvil.enabled)('verifySignature', () => {
-  test('default', async () => {
+  // TODO(relay-v23): make digest replay-safe
+  test.skip('default', async () => {
     const key1 = Key.createHeadlessWebAuthnP256()
     const key2 = Key.createSecp256k1()
     const account = await TestActions.createAccount(client, {
@@ -1265,7 +1266,8 @@ describe.runIf(!Anvil.enabled)('verifySignature', () => {
     }
   })
 
-  test('behavior: invalid', async () => {
+  // TODO: make replay-safe
+  test.skip('behavior: invalid', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],
