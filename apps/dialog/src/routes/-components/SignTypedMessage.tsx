@@ -239,7 +239,6 @@ export function SignPermit(props: SignPermit.Props) {
     <Approve
       amount={amount}
       chain={chain}
-      chainId={chain.id}
       expiresAt={new Date(deadline * 1000)}
       isPending={isPending}
       onApprove={onSign}
