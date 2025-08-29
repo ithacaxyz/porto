@@ -13,6 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as PlaygroundImport } from './routes/playground'
 import { Route as AuthImport } from './routes/auth'
+import { Route as AboutImport } from './routes/about'
 import { Route as DashImport } from './routes/_dash'
 import { Route as DashIndexImport } from './routes/_dash/index'
 import { Route as DashSavingsImport } from './routes/_dash/savings'
@@ -33,6 +34,12 @@ const PlaygroundRoute = PlaygroundImport.update({
 const AuthRoute = AuthImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AboutRoute = AboutImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -92,6 +99,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: ''
       preLoaderRoute: typeof DashImport
+      parentRoute: typeof rootRoute
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutImport
       parentRoute: typeof rootRoute
     }
     '/auth': {
@@ -186,6 +200,7 @@ const DashRouteWithChildren = DashRoute._addFileChildren(DashRouteChildren)
 
 export interface FileRoutesByFullPath {
   '': typeof DashRouteWithChildren
+  '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/playground': typeof PlaygroundRoute
   '/activity': typeof DashActivityRoute
@@ -198,6 +213,7 @@ export interface FileRoutesByFullPath {
 }
 
 export interface FileRoutesByTo {
+  '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/playground': typeof PlaygroundRoute
   '/activity': typeof DashActivityRoute
@@ -212,6 +228,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/_dash': typeof DashRouteWithChildren
+  '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/playground': typeof PlaygroundRoute
   '/_dash/activity': typeof DashActivityRoute
@@ -227,6 +244,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | ''
+    | '/about'
     | '/auth'
     | '/playground'
     | '/activity'
@@ -238,6 +256,7 @@ export interface FileRouteTypes {
     | '/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/about'
     | '/auth'
     | '/playground'
     | '/activity'
@@ -250,6 +269,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_dash'
+    | '/about'
     | '/auth'
     | '/playground'
     | '/_dash/activity'
@@ -264,12 +284,14 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   DashRoute: typeof DashRouteWithChildren
+  AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
   PlaygroundRoute: typeof PlaygroundRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   DashRoute: DashRouteWithChildren,
+  AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
   PlaygroundRoute: PlaygroundRoute,
 }
@@ -285,6 +307,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/_dash",
+        "/about",
         "/auth",
         "/playground"
       ]
@@ -300,6 +323,9 @@ export const routeTree = rootRoute
         "/_dash/settings/recovery",
         "/_dash/settings/"
       ]
+    },
+    "/about": {
+      "filePath": "about.tsx"
     },
     "/auth": {
       "filePath": "auth.tsx"
