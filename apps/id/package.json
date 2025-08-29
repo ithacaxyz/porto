@@ -15,6 +15,7 @@
     "@ariakit/react": "catalog:",
     "@ariakit/tailwind": "catalog:",
     "@porto/apps": "workspace:*",
+    "zustand": "catalog:",
     "@sentry/react": "catalog:",
     "@sentry/vite-plugin": "catalog:",
     "@tanstack/query-sync-storage-persister": "catalog:",
