@@ -8,7 +8,6 @@ import {
 } from 'ox'
 import { verifyHash } from 'viem/actions'
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
-
 import { createAccount } from '../../test/src/actions.js'
 import * as TestConfig from '../../test/src/config.js'
 import * as Key from './Key.js'
@@ -63,8 +62,7 @@ describe('createSecp256k1', () => {
     `)
   })
 
-  // TODO(relay-v23): make digest replay-safe
-  test.skip('behavior: authorize + sign', async () => {
+  test('behavior: authorize + sign', async () => {
     const key = Key.createSecp256k1()
     const account = await createAccount(client, {
       deploy: true,
@@ -72,7 +70,9 @@ describe('createSecp256k1', () => {
     })
 
     const payload = Hex.random(32)
+    const domain = await Key.getSignDomain(client, account)
     const signature = await Key.sign(key, {
+      domain,
       payload,
     })
 
@@ -155,8 +155,7 @@ describe('createWebAuthnP256', () => {
     `)
   })
 
-  // TODO(relay-v23): make digest replay-safe
-  test.skip('behavior: authorize + sign', async () => {
+  test('behavior: authorize + sign', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await createAccount(client, {
       deploy: true,
@@ -164,7 +163,9 @@ describe('createWebAuthnP256', () => {
     })
 
     const payload = Hex.random(32)
+    const domain = await Key.getSignDomain(client, account)
     const signature = await Key.sign(key, {
+      domain,
       payload,
     })
 

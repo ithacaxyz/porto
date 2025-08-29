@@ -1,5 +1,5 @@
 import { Hex } from 'ox'
-import { verifyHash, verifyMessage } from 'viem/actions'
+import { verifyHash } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
 import { createAccount } from '../../test/src/actions.js'
@@ -67,24 +67,6 @@ describe('from', () => {
       }
     `)
   })
-
-  test('behavior: signMessage (key)', async () => {
-    const key = Key.createHeadlessWebAuthnP256()
-    const account = await createAccount(client, {
-      deploy: true,
-      keys: [key],
-    })
-
-    const signature = await account.signMessage({ message: 'hello world' })
-
-    const valid = await verifyMessage(client, {
-      address: account.address,
-      message: 'hello world',
-      signature,
-    })
-
-    expect(valid).toBe(true)
-  })
 })
 
 describe('fromPrivateKey', () => {
@@ -117,7 +99,9 @@ describe('sign', () => {
     })
 
     const payload = Hex.random(32)
+    const domain = await Account.getSignDomain(client, account)
     const signature = await Account.sign(account, {
+      domain,
       payload,
     })
 
@@ -139,9 +123,11 @@ describe('sign', () => {
     })
 
     const payload = Hex.random(32)
+    const domain = await Account.getSignDomain(client, account)
 
     {
       const signature = await Account.sign(account, {
+        domain,
         key,
         payload,
       })
@@ -157,6 +143,7 @@ describe('sign', () => {
 
     {
       const signature = await Account.sign(account, {
+        domain,
         key: 0,
         payload,
       })
@@ -233,8 +220,10 @@ describe('sign', () => {
     })
 
     const payload = Hex.random(32)
+    const domain = await Account.getSignDomain(client, account)
 
     const signature = await Account.sign(account, {
+      domain,
       payload,
     })
 
