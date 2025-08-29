@@ -496,10 +496,11 @@ export function from<
           )
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          const client = getClient(chainIds?.[0])
+          const client = getClient()
 
           const keys = await getMode().actions.getKeys({
             account,
+            chainIds,
             internal: { client, config, request, store },
           })
 
@@ -519,10 +520,11 @@ export function from<
             : state.accounts[0]
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          const client = getClient(chainIds?.[0])
+          const client = getClient()
 
           const keys = await getMode().actions.getKeys({
             account,
+            chainIds,
             internal: {
               client,
               config,
@@ -532,7 +534,6 @@ export function from<
           })
           const permissions = getActivePermissions(keys, {
             address: account.address,
-            chainIds: chainIds ? [...chainIds] : [client.chain.id],
           })
 
           return permissions satisfies typeof Rpc.wallet_getPermissions.Response.Encoded
@@ -1186,10 +1187,7 @@ function getAdmins(
 
 function getActivePermissions(
   keys: readonly Key.Key[],
-  {
-    address,
-    chainIds,
-  }: { address: Address.Address; chainIds?: number[] | undefined },
+  { address }: { address: Address.Address },
 ): typeof Rpc.wallet_getPermissions.Response.Encoded {
   return keys
     .map((key) => {
@@ -1197,7 +1195,6 @@ function getActivePermissions(
       if (key.role !== 'session') return undefined
       if (key.expiry > 0 && key.expiry < BigInt(Math.floor(Date.now() / 1000)))
         return undefined
-      if (chainIds && !chainIds.includes(key.chainId)) return undefined
       try {
         return Schema.encodeSync(Permissions.Schema)(
           Permissions.fromKey(key, { address }),

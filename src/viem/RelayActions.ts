@@ -74,23 +74,25 @@ export async function getKeys<
   account extends Account.Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: getKeys.Parameters<chain, account>,
+  parameters: getKeys.Parameters<account>,
 ): Promise<getKeys.ReturnType> {
-  const { account = client.account, chain = client.chain } = parameters
+  const { account = client.account, chainIds } = parameters
   const account_ = account ? Account.from(account) : undefined
   if (!account_) throw new Error('account is required.')
   const keys = await RelayActions.getKeys(client, {
     address: account_.address,
-    chain,
+    chainIds,
   })
-  return keys.map((key) => Key.fromRelay(key, { chainId: chain?.id ?? 0 }))
+  return Object.entries(keys).flatMap(([chainId, keys]) =>
+    keys.map((key) => Key.fromRelay(key, { chainId: Number(chainId) })),
+  )
 }
 
 export namespace getKeys {
   export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
     account extends Account.Account | undefined = Account.Account | undefined,
-  > = GetChainParameter<chain> & GetAccountParameter<account>
+  > = GetAccountParameter<account> &
+    Pick<RelayActions.getKeys.Parameters, 'chainIds'>
 
   export type ReturnType = readonly Key.Key[]
 
@@ -695,7 +697,7 @@ export type Decorator<
    * @returns Result.
    */
   getKeys: (
-    parameters: getKeys.Parameters<chain, account>,
+    parameters: getKeys.Parameters<account>,
   ) => Promise<getKeys.ReturnType>
   /**
    * Gets the health of the RPC.
