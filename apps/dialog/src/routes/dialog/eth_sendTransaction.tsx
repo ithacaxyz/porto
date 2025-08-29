@@ -119,7 +119,6 @@ function RouteComponent() {
       <Approve
         amount={approval.amount}
         chain={chain}
-        chainId={chainId}
         fees={feeTotals}
         isLoading={prepareCallsQuery.isPending}
         isPending={respond.isPending}
