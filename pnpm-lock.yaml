@@ -140,6 +140,9 @@ patchedDependencies:
   '@wagmi/core':
     hash: 049ef0ca2574b9586b51482584b89fb1376b94c1a64fe84d4c0ed4a1e795d9f3
     path: patches/@wagmi__core.patch
+  prool:
+    hash: 137a7bf13f292686c1d0939613a80d21349e693d894bc441a56f28a553828a07
+    path: patches/prool.patch
 
 importers:
 
@@ -207,7 +210,7 @@ importers:
         version: 1.53.0
       prool:
         specifier: 'catalog:'
-        version: 0.0.23
+        version: 0.0.23(patch_hash=137a7bf13f292686c1d0939613a80d21349e693d894bc441a56f28a553828a07)
       publint:
         specifier: ^0.3.12
         version: 0.3.12
@@ -620,7 +623,7 @@ importers:
         version: 16.2.0
       prool:
         specifier: ^0.0.23
-        version: 0.0.23
+        version: 0.0.23(patch_hash=137a7bf13f292686c1d0939613a80d21349e693d894bc441a56f28a553828a07)
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -20860,7 +20863,7 @@ snapshots:
       kleur: 3.0.3
       sisteransi: 1.0.5
 
-  prool@0.0.23:
+  prool@0.0.23(patch_hash=137a7bf13f292686c1d0939613a80d21349e693d894bc441a56f28a553828a07):
     dependencies:
       change-case: 5.4.4
       eventemitter3: 5.0.1

@@ -1,0 +1,12 @@
+diff --git a/_lib/instances/anvil.js b/_lib/instances/anvil.js
+index 3b5cb0b4b1d141f710271e8b59792d2b0bdaa443..0798c8a83d421c4e534107e13df4c0adb85f19ef 100644
+--- a/_lib/instances/anvil.js
++++ b/_lib/instances/anvil.js
+@@ -37,6 +37,7 @@ export const anvil = defineInstance((parameters) => {
+                 resolver({ process, reject, resolve }) {
+                     process.stdout.on('data', (data) => {
+                         const message = data.toString();
++                        console.log(message)
+                         if (message.includes('Listening on'))
+                             resolve();
+                     });

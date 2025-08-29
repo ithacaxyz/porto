@@ -45,6 +45,7 @@ function defineAnvil(parameters: AnvilParameters) {
     ...parameters,
     accounts: accounts.length,
     odyssey: true,
+    printTraces: true,
   } as const
 
   const transport = RpcTransport.fromHttp(rpcUrl)
