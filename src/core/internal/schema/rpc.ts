@@ -308,7 +308,7 @@ export namespace wallet_getAccountVersion {
 export namespace wallet_getPermissions {
   export const Parameters = Schema.Struct({
     address: Schema.optional(Primitive.Address),
-    chainId: Schema.optional(Primitive.Number),
+    chainIds: Schema.optional(Schema.Array(Primitive.Number)),
   }).annotations({
     identifier: 'Rpc.wallet_getPermissions.Parameters',
   })
@@ -639,7 +639,7 @@ export namespace wallet_getCapabilities {
 export namespace wallet_getKeys {
   export const Parameters = Schema.Struct({
     address: Primitive.Address,
-    chainId: Schema.optional(Primitive.Number),
+    chainIds: Schema.optional(Schema.Array(Primitive.Number)),
   }).annotations({
     identifier: 'Rpc.wallet_getKeys.Parameters',
   })
