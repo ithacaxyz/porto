@@ -99,7 +99,9 @@ describe('sign', () => {
     })
 
     const payload = Hex.random(32)
+    const domain = await Account.getSignDomain(client, account)
     const signature = await Account.sign(account, {
+      domain,
       payload,
     })
 
@@ -121,9 +123,11 @@ describe('sign', () => {
     })
 
     const payload = Hex.random(32)
+    const domain = await Account.getSignDomain(client, account)
 
     {
       const signature = await Account.sign(account, {
+        domain,
         key,
         payload,
       })
@@ -139,6 +143,7 @@ describe('sign', () => {
 
     {
       const signature = await Account.sign(account, {
+        domain,
         key: 0,
         payload,
       })
@@ -215,8 +220,10 @@ describe('sign', () => {
     })
 
     const payload = Hex.random(32)
+    const domain = await Account.getSignDomain(client, account)
 
     const signature = await Account.sign(account, {
+      domain,
       payload,
     })
 
