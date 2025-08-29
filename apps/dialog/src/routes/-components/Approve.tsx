@@ -1,5 +1,5 @@
 import { ChainIcon } from '@porto/apps/components'
-import { Button, ButtonArea, TokenIcon, Spinner } from '@porto/ui'
+import { Button, ButtonArea, Spinner, TokenIcon } from '@porto/ui'
 import { a, useTransition } from '@react-spring/web'
 import { Value } from 'ox'
 import type { Chains } from 'porto'
