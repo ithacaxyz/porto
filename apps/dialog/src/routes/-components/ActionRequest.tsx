@@ -9,7 +9,7 @@ import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
 import type * as Rpc from 'porto/core/internal/schema/request'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
-import { type Call, ethAddress, decodeFunctionData, erc20Abi } from 'viem'
+import { type Call, ethAddress } from 'viem'
 import { CheckBalance } from '~/components/CheckBalance'
 import * as Calls from '~/lib/Calls'
 import { porto } from '~/lib/Porto'
@@ -25,7 +25,6 @@ import TriangleAlert from '~icons/lucide/triangle-alert'
 import LucideVideo from '~icons/lucide/video'
 import Star from '~icons/ph/star-four-bold'
 import IconArrowRightCircle from '~icons/porto/arrow-right-circle'
-import { Approve } from './Approve'
 
 export function ActionRequest(props: ActionRequest.Props) {
   const {
@@ -50,10 +49,7 @@ export function ActionRequest(props: ActionRequest.Props) {
     chainId,
     feeToken,
     merchantRpcUrl,
-    refetchInterval(query) {
-      if (query.state.error) return false
-      return 15_000
-    },
+    refetchInterval: ({ state }) => (state.error ? false : 15_000),
     requiredFunds,
   })
 
@@ -68,35 +64,29 @@ export function ActionRequest(props: ActionRequest.Props) {
     feeToken,
     requiredFunds,
   })
+
   const query_noMerchantRpc = merchantRpcUrl
     ? prepareCallsQuery_noMerchantRpc
     : prepareCallsQuery
 
-  const capabilities = query_noMerchantRpc.data?.capabilities
-  const { assetDiffs, feeTotals } = capabilities ?? {}
-
-  const quotes = prepareCallsQuery.data?.capabilities.quote?.quotes
+  const { assetDiffs, feeTotals } = query_noMerchantRpc.data?.capabilities || {}
+  const quotes = prepareCallsQuery.data?.capabilities?.quote?.quotes
 
   const assetDiff = ActionRequest.AssetDiff.useAssetDiff({
-    address: account!.address,
+    address: account?.address,
     assetDiff: assetDiffs,
   })
 
-  const approval = React.useMemo(() => {
-    const [call] = calls
-    if (!call || !call.data) return null
-    try {
-      const decoded = decodeFunctionData({ abi: erc20Abi, data: call.data })
-      if (decoded.functionName === 'approve')
-        return {
-          amount: decoded.args[1],
-          spender: decoded.args[0],
-          tokenAddress: call.to,
-        }
-    } catch {
-      return null
-    }
-  }, [calls])
+  const isError =
+    prepareCallsQuery.isError || prepareCallsQuery_noMerchantRpc.isError
+  const isLoading =
+    prepareCallsQuery.isPending || prepareCallsQuery_noMerchantRpc.isPending
+  const error = prepareCallsQuery.error || prepareCallsQuery_noMerchantRpc.error
+
+  const quote_destination = quotes?.[quotes.length - 1]
+  const isSponsored =
+    quote_destination?.intent?.payer !==
+    '0x0000000000000000000000000000000000000000'
 
   return (
     <CheckBalance
@@ -105,69 +95,55 @@ export function ActionRequest(props: ActionRequest.Props) {
       onReject={onReject}
       query={prepareCallsQuery}
     >
-      {approval ? (
-        <Approve
-          amount={approval.amount}
-          chainId={chainId ?? 1} // TODO
-          isPending={Boolean(prepareCallsQuery.isPending || loading)}
-          onApprove={() =>
-            prepareCallsQuery.data && onApprove(prepareCallsQuery.data)
-          }
-          onReject={onReject}
-          spender={approval.spender}
-          tokenAddress={approval.tokenAddress}
-        />
-      ) : (
-        <Layout>
-          <Layout.Header>
-            <Layout.Header.Default
-              icon={prepareCallsQuery.isError ? TriangleAlert : Star}
-              title="Review action"
-              variant={prepareCallsQuery.isError ? 'warning' : 'default'}
-            />
-          </Layout.Header>
+      <Layout>
+        <Layout.Header>
+          <Layout.Header.Default
+            icon={isError ? TriangleAlert : Star}
+            title="Review action"
+            variant={isError ? 'warning' : 'default'}
+          />
+        </Layout.Header>
 
-          <Layout.Content className="pb-2!">
-            <ActionRequest.PaneWithDetails
-              error={prepareCallsQuery.error}
-              errorMessage="An error occurred while simulating the action. Proceed with caution."
-              feeTotals={feeTotals}
-              quotes={quotes}
-              status={prepareCallsQuery.status}
+        <Layout.Content className="pb-2!">
+          <ActionRequest.PaneWithDetails
+            error={error}
+            errorMessage="An error occurred while simulating the action. Proceed with caution."
+            feeTotals={isSponsored ? undefined : feeTotals}
+            quotes={quotes}
+            status={isLoading ? 'pending' : isError ? 'error' : 'success'}
+          >
+            {assetDiff.length > 0 ? (
+              <ActionRequest.AssetDiff assetDiff={assetDiff} />
+            ) : undefined}
+          </ActionRequest.PaneWithDetails>
+        </Layout.Content>
+
+        <Layout.Footer>
+          <Layout.Footer.Actions>
+            <Button
+              disabled={prepareCallsQuery.isPending || loading}
+              onClick={onReject}
+              variant="negative-secondary"
             >
-              {assetDiff.length > 0 ? (
-                <ActionRequest.AssetDiff assetDiff={assetDiff} />
-              ) : undefined}
-            </ActionRequest.PaneWithDetails>
-          </Layout.Content>
+              Deny
+            </Button>
+            <Button
+              data-testid="confirm"
+              disabled={!prepareCallsQuery.isSuccess}
+              loading={loading && 'Sending…'}
+              onClick={() => onApprove(prepareCallsQuery.data!)}
+              variant="positive"
+              width="grow"
+            >
+              {prepareCallsQuery.isError ? 'Approve anyway' : 'Approve'}
+            </Button>
+          </Layout.Footer.Actions>
 
-          <Layout.Footer>
-            <Layout.Footer.Actions>
-              <Button
-                disabled={prepareCallsQuery.isPending || loading}
-                onClick={onReject}
-                variant="negative-secondary"
-              >
-                Deny
-              </Button>
-              <Button
-                data-testid="confirm"
-                disabled={!prepareCallsQuery.isSuccess}
-                loading={loading && 'Sending…'}
-                onClick={() => onApprove(prepareCallsQuery.data!)}
-                variant="positive"
-                width="grow"
-              >
-                {prepareCallsQuery.isError ? 'Approve anyway' : 'Approve'}
-              </Button>
-            </Layout.Footer.Actions>
-
-            {account?.address && (
-              <Layout.Footer.Account address={account.address} />
-            )}
-          </Layout.Footer>
-        </Layout>
-      )}
+          {account?.address && (
+            <Layout.Footer.Account address={account.address} />
+          )}
+        </Layout.Footer>
+      </Layout>
     </CheckBalance>
   )
 }
@@ -255,7 +231,7 @@ export namespace ActionRequest {
 
     export namespace useAssetDiff {
       export type Props = {
-        address: Address.Address
+        address?: Address.Address | undefined
         assetDiff: NonNullable<
           Rpc.wallet_prepareCalls.Response['capabilities']
         >['assetDiffs']

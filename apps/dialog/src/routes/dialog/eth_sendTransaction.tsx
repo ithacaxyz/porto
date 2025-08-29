@@ -4,11 +4,14 @@ import { Provider } from 'ox'
 import { Account, Key } from 'porto'
 import { Actions, Hooks } from 'porto/remote'
 import { RelayActions } from 'porto/viem'
+import * as React from 'react'
+import { decodeFunctionData, erc20Abi } from 'viem'
 import { waitForCallsStatus } from 'viem/actions'
-import type * as Calls from '~/lib/Calls'
+import * as Calls from '~/lib/Calls'
 import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
 import { ActionRequest } from '../-components/ActionRequest'
+import { Approve } from '../-components/Approve'
 
 export const Route = createFileRoute('/dialog/eth_sendTransaction')({
   component: RouteComponent,
@@ -27,8 +30,47 @@ function RouteComponent() {
   const calls = [{ data, to: to!, value }] as const
   const feeToken = capabilities?.feeToken
 
+  const prepareCallsQuery = Calls.prepareCalls.useQuery({
+    address: from,
+    calls,
+    chainId,
+    feeToken,
+    refetchInterval: ({ state }) => (state.error ? false : 15_000),
+    requiredFunds: undefined,
+  })
+
   const account = Hooks.useAccount(porto, { address: from })
   const client = Hooks.useRelayClient(porto, { chainId })
+
+  const feeTotals = prepareCallsQuery.data?.capabilities.feeTotals
+  const quotes = prepareCallsQuery.data?.capabilities.quote?.quotes
+
+  const chain = React.useMemo(() => {
+    if (quotes && quotes.length > 0) {
+      const destinationChain = quotes[quotes.length - 1]
+      if (destinationChain)
+        return porto.config.chains.find(
+          (chain) => chain.id === destinationChain.chainId,
+        )
+    }
+    return porto.config.chains.find((c) => c.id === chainId)
+  }, [quotes, chainId])
+
+  const approval = React.useMemo(() => {
+    const [call] = calls
+    if (!call || !call.data) return null
+    try {
+      const decoded = decodeFunctionData({ abi: erc20Abi, data: call.data })
+      if (decoded.functionName === 'approve')
+        return {
+          amount: decoded.args[1],
+          spender: decoded.args[0],
+          tokenAddress: call.to,
+        }
+    } catch {
+      return null
+    }
+  }, [calls])
 
   const respond = useMutation({
     // TODO: use EIP-1193 Provider + `wallet_sendPreparedCalls` in the future
@@ -71,6 +113,24 @@ function RouteComponent() {
       })
     },
   })
+
+  if (approval)
+    return (
+      <Approve
+        amount={approval.amount}
+        chain={chain}
+        chainId={chainId}
+        fees={feeTotals}
+        isLoading={prepareCallsQuery.isPending}
+        isPending={respond.isPending}
+        onApprove={() =>
+          prepareCallsQuery.data && respond.mutate(prepareCallsQuery.data)
+        }
+        onReject={() => Actions.reject(porto, request)}
+        spender={approval.spender}
+        tokenAddress={approval.tokenAddress}
+      />
+    )
 
   return (
     <ActionRequest

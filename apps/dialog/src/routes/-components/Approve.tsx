@@ -1,24 +1,28 @@
-import { Button, ButtonArea, Spinner, TokenIcon } from '@porto/ui'
+import { ChainIcon, Spinner } from '@porto/apps/components'
+import { Button, ButtonArea, TokenIcon } from '@porto/ui'
 import { a, useTransition } from '@react-spring/web'
 import { Value } from 'ox'
-import { Chains } from 'porto'
+import type { Chains } from 'porto'
+import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import * as React from 'react'
 import { erc20Abi, maxUint256 } from 'viem'
 import { useReadContracts } from 'wagmi'
-import { StringFormatter } from '~/utils'
+import { CopyButton } from '~/components/CopyButton'
+import { PriceFormatter, StringFormatter } from '~/utils'
 import LucideInfo from '~icons/lucide/info'
 import LucideLockKeyholeOpen from '~icons/lucide/lock-keyhole-open'
 import { Layout } from './Layout'
-import { CopyButton } from '~/components/CopyButton'
 
 export function Approve(props: Approve.Props) {
   const {
     amount,
-    chainId,
+    chain,
     expiresAt,
+    fees,
+    isLoading,
+    isPending,
     onApprove,
     onReject,
-    isPending,
     spender,
     tokenAddress,
   } = props
@@ -73,7 +77,7 @@ export function Approve(props: Approve.Props) {
                 {expiresAt ? 'Requested by' : 'Spender'}
               </div>
               <div
-                className="flex flex-grow items-center justify-end gap-2 truncate text-[14px] text-th_base"
+                className="flex flex-grow items-center justify-end gap-2 text-[14px] text-th_base"
                 title={spender}
               >
                 {StringFormatter.truncate(spender)}
@@ -81,24 +85,25 @@ export function Approve(props: Approve.Props) {
               </div>
             </div>
           </div>
-          <div className="-mb-[4px]">
-            {showDetails ? (
-              <div className="flex h-[33px] w-full items-center justify-between gap-[6px] rounded-th_medium bg-th_base-alt px-[12px] text-[13px]">
-                <span className="text-th_base-secondary">Network</span>
-                <span className="font-medium text-th_base">
-                  {Chains.all.find((c) => c.id === chainId)?.name || 'Unknown'}
-                </span>
+          {showDetails ? (
+            <div className="flex w-full items-center justify-between gap-[6px] rounded-th_medium bg-th_base-alt px-[12px] text-[13px]">
+              <div className="flex w-full flex-col gap-[6px] py-[8px]">
+                <Approve.Details
+                  chain={chain}
+                  fees={fees}
+                  isLoading={isLoading}
+                />
               </div>
-            ) : (
-              <ButtonArea
-                className="flex h-[33px] w-full items-center justify-center gap-[6px] rounded-th_medium bg-th_base-alt text-[13px] text-th_base-secondary"
-                onClick={() => setShowDetails(true)}
-              >
-                <LucideInfo className="size-4" />
-                <span>Show more details</span>
-              </ButtonArea>
-            )}
-          </div>
+            </div>
+          ) : (
+            <ButtonArea
+              className="flex h-[34px] w-full items-center justify-center gap-[6px] rounded-th_medium bg-th_base-alt text-[13px] text-th_base-secondary"
+              onClick={() => setShowDetails(true)}
+            >
+              <LucideInfo className="size-4" />
+              <span>Show more details</span>
+            </ButtonArea>
+          )}
         </div>
       </Layout.Content>
 
@@ -130,11 +135,14 @@ export function Approve(props: Approve.Props) {
 export namespace Approve {
   export type Props = {
     amount: bigint
-    chainId: number
+    chainId?: number | undefined
     expiresAt?: Date
+    fees?: Capabilities.feeTotals.Response | undefined
+    isLoading?: boolean | undefined
     isPending: boolean
     onApprove: () => void
     onReject: () => void
+    chain?: Chains.Chain | undefined
     spender: `0x${string}`
     tokenAddress: `0x${string}`
   }
@@ -230,5 +238,50 @@ export namespace Approve {
       symbol?: string | undefined
     }
   }
-}
 
+  export function Details(props: Details.Props) {
+    const { chain, fees, isLoading } = props
+
+    const feeTotal = React.useMemo(() => {
+      if (!fees) return
+      const feeTotal = fees['0x0']?.value
+      if (!feeTotal) return
+      return PriceFormatter.format(Number(feeTotal))
+    }, [fees])
+
+    if (isLoading)
+      return (
+        <div className="flex h-[18px] items-center justify-center text-[14px] text-th_base-secondary">
+          Loading details…
+        </div>
+      )
+
+    return (
+      <>
+        {fees && (
+          <div className="flex h-[18px] items-center justify-between text-[14px]">
+            <div className="text-th_base-secondary">Fees (est.)</div>
+            <div className="font-medium">{feeTotal}</div>
+          </div>
+        )}
+        {chain && (
+          <div className="flex h-[18px] items-center justify-between text-[14px]">
+            <span className="text-th_base-secondary">Network</span>
+            <div className="flex items-center gap-[6px]">
+              <ChainIcon chainId={chain.id} />
+              <span className="font-medium">{chain.name}</span>
+            </div>
+          </div>
+        )}
+      </>
+    )
+  }
+
+  export namespace Details {
+    export type Props = {
+      chain?: Chains.Chain | undefined
+      fees?: Capabilities.feeTotals.Response | undefined
+      isLoading?: boolean | undefined
+    }
+  }
+}
