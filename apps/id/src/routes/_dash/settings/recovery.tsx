@@ -1,9 +1,16 @@
 import * as Ariakit from '@ariakit/react'
-import { createFileRoute, Link, useRouteContext } from '@tanstack/react-router'
+import {
+  CatchBoundary,
+  createFileRoute,
+  Link,
+  type RouterEvents,
+  useRouteContext,
+  useRouter,
+} from '@tanstack/react-router'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
+import { baseSepolia } from 'viem/chains'
 import {
-  type Connector,
   useAccount,
   useAccountEffect,
   useConnect,
@@ -25,26 +32,25 @@ function RouteComponent() {
   const { account: portoAccount } = useRouteContext({
     from: '/_dash/settings/recovery',
   })
+  const chainId = window.location.search.includes('testnet')
+    ? baseSepolia.id
+    : (portoAccount?.chainId as never)
 
-  const [_selectedConnector, setSelectedConnector] = React.useState<
-    Connector | undefined
-  >(undefined)
+  const grantAdmin = Hooks.useGrantAdmin()
+
   const account = useAccount({ config: mipdConfig })
   const connect = useConnect({
     config: mipdConfig,
     mutation: {
       onMutate: (_variables) => {
-        if (account.chainId !== portoAccount?.chainId) {
-          console.info('switching chain', {
-            accountChainId: account.chainId,
-            portoChainId: portoAccount?.chainId,
-          })
-        }
+        if (account.chainId === chainId) return
+        switchChain.switchChain({ chainId })
       },
     },
   })
   const connectors = useConnectors({ config: mipdConfig })
   const disconnect = useDisconnect({ config: mipdConfig })
+  const switchChain = useSwitchChain({ config: mipdConfig })
 
   const disconnectAll = async () =>
     Promise.all([
@@ -52,89 +58,105 @@ function RouteComponent() {
       ...connectors.map((connector) => connector.disconnect()),
     ])
 
-  const switchChain = useSwitchChain({ config: mipdConfig })
+  useRouterEvent('onBeforeNavigate', (event) => {
+    if (event.hrefChanged && event.fromLocation) disconnectAll()
+  })
 
-  const grantAdmin = Hooks.useGrantAdmin()
+  useRouterEvent('onResolved', () => switchChain.switchChain({ chainId }))
 
   useAccountEffect({
     onConnect: (data) => {
-      if (data.chainId !== portoAccount?.chainId) {
-        switchChain.switchChain({
-          chainId: portoAccount.chainId as never,
-        })
-      }
+      if (data.chainId === chainId) return
+      switchChain.switchChain({ chainId })
     },
-    onDisconnect: () => {},
   })
 
   if (!connectors.length) return <div>No wallets found</div>
   return (
-    <div>
-      <h2>Add recovery wallet</h2>
-      <p>
-        If you lose access, recover your account with a wallet of your choice.
-      </p>
-      <pre>
-        {JSON.stringify(
-          {
-            connectedAddress: account.address,
-            connectedConnector: account.connector?.id,
-            view,
-          },
-          null,
-          2,
-        )}
-      </pre>
-      <section>
-        <ol className="flex flex-col gap-3 py-2">
-          {connectors.map((connector) => (
-            <li key={connector.uid}>
-              <Ariakit.Button
-                className="flex items-center gap-2"
-                onClick={async (event) => {
-                  event.preventDefault()
-                  setView('loading')
-                  setSelectedConnector(connector)
-                  await disconnectAll()
-                  await connect
-                    .connectAsync({ connector })
-                    .then(({ accounts: [address] }) =>
-                      grantAdmin.mutate({
-                        address: portoAccount.address,
-                        chainId: account.chainId as never,
-                        key: { publicKey: address, type: 'address' },
-                      }),
-                    )
-                    .then(() => setView('success'))
-                    .catch(() => setView('error'))
-                    .finally(() => disconnectAll())
-                }}
-              >
-                <Ariakit.VisuallyHidden>
+    <CatchBoundary
+      getResetKey={() => 'recovery'}
+      onCatch={(error, errorInfo) => {
+        console.error(error, errorInfo)
+        disconnectAll()
+      }}
+    >
+      <div>
+        <h2>Add recovery wallet</h2>
+        <p>
+          If you lose access, recover your account with a wallet of your choice.
+        </p>
+        <pre>
+          {JSON.stringify(
+            {
+              chainId,
+              connectedAddress: account.address,
+              connectedConnector: account.connector?.id,
+              view,
+            },
+            null,
+            2,
+          )}
+        </pre>
+        <section>
+          <ol className="flex flex-col gap-3 py-2">
+            {connectors.map((connector) => (
+              <li key={connector.uid}>
+                <Ariakit.Button
+                  className="flex items-center gap-2"
+                  onClick={async (event) => {
+                    event.preventDefault()
+                    setView('loading')
+                    await disconnectAll()
+                    await connect
+                      .connectAsync({ connector })
+                      .then(({ accounts: [address] }) =>
+                        grantAdmin.mutate({
+                          address: portoAccount.address,
+                          chainId,
+                          key: { publicKey: address, type: 'address' },
+                        }),
+                      )
+                      .then(() => setView('success'))
+                      .catch(() => setView('error'))
+                  }}
+                >
+                  <Ariakit.VisuallyHidden>
+                    {connector.name}
+                  </Ariakit.VisuallyHidden>
+                  <img
+                    alt={connector.name}
+                    height={24}
+                    src={connector.icon}
+                    width={24}
+                  />
                   {connector.name}
-                </Ariakit.VisuallyHidden>
-                <img
-                  alt={connector.name}
-                  height={24}
-                  src={connector.icon}
-                  width={24}
-                />
-                {connector.name}
-              </Ariakit.Button>
-            </li>
-          ))}
-        </ol>
-      </section>
-      <Ariakit.Button
-        onClick={() =>
-          connectors.map((connector) => disconnect.disconnect({ connector }))
-        }
-        render={
-          <Link className="" to="..">
-            I'll do this later
-          </Link>
-        }
-      />
-    </div>
+                </Ariakit.Button>
+              </li>
+            ))}
+          </ol>
+        </section>
+        <Ariakit.Button
+          onClick={() =>
+            connectors.map((connector) => disconnect.disconnect({ connector }))
+          }
+          render={
+            <Link className="" to="..">
+              I'll do this later
+            </Link>
+          }
+        />
+      </div>
+    </CatchBoundary>
+  )
+}
+
+function useRouterEvent<T extends keyof RouterEvents>(
+  type: T,
+  handler: (event: RouterEvents[T]) => void,
+) {
+  const router = useRouter()
+  React.useEffect(
+    () => router.subscribe(type, handler),
+    [router, type, handler],
   )
 }
