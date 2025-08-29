@@ -80,7 +80,7 @@ const offInitialized = Events.onInitialized(porto, (payload, event) => {
 
 const offDialogRequest = Events.onDialogRequest(
   porto,
-  async ({ account, request, requireUpdatedAccount }) => {
+  async ({ account, request }) => {
     const connectedAccount = porto._internal.store.getState().accounts[0]
     const requireAccountSync =
       account && account.address !== connectedAccount?.address
@@ -106,7 +106,6 @@ const offDialogRequest = Events.onDialogRequest(
           _decoded: undefined,
           ...request,
           account,
-          requireUpdatedAccount,
         } as never
       },
       to: '/dialog/' + (request?.method ?? ''),

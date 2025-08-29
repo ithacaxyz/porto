@@ -6,6 +6,7 @@
 
 import * as Schema from 'effect/Schema'
 import * as Primitive from '../../schema/primitive.js'
+import { OneOf } from '../../schema/schema.js'
 import * as C from './capabilities.js'
 import * as Key from './key.js'
 import * as PreCall from './preCall.js'
@@ -274,22 +275,32 @@ export namespace wallet_getAssets {
   export const Response = Schema.Record({
     key: Schema.String,
     value: Schema.Array(
-      Schema.Struct({
-        address: Schema.Union(
-          Primitive.Address,
-          Schema.Literal('native'),
-          Schema.Null,
-        ),
-        balance: Primitive.BigInt,
-        metadata: Schema.NullOr(
-          Schema.Struct({
-            decimals: Schema.Number,
-            name: Schema.String,
-            symbol: Schema.String,
-          }),
-        ),
-        type: Schema.String,
-      }),
+      OneOf(
+        Schema.Struct({
+          address: Primitive.Address,
+          balance: Primitive.BigInt,
+          metadata: Schema.NullOr(
+            Schema.Struct({
+              decimals: Schema.Number,
+              name: Schema.String,
+              symbol: Schema.String,
+            }),
+          ),
+          type: Schema.Literal('erc20'),
+        }),
+        Schema.Struct({
+          address: Schema.NullOr(Schema.Literal('native')),
+          balance: Primitive.BigInt,
+          metadata: Schema.NullOr(
+            Schema.Struct({
+              decimals: Schema.Number,
+              name: Schema.optional(Schema.String),
+              symbol: Schema.optional(Schema.String),
+            }),
+          ),
+          type: Schema.Literal('native'),
+        }),
+      ),
     ),
   }).annotations({
     identifier: 'Rpc.wallet_getAssets.Response',
@@ -339,8 +350,8 @@ export namespace wallet_getKeys {
   export const Parameters = Schema.Struct({
     /** The address to get the keys for. */
     address: Primitive.Address,
-    /** Target chain ID. */
-    chainId: Primitive.Number,
+    /** Target chain IDs. */
+    chainIds: Schema.optional(Schema.Array(Primitive.Number)),
   }).annotations({
     identifier: 'Rpc.wallet_getKeys.Parameters',
   })
@@ -356,7 +367,10 @@ export namespace wallet_getKeys {
   export type Request = typeof Request.Type
 
   /** Response for `wallet_getKeys`. */
-  export const Response = C.authorizeKeys.Response
+  export const Response = Schema.Record({
+    key: Primitive.Hex,
+    value: C.authorizeKeys.Response,
+  })
   export type Response = typeof Response.Type
 }
 

@@ -34,7 +34,6 @@ export function onDialogRequest(
             | undefined
         }
       | undefined
-    requireUpdatedAccount?: boolean | undefined
     request: Remote.RemoteState['requests'][number]['request'] | null
     origin: string
   }) => void,
@@ -121,14 +120,12 @@ export function onDialogRequest(
       return
     }
 
-    const requireUpdatedAccount = policy?.requireUpdatedAccount ?? true
     const requireConnection = policy?.requireConnection ?? true
 
     cb({
       account: requireConnection ? account : undefined,
       origin: event.origin,
       request,
-      requireUpdatedAccount,
     })
   })
 }

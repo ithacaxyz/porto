@@ -486,8 +486,8 @@ export namespace ActionRequest {
       error,
       errorMessage = 'An error occurred. Proceed with caution.',
       feeTotals,
-      status,
       quotes,
+      status,
     } = props
 
     const hasChildren = React.useMemo(

@@ -16,17 +16,17 @@ import {
   readContract,
   setCode,
   signTypedData,
+  verifyHash,
   waitForCallsStatus,
   waitForTransactionReceipt,
 } from 'viem/actions'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 import { accountOldProxyAddress } from '../../../test/src/_generated/addresses.js'
 import { createAccount, setBalance } from '../../../test/src/actions.js'
 import * as Anvil from '../../../test/src/anvil.js'
 import * as TestConfig from '../../../test/src/config.js'
 import * as Http from '../../../test/src/http.js'
-import * as Relay from '../../../test/src/relay.js'
 import * as RelayActions from '../../viem/RelayActions.js'
 import * as RelayClient from '../../viem/RelayClient.js'
 import * as WalletClient from '../../viem/WalletClient.js'
@@ -145,7 +145,8 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
   })
 
   describe('eth_signTypedData_v4', () => {
-    test.runIf(!Anvil.enabled)('default', async () => {
+    // TODO(relay-v23): unskip once relay implements replay-safe digests on `wallet_verifySignature`.
+    test.skip('predelegated', async () => {
       const porto = getPorto()
 
       const {
@@ -162,17 +163,85 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       })
       expect(signature).toBeDefined()
 
-      const { valid } = await porto.provider.request({
-        method: 'wallet_verifySignature',
-        params: [
-          {
-            address,
-            digest: hashTypedData(typedData),
-            signature,
-          },
-        ],
+      {
+        const { valid } = await porto.provider.request({
+          method: 'wallet_verifySignature',
+          params: [
+            {
+              address,
+              digest: hashTypedData(typedData),
+              signature,
+            },
+          ],
+        })
+        expect(valid).toBe(true)
+      }
+
+      // TODO: uncomment once Viem has ERC-8010.
+      // {
+      //   const valid = await verifyHash(relayClient, {
+      //     address,
+      //     hash: hashTypedData(typedData),
+      //     signature,
+      //   })
+      //   expect(valid).toBe(true)
+      // }
+    })
+
+    test('delegated', async () => {
+      const porto = getPorto()
+      const walletClient = TestConfig.getWalletClient(porto)
+      const relayClient = TestConfig.getRelayClient(porto)
+
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
-      expect(valid).toBe(true)
+      const address = account!.address
+
+      await setBalance(relayClient, {
+        address,
+        value: Value.fromEther('10000'),
+      })
+      const { id } = await porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [{ calls: [] }],
+      })
+      await waitForCallsStatus(walletClient, {
+        id,
+      })
+
+      const signature = await porto.provider.request({
+        method: 'eth_signTypedData_v4',
+        params: [address, TypedData.serialize(typedData)],
+      })
+      expect(signature).toBeDefined()
+
+      // TODO(relay-v23): uncomment once relay implements replay-safe digests on `wallet_verifySignature`.
+      // {
+      //   const { valid } = await porto.provider.request({
+      //     method: 'wallet_verifySignature',
+      //     params: [
+      //       {
+      //         address,
+      //         digest: hashTypedData(typedData),
+      //         signature,
+      //       },
+      //     ],
+      //   })
+      //   expect(valid).toBe(true)
+      // }
+
+      {
+        const valid = await verifyHash(relayClient, {
+          address,
+          hash: hashTypedData(typedData),
+          signature,
+        })
+        expect(valid).toBe(true)
+      }
     })
   })
 
@@ -1203,97 +1272,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
     })
   })
 
-  describe('wallet_updateAccount', () => {
-    test.runIf(Anvil.enabled && type === 'relay')('default', async () => {
-      const porto = getPorto()
-      const client = RelayClient.fromPorto(porto).extend(() => ({
-        mode: 'anvil',
-      }))
-
-      const capabilities = await RelayActions.getCapabilities(client)
-
-      const {
-        accounts: [account],
-      } = await porto.provider.request({
-        method: 'wallet_connect',
-        params: [{ capabilities: { createAccount: true } }],
-      })
-      const address = account!.address
-
-      await setBalance(client, {
-        address,
-        value: Value.fromEther('10000'),
-      })
-
-      const { id } = await porto.provider.request({
-        method: 'wallet_sendCalls',
-        params: [
-          {
-            calls: [],
-            from: address,
-            version: '1',
-          },
-        ],
-      })
-
-      await waitForCallsStatus(WalletClient.fromPorto(porto), {
-        id,
-      })
-
-      vi.resetAllMocks()
-
-      const version = await porto.provider.request({
-        method: 'wallet_getAccountVersion',
-      })
-      expect(version.current).toMatch(
-        capabilities.contracts.accountImplementation.version!,
-      )
-      expect(version.latest).toMatch(
-        capabilities.contracts.accountImplementation.version!,
-      )
-
-      const porto_newAccount = getPorto({
-        relayRpcUrl: Relay.instances.anvil_newAccount.rpcUrl,
-      })
-      porto_newAccount._internal.store.setState(
-        porto._internal.store.getState(),
-      )
-
-      {
-        const version = await porto_newAccount.provider.request({
-          method: 'wallet_getAccountVersion',
-        })
-        expect(version.current).toMatch(
-          capabilities.contracts.accountImplementation.version!,
-        )
-        expect(version.latest).toMatch('69.0.0')
-      }
-
-      const { id: id2 } = await porto_newAccount.provider.request({
-        method: 'wallet_updateAccount',
-      })
-
-      if (id2)
-        await waitForCallsStatus(WalletClient.fromPorto(porto_newAccount), {
-          id: id2,
-        })
-
-      {
-        const version = await porto_newAccount.provider.request({
-          method: 'wallet_getAccountVersion',
-        })
-        expect(version).toMatchInlineSnapshot(`
-          {
-            "current": "69.0.0",
-            "latest": "69.0.0",
-          }
-        `)
-      }
-    })
-  })
-
   describe('personal_sign', () => {
-    test.runIf(!Anvil.enabled)('default', async () => {
+    // TODO(relay-v23): unskip once relay implements replay-safe digests on `wallet_verifySignature`.
+    test.skip('predelegated', async () => {
       const porto = getPorto()
 
       const {
@@ -1310,17 +1291,85 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       })
       expect(signature).toBeDefined()
 
-      const { valid } = await porto.provider.request({
-        method: 'wallet_verifySignature',
-        params: [
-          {
-            address,
-            digest: hashMessage('hello'),
-            signature,
-          },
-        ],
+      {
+        const { valid } = await porto.provider.request({
+          method: 'wallet_verifySignature',
+          params: [
+            {
+              address,
+              digest: hashMessage('hello'),
+              signature,
+            },
+          ],
+        })
+        expect(valid).toBe(true)
+      }
+
+      // TODO: uncomment once Viem has ERC-8010.
+      // {
+      //   const valid = await verifyHash(relayClient, {
+      //     address,
+      //     hash: hashMessage('hello'),
+      //     signature,
+      //   })
+      //   expect(valid).toBe(true)
+      // }
+    })
+
+    test('delegated', async () => {
+      const porto = getPorto()
+      const walletClient = TestConfig.getWalletClient(porto)
+      const relayClient = TestConfig.getRelayClient(porto)
+
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
-      expect(valid).toBe(true)
+      const address = account!.address
+
+      await setBalance(relayClient, {
+        address,
+        value: Value.fromEther('10000'),
+      })
+      const { id } = await porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [{ calls: [] }],
+      })
+      await waitForCallsStatus(walletClient, {
+        id,
+      })
+
+      const signature = await porto.provider.request({
+        method: 'personal_sign',
+        params: [Hex.fromString('hello'), address],
+      })
+      expect(signature).toBeDefined()
+
+      // TODO(relay-v23): uncomment once relay implements replay-safe digests on `wallet_verifySignature`.
+      // {
+      //   const { valid } = await porto.provider.request({
+      //     method: 'wallet_verifySignature',
+      //     params: [
+      //       {
+      //         address,
+      //         digest: hashMessage('hello'),
+      //         signature,
+      //       },
+      //     ],
+      //   })
+      //   expect(valid).toBe(true)
+      // }
+
+      {
+        const valid = await verifyHash(relayClient, {
+          address,
+          hash: hashMessage('hello'),
+          signature,
+        })
+        expect(valid).toBe(true)
+      }
     })
   })
 
@@ -1573,7 +1622,8 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       ).rejects.matchSnapshot()
     })
 
-    test('behavior: `signInWithEthereum` capability', async () => {
+    // TODO(relay-v23): unskip once relay implements replay-safe digests on `wallet_verifySignature`.
+    test.skip('behavior: `signInWithEthereum` capability (predelegated)', async () => {
       const porto = getPorto()
 
       const res = await porto.provider.request({
@@ -1596,17 +1646,98 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       if (message && signature) {
         switch (type) {
           case 'relay': {
-            const { valid } = await porto.provider.request({
-              method: 'wallet_verifySignature',
-              params: [
-                {
-                  address: res.accounts.at(0)?.address!,
-                  digest: hashMessage(message),
-                  signature,
-                },
-              ],
-            })
-            expect(valid).toBeTruthy()
+            {
+              const { valid } = await porto.provider.request({
+                method: 'wallet_verifySignature',
+                params: [
+                  {
+                    address: res.accounts.at(0)?.address!,
+                    digest: hashMessage(message),
+                    signature,
+                  },
+                ],
+              })
+              expect(valid).toBeTruthy()
+            }
+
+            // TODO: uncomment once Viem has ERC-8010.
+            // {
+            //   const valid = await verifyHash(relayClient, {
+            //     address,
+            //     hash: hashMessage(message),
+            //     signature,
+            //   })
+            //   expect(valid).toBeTruthy()
+            // }
+            break
+          }
+        }
+      }
+    })
+
+    test('behavior: `signInWithEthereum` capability (delegated)', async () => {
+      const porto = getPorto()
+      const walletClient = TestConfig.getWalletClient(porto)
+      const relayClient = TestConfig.getRelayClient(porto)
+
+      const res = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: {
+              createAccount: true,
+              signInWithEthereum: {
+                domain: 'example.com',
+                nonce: 'deadbeef',
+                uri: 'http://example.com/',
+              },
+            },
+          },
+        ],
+      })
+      const account = res.accounts.at(0)
+      const address = account!.address
+
+      await setBalance(relayClient, {
+        address,
+        value: Value.fromEther('10000'),
+      })
+      const { id } = await porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [{ calls: [] }],
+      })
+      await waitForCallsStatus(walletClient, {
+        id,
+      })
+
+      const { message, signature } =
+        account?.capabilities?.signInWithEthereum ?? {}
+      if (message && signature) {
+        switch (type) {
+          case 'relay': {
+            // TODO(relay-v23): uncomment once relay implements replay-safe digests on `wallet_verifySignature`.
+            // {
+            //   const { valid } = await porto.provider.request({
+            //     method: 'wallet_verifySignature',
+            //     params: [
+            //       {
+            //         address,
+            //         digest: hashMessage(message),
+            //         signature,
+            //       },
+            //     ],
+            //   })
+            //   expect(valid).toBeTruthy()
+            // }
+
+            {
+              const valid = await verifyHash(relayClient, {
+                address,
+                hash: hashMessage(message),
+                signature,
+              })
+              expect(valid).toBeTruthy()
+            }
             break
           }
         }
@@ -3331,7 +3462,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       })
     })
 
-    test.runIf(type === 'relay')('behavior: sign typed data', async () => {
+    // TODO(relay-v23): unskip once relay implements replay-safe digests on `wallet_verifySignature`.
+    test.skip('behavior: sign typed data', async () => {
+      // test.runIf(type === 'relay')('behavior: sign typed data', async () => {
       const porto = getPorto()
       const client = TestConfig.getRelayClient(porto)
       const contracts = await TestConfig.getContracts(porto)
