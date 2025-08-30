@@ -120,6 +120,7 @@ export async function prepareCalls<
     calls,
     chain,
     key,
+    feePayer,
     feeToken,
     merchantRpcUrl,
     nonce,
@@ -160,6 +161,7 @@ export async function prepareCalls<
       capabilities: {
         authorizeKeys,
         meta: {
+          feePayer,
           feeToken,
           nonce,
         },

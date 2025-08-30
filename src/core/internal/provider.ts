@@ -222,6 +222,10 @@ export function from<
               request,
               store,
             },
+            merchantRpcUrl: await getMerchantRpcUrl(
+              config.merchantRpcUrl ?? capabilities?.merchantRpcUrl,
+              config,
+            ),
             preCalls: capabilities?.preCalls as any,
           })
 
