@@ -28,13 +28,14 @@ function RouteComponent() {
   const { chainId, data, from, to, value } = request._decoded.params[0]
 
   const calls = [{ data, to: to!, value }] as const
-  const feeToken = capabilities?.feeToken
+  const { feeToken, merchantRpcUrl } = capabilities ?? {}
 
   const prepareCallsQuery = Calls.prepareCalls.useQuery({
     address: from,
     calls,
     chainId,
     feeToken,
+    merchantRpcUrl,
     refetchInterval: ({ state }) => (state.error ? false : 15_000),
     requiredFunds: undefined,
   })
@@ -138,6 +139,7 @@ function RouteComponent() {
       chainId={chainId}
       feeToken={feeToken}
       loading={respond.isPending}
+      merchantRpcUrl={merchantRpcUrl}
       onApprove={(data) => respond.mutate(data)}
       onReject={() => Actions.reject(porto, request)}
     />

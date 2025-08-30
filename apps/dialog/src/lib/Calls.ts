@@ -24,8 +24,10 @@ export namespace prepareCalls {
       authorizeKeys,
       enabled = true,
       calls,
+      feePayer,
       feeToken,
       merchantRpcUrl,
+      nonce,
       requiredFunds,
       refetchInterval,
       revokeKeys,
@@ -76,8 +78,10 @@ export namespace prepareCalls {
         account,
         authorizeKeys,
         calls,
+        feePayer,
         feeToken,
         merchantRpcUrl,
+        nonce,
         requiredFunds,
         revokeKeys,
       }),
@@ -109,7 +113,7 @@ export namespace prepareCalls {
         calls extends readonly unknown[] = readonly unknown[],
       > = Pick<
         RelayActions.prepareCalls.Parameters<calls>,
-        'authorizeKeys' | 'calls' | 'revokeKeys'
+        'authorizeKeys' | 'calls' | 'feePayer' | 'nonce' | 'revokeKeys'
       > & {
         account?: Account.Account | undefined
         feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
@@ -138,5 +142,98 @@ export namespace prepareCalls {
       }
 
     export type Data = queryOptions.Data
+  }
+}
+
+export namespace prepareCallsWithMerchant {
+  export function queryOptions<const calls extends readonly unknown[]>(
+    client: RelayClient.RelayClient,
+    options: queryOptions.Options<calls>,
+  ) {
+    const { account, enabled = true, refetchInterval } = options
+
+    return Query.queryOptions({
+      enabled: enabled && !!account,
+      async queryFn({ queryKey }) {
+        const [, parameters] = queryKey
+        const { merchantRpcUrl } = parameters
+
+        const data = await Query_porto.client.fetchQuery(
+          prepareCalls.queryOptions(client, parameters),
+        )
+        const data_noMerchantRpc = await (async () => {
+          if (!merchantRpcUrl) return
+          const quotes = data.context.quote?.quotes
+          const intent = quotes?.[quotes.length - 1]?.intent
+          const data_noMerchantRpc = await Query_porto.client.fetchQuery(
+            prepareCalls.queryOptions(client, {
+              ...parameters,
+              feePayer: intent?.payer,
+              merchantRpcUrl: undefined,
+              nonce: intent?.nonce,
+            }),
+          )
+          if (data_noMerchantRpc.digest !== data.digest)
+            throw new Error(
+              'digest between merchant and porto relay do not match.',
+            )
+          return data_noMerchantRpc
+        })()
+
+        return {
+          ...data,
+          capabilities: {
+            ...(data_noMerchantRpc ?? data).capabilities,
+            ...(data?.capabilities.feeSignature
+              ? {
+                  feeSignature: data.capabilities.feeSignature,
+                }
+              : {}),
+          },
+        }
+      },
+      queryKey: prepareCalls.queryOptions.queryKey(client, options),
+      refetchInterval,
+    })
+  }
+
+  export namespace queryOptions {
+    export type Data = prepareCalls.queryOptions.Data
+    export type Error = prepareCalls.queryOptions.Error
+    export type QueryKey = prepareCalls.queryOptions.QueryKey
+
+    export type Options<calls extends readonly unknown[] = readonly unknown[]> =
+      prepareCalls.queryOptions.Options<calls>
+
+    export function queryKey<const calls extends readonly unknown[]>(
+      client: RelayClient.RelayClient,
+      options: queryKey.Options<calls>,
+    ) {
+      return ['prepareCallsWithMerchant', options, client.uid] as const
+    }
+
+    export namespace queryKey {
+      export type Options<
+        calls extends readonly unknown[] = readonly unknown[],
+      > = prepareCalls.queryOptions.queryKey.Options<calls>
+    }
+  }
+
+  export function useQuery<const calls extends readonly unknown[]>(
+    props: useQuery.Props<calls>,
+  ) {
+    const { address, chainId } = props
+
+    const account = Hooks.useAccount(porto, { address })
+    const client = Hooks.useRelayClient(porto, { chainId })
+
+    return Query.useQuery(queryOptions(client, { ...props, account }))
+  }
+
+  export namespace useQuery {
+    export type Props<calls extends readonly unknown[] = readonly unknown[]> =
+      prepareCalls.useQuery.Props<calls>
+
+    export type Data = prepareCalls.useQuery.Data
   }
 }

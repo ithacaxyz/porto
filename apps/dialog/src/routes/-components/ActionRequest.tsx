@@ -41,9 +41,7 @@ export function ActionRequest(props: ActionRequest.Props) {
 
   const account = Hooks.useAccount(porto, { address })
 
-  // This "prepare calls" query is used as the "source of truth" query that will
-  // ultimately be used to execute the calls.
-  const prepareCallsQuery = Calls.prepareCalls.useQuery({
+  const prepareCallsQuery = Calls.prepareCallsWithMerchant.useQuery({
     address,
     calls,
     chainId,
@@ -53,23 +51,7 @@ export function ActionRequest(props: ActionRequest.Props) {
     requiredFunds,
   })
 
-  // However, to prevent a malicious Relay from providing a mutated asset
-  // diff or fee calculations to display to the end-user, we also simulate the prepare calls query
-  // without the merchant RPC URL.
-  const prepareCallsQuery_noMerchantRpc = Calls.prepareCalls.useQuery({
-    address,
-    calls,
-    chainId,
-    enabled: !!merchantRpcUrl,
-    feeToken,
-    requiredFunds,
-  })
-
-  const query_noMerchantRpc = merchantRpcUrl
-    ? prepareCallsQuery_noMerchantRpc
-    : prepareCallsQuery
-
-  const capabilities = query_noMerchantRpc.data?.capabilities
+  const capabilities = prepareCallsQuery.data?.capabilities
   const { assetDiffs, feeTotals } = capabilities ?? {}
 
   const quotes = prepareCallsQuery.data?.capabilities?.quote?.quotes
@@ -78,17 +60,6 @@ export function ActionRequest(props: ActionRequest.Props) {
     address: account?.address,
     assetDiff: assetDiffs,
   })
-
-  const isError =
-    prepareCallsQuery.isError || prepareCallsQuery_noMerchantRpc.isError
-  const isLoading =
-    prepareCallsQuery.isPending || prepareCallsQuery_noMerchantRpc.isPending
-  const error = prepareCallsQuery.error || prepareCallsQuery_noMerchantRpc.error
-
-  const quote_destination = quotes?.[quotes.length - 1]
-  const isSponsored =
-    quote_destination?.intent?.payer !==
-    '0x0000000000000000000000000000000000000000'
 
   return (
     <CheckBalance
@@ -100,19 +71,25 @@ export function ActionRequest(props: ActionRequest.Props) {
       <Layout>
         <Layout.Header>
           <Layout.Header.Default
-            icon={isError ? TriangleAlert : Star}
+            icon={prepareCallsQuery.isError ? TriangleAlert : Star}
             title="Review action"
-            variant={isError ? 'warning' : 'default'}
+            variant={prepareCallsQuery.isError ? 'warning' : 'default'}
           />
         </Layout.Header>
 
         <Layout.Content className="pb-2!">
           <ActionRequest.PaneWithDetails
-            error={error}
+            error={prepareCallsQuery.error}
             errorMessage="An error occurred while simulating the action. Proceed with caution."
-            feeTotals={isSponsored ? undefined : feeTotals}
+            feeTotals={feeTotals}
             quotes={quotes}
-            status={isLoading ? 'pending' : isError ? 'error' : 'success'}
+            status={
+              prepareCallsQuery.isPending
+                ? 'pending'
+                : prepareCallsQuery.isError
+                  ? 'error'
+                  : 'success'
+            }
           >
             {assetDiff.length > 0 ? (
               <ActionRequest.AssetDiff assetDiff={assetDiff} />
