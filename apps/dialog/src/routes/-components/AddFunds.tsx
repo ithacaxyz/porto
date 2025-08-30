@@ -53,12 +53,26 @@ type View =
 
 export function AddFunds(props: AddFunds.Props) {
   const { chainId, onApprove, onReject, tokenAddress, value } = props
+  console.info('AddFunds', chainId)
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+    function handleCustomEvent(event: Event) {
+      console.log('handleCustomEvent', event)
+    }
+
+    window.addEventListener('chain-changed', handleCustomEvent)
+
+    return () => {
+      window.removeEventListener('chain-changed', handleCustomEvent)
+    }
+  }, [])
 
   const [view, setView] = React.useState<View>('default')
 
   const account = RemoteHooks.useAccount(porto)
   const address = props.address ?? account?.address
   const chain = RemoteHooks.useChain(porto, { chainId })
+
   const { data: feeTokens } = FeeTokens.fetch.useQuery({
     addressOrSymbol: tokenAddress,
   })

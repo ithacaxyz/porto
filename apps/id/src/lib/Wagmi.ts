@@ -23,6 +23,7 @@ export const useChainsStore = create<{
 }))
 
 export const config = createConfig({
+  // chains: Porto.config.chains,
   chains: useChainsStore.getState().chains,
   connectors: [portoConnector(Porto.config)],
   multiInjectedProviderDiscovery: false,

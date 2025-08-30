@@ -10,7 +10,6 @@ import { Chains } from 'porto'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
-import { baseSepolia } from 'viem/chains'
 import {
   type Connector,
   useConnect,
@@ -19,7 +18,12 @@ import {
   useSwitchChain,
 } from 'wagmi'
 import { useRouterEvent } from '~/hooks/useRouterEvents'
-import { config, mipdConfig, useChainsStore } from '~/lib/Wagmi'
+import {
+  config,
+  mipdConfig,
+  useChainsStore,
+  // config as wagmiConfig,
+} from '~/lib/Wagmi'
 
 export const Route = createFileRoute('/_dash/settings/recovery')({
   component: RouteComponent,
@@ -35,40 +39,75 @@ function RouteComponent() {
 
   const chainStore = useChainsStore()
   const testnet = window.location.search.includes('testnet')
-  const chainId = testnet ? baseSepolia.id : (account.chainId as never)
+  const chainId = testnet ? Chains.baseSepolia.id : Chains.base
 
-  useRouterEvent('onBeforeNavigate', (event) => {
-    if (event.hrefChanged && event.fromLocation)
-      chainStore.setChains(config.chains as never)
+  // useRouterEvent('onBeforeNavigate', (event) => {
+  //   // if (event.hrefChanged && event.fromLocation)
+  //   // wagmiConfig._internal.chains.setState()
+
+  //   if (event.hrefChanged && event.fromLocation)
+  //     chainStore.setChains(config.chains as never)
+  // })
+
+  useRouterEvent('onLoad', () => {
+    chainStore.setChains([Chains.baseSepolia])
   })
-
+  useRouterEvent('onRendered', () => {
+    chainStore.setChains([Chains.baseSepolia])
+  })
   useRouterEvent('onResolved', () => {
-    disconnectAll()
-    chainStore.setChains(testnet ? [Chains.baseSepolia] : [Chains.base])
+    chainStore.setChains([Chains.baseSepolia])
   })
 
   const connect = useConnect({ config: mipdConfig })
   const disconnect = useDisconnect({ config: mipdConfig })
   const switchChain = useSwitchChain({ config: mipdConfig })
+  const switchPortoChain = useSwitchChain({ config })
   const connectors = useConnectors({ config: mipdConfig }).filter(
     (c) => !c.id.toLowerCase().includes('porto'),
   )
 
-  const grantAdmin = Hooks.useGrantAdmin()
-  const { data: admins } = Hooks.useAdmins({
-    query: {
-      select: (data) => ({
-        ...data,
-        keys: data.keys.filter((key) => key.type !== 'address'),
-      }),
+  const grantAdmin = Hooks.useGrantAdmin({
+    mutation: {
+      onMutate: (variables) => {
+        console.log('onMutate', variables, chainId)
+      },
     },
   })
 
+  const { data, error } = Hooks.useAdmins({
+    query: {
+      // select: (data) => ({
+      //   ...data,
+      //   keys: data.keys.filter((key) => key.type !== 'address'),
+      // }),
+    },
+  })
+  // const customEvent = new CustomEvent('chain-changed', {
+  //   bubbles: true,
+  //   cancelable: true,
+  //   // composed: true,
+  //   detail: {
+  //     data: { chainId },
+  //     message: 'Switching chain for recovery',
+  //   },
+  // })
+  // React.useEffect(() => {
+  //   if (typeof window === 'undefined') return
+  //   // console.info('dispatching custom event')
+  //   const success = window.dispatchEvent(customEvent)
+  //   console.info('success', success)
+  // }, [customEvent])
+
   async function tryConnect(connector: Connector) {
+    console.log('tryConnect', chainId)
     try {
       const {
         accounts: [address],
-      } = await connect.connectAsync({ chainId, connector })
+      } = await connect.connectAsync({
+        chainId: Chains.baseSepolia.id,
+        connector,
+      })
       return address
     } catch {
       await disconnect.disconnectAsync()
@@ -90,15 +129,26 @@ function RouteComponent() {
     event.stopPropagation()
 
     try {
-      // 1. disconnect in case user is connected from previous sessions
+      // // 1. disconnect in case user is connected from previous sessions
       await disconnectAll()
 
+      // // 2. try to connect -- this could fail for a number of reasons:
+      // // - one of which is the user doesn't have the chain configured
+      // let address = await tryConnect({ chainId, connector })
+      // if (!address) {
+      //   await switchChain.switchChainAsync({ chainId })
+      //   // 1Code has comments. Press enter to view.
+      //   address = await tryConnect({ chainId, connector })
+      // }
       // 2. try to connect -- this could fail for a number of reasons:
       // - one of which is the user doesn't have the chain configured
       let address = await tryConnect(connector)
       if (!address) {
+        await switchPortoChain.switchChainAsync({
+          chainId: Chains.baseSepolia.id,
+        })
         await switchChain.switchChainAsync({
-          chainId,
+          chainId: Chains.baseSepolia.id,
         })
         address = await tryConnect(connector)
       }
@@ -107,7 +157,7 @@ function RouteComponent() {
 
       const granted = await grantAdmin.mutateAsync({
         address: account.address,
-        chainId,
+        chainId: Chains.baseSepolia.id,
         key: { publicKey: address, type: 'address' },
       })
 
@@ -187,7 +237,16 @@ function RouteComponent() {
             </Link>
           }
         />
-        <pre>{JSON.stringify(admins, null, 2)}</pre>
+        <pre>
+          {JSON.stringify(
+            {
+              data,
+              error: { ...grantAdmin.error, ...error },
+            },
+            null,
+            2,
+          )}
+        </pre>
       </section>
     </CatchBoundary>
   )
