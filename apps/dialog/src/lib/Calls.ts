@@ -162,7 +162,7 @@ export namespace prepareCallsWithMerchant {
           prepareCalls.queryOptions(client, parameters),
         )
         const data_noMerchantRpc = await (async () => {
-          if (!merchantRpcUrl) return
+          if (!merchantRpcUrl) return data
           const quotes = data.context.quote?.quotes
           const intent = quotes?.[quotes.length - 1]?.intent
           const data_noMerchantRpc = await Query_porto.client.fetchQuery(
@@ -181,9 +181,9 @@ export namespace prepareCallsWithMerchant {
         })()
 
         return {
-          ...data,
+          ...data_noMerchantRpc,
           capabilities: {
-            ...(data_noMerchantRpc ?? data).capabilities,
+            ...data_noMerchantRpc.capabilities,
             ...(data?.capabilities.feeSignature
               ? {
                   feeSignature: data.capabilities.feeSignature,
