@@ -42,7 +42,7 @@ export function SignTypedMessage({
           <div
             className={cx(
               'flex-shrink flex-grow overflow-auto',
-              frame.mode === 'dialog' && 'max-h-[200px]',
+              frame.mode === 'dialog' && 'max-h-[192px]',
             )}
           >
             <div className="wrap-anywhere font-mono text-[12px] text-th_base leading-6">
@@ -176,7 +176,7 @@ export function SignTypedMessageInvalid({
           <div
             className={cx(
               'flex-shrink flex-grow overflow-auto',
-              frame.mode === 'dialog' && 'max-h-[200px]',
+              frame.mode === 'dialog' && 'max-h-[192px]',
             )}
           >
             <div className="wrap-anywhere px-[12px] font-mono text-[12px] text-th_base-secondary leading-6">
