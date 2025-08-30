@@ -1,5 +1,6 @@
 import { Button, Frame } from '@porto/ui'
 import { cx } from 'cva'
+import * as React from 'react'
 import { useChains } from 'wagmi'
 import { CopyButton } from '~/components/CopyButton'
 import type * as TypedMessages from '~/lib/TypedMessages'
@@ -16,6 +17,12 @@ export function SignTypedMessage({
 }: SignTypedMessage.Props) {
   const frame = Frame.useFrame()
   const chainId = Number(data.domain.chainId)
+
+  const messageEntries = React.useMemo(
+    () => SignTypedMessage.flattenMessage(data.message),
+    [data.message],
+  )
+
   return (
     <Layout>
       <Layout.Header>
@@ -45,15 +52,15 @@ export function SignTypedMessage({
               >
                 {data.domain.name}
               </div>
-              {Object.entries(data.message)
-                .sort(([a], [b]) => a.localeCompare(b))
-                .map(([key, value]) => (
-                  <SignTypedMessage.DataRow
-                    key={key}
-                    keyName={key}
-                    value={value}
-                  />
-                ))}
+              {messageEntries.map(([key, value, depth], index) => (
+                <SignTypedMessage.DataEntry
+                  depth={depth}
+                  // biome-ignore lint/suspicious/noArrayIndexKey: _
+                  key={index}
+                  keyName={key}
+                  value={value}
+                />
+              ))}
             </div>
           </div>
         </div>
@@ -91,31 +98,54 @@ export namespace SignTypedMessage {
     isPending: boolean
   }
 
-  export function DataRow({ keyName, value }: DataRow.Props) {
-    let valueStr = String(value)
-    if (valueStr === '[object Object]') valueStr = JSON.stringify(value)
+  export function flattenMessage(
+    obj: {},
+    depth = 1,
+  ): Array<[key: string, value: string, depth: number]> {
+    return Object.entries(obj)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .flatMap(([k, v]) => {
+        const isObj = v && typeof v === 'object' && !Array.isArray(v)
+        return [
+          [
+            k,
+            isObj && depth === 1 ? '' : isObj ? JSON.stringify(v) : String(v),
+            depth,
+          ],
+          ...(isObj && depth === 1 ? flattenMessage(v, depth + 1) : []),
+        ]
+      })
+  }
+
+  export function DataEntry({ keyName, value, depth = 1 }: DataEntry.Props) {
     return (
-      <div className="flex justify-between gap-[32px] pr-[12px] pl-[28px]">
+      <div
+        className="flex justify-between gap-[32px] pr-[12px]"
+        style={{ paddingLeft: 12 + depth * 12 }}
+      >
         <div className="text-nowrap font-medium text-[14px] text-th_accent">
           {keyName}
         </div>
-        <div className="flex h-[24px] min-w-0 flex-shrink items-center gap-[8px]">
-          <div
-            className="flex-shrink truncate text-nowrap text-[14px] text-th_base"
-            title={valueStr}
-          >
-            {valueStr}
+        {value && (
+          <div className="flex h-[24px] min-w-0 flex-shrink items-center gap-[8px]">
+            <div
+              className="flex-shrink truncate text-nowrap text-[14px] text-th_base"
+              title={value}
+            >
+              {value}
+            </div>
+            <CopyButton value={value} />
           </div>
-          <CopyButton value={valueStr} />
-        </div>
+        )}
       </div>
     )
   }
 
-  export namespace DataRow {
+  export namespace DataEntry {
     export type Props = {
       keyName: string
-      value: unknown
+      value: string
+      depth?: number
     }
   }
 }
