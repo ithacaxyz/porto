@@ -958,6 +958,19 @@ function SendCalls() {
               },
             } as const
 
+          if (action === 'approve')
+            return {
+              calls: [
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(exp1Abi, 'approve'),
+                    [recipient, Value.fromEther('50')],
+                  ),
+                  to: exp1Address[chainId],
+                },
+              ],
+            } as const
+
           if (action === 'transfer')
             return {
               calls: [
@@ -1104,6 +1117,7 @@ function SendCalls() {
           <option value="mint">Mint 100 EXP</option>
           <option value="swap-exp1">Swap 10 EXP for 0.1 EXP2</option>
           <option value="swap-exp2">Swap 0.1 EXP2 for 10 EXP</option>
+          <option value="approve">Approve 50 EXP</option>
           <option value="transfer">Transfer 50 EXP</option>
           <option value="mint-transfer">Mint 100 EXP2 + Mint NFT</option>
           <option value="mint-nft">Mint NFT</option>

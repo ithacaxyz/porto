@@ -2,7 +2,6 @@ import { ChainIcon } from '@porto/apps/components'
 import { Button, ButtonArea, Spinner, TokenIcon } from '@porto/ui'
 import { a, useTransition } from '@react-spring/web'
 import { Value } from 'ox'
-import type { Chains } from 'porto'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import * as React from 'react'
 import { erc20Abi, maxUint256 } from 'viem'
@@ -12,15 +11,16 @@ import { PriceFormatter, StringFormatter } from '~/utils'
 import LucideInfo from '~icons/lucide/info'
 import LucideLockKeyholeOpen from '~icons/lucide/lock-keyhole-open'
 import { Layout } from './Layout'
+import { porto } from '~/lib/Porto'
 
 export function Approve(props: Approve.Props) {
   const {
     amount,
-    chain,
+    chainId,
     expiresAt,
     fees,
-    isLoading,
-    isPending,
+    loading,
+    approving,
     onApprove,
     onReject,
     spender,
@@ -89,9 +89,9 @@ export function Approve(props: Approve.Props) {
             <div className="flex w-full items-center justify-between gap-[6px] rounded-th_medium bg-th_base-alt px-[12px] text-[13px]">
               <div className="flex w-full flex-col gap-[6px] py-[8px]">
                 <Approve.Details
-                  chain={chain}
+                  chainId={chainId}
                   fees={fees}
-                  isLoading={isLoading}
+                  loading={loading}
                 />
               </div>
             </div>
@@ -110,7 +110,7 @@ export function Approve(props: Approve.Props) {
       <Layout.Footer>
         <Layout.Footer.Actions>
           <Button
-            disabled={isPending}
+            disabled={approving}
             onClick={onReject}
             variant="negative-secondary"
             width="grow"
@@ -119,7 +119,7 @@ export function Approve(props: Approve.Props) {
           </Button>
           <Button
             disabled={tokenResult.isLoading || tokenResult.isError}
-            loading={isPending && 'Approving…'}
+            loading={approving && 'Approving…'}
             onClick={onApprove}
             variant="positive"
             width="grow"
@@ -135,11 +135,11 @@ export function Approve(props: Approve.Props) {
 export namespace Approve {
   export type Props = {
     amount: bigint
-    chain?: Chains.Chain | undefined
+    chainId?: number | undefined
     expiresAt?: Date
     fees?: Capabilities.feeTotals.Response | undefined
-    isLoading?: boolean | undefined
-    isPending: boolean
+    loading?: boolean | undefined
+    approving?: boolean | undefined
     onApprove: () => void
     onReject: () => void
     spender: `0x${string}`
@@ -239,7 +239,7 @@ export namespace Approve {
   }
 
   export function Details(props: Details.Props) {
-    const { chain, fees, isLoading } = props
+    const { chainId, fees, loading } = props
 
     const feeTotal = React.useMemo(() => {
       if (!fees) return
@@ -248,7 +248,12 @@ export namespace Approve {
       return PriceFormatter.format(Number(feeTotal))
     }, [fees])
 
-    if (isLoading)
+    const chain = React.useMemo(
+      () => porto.config.chains.find((chain) => chain.id === chainId),
+      [chainId],
+    )
+
+    if (loading)
       return (
         <div className="flex h-[18px] items-center justify-center text-[14px] text-th_base-secondary">
           Loading details…
@@ -278,9 +283,9 @@ export namespace Approve {
 
   export namespace Details {
     export type Props = {
-      chain?: Chains.Chain | undefined
+      chainId?: number | undefined
       fees?: Capabilities.feeTotals.Response | undefined
-      isLoading?: boolean | undefined
+      loading?: boolean | undefined
     }
   }
 }

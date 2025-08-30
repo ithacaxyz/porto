@@ -45,10 +45,10 @@ function RouteComponent() {
   if (TypedMessages.isPermit(parsedData))
     return (
       <SignPermit
+        approving={respond.isPending}
         amount={BigInt(parsedData.message.value)}
         chainId={Number(parsedData.domain.chainId)}
         deadline={Number(parsedData.message.deadline)}
-        isPending={respond.isPending}
         onReject={handleReject}
         onSign={handleSign}
         spender={parsedData.message.spender}
@@ -59,10 +59,10 @@ function RouteComponent() {
   if (TypedMessages.isPermit2(parsedData))
     return (
       <SignPermit
+        approving={respond.isPending}
         amount={BigInt(parsedData.message.details.amount)}
         chainId={Number(parsedData.domain.chainId)}
         deadline={Number(parsedData.message.details.expiration)}
-        isPending={respond.isPending}
         onReject={handleReject}
         onSign={handleSign}
         spender={parsedData.message.spender}
@@ -73,8 +73,8 @@ function RouteComponent() {
   if (TypedMessages.isTypedMessage(parsedData))
     return (
       <SignTypedMessage
+        approving={respond.isPending}
         data={parsedData}
-        isPending={respond.isPending}
         onReject={handleReject}
         onSign={handleSign}
       />
@@ -82,8 +82,8 @@ function RouteComponent() {
 
   return (
     <SignTypedMessageInvalid
+      approving={respond.isPending}
       data={data}
-      isPending={respond.isPending}
       onReject={handleReject}
       onSign={handleSign}
     />
