@@ -7,11 +7,11 @@ import * as React from 'react'
 import { erc20Abi, maxUint256 } from 'viem'
 import { useReadContracts } from 'wagmi'
 import { CopyButton } from '~/components/CopyButton'
+import { porto } from '~/lib/Porto'
 import { PriceFormatter, StringFormatter } from '~/utils'
 import LucideInfo from '~icons/lucide/info'
 import LucideLockKeyholeOpen from '~icons/lucide/lock-keyhole-open'
 import { Layout } from './Layout'
-import { porto } from '~/lib/Porto'
 
 export function Approve(props: Approve.Props) {
   const {

@@ -1,9 +1,6 @@
 import { ChainIcon, Spinner } from '@porto/apps/components'
-import { Approve } from '../-components/Approve'
 import { Button } from '@porto/ui'
 import { cx } from 'cva'
-import * as React from 'react'
-import { decodeAbiParameters, decodeFunctionData, erc20Abi } from 'viem'
 import { type Address, Base64 } from 'ox'
 import type { Chains } from 'porto'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
@@ -11,7 +8,14 @@ import type * as Quote_schema from 'porto/core/internal/relay/schema/quotes'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
 import type * as Rpc from 'porto/core/internal/schema/request'
 import { Hooks } from 'porto/remote'
-import { type Call, ethAddress } from 'viem'
+import * as React from 'react'
+import {
+  type Call,
+  decodeAbiParameters,
+  decodeFunctionData,
+  erc20Abi,
+  ethAddress,
+} from 'viem'
 import { CheckBalance } from '~/components/CheckBalance'
 import * as Calls from '~/lib/Calls'
 import { porto } from '~/lib/Porto'
@@ -27,6 +31,7 @@ import TriangleAlert from '~icons/lucide/triangle-alert'
 import LucideVideo from '~icons/lucide/video'
 import Star from '~icons/ph/star-four-bold'
 import IconArrowRightCircle from '~icons/porto/arrow-right-circle'
+import { Approve } from '../-components/Approve'
 
 export function ActionRequest(props: ActionRequest.Props) {
   const {
@@ -70,12 +75,12 @@ export function ActionRequest(props: ActionRequest.Props) {
       const [calls] = decodeAbiParameters(
         [
           {
-            type: 'tuple[]',
             components: [
               { name: 'to', type: 'address' },
               { name: 'value', type: 'uint256' },
               { name: 'data', type: 'bytes' },
             ],
+            type: 'tuple[]',
           },
         ],
         quote.intent.executionData,

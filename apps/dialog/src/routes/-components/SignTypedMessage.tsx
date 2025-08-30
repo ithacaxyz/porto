@@ -238,9 +238,9 @@ export function SignPermit(props: SignPermit.Props) {
   return (
     <Approve
       amount={amount}
+      approving={approving}
       chainId={chainId}
       expiresAt={new Date(deadline * 1000)}
-      approving={approving}
       onApprove={onSign}
       onReject={onReject}
       spender={spender}
