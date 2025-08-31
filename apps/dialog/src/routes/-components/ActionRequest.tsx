@@ -15,6 +15,7 @@ import {
   decodeFunctionData,
   erc20Abi,
   ethAddress,
+  parseAbiParameters,
 } from 'viem'
 import { CheckBalance } from '~/components/CheckBalance'
 import * as Calls from '~/lib/Calls'
@@ -73,16 +74,7 @@ export function ActionRequest(props: ActionRequest.Props) {
     if (!quote) return null
     try {
       const [calls] = decodeAbiParameters(
-        [
-          {
-            components: [
-              { name: 'to', type: 'address' },
-              { name: 'value', type: 'uint256' },
-              { name: 'data', type: 'bytes' },
-            ],
-            type: 'tuple[]',
-          },
-        ],
+        parseAbiParameters('(address to, uint256 value, bytes data)[]'),
         quote.intent.executionData,
       )
 
