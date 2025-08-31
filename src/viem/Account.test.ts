@@ -122,7 +122,6 @@ describe('sign', () => {
 
     const payload = Hex.random(32)
     const signature = await Account.sign(account, {
-      address: account.address,
       payload,
     })
 
@@ -147,7 +146,6 @@ describe('sign', () => {
 
     {
       const signature = await Account.sign(account, {
-        address: account.address,
         key,
         payload,
       })
@@ -163,7 +161,6 @@ describe('sign', () => {
 
     {
       const signature = await Account.sign(account, {
-        address: account.address,
         key: 0,
         payload,
       })
@@ -242,7 +239,6 @@ describe('sign', () => {
     const payload = Hex.random(32)
 
     const signature = await Account.sign(account, {
-      address: account.address,
       payload,
     })
 
