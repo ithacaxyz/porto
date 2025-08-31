@@ -884,8 +884,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
   })
 })
 
-// TODO(relay-v23): confirm this is broken in stg
-describe.skip('prepareUpgradeAccount + upgradeAccount', () => {
+describe('prepareUpgradeAccount + upgradeAccount', () => {
   test('default', async () => {
     const eoa = privateKeyToAccount(generatePrivateKey())
     const adminKey = {
@@ -1220,8 +1219,7 @@ describe.skip('prepareUpgradeAccount + upgradeAccount', () => {
 })
 
 describe.runIf(!Anvil.enabled)('verifySignature', () => {
-  // TODO(relay-v23): unskip once relay implements replay-safe digests on `wallet_verifySignature`.
-  test.skip('default', async () => {
+  test('default', async () => {
     const key1 = Key.createHeadlessWebAuthnP256()
     const key2 = Key.createSecp256k1()
     const account = await TestActions.createAccount(client, {
@@ -1229,11 +1227,10 @@ describe.runIf(!Anvil.enabled)('verifySignature', () => {
     })
 
     const digest = Hex.random(32)
-    const domain = await Key.getSignDomain(client, account)
 
     {
       const signature = await Key.sign(key1, {
-        domain,
+        address: account.address,
         payload: digest,
         wrap: false,
       })
@@ -1249,7 +1246,7 @@ describe.runIf(!Anvil.enabled)('verifySignature', () => {
 
     {
       const signature = await Key.sign(key2, {
-        domain,
+        address: account.address,
         payload: digest,
         wrap: false,
       })
@@ -1264,17 +1261,15 @@ describe.runIf(!Anvil.enabled)('verifySignature', () => {
     }
   })
 
-  // TODO(relay-v23): unskip once relay implements replay-safe digests on `wallet_verifySignature`.
-  test.skip('behavior: invalid', async () => {
+  test('behavior: invalid', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],
     })
 
     const digest = Hex.random(32)
-    const domain = await Key.getSignDomain(client, account)
     const signature = await Key.sign(key, {
-      domain,
+      address: account.address,
       payload: digest,
       wrap: false,
     })

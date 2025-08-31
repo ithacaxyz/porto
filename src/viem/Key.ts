@@ -142,8 +142,6 @@ export const toSerializedSpendPeriod = {
   year: 5,
 } as const
 
-export { getSignDomain } from './Account.js'
-
 /**
  * Creates a random P256 key.
  *
@@ -891,7 +889,7 @@ export function serialize(key: Key): Serialized {
 }
 
 export async function sign(key: Key, parameters: sign.Parameters) {
-  const { domain, storage, webAuthn, wrap = true } = parameters
+  const { address, storage, webAuthn, wrap = true } = parameters
   const { privateKey, publicKey, type: keyType } = key
 
   if (!privateKey)
@@ -901,9 +899,9 @@ export async function sign(key: Key, parameters: sign.Parameters) {
     )
 
   const payload = (() => {
-    if (!domain) return parameters.payload
+    if (!address) return parameters.payload
     return TypedData.getSignPayload({
-      domain,
+      domain: { verifyingContract: address },
       message: {
         digest: parameters.payload,
       },
@@ -1017,19 +1015,30 @@ export async function sign(key: Key, parameters: sign.Parameters) {
 export declare namespace sign {
   type Parameters = {
     /**
-     * Domain to use for replay-safe signing.
+     * Address to use for replay-safe signing.
      */
-    domain?:
-      | Pick<TypedData.Domain, 'name' | 'verifyingContract' | 'version'>
-      | undefined
+    address?: Address.Address | undefined
+    /**
+     * Payload to sign.
+     */
     payload: Hex.Hex
+    /**
+     * Storage to use for keytype-specific caching (e.g. WebAuthn user verification).
+     */
     storage?: Storage.Storage | undefined
+    /**
+     * WebAuthn configuration.
+     */
     webAuthn?:
       | {
           createFn?: WebAuthnP256.createCredential.Options['createFn']
           getFn?: WebAuthnP256.sign.Options['getFn']
         }
       | undefined
+    /**
+     * Whether to wrap the signature with key metadata.
+     * @default true
+     */
     wrap?: boolean | undefined
   }
 }

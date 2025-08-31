@@ -145,8 +145,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
   })
 
   describe('eth_signTypedData_v4', () => {
-    // TODO(relay-v23): unskip once relay implements replay-safe digests on `wallet_verifySignature`.
-    test.skip('predelegated', async () => {
+    test('predelegated', async () => {
       const porto = getPorto()
 
       const {
@@ -219,20 +218,19 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       })
       expect(signature).toBeDefined()
 
-      // TODO(relay-v23): uncomment once relay implements replay-safe digests on `wallet_verifySignature`.
-      // {
-      //   const { valid } = await porto.provider.request({
-      //     method: 'wallet_verifySignature',
-      //     params: [
-      //       {
-      //         address,
-      //         digest: hashTypedData(typedData),
-      //         signature,
-      //       },
-      //     ],
-      //   })
-      //   expect(valid).toBe(true)
-      // }
+      {
+        const { valid } = await porto.provider.request({
+          method: 'wallet_verifySignature',
+          params: [
+            {
+              address,
+              digest: hashTypedData(typedData),
+              signature,
+            },
+          ],
+        })
+        expect(valid).toBe(true)
+      }
 
       {
         const valid = await verifyHash(relayClient, {
@@ -1273,8 +1271,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
   })
 
   describe('personal_sign', () => {
-    // TODO(relay-v23): unskip once relay implements replay-safe digests on `wallet_verifySignature`.
-    test.skip('predelegated', async () => {
+    test('predelegated', async () => {
       const porto = getPorto()
 
       const {
@@ -1347,20 +1344,19 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       })
       expect(signature).toBeDefined()
 
-      // TODO(relay-v23): uncomment once relay implements replay-safe digests on `wallet_verifySignature`.
-      // {
-      //   const { valid } = await porto.provider.request({
-      //     method: 'wallet_verifySignature',
-      //     params: [
-      //       {
-      //         address,
-      //         digest: hashMessage('hello'),
-      //         signature,
-      //       },
-      //     ],
-      //   })
-      //   expect(valid).toBe(true)
-      // }
+      {
+        const { valid } = await porto.provider.request({
+          method: 'wallet_verifySignature',
+          params: [
+            {
+              address,
+              digest: hashMessage('hello'),
+              signature,
+            },
+          ],
+        })
+        expect(valid).toBe(true)
+      }
 
       {
         const valid = await verifyHash(relayClient, {
@@ -1622,8 +1618,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       ).rejects.matchSnapshot()
     })
 
-    // TODO(relay-v23): unskip once relay implements replay-safe digests on `wallet_verifySignature`.
-    test.skip('behavior: `signInWithEthereum` capability (predelegated)', async () => {
+    test('behavior: `signInWithEthereum` capability (predelegated)', async () => {
       const porto = getPorto()
 
       const res = await porto.provider.request({
@@ -1669,75 +1664,6 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
             //   })
             //   expect(valid).toBeTruthy()
             // }
-            break
-          }
-        }
-      }
-    })
-
-    test('behavior: `signInWithEthereum` capability (delegated)', async () => {
-      const porto = getPorto()
-      const walletClient = TestConfig.getWalletClient(porto)
-      const relayClient = TestConfig.getRelayClient(porto)
-
-      const res = await porto.provider.request({
-        method: 'wallet_connect',
-        params: [
-          {
-            capabilities: {
-              createAccount: true,
-              signInWithEthereum: {
-                domain: 'example.com',
-                nonce: 'deadbeef',
-                uri: 'http://example.com/',
-              },
-            },
-          },
-        ],
-      })
-      const account = res.accounts.at(0)
-      const address = account!.address
-
-      await setBalance(relayClient, {
-        address,
-        value: Value.fromEther('10000'),
-      })
-      const { id } = await porto.provider.request({
-        method: 'wallet_sendCalls',
-        params: [{ calls: [] }],
-      })
-      await waitForCallsStatus(walletClient, {
-        id,
-      })
-
-      const { message, signature } =
-        account?.capabilities?.signInWithEthereum ?? {}
-      if (message && signature) {
-        switch (type) {
-          case 'relay': {
-            // TODO(relay-v23): uncomment once relay implements replay-safe digests on `wallet_verifySignature`.
-            // {
-            //   const { valid } = await porto.provider.request({
-            //     method: 'wallet_verifySignature',
-            //     params: [
-            //       {
-            //         address,
-            //         digest: hashMessage(message),
-            //         signature,
-            //       },
-            //     ],
-            //   })
-            //   expect(valid).toBeTruthy()
-            // }
-
-            {
-              const valid = await verifyHash(relayClient, {
-                address,
-                hash: hashMessage(message),
-                signature,
-              })
-              expect(valid).toBeTruthy()
-            }
             break
           }
         }
@@ -3500,9 +3426,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       })
     })
 
-    // TODO(relay-v23): unskip once relay implements replay-safe digests on `wallet_verifySignature`.
-    test.skip('behavior: sign typed data', async () => {
-      // test.runIf(type === 'relay')('behavior: sign typed data', async () => {
+    test('behavior: sign typed data', async () => {
       const porto = getPorto()
       const client = TestConfig.getRelayClient(porto)
       const contracts = await TestConfig.getContracts(porto)
@@ -3548,18 +3472,6 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       })
 
       const signature = await signTypedData(walletClient, typedData)
-
-      const { valid } = await porto.provider.request({
-        method: 'wallet_verifySignature',
-        params: [
-          {
-            address: walletClient.account.address,
-            digest: hashTypedData(typedData),
-            signature,
-          },
-        ],
-      })
-      expect(valid).toBe(true)
 
       const result = await porto.provider.request({
         method: 'wallet_sendPreparedCalls',

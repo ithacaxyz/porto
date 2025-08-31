@@ -110,14 +110,10 @@ export function relay(parameters: relay.Parameters = {}) {
         const signInWithEthereum_response = await (async () => {
           if (!signInWithEthereum) return undefined
 
-          const [message, domain] = await Promise.all([
-            Siwe.buildMessage(client, signInWithEthereum, {
-              address: account.address,
-            }),
-            Account.getSignDomain(client, account),
-          ])
+          const message = await Siwe.buildMessage(client, signInWithEthereum, {
+            address: account.address,
+          })
           const signature = await Account.sign(eoa, {
-            domain,
             payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
           })
 
@@ -492,17 +488,14 @@ export function relay(parameters: relay.Parameters = {}) {
           if (digestType === 'siwe' && message && signature)
             return { message, signature }
 
-          const [message_, domain] = await Promise.all([
-            Siwe.buildMessage(client, signInWithEthereum, {
-              address: account.address,
-            }),
-            Account.getSignDomain(client, account),
-          ])
+          const message_ = await Siwe.buildMessage(client, signInWithEthereum, {
+            address: account.address,
+          })
 
           return {
             message: message_,
             signature: await Account.sign(account, {
-              domain,
+              address: account.address,
               payload: PersonalMessage.getSignPayload(Hex.fromString(message_)),
               role: 'admin',
             }),
@@ -801,8 +794,7 @@ export function relay(parameters: relay.Parameters = {}) {
       },
 
       async signPersonalMessage(parameters) {
-        const { account, data, internal } = parameters
-        const { client } = internal
+        const { account, data } = parameters
 
         // Only admin keys can sign personal messages.
         const key = account.keys?.find(
@@ -810,9 +802,8 @@ export function relay(parameters: relay.Parameters = {}) {
         )
         if (!key) throw new Error('cannot find admin key to sign with.')
 
-        const domain = await Account.getSignDomain(client, account)
         const signature = await Account.sign(account, {
-          domain,
+          address: account.address,
           key,
           payload: PersonalMessage.getSignPayload(data),
         })
@@ -821,8 +812,7 @@ export function relay(parameters: relay.Parameters = {}) {
       },
 
       async signTypedData(parameters) {
-        const { account, internal } = parameters
-        const { client } = internal
+        const { account } = parameters
 
         // Only admin keys can sign typed data.
         const key = account.keys?.find(
@@ -831,12 +821,11 @@ export function relay(parameters: relay.Parameters = {}) {
         if (!key) throw new Error('cannot find admin key to sign with.')
 
         const data = Json.parse(parameters.data)
-        const domain =
-          data.domain?.name === 'Orchestrator'
-            ? undefined
-            : await Account.getSignDomain(client, account)
+        const address =
+          // If the domain is the Orchestrator, we don't need to sign with the address.
+          data.domain?.name === 'Orchestrator' ? undefined : account.address
         const signature = await Account.sign(account, {
-          domain,
+          address,
           key,
           payload: TypedData.getSignPayload(data),
         })
@@ -873,9 +862,8 @@ export function relay(parameters: relay.Parameters = {}) {
         )
         if (!key) throw new Error('cannot find admin key to sign with.')
 
-        const domain = await Account.getSignDomain(client, account)
         const signature = await Account.sign(account, {
-          domain,
+          address: account.address,
           key,
           payload: Hash.keccak256(Hex.fromString(`${email}${token}`)),
         })
