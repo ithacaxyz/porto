@@ -145,8 +145,6 @@ export const toSerializedSpendPeriod = {
   year: 5,
 } as const
 
-export { getSignDomain } from './Account.js'
-
 /**
  * Creates a random P256 key.
  *

@@ -93,7 +93,6 @@ describe('createSecp256k1', () => {
     })
 
     const payload = Hex.random(32)
-    const domain = await Key.getSignDomain(client, account)
     const signature = await Key.sign(key, {
       address: account.address,
       payload,
@@ -186,7 +185,6 @@ describe('createWebAuthnP256', () => {
     })
 
     const payload = Hex.random(32)
-    const domain = await Key.getSignDomain(client, account)
     const signature = await Key.sign(key, {
       address: account.address,
       payload,

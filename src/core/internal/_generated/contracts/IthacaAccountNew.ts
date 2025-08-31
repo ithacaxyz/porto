@@ -595,35 +595,6 @@ export const abi = [
   },
   {
     "type": "function",
-    "name": "isValidSignature8010",
-    "inputs": [
-      {
-        "name": "digest",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "signature",
-        "type": "bytes",
-        "internalType": "bytes"
-      },
-      {
-        "name": "initData",
-        "type": "bytes",
-        "internalType": "bytes"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bytes4",
-        "internalType": "bytes4"
-      }
-    ],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
     "name": "keyAt",
     "inputs": [
       {
