@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.81
+
+### Patch Changes
+
+- [#785](https://github.com/ithacaxyz/porto/pull/785) [`8648c5d`](https://github.com/ithacaxyz/porto/commit/8648c5dca986109620049cc93fb06d0f2dc91494) Thanks [@jxom](https://github.com/jxom)! - Added support for `merchantRpcUrl` on `eth_sendTransaction`
+
 ## 0.0.80
 
 ### Patch Changes
