@@ -316,6 +316,7 @@ describe('getCallsStatus', () => {
     })
 
     const signature = await Key.sign(key, {
+      address: null,
       payload: request.digest,
       wrap: false,
     })
@@ -481,6 +482,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
 
     const signature = await Key.sign(key, {
+      address: null,
       payload: request.digest,
       wrap: false,
     })
@@ -541,10 +543,12 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
 
     const signature = await Key.sign(userKey, {
+      address: null,
       payload: request.digest,
       wrap: false,
     })
     const merchantSignature = await Key.sign(merchantKey, {
+      address: null,
       payload: request.digest,
     })
 
@@ -638,6 +642,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
       })
 
       const signature = await Key.sign(key, {
+        address: null,
         payload: request.digest,
         wrap: false,
       })
@@ -724,6 +729,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
       })
 
       const signature = await Key.sign(key, {
+        address: null,
         payload: request.digest,
         wrap: false,
       })
@@ -791,6 +797,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
 
     const signature = await Key.sign(key, {
+      address: null,
       payload: request.digest,
       wrap: false,
     })
