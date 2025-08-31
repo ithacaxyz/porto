@@ -1,7 +1,7 @@
 import { Env, Query as Query_porto } from '@porto/apps'
 import * as Query from '@tanstack/react-query'
 import type { Address } from 'ox'
-import { Account, RelayActions } from 'porto'
+import { type Account, RelayActions } from 'porto'
 import * as PreCalls from 'porto/core/internal/preCalls'
 import * as RequiredFunds from 'porto/core/internal/requiredFunds'
 import type * as Capabilities_schema from 'porto/core/internal/schema/capabilities'
