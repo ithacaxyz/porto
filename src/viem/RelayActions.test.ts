@@ -40,6 +40,7 @@ describe('signCalls', () => {
           to: contracts.exp2.address,
         },
       ],
+<<<<<<< HEAD
       key,
     })
 
@@ -126,6 +127,72 @@ describe('signCalls', () => {
     // Create a pre-call request that references a key that is not on the account
     const request = await RelayActions.prepareCalls(client, {
       authorizeKeys: [otherKey],
+||||||| parent of a0c17354 (feat: signCalls)
+=======
+      feeToken: contracts.exp1.address,
+      key,
+    })
+
+    const signature = await RelayActions.signCalls(request, { key })
+    expect(signature).toBeDefined()
+
+    const { id } = await RelayActions.sendPreparedCalls(client, {
+      ...request,
+      key: request.key!,
+      signature,
+    })
+    expect(id).toBeDefined()
+  })
+
+  test('behavior: signs with account', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, { keys: [key] })
+
+    const request = await RelayActions.prepareCalls(client, {
+      account,
+      calls: [
+        {
+          abi: contracts.exp2.abi,
+          args: [account.address, 100n],
+          functionName: 'mint',
+          to: contracts.exp2.address,
+        },
+      ],
+      feeToken: contracts.exp1.address,
+    })
+
+    const signature = await RelayActions.signCalls(request, { account })
+    expect(signature).toBeDefined()
+  })
+
+  test('error: missing signer', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, { keys: [key] })
+
+    const request = await RelayActions.prepareCalls(client, {
+      account,
+      calls: [],
+      feeToken: contracts.exp1.address,
+    })
+
+    await expect(() =>
+      // @ts-expect-error testing runtime validation
+      RelayActions.signCalls(request, {}),
+    ).rejects.toThrowError('no key or account provided')
+  })
+
+  test('error: key not found (account signer with mismatched request key)', async () => {
+    const adminKey = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [adminKey],
+    })
+    const otherKey = Key.createHeadlessWebAuthnP256()
+
+    // Create a pre-call request that references a key that is not on the account
+    const request = await RelayActions.prepareCalls(client, {
+      authorizeKeys: [otherKey],
+      feeToken: contracts.exp1.address,
+>>>>>>> a0c17354 (feat: signCalls)
       preCalls: true,
     })
 
@@ -655,6 +722,14 @@ describe('prepareCalls', () => {
           to: contracts.exp2.address,
         },
       ],
+<<<<<<< HEAD
+||||||| parent of a0c17354 (feat: signCalls)
+    const signature = await Key.sign(key, {
+      payload: request.digest,
+      wrap: false,
+=======
+      feeToken: contracts.exp1.address,
+>>>>>>> a0c17354 (feat: signCalls)
     })
 
     const signature = await RelayActions.signCalls(request, {
