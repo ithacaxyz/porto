@@ -12,6 +12,7 @@ import { Key } from 'porto/viem'
 const key = Key.createP256()
 
 const signature = await Key.sign(key, { // [!code focus]
+  address: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef', // [!code focus]
   payload: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef', // [!code focus]
 }) // [!code focus]
 ```
@@ -26,6 +27,7 @@ const key = await Key.createWebAuthnP256({
 })
 
 const signature = await Key.sign(key, { // [!code focus]
+  address: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef', // [!code focus]
   payload: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef', // [!code focus]
 }) // [!code focus]
 ```
@@ -40,6 +42,7 @@ import { Key } from 'porto/viem'
 const key = Key.createP256()
 
 const rawSignature = await Key.sign(key, { // [!code focus]
+  address: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef', // [!code focus]
   payload: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef', // [!code focus]
   wrap: false, // Get raw signature // [!code focus]
 }) // [!code focus]
@@ -61,6 +64,12 @@ Signing parameters.
 
 ```ts
 type Parameters = {
+  /** 
+   * Address to use for replay-safe signing.
+   * `null` if replay-safe signing is not needed (e.g. signing call bundles).
+   */
+  address: `0x${string}` | null
+
   /** 
    * Payload to sign (32-byte hash)
    */

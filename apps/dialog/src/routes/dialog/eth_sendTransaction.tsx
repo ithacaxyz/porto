@@ -1,7 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Provider, RpcResponse } from 'ox'
-import { Account, Key } from 'porto'
 import { Actions, Hooks } from 'porto/remote'
 import { RelayActions } from 'porto/viem'
 import { waitForCallsStatus } from 'viem/actions'
@@ -34,16 +33,13 @@ function RouteComponent() {
     // TODO: use EIP-1193 Provider + `wallet_sendPreparedCalls` in the future
     // to dedupe.
     async mutationFn(data: Calls.prepareCalls.useQuery.Data) {
+      const { capabilities, context, key } = data
+
       if (!account) throw new Error('account not found.')
+      if (!key) throw new Error('key not found.')
 
-      const key = Account.getKey(account, { role: 'admin' })
-      if (!key) throw new Error('admin key not found.')
-
-      const { capabilities, context, digest } = data
-
-      const signature = await Key.sign(key, {
-        payload: digest,
-        wrap: false,
+      const signature = await RelayActions.signCalls(data, {
+        account,
       })
 
       const { id } = await RelayActions.sendPreparedCalls(client, {

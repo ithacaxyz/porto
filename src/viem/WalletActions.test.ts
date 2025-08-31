@@ -411,6 +411,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
 
     const signature = await Key.sign(sessionKey, {
+      address: null,
       payload: request.digest,
       wrap: false,
     })
@@ -462,6 +463,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
 
     const signature = await Key.sign(adminKey, {
+      address: null,
       payload: request.digest,
       wrap: false,
     })

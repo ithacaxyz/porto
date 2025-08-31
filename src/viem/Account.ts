@@ -184,14 +184,14 @@ export async function sign(
   account: Account,
   parameters: sign.Parameters,
 ): Promise<Compute<Hex.Hex>> {
-  const { address, storage } = parameters
+  const { storage, replaySafe = true, wrap = true } = parameters
 
   const key = getKey(account, parameters)
 
   const payload = (() => {
-    if (!address) return parameters.payload
+    if (!replaySafe) return parameters.payload
     return TypedData.getSignPayload({
-      domain: { verifyingContract: address },
+      domain: { verifyingContract: account.address },
       message: {
         digest: parameters.payload,
       },
@@ -203,12 +203,16 @@ export async function sign(
   })()
 
   const sign = (() => {
-    if (account.source === 'privateKey') return account.sign
-    if (!key) return undefined
+    if (!key) {
+      if (account.source === 'privateKey') return account.sign
+      return undefined
+    }
     return ({ hash }: { hash: Hex.Hex }) =>
       Key.sign(key, {
+        address: null,
         payload: hash,
         storage,
+        wrap,
       })
   })()
 
@@ -221,10 +225,6 @@ export async function sign(
 
 export declare namespace sign {
   type Parameters = {
-    /**
-     * Address to use for replay-safe signing.
-     */
-    address?: Address.Address | undefined
     /**
      * Key to sign the payloads with.
      *
@@ -239,6 +239,11 @@ export declare namespace sign {
      */
     payload: Hex.Hex
     /**
+     * Whether to use replay-safe signing.
+     * `false` if replay-safe signing is not needed (e.g. signing call bundles).
+     */
+    replaySafe?: boolean
+    /**
      * Role to extract the key from the `account` for signing.
      */
     role?: Key.Key['role'] | undefined
@@ -246,5 +251,9 @@ export declare namespace sign {
      * Storage to use for keytype-specific caching (e.g. WebAuthn user verification).
      */
     storage?: Storage.Storage | undefined
+    /**
+     * Whether to wrap the signature with key metadata.
+     */
+    wrap?: boolean | undefined
   }
 }

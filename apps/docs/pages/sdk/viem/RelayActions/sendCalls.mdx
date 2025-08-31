@@ -9,9 +9,13 @@ Viem Action for broadcasting a call bundle to the Relay. This is a convenience f
 ```ts twoslash [example.ts]
 import { RelayActions, Key } from 'porto/viem'
 import { parseEther } from 'viem'
-import { client, account } from './config'
+import { client } from './config'
 
-const key = Key.createSecp256k1()
+// Create (or import) account
+const key = Key.createP256()
+const account = await RelayActions.createAccount(client, {
+  authorizeKeys: [key],
+})
 
 const result = await RelayActions.sendCalls(client, { // [!code focus]
   account, // [!code focus]

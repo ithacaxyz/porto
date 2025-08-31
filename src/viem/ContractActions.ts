@@ -81,6 +81,7 @@ export async function execute<
     const exec = await Account.sign(account_, {
       key: digests.auth ? null : key,
       payload: digests.exec,
+      replaySafe: false,
       storage,
     })
     const auth = await (async () => {

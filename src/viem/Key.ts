@@ -1016,8 +1016,9 @@ export declare namespace sign {
   type Parameters = {
     /**
      * Address to use for replay-safe signing.
+     * `null` if replay-safe signing is not needed (e.g. signing call bundles).
      */
-    address?: Address.Address | undefined
+    address: Address.Address | null
     /**
      * Payload to sign.
      */

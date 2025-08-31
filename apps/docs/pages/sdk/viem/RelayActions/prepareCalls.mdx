@@ -9,9 +9,13 @@ Viem Action for preparing a bundle of calls for execution. Uses [`wallet_prepare
 ```ts twoslash [example.ts]
 import { RelayActions, Key } from 'porto/viem'
 import { parseEther } from 'viem'
-import { client, account } from './config'
+import { client } from './config'
 
-const key = Key.createSecp256k1()
+// Create (or import) account
+const key = Key.createP256()
+const account = await RelayActions.createAccount(client, {
+  authorizeKeys: [key],
+})
 
 const prepared = await RelayActions.prepareCalls(client, { // [!code focus]
   account, // [!code focus]

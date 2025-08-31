@@ -143,6 +143,7 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
     })
 
     const signature = await Key.sign(adminKey, {
+      address: null,
       payload: digest,
       wrap: false,
     })
