@@ -12,7 +12,7 @@ export function SignTypedMessage({
   data,
   onSign,
   onReject,
-  isPending,
+  approving,
 }: SignTypedMessage.Props) {
   const frame = Frame.useFrame()
   const chainId = Number(data.domain.chainId)
@@ -62,7 +62,7 @@ export function SignTypedMessage({
       <Layout.Footer>
         <Layout.Footer.Actions>
           <Button
-            disabled={isPending}
+            disabled={approving}
             onClick={onReject}
             variant="negative-secondary"
             width="grow"
@@ -70,7 +70,7 @@ export function SignTypedMessage({
             Deny
           </Button>
           <Button
-            loading={isPending && 'Signing…'}
+            loading={approving && 'Signing…'}
             onClick={onSign}
             variant="positive"
             width="grow"
@@ -88,7 +88,7 @@ export namespace SignTypedMessage {
     data: typeof TypedMessages.TypedMessageSchema.Type
     onSign: () => void
     onReject: () => void
-    isPending: boolean
+    approving: boolean
   }
 
   export function DataRow({ keyName, value }: DataRow.Props) {
@@ -124,7 +124,7 @@ export function SignTypedMessageInvalid({
   data,
   onSign,
   onReject,
-  isPending,
+  approving,
 }: SignTypedMessageInvalid.Props) {
   const frame = Frame.useFrame()
   return (
@@ -159,7 +159,7 @@ export function SignTypedMessageInvalid({
       <Layout.Footer>
         <Layout.Footer.Actions>
           <Button
-            disabled={isPending}
+            disabled={approving}
             onClick={onReject}
             variant="secondary"
             width="grow"
@@ -167,7 +167,7 @@ export function SignTypedMessageInvalid({
             Deny
           </Button>
           <Button
-            loading={isPending && 'Signing…'}
+            loading={approving && 'Signing…'}
             onClick={onSign}
             variant="negative"
             width="grow"
@@ -185,7 +185,7 @@ export namespace SignTypedMessageInvalid {
     data: string
     onSign: () => void
     onReject: () => void
-    isPending: boolean
+    approving: boolean
   }
 }
 
@@ -198,7 +198,7 @@ export function SignPermit(props: SignPermit.Props) {
     tokenContract,
     onSign,
     onReject,
-    isPending,
+    approving,
   } = props
 
   const chains = useChains()
@@ -238,9 +238,9 @@ export function SignPermit(props: SignPermit.Props) {
   return (
     <Approve
       amount={amount}
-      chain={chain}
+      approving={approving}
+      chainId={chainId}
       expiresAt={new Date(deadline * 1000)}
-      isPending={isPending}
       onApprove={onSign}
       onReject={onReject}
       spender={spender}
@@ -254,7 +254,7 @@ export namespace SignPermit {
     amount: bigint
     chainId: number
     deadline: number
-    isPending: boolean
+    approving: boolean
     onReject: () => void
     onSign: () => void
     spender: `0x${string}`

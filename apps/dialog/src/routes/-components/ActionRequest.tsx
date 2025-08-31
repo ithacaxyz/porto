@@ -9,7 +9,13 @@ import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
 import type * as Rpc from 'porto/core/internal/schema/request'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
-import { type Call, ethAddress } from 'viem'
+import {
+  type Call,
+  decodeAbiParameters,
+  decodeFunctionData,
+  erc20Abi,
+  ethAddress,
+} from 'viem'
 import { CheckBalance } from '~/components/CheckBalance'
 import * as Calls from '~/lib/Calls'
 import { porto } from '~/lib/Porto'
@@ -25,6 +31,7 @@ import TriangleAlert from '~icons/lucide/triangle-alert'
 import LucideVideo from '~icons/lucide/video'
 import Star from '~icons/ph/star-four-bold'
 import IconArrowRightCircle from '~icons/porto/arrow-right-circle'
+import { Approve } from '../-components/Approve'
 
 export function ActionRequest(props: ActionRequest.Props) {
   const {
@@ -54,12 +61,69 @@ export function ActionRequest(props: ActionRequest.Props) {
   const capabilities = prepareCallsQuery.data?.capabilities
   const { assetDiffs, feeTotals } = capabilities ?? {}
 
-  const quotes = prepareCallsQuery.data?.capabilities?.quote?.quotes
-
   const assetDiff = ActionRequest.AssetDiff.useAssetDiff({
     address: account?.address,
     assetDiff: assetDiffs,
   })
+
+  const quotes = prepareCallsQuery.data?.capabilities?.quote?.quotes ?? []
+
+  const approval = React.useMemo(() => {
+    const quote = quotes.at(-1)
+    if (!quote) return null
+    try {
+      const [calls] = decodeAbiParameters(
+        [
+          {
+            components: [
+              { name: 'to', type: 'address' },
+              { name: 'value', type: 'uint256' },
+              { name: 'data', type: 'bytes' },
+            ],
+            type: 'tuple[]',
+          },
+        ],
+        quote.intent.executionData,
+      )
+
+      if (calls.length !== 1 || !calls[0]) return null
+      const [call] = calls
+
+      const decoded = decodeFunctionData({
+        abi: erc20Abi,
+        data: call.data,
+      })
+      if (decoded.functionName === 'approve') {
+        const [spender, amount] = decoded.args
+        return {
+          amount,
+          chainId: quote.chainId,
+          spender,
+          tokenAddress: call.to,
+        }
+      }
+      return null
+    } catch {
+      return null
+    }
+  }, [quotes])
+
+  if (approval)
+    return (
+      <Approve
+        amount={approval.amount}
+        approving={loading}
+        chainId={approval.chainId}
+        fees={feeTotals}
+        loading={prepareCallsQuery.isPending}
+        onApprove={() =>
+          prepareCallsQuery.data && onApprove(prepareCallsQuery.data)
+        }
+        onReject={onReject}
+        spender={approval.spender}
+        tokenAddress={approval.tokenAddress}
+      />
+    )
 
   return (
     <CheckBalance
