@@ -1,0 +1,74 @@
+# `RelayActions.signCalls`
+
+Signs the digest returned from [`RelayActions.prepareCalls`](/sdk/viem/RelayActions/prepareCalls). 
+
+## Usage
+
+::::code-group
+
+```ts twoslash [example.ts]
+import { RelayActions, Key } from 'porto/viem'
+import { parseEther } from 'viem'
+import { client } from './config'
+
+// Create (or import) account
+const key = Key.createP256()
+const account = await RelayActions.createAccount(client, {
+  authorizeKeys: [key],
+})
+
+// Prepare calls
+const request = await RelayActions.prepareCalls(client, {
+  account,
+  calls: [{
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: parseEther('0.01'),
+  }],
+  key,
+})
+
+// Sign calls // [!code focus]
+const signature = await RelayActions.signCalls(request, { key }) // [!code focus]
+
+// Broadcast calls
+const result = await RelayActions.sendPreparedCalls(client, {
+  ...request,
+  signature,
+})
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.server.ts]
+```
+
+::::
+
+## Parameters
+
+### request
+
+- **Type:** `RelayActions.prepareCalls.ReturnType`
+
+The prepared request returned from [`RelayActions.prepareCalls`](/sdk/viem/RelayActions/prepareCalls).
+
+### options
+
+#### options.account
+
+- **Type:** `Account.Account`
+
+Sign using an [`Account`](/sdk/viem/Account).
+
+#### options.key
+
+- **Type:** `Key.Key`
+
+- `key`: Sign using a [`Key`](/sdk/viem/Key).
+
+## Return Value
+
+- **Type:** `Hex.Hex`
+
+Returns the signature over `request.digest`.
+
+
