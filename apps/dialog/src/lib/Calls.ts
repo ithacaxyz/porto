@@ -41,9 +41,6 @@ export namespace prepareCalls {
 
         if (!account) throw new Error('account is required.')
 
-        const key = Account.getKey(account, { role: 'admin' })
-        if (!key) throw new Error('no admin key found.')
-
         const feeTokens = await Query_porto.client.ensureQueryData(
           FeeTokens.fetch.queryOptions(client, {
             addressOrSymbol: feeToken,
@@ -68,7 +65,6 @@ export namespace prepareCalls {
           ...parameters,
           account,
           feeToken: feeTokenAddress,
-          key,
           preCalls,
           requiredFunds: multichain ? requiredFunds : undefined,
         })

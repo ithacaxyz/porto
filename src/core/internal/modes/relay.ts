@@ -115,6 +115,7 @@ export function relay(parameters: relay.Parameters = {}) {
           })
           const signature = await Account.sign(eoa, {
             payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
+            replaySafe: false,
           })
 
           return { message, signature }
@@ -464,6 +465,7 @@ export function relay(parameters: relay.Parameters = {}) {
           // Otherwise, we will sign over the digest for authorizing
           // the session key.
           return await Key.sign(adminKey, {
+            address: null,
             payload: digest,
           })
         })()
@@ -492,7 +494,6 @@ export function relay(parameters: relay.Parameters = {}) {
           return {
             message: message_,
             signature: await Account.sign(account, {
-              address: account.address,
               payload: PersonalMessage.getSignPayload(Hex.fromString(message_)),
               role: 'admin',
             }),
@@ -800,7 +801,6 @@ export function relay(parameters: relay.Parameters = {}) {
         if (!key) throw new Error('cannot find admin key to sign with.')
 
         const signature = await Account.sign(account, {
-          address: account.address,
           key,
           payload: PersonalMessage.getSignPayload(data),
         })
@@ -818,13 +818,13 @@ export function relay(parameters: relay.Parameters = {}) {
         if (!key) throw new Error('cannot find admin key to sign with.')
 
         const data = Json.parse(parameters.data)
-        const address =
-          // If the domain is the Orchestrator, we don't need to sign with the address.
-          data.domain?.name === 'Orchestrator' ? undefined : account.address
+        const replaySafe =
+          // If the domain is the Orchestrator, we don't need to replay-safe sign.
+          data.domain?.name !== 'Orchestrator'
         const signature = await Account.sign(account, {
-          address,
           key,
           payload: TypedData.getSignPayload(data),
+          replaySafe,
         })
 
         return signature
@@ -860,7 +860,6 @@ export function relay(parameters: relay.Parameters = {}) {
         if (!key) throw new Error('cannot find admin key to sign with.')
 
         const signature = await Account.sign(account, {
-          address: account.address,
           key,
           payload: Hash.keccak256(Hex.fromString(`${email}${token}`)),
         })
@@ -940,6 +939,7 @@ async function getAuthorizeKeyPreCalls(
     preCalls: true,
   })
   const signature = await Key.sign(adminKey, {
+    address: null,
     payload: digest,
   })
 

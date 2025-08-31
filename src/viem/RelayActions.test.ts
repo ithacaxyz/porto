@@ -24,6 +24,93 @@ describe('createAccount', () => {
   })
 })
 
+describe('signCalls', () => {
+  test('default: signs with provided key', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, { keys: [key] })
+
+    const request = await RelayActions.prepareCalls(client, {
+      account,
+      calls: [
+        {
+          abi: contracts.exp2.abi,
+          args: [account.address, 100n],
+          functionName: 'mint',
+          to: contracts.exp2.address,
+        },
+      ],
+      feeToken: contracts.exp1.address,
+      key,
+    })
+
+    const signature = await RelayActions.signCalls(request, { key })
+    expect(signature).toBeDefined()
+
+    const { id } = await RelayActions.sendPreparedCalls(client, {
+      ...request,
+      key: request.key!,
+      signature,
+    })
+    expect(id).toBeDefined()
+  })
+
+  test('behavior: signs with account', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, { keys: [key] })
+
+    const request = await RelayActions.prepareCalls(client, {
+      account,
+      calls: [
+        {
+          abi: contracts.exp2.abi,
+          args: [account.address, 100n],
+          functionName: 'mint',
+          to: contracts.exp2.address,
+        },
+      ],
+      feeToken: contracts.exp1.address,
+    })
+
+    const signature = await RelayActions.signCalls(request, { account })
+    expect(signature).toBeDefined()
+  })
+
+  test('error: missing signer', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, { keys: [key] })
+
+    const request = await RelayActions.prepareCalls(client, {
+      account,
+      calls: [],
+      feeToken: contracts.exp1.address,
+    })
+
+    await expect(() =>
+      // @ts-expect-error testing runtime validation
+      RelayActions.signCalls(request, {}),
+    ).rejects.toThrowError('no key or account provided')
+  })
+
+  test('error: key not found (account signer with mismatched request key)', async () => {
+    const adminKey = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [adminKey],
+    })
+    const otherKey = Key.createHeadlessWebAuthnP256()
+
+    // Create a pre-call request that references a key that is not on the account
+    const request = await RelayActions.prepareCalls(client, {
+      authorizeKeys: [otherKey],
+      feeToken: contracts.exp1.address,
+      preCalls: true,
+    })
+
+    await expect(() =>
+      RelayActions.signCalls(request, { account }),
+    ).rejects.toThrowError('key not found')
+  })
+})
+
 describe('upgradeAccount', () => {
   test('default', async () => {
     const { account } = await TestActions.getAccount(client)
@@ -344,8 +431,8 @@ describe('sendCalls', () => {
       feeToken: contracts.exp1.address,
       preCalls: true,
     })
-    const signature_1 = await Key.sign(adminKey, {
-      payload: request_1.digest,
+    const signature_1 = await RelayActions.signCalls(request_1, {
+      key: adminKey,
     })
 
     const { id } = await RelayActions.sendCalls(client, {
@@ -466,9 +553,52 @@ describe('prepareCalls', () => {
       key,
     })
 
-    const signature = await Key.sign(key, {
-      payload: request.digest,
-      wrap: false,
+    const signature = await RelayActions.signCalls(request, {
+      key,
+    })
+
+    const { id } = await RelayActions.sendPreparedCalls(client, {
+      ...request,
+      key: request.key!,
+      signature,
+    })
+
+    expect(id).toBeDefined()
+
+    await waitForCallsStatus(client, {
+      id,
+    })
+
+    expect(
+      await readContract(client, {
+        ...contracts.exp2,
+        args: [account.address],
+        functionName: 'balanceOf',
+      }),
+    ).toBe(100n)
+  })
+
+  test('behavior: account', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    const request = await RelayActions.prepareCalls(client, {
+      account,
+      calls: [
+        {
+          abi: contracts.exp2.abi,
+          args: [account.address, 100n],
+          functionName: 'mint',
+          to: contracts.exp2.address,
+        },
+      ],
+      feeToken: contracts.exp1.address,
+    })
+
+    const signature = await RelayActions.signCalls(request, {
+      account,
     })
 
     const { id } = await RelayActions.sendPreparedCalls(client, {
@@ -518,8 +648,8 @@ describe('prepareCalls', () => {
       feeToken: contracts.exp1.address,
       preCalls: true,
     })
-    const signature_1 = await Key.sign(key, {
-      payload: request_1.digest,
+    const signature_1 = await RelayActions.signCalls(request_1, {
+      key,
     })
 
     const request_2 = await RelayActions.prepareCalls(client, {
@@ -536,9 +666,8 @@ describe('prepareCalls', () => {
       key,
       preCalls: [{ ...request_1, signature: signature_1 }],
     })
-    const signature_2 = await Key.sign(key, {
-      payload: request_2.digest,
-      wrap: false,
+    const signature_2 = await RelayActions.signCalls(request_2, {
+      key,
     })
 
     const { id } = await RelayActions.sendPreparedCalls(client, {
@@ -594,8 +723,8 @@ describe('prepareCalls', () => {
       feeToken: contracts.exp1.address,
       preCalls: true,
     })
-    const signature_1 = await Key.sign(key, {
-      payload: request_1.digest,
+    const signature_1 = await RelayActions.signCalls(request_1, {
+      key,
     })
 
     const request_2 = await RelayActions.prepareCalls(client, {
@@ -612,9 +741,8 @@ describe('prepareCalls', () => {
       key,
       preCalls: [{ ...request_1, signature: signature_1 }],
     })
-    const signature_2 = await Key.sign(key, {
-      payload: request_2.digest,
-      wrap: false,
+    const signature_2 = await RelayActions.signCalls(request_2, {
+      key,
     })
 
     const { id } = await RelayActions.sendPreparedCalls(client, {
@@ -664,8 +792,8 @@ describe('prepareCalls', () => {
       feeToken: contracts.exp1.address,
       preCalls: true,
     })
-    const signature_1 = await Key.sign(adminKey, {
-      payload: request_1.digest,
+    const signature_1 = await RelayActions.signCalls(request_1, {
+      key: adminKey,
     })
 
     const request_2 = await RelayActions.prepareCalls(client, {
@@ -682,9 +810,8 @@ describe('prepareCalls', () => {
       key: sessionKey,
       preCalls: [{ ...request_1, signature: signature_1 }],
     })
-    const signature_2 = await Key.sign(sessionKey, {
-      payload: request_2.digest,
-      wrap: false,
+    const signature_2 = await RelayActions.signCalls(request_2, {
+      key: sessionKey,
     })
 
     const { id } = await RelayActions.sendPreparedCalls(client, {
