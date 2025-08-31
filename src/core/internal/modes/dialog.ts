@@ -837,6 +837,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             if (hasFeeDeficit) throw new Error('insufficient funds')
 
             const signature = await Key.sign(key, {
+              address: null,
               payload: req.digest,
               wrap: false,
             })

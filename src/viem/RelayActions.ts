@@ -122,7 +122,6 @@ export async function prepareCalls<
     account = client.account,
     calls,
     chain,
-    key,
     feePayer,
     feeToken,
     merchantRpcUrl,
@@ -133,6 +132,9 @@ export async function prepareCalls<
   } = parameters
 
   const account_ = account ? Account.from(account) : undefined
+  const key =
+    parameters.key ??
+    (account_ ? Account.getKey(account_, { role: 'admin' }) : undefined)
 
   const hasSessionKey = parameters.authorizeKeys?.some(
     (x) => x.role === 'session',
@@ -394,6 +396,7 @@ export async function sendCalls<
         revokeKeys,
       })
       const signature = await Key.sign(key, {
+        address: null,
         payload: digest,
       })
       return { context, signature }
@@ -411,6 +414,7 @@ export async function sendCalls<
 
   // Sign over the bundles.
   const signature = await Key.sign(key, {
+    address: null,
     payload: digest,
     wrap: false,
   })
@@ -467,6 +471,45 @@ export declare namespace sendCalls {
   export type ErrorType =
     | RelayActions.sendPreparedCalls.ErrorType
     | Errors.GlobalErrorType
+}
+
+export async function signCalls(
+  request: prepareCalls.ReturnType,
+  options: signCalls.Options,
+) {
+  const isPrecall = Boolean(request.context.preCall)
+  const { account, key } = options
+
+  if (account) {
+    const keyIndex = account.keys?.findIndex(
+      (k) => k.publicKey === request.key?.publicKey,
+    )
+    if (keyIndex === -1) throw new Error('key not found')
+    return await Account.sign(account, {
+      key: keyIndex,
+      payload: request.digest,
+      replaySafe: false,
+      wrap: isPrecall,
+    })
+  }
+  if (key)
+    return await Key.sign(key, {
+      address: null,
+      payload: request.digest,
+      wrap: isPrecall,
+    })
+  throw new Error('no key or account provided')
+}
+
+export declare namespace signCalls {
+  export type Options = OneOf<
+    | {
+        account: Account.Account
+      }
+    | {
+        key: Key.Key
+      }
+  >
 }
 
 export async function sendPreparedCalls(

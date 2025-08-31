@@ -92,6 +92,7 @@ export function requestHandler(options: requestHandler.Options) {
 
           const signature = sponsor
             ? await Key.sign(key, {
+                address: null,
                 payload: TypedData.getSignPayload(typedData),
               })
             : undefined
