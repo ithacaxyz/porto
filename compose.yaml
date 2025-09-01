@@ -37,7 +37,7 @@ services:
     build:
       context: "${DOCKER_BUILD_CONTEXT:-https://github.com/ithacaxyz/porto.git}"
       dockerfile_inline: |
-        FROM ghcr.io/ithacaxyz/relay:v21.1.0
+        FROM ghcr.io/ithacaxyz/relay:v23.0.0
         COPY --from=ghcr.io/foundry-rs/foundry:latest /usr/local/bin/cast /usr/local/bin/cast
     platform: linux/x86_64
     labels:
