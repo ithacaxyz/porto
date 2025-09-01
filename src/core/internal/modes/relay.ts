@@ -472,7 +472,7 @@ export function relay(parameters: relay.Parameters = {}) {
           // Otherwise, we will sign over the digest for authorizing
           // the session key.
           return await Key.sign(adminKey, {
-            address: null,
+            address: digestType === 'precall' ? null : account.address,
             payload: digest,
           })
         })()

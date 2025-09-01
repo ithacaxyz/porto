@@ -20,15 +20,16 @@ import {
 } from 'ox'
 import { Dialog } from 'porto'
 import * as React from 'react'
-import { hashMessage, hashTypedData, isAddress, maxUint256 } from 'viem'
+import { hashTypedData, isAddress, maxUint256 } from 'viem'
 import {
   generatePrivateKey,
   privateKeyToAccount,
   privateKeyToAddress,
 } from 'viem/accounts'
-
+import { verifyHash, verifyMessage } from 'viem/actions'
 import {
   type ChainId,
+  client,
   isDialogModeType,
   type ModeType,
   mipd,
@@ -1339,15 +1340,10 @@ function SignMessage() {
             method: 'eth_accounts',
           })
 
-          const { valid } = await porto.provider.request({
-            method: 'wallet_verifySignature',
-            params: [
-              {
-                address: account,
-                digest: hashMessage(message),
-                signature,
-              },
-            ],
+          const valid = await verifyMessage(client, {
+            address: account,
+            message,
+            signature,
           })
 
           setValid(valid)
@@ -1533,15 +1529,10 @@ function SignTypedMessage() {
           method: 'eth_accounts',
         })
 
-        const { valid } = await porto.provider.request({
-          method: 'wallet_verifySignature',
-          params: [
-            {
-              address: account,
-              digest: typedMessage.hash,
-              signature: typedMessage.signature,
-            },
-          ],
+        const valid = await verifyHash(client, {
+          address: account,
+          hash: typedMessage.hash,
+          signature: typedMessage.signature,
         })
 
         if (cancel) return
