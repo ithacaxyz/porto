@@ -4,6 +4,13 @@ import type * as Hex from 'ox/Hex'
 import type { Client } from 'viem'
 import * as RelayActions from '../../viem/RelayActions.js'
 
+/**
+ * Wraps a signature in ERC-8010 format to enable pre-delegated signature verification.
+ *
+ * @param client - The client to use.
+ * @param parameters - The parameters for the wrap function.
+ * @returns The wrapped signature.
+ */
 export async function wrap(client: Client, parameters: wrap.Parameters) {
   const { address } = parameters
 
