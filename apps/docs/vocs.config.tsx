@@ -636,7 +636,7 @@ export default defineConfig({
   vite: {
     plugins: [
       Mkcert({
-        hosts: ['localhost', 'anvil.localhost'],
+        hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
       }),
       Plugins.Icons(),
     ],
