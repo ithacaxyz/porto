@@ -22,7 +22,7 @@
     "idb-keyval": "^6.2.1",
     "mipd": "^0.0.7",
     "open": "^10.1.0",
-    "ox": "^0.8.4",
+    "ox": "^0.9.3",
     "zustand": "^5.0.1"
   },
   "peerDependencies": {

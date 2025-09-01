@@ -10,6 +10,7 @@ import { sendCalls } from '../RelayActions.js'
 import {
   addFaucetFunds,
   getAssets,
+  getAuthorization,
   getCallsStatus,
   getCapabilities,
   getKeys,
@@ -67,6 +68,32 @@ describe('health', () => {
   test('default', async () => {
     const version = await health(client)
     expect(version).toBeDefined()
+  })
+})
+
+describe('getAuthorization', () => {
+  test.only('default', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    const result = await getAuthorization(client, {
+      address: account.address,
+    })
+
+    expect(result).toBeDefined()
+    expect(result.authorization).toBeDefined()
+    expect(result.data).toBeDefined()
+    expect(result.to).toBeDefined()
+  })
+
+  test('behavior: undelegated', async () => {
+    await expect(
+      getAuthorization(client, {
+        address: Hex.random(20),
+      }),
+    ).rejects.toThrow('does not exist in storage')
   })
 })
 
