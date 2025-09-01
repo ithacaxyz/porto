@@ -72,7 +72,7 @@ describe('health', () => {
 })
 
 describe('getAuthorization', () => {
-  test.only('default', async () => {
+  test('default', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],
