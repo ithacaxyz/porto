@@ -186,7 +186,12 @@ export namespace wallet_getCapabilities {
         /** Legacy account implementation address. */
         legacyAccountImplementations: Schema.Array(VersionedContract),
         /** Legacy orchestrator address. */
-        legacyOrchestrators: Schema.Array(VersionedContract),
+        legacyOrchestrators: Schema.Array(
+          Schema.Struct({
+            orchestrator: VersionedContract,
+            simulator: VersionedContract,
+          }),
+        ),
         /** Orchestrator address. */
         orchestrator: VersionedContract,
         /** Simulator address. */
