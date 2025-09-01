@@ -419,7 +419,10 @@ export function relay(parameters: relay.Parameters = {}) {
             return { address, credentialId, webAuthnSignature }
           })()
 
-        const keys = await RelayActions.getKeys(client, { account: address })
+        const keys = await RelayActions.getKeys(client, {
+          account: address,
+          chainIds: [client.chain.id],
+        })
 
         // Instantiate the account based off the extracted address and keys.
         const account = Account.from({

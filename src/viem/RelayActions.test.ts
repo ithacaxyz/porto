@@ -124,6 +124,7 @@ describe('upgradeAccount', () => {
     // Verify that Relay has registered the admin key.
     const keys = await RelayActions.getKeys(client, {
       account,
+      chainIds: [client.chain.id],
     })
     expect(keys.length).toBe(1)
     expect(keys[0]!.publicKey).toBe(adminKey.publicKey)
@@ -176,6 +177,7 @@ describe('upgradeAccount', () => {
     // Verify that Relay has registered the admin key.
     const keys = await RelayActions.getKeys(client, {
       account,
+      chainIds: [client.chain.id],
     })
     expect(keys.length).toBe(2)
     expect(keys[0]!.publicKey).toBe(adminKey.publicKey)
@@ -231,6 +233,7 @@ describe('upgradeAccount', () => {
     // Verify that Relay has registered the admin key.
     const keys = await RelayActions.getKeys(client, {
       account,
+      chainIds: [client.chain.id],
     })
     expect(keys.length).toBe(1)
     expect(keys[0]!.publicKey).toBe(adminKey.publicKey)
@@ -262,6 +265,7 @@ describe('getKeys', () => {
 
     const keys = await RelayActions.getKeys(client, {
       account,
+      chainIds: [client.chain.id],
     })
 
     expect(keys.length).toBe(1)
@@ -274,6 +278,7 @@ describe('getKeys', () => {
 
     const keys = await RelayActions.getKeys(client, {
       account: account.address,
+      chainIds: [client.chain.id],
     })
 
     expect(keys.length).toBe(1)
