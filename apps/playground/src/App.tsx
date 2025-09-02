@@ -894,7 +894,7 @@ function SendCalls() {
                 {
                   data: AbiFunction.encodeData(
                     AbiFunction.fromAbi(exp1Abi, 'mint'),
-                    [recipient, Value.fromEther('1000000')],
+                    [recipient, Value.fromEther('100')],
                   ),
                   to: exp1Address[chainId],
                 },
