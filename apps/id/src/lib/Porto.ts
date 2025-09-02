@@ -16,5 +16,3 @@ export const config = {
   }),
   storage: Storage.combine(Storage.cookie(), Storage.localStorage()),
 } as const satisfies Porto.Config
-
-// export const porto = Porto.create(config)

@@ -1,4 +1,5 @@
 import { Query } from '@porto/apps'
+import { Ui } from '@porto/ui'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { RouterProvider } from '@tanstack/react-router'
 import { useAccount, WagmiProvider } from 'wagmi'
@@ -18,7 +19,7 @@ export function Providers(props: React.PropsWithChildren) {
         client={Query.client}
         persistOptions={{ persister: Query.persister }}
       >
-        {props.children}
+        <Ui>{props.children}</Ui>
       </PersistQueryClientProvider>
     </WagmiProvider>
   )

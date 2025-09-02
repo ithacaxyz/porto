@@ -608,7 +608,7 @@ export function Dashboard() {
           <span>Recovery</span>
           <Button
             className="ml-2"
-            render={<Link to="/recovery" />}
+            render={<Link to="/settings/recovery" />}
             size="small"
             type="button"
             variant="default"
