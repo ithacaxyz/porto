@@ -21,8 +21,16 @@
     "hono": "^4.9.6",
     "idb-keyval": "^6.2.1",
     "mipd": "^0.0.7",
+<<<<<<< HEAD
     "ox": "^0.9.6",
     "zod": "^4.1.5",
+||||||| parent of 30295807 (feat: ERC-8010 Signature Wrapping (#788))
+    "open": "^10.1.0",
+    "ox": "^0.8.4",
+=======
+    "open": "^10.1.0",
+    "ox": "^0.9.3",
+>>>>>>> 30295807 (feat: ERC-8010 Signature Wrapping (#788))
     "zustand": "^5.0.1"
   },
   "peerDependencies": {

@@ -37,8 +37,20 @@ export type Schema = RpcSchema_ox.From<
       ReturnType: z.input<typeof Rpc.wallet_getAccounts.Response>
     }
   | {
+<<<<<<< HEAD
       Request: z.input<typeof Rpc.wallet_getAuthorization.Request>
       ReturnType: z.input<typeof Rpc.wallet_getAuthorization.Response>
+||||||| parent of 30295807 (feat: ERC-8010 Signature Wrapping (#788))
+      Request: typeof Rpc.wallet_getCapabilities.Request.Encoded
+      ReturnType: typeof Rpc.wallet_getCapabilities.Response.Encoded
+=======
+      Request: typeof Rpc.wallet_getAuthorization.Request.Encoded
+      ReturnType: typeof Rpc.wallet_getAuthorization.Response.Encoded
+    }
+  | {
+      Request: typeof Rpc.wallet_getCapabilities.Request.Encoded
+      ReturnType: typeof Rpc.wallet_getCapabilities.Response.Encoded
+>>>>>>> 30295807 (feat: ERC-8010 Signature Wrapping (#788))
     }
   | {
       Request: z.input<typeof Rpc.wallet_getCapabilities.Request>

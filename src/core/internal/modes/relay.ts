@@ -111,7 +111,6 @@ export function relay(parameters: relay.Parameters = {}) {
           })
           const signature = await Account.sign(eoa, {
             payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
-            replaySafe: false,
           })
           const signature_erc8010 = await Erc8010.wrap(client, {
             address: account.address,
@@ -450,12 +449,7 @@ export function relay(parameters: relay.Parameters = {}) {
           // Otherwise, we will sign over the digest for authorizing
           // the session key.
           return await Key.sign(adminKey, {
-<<<<<<< HEAD
             address: account.address,
-||||||| parent of a0c17354 (feat: signCalls)
-=======
-            address: null,
->>>>>>> a0c17354 (feat: signCalls)
             payload: digest,
           })
         })()
@@ -481,7 +475,6 @@ export function relay(parameters: relay.Parameters = {}) {
         const signInWithEthereum_response = await (async () => {
           if (!signInWithEthereum) return undefined
 
-<<<<<<< HEAD
           if (digestType === 'siwe' && message && signature) {
             const signature_erc8010 = await Erc8010.wrap(client, {
               address: account.address,
@@ -500,32 +493,6 @@ export function relay(parameters: relay.Parameters = {}) {
             )
             const signature = await Account.sign(account, {
               payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
-||||||| parent of a0c17354 (feat: signCalls)
-          if (digestType === 'siwe' && message && signature)
-            return { message, signature }
-
-          const message_ = await Siwe.buildMessage(client, signInWithEthereum, {
-            address: account.address,
-          })
-
-          return {
-            message: message_,
-            signature: await Account.sign(account, {
-              address: account.address,
-              payload: PersonalMessage.getSignPayload(Hex.fromString(message_)),
-=======
-          if (digestType === 'siwe' && message && signature)
-            return { message, signature }
-
-          const message_ = await Siwe.buildMessage(client, signInWithEthereum, {
-            address: account.address,
-          })
-
-          return {
-            message: message_,
-            signature: await Account.sign(account, {
-              payload: PersonalMessage.getSignPayload(Hex.fromString(message_)),
->>>>>>> a0c17354 (feat: signCalls)
               role: 'admin',
             })
             const signature_erc8010 = await Erc8010.wrap(client, {
@@ -830,28 +797,13 @@ export function relay(parameters: relay.Parameters = {}) {
         if (!key) throw new Error('cannot find admin key to sign with.')
 
         const data = Json.parse(parameters.data)
-<<<<<<< HEAD
         const isOrchestrator = data.domain?.name === 'Orchestrator'
-||||||| parent of a0c17354 (feat: signCalls)
-        const address =
-          // If the domain is the Orchestrator, we don't need to sign with the address.
-          data.domain?.name === 'Orchestrator' ? undefined : account.address
-=======
-        const replaySafe =
-          // If the domain is the Orchestrator, we don't need to replay-safe sign.
-          data.domain?.name !== 'Orchestrator'
->>>>>>> a0c17354 (feat: signCalls)
         const signature = await Account.sign(account, {
           key,
           payload: TypedData.getSignPayload(data),
-<<<<<<< HEAD
           // If the domain is the Orchestrator, we don't need to replay-safe sign.
           replaySafe: !isOrchestrator,
           webAuthn,
-||||||| parent of a0c17354 (feat: signCalls)
-=======
-          replaySafe,
->>>>>>> a0c17354 (feat: signCalls)
         })
 
         return isOrchestrator
@@ -939,74 +891,3 @@ export declare namespace relay {
       | undefined
   }
 }
-<<<<<<< HEAD
-||||||| parent of a0c17354 (feat: signCalls)
-
-async function getAuthorizeKeyPreCalls(
-  client: RelayClient,
-  parameters: getAuthorizeKeyPreCalls.Parameters,
-) {
-  const { account, authorizeKey, feeToken } = parameters
-
-  const adminKey = account.keys?.find(
-    (key) => key.role === 'admin' && key.privateKey,
-  )
-  if (!adminKey) throw new Error('admin key not found.')
-
-  const { context, digest } = await RelayActions.prepareCalls(client, {
-    account,
-    authorizeKeys: [authorizeKey],
-    feeToken,
-    key: adminKey,
-    preCalls: true,
-  })
-  const signature = await Key.sign(adminKey, {
-    payload: digest,
-  })
-
-  return [{ context, signature }] satisfies PreCalls.PreCalls
-}
-
-namespace getAuthorizeKeyPreCalls {
-  export type Parameters = {
-    account: Account.Account
-    authorizeKey: Key.Key
-    feeToken: Address.Address
-  }
-}
-=======
-
-async function getAuthorizeKeyPreCalls(
-  client: RelayClient,
-  parameters: getAuthorizeKeyPreCalls.Parameters,
-) {
-  const { account, authorizeKey, feeToken } = parameters
-
-  const adminKey = account.keys?.find(
-    (key) => key.role === 'admin' && key.privateKey,
-  )
-  if (!adminKey) throw new Error('admin key not found.')
-
-  const { context, digest } = await RelayActions.prepareCalls(client, {
-    account,
-    authorizeKeys: [authorizeKey],
-    feeToken,
-    key: adminKey,
-    preCalls: true,
-  })
-  const signature = await Key.sign(adminKey, {
-    address: null,
-    payload: digest,
-  })
-
-  return [{ context, signature }] satisfies PreCalls.PreCalls
-}
-
-namespace getAuthorizeKeyPreCalls {
-  export type Parameters = {
-    account: Account.Account
-    authorizeKey: Key.Key
-    feeToken: Address.Address
-  }
-}
->>>>>>> a0c17354 (feat: signCalls)
