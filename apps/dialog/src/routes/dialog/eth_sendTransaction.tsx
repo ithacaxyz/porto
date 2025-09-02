@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { Provider } from 'ox'
+import { Provider, RpcResponse } from 'ox'
 import { Account, Key } from 'porto'
 import { Actions, Hooks } from 'porto/remote'
 import { RelayActions } from 'porto/viem'
@@ -62,10 +62,19 @@ function RouteComponent() {
       })
       const hash = receipts?.[0]?.transactionHash
 
-      if (!hash)
+      if (!hash) {
+        const error =
+          status === 'success'
+            ? new Provider.UnknownBundleIdError({
+                message: 'Call bundle with id: ' + id + ' not found.',
+              })
+            : new RpcResponse.TransactionRejectedError({
+                message: 'Transaction failed under call bundle id: ' + id + '.',
+              })
         return Actions.respond(porto, request, {
-          error: new Provider.UnknownBundleIdError(),
+          error,
         })
+      }
       return Actions.respond(porto, request!, {
         result: hash,
       })
