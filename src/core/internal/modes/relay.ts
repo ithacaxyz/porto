@@ -17,6 +17,7 @@ import * as RelayActions_internal from '../../../viem/internal/relayActions.js'
 import * as Key from '../../../viem/Key.js'
 import * as RelayActions from '../../../viem/RelayActions.js'
 import type { RelayClient } from '../../../viem/RelayClient.js'
+import * as Erc8010 from '../erc8010.js'
 import * as FeeTokens from '../feeTokens.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
@@ -115,10 +116,13 @@ export function relay(parameters: relay.Parameters = {}) {
           })
           const signature = await Account.sign(eoa, {
             payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
-            replaySafe: false,
+          })
+          const signature_erc8010 = await Erc8010.wrap(client, {
+            address: account.address,
+            signature,
           })
 
-          return { message, signature }
+          return { message, signature: signature_erc8010 }
         })()
 
         return {
@@ -471,7 +475,7 @@ export function relay(parameters: relay.Parameters = {}) {
           // Otherwise, we will sign over the digest for authorizing
           // the session key.
           return await Key.sign(adminKey, {
-            address: null,
+            address: digestType === 'precall' ? null : account.address,
             payload: digest,
           })
         })()
@@ -490,19 +494,34 @@ export function relay(parameters: relay.Parameters = {}) {
         const signInWithEthereum_response = await (async () => {
           if (!signInWithEthereum) return undefined
 
-          if (digestType === 'siwe' && message && signature)
-            return { message, signature }
+          if (digestType === 'siwe' && message && signature) {
+            const signature_erc8010 = await Erc8010.wrap(client, {
+              address: account.address,
+              signature,
+            })
+            return { message, signature: signature_erc8010 }
+          }
 
-          const message_ = await Siwe.buildMessage(client, signInWithEthereum, {
-            address: account.address,
-          })
-
-          return {
-            message: message_,
-            signature: await Account.sign(account, {
-              payload: PersonalMessage.getSignPayload(Hex.fromString(message_)),
+          {
+            const message = await Siwe.buildMessage(
+              client,
+              signInWithEthereum,
+              {
+                address: account.address,
+              },
+            )
+            const signature = await Account.sign(account, {
+              payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
               role: 'admin',
-            }),
+            })
+            const signature_erc8010 = await Erc8010.wrap(client, {
+              address: account.address,
+              signature,
+            })
+            return {
+              message,
+              signature: signature_erc8010,
+            }
           }
         })()
 
@@ -798,7 +817,8 @@ export function relay(parameters: relay.Parameters = {}) {
       },
 
       async signPersonalMessage(parameters) {
-        const { account, data } = parameters
+        const { account, data, internal } = parameters
+        const { client } = internal
 
         // Only admin keys can sign personal messages.
         const key = account.keys?.find(
@@ -811,11 +831,12 @@ export function relay(parameters: relay.Parameters = {}) {
           payload: PersonalMessage.getSignPayload(data),
         })
 
-        return signature
+        return Erc8010.wrap(client, { address: account.address, signature })
       },
 
       async signTypedData(parameters) {
-        const { account } = parameters
+        const { account, internal } = parameters
+        const { client } = internal
 
         // Only admin keys can sign typed data.
         const key = account.keys?.find(
@@ -824,16 +845,17 @@ export function relay(parameters: relay.Parameters = {}) {
         if (!key) throw new Error('cannot find admin key to sign with.')
 
         const data = Json.parse(parameters.data)
-        const replaySafe =
-          // If the domain is the Orchestrator, we don't need to replay-safe sign.
-          data.domain?.name !== 'Orchestrator'
+        const isOrchestrator = data.domain?.name === 'Orchestrator'
         const signature = await Account.sign(account, {
           key,
           payload: TypedData.getSignPayload(data),
-          replaySafe,
+          // If the domain is the Orchestrator, we don't need to replay-safe sign.
+          replaySafe: !isOrchestrator,
         })
 
-        return signature
+        return isOrchestrator
+          ? signature
+          : Erc8010.wrap(client, { address: account.address, signature })
       },
 
       async upgradeAccount(parameters) {
