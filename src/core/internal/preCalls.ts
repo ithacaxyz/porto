@@ -39,6 +39,26 @@ export declare namespace add {
 }
 
 /**
+ * Consumes pending pre-calls from storage.
+ *
+ * @param options - Options.
+ * @returns Pending pre-calls.
+ */
+export async function consume(options: consume.Options) {
+  const { address, storage } = options
+  const preCalls = await storage?.getItem<PreCalls>(storageKey(address))
+  await storage?.removeItem(storageKey(address))
+  return preCalls
+}
+
+export declare namespace consume {
+  export type Options = {
+    address: Address.Address
+    storage: Storage.Storage
+  }
+}
+
+/**
  * Gets pre-calls from persistent storage.
  *
  * @param options - Options.

@@ -22,7 +22,7 @@ export const PreCall = Schema.Struct({
    * A nonce of `type(uint256).max` skips the check, incrementing,
    * and the emission of the {IntentExecuted} event.
    */
-  nonce: Primitive.BigInt,
+  nonce: Primitive.Hex,
   /**
    * The wrapped signature.
    *
