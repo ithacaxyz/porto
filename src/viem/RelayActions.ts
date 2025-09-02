@@ -124,7 +124,7 @@ export async function prepareCalls<
   const {
     account = client.account,
     calls,
-    chain,
+    chain = client.chain,
     feePayer,
     feeToken,
     merchantRpcUrl,

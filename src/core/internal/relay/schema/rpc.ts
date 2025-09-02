@@ -197,7 +197,7 @@ export namespace wallet_getCapabilities {
   /** Request for `wallet_getCapabilities`. */
   export const Request = Schema.Struct({
     method: Schema.Literal('wallet_getCapabilities'),
-    params: Schema.Tuple(Schema.Array(Schema.Number)),
+    params: Schema.optional(Schema.Tuple(Schema.Array(Schema.Number))),
   }).annotations({
     identifier: 'Rpc.wallet_getCapabilities.Request',
   })
