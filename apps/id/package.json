@@ -26,6 +26,7 @@
     "cva": "catalog:",
     "ox": "catalog:",
     "porto": "workspace:*",
+    "@porto/ui": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",
     "sonner": "catalog:",
