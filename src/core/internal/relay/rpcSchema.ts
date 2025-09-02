@@ -36,6 +36,10 @@ export type Schema = RpcSchema_ox.From<
       ReturnType: typeof Rpc.wallet_getAccounts.Response.Encoded
     }
   | {
+      Request: typeof Rpc.wallet_getAuthorization.Request.Encoded
+      ReturnType: typeof Rpc.wallet_getAuthorization.Response.Encoded
+    }
+  | {
       Request: typeof Rpc.wallet_getCapabilities.Request.Encoded
       ReturnType: typeof Rpc.wallet_getCapabilities.Response.Encoded
     }

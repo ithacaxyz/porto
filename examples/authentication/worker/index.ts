@@ -2,10 +2,13 @@ import { env } from 'cloudflare:workers'
 import { Hono } from 'hono'
 import { deleteCookie, setCookie } from 'hono/cookie'
 import * as jwt from 'hono/jwt'
-import { Porto, RelayActions } from 'porto'
+import { Porto } from 'porto'
 import { RelayClient } from 'porto/viem'
-import { hashMessage } from 'viem'
-import { generateSiweNonce, parseSiweMessage } from 'viem/siwe'
+import {
+  generateSiweNonce,
+  parseSiweMessage,
+  verifySiweMessage,
+} from 'viem/siwe'
 
 const porto = Porto.create()
 
@@ -25,7 +28,8 @@ app.post('/siwe/nonce', async (c) => {
 app.post('/siwe/verify', async (c) => {
   // Extract properties from the request body and SIWE message.
   const { message, signature } = await c.req.json()
-  const { address, chainId, nonce } = parseSiweMessage(message)
+  const siweMessage = parseSiweMessage(message)
+  const { address, chainId, nonce } = siweMessage
 
   // If there is no nonce, we cannot verify the signature.
   if (!nonce) return c.json({ error: 'Nonce is required' }, 400)
@@ -38,9 +42,9 @@ app.post('/siwe/verify', async (c) => {
 
   // Verify the signature.
   const client = RelayClient.fromPorto(porto, { chainId })
-  const valid = RelayActions.verifySignature(client, {
+  const valid = await verifySiweMessage(client, {
     address: address!,
-    digest: hashMessage(message),
+    message,
     signature,
   })
 

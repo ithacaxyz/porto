@@ -24,6 +24,7 @@ import * as Key from './Key.js'
 export {
   addFaucetFunds,
   getAssets,
+  getAuthorization,
   getCallsStatus,
   getCapabilities,
   health,

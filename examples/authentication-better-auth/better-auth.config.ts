@@ -2,9 +2,12 @@ import { betterAuth } from 'better-auth'
 import { siwe } from 'better-auth/plugins'
 import type { Kysely } from 'kysely'
 import { Porto } from 'porto'
-import { RelayActions, RelayClient } from 'porto/viem'
-import { hashMessage } from 'viem'
-import { generateSiweNonce } from 'viem/siwe'
+import { RelayClient } from 'porto/viem'
+import {
+  generateSiweNonce,
+  parseSiweMessage,
+  verifySiweMessage,
+} from 'viem/siwe'
 
 const porto = Porto.create()
 
@@ -27,12 +30,12 @@ export async function createAuth(options: {
         },
         async verifyMessage({ address, chainId, message, signature }) {
           const client = RelayClient.fromPorto(porto, { chainId })
-          const { valid } = await RelayActions.verifySignature(client, {
+          const siweMessage = parseSiweMessage(message)
+          return await verifySiweMessage(client, {
             address: address as `0x${string}`,
-            digest: hashMessage(message),
+            message: siweMessage,
             signature: signature as `0x${string}`,
           })
-          return valid
         },
       }),
     ],

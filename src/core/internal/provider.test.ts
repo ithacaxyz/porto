@@ -147,6 +147,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
   describe('eth_signTypedData_v4', () => {
     test('predelegated', async () => {
       const porto = getPorto()
+      const relayClient = TestConfig.getRelayClient(porto)
 
       const {
         accounts: [account],
@@ -176,15 +177,14 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         expect(valid).toBe(true)
       }
 
-      // TODO: uncomment once Viem has ERC-8010.
-      // {
-      //   const valid = await verifyHash(relayClient, {
-      //     address,
-      //     hash: hashTypedData(typedData),
-      //     signature,
-      //   })
-      //   expect(valid).toBe(true)
-      // }
+      {
+        const valid = await verifyHash(relayClient, {
+          address,
+          hash: hashTypedData(typedData),
+          signature,
+        })
+        expect(valid).toBe(true)
+      }
     })
 
     test('delegated', async () => {
@@ -1273,6 +1273,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
   describe('personal_sign', () => {
     test('predelegated', async () => {
       const porto = getPorto()
+      const relayClient = TestConfig.getRelayClient(porto)
 
       const {
         accounts: [account],
@@ -1302,15 +1303,14 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         expect(valid).toBe(true)
       }
 
-      // TODO: uncomment once Viem has ERC-8010.
-      // {
-      //   const valid = await verifyHash(relayClient, {
-      //     address,
-      //     hash: hashMessage('hello'),
-      //     signature,
-      //   })
-      //   expect(valid).toBe(true)
-      // }
+      {
+        const valid = await verifyHash(relayClient, {
+          address,
+          hash: hashMessage('hello'),
+          signature,
+        })
+        expect(valid).toBe(true)
+      }
     })
 
     test('delegated', async () => {
@@ -1620,6 +1620,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
 
     test('behavior: `signInWithEthereum` capability (predelegated)', async () => {
       const porto = getPorto()
+      const relayClient = TestConfig.getRelayClient(porto)
 
       const res = await porto.provider.request({
         method: 'wallet_connect',
@@ -1655,15 +1656,14 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
               expect(valid).toBeTruthy()
             }
 
-            // TODO: uncomment once Viem has ERC-8010.
-            // {
-            //   const valid = await verifyHash(relayClient, {
-            //     address,
-            //     hash: hashMessage(message),
-            //     signature,
-            //   })
-            //   expect(valid).toBeTruthy()
-            // }
+            {
+              const valid = await verifyHash(relayClient, {
+                address: res.accounts.at(0)?.address!,
+                hash: hashMessage(message),
+                signature,
+              })
+              expect(valid).toBeTruthy()
+            }
             break
           }
         }

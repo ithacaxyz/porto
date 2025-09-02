@@ -4,6 +4,7 @@ import { createStore } from 'mipd'
 import { Hex, Value } from 'ox'
 import { Chains, Dialog, Mode, Porto } from 'porto'
 import type { ThemeFragment } from 'porto/theme'
+import { RelayClient } from 'porto/viem'
 
 export type ChainId = (typeof config.chains)[number]['id']
 
@@ -157,3 +158,5 @@ export const porto = Porto.create({
   // We will be deferring mode setup until after hydration.
   mode: null,
 })
+
+export const client = RelayClient.fromPorto(porto)

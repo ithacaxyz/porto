@@ -64,10 +64,9 @@ checks on the SIWE message, nonce, token expiration, etc. For a complete example
 import { Hono } from 'hono'
 import { setCookie } from 'hono/cookie' // [!code ++]
 import * as jwt from 'hono/jwt' // [!code ++]
-import { Porto, RelayActions } from 'porto' // [!code ++]
+import { Porto } from 'porto' // [!code ++]
 import { RelayClient } from 'porto/viem' // [!code ++]
-import { hashMessage } from 'viem' // [!code ++]
-import { generateSiweNonce, parseSiweMessage } from 'viem/siwe' // [!code ++]
+import { generateSiweNonce, parseSiweMessage, verifySiweMessage } from 'viem/siwe' // [!code ++]
 
 const app = new Hono().basePath('/api')
 const porto = Porto.create()
@@ -75,15 +74,15 @@ const porto = Porto.create()
 app.post('/siwe/nonce', (c) => c.text(generateSiweNonce()))
 
 app.post('/siwe/verify', async (c) => { 
-  const { message, signature } = await c.req.json() // [!code ++]
-  const { address, chainId, nonce } = parseSiweMessage(message) // [!code ++]
+  const params = await c.req.json() // [!code ++]
+  const message = parseSiweMessage(params.message) // [!code ++]
+  const { address, chainId } = message // [!code ++]
 
   // Verify the signature. // [!code ++]
   const client = RelayClient.fromPorto(porto, { chainId }) // [!code ++]
-  const valid = RelayActions.verifySignature(client, { // [!code ++]
-    address: address!, // [!code ++]
-    digest: hashMessage(message), // [!code ++]
-    signature, // [!code ++]
+  const valid = await verifySiweMessage(client, { // [!code ++]
+    message, // [!code ++]
+    signature: params.signature, // [!code ++]
   }) // [!code ++]
 
   // If the signature is invalid, we cannot authenticate the user. // [!code ++]
