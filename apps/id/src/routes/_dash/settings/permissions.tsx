@@ -63,32 +63,33 @@ function PermissionRow(props: PermissionRow.Props) {
 
   return (
     <div>
-      <p>Chain: {permission.chainId}</p>
+      <strong>Chain: {permission.chainId}</strong>
       <p>ID: {StringFormatter.truncate(permission.id)}</p>
       <p>
         Expires in: {DateFormatter.timeToDuration(permission.expiry * 1_000)}
       </p>
-      <p>Spend:</p>
+      <strong>Spend:</strong>
       <ol>
         {permission.permissions.spend?.map((spend) => (
           <li key={spend.token ?? spend.period}>
             <ul>
+              <li>Limit: {spend.limit ?? '––'}</li>
               <li>
                 Limit: {ValueFormatter.format(spend.limit)} {spend.token}
               </li>
-              <li>Period: {spend.period}</li>
-              <li>Token: {spend.token}</li>
+              <li>Period: {spend.period ?? '––'}</li>
+              <li>Token: {spend.token ?? '––'}</li>
             </ul>
           </li>
         ))}
       </ol>
-      <p>Calls:</p>
+      <strong>Calls:</strong>
       <ol>
         {permission.permissions.calls?.map((call) => (
           <li key={call.to ?? call.signature}>
             <ul>
-              <li>To: {call.to}</li>
-              <li>Signature: {call.signature}</li>
+              <li>To: {call.to ?? '––'}</li>
+              <li>Signature: {call.signature ?? '––'}</li>
             </ul>
           </li>
         ))}
