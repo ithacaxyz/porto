@@ -15,7 +15,7 @@
     "porto": "latest",
     "react": "^19",
     "react-dom": "^19",
-    "viem": "^2",
+    "viem": "^2.37",
     "wagmi": "^2"
   },
   "devDependencies": {
