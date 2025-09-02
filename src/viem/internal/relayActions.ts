@@ -57,10 +57,15 @@ export async function getCapabilities<
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
     const result = await withCache(
       () =>
-        client.request<Schema>({
-          method,
-          params: [chainIds],
-        }),
+        client.request<Schema>(
+          {
+            method,
+            params: [chainIds],
+          },
+          {
+            retryCount: 0,
+          },
+        ),
       { cacheKey: `${client.uid}.${method}.${chainIds.join(',')}` },
     )
     const parsed = (() => {
