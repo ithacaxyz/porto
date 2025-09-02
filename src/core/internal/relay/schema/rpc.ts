@@ -18,6 +18,15 @@ const Authorization = Schema.Struct({
   nonce: Primitive.Number,
 })
 
+const SignedAuthorization = Schema.extend(
+  Authorization,
+  Schema.Struct({
+    r: Primitive.Hex,
+    s: Primitive.Hex,
+    yParity: Primitive.Number,
+  }),
+)
+
 const Call = Schema.Struct({
   data: Schema.optional(Primitive.Hex),
   to: Primitive.Address,
@@ -154,6 +163,32 @@ export namespace wallet_getAccounts {
     }),
   ).annotations({
     identifier: 'Rpc.wallet_getAccounts.Response',
+  })
+  export type Response = typeof Response.Type
+}
+
+export namespace wallet_getAuthorization {
+  export const Parameters = Schema.Struct({
+    address: Primitive.Address,
+  }).annotations({
+    identifier: 'Rpc.wallet_getAuthorization.Parameters',
+  })
+  export type Parameters = typeof Parameters.Type
+
+  export const Request = Schema.Struct({
+    method: Schema.Literal('wallet_getAuthorization'),
+    params: Schema.Tuple(Parameters),
+  }).annotations({
+    identifier: 'Rpc.wallet_getAuthorization.Request',
+  })
+  export type Request = typeof Request.Type
+
+  export const Response = Schema.Struct({
+    authorization: SignedAuthorization,
+    data: Primitive.Hex,
+    to: Primitive.Address,
+  }).annotations({
+    identifier: 'Rpc.wallet_getAuthorization.Response',
   })
   export type Response = typeof Response.Type
 }
