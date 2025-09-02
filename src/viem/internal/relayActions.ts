@@ -15,7 +15,6 @@ import {
   type Calls,
   type Chain,
   type Client,
-  type GetChainParameter,
   type Narrow,
   type Transport,
   type ValueOf,
@@ -32,6 +31,7 @@ import * as Schema from '../../core/internal/schema/schema.js'
 import { CoderError } from '../../core/internal/schema/schema.js'
 import * as U from '../../core/internal/utils.js'
 import type { sendCalls } from '../RelayActions.js'
+import type { GetChainParameter } from './utils.js'
 
 /**
  * Gets the authorization for a given address.

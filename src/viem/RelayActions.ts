@@ -6,7 +6,6 @@ import {
   type Calls,
   type Client,
   createClient,
-  type GetChainParameter,
   http,
   type Narrow,
   type Transport,
@@ -18,7 +17,10 @@ import type { OneOf, PartialBy, RequiredBy } from '../core/internal/types.js'
 import { hostnames } from '../trusted-hosts.js'
 import * as Account from './Account.js'
 import * as RelayActions from './internal/relayActions.js'
-import type { GetAccountParameter } from './internal/utils.js'
+import type {
+  GetAccountParameter,
+  GetChainParameter,
+} from './internal/utils.js'
 import * as Key from './Key.js'
 
 export {
@@ -161,6 +163,7 @@ export async function prepareCalls<
       : undefined
 
   async function prepare(client: Client) {
+    if (!chain) throw new Error('chain is required.')
     return await RelayActions.prepareCalls(client, {
       address: account_?.address,
       calls: (calls ?? []) as any,
@@ -286,7 +289,9 @@ export async function prepareUpgradeAccount<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: prepareUpgradeAccount.Parameters<chain>,
 ): Promise<prepareUpgradeAccount.ReturnType> {
-  const { address, authorizeKeys: keys, chain } = parameters
+  const { address, authorizeKeys: keys, chain = client.chain } = parameters
+
+  if (!chain) throw new Error('chain is required.')
 
   const { contracts } = await RelayActions.getCapabilities(client)
 
@@ -371,7 +376,9 @@ export async function sendCalls<
   client: Client<Transport, chain, account>,
   parameters: sendCalls.Parameters<calls, chain, account>,
 ): Promise<sendCalls.ReturnType> {
-  const { account = client.account, chain } = parameters
+  const { account = client.account, chain = client.chain } = parameters
+
+  if (!chain) throw new Error('chain is required.')
 
   // If no signature is provided, prepare the calls and sign them.
   const account_ = account ? Account.from(account) : undefined
