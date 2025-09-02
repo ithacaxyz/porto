@@ -11,10 +11,14 @@ export default defineContentScript({
     })
 
     document.addEventListener('securitypolicyviolation', (event) => {
-      if (!event.blockedURI.includes('porto.sh')) return
+      if (!event.blockedURI.includes('id.porto.sh')) return
 
       const mode = porto?._internal.getMode() as ReturnType<typeof Mode.dialog>
 
+      porto._internal.store.setState((x) => ({
+        ...x,
+        requestQueue: [],
+      }))
       porto?._internal.setMode(
         Mode.dialog({
           host: mode.config.host,
