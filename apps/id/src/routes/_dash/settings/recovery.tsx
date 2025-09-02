@@ -4,6 +4,7 @@ import {
   CatchBoundary,
   createFileRoute,
   Link,
+  useNavigate,
   useRouteContext,
 } from '@tanstack/react-router'
 import { Chains } from 'porto'
@@ -21,13 +22,32 @@ function RouteComponent() {
   const { account } = useRouteContext({
     from: '/_dash/settings/recovery',
   })
+  const navigate = useNavigate()
 
   const [_view, setView] = React.useState<'default' | 'success' | 'loading'>(
     'default',
   )
 
-  const testnet = window.location.search.includes('testnet')
-  const chain = testnet ? Chains.baseSepolia : Chains.base
+  const desiredChain = React.useMemo(() => {
+    if (typeof window === 'undefined') return false
+    const params = new URLSearchParams(window.location.search)
+    return params.has('testnet') && params.get('testnet') !== 'false'
+      ? Chains.baseSepolia
+      : Chains.base
+  }, [])
+
+  // Ensure `porto.chainId` search param is set based on `?testnet` flag
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const current = Number(params.get('porto.chainId') ?? Number.NaN)
+    if (current === desiredChain.id) return
+    navigate({
+      replace: true,
+      search: (prev) => ({ ...prev, 'porto.chainId': desiredChain.id }),
+      to: '.',
+    })
+  }, [navigate, desiredChain])
 
   const connect = useConnect({ config: mipdConfig })
   const disconnect = useDisconnect({ config: mipdConfig })
@@ -56,13 +76,13 @@ function RouteComponent() {
       const {
         accounts: [address],
       } = await connect.connectAsync({
-        chainId: chain.id,
+        chainId: desiredChain.id,
         connector,
       })
       if (!address) throw new Error('Failed to connect to wallet')
       const granted = await grantAdmin.mutateAsync({
         address: account.address,
-        chainId: chain.id,
+        chainId: desiredChain.id,
         key: { publicKey: address, type: 'address' },
       })
 
