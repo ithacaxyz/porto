@@ -7,6 +7,7 @@ import { Hooks } from 'porto/remote'
 
 import { CheckBalance } from '~/components/CheckBalance'
 import * as Calls from '~/lib/Calls'
+import { useResolvedChainId } from '~/lib/ChainResolver'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import { StringFormatter } from '~/utils'
@@ -15,12 +16,16 @@ import WalletIcon from '~icons/lucide/wallet-cards'
 import { ActionRequest } from './ActionRequest'
 
 export function GrantAdmin(props: GrantAdmin.Props) {
-  const { authorizeKey, feeToken, loading, onApprove, onReject } = props
+  const { authorizeKey, feeToken, loading, onApprove, onReject, chainId } =
+    props
 
   const account = Hooks.useAccount(porto)
 
+  const resolvedChainId = useResolvedChainId({ chainId })
+
   const prepareCallsQuery = Calls.prepareCalls.useQuery({
     authorizeKeys: [Key.from(authorizeKey)],
+    chainId: resolvedChainId,
     feeToken,
   })
   const { capabilities } = prepareCallsQuery.data ?? {}
@@ -94,6 +99,7 @@ export declare namespace GrantAdmin {
       publicKey: Hex.Hex
       type: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256'
     }
+    chainId?: number | undefined
     feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
     loading: boolean
     onApprove: () => void
