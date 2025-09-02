@@ -2,6 +2,7 @@ import * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
+import * as TypedData from 'ox/TypedData'
 import {
   hashMessage,
   hashTypedData,
@@ -43,21 +44,19 @@ export function from<const account extends from.Parameters>(
     address: account.address,
     sign({ hash }) {
       if (account.source === 'privateKey') return account.sign!({ hash })
-      return sign(account as never, {
-        payload: hash,
-      })
+      throw new Error('`sign` not supported on porto accounts.')
     },
     signMessage({ message }) {
-      return sign(account as never, {
-        payload: hashMessage(message),
+      return this.sign!({
+        hash: hashMessage(message),
       })
     },
     signTransaction() {
       throw new Error('`signTransaction` not supported on porto accounts.')
     },
     signTypedData(typedData) {
-      return sign(account as never, {
-        payload: hashTypedData(typedData),
+      return this.sign!({
+        hash: hashTypedData(typedData),
       })
     },
   })
@@ -185,17 +184,35 @@ export async function sign(
   account: Account,
   parameters: sign.Parameters,
 ): Promise<Compute<Hex.Hex>> {
-  const { payload, storage } = parameters
+  const { storage, replaySafe = true, wrap = true } = parameters
 
   const key = getKey(account, parameters)
 
+  const payload = (() => {
+    if (!replaySafe) return parameters.payload
+    return TypedData.getSignPayload({
+      domain: { verifyingContract: account.address },
+      message: {
+        digest: parameters.payload,
+      },
+      primaryType: 'ERC1271Sign',
+      types: {
+        ERC1271Sign: [{ name: 'digest', type: 'bytes32' }],
+      },
+    })
+  })()
+
   const sign = (() => {
-    if (account.source === 'privateKey') return account.sign
-    if (!key) return undefined
+    if (!key) {
+      if (account.source === 'privateKey') return account.sign
+      return undefined
+    }
     return ({ hash }: { hash: Hex.Hex }) =>
       Key.sign(key, {
+        address: null,
         payload: hash,
         storage,
+        wrap,
       })
   })()
 
@@ -222,6 +239,11 @@ export declare namespace sign {
      */
     payload: Hex.Hex
     /**
+     * Whether to use replay-safe signing.
+     * `false` if replay-safe signing is not needed (e.g. signing call bundles).
+     */
+    replaySafe?: boolean
+    /**
      * Role to extract the key from the `account` for signing.
      */
     role?: Key.Key['role'] | undefined
@@ -229,5 +251,9 @@ export declare namespace sign {
      * Storage to use for keytype-specific caching (e.g. WebAuthn user verification).
      */
     storage?: Storage.Storage | undefined
+    /**
+     * Whether to wrap the signature with key metadata.
+     */
+    wrap?: boolean | undefined
   }
 }

@@ -9,7 +9,14 @@ import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
 import type * as Rpc from 'porto/core/internal/schema/request'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
-import { type Call, ethAddress } from 'viem'
+import {
+  type Call,
+  decodeAbiParameters,
+  decodeFunctionData,
+  erc20Abi,
+  ethAddress,
+  parseAbiParameters,
+} from 'viem'
 import { CheckBalance } from '~/components/CheckBalance'
 import * as Calls from '~/lib/Calls'
 import { porto } from '~/lib/Porto'
@@ -25,6 +32,7 @@ import TriangleAlert from '~icons/lucide/triangle-alert'
 import LucideVideo from '~icons/lucide/video'
 import Star from '~icons/ph/star-four-bold'
 import IconArrowRightCircle from '~icons/porto/arrow-right-circle'
+import { Approve } from '../-components/Approve'
 
 export function ActionRequest(props: ActionRequest.Props) {
   const {
@@ -41,45 +49,73 @@ export function ActionRequest(props: ActionRequest.Props) {
 
   const account = Hooks.useAccount(porto, { address })
 
-  // This "prepare calls" query is used as the "source of truth" query that will
-  // ultimately be used to execute the calls.
   const prepareCallsQuery = Calls.prepareCalls.useQuery({
     address,
     calls,
     chainId,
     feeToken,
     merchantRpcUrl,
-    refetchInterval(query) {
-      if (query.state.error) return false
-      return 15_000
-    },
+    refetchInterval: ({ state }) => (state.error ? false : 15_000),
     requiredFunds,
   })
 
-  // However, to prevent a malicious Relay from providing a mutated asset
-  // diff or fee calculations to display to the end-user, we also simulate the prepare calls query
-  // without the merchant RPC URL.
-  const prepareCallsQuery_noMerchantRpc = Calls.prepareCalls.useQuery({
-    address,
-    calls,
-    chainId,
-    enabled: !!merchantRpcUrl,
-    feeToken,
-    requiredFunds,
-  })
-  const query_noMerchantRpc = merchantRpcUrl
-    ? prepareCallsQuery_noMerchantRpc
-    : prepareCallsQuery
-
-  const capabilities = query_noMerchantRpc.data?.capabilities
+  const capabilities = prepareCallsQuery.data?.capabilities
   const { assetDiffs, feeTotals } = capabilities ?? {}
 
-  const quotes = prepareCallsQuery.data?.capabilities.quote?.quotes
-
   const assetDiff = ActionRequest.AssetDiff.useAssetDiff({
-    address: account!.address,
+    address: account?.address,
     assetDiff: assetDiffs,
   })
+
+  const quotes = prepareCallsQuery.data?.capabilities?.quote?.quotes ?? []
+
+  const approval = React.useMemo(() => {
+    const quote = quotes.at(-1)
+    if (!quote) return null
+    try {
+      const [calls] = decodeAbiParameters(
+        parseAbiParameters('(address to, uint256 value, bytes data)[]'),
+        quote.intent.executionData,
+      )
+
+      if (calls.length !== 1 || !calls[0]) return null
+      const [call] = calls
+
+      const decoded = decodeFunctionData({
+        abi: erc20Abi,
+        data: call.data,
+      })
+      if (decoded.functionName === 'approve') {
+        const [spender, amount] = decoded.args
+        return {
+          amount,
+          chainId: quote.chainId,
+          spender,
+          tokenAddress: call.to,
+        }
+      }
+      return null
+    } catch {
+      return null
+    }
+  }, [quotes])
+
+  if (approval)
+    return (
+      <Approve
+        amount={approval.amount}
+        approving={loading}
+        chainId={approval.chainId}
+        fees={feeTotals}
+        loading={prepareCallsQuery.isPending}
+        onApprove={() =>
+          prepareCallsQuery.data && onApprove(prepareCallsQuery.data)
+        }
+        onReject={onReject}
+        spender={approval.spender}
+        tokenAddress={approval.tokenAddress}
+      />
+    )
 
   return (
     <CheckBalance
@@ -103,7 +139,13 @@ export function ActionRequest(props: ActionRequest.Props) {
             errorMessage="An error occurred while simulating the action. Proceed with caution."
             feeTotals={feeTotals}
             quotes={quotes}
-            status={prepareCallsQuery.status}
+            status={
+              prepareCallsQuery.isPending
+                ? 'pending'
+                : prepareCallsQuery.isError
+                  ? 'error'
+                  : 'success'
+            }
           >
             {assetDiff.length > 0 ? (
               <ActionRequest.AssetDiff assetDiff={assetDiff} />
@@ -224,7 +266,7 @@ export namespace ActionRequest {
 
     export namespace useAssetDiff {
       export type Props = {
-        address: Address.Address
+        address?: Address.Address | undefined
         assetDiff: NonNullable<
           Rpc.wallet_prepareCalls.Response['capabilities']
         >['assetDiffs']
@@ -486,8 +528,8 @@ export namespace ActionRequest {
       error,
       errorMessage = 'An error occurred. Proceed with caution.',
       feeTotals,
-      status,
       quotes,
+      status,
     } = props
 
     const hasChildren = React.useMemo(

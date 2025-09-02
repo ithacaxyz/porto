@@ -15,6 +15,7 @@ import type { Chain } from '../core/Chains.js'
 import type * as Capabilities from '../core/internal/relay/schema/capabilities.js'
 import type * as Quotes from '../core/internal/relay/schema/quotes.js'
 import type { OneOf, PartialBy, RequiredBy } from '../core/internal/types.js'
+import { hostnames } from '../trusted-hosts.js'
 import * as Account from './Account.js'
 import * as RelayActions from './internal/relayActions.js'
 import type { GetAccountParameter } from './internal/utils.js'
@@ -23,6 +24,7 @@ import * as Key from './Key.js'
 export {
   addFaucetFunds,
   getAssets,
+  getAuthorization,
   getCallsStatus,
   getCapabilities,
   health,
@@ -74,23 +76,25 @@ export async function getKeys<
   account extends Account.Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: getKeys.Parameters<chain, account>,
+  parameters: getKeys.Parameters<account>,
 ): Promise<getKeys.ReturnType> {
-  const { account = client.account, chain = client.chain } = parameters
+  const { account = client.account, chainIds } = parameters
   const account_ = account ? Account.from(account) : undefined
   if (!account_) throw new Error('account is required.')
   const keys = await RelayActions.getKeys(client, {
     address: account_.address,
-    chain,
+    chainIds,
   })
-  return keys.map((key) => Key.fromRelay(key, { chainId: chain?.id ?? 0 }))
+  return Object.entries(keys).flatMap(([chainId, keys]) =>
+    keys.map((key) => Key.fromRelay(key, { chainId: Number(chainId) })),
+  )
 }
 
 export namespace getKeys {
   export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
     account extends Account.Account | undefined = Account.Account | undefined,
-  > = GetChainParameter<chain> & GetAccountParameter<account>
+  > = GetAccountParameter<account> &
+    Pick<RelayActions.getKeys.Parameters, 'chainIds'>
 
   export type ReturnType = readonly Key.Key[]
 
@@ -119,7 +123,7 @@ export async function prepareCalls<
     account = client.account,
     calls,
     chain,
-    key,
+    feePayer,
     feeToken,
     merchantRpcUrl,
     nonce,
@@ -129,6 +133,9 @@ export async function prepareCalls<
   } = parameters
 
   const account_ = account ? Account.from(account) : undefined
+  const key =
+    parameters.key ??
+    (account_ ? Account.getKey(account_, { role: 'admin' }) : undefined)
 
   const hasSessionKey = parameters.authorizeKeys?.some(
     (x) => x.role === 'session',
@@ -160,6 +167,7 @@ export async function prepareCalls<
       capabilities: {
         authorizeKeys,
         meta: {
+          feePayer,
           feeToken,
           nonce,
         },
@@ -177,6 +185,16 @@ export async function prepareCalls<
 
   const { capabilities, context, digest, typedData } = await (async () => {
     if (merchantRpcUrl) {
+      // TODO: remove this once relay implements `wallet_verifyCalls` for
+      // permissionless merchants.
+      const hostname = new URL(merchantRpcUrl).hostname
+      if (!hostnames.includes(hostname))
+        throw new Error(
+          'Merchant hostname "' +
+            hostname +
+            '" is not trusted.\nOpen a PR to add your hostname: https://github.com/ithacaxyz/porto/edit/main/src/trusted-hosts.ts',
+        )
+
       const client_ = createClient({
         chain: client.chain,
         transport: http(merchantRpcUrl),
@@ -379,6 +397,7 @@ export async function sendCalls<
         revokeKeys,
       })
       const signature = await Key.sign(key, {
+        address: null,
         payload: digest,
       })
       return { context, signature }
@@ -396,6 +415,7 @@ export async function sendCalls<
 
   // Sign over the bundles.
   const signature = await Key.sign(key, {
+    address: null,
     payload: digest,
     wrap: false,
   })
@@ -452,6 +472,45 @@ export declare namespace sendCalls {
   export type ErrorType =
     | RelayActions.sendPreparedCalls.ErrorType
     | Errors.GlobalErrorType
+}
+
+export async function signCalls(
+  request: prepareCalls.ReturnType,
+  options: signCalls.Options,
+) {
+  const isPrecall = Boolean(request.context.preCall)
+  const { account, key } = options
+
+  if (account) {
+    const keyIndex = account.keys?.findIndex(
+      (k) => k.publicKey === request.key?.publicKey,
+    )
+    if (keyIndex === -1) throw new Error('key not found')
+    return await Account.sign(account, {
+      key: keyIndex,
+      payload: request.digest,
+      replaySafe: false,
+      wrap: isPrecall,
+    })
+  }
+  if (key)
+    return await Key.sign(key, {
+      address: null,
+      payload: request.digest,
+      wrap: isPrecall,
+    })
+  throw new Error('no key or account provided')
+}
+
+export declare namespace signCalls {
+  export type Options = OneOf<
+    | {
+        account: Account.Account
+      }
+    | {
+        key: Key.Key
+      }
+  >
 }
 
 export async function sendPreparedCalls(
@@ -695,7 +754,7 @@ export type Decorator<
    * @returns Result.
    */
   getKeys: (
-    parameters: getKeys.Parameters<chain, account>,
+    parameters: getKeys.Parameters<account>,
   ) => Promise<getKeys.ReturnType>
   /**
    * Gets the health of the RPC.

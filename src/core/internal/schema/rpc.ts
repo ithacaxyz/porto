@@ -144,6 +144,7 @@ export namespace eth_sendTransaction {
         capabilities: Schema.optional(
           Schema.Struct({
             feeToken: Schema.optional(C.feeToken.Request),
+            merchantRpcUrl: Schema.optional(C.merchantRpcUrl.Request),
             preCalls: Schema.optional(C.preCalls.Request),
           }),
         ),
@@ -307,7 +308,7 @@ export namespace wallet_getAccountVersion {
 export namespace wallet_getPermissions {
   export const Parameters = Schema.Struct({
     address: Schema.optional(Primitive.Address),
-    chainId: Schema.optional(Primitive.Number),
+    chainIds: Schema.optional(Schema.Array(Primitive.Number)),
   }).annotations({
     identifier: 'Rpc.wallet_getPermissions.Parameters',
   })
@@ -394,30 +395,6 @@ export namespace wallet_switchEthereumChain {
     identifier: 'Rpc.wallet_switchEthereumChain.Request',
   })
   export type Request = typeof Request.Type
-}
-
-export namespace wallet_updateAccount {
-  export const Parameters = Schema.Struct({
-    address: Schema.optional(Primitive.Address),
-  }).annotations({
-    identifier: 'Rpc.wallet_updateAccount.Parameters',
-  })
-  export type Parameters = typeof Parameters.Type
-
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_updateAccount'),
-    params: Schema.optional(Schema.Tuple(Parameters)),
-  }).annotations({
-    identifier: 'Rpc.wallet_updateAccount.Request',
-  })
-  export type Request = typeof Request.Type
-
-  export const Response = Schema.Struct({
-    id: Schema.optional(Primitive.Hex),
-  }).annotations({
-    identifier: 'Rpc.wallet_updateAccount.Response',
-  })
-  export type Response = typeof Response.Type
 }
 
 export namespace wallet_upgradeAccount {
@@ -662,7 +639,7 @@ export namespace wallet_getCapabilities {
 export namespace wallet_getKeys {
   export const Parameters = Schema.Struct({
     address: Primitive.Address,
-    chainId: Schema.optional(Primitive.Number),
+    chainIds: Schema.optional(Schema.Array(Primitive.Number)),
   }).annotations({
     identifier: 'Rpc.wallet_getKeys.Parameters',
   })

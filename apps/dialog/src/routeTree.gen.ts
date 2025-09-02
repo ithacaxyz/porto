@@ -13,7 +13,6 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
 import { Route as DialogIndexImport } from './routes/dialog/index'
-import { Route as DialogWalletupdateAccountImport } from './routes/dialog/wallet_updateAccount'
 import { Route as DialogWalletsendCallsImport } from './routes/dialog/wallet_sendCalls'
 import { Route as DialogWalletrevokePermissionsImport } from './routes/dialog/wallet_revokePermissions'
 import { Route as DialogWalletrevokeAdminImport } from './routes/dialog/wallet_revokeAdmin'
@@ -26,6 +25,7 @@ import { Route as DialogSuccessImport } from './routes/dialog/success'
 import { Route as DialogPlaygroundImport } from './routes/dialog/playground'
 import { Route as DialogPersonalsignImport } from './routes/dialog/personal_sign'
 import { Route as DialogPendingImport } from './routes/dialog/pending'
+import { Route as DialogEthsignTypedDatav4Import } from './routes/dialog/eth_signTypedData_v4'
 import { Route as DialogEthsendTransactionImport } from './routes/dialog/eth_sendTransaction'
 import { Route as DialogEthrequestAccountsImport } from './routes/dialog/eth_requestAccounts'
 import { Route as DialogAccountverifyEmailImport } from './routes/dialog/account_verifyEmail'
@@ -42,12 +42,6 @@ const IndexRoute = IndexImport.update({
 const DialogIndexRoute = DialogIndexImport.update({
   id: '/dialog/',
   path: '/dialog/',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const DialogWalletupdateAccountRoute = DialogWalletupdateAccountImport.update({
-  id: '/dialog/wallet_updateAccount',
-  path: '/dialog/wallet_updateAccount',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -126,6 +120,12 @@ const DialogPendingRoute = DialogPendingImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const DialogEthsignTypedDatav4Route = DialogEthsignTypedDatav4Import.update({
+  id: '/dialog/eth_signTypedData_v4',
+  path: '/dialog/eth_signTypedData_v4',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const DialogEthsendTransactionRoute = DialogEthsendTransactionImport.update({
   id: '/dialog/eth_sendTransaction',
   path: '/dialog/eth_sendTransaction',
@@ -187,6 +187,13 @@ declare module '@tanstack/react-router' {
       path: '/dialog/eth_sendTransaction'
       fullPath: '/dialog/eth_sendTransaction'
       preLoaderRoute: typeof DialogEthsendTransactionImport
+      parentRoute: typeof rootRoute
+    }
+    '/dialog/eth_signTypedData_v4': {
+      id: '/dialog/eth_signTypedData_v4'
+      path: '/dialog/eth_signTypedData_v4'
+      fullPath: '/dialog/eth_signTypedData_v4'
+      preLoaderRoute: typeof DialogEthsignTypedDatav4Import
       parentRoute: typeof rootRoute
     }
     '/dialog/pending': {
@@ -273,13 +280,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DialogWalletsendCallsImport
       parentRoute: typeof rootRoute
     }
-    '/dialog/wallet_updateAccount': {
-      id: '/dialog/wallet_updateAccount'
-      path: '/dialog/wallet_updateAccount'
-      fullPath: '/dialog/wallet_updateAccount'
-      preLoaderRoute: typeof DialogWalletupdateAccountImport
-      parentRoute: typeof rootRoute
-    }
     '/dialog/': {
       id: '/dialog/'
       path: '/dialog'
@@ -298,6 +298,7 @@ export interface FileRoutesByFullPath {
   '/dialog/account_verifyEmail': typeof DialogAccountverifyEmailRoute
   '/dialog/eth_requestAccounts': typeof DialogEthrequestAccountsRoute
   '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
+  '/dialog/eth_signTypedData_v4': typeof DialogEthsignTypedDatav4Route
   '/dialog/pending': typeof DialogPendingRoute
   '/dialog/personal_sign': typeof DialogPersonalsignRoute
   '/dialog/playground': typeof DialogPlaygroundRoute
@@ -310,7 +311,6 @@ export interface FileRoutesByFullPath {
   '/dialog/wallet_revokeAdmin': typeof DialogWalletrevokeAdminRoute
   '/dialog/wallet_revokePermissions': typeof DialogWalletrevokePermissionsRoute
   '/dialog/wallet_sendCalls': typeof DialogWalletsendCallsRoute
-  '/dialog/wallet_updateAccount': typeof DialogWalletupdateAccountRoute
   '/dialog': typeof DialogIndexRoute
 }
 
@@ -320,6 +320,7 @@ export interface FileRoutesByTo {
   '/dialog/account_verifyEmail': typeof DialogAccountverifyEmailRoute
   '/dialog/eth_requestAccounts': typeof DialogEthrequestAccountsRoute
   '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
+  '/dialog/eth_signTypedData_v4': typeof DialogEthsignTypedDatav4Route
   '/dialog/pending': typeof DialogPendingRoute
   '/dialog/personal_sign': typeof DialogPersonalsignRoute
   '/dialog/playground': typeof DialogPlaygroundRoute
@@ -332,7 +333,6 @@ export interface FileRoutesByTo {
   '/dialog/wallet_revokeAdmin': typeof DialogWalletrevokeAdminRoute
   '/dialog/wallet_revokePermissions': typeof DialogWalletrevokePermissionsRoute
   '/dialog/wallet_sendCalls': typeof DialogWalletsendCallsRoute
-  '/dialog/wallet_updateAccount': typeof DialogWalletupdateAccountRoute
   '/dialog': typeof DialogIndexRoute
 }
 
@@ -343,6 +343,7 @@ export interface FileRoutesById {
   '/dialog/account_verifyEmail': typeof DialogAccountverifyEmailRoute
   '/dialog/eth_requestAccounts': typeof DialogEthrequestAccountsRoute
   '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
+  '/dialog/eth_signTypedData_v4': typeof DialogEthsignTypedDatav4Route
   '/dialog/pending': typeof DialogPendingRoute
   '/dialog/personal_sign': typeof DialogPersonalsignRoute
   '/dialog/playground': typeof DialogPlaygroundRoute
@@ -355,7 +356,6 @@ export interface FileRoutesById {
   '/dialog/wallet_revokeAdmin': typeof DialogWalletrevokeAdminRoute
   '/dialog/wallet_revokePermissions': typeof DialogWalletrevokePermissionsRoute
   '/dialog/wallet_sendCalls': typeof DialogWalletsendCallsRoute
-  '/dialog/wallet_updateAccount': typeof DialogWalletupdateAccountRoute
   '/dialog/': typeof DialogIndexRoute
 }
 
@@ -367,6 +367,7 @@ export interface FileRouteTypes {
     | '/dialog/account_verifyEmail'
     | '/dialog/eth_requestAccounts'
     | '/dialog/eth_sendTransaction'
+    | '/dialog/eth_signTypedData_v4'
     | '/dialog/pending'
     | '/dialog/personal_sign'
     | '/dialog/playground'
@@ -379,7 +380,6 @@ export interface FileRouteTypes {
     | '/dialog/wallet_revokeAdmin'
     | '/dialog/wallet_revokePermissions'
     | '/dialog/wallet_sendCalls'
-    | '/dialog/wallet_updateAccount'
     | '/dialog'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -388,6 +388,7 @@ export interface FileRouteTypes {
     | '/dialog/account_verifyEmail'
     | '/dialog/eth_requestAccounts'
     | '/dialog/eth_sendTransaction'
+    | '/dialog/eth_signTypedData_v4'
     | '/dialog/pending'
     | '/dialog/personal_sign'
     | '/dialog/playground'
@@ -400,7 +401,6 @@ export interface FileRouteTypes {
     | '/dialog/wallet_revokeAdmin'
     | '/dialog/wallet_revokePermissions'
     | '/dialog/wallet_sendCalls'
-    | '/dialog/wallet_updateAccount'
     | '/dialog'
   id:
     | '__root__'
@@ -409,6 +409,7 @@ export interface FileRouteTypes {
     | '/dialog/account_verifyEmail'
     | '/dialog/eth_requestAccounts'
     | '/dialog/eth_sendTransaction'
+    | '/dialog/eth_signTypedData_v4'
     | '/dialog/pending'
     | '/dialog/personal_sign'
     | '/dialog/playground'
@@ -421,7 +422,6 @@ export interface FileRouteTypes {
     | '/dialog/wallet_revokeAdmin'
     | '/dialog/wallet_revokePermissions'
     | '/dialog/wallet_sendCalls'
-    | '/dialog/wallet_updateAccount'
     | '/dialog/'
   fileRoutesById: FileRoutesById
 }
@@ -432,6 +432,7 @@ export interface RootRouteChildren {
   DialogAccountverifyEmailRoute: typeof DialogAccountverifyEmailRoute
   DialogEthrequestAccountsRoute: typeof DialogEthrequestAccountsRoute
   DialogEthsendTransactionRoute: typeof DialogEthsendTransactionRoute
+  DialogEthsignTypedDatav4Route: typeof DialogEthsignTypedDatav4Route
   DialogPendingRoute: typeof DialogPendingRoute
   DialogPersonalsignRoute: typeof DialogPersonalsignRoute
   DialogPlaygroundRoute: typeof DialogPlaygroundRoute
@@ -444,7 +445,6 @@ export interface RootRouteChildren {
   DialogWalletrevokeAdminRoute: typeof DialogWalletrevokeAdminRoute
   DialogWalletrevokePermissionsRoute: typeof DialogWalletrevokePermissionsRoute
   DialogWalletsendCallsRoute: typeof DialogWalletsendCallsRoute
-  DialogWalletupdateAccountRoute: typeof DialogWalletupdateAccountRoute
   DialogIndexRoute: typeof DialogIndexRoute
 }
 
@@ -454,6 +454,7 @@ const rootRouteChildren: RootRouteChildren = {
   DialogAccountverifyEmailRoute: DialogAccountverifyEmailRoute,
   DialogEthrequestAccountsRoute: DialogEthrequestAccountsRoute,
   DialogEthsendTransactionRoute: DialogEthsendTransactionRoute,
+  DialogEthsignTypedDatav4Route: DialogEthsignTypedDatav4Route,
   DialogPendingRoute: DialogPendingRoute,
   DialogPersonalsignRoute: DialogPersonalsignRoute,
   DialogPlaygroundRoute: DialogPlaygroundRoute,
@@ -467,7 +468,6 @@ const rootRouteChildren: RootRouteChildren = {
   DialogWalletrevokeAdminRoute: DialogWalletrevokeAdminRoute,
   DialogWalletrevokePermissionsRoute: DialogWalletrevokePermissionsRoute,
   DialogWalletsendCallsRoute: DialogWalletsendCallsRoute,
-  DialogWalletupdateAccountRoute: DialogWalletupdateAccountRoute,
   DialogIndexRoute: DialogIndexRoute,
 }
 
@@ -486,6 +486,7 @@ export const routeTree = rootRoute
         "/dialog/account_verifyEmail",
         "/dialog/eth_requestAccounts",
         "/dialog/eth_sendTransaction",
+        "/dialog/eth_signTypedData_v4",
         "/dialog/pending",
         "/dialog/personal_sign",
         "/dialog/playground",
@@ -498,7 +499,6 @@ export const routeTree = rootRoute
         "/dialog/wallet_revokeAdmin",
         "/dialog/wallet_revokePermissions",
         "/dialog/wallet_sendCalls",
-        "/dialog/wallet_updateAccount",
         "/dialog/"
       ]
     },
@@ -516,6 +516,9 @@ export const routeTree = rootRoute
     },
     "/dialog/eth_sendTransaction": {
       "filePath": "dialog/eth_sendTransaction.tsx"
+    },
+    "/dialog/eth_signTypedData_v4": {
+      "filePath": "dialog/eth_signTypedData_v4.tsx"
     },
     "/dialog/pending": {
       "filePath": "dialog/pending.tsx"
@@ -552,9 +555,6 @@ export const routeTree = rootRoute
     },
     "/dialog/wallet_sendCalls": {
       "filePath": "dialog/wallet_sendCalls.tsx"
-    },
-    "/dialog/wallet_updateAccount": {
-      "filePath": "dialog/wallet_updateAccount.tsx"
     },
     "/dialog/": {
       "filePath": "dialog/index.tsx"

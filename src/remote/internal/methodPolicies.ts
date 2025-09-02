@@ -19,7 +19,6 @@ export type MethodPolicy = {
       }
     | undefined
   requireConnection?: boolean | undefined
-  requireUpdatedAccount?: boolean | undefined
 }
 export type MethodPolicies = readonly MethodPolicy[]
 
@@ -33,7 +32,6 @@ export const methodPolicies = [
       },
     },
     requireConnection: false,
-    requireUpdatedAccount: false,
   },
   {
     method: 'wallet_getAccountVersion',
@@ -76,10 +74,6 @@ export const methodPolicies = [
     },
   },
   {
-    method: 'wallet_updateAccount',
-    requireUpdatedAccount: false,
-  },
-  {
     method: 'wallet_connect',
     modes: {
       dialog: true,
@@ -90,7 +84,6 @@ export const methodPolicies = [
         : undefined,
     },
     requireConnection: false,
-    requireUpdatedAccount: false,
   },
   {
     method: 'wallet_getAssets',

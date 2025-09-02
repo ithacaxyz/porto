@@ -156,10 +156,6 @@ export default defineConfig({
             text: 'wallet_getCallsStatus',
           },
           {
-            link: '/relay/wallet_verifySignature',
-            text: 'wallet_verifySignature',
-          },
-          {
             link: '/relay/health',
             text: 'health',
           },
@@ -504,10 +500,6 @@ export default defineConfig({
                     link: '/sdk/viem/RelayActions/upgradeAccount',
                     text: 'upgradeAccount',
                   },
-                  {
-                    link: '/sdk/viem/RelayActions/verifySignature',
-                    text: 'verifySignature',
-                  },
                 ],
                 text: 'RelayActions',
               },
@@ -636,7 +628,7 @@ export default defineConfig({
   vite: {
     plugins: [
       Mkcert({
-        hosts: ['localhost', 'anvil.localhost'],
+        hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
       }),
       Plugins.Icons(),
     ],

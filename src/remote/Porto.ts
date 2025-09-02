@@ -51,7 +51,6 @@ export function create(
 ): Porto {
   const {
     chains = defaultConfig.chains,
-    experimental,
     feeToken,
     mode = defaultConfig.mode,
     messenger = defaultConfig.messenger,
@@ -66,7 +65,6 @@ export function create(
   const porto = Porto_.create({
     announceProvider: false,
     chains,
-    experimental,
     feeToken,
     merchantRpcUrl,
     mode,

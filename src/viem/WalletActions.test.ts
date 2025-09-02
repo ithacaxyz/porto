@@ -1,5 +1,5 @@
 import { Value } from 'ox'
-import { Key, RelayActions } from 'porto/viem'
+import { Key } from 'porto/viem'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import * as Actions from 'viem/actions'
 import { describe, expect, test } from 'vitest'
@@ -411,6 +411,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
 
     const signature = await Key.sign(sessionKey, {
+      address: null,
       payload: request.digest,
       wrap: false,
     })
@@ -462,6 +463,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
 
     const signature = await Key.sign(adminKey, {
+      address: null,
       payload: request.digest,
       wrap: false,
     })
@@ -511,13 +513,6 @@ describe('prepareCalls + sendPreparedCalls', () => {
       account: account!.address,
       ...request.typedData,
     })
-
-    const { valid } = await RelayActions.verifySignature(relayClient, {
-      address: account!.address,
-      digest: request.digest,
-      signature,
-    })
-    expect(valid).toBe(true)
 
     const response = await WalletActions.sendPreparedCalls(walletClient, {
       ...request,

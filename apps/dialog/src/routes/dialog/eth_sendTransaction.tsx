@@ -1,7 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { Provider } from 'ox'
-import { Account, Key } from 'porto'
+import { Provider, RpcResponse } from 'ox'
 import { Actions, Hooks } from 'porto/remote'
 import { RelayActions } from 'porto/viem'
 import { waitForCallsStatus } from 'viem/actions'
@@ -25,7 +24,7 @@ function RouteComponent() {
   const { chainId, data, from, to, value } = request._decoded.params[0]
 
   const calls = [{ data, to: to!, value }] as const
-  const feeToken = capabilities?.feeToken
+  const { feeToken, merchantRpcUrl } = capabilities ?? {}
 
   const account = Hooks.useAccount(porto, { address: from })
   const client = Hooks.useRelayClient(porto, { chainId })
@@ -34,16 +33,13 @@ function RouteComponent() {
     // TODO: use EIP-1193 Provider + `wallet_sendPreparedCalls` in the future
     // to dedupe.
     async mutationFn(data: Calls.prepareCalls.useQuery.Data) {
+      const { capabilities, context, key } = data
+
       if (!account) throw new Error('account not found.')
+      if (!key) throw new Error('key not found.')
 
-      const key = Account.getKey(account, { role: 'admin' })
-      if (!key) throw new Error('admin key not found.')
-
-      const { capabilities, context, digest } = data
-
-      const signature = await Key.sign(key, {
-        payload: digest,
-        wrap: false,
+      const signature = await RelayActions.signCalls(data, {
+        account,
       })
 
       const { id } = await RelayActions.sendPreparedCalls(client, {
@@ -62,10 +58,19 @@ function RouteComponent() {
       })
       const hash = receipts?.[0]?.transactionHash
 
-      if (!hash)
+      if (!hash) {
+        const error =
+          status === 'success'
+            ? new Provider.UnknownBundleIdError({
+                message: 'Call bundle with id: ' + id + ' not found.',
+              })
+            : new RpcResponse.TransactionRejectedError({
+                message: 'Transaction failed under call bundle id: ' + id + '.',
+              })
         return Actions.respond(porto, request, {
-          error: new Provider.UnknownBundleIdError(),
+          error,
         })
+      }
       return Actions.respond(porto, request!, {
         result: hash,
       })
@@ -79,6 +84,7 @@ function RouteComponent() {
       chainId={chainId}
       feeToken={feeToken}
       loading={respond.isPending}
+      merchantRpcUrl={merchantRpcUrl}
       onApprove={(data) => respond.mutate(data)}
       onReject={() => Actions.reject(porto, request)}
     />

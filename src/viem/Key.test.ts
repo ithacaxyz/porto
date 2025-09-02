@@ -8,7 +8,6 @@ import {
 } from 'ox'
 import { verifyHash } from 'viem/actions'
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
-
 import { createAccount } from '../../test/src/actions.js'
 import * as TestConfig from '../../test/src/config.js'
 import * as Key from './Key.js'
@@ -72,6 +71,7 @@ describe('createSecp256k1', () => {
 
     const payload = Hex.random(32)
     const signature = await Key.sign(key, {
+      address: account.address,
       payload,
     })
 
@@ -163,6 +163,7 @@ describe('createWebAuthnP256', () => {
 
     const payload = Hex.random(32)
     const signature = await Key.sign(key, {
+      address: account.address,
       payload,
     })
 

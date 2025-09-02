@@ -1,14 +1,13 @@
 import { Env, Query as Query_porto } from '@porto/apps'
 import * as Query from '@tanstack/react-query'
 import type { Address } from 'ox'
-import { Account, RelayActions } from 'porto'
+import { type Account, RelayActions } from 'porto'
 import * as PreCalls from 'porto/core/internal/preCalls'
 import * as RequiredFunds from 'porto/core/internal/requiredFunds'
 import type * as Capabilities_schema from 'porto/core/internal/schema/capabilities'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken'
 import { Hooks } from 'porto/remote'
 import type { RelayClient } from 'porto/viem'
-
 import * as FeeTokens from './FeeTokens'
 import { porto } from './Porto'
 
@@ -24,8 +23,10 @@ export namespace prepareCalls {
       authorizeKeys,
       enabled = true,
       calls,
+      feePayer,
       feeToken,
       merchantRpcUrl,
+      nonce,
       requiredFunds,
       refetchInterval,
       revokeKeys,
@@ -39,9 +40,6 @@ export namespace prepareCalls {
         const [, { account, feeToken, ...parameters }] = queryKey
 
         if (!account) throw new Error('account is required.')
-
-        const key = Account.getKey(account, { role: 'admin' })
-        if (!key) throw new Error('no admin key found.')
 
         const feeTokens = await Query_porto.client.ensureQueryData(
           FeeTokens.fetch.queryOptions(client, {
@@ -67,7 +65,6 @@ export namespace prepareCalls {
           ...parameters,
           account,
           feeToken: feeTokenAddress,
-          key,
           preCalls,
           requiredFunds: multichain ? requiredFunds : undefined,
         })
@@ -76,8 +73,10 @@ export namespace prepareCalls {
         account,
         authorizeKeys,
         calls,
+        feePayer,
         feeToken,
         merchantRpcUrl,
+        nonce,
         requiredFunds,
         revokeKeys,
       }),
@@ -109,7 +108,7 @@ export namespace prepareCalls {
         calls extends readonly unknown[] = readonly unknown[],
       > = Pick<
         RelayActions.prepareCalls.Parameters<calls>,
-        'authorizeKeys' | 'calls' | 'revokeKeys'
+        'authorizeKeys' | 'calls' | 'feePayer' | 'nonce' | 'revokeKeys'
       > & {
         account?: Account.Account | undefined
         feeToken?: FeeToken_schema.Symbol | Address.Address | undefined

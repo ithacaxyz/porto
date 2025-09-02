@@ -1,9 +1,10 @@
 import { Hex, Value } from 'ox'
-import { readContract, waitForCallsStatus } from 'viem/actions'
+import { getEip712Domain, readContract, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import * as TestActions from '../../test/src/actions.js'
 import * as Anvil from '../../test/src/anvil.js'
 import * as TestConfig from '../../test/src/config.js'
+import * as Relay from '../../test/src/relay.js'
 import * as AccountContract from './ContractActions.js'
 import { ContractActions } from './index.js'
 import * as Key from './Key.js'
@@ -23,6 +24,93 @@ describe('createAccount', () => {
   })
 })
 
+describe('signCalls', () => {
+  test('default: signs with provided key', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, { keys: [key] })
+
+    const request = await RelayActions.prepareCalls(client, {
+      account,
+      calls: [
+        {
+          abi: contracts.exp2.abi,
+          args: [account.address, 100n],
+          functionName: 'mint',
+          to: contracts.exp2.address,
+        },
+      ],
+      feeToken: contracts.exp1.address,
+      key,
+    })
+
+    const signature = await RelayActions.signCalls(request, { key })
+    expect(signature).toBeDefined()
+
+    const { id } = await RelayActions.sendPreparedCalls(client, {
+      ...request,
+      key: request.key!,
+      signature,
+    })
+    expect(id).toBeDefined()
+  })
+
+  test('behavior: signs with account', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, { keys: [key] })
+
+    const request = await RelayActions.prepareCalls(client, {
+      account,
+      calls: [
+        {
+          abi: contracts.exp2.abi,
+          args: [account.address, 100n],
+          functionName: 'mint',
+          to: contracts.exp2.address,
+        },
+      ],
+      feeToken: contracts.exp1.address,
+    })
+
+    const signature = await RelayActions.signCalls(request, { account })
+    expect(signature).toBeDefined()
+  })
+
+  test('error: missing signer', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, { keys: [key] })
+
+    const request = await RelayActions.prepareCalls(client, {
+      account,
+      calls: [],
+      feeToken: contracts.exp1.address,
+    })
+
+    await expect(() =>
+      // @ts-expect-error testing runtime validation
+      RelayActions.signCalls(request, {}),
+    ).rejects.toThrowError('no key or account provided')
+  })
+
+  test('error: key not found (account signer with mismatched request key)', async () => {
+    const adminKey = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [adminKey],
+    })
+    const otherKey = Key.createHeadlessWebAuthnP256()
+
+    // Create a pre-call request that references a key that is not on the account
+    const request = await RelayActions.prepareCalls(client, {
+      authorizeKeys: [otherKey],
+      feeToken: contracts.exp1.address,
+      preCalls: true,
+    })
+
+    await expect(() =>
+      RelayActions.signCalls(request, { account }),
+    ).rejects.toThrowError('key not found')
+  })
+})
+
 describe('upgradeAccount', () => {
   test('default', async () => {
     const { account } = await TestActions.getAccount(client)
@@ -36,6 +124,7 @@ describe('upgradeAccount', () => {
     // Verify that Relay has registered the admin key.
     const keys = await RelayActions.getKeys(client, {
       account,
+      chainIds: [client.chain.id],
     })
     expect(keys.length).toBe(1)
     expect(keys[0]!.publicKey).toBe(adminKey.publicKey)
@@ -88,6 +177,7 @@ describe('upgradeAccount', () => {
     // Verify that Relay has registered the admin key.
     const keys = await RelayActions.getKeys(client, {
       account,
+      chainIds: [client.chain.id],
     })
     expect(keys.length).toBe(2)
     expect(keys[0]!.publicKey).toBe(adminKey.publicKey)
@@ -143,6 +233,7 @@ describe('upgradeAccount', () => {
     // Verify that Relay has registered the admin key.
     const keys = await RelayActions.getKeys(client, {
       account,
+      chainIds: [client.chain.id],
     })
     expect(keys.length).toBe(1)
     expect(keys[0]!.publicKey).toBe(adminKey.publicKey)
@@ -174,6 +265,7 @@ describe('getKeys', () => {
 
     const keys = await RelayActions.getKeys(client, {
       account,
+      chainIds: [client.chain.id],
     })
 
     expect(keys.length).toBe(1)
@@ -186,6 +278,7 @@ describe('getKeys', () => {
 
     const keys = await RelayActions.getKeys(client, {
       account: account.address,
+      chainIds: [client.chain.id],
     })
 
     expect(keys.length).toBe(1)
@@ -343,8 +436,8 @@ describe('sendCalls', () => {
       feeToken: contracts.exp1.address,
       preCalls: true,
     })
-    const signature_1 = await Key.sign(adminKey, {
-      payload: request_1.digest,
+    const signature_1 = await RelayActions.signCalls(request_1, {
+      key: adminKey,
     })
 
     const { id } = await RelayActions.sendCalls(client, {
@@ -465,9 +558,52 @@ describe('prepareCalls', () => {
       key,
     })
 
-    const signature = await Key.sign(key, {
-      payload: request.digest,
-      wrap: false,
+    const signature = await RelayActions.signCalls(request, {
+      key,
+    })
+
+    const { id } = await RelayActions.sendPreparedCalls(client, {
+      ...request,
+      key: request.key!,
+      signature,
+    })
+
+    expect(id).toBeDefined()
+
+    await waitForCallsStatus(client, {
+      id,
+    })
+
+    expect(
+      await readContract(client, {
+        ...contracts.exp2,
+        args: [account.address],
+        functionName: 'balanceOf',
+      }),
+    ).toBe(100n)
+  })
+
+  test('behavior: account', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    const request = await RelayActions.prepareCalls(client, {
+      account,
+      calls: [
+        {
+          abi: contracts.exp2.abi,
+          args: [account.address, 100n],
+          functionName: 'mint',
+          to: contracts.exp2.address,
+        },
+      ],
+      feeToken: contracts.exp1.address,
+    })
+
+    const signature = await RelayActions.signCalls(request, {
+      account,
     })
 
     const { id } = await RelayActions.sendPreparedCalls(client, {
@@ -517,8 +653,8 @@ describe('prepareCalls', () => {
       feeToken: contracts.exp1.address,
       preCalls: true,
     })
-    const signature_1 = await Key.sign(key, {
-      payload: request_1.digest,
+    const signature_1 = await RelayActions.signCalls(request_1, {
+      key,
     })
 
     const request_2 = await RelayActions.prepareCalls(client, {
@@ -535,9 +671,8 @@ describe('prepareCalls', () => {
       key,
       preCalls: [{ ...request_1, signature: signature_1 }],
     })
-    const signature_2 = await Key.sign(key, {
-      payload: request_2.digest,
-      wrap: false,
+    const signature_2 = await RelayActions.signCalls(request_2, {
+      key,
     })
 
     const { id } = await RelayActions.sendPreparedCalls(client, {
@@ -593,8 +728,8 @@ describe('prepareCalls', () => {
       feeToken: contracts.exp1.address,
       preCalls: true,
     })
-    const signature_1 = await Key.sign(key, {
-      payload: request_1.digest,
+    const signature_1 = await RelayActions.signCalls(request_1, {
+      key,
     })
 
     const request_2 = await RelayActions.prepareCalls(client, {
@@ -611,9 +746,8 @@ describe('prepareCalls', () => {
       key,
       preCalls: [{ ...request_1, signature: signature_1 }],
     })
-    const signature_2 = await Key.sign(key, {
-      payload: request_2.digest,
-      wrap: false,
+    const signature_2 = await RelayActions.signCalls(request_2, {
+      key,
     })
 
     const { id } = await RelayActions.sendPreparedCalls(client, {
@@ -663,8 +797,8 @@ describe('prepareCalls', () => {
       feeToken: contracts.exp1.address,
       preCalls: true,
     })
-    const signature_1 = await Key.sign(adminKey, {
-      payload: request_1.digest,
+    const signature_1 = await RelayActions.signCalls(request_1, {
+      key: adminKey,
     })
 
     const request_2 = await RelayActions.prepareCalls(client, {
@@ -681,9 +815,8 @@ describe('prepareCalls', () => {
       key: sessionKey,
       preCalls: [{ ...request_1, signature: signature_1 }],
     })
-    const signature_2 = await Key.sign(sessionKey, {
-      payload: request_2.digest,
-      wrap: false,
+    const signature_2 = await RelayActions.signCalls(request_2, {
+      key: sessionKey,
     })
 
     const { id } = await RelayActions.sendPreparedCalls(client, {
@@ -1499,6 +1632,66 @@ describe('e2e', () => {
           key: sessionKey,
         }),
       ).rejects.toThrowError('Error: InsufficientBalance()')
+    })
+  })
+
+  describe.runIf(Anvil.enabled)('behavior: update account', () => {
+    test('default', async () => {
+      const key = Key.createHeadlessWebAuthnP256()
+      const account = await TestActions.createAccount(client, {
+        deploy: true,
+        keys: [key],
+      })
+
+      {
+        const { contracts } = await RelayActions.getCapabilities(client)
+        const { accountImplementation } = contracts
+        const { domain: current } = await getEip712Domain(client, {
+          address: account.address,
+        })
+        const { domain: latest } = await getEip712Domain(client, {
+          address: accountImplementation.address,
+        })
+        expect(current.version).toBe(latest.version)
+      }
+
+      const porto_newAccount = TestConfig.getPorto({
+        relayRpcUrl: Relay.instances.anvil_newAccount.rpcUrl,
+      })
+      porto_newAccount._internal.store.setState(
+        porto._internal.store.getState(),
+      )
+
+      {
+        const client = TestConfig.getRelayClient(porto_newAccount)
+        const {
+          contracts: { accountImplementation },
+        } = await RelayActions.getCapabilities(client)
+
+        const { domain: current } = await getEip712Domain(client, {
+          address: account.address,
+        })
+        const { domain: latest } = await getEip712Domain(client, {
+          address: accountImplementation.address,
+        })
+        expect(current.version).not.toBe(latest.version)
+
+        const { id } = await RelayActions.sendCalls(client, {
+          account,
+          calls: [],
+          feeToken: contracts.exp1.address,
+        })
+        await waitForCallsStatus(client, {
+          id,
+        })
+
+        {
+          const { domain: current } = await getEip712Domain(client, {
+            address: account.address,
+          })
+          expect(current.version).toBe(latest.version)
+        }
+      }
     })
   })
 })

@@ -84,7 +84,7 @@ jobs:
               '5. Enable `Developer Mode` in the top right corner',
               '6. Click `Load Unpacked` in the top left corner',
               '7. Select the unzipped Chrome directory',
-              '8. Done!'
+              '8. Done!',
               '\n',
               '##### Firefox',
               '\n',

@@ -185,7 +185,7 @@ export function AddFunds(props: AddFunds.Props) {
 
       <Layout.Content>
         <div className="flex flex-col gap-3">
-          {view === 'default' && chain?.testnet && (
+          {view === 'default' && feeToken?.uid.startsWith('exp') && (
             <>
               <Faucet
                 address={address}
@@ -357,7 +357,9 @@ function DepositCrypto(props: {
             params: [{ account, chainFilter: [hexChainId] }],
           })
           const assets = response[hexChainId] ?? []
-          const minAssetBalance = minValue ? BigInt(minValue) : 0n
+          const minAssetBalance = minValue
+            ? Value.from(minValue, feeToken?.decimals ?? 18)
+            : 0n
 
           const nonZeroAssets = assets.filter(
             (asset) => asset.balance !== '0x0',
@@ -373,13 +375,13 @@ function DepositCrypto(props: {
           )
 
           const hasRequiredTokenAmount = assets.some((asset) => {
-            const assetBalance = Hex.toBigInt(asset.balance, {
-              size: asset.metadata?.decimals,
-            })
+            const address =
+              asset.type === 'native' ? zeroAddress : asset.address
+            const assetBalance = Hex.toBigInt(asset.balance)
             return (
               assetBalance > minAssetBalance &&
               (tokenAddress
-                ? asset.address?.toLowerCase() === tokenAddress.toLowerCase()
+                ? address?.toLowerCase() === tokenAddress.toLowerCase()
                 : true)
             )
           })

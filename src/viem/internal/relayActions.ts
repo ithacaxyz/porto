@@ -34,6 +34,47 @@ import * as U from '../../core/internal/utils.js'
 import type { sendCalls } from '../RelayActions.js'
 
 /**
+ * Gets the authorization for a given address.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - The client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function getAuthorization(
+  client: Client,
+  parameters: getAuthorization.Parameters,
+): Promise<getAuthorization.ReturnType> {
+  try {
+    const method = 'wallet_getAuthorization' as const
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
+    const result = await withCache(
+      () =>
+        client.request<Schema>({
+          method,
+          params: [
+            Schema.encodeSync(RpcSchema.wallet_getAuthorization.Parameters)(
+              parameters,
+            ),
+          ],
+        }),
+      { cacheKey: `${client.uid}.${method}.${parameters.address}` },
+    )
+    return Schema.decodeSync(RpcSchema.wallet_getAuthorization.Response)(result)
+  } catch (error) {
+    parseSchemaError(error)
+    throw error
+  }
+}
+
+export namespace getAuthorization {
+  export type Parameters = RpcSchema.wallet_getAuthorization.Parameters
+  export type ReturnType = RpcSchema.wallet_getAuthorization.Response
+}
+
+/**
  * Gets the capabilities for a given chain ID.
  *
  * @example
@@ -253,11 +294,11 @@ export namespace getCallsStatus {
  * @param parameters - Parameters.
  * @returns Result.
  */
-export async function getKeys<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: getKeys.Parameters<chain>,
+export async function getKeys(
+  client: Client,
+  parameters: getKeys.Parameters,
 ): Promise<getKeys.ReturnType> {
-  const { address, chain = client.chain } = parameters
+  const { address, chainIds } = parameters
 
   try {
     const method = 'wallet_getKeys' as const
@@ -267,7 +308,7 @@ export async function getKeys<chain extends Chain | undefined>(
       params: [
         Schema.encodeSync(RpcSchema.wallet_getKeys.Parameters)({
           address,
-          chainId: chain?.id!,
+          chainIds,
         }),
       ],
     })
@@ -279,9 +320,7 @@ export async function getKeys<chain extends Chain | undefined>(
 }
 
 export namespace getKeys {
-  export type Parameters<chain extends Chain | undefined = Chain | undefined> =
-    Omit<RpcSchema.wallet_getKeys.Parameters, 'chainId'> &
-      GetChainParameter<chain>
+  export type Parameters = RpcSchema.wallet_getKeys.Parameters
 
   export type ReturnType = RpcSchema.wallet_getKeys.Response
 

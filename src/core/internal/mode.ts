@@ -119,6 +119,8 @@ export type Mode = {
     getKeys: (parameters: {
       /** Account to get the keys for. */
       account: Account.Account
+      /** Chain IDs to get the keys for. */
+      chainIds?: readonly number[] | undefined
       /** Internal properties. */
       internal: ActionsInternal
     }) => Promise<readonly Key.Key[]>
@@ -326,13 +328,6 @@ export type Mode = {
           internal: ActionsInternal
         }) => Promise<void>)
       | undefined
-
-    updateAccount: (parameters: {
-      /** Account to update. */
-      account: Account.Account
-      /** Internal properties. */
-      internal: ActionsInternal
-    }) => Promise<{ id?: Hex.Hex | undefined }>
 
     upgradeAccount: (parameters: {
       /** Account to upgrade. */

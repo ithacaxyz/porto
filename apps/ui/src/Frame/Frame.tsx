@@ -40,7 +40,7 @@ const springStyles = {
   },
 } as const
 
-function FrameWithUi({
+export function Frame({
   children,
   colorScheme = 'light dark',
   mode: mode_,
@@ -49,7 +49,9 @@ function FrameWithUi({
   onHeight,
   site,
   visible = true,
-}: Omit<Frame.Props, 'reducedMotion'>) {
+}: Frame.Props) {
+  const ui = Ui.useUi()
+
   const frameRef = useRef<HTMLDivElement>(null)
 
   const [large, setLarge] = useState(false)
@@ -75,8 +77,6 @@ function FrameWithUi({
 
   const containerRef = useRef<HTMLDivElement | null>(null)
   const screenRef = useRef<HTMLDivElement | null>(null)
-
-  const ui = Ui.useUi()
 
   const animateLeave =
     !ui.reducedMotion && mode.name === 'dialog' && mode.variant === 'drawer'
@@ -169,17 +169,17 @@ function FrameWithUi({
             )}
             data-dialog={mode.name === 'dialog' ? true : undefined}
             ref={frameRef}
-            style={{
-              colorScheme,
-            }}
+            style={{ colorScheme }}
           >
             <div
               className={cx(
                 css({
                   display: 'grid',
+                  height: '100%',
                   overflowX: 'auto',
                   overflowY:
-                    mode.name === 'full' && mode.variant !== 'content-height'
+                    mode.name === 'dialog' ||
+                    (mode.name === 'full' && mode.variant !== 'content-height')
                       ? 'auto'
                       : 'hidden',
                   width: '100%',
@@ -187,9 +187,6 @@ function FrameWithUi({
                 mode.name === 'dialog' && mode.variant === 'drawer'
                   ? css({ placeItems: 'end center' })
                   : css({ placeItems: 'start center' }),
-                css({
-                  height: '100%',
-                }),
               )}
             >
               {mode.name === 'dialog' && (
@@ -324,17 +321,6 @@ function FrameWithUi({
           </div>
         </FrameContext.Provider>
       ),
-  )
-}
-
-export function Frame({ reducedMotion, ...props }: Frame.Props) {
-  const ui = Ui.useUi(true)
-  return ui && reducedMotion === undefined ? (
-    <FrameWithUi {...props} />
-  ) : (
-    <Ui reducedMotion={reducedMotion}>
-      <FrameWithUi {...props} />
-    </Ui>
   )
 }
 
@@ -541,7 +527,6 @@ export namespace Frame {
     onClose?: (() => void) | undefined
     onClosed?: (() => void) | undefined
     onHeight?: ((height: number) => void) | undefined
-    reducedMotion?: boolean | undefined
     site: Site
     screenKey?: string | undefined
     visible?: boolean | undefined

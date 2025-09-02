@@ -52,7 +52,7 @@ export default defineConfig(({ mode }) => {
       skipMkcert
         ? null
         : mkcert({
-            hosts: ['localhost', 'anvil.localhost'],
+            hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
           }),
       react(),
       tailwindcss(),
@@ -137,7 +137,7 @@ export default defineConfig(({ mode }) => {
               orchestrator: orchestratorAddress,
               simulator: simulatorAddress,
               txGasBuffer: 100_000n,
-              version: 'v22.0.0',
+              version: 'v23.0.0',
             }).start()
             await fetch(relayConfig.rpcUrl + '/start')
             return stop

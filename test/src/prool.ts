@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import { rm, writeFile } from 'node:fs/promises'
+import { rmSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { setTimeout } from 'node:timers/promises'
 import { defineInstance, toArgs } from 'prool'
@@ -60,8 +60,8 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
 
   let port = args.http?.port ?? 9119
 
-  async function stop() {
-    await rm(configPath)
+  function stop() {
+    rmSync(configPath)
     spawnSync('docker', ['rm', '-f', containerName])
   }
 
@@ -106,7 +106,7 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
         orchestrator: rest.orchestrator,
         simulator: rest.simulator,
       })
-      await writeFile(configPath, content)
+      writeFileSync(configPath, content)
 
       const args_ = [
         '--name',
@@ -158,7 +158,7 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
       })
     },
     async stop() {
-      return await stop()
+      return stop()
     },
   }
 })

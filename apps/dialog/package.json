@@ -9,7 +9,8 @@
     "check": "biome check --write --unsafe",
     "check:types": "tsc --noEmit",
     "prepreview": "pnpm build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "sync:ui-assets": "rm -rf public/ui && cp -r ../ui/assets public/ui"
   },
   "dependencies": {
     "@ariakit/react": "catalog:",

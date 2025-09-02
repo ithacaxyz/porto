@@ -9,6 +9,7 @@ import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
+import * as TypedData from 'ox/TypedData'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import * as WebCryptoP256 from 'ox/WebCryptoP256'
 import * as Call from '../core/internal/call.js'
@@ -888,7 +889,7 @@ export function serialize(key: Key): Serialized {
 }
 
 export async function sign(key: Key, parameters: sign.Parameters) {
-  const { payload, storage, webAuthn, wrap = true } = parameters
+  const { address, storage, webAuthn, wrap = true } = parameters
   const { privateKey, publicKey, type: keyType } = key
 
   if (!privateKey)
@@ -896,6 +897,20 @@ export async function sign(key: Key, parameters: sign.Parameters) {
       'Key does not have a private key to sign with.\n\nKey:\n' +
         Json.stringify(key, null, 2),
     )
+
+  const payload = (() => {
+    if (!address) return parameters.payload
+    return TypedData.getSignPayload({
+      domain: { verifyingContract: address },
+      message: {
+        digest: parameters.payload,
+      },
+      primaryType: 'ERC1271Sign',
+      types: {
+        ERC1271Sign: [{ name: 'digest', type: 'bytes32' }],
+      },
+    })
+  })()
 
   const [signature, prehash] = await (async () => {
     if (keyType === 'p256') {
@@ -999,14 +1014,32 @@ export async function sign(key: Key, parameters: sign.Parameters) {
 
 export declare namespace sign {
   type Parameters = {
+    /**
+     * Address to use for replay-safe signing.
+     * `null` if replay-safe signing is not needed (e.g. signing call bundles).
+     */
+    address: Address.Address | null
+    /**
+     * Payload to sign.
+     */
     payload: Hex.Hex
+    /**
+     * Storage to use for keytype-specific caching (e.g. WebAuthn user verification).
+     */
     storage?: Storage.Storage | undefined
+    /**
+     * WebAuthn configuration.
+     */
     webAuthn?:
       | {
           createFn?: WebAuthnP256.createCredential.Options['createFn']
           getFn?: WebAuthnP256.sign.Options['getFn']
         }
       | undefined
+    /**
+     * Whether to wrap the signature with key metadata.
+     * @default true
+     */
     wrap?: boolean | undefined
   }
 }

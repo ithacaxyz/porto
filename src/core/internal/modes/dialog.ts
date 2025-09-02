@@ -347,7 +347,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
       },
 
       async getKeys(parameters) {
-        const { account, internal } = parameters
+        const { account, chainIds, internal } = parameters
         const { store } = internal
 
         const keys = await (async () => {
@@ -358,9 +358,10 @@ export function dialog(parameters: dialog.Parameters = {}) {
           const result = await provider.request({
             method: 'wallet_getKeys',
             params: [
-              {
+              Schema.encodeSync(RpcSchema_porto.wallet_getKeys.Parameters)({
                 address: account.address,
-              },
+                chainIds,
+              }),
             ],
           })
 
@@ -836,6 +837,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             if (hasFeeDeficit) throw new Error('insufficient funds')
 
             const signature = await Key.sign(key, {
+              address: null,
               payload: req.digest,
               wrap: false,
             })
@@ -896,6 +898,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 // @ts-expect-error
                 capabilities: {
                   feeToken,
+                  merchantRpcUrl,
                   preCalls,
                 },
               },
@@ -1003,17 +1006,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
           throw new Error('Cannot switch chain for method: ' + request.method)
 
         if (!renderer.supportsHeadless) return
-
-        const provider = getProvider(store)
-        return await provider.request(request)
-      },
-
-      async updateAccount(parameters) {
-        const { internal } = parameters
-        const { store, request } = internal
-
-        if (request.method !== 'wallet_updateAccount')
-          throw new Error('Cannot update account for method: ' + request.method)
 
         const provider = getProvider(store)
         return await provider.request(request)

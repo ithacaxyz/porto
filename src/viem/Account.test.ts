@@ -1,5 +1,5 @@
 import { Hex } from 'ox'
-import { verifyHash, verifyMessage } from 'viem/actions'
+import { verifyHash } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
 import { createAccount } from '../../test/src/actions.js'
@@ -66,24 +66,6 @@ describe('from', () => {
         "type": "local",
       }
     `)
-  })
-
-  test('behavior: signMessage (key)', async () => {
-    const key = Key.createHeadlessWebAuthnP256()
-    const account = await createAccount(client, {
-      deploy: true,
-      keys: [key],
-    })
-
-    const signature = await account.signMessage({ message: 'hello world' })
-
-    const valid = await verifyMessage(client, {
-      address: account.address,
-      message: 'hello world',
-      signature,
-    })
-
-    expect(valid).toBe(true)
   })
 })
 

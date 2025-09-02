@@ -8,7 +8,6 @@ import {
   anvil2,
   anvil3,
   arbitrumSepolia,
-  base,
   baseSepolia,
   optimismSepolia,
   sepolia,
@@ -57,9 +56,8 @@ const address = {
     [anvil3.id]: anvilAddresses.expNftAddress,
     [anvil.id]: anvilAddresses.expNftAddress,
     [anvil2.id]: anvilAddresses.expNftAddress,
-    [base.id]: '0x395f6844643F724dBd7fcc52d64dD33F2C1eE63E',
-    [baseSepolia.id]: '0x6C083d9E58037A301917Cf21DF55a68518c935E1',
-    [optimismSepolia.id]: '0xf8C11A1F8aA0622CFbd9E4a34453319b1f5c0A10',
+    [baseSepolia.id]: '0x2a7B2023e4279bF5909785652AB51c9F821344e0',
+    [optimismSepolia.id]: '0x97b7d6e58c56a3547e04F3Ae0cc1E7f69a123Dc4',
   },
 } as const
 

@@ -22,11 +22,11 @@ verifyApp.get('/', async (context) => {
   }
 
   const whitelisted =
-    response.whitelist?.some((h) => hostname.endsWith(h)) ||
-    extraConfig.whitelist.some((h) => hostname.endsWith(h))
+    response.whitelist?.some((h) => hostname === h) ||
+    extraConfig.whitelist.some((h) => hostname === h)
   const blacklisted =
-    response.blacklist?.some((h) => hostname.endsWith(h)) ||
-    extraConfig.blacklist.some((h) => hostname.endsWith(h))
+    response.blacklist?.some((h) => hostname === h) ||
+    extraConfig.blacklist.some((h) => hostname === h)
 
   const status = (() => {
     if (blacklisted) return 'blacklisted'

@@ -4,7 +4,27 @@ import { cx } from 'cva'
 import type { ForwardedRef } from 'react'
 import { useImperativeHandle, useRef, useState } from 'react'
 import { ComponentScreen } from '~/components/ComponentScreen/ComponentScreen'
-import { portoTheme } from '../../../theme/porto-theme.js'
+import { portoTheme } from '../../../theme/porto-theme'
+import * as radixDark from '../radix-dark'
+import * as radixLight from '../radix-light'
+
+function findRadixColor(
+  hexColor: string,
+  mode: 'light' | 'dark',
+): { theme: string; name: string } | null {
+  const radixColors = mode === 'light' ? radixLight : radixDark
+
+  for (const [themeName, themeColors] of Object.entries(radixColors))
+    if (typeof themeColors === 'object' && themeColors !== null)
+      for (const [colorName, colorValue] of Object.entries(themeColors))
+        if (
+          typeof colorValue === 'string' &&
+          colorValue.toLowerCase() === hexColor.toLowerCase()
+        )
+          return { name: colorName, theme: themeName }
+
+  return null
+}
 
 export const Route = createFileRoute('/Colors')({
   component: RouteComponent,
@@ -49,6 +69,7 @@ function ColorButton({
   mode: 'light' | 'dark'
   side: 'left' | 'right'
 }) {
+  const radixMatch = findRadixColor(color, mode)
   const copyRef = useRef<{ show: () => void }>(null)
   const [mountCopy, setMountCopy] = useState(false)
   return (
@@ -72,11 +93,18 @@ function ColorButton({
       type="button"
     >
       <div>{mode}</div>
-      <div className="relative">
-        <div className="absolute right-full flex h-full items-center">
-          {mountCopy && <CopyIndicator ref={copyRef} />}
+      <div className="mt-1 flex flex-col items-end">
+        <div className="relative">
+          <div className="absolute right-[calc(100%+8px)] flex h-full items-center">
+            {mountCopy && <CopyIndicator ref={copyRef} />}
+          </div>
+          {color}
         </div>
-        <div className="ml-2">{color}</div>
+        <div className="text-xs">
+          {radixMatch
+            ? `radix: ${radixMatch.theme}.${radixMatch.name}`
+            : '<no radix match>'}
+        </div>
       </div>
     </button>
   )

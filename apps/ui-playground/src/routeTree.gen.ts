@@ -11,6 +11,7 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as TokenIconImport } from './routes/TokenIcon'
 import { Route as ThemeSwitchImport } from './routes/ThemeSwitch'
 import { Route as SpinnerImport } from './routes/Spinner'
 import { Route as SpacerImport } from './routes/Spacer'
@@ -26,6 +27,12 @@ import { Route as ButtonImport } from './routes/Button'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
+
+const TokenIconRoute = TokenIconImport.update({
+  id: '/TokenIcon',
+  path: '/TokenIcon',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const ThemeSwitchRoute = ThemeSwitchImport.update({
   id: '/ThemeSwitch',
@@ -200,6 +207,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ThemeSwitchImport
       parentRoute: typeof rootRoute
     }
+    '/TokenIcon': {
+      id: '/TokenIcon'
+      path: '/TokenIcon'
+      fullPath: '/TokenIcon'
+      preLoaderRoute: typeof TokenIconImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -219,6 +233,7 @@ export interface FileRoutesByFullPath {
   '/Spacer': typeof SpacerRoute
   '/Spinner': typeof SpinnerRoute
   '/ThemeSwitch': typeof ThemeSwitchRoute
+  '/TokenIcon': typeof TokenIconRoute
 }
 
 export interface FileRoutesByTo {
@@ -235,6 +250,7 @@ export interface FileRoutesByTo {
   '/Spacer': typeof SpacerRoute
   '/Spinner': typeof SpinnerRoute
   '/ThemeSwitch': typeof ThemeSwitchRoute
+  '/TokenIcon': typeof TokenIconRoute
 }
 
 export interface FileRoutesById {
@@ -252,6 +268,7 @@ export interface FileRoutesById {
   '/Spacer': typeof SpacerRoute
   '/Spinner': typeof SpinnerRoute
   '/ThemeSwitch': typeof ThemeSwitchRoute
+  '/TokenIcon': typeof TokenIconRoute
 }
 
 export interface FileRouteTypes {
@@ -270,6 +287,7 @@ export interface FileRouteTypes {
     | '/Spacer'
     | '/Spinner'
     | '/ThemeSwitch'
+    | '/TokenIcon'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -285,6 +303,7 @@ export interface FileRouteTypes {
     | '/Spacer'
     | '/Spinner'
     | '/ThemeSwitch'
+    | '/TokenIcon'
   id:
     | '__root__'
     | '/'
@@ -300,6 +319,7 @@ export interface FileRouteTypes {
     | '/Spacer'
     | '/Spinner'
     | '/ThemeSwitch'
+    | '/TokenIcon'
   fileRoutesById: FileRoutesById
 }
 
@@ -317,6 +337,7 @@ export interface RootRouteChildren {
   SpacerRoute: typeof SpacerRoute
   SpinnerRoute: typeof SpinnerRoute
   ThemeSwitchRoute: typeof ThemeSwitchRoute
+  TokenIconRoute: typeof TokenIconRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -333,6 +354,7 @@ const rootRouteChildren: RootRouteChildren = {
   SpacerRoute: SpacerRoute,
   SpinnerRoute: SpinnerRoute,
   ThemeSwitchRoute: ThemeSwitchRoute,
+  TokenIconRoute: TokenIconRoute,
 }
 
 export const routeTree = rootRoute
@@ -357,7 +379,8 @@ export const routeTree = rootRoute
         "/ShowAfter",
         "/Spacer",
         "/Spinner",
-        "/ThemeSwitch"
+        "/ThemeSwitch",
+        "/TokenIcon"
       ]
     },
     "/": {
@@ -398,6 +421,9 @@ export const routeTree = rootRoute
     },
     "/ThemeSwitch": {
       "filePath": "ThemeSwitch.tsx"
+    },
+    "/TokenIcon": {
+      "filePath": "TokenIcon.tsx"
     }
   }
 }

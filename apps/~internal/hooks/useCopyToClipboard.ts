@@ -5,6 +5,8 @@ export function useCopyToClipboard(props?: useCopyToClipboard.Props) {
 
   const [isCopied, setIsCopied] = React.useState(false)
 
+  const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
+
   const copyToClipboard: useCopyToClipboard.CopyFn = React.useCallback(
     async (text) => {
       if (!navigator?.clipboard) {
@@ -12,10 +14,12 @@ export function useCopyToClipboard(props?: useCopyToClipboard.Props) {
         return false
       }
 
+      if (timer.current) clearTimeout(timer.current)
+
       try {
         await navigator.clipboard.writeText(text)
         setIsCopied(true)
-        setTimeout(() => setIsCopied(false), timeout)
+        timer.current = setTimeout(() => setIsCopied(false), timeout)
         return true
       } catch (error) {
         console.error('Failed to copy text: ', error)

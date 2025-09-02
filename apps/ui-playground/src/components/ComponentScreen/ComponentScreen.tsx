@@ -26,7 +26,7 @@ function ComponentScreenSection({
 }: {
   title?: string
   children: ReactNode
-  surface?: 'base' | 'plane'
+  surface?: 'base' | 'base-alt' | 'plane'
 }) {
   return (
     <section className="w-full">
@@ -34,8 +34,10 @@ function ComponentScreenSection({
       <div
         className={cx(
           'w-full',
-          surface === 'base' &&
-            'rounded-th_medium border border-th_base bg-th_base p-4',
+          (surface === 'base' || surface === 'base-alt') &&
+            'rounded-th_medium border border-th_base p-4',
+          surface === 'base' && 'bg-th_base',
+          surface === 'base-alt' && 'bg-th_base-alt',
         )}
       >
         {children}
