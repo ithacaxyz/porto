@@ -1067,7 +1067,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
           const requests = requestQueue
             .map((x) => (x.status === 'pending' ? x : undefined))
             .filter(Boolean) as readonly QueuedRequest[]
-          dialog.syncRequests(requests)
+          dialog.syncRequests(requests).catch(() => {})
           if (requests.length === 0) dialog.close()
         },
       )

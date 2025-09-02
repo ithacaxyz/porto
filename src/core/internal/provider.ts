@@ -1141,7 +1141,7 @@ export function from<
 
     Store.waitForHydration(store).then(() => {
       const chainId = store.getState().chainIds[0]
-      getCapabilities({ chainIds: [Hex.fromNumber(chainId)] })
+      getCapabilities({ chainIds: [Hex.fromNumber(chainId)] }).catch(() => {})
 
       unsubscribe_accounts()
       unsubscribe_accounts = store.subscribe(
@@ -1163,7 +1163,9 @@ export function from<
         (state) => state.chainIds[0],
         (chainId, previousChainId) => {
           if (chainId === previousChainId) return
-          getCapabilities({ chainIds: [Hex.fromNumber(chainId)] })
+          getCapabilities({ chainIds: [Hex.fromNumber(chainId)] }).catch(
+            () => {},
+          )
           emitter.emit('chainChanged', Hex.fromNumber(chainId))
         },
       )
