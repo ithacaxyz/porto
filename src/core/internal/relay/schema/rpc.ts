@@ -18,7 +18,6 @@ const Authorization = z.object({
   nonce: u.number(),
 })
 
-<<<<<<< HEAD
 const SignedAuthorization = z.object({
   ...Authorization.shape,
   r: u.hex(),
@@ -30,26 +29,6 @@ const Call = z.object({
   data: z.optional(u.hex()),
   to: u.address(),
   value: z.optional(u.bigint()),
-||||||| parent of 30295807 (feat: ERC-8010 Signature Wrapping (#788))
-const Call = Schema.Struct({
-  data: Schema.optional(Primitive.Hex),
-  to: Primitive.Address,
-  value: Schema.optional(Primitive.BigInt),
-=======
-const SignedAuthorization = Schema.extend(
-  Authorization,
-  Schema.Struct({
-    r: Primitive.Hex,
-    s: Primitive.Hex,
-    yParity: Primitive.Number,
-  }),
-)
-
-const Call = Schema.Struct({
-  data: Schema.optional(Primitive.Hex),
-  to: Primitive.Address,
-  value: Schema.optional(Primitive.BigInt),
->>>>>>> 30295807 (feat: ERC-8010 Signature Wrapping (#788))
 })
 
 export namespace account_setEmail {
