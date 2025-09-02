@@ -787,7 +787,7 @@ function AssetRow(
   const {
     address,
     value,
-    price,
+    // price,
     chainId,
     feeToken: isFeeToken,
     metadata,
@@ -805,10 +805,10 @@ function AssetRow(
   )
 
   // total value of the asset
-  const totalValue = React.useMemo(() => {
-    if (!price) return 0
-    return price * Number(formattedBalance)
-  }, [price, formattedBalance])
+  // const totalValue = React.useMemo(() => {
+  //   if (!price) return 0
+  //   return price * Number(formattedBalance)
+  // }, [price, formattedBalance])
 
   const sendCalls = useSendCalls({
     mutation: {
@@ -990,9 +990,9 @@ function AssetRow(
             </div>
           </td>
           <td className="w-[20%] text-right text-md">{formattedBalance}</td>
-          <td className="w-[20%] pl-3.5 text-right text-md">
+          {/* <td className="w-[20%] pl-3.5 text-right text-md">
             ${ValueFormatter.formatToPrice(totalValue)}
-          </td>
+          </td> */}
           <td className="w-[20%] pr-1.5 pl-3 text-left text-sm">
             <span className="rounded-2xl bg-gray3 px-2 py-1 font-[500] text-gray10 text-xs">
               {metadata?.symbol}

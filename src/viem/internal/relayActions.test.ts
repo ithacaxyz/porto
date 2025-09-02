@@ -294,9 +294,43 @@ describe('getCapabilities', () => {
     expect(result.fees.tokens).toBeDefined()
   })
 
+  test('behavior: chainId', async () => {
+    const result = await getCapabilities(client, {
+      chainId: client.chain.id,
+    })
+
+    expect(result.contracts.accountImplementation).toBeDefined()
+    expect(result.contracts.accountProxy).toBeDefined()
+    expect(result.contracts.orchestrator).toBeDefined()
+    expect(result.contracts.simulator).toBeDefined()
+    expect(result.fees.quoteConfig).toBeDefined()
+    expect(result.fees.recipient).toBeDefined()
+    expect(result.fees.tokens).toBeDefined()
+  })
+
   test('behavior: chainIds', async () => {
     const result = await getCapabilities(client, {
       chainIds: [client.chain.id],
+    })
+
+    const keys = Object.keys(result)
+    expect(keys.length).toBeGreaterThan(0)
+
+    for (const key of keys) {
+      const capabilities = (result as any)[key]
+      expect(capabilities.contracts.accountImplementation).toBeDefined()
+      expect(capabilities.contracts.accountProxy).toBeDefined()
+      expect(capabilities.contracts.orchestrator).toBeDefined()
+      expect(capabilities.contracts.simulator).toBeDefined()
+      expect(capabilities.fees.quoteConfig).toBeDefined()
+      expect(capabilities.fees.recipient).toBeDefined()
+      expect(capabilities.fees.tokens).toBeDefined()
+    }
+  })
+
+  test('behavior: chainIds (all)', async () => {
+    const result = await getCapabilities(client, {
+      chainIds: 'all',
     })
 
     const keys = Object.keys(result)

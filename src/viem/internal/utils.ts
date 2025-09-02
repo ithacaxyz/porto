@@ -1,4 +1,4 @@
-import type { Address } from 'viem'
+import type { Address, Chain } from 'viem'
 import type { IsUndefined, MaybeRequired } from '../../core/internal/types.js'
 import type { Account } from '../Account.js'
 
@@ -20,3 +20,8 @@ export type GetAccountParameter<
       : false
     : false
 >
+
+export type GetChainParameter<chain extends Chain | undefined> =
+  IsUndefined<chain> extends true
+    ? { chain: { id: number } }
+    : { chain?: { id: number } | undefined }

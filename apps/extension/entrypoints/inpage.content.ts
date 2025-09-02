@@ -2,7 +2,11 @@ import { Dialog, Mode, Porto } from 'porto'
 
 export default defineContentScript({
   main() {
-    const porto = Porto.create()
+    const porto = Porto.create({
+      mode: Mode.dialog({
+        host: 'https://dialogporto-git-jxom-relay-23.preview.porto.sh/dialog/?relayEnv=stg',
+      }),
+    })
     ;(window as any).ethereum = porto.provider
 
     window.addEventListener('message', (event) => {
@@ -11,10 +15,18 @@ export default defineContentScript({
     })
 
     document.addEventListener('securitypolicyviolation', (event) => {
-      if (!event.blockedURI.includes('porto.sh')) return
+      if (
+        !event.blockedURI.includes('id.porto.sh') &&
+        !event.blockedURI.includes('preview.porto.sh')
+      )
+        return
 
       const mode = porto?._internal.getMode() as ReturnType<typeof Mode.dialog>
 
+      porto._internal.store.setState((x) => ({
+        ...x,
+        requestQueue: [],
+      }))
       porto?._internal.setMode(
         Mode.dialog({
           host: mode.config.host,

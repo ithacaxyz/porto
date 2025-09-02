@@ -13,7 +13,7 @@ export function get(): Env {
 
   const url = new URL(window.location.href)
   const env =
-    url.searchParams.get('env') ?? window.location.host.split(/\.|-/)[0]
+    url.searchParams.get('relayEnv') ?? window.location.host.split(/\.|-/)[0]
   if (env && envs.includes(env as Env)) return env as Env
 
   return defaultEnv

@@ -3,7 +3,7 @@ import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
 import * as ox_Provider from 'ox/Provider'
 import * as RpcResponse from 'ox/RpcResponse'
-import type { ValueOf } from 'viem'
+import { type ValueOf, withCache } from 'viem'
 import * as Account from '../../viem/Account.js'
 import * as Actions from '../../viem/internal/relayActions.js'
 import type * as Key from '../../viem/Key.js'
@@ -37,8 +37,34 @@ export function from<
     ...Chains.Chain[],
   ],
 >(parameters: from.Parameters<chains>): Provider {
-  const { config, getMode, store } = parameters
+  const { config, getMode, id, store } = parameters
   const { announceProvider } = config
+
+  function getCapabilities(parameters: {
+    chainIds: readonly Hex.Hex[]
+    request?: RpcRequest.parseRequest.ReturnType | undefined
+  }) {
+    const { chainIds } = parameters
+    const request =
+      parameters.request ??
+      RpcRequest.parseRequest({
+        method: 'wallet_getCapabilities',
+        params: [undefined, chainIds],
+      })
+    return withCache(
+      () =>
+        getMode().actions.getCapabilities({
+          chainIds,
+          internal: {
+            config,
+            getClient,
+            request,
+            store,
+          },
+        }),
+      { cacheKey: `getCapabilities.${id}.${chainIds.join(',')}` },
+    )
+  }
 
   function getClient(chainId_?: Hex.Hex | number | undefined) {
     const chainId =
@@ -906,14 +932,9 @@ export function from<
         case 'wallet_getCapabilities': {
           const [_, chainIds] = request.params ?? []
 
-          const capabilities = await getMode().actions.getCapabilities({
+          const capabilities = await getCapabilities({
             chainIds: chainIds ?? [Hex.fromNumber(state.chainIds[0])],
-            internal: {
-              config,
-              getClient,
-              request,
-              store,
-            },
+            request,
           })
 
           return capabilities
@@ -1095,6 +1116,9 @@ export function from<
     let unsubscribe_chain: () => void = () => {}
 
     Store.waitForHydration(store).then(() => {
+      const chainId = store.getState().chainIds[0]
+      getCapabilities({ chainIds: [Hex.fromNumber(chainId)] }).catch(() => {})
+
       unsubscribe_accounts()
       unsubscribe_accounts = store.subscribe(
         (state) => state.accounts,
@@ -1115,6 +1139,9 @@ export function from<
         (state) => state.chainIds[0],
         (chainId, previousChainId) => {
           if (chainId === previousChainId) return
+          getCapabilities({ chainIds: [Hex.fromNumber(chainId)] }).catch(
+            () => {},
+          )
           emitter.emit('chainChanged', Hex.fromNumber(chainId))
         },
       )
