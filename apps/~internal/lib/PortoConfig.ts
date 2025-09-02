@@ -140,7 +140,7 @@ export function getDialogHost(env = Env.get()): string {
       )
     return dialogHosts[env]
   })()
-  return url + '?env=' + env
+  return url + '?relayEnv=' + env
 }
 
 export type Chain = ValueOf<typeof config>['chains'][number]
