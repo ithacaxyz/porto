@@ -191,13 +191,7 @@ export async function sign(
   account: Account,
   parameters: sign.Parameters,
 ): Promise<Compute<Hex.Hex>> {
-<<<<<<< HEAD
   const { storage, replaySafe = true, wrap = true, webAuthn } = parameters
-||||||| parent of a0c17354 (feat: signCalls)
-  const { address, storage } = parameters
-=======
-  const { storage, replaySafe = true, wrap = true } = parameters
->>>>>>> a0c17354 (feat: signCalls)
 
   const key = getKey(account, parameters)
 
@@ -225,11 +219,7 @@ export async function sign(
         address: null,
         payload: hash,
         storage,
-<<<<<<< HEAD
         webAuthn,
-||||||| parent of a0c17354 (feat: signCalls)
-=======
->>>>>>> a0c17354 (feat: signCalls)
         wrap,
       })
   })()
@@ -273,7 +263,6 @@ export declare namespace sign {
      * Whether to wrap the signature with key metadata.
      */
     wrap?: boolean | undefined
-<<<<<<< HEAD
     /**
      * WebAuthn helpers for non-browser environments (e.g., React Native passkeys).
      */
@@ -285,8 +274,5 @@ export declare namespace sign {
           getFn?: WebAuthnP256.sign.Options['getFn'] | undefined
         }
       | undefined
-||||||| parent of a0c17354 (feat: signCalls)
-=======
->>>>>>> a0c17354 (feat: signCalls)
   }
 }

@@ -124,14 +124,7 @@ export async function prepareCalls<
   const {
     account = client.account,
     calls,
-<<<<<<< HEAD
     chain = client.chain,
-||||||| parent of a0c17354 (feat: signCalls)
-    chain,
-    key,
-=======
-    chain,
->>>>>>> a0c17354 (feat: signCalls)
     feePayer,
     merchantUrl,
     nonce,
@@ -449,7 +442,6 @@ export async function sendCalls<
   } as never)
 
   // Sign over the bundles.
-<<<<<<< HEAD
   const signature = await (async () => {
     if (key)
       return await Key.sign(key, {
@@ -462,18 +454,6 @@ export async function sendCalls<
       hash: digest,
     })
   })()
-||||||| parent of a0c17354 (feat: signCalls)
-  const signature = await Key.sign(key, {
-    payload: digest,
-    wrap: false,
-  })
-=======
-  const signature = await Key.sign(key, {
-    address: null,
-    payload: digest,
-    wrap: false,
-  })
->>>>>>> a0c17354 (feat: signCalls)
 
   // Broadcast the bundle to the Relay.
   return await sendPreparedCalls(client, {
