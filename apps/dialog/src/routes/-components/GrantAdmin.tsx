@@ -15,12 +15,33 @@ import WalletIcon from '~icons/lucide/wallet-cards'
 import { ActionRequest } from './ActionRequest'
 
 export function GrantAdmin(props: GrantAdmin.Props) {
-  const { authorizeKey, feeToken, loading, onApprove, onReject } = props
+  const { authorizeKey, feeToken, loading, onApprove, onReject, chainId } =
+    props
 
   const account = Hooks.useAccount(porto)
 
+  // Prefer `porto.chainId` (forwarded to dialog as `chainId`) from URL, else fallback to props.
+  const resolvedChainId = (() => {
+    if (typeof window === 'undefined') return chainId
+    const params = new URLSearchParams(window.location.search)
+    const raw = params.get('chainId') ?? params.get('porto.chainId')
+    if (!raw) return chainId
+    let parsed: number | undefined
+    try {
+      parsed = /^0x/i.test(raw)
+        ? Number.parseInt(raw, 16)
+        : Number.parseInt(raw, 10)
+    } catch {
+      parsed = undefined
+    }
+    if (parsed === undefined || Number.isNaN(parsed)) return chainId
+    const supported = porto._internal.config.chains.some((c) => c.id === parsed)
+    return supported ? parsed : chainId
+  })()
+
   const prepareCallsQuery = Calls.prepareCalls.useQuery({
     authorizeKeys: [Key.from(authorizeKey)],
+    chainId: resolvedChainId,
     feeToken,
   })
   const { capabilities } = prepareCallsQuery.data ?? {}
@@ -94,6 +115,7 @@ export declare namespace GrantAdmin {
       publicKey: Hex.Hex
       type: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256'
     }
+    chainId?: number | undefined
     feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
     loading: boolean
     onApprove: () => void

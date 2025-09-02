@@ -53,25 +53,33 @@ type View =
 
 export function AddFunds(props: AddFunds.Props) {
   const { chainId, onApprove, onReject, tokenAddress, value } = props
-  console.info('AddFunds', chainId)
-  React.useEffect(() => {
-    if (typeof window === 'undefined') return
-    function handleCustomEvent(event: Event) {
-      console.log('handleCustomEvent', event)
-    }
-
-    window.addEventListener('chain-changed', handleCustomEvent)
-
-    return () => {
-      window.removeEventListener('chain-changed', handleCustomEvent)
-    }
-  }, [])
 
   const [view, setView] = React.useState<View>('default')
 
   const account = RemoteHooks.useAccount(porto)
   const address = props.address ?? account?.address
-  const chain = RemoteHooks.useChain(porto, { chainId })
+
+  // Prefer `porto.chainId` (forwarded to dialog as `chainId`) from URL, else fallback to props.
+  const resolvedChainId = React.useMemo(() => {
+    if (typeof window === 'undefined') return chainId
+    const params = new URLSearchParams(window.location.search)
+    const raw = params.get('chainId') ?? params.get('porto.chainId')
+    if (!raw) return chainId
+    const parsed = (() => {
+      try {
+        if (/^0x/i.test(raw)) return Number.parseInt(raw, 16)
+        return Number.parseInt(raw, 10)
+      } catch {
+        return undefined as number | undefined
+      }
+    })()
+    if (parsed === undefined || Number.isNaN(parsed)) return chainId
+    // Ensure the chain is supported by the dialog; otherwise fallback to prop.
+    const supported = porto._internal.config.chains.some((c) => c.id === parsed)
+    return supported ? parsed : chainId
+  }, [chainId])
+
+  const chain = RemoteHooks.useChain(porto, { chainId: resolvedChainId })
 
   const { data: feeTokens } = FeeTokens.fetch.useQuery({
     addressOrSymbol: tokenAddress,
