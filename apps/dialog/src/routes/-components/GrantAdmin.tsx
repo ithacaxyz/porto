@@ -7,6 +7,7 @@ import { Hooks } from 'porto/remote'
 
 import { CheckBalance } from '~/components/CheckBalance'
 import * as Calls from '~/lib/Calls'
+import { useResolvedChainId } from '~/lib/ChainResolver'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import { StringFormatter } from '~/utils'
@@ -20,24 +21,7 @@ export function GrantAdmin(props: GrantAdmin.Props) {
 
   const account = Hooks.useAccount(porto)
 
-  // Prefer `porto.chainId` (forwarded to dialog as `chainId`) from URL, else fallback to props.
-  const resolvedChainId = (() => {
-    if (typeof window === 'undefined') return chainId
-    const params = new URLSearchParams(window.location.search)
-    const raw = params.get('chainId') ?? params.get('porto.chainId')
-    if (!raw) return chainId
-    let parsed: number | undefined
-    try {
-      parsed = /^0x/i.test(raw)
-        ? Number.parseInt(raw, 16)
-        : Number.parseInt(raw, 10)
-    } catch {
-      parsed = undefined
-    }
-    if (parsed === undefined || Number.isNaN(parsed)) return chainId
-    const supported = porto._internal.config.chains.some((c) => c.id === parsed)
-    return supported ? parsed : chainId
-  })()
+  const resolvedChainId = useResolvedChainId({ chainId })
 
   const prepareCallsQuery = Calls.prepareCalls.useQuery({
     authorizeKeys: [Key.from(authorizeKey)],
