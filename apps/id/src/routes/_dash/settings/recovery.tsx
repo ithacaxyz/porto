@@ -29,7 +29,6 @@ function RouteComponent() {
   )
 
   const desiredChain = React.useMemo(() => {
-    if (typeof window === 'undefined') return false
     const params = new URLSearchParams(window.location.search)
     return params.has('testnet') && params.get('testnet') !== 'false'
       ? Chains.baseSepolia
