@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.82
+
+### Patch Changes
+
+- [`acc1329`](https://github.com/ithacaxyz/porto/commit/acc132903a368f7f2b03b1cdcee7a840a1bb8a43) Thanks [@jxom](https://github.com/jxom)! - Added support for legacy `atomicBatch` capability.
+
 ## 0.0.81
 
 ### Patch Changes
