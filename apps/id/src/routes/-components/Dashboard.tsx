@@ -787,7 +787,7 @@ function AssetRow(
   const {
     address,
     value,
-    price,
+    // price,
     chainId,
     feeToken: isFeeToken,
     metadata,
@@ -805,10 +805,10 @@ function AssetRow(
   )
 
   // total value of the asset
-  const totalValue = React.useMemo(() => {
-    if (!price) return 0
-    return price * Number(formattedBalance)
-  }, [price, formattedBalance])
+  // const totalValue = React.useMemo(() => {
+  //   if (!price) return 0
+  //   return price * Number(formattedBalance)
+  // }, [price, formattedBalance])
 
   const sendCalls = useSendCalls({
     mutation: {
