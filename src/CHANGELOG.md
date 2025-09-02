@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.83
+
+### Patch Changes
+
+- [#791](https://github.com/ithacaxyz/porto/pull/791) [`5a43dba`](https://github.com/ithacaxyz/porto/commit/5a43dba6c2e84611cd521b4f9dc4421820d1af3c) Thanks [@jxom](https://github.com/jxom)! - Added functionality to fetch `wallet_getCapabilities` eagerly when the provider is injected, and cache the response.
+
 ## 0.0.82
 
 ### Patch Changes
