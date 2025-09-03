@@ -1,5 +1,6 @@
 import * as Ariakit from '@ariakit/react'
 import { Toast } from '@porto/apps/components'
+import * as Ui from '@porto/ui'
 import {
   CatchBoundary,
   createFileRoute,
@@ -55,7 +56,8 @@ function RouteComponent() {
   )
 
   const grantAdmin = Hooks.useGrantAdmin()
-  const { data, error } = Hooks.useAdmins()
+  const { data } = Hooks.useAdmins()
+  const revokeAdmin = Hooks.useRevokeAdmin()
 
   const disconnectAll = async () =>
     Promise.all([
@@ -121,56 +123,73 @@ function RouteComponent() {
         disconnectAll()
       }}
     >
-      <section className="flex flex-col gap-4">
+      <section className="overflow-x-auto">
         <h2>Add recovery wallet</h2>
         <p>
           If you lose access, recover your account with a wallet of your choice.
         </p>
-        <section>
-          <ol className="flex flex-col gap-3 py-2">
-            {connectors.map((connector) => (
-              <li key={connector.uid}>
-                <Ariakit.Button
-                  className="flex items-center gap-2"
-                  onClick={async (event) =>
-                    connectThenGrantAdmin(event, connector)
-                  }
-                >
-                  <Ariakit.VisuallyHidden>
-                    {connector.name}
-                  </Ariakit.VisuallyHidden>
-                  <img
-                    alt={connector.name}
-                    height={24}
-                    src={connector.icon}
-                    width={24}
-                  />
+
+        <ol className="flex flex-col gap-3 py-2">
+          {connectors.map((connector) => (
+            <li key={connector.uid}>
+              <Ariakit.Button
+                className="flex items-center gap-2"
+                onClick={async (event) =>
+                  connectThenGrantAdmin(event, connector)
+                }
+              >
+                <Ariakit.VisuallyHidden>
                   {connector.name}
-                </Ariakit.Button>
-              </li>
-            ))}
-          </ol>
-        </section>
-        <Ariakit.Button
-          onClick={() =>
-            connectors.map((connector) => disconnect.disconnect({ connector }))
-          }
-          render={
+                </Ariakit.VisuallyHidden>
+                <img
+                  alt={connector.name}
+                  height={24}
+                  src={connector.icon}
+                  width={24}
+                />
+                {connector.name}
+              </Ariakit.Button>
+            </li>
+          ))}
+        </ol>
+
+        <ul className="mb-6 flex flex-col">
+          {data?.keys.map((key) => (
+            <li key={key.id}>
+              <pre>{JSON.stringify(key, null, 2)}</pre>
+              <Ui.Button
+                onClick={() =>
+                  revokeAdmin.mutate({
+                    address: account.address,
+                    chainId: data.chainId as never,
+                    id: key.id,
+                  })
+                }
+              >
+                revoke
+              </Ui.Button>
+            </li>
+          ))}
+        </ul>
+
+        <details className="group">
+          <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
+            <span>raw admin keys</span>
+          </summary>
+          <pre>{JSON.stringify(data, null, 2)}</pre>
+        </details>
+        <Ui.Button
+          // biome-ignore lint/correctness/noChildrenProp: _
+          children={
             <Link className="" to="..">
               I'll do this later
             </Link>
           }
+          onClick={() =>
+            connectors.map((connector) => disconnect.disconnect({ connector }))
+          }
+          variant="secondary"
         />
-        <pre>
-          {JSON.stringify(
-            {
-              data,
-              error: { ...grantAdmin.error, ...error },
-            },
-            null,
-            2,
-          )}
-        </pre>
       </section>
     </CatchBoundary>
   )
