@@ -1,7 +1,7 @@
 import { ChainIcon, Spinner } from '@porto/apps/components'
 import { Button } from '@porto/ui'
 import { cx } from 'cva'
-import { type Address, Base64 } from 'ox'
+import { type Address, Base64, type Hex } from 'ox'
 import type { Chains } from 'porto'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import type * as Quote_schema from 'porto/core/internal/relay/schema/quotes'
@@ -15,7 +15,6 @@ import {
   decodeFunctionData,
   erc20Abi,
   ethAddress,
-  parseAbiParameters,
 } from 'viem'
 import { CheckBalance } from '~/components/CheckBalance'
 import * as Calls from '~/lib/Calls'
@@ -33,6 +32,8 @@ import LucideVideo from '~icons/lucide/video'
 import Star from '~icons/ph/star-four-bold'
 import IconArrowRightCircle from '~icons/porto/arrow-right-circle'
 import { Approve } from '../-components/Approve'
+import { Send } from '../-components/Send'
+import { Swap } from '../-components/Swap'
 
 export function ActionRequest(props: ActionRequest.Props) {
   const {
@@ -67,53 +68,81 @@ export function ActionRequest(props: ActionRequest.Props) {
     assetDiff: assetDiffs,
   })
 
-  const quotes = prepareCallsQuery.data?.capabilities?.quote?.quotes ?? []
+  const quotes = capabilities?.quote?.quotes ?? []
 
-  const approval = React.useMemo(() => {
-    const quote = quotes.at(-1)
-    if (!quote) return null
-    try {
-      const [calls] = decodeAbiParameters(
-        parseAbiParameters('(address to, uint256 value, bytes data)[]'),
-        quote.intent.executionData,
-      )
+  const identified = ActionRequest.useIdentifyTx(
+    quotes.at(-1)?.intent.executionData ?? null,
+    assetDiff,
+  )
 
-      if (calls.length !== 1 || !calls[0]) return null
-      const [call] = calls
+  const destinationChainId = quotes[quotes.length - 1]?.chainId
 
-      const decoded = decodeFunctionData({
-        abi: erc20Abi,
-        data: call.data,
-      })
-      if (decoded.functionName === 'approve') {
-        const [spender, amount] = decoded.args
-        return {
-          amount,
-          chainId: quote.chainId,
-          spender,
-          tokenAddress: call.to,
-        }
-      }
-      return null
-    } catch {
-      return null
-    }
-  }, [quotes])
-
-  if (approval)
+  if (identified?.type === 'approve')
     return (
       <Approve
-        amount={approval.amount}
+        amount={identified.amount}
         approving={loading}
-        chainId={approval.chainId}
+        chainId={destinationChainId}
         fees={feeTotals}
         loading={prepareCallsQuery.isPending}
-        onApprove={() =>
-          prepareCallsQuery.data && onApprove(prepareCallsQuery.data)
-        }
+        onApprove={() => {
+          if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
+        }}
         onReject={onReject}
-        spender={approval.spender}
-        tokenAddress={approval.tokenAddress}
+        spender={identified.spender}
+        tokenAddress={identified.tokenAddress}
+      />
+    )
+
+  if (identified?.type === 'swap')
+    return (
+      <Swap
+        assetIn={identified.assetIn}
+        assetOut={identified.assetOut}
+        chainId={destinationChainId}
+        contractAddress={calls[0]?.to}
+        fees={feeTotals}
+        loading={prepareCallsQuery.isPending}
+        onApprove={() => {
+          if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
+        }}
+        onReject={onReject}
+        swapType="swap"
+        swapping={loading}
+      />
+    )
+
+  if (identified?.type === 'convert')
+    return (
+      <Swap
+        assetIn={identified.assetIn}
+        assetOut={identified.assetOut}
+        chainId={destinationChainId}
+        contractAddress={calls[0]?.to}
+        fees={feeTotals}
+        loading={prepareCallsQuery.isPending}
+        onApprove={() => {
+          if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
+        }}
+        onReject={onReject}
+        swapType="convert"
+        swapping={loading}
+      />
+    )
+
+  if (identified?.type === 'send' && identified.to)
+    return (
+      <Send
+        asset={identified.asset}
+        chainId={destinationChainId}
+        fees={feeTotals}
+        loading={prepareCallsQuery.isPending}
+        onApprove={() => {
+          if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
+        }}
+        onReject={onReject}
+        sending={loading}
+        to={identified.to}
       />
     )
 
@@ -160,17 +189,24 @@ export function ActionRequest(props: ActionRequest.Props) {
               onClick={onReject}
               variant="negative-secondary"
             >
-              Deny
+              {prepareCallsQuery.isError ? 'Cancel' : 'Deny'}
             </Button>
             <Button
               data-testid="confirm"
               disabled={!prepareCallsQuery.isSuccess}
               loading={loading && 'Sending…'}
-              onClick={() => onApprove(prepareCallsQuery.data!)}
-              variant="positive"
+              onClick={() => {
+                if (prepareCallsQuery.isError) {
+                  prepareCallsQuery.refetch()
+                  return
+                }
+                if (prepareCallsQuery.isSuccess)
+                  onApprove(prepareCallsQuery.data)
+              }}
+              variant={prepareCallsQuery.isError ? 'primary' : 'positive'}
               width="grow"
             >
-              {prepareCallsQuery.isError ? 'Approve anyway' : 'Approve'}
+              {prepareCallsQuery.isError ? 'Retry' : 'Approve'}
             </Button>
           </Layout.Footer.Actions>
 
@@ -622,5 +658,177 @@ export namespace ActionRequest {
       quotes?: readonly Quote_schema.Quote[] | undefined
       status: 'pending' | 'error' | 'success'
     }
+  }
+
+  export function useIdentifyTx(
+    data: Hex.Hex | null,
+    assetDiffs: Capabilities.assetDiffs.AssetDiffAsset[],
+  ): useIdentifyTx.IdentifiedTx | null {
+    return React.useMemo(() => {
+      // assets diff based detection
+      const assetDiffTx = useIdentifyTx.identifyTxFromAssetsDiff(assetDiffs)
+
+      // calldata based detection
+      if (data) {
+        try {
+          const [calls] = decodeAbiParameters(useIdentifyTx.CallsAbi, data)
+          if (!calls.length) return assetDiffTx
+
+          const lastCall = calls[calls.length - 1]
+          if (!lastCall) return assetDiffTx
+
+          // only show the approve screen for single-call approvals
+          if (calls.length === 1) {
+            const approve = useIdentifyTx.identifyApprove(lastCall)
+            if (approve) return approve
+          }
+
+          if (assetDiffTx?.type === 'send') {
+            const to = useIdentifyTx.getTransferToAddress(lastCall)
+            if (to) return { ...assetDiffTx, to }
+          }
+        } catch {}
+      }
+
+      return assetDiffTx
+    }, [data, assetDiffs])
+  }
+
+  export namespace useIdentifyTx {
+    export function identifyApprove(call: {
+      to: Address.Address
+      data: Address.Address
+    }): IdentifiedTx | null {
+      try {
+        const decoded = decodeFunctionData({
+          abi: erc20Abi,
+          data: call.data,
+        })
+
+        if (decoded.functionName === 'approve') {
+          const [spender, amount] = decoded.args
+          return {
+            type: 'approve',
+            amount,
+            spender,
+            tokenAddress: call.to,
+          }
+        }
+      } catch {}
+      return null
+    }
+
+    export function getTransferToAddress(call: {
+      to: Address.Address
+      data: Address.Address
+      value?: bigint
+    }): Address.Address | null {
+      // native
+      if (call.value && call.value > 0n && call.data === '0x') return call.to
+
+      // erc20
+      try {
+        const decoded = decodeFunctionData({ abi: erc20Abi, data: call.data })
+        if (decoded.functionName === 'transfer') return decoded.args[0]
+        if (decoded.functionName === 'transferFrom') return decoded.args[1]
+      } catch {}
+
+      return null
+    }
+
+    export function identifyTxFromAssetsDiff(
+      assetDiffs: Capabilities.assetDiffs.AssetDiffAsset[],
+    ): IdentifiedTx | null {
+      if (!assetDiffs.length) return null
+
+      const outgoing = assetDiffs.filter(
+        (diff) => diff.direction === 'outgoing',
+      )
+      const incoming = assetDiffs.filter(
+        (diff) => diff.direction === 'incoming',
+      )
+
+      // swap: 1 out + 1 in
+      const swap =
+        outgoing.length === 1 &&
+        incoming.length === 1 &&
+        outgoing[0]?.type !== 'erc721' &&
+        incoming[0]?.type !== 'erc721'
+
+      // wrap / unwrap: ETH <> WETH swap
+      const wrap =
+        swap &&
+        outgoing[0]?.type === null &&
+        incoming[0]?.type === 'erc20' &&
+        incoming[0]?.symbol === 'WETH'
+      const unwrap =
+        swap &&
+        incoming[0]?.type === null &&
+        outgoing[0]?.type === 'erc20' &&
+        outgoing[0]?.symbol === 'WETH'
+      if (wrap || unwrap)
+        return {
+          type: 'convert',
+          assetIn: incoming[0] as SwapAsset,
+          assetOut: outgoing[0] as SwapAsset,
+          direction: wrap ? 'wrap' : 'unwrap',
+        }
+
+      // regular swap
+      if (swap)
+        return {
+          type: 'swap',
+          assetIn: incoming[0] as SwapAsset,
+          assetOut: outgoing[0] as SwapAsset,
+        }
+
+      // send: 1 outgoing
+      if (assetDiffs.length === 1 && assetDiffs[0]?.direction === 'outgoing')
+        return { type: 'send', asset: assetDiffs[0] }
+
+      return null
+    }
+
+    export const CallsAbi = [
+      {
+        components: [
+          { name: 'to', type: 'address' },
+          { name: 'value', type: 'uint256' },
+          { name: 'data', type: 'bytes' },
+        ],
+        type: 'tuple[]',
+      },
+    ] as const
+
+    type Asset = Capabilities.assetDiffs.AssetDiffAsset
+    type SwapAsset = Exclude<Asset, { type: 'erc721' }>
+
+    export type TxApprove = {
+      type: 'approve'
+      tokenAddress: Address.Address
+      spender: Address.Address
+      amount: bigint
+    }
+
+    export type TxSwap = {
+      type: 'swap'
+      assetIn: SwapAsset
+      assetOut: SwapAsset
+    }
+
+    export type TxSend = {
+      type: 'send'
+      asset: Asset
+      to?: Address.Address
+    }
+
+    export type TxConvert = {
+      assetIn: SwapAsset
+      assetOut: SwapAsset
+      direction: 'wrap' | 'unwrap'
+      type: 'convert'
+    }
+
+    export type IdentifiedTx = TxApprove | TxSwap | TxSend | TxConvert
   }
 }
