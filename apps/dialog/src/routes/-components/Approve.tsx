@@ -54,7 +54,7 @@ export function Approve(props: Approve.Props) {
       <Layout.Header>
         <Layout.Header.Default
           icon={LucideLockKeyholeOpen}
-          title="Authorize spend"
+          title="Allow spend"
           variant="default"
         />
       </Layout.Header>
