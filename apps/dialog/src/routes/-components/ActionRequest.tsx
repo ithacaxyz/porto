@@ -801,7 +801,7 @@ export namespace ActionRequest {
     ] as const
 
     type Asset = Capabilities.assetDiffs.AssetDiffAsset
-    type SwapAsset = Exclude<Asset, { type: 'erc721' }>
+    type CoinAsset = Exclude<Asset, { type: 'erc721' }>
 
     export type TxApprove = {
       type: 'approve'
@@ -812,19 +812,19 @@ export namespace ActionRequest {
 
     export type TxSwap = {
       type: 'swap'
-      assetIn: SwapAsset
-      assetOut: SwapAsset
+      assetIn: CoinAsset
+      assetOut: CoinAsset
     }
 
     export type TxSend = {
       type: 'send'
-      asset: Asset
+      asset: CoinAsset
       to?: Address.Address
     }
 
     export type TxConvert = {
-      assetIn: SwapAsset
-      assetOut: SwapAsset
+      assetIn: CoinAsset
+      assetOut: CoinAsset
       direction: 'wrap' | 'unwrap'
       type: 'convert'
     }
