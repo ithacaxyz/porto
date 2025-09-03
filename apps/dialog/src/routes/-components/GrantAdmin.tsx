@@ -2,12 +2,10 @@ import { Button } from '@porto/ui'
 import type { Hex } from 'ox'
 import type * as Address from 'ox/Address'
 import { Key } from 'porto'
-import type * as Token from 'porto/core/internal/schema/token.js'
-import { Hooks } from 'porto/remote'
-
+import type * as Token from 'porto/core/internal/schema/token'
+import { Hooks as RemoteHooks } from 'porto/remote'
 import { CheckBalance } from '~/components/CheckBalance'
 import * as Calls from '~/lib/Calls'
-import { useResolvedChainId } from '~/lib/ChainResolver'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import { StringFormatter } from '~/utils'
@@ -19,13 +17,13 @@ export function GrantAdmin(props: GrantAdmin.Props) {
   const { authorizeKey, feeToken, loading, onApprove, onReject, chainId } =
     props
 
-  const account = Hooks.useAccount(porto)
+  const account = RemoteHooks.useAccount(porto)
 
-  const resolvedChainId = useResolvedChainId({ chainId })
+  const chain = RemoteHooks.useChain(porto, { chainId })
 
   const prepareCallsQuery = Calls.prepareCalls.useQuery({
     authorizeKeys: [Key.from(authorizeKey)],
-    chainId: resolvedChainId,
+    chainId: chain?.id,
     feeToken,
   })
   const { capabilities } = prepareCallsQuery.data ?? {}
