@@ -69,13 +69,17 @@ export function ActionRequest(props: ActionRequest.Props) {
   })
 
   const quotes = capabilities?.quote?.quotes ?? []
+  const quote_destination = quotes.at(-1)
+  const sponsored =
+    quote_destination?.intent?.payer !==
+    '0x0000000000000000000000000000000000000000'
 
   const identified = ActionRequest.useIdentifyTx(
-    quotes.at(-1)?.intent.executionData ?? null,
+    quote_destination?.intent.executionData ?? null,
     assetDiff,
   )
 
-  const destinationChainId = quotes[quotes.length - 1]?.chainId
+  const destinationChainId = quote_destination?.chainId
 
   if (identified?.type === 'approve')
     return (
@@ -83,7 +87,7 @@ export function ActionRequest(props: ActionRequest.Props) {
         amount={identified.amount}
         approving={loading}
         chainId={destinationChainId}
-        fees={feeTotals}
+        fees={sponsored ? undefined : feeTotals}
         loading={prepareCallsQuery.isPending}
         onApprove={() => {
           if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
@@ -94,58 +98,6 @@ export function ActionRequest(props: ActionRequest.Props) {
       />
     )
 
-  if (identified?.type === 'swap')
-    return (
-      <Swap
-        assetIn={identified.assetIn}
-        assetOut={identified.assetOut}
-        chainId={destinationChainId}
-        contractAddress={calls[0]?.to}
-        fees={feeTotals}
-        loading={prepareCallsQuery.isPending}
-        onApprove={() => {
-          if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
-        }}
-        onReject={onReject}
-        swapping={loading}
-        swapType="swap"
-      />
-    )
-
-  if (identified?.type === 'convert')
-    return (
-      <Swap
-        assetIn={identified.assetIn}
-        assetOut={identified.assetOut}
-        chainId={destinationChainId}
-        contractAddress={calls[0]?.to}
-        fees={feeTotals}
-        loading={prepareCallsQuery.isPending}
-        onApprove={() => {
-          if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
-        }}
-        onReject={onReject}
-        swapping={loading}
-        swapType="convert"
-      />
-    )
-
-  if (identified?.type === 'send' && identified.to)
-    return (
-      <Send
-        asset={identified.asset}
-        chainId={destinationChainId}
-        fees={feeTotals}
-        loading={prepareCallsQuery.isPending}
-        onApprove={() => {
-          if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
-        }}
-        onReject={onReject}
-        sending={loading}
-        to={identified.to}
-      />
-    )
-
   return (
     <CheckBalance
       address={address}
@@ -153,68 +105,98 @@ export function ActionRequest(props: ActionRequest.Props) {
       onReject={onReject}
       query={prepareCallsQuery}
     >
-      <Layout>
-        <Layout.Header>
-          <Layout.Header.Default
-            icon={prepareCallsQuery.isError ? TriangleAlert : Star}
-            title="Review action"
-            variant={prepareCallsQuery.isError ? 'warning' : 'default'}
-          />
-        </Layout.Header>
+      {identified?.type === 'swap' || identified?.type === 'convert' ? (
+        <Swap
+          assetIn={identified.assetIn}
+          assetOut={identified.assetOut}
+          chainId={destinationChainId}
+          contractAddress={calls[0]?.to}
+          fees={sponsored ? undefined : feeTotals}
+          loading={prepareCallsQuery.isPending}
+          onApprove={() => {
+            if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
+          }}
+          onReject={onReject}
+          swapping={loading}
+          swapType={identified.type}
+        />
+      ) : identified?.type === 'send' && identified.to ? (
+        <Send
+          asset={identified.asset}
+          chainId={destinationChainId}
+          fees={sponsored ? undefined : feeTotals}
+          loading={prepareCallsQuery.isPending}
+          onApprove={() => {
+            if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
+          }}
+          onReject={onReject}
+          sending={loading}
+          to={identified.to}
+        />
+      ) : (
+        <Layout>
+          <Layout.Header>
+            <Layout.Header.Default
+              icon={prepareCallsQuery.isError ? TriangleAlert : Star}
+              title="Review action"
+              variant={prepareCallsQuery.isError ? 'warning' : 'default'}
+            />
+          </Layout.Header>
 
-        <Layout.Content className="pb-2!">
-          <ActionRequest.PaneWithDetails
-            error={prepareCallsQuery.error}
-            errorMessage="An error occurred while simulating the action. Proceed with caution."
-            feeTotals={feeTotals}
-            quotes={quotes}
-            status={
-              prepareCallsQuery.isPending
-                ? 'pending'
-                : prepareCallsQuery.isError
-                  ? 'error'
-                  : 'success'
-            }
-          >
-            {assetDiff.length > 0 ? (
-              <ActionRequest.AssetDiff assetDiff={assetDiff} />
-            ) : undefined}
-          </ActionRequest.PaneWithDetails>
-        </Layout.Content>
-
-        <Layout.Footer>
-          <Layout.Footer.Actions>
-            <Button
-              disabled={prepareCallsQuery.isPending || loading}
-              onClick={onReject}
-              variant="negative-secondary"
+          <Layout.Content className="pb-2!">
+            <ActionRequest.PaneWithDetails
+              error={prepareCallsQuery.error}
+              errorMessage="An error occurred while simulating the action. Proceed with caution."
+              feeTotals={feeTotals}
+              quotes={quotes}
+              status={
+                prepareCallsQuery.isPending
+                  ? 'pending'
+                  : prepareCallsQuery.isError
+                    ? 'error'
+                    : 'success'
+              }
             >
-              {prepareCallsQuery.isError ? 'Cancel' : 'Deny'}
-            </Button>
-            <Button
-              data-testid="confirm"
-              disabled={!prepareCallsQuery.isSuccess}
-              loading={loading && 'Sending…'}
-              onClick={() => {
-                if (prepareCallsQuery.isError) {
-                  prepareCallsQuery.refetch()
-                  return
-                }
-                if (prepareCallsQuery.isSuccess)
-                  onApprove(prepareCallsQuery.data)
-              }}
-              variant={prepareCallsQuery.isError ? 'primary' : 'positive'}
-              width="grow"
-            >
-              {prepareCallsQuery.isError ? 'Retry' : 'Approve'}
-            </Button>
-          </Layout.Footer.Actions>
+              {assetDiff.length > 0 ? (
+                <ActionRequest.AssetDiff assetDiff={assetDiff} />
+              ) : undefined}
+            </ActionRequest.PaneWithDetails>
+          </Layout.Content>
 
-          {account?.address && (
-            <Layout.Footer.Account address={account.address} />
-          )}
-        </Layout.Footer>
-      </Layout>
+          <Layout.Footer>
+            <Layout.Footer.Actions>
+              <Button
+                disabled={prepareCallsQuery.isPending || loading}
+                onClick={onReject}
+                variant="negative-secondary"
+              >
+                {prepareCallsQuery.isError ? 'Cancel' : 'Deny'}
+              </Button>
+              <Button
+                data-testid="confirm"
+                disabled={!prepareCallsQuery.isSuccess}
+                loading={loading && 'Sending…'}
+                onClick={() => {
+                  if (prepareCallsQuery.isError) {
+                    prepareCallsQuery.refetch()
+                    return
+                  }
+                  if (prepareCallsQuery.isSuccess)
+                    onApprove(prepareCallsQuery.data)
+                }}
+                variant={prepareCallsQuery.isError ? 'primary' : 'positive'}
+                width="grow"
+              >
+                {prepareCallsQuery.isError ? 'Retry' : 'Approve'}
+              </Button>
+            </Layout.Footer.Actions>
+
+            {account?.address && (
+              <Layout.Footer.Account address={account.address} />
+            )}
+          </Layout.Footer>
+        </Layout>
+      )}
     </CheckBalance>
   )
 }
@@ -768,8 +750,8 @@ export namespace ActionRequest {
         outgoing[0]?.symbol === 'WETH'
       if (wrap || unwrap)
         return {
-          assetIn: incoming[0] as SwapAsset,
-          assetOut: outgoing[0] as SwapAsset,
+          assetIn: incoming[0] as CoinAsset,
+          assetOut: outgoing[0] as CoinAsset,
           direction: wrap ? 'wrap' : 'unwrap',
           type: 'convert',
         }
@@ -777,14 +759,21 @@ export namespace ActionRequest {
       // regular swap
       if (swap)
         return {
-          assetIn: incoming[0] as SwapAsset,
-          assetOut: outgoing[0] as SwapAsset,
+          assetIn: incoming[0] as CoinAsset,
+          assetOut: outgoing[0] as CoinAsset,
           type: 'swap',
         }
 
       // send: 1 outgoing
-      if (assetDiffs.length === 1 && assetDiffs[0]?.direction === 'outgoing')
-        return { asset: assetDiffs[0], type: 'send' }
+      if (
+        assetDiffs.length === 1 &&
+        assetDiffs[0]?.direction === 'outgoing' &&
+        assetDiffs[0].type !== 'erc721'
+      )
+        return {
+          asset: assetDiffs[0],
+          type: 'send',
+        }
 
       return null
     }
