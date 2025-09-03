@@ -39,7 +39,13 @@ export namespace toRelay {
   export type Value = Capabilities.requiredFunds.Request
 
   export type Options = {
+<<<<<<< HEAD
     tokens: readonly Token.Token[]
+||||||| parent of bc3f8c7c (refactor: `Tokens` module)
+    feeTokens: readonly FeeToken.FeeToken[]
+=======
+    feeTokens: readonly Token.Token[]
+>>>>>>> bc3f8c7c (refactor: `Tokens` module)
   }
   export type ReturnType = Capabilities_relay.requiredFunds.Request
 }

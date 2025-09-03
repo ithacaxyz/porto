@@ -650,9 +650,21 @@ describe('feeToken', () => {
         `
         [Schema.ValidationError: Validation failed with 1 error:
 
+<<<<<<< HEAD
         - at \`supported\`: Expected boolean. ]
       `,
       )
+||||||| parent of bc3f8c7c (refactor: `Tokens` module)
+        Details: { readonly supported: boolean; readonly tokens: ReadonlyArray<{ readonly address: \`0x\${string}\`; readonly decimals: number; readonly interop?: boolean | undefined; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string; readonly uid: string }> }
+        └─ ["supported"]
+           └─ is missing]
+      `)
+=======
+        Details: { readonly supported: boolean; readonly tokens: ReadonlyArray<{ readonly address: \`0x\${string}\`; readonly decimals: number; readonly feeToken?: boolean | undefined; readonly interop?: boolean | undefined; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string; readonly uid: string }> }
+        └─ ["supported"]
+           └─ is missing]
+      `)
+>>>>>>> bc3f8c7c (refactor: `Tokens` module)
     })
 
     test('behavior: encode response with empty tokens', () => {
@@ -789,12 +801,32 @@ describe('feeToken', () => {
         `
         [Schema.ValidationError: Validation failed with 4 errors:
 
+<<<<<<< HEAD
         - at \`tokens[0].address\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
         - at \`tokens[0].decimals\`: Expected number. 
         - at \`tokens[0].symbol\`: Expected string. 
         - at \`tokens[0].uid\`: Expected string. ]
       `,
       )
+||||||| parent of bc3f8c7c (refactor: `Tokens` module)
+        Details: { readonly supported: boolean; readonly tokens: ReadonlyArray<{ readonly address: \`0x\${string}\`; readonly decimals: number; readonly interop?: boolean | undefined; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string; readonly uid: string }> }
+        └─ ["tokens"]
+           └─ ReadonlyArray<{ readonly address: \`0x\${string}\`; readonly decimals: number; readonly interop?: boolean | undefined; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string; readonly uid: string }>
+              └─ [0]
+                 └─ { readonly address: \`0x\${string}\`; readonly decimals: number; readonly interop?: boolean | undefined; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string; readonly uid: string }
+                    └─ ["address"]
+                       └─ is missing]
+      `)
+=======
+        Details: { readonly supported: boolean; readonly tokens: ReadonlyArray<{ readonly address: \`0x\${string}\`; readonly decimals: number; readonly feeToken?: boolean | undefined; readonly interop?: boolean | undefined; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string; readonly uid: string }> }
+        └─ ["tokens"]
+           └─ ReadonlyArray<{ readonly address: \`0x\${string}\`; readonly decimals: number; readonly feeToken?: boolean | undefined; readonly interop?: boolean | undefined; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string; readonly uid: string }>
+              └─ [0]
+                 └─ { readonly address: \`0x\${string}\`; readonly decimals: number; readonly feeToken?: boolean | undefined; readonly interop?: boolean | undefined; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string; readonly uid: string }
+                    └─ ["address"]
+                       └─ is missing]
+      `)
+>>>>>>> bc3f8c7c (refactor: `Tokens` module)
     })
   })
 
