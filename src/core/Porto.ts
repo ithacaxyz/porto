@@ -111,11 +111,10 @@ export function create(
                 Utils.normalizeValue(account),
               ),
               chainIds: state.chainIds,
-              feeToken: state.feeToken,
             } as unknown as State
           },
           storage: config.storage,
-          version: 3,
+          version: 4,
         },
       ),
     ),
