@@ -13,8 +13,8 @@ import { dialog } from './internal/modes/dialog.js'
 import { relay } from './internal/modes/relay.js'
 import type * as internal from './internal/porto.js'
 import * as Provider from './internal/provider.js'
-import type * as FeeToken from './internal/schema/feeToken.js'
 import type * as Rpc from './internal/schema/rpc.js'
+import type * as Token from './internal/schema/token.js'
 import type * as Siwe from './internal/siwe.js'
 import type { ExactPartial, OneOf } from './internal/types.js'
 import * as Utils from './internal/utils.js'
@@ -233,7 +233,7 @@ export type State<
 > = {
   accounts: readonly Account.Account[]
   chainIds: readonly [chains[number]['id'], ...chains[number]['id'][]]
-  feeToken: FeeToken.Symbol | undefined
+  feeToken: Token.Symbol | undefined
   requestQueue: readonly QueuedRequest[]
 }
 

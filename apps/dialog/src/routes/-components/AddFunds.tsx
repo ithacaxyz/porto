@@ -9,7 +9,7 @@ import {
   useQuery,
 } from '@tanstack/react-query'
 import { Cuer } from 'cuer'
-import { Address, Hex, Value } from 'ox'
+import { type Address, Hex, Value } from 'ox'
 import { Hooks as RemoteHooks } from 'porto/remote'
 import { RelayActions } from 'porto/viem'
 import { Hooks } from 'porto/wagmi'
@@ -26,8 +26,8 @@ import {
   useWatchBlockNumber,
   WagmiProvider,
 } from 'wagmi'
-import * as FeeTokens from '~/lib/FeeTokens'
 import { porto } from '~/lib/Porto'
+import * as Tokens from '~/lib/Tokens'
 import { Layout } from '~/routes/-components/Layout'
 import LucideCopy from '~icons/lucide/copy'
 import LucideCopyCheck from '~icons/lucide/copy-check'
@@ -59,18 +59,13 @@ export function AddFunds(props: AddFunds.Props) {
   const account = RemoteHooks.useAccount(porto)
   const address = props.address ?? account?.address
   const chain = RemoteHooks.useChain(porto, { chainId })
-  const { data: feeTokens } = FeeTokens.fetch.useQuery({
+  const { data: tokens } = Tokens.getTokens.useQuery()
+  const { data: token } = Tokens.getTokens.useQuery({
     addressOrSymbol: tokenAddress,
+    select(data) {
+      return data?.[0]
+    },
   })
-  const feeToken = React.useMemo(
-    () =>
-      tokenAddress
-        ? feeTokens?.find((token) =>
-            Address.isEqual(token.address, tokenAddress),
-          )
-        : undefined,
-    [feeTokens, tokenAddress],
-  )
 
   const { data: assets, refetch: refetchAssets } = Hooks.useAssets({
     account: account?.address,
@@ -85,20 +80,19 @@ export function AddFunds(props: AddFunds.Props) {
   })
   const balanceMap = React.useMemo(() => {
     const addressBalanceMap = new Map<Address.Address, bigint>()
-    if (!assets || !feeTokens) return addressBalanceMap
-    const feeTokenAddressMap = new Map<Address.Address, boolean>()
-    for (const feeToken of feeTokens)
-      feeTokenAddressMap.set(feeToken.address, true)
+    if (!assets || !tokens) return addressBalanceMap
+    const tokenAddressMap = new Map<Address.Address, boolean>()
+    for (const token of tokens) tokenAddressMap.set(token!.address, true)
     for (const asset of assets) {
       const address =
         (asset.address === 'native' || asset.type === 'native'
           ? zeroAddress
           : asset.address) ?? zeroAddress
-      if (feeTokenAddressMap.has(address))
+      if (tokenAddressMap.has(address))
         addressBalanceMap.set(address, asset.balance)
     }
     return addressBalanceMap
-  }, [assets, feeTokens])
+  }, [assets, tokens])
   useWatchBlockNumber({
     enabled: Boolean(account?.address),
     onBlockNumber() {
@@ -107,7 +101,7 @@ export function AddFunds(props: AddFunds.Props) {
   })
   const previousBalanceMap = usePrevious({ value: balanceMap })
 
-  // Close dialog when one of the fee token is greater than before
+  // Close dialog when one of the token is greater than before
   React.useEffect(() => {
     if (typeof previousBalanceMap === 'undefined') return
     for (const [address, balance] of balanceMap) {
@@ -122,10 +116,10 @@ export function AddFunds(props: AddFunds.Props) {
     if (view !== 'default') return false
     // Show faucet if on a testnet and no target token is provided.
     if (!tokenAddress && chain?.testnet) return true
-    // Show faucet if the fee token is an EXP token.
-    if (feeToken?.uid.startsWith('exp')) return true
+    // Show faucet if the token is an EXP token.
+    if (token?.uid.startsWith('exp')) return true
     return false
-  }, [chain, feeToken, tokenAddress, view])
+  }, [chain, token, tokenAddress, view])
 
   if (view === 'error')
     return (
@@ -195,7 +189,7 @@ export function AddFunds(props: AddFunds.Props) {
               <Faucet
                 address={address}
                 chainId={chain?.id}
-                decimals={feeToken?.decimals}
+                decimals={token?.decimals}
                 defaultValue={value}
                 onApprove={onApprove}
                 tokenAddress={tokenAddress}
@@ -213,10 +207,10 @@ export function AddFunds(props: AddFunds.Props) {
               <DepositCrypto
                 address={address}
                 chainId={chain?.id}
-                feeToken={feeToken}
                 minValue={value}
                 nativeTokenName={chain?.nativeCurrency?.symbol}
                 setView={setView}
+                token={token}
                 tokenAddress={tokenAddress}
                 view={view}
               />
@@ -331,7 +325,7 @@ function Faucet(props: {
 function DepositCrypto(props: {
   address: Address.Address | undefined
   chainId: number | undefined
-  feeToken: FeeTokens.FeeToken | undefined
+  token: Tokens.Token | undefined
   minValue: string | undefined
   nativeTokenName: string | undefined
   tokenAddress: Address.Address | undefined
@@ -341,7 +335,7 @@ function DepositCrypto(props: {
   const {
     address,
     chainId,
-    feeToken,
+    token,
     minValue,
     nativeTokenName,
     tokenAddress,
@@ -363,7 +357,7 @@ function DepositCrypto(props: {
           })
           const assets = response[hexChainId] ?? []
           const minAssetBalance = minValue
-            ? Value.from(minValue, feeToken?.decimals ?? 18)
+            ? Value.from(minValue, token?.decimals ?? 18)
             : 0n
 
           const nonZeroAssets = assets.filter(
@@ -564,7 +558,7 @@ function DepositCrypto(props: {
       )
     return (
       <div className="flex flex-col gap-3">
-        <QRCard address={address ?? ''} feeToken={feeToken} />
+        <QRCard address={address ?? ''} token={token} />
         <Button
           onClick={() => {
             disconnect.disconnect()
@@ -609,16 +603,13 @@ function DepositCrypto(props: {
         ))}
       </div>
 
-      <QRCard address={address ?? ''} feeToken={feeToken} />
+      <QRCard address={address ?? ''} token={token} />
     </div>
   )
 }
 
-function QRCard(props: {
-  address: string
-  feeToken: FeeTokens.FeeToken | undefined
-}) {
-  const { address, feeToken } = props
+function QRCard(props: { address: string; token: Tokens.Token | undefined }) {
+  const { address, token } = props
   const [isCopied, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
   return (
     <div className="flex items-center justify-between rounded-th_medium bg-th_secondary p-2">
@@ -631,7 +622,7 @@ function QRCard(props: {
         </div>
         <div className="flex flex-col gap-0.5">
           <div className="font-medium text-[13px]">
-            Send {feeToken?.symbol ?? 'directly'}
+            Send {token?.symbol ?? 'directly'}
           </div>
           <div className="min-w-[21ch] max-w-[21ch] text-pretty break-all font-mono font-normal text-[10px] text-th_base-secondary leading-[14px]">
             {address}

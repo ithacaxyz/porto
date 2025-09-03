@@ -1,7 +1,7 @@
 import * as Value from 'ox/Value'
 import type * as Capabilities_relay from './relay/schema/capabilities.js'
 import type * as Capabilities from './schema/capabilities.js'
-import type * as FeeToken from './schema/feeToken.js'
+import type * as Token from './schema/token.js'
 
 /**
  * Transforms into Relay-formatted required funds.
@@ -42,7 +42,7 @@ export namespace toRelay {
   export type Value = Capabilities.requiredFunds.Request
 
   export type Options = {
-    feeTokens: readonly FeeToken.FeeToken[]
+    feeTokens: readonly Token.Token[]
   }
   export type ReturnType = Capabilities_relay.requiredFunds.Request
 }

@@ -5,11 +5,11 @@ import { type Account, RelayActions } from 'porto'
 import * as PreCalls from 'porto/core/internal/preCalls'
 import * as RequiredFunds from 'porto/core/internal/requiredFunds'
 import type * as Capabilities_schema from 'porto/core/internal/schema/capabilities'
-import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken'
+import type * as Token from 'porto/core/internal/schema/token'
 import { Hooks } from 'porto/remote'
 import type { RelayClient } from 'porto/viem'
-import * as FeeTokens from './FeeTokens'
 import { porto } from './Porto'
+import * as Tokens from './Tokens'
 
 const multichain = Env.get() !== 'anvil'
 
@@ -42,7 +42,7 @@ export namespace prepareCalls {
         if (!account) throw new Error('account is required.')
 
         const feeTokens = await Query_porto.client.ensureQueryData(
-          FeeTokens.fetch.queryOptions(client, {
+          Tokens.resolveFeeTokens.queryOptions(client, {
             addressOrSymbol: feeToken,
           }),
         )
@@ -111,7 +111,7 @@ export namespace prepareCalls {
         'authorizeKeys' | 'calls' | 'feePayer' | 'nonce' | 'revokeKeys'
       > & {
         account?: Account.Account | undefined
-        feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
+        feeToken?: Token.Symbol | Address.Address | undefined
         merchantRpcUrl?: string | undefined
         requiredFunds?: Capabilities_schema.requiredFunds.Request | undefined
       }
