@@ -2,6 +2,7 @@ import { ChainIcon } from '@porto/apps/components'
 import { Button, ButtonArea } from '@porto/ui'
 import { a, useTransition } from '@react-spring/web'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
+import { Hooks as RemoteHooks } from 'porto/remote'
 import * as React from 'react'
 import { CopyButton } from '~/components/CopyButton'
 import { porto } from '~/lib/Porto'
@@ -197,10 +198,7 @@ export namespace Send {
       }
     }, [fees])
 
-    const chain = React.useMemo(
-      () => porto.config.chains.find((chain) => chain.id === chainId),
-      [chainId],
-    )
+    const chain = RemoteHooks.useChain(porto, { chainId })
 
     if (loading)
       return (
