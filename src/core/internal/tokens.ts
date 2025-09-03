@@ -9,6 +9,13 @@ import type * as Token from './schema/token.js'
 export type { Token } from './schema/token.js'
 export type Tokens = readonly Token.Token[]
 
+/**
+ * Fetches all supported tokens for a given chain.
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns Tokens.
+ */
 export async function getTokens<chain extends Chains.Chain | undefined>(
   client: Client<Transport, chain>,
   parameters?: getTokens.Parameters<chain>,
@@ -30,6 +37,13 @@ export declare namespace getTokens {
   export type ReturnType = readonly Token.Token[]
 }
 
+/**
+ * Fetches a token for a given chain, provided an address or symbol.
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns Token.
+ */
 export async function getToken<chain extends Chains.Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getToken.Parameters<chain>,
@@ -58,6 +72,14 @@ export namespace getToken {
   }
 }
 
+/**
+ * Resolves fee tokens for a given chain. Prioritizes the provided address or symbol,
+ * or the default fee token stored in state.
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns Fee tokens.
+ */
 export async function resolveFeeTokens<chain extends Chains.Chain | undefined>(
   client: Client<Transport, chain>,
   parameters?: resolveFeeTokens.Parameters<chain> | undefined,

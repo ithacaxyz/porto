@@ -8,7 +8,7 @@ import { porto } from './Porto.js'
 export type { Token } from 'porto/core/internal/tokens'
 
 /**
- * Fetches all supported tokens from the Relay for a given chain.
+ * Fetches all supported tokens for a given chain.
  */
 export namespace getTokens {
   export function queryOptions<data = queryOptions.Data>(
@@ -66,6 +66,9 @@ export namespace getTokens {
   }
 }
 
+/**
+ * Fetches a supported token for a given chain, provided an address or symbol.
+ */
 export namespace getToken {
   export function queryOptions(
     client: Client<Transport, Chain>,
@@ -106,6 +109,10 @@ export namespace getToken {
   }
 }
 
+/**
+ * Resolves fee tokens for a given chain. Prioritizes the provded address or symbol,
+ * or the default fee token stored in state.
+ */
 export namespace resolveFeeTokens {
   export function queryOptions(
     client: Client<Transport, Chain>,
