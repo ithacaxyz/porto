@@ -2,12 +2,12 @@ import * as Schema from 'effect/Schema'
 import * as Quotes from '../relay/schema/quotes.js'
 import * as Rpc_relay from '../relay/schema/rpc.js'
 import * as C from './capabilities.js'
-import * as Key from './key.js'
+import * as Key_schema from './key.js'
 import * as Permissions from './permissions.js'
 import * as Primitive from './primitive.js'
 
 const KeyWithCredentialId = Schema.extend(
-  Key.Base.pick('id', 'publicKey', 'type'),
+  Key_schema.Base.pick('id', 'publicKey', 'type'),
   Schema.Struct({
     credentialId: Schema.optional(Schema.String),
     privateKey: Schema.optional(Schema.Any),
@@ -200,11 +200,8 @@ export namespace wallet_getAdmins {
 
   export const Key = KeyWithCredentialId
 
-  export const Response = Schema.Struct({
-    address: Primitive.Address,
-    chainId: Primitive.Number,
-    keys: Schema.Array(Key),
-  }).annotations({
+  // Align return type with `wallet_getKeys` (array of Key.WithPermissions)
+  export const Response = Schema.Array(Key_schema.WithPermissions).annotations({
     identifier: 'Rpc.wallet_getAdmins.Response',
   })
   export type Response = typeof Response.Type
@@ -226,7 +223,7 @@ export namespace wallet_grantAdmin {
     /** Chain ID. */
     chainId: Schema.optional(Primitive.Number),
     /** Admin Key to authorize. */
-    key: Key.Base.pick('publicKey', 'type'),
+    key: Key_schema.Base.pick('publicKey', 'type'),
   }).annotations({
     identifier: 'Rpc.wallet_grantAdmin.Parameters',
   })
@@ -467,7 +464,7 @@ export namespace wallet_connect {
     createAccount: Schema.optional(C.createAccount.Request),
     email: Schema.optional(Schema.Boolean),
     grantAdmins: Schema.optional(
-      Schema.Array(Key.Base.pick('publicKey', 'type')),
+      Schema.Array(Key_schema.Base.pick('publicKey', 'type')),
     ),
     grantPermissions: Schema.optional(C.grantPermissions.Request),
     preCalls: Schema.optional(C.preCalls.Request),
@@ -509,7 +506,7 @@ export namespace wallet_connect {
     admins: Schema.optional(
       Schema.Array(
         Schema.extend(
-          Key.Base.pick('id', 'publicKey', 'type'),
+          Key_schema.Base.pick('id', 'publicKey', 'type'),
           Schema.Struct({
             credentialId: Schema.optional(Schema.String),
           }),
@@ -653,7 +650,7 @@ export namespace wallet_getKeys {
   })
   export type Request = typeof Request.Type
 
-  export const Response = Schema.Array(Key.WithPermissions).annotations({
+  export const Response = Schema.Array(Key_schema.WithPermissions).annotations({
     identifier: 'Rpc.wallet_getKeys.Response',
   })
   export type Response = typeof Response.Type
@@ -682,7 +679,7 @@ export namespace wallet_prepareCalls {
     capabilities: Schema.optional(Capabilities),
     chainId: Schema.optional(Primitive.Number),
     from: Schema.optional(Primitive.Address),
-    key: Schema.optional(Key.Base.pick('prehash', 'publicKey', 'type')),
+    key: Schema.optional(Key_schema.Base.pick('prehash', 'publicKey', 'type')),
     version: Schema.optional(Schema.String),
   }).annotations({
     identifier: 'Rpc.wallet_prepareCalls.Parameters',
@@ -716,7 +713,7 @@ export namespace wallet_prepareCalls {
       quote: Schema.optional(Schema.partial(Quotes.Signed)),
     }),
     digest: Primitive.Hex,
-    key: Key.Base.pick('prehash', 'publicKey', 'type'),
+    key: Key_schema.Base.pick('prehash', 'publicKey', 'type'),
     typedData: Schema.Struct({
       domain: Schema.Union(
         Schema.Struct({

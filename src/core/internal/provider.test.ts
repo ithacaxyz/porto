@@ -489,11 +489,11 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         ],
       })
 
-      const { address, keys } = await porto.provider.request({
+      const admins = await porto.provider.request({
         method: 'wallet_getAdmins',
       })
-      expect(address).toBeDefined()
-      expect(keys.length).toBe(1)
+      expect(Array.isArray(admins)).toBe(true)
+      expect(admins.length).toBe(1)
     })
 
     test('behavior: disconnected', async () => {
@@ -526,11 +526,11 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         method: 'wallet_connect',
       })
 
-      const { address, keys } = await porto.provider.request({
+      const admins = await porto.provider.request({
         method: 'wallet_getAdmins',
       })
-      expect(address).toBeDefined()
-      expect(keys.length).toBe(1)
+      expect(Array.isArray(admins)).toBe(true)
+      expect(admins.length).toBe(1)
     })
   })
 

@@ -345,10 +345,12 @@ export function from<
             type: 'adminsChanged',
           })
 
+          // For response, return minimized key shape (compat with schema).
+          const key_summary = getAdminSummaries([key])[0]!
           return Schema.encodeSync(Rpc.wallet_grantAdmin.Response)({
             address: account.address,
             chainId: client.chain.id,
-            key: admins.at(-1)!,
+            key: key_summary,
           })
         }
 
@@ -441,11 +443,7 @@ export function from<
           })
           const admins = getAdmins(keys)
 
-          return Schema.encodeSync(Rpc.wallet_getAdmins.Response)({
-            address: account.address,
-            chainId: client.chain.id,
-            keys: admins,
-          })
+          return admins
         }
 
         case 'wallet_prepareUpgradeAccount': {
@@ -695,7 +693,7 @@ export function from<
             signatures,
           })
 
-          const admins = getAdmins(account.keys ?? [])
+          const admins = getAdminSummaries(account.keys ?? [])
           const permissions = getActivePermissions(account.keys ?? [], {
             address: account.address,
           })
@@ -845,7 +843,7 @@ export function from<
             accounts: accounts.map((account) => ({
               address: account.address,
               capabilities: {
-                admins: account.keys ? getAdmins(account.keys) : [],
+                admins: account.keys ? getAdminSummaries(account.keys) : [],
                 permissions: account.keys
                   ? getActivePermissions(account.keys, {
                       address: account.address,
@@ -1188,7 +1186,14 @@ function announce(provider: Provider) {
 
 function getAdmins(
   keys: readonly Key.Key[],
-): (typeof Rpc.wallet_getAdmins.Response.Encoded)['keys'] {
+): typeof Rpc.wallet_getAdmins.Response.Encoded {
+  const admins = keys.filter((key) => key.role === 'admin')
+  return Schema.encodeSync(Rpc.wallet_getAdmins.Response)(admins as any)
+}
+
+function getAdminSummaries(
+  keys: readonly Key.Key[],
+): (typeof Rpc.wallet_getAdmins.Key.Encoded)[] {
   return keys
     .map((key) => {
       if (key.role !== 'admin') return undefined
@@ -1213,7 +1218,7 @@ function getAdmins(
         return undefined
       }
     })
-    .filter(Boolean) as never
+    .filter(Boolean) as (typeof Rpc.wallet_getAdmins.Key.Encoded)[]
 }
 
 function getActivePermissions(

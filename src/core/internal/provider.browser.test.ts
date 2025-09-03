@@ -105,11 +105,11 @@ describe('wallet_getAdmins', () => {
       (iframe) => iframe.getByTestId('sign-up').click(),
     )
 
-    const { address, keys } = await porto.provider.request({
+    const admins = await porto.provider.request({
       method: 'wallet_getAdmins',
     })
-    expect(address).toBeDefined()
-    expect(keys.length).toBe(1)
+    expect(Array.isArray(admins)).toBe(true)
+    expect(admins.length).toBe(1)
   })
 
   test('behavior: disconnect > connect > getAdmins', async () => {
@@ -130,11 +130,11 @@ describe('wallet_getAdmins', () => {
       (iframe) => iframe.getByTestId('sign-in').click(),
     )
 
-    const { address, keys } = await porto.provider.request({
+    const admins = await porto.provider.request({
       method: 'wallet_getAdmins',
     })
-    expect(address).toBeDefined()
-    expect(keys.length).toBe(1)
+    expect(Array.isArray(admins)).toBe(true)
+    expect(admins.length).toBe(1)
   })
 })
 

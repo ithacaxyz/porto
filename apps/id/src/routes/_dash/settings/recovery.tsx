@@ -154,14 +154,14 @@ function RouteComponent() {
         </ol>
 
         <ul className="mb-6 flex flex-col">
-          {data?.keys.map((key) => (
+          {data?.map((key) => (
             <li key={key.id}>
               <pre>{JSON.stringify(key, null, 2)}</pre>
               <Ui.Button
                 onClick={() =>
                   revokeAdmin.mutate({
                     address: account.address,
-                    chainId: data.chainId as never,
+                    chainId: key.chainId as never,
                     id: key.id,
                   })
                 }

@@ -180,15 +180,12 @@ describe('getAdmins', () => {
     })
 
     {
-      const response = await WalletActions.getAdmins(walletClient)
-      const [, key] = response.keys
-      expect(key).toMatchInlineSnapshot(`
-        {
-          "id": "0x0000000000000000000000000000000000000000",
-          "publicKey": "0x0000000000000000000000000000000000000000",
-          "type": "address",
-        }
-      `)
+      const admins = await WalletActions.getAdmins(walletClient)
+      expect(admins.length).toBeGreaterThanOrEqual(2)
+      const key = admins[1]!
+      expect(key.publicKey).toBe('0x0000000000000000000000000000000000000000')
+      expect(key.type).toBe('address')
+      expect(key.role).toBe('admin')
     }
   })
 })

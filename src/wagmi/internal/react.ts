@@ -21,9 +21,6 @@ import type {
   UseQueryParameters,
   UseQueryReturnType,
 } from 'wagmi/query'
-import * as Schema from '../../core/internal/schema/schema.js'
-
-import * as RpcSchema from '../../core/RpcSchema.js'
 import {
   addFunds,
   connect,
@@ -128,12 +125,7 @@ export function useAdmins<
         (await activeConnector.getProvider?.()) as EIP1193Provider
       provider.current?.on('message', (event) => {
         if (event.type !== 'adminsChanged') return
-        queryClient.setQueryData(queryKey, (data: any) => ({
-          ...data,
-          keys: Schema.decodeUnknownSync(
-            RpcSchema.wallet_getAdmins.Response.fields.keys,
-          )(event.data),
-        }))
+        queryClient.invalidateQueries({ queryKey })
       })
     })()
   }, [address, activeConnector, queryClient])
