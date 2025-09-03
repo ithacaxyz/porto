@@ -11,6 +11,7 @@ import * as C from './capabilities.js'
 import * as Key from './key.js'
 import * as PreCall from './preCall.js'
 import * as Quotes from './quotes.js'
+import * as Token from './token.js'
 
 const Authorization = Schema.Struct({
   address: Primitive.Address,
@@ -256,16 +257,7 @@ export namespace wallet_getCapabilities {
         /** Quote configuration. */
         recipient: Primitive.Address,
         /** Tokens the fees can be paid in. */
-        tokens: Schema.Array(
-          Schema.Struct({
-            address: Primitive.Address,
-            decimals: Schema.Number,
-            interop: Schema.optional(Schema.Boolean),
-            nativeRate: Schema.optional(Primitive.BigInt),
-            symbol: Schema.String,
-            uid: Schema.String,
-          }),
-        ),
+        tokens: Schema.Array(Token.Token),
       }),
     }),
   }).annotations({

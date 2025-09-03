@@ -2,7 +2,7 @@ import { Button } from '@porto/ui'
 import type { Hex } from 'ox'
 import type * as Address from 'ox/Address'
 import { Key } from 'porto'
-import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
+import type * as Token from 'porto/core/internal/schema/token.js'
 import { Hooks } from 'porto/remote'
 
 import { CheckBalance } from '~/components/CheckBalance'
@@ -94,7 +94,7 @@ export declare namespace GrantAdmin {
       publicKey: Hex.Hex
       type: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256'
     }
-    feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
+    feeToken?: Token.Symbol | Address.Address | undefined
     loading: boolean
     onApprove: () => void
     onReject: () => void

@@ -1,5 +1,5 @@
 import * as Schema from 'effect/Schema'
-import * as FeeToken from './feeToken.js'
+import * as Token from '../schema/token.js'
 import * as Permissions from './permissions.js'
 import * as Primitive from './primitive.js'
 import { OneOf } from './schema.js'
@@ -81,20 +81,11 @@ export namespace signInWithEthereum {
 export namespace feeToken {
   export const GetCapabilitiesResponse = Schema.Struct({
     supported: Schema.Boolean,
-    tokens: Schema.Array(
-      Schema.Struct({
-        address: Primitive.Address,
-        decimals: Schema.Number,
-        interop: Schema.optional(Schema.Boolean),
-        nativeRate: Schema.optional(Primitive.BigInt),
-        symbol: Schema.String,
-        uid: Schema.String,
-      }),
-    ),
+    tokens: Schema.Array(Token.Token),
   })
   export type GetCapabilitiesResponse = typeof GetCapabilitiesResponse.Type
 
-  export const Request = Schema.Union(FeeToken.Symbol, Primitive.Address)
+  export const Request = Schema.Union(Token.Symbol, Primitive.Address)
   export type Request = typeof Request.Type
 }
 
@@ -146,16 +137,7 @@ export namespace merchantRpcUrl {
 export namespace requiredFunds {
   export const GetCapabilitiesResponse = Schema.Struct({
     supported: Schema.Boolean,
-    tokens: Schema.Array(
-      Schema.Struct({
-        address: Primitive.Address,
-        decimals: Schema.Number,
-        interop: Schema.optional(Schema.Boolean),
-        nativeRate: Schema.optional(Primitive.BigInt),
-        symbol: Schema.String,
-        uid: Schema.String,
-      }),
-    ),
+    tokens: Schema.Array(Token.Token),
   })
   export type GetCapabilitiesResponse = typeof GetCapabilitiesResponse.Type
 
@@ -166,7 +148,7 @@ export namespace requiredFunds {
         value: Primitive.BigInt,
       }),
       Schema.Struct({
-        symbol: FeeToken.Symbol,
+        symbol: Token.Symbol,
         value: Schema.Union(
           Schema.TemplateLiteral(Schema.Number, '.', Schema.Number),
           Schema.TemplateLiteral(Schema.Number),
