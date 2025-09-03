@@ -1,8 +1,14 @@
 import * as UI from '@porto/ui'
-import { CatchBoundary, createFileRoute } from '@tanstack/react-router'
+import {
+  CatchBoundary,
+  createFileRoute,
+  useNavigate,
+} from '@tanstack/react-router'
 import { Json } from 'ox'
+import { Chains } from 'porto'
 import { Hooks } from 'porto/wagmi'
 import type { getPermissions } from 'porto/wagmi/Actions'
+import * as React from 'react'
 import { DateFormatter, StringFormatter, ValueFormatter } from '~/utils'
 
 export const Route = createFileRoute('/_dash/settings/permissions')({
@@ -12,8 +18,30 @@ export const Route = createFileRoute('/_dash/settings/permissions')({
 function RouteComponent() {
   const { account } = Route.useRouteContext()
 
+  const navigate = useNavigate()
+
   const permissions = Hooks.usePermissions()
   const revokePermissions = Hooks.useRevokePermissions()
+
+  const desiredChain = React.useMemo(() => {
+    const params = new URLSearchParams(window.location.search)
+    return params.has('testnet') && params.get('testnet') !== 'false'
+      ? Chains.baseSepolia
+      : account.chain!
+  }, [account.chain])
+
+  // Ensure `porto.chainId` search param is set based on `?testnet` flag
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const current = Number(params.get('porto.chainId') ?? Number.NaN)
+    if (current === desiredChain.id) return
+    navigate({
+      replace: true,
+      search: (prev) => ({ ...prev, 'porto.chainId': desiredChain.id }),
+      to: '.',
+    })
+  }, [desiredChain, navigate])
 
   return (
     <CatchBoundary
