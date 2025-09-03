@@ -13,18 +13,11 @@ export async function getTokens<chain extends Chains.Chain | undefined>(
   client: Client<Transport, chain>,
   parameters?: getTokens.Parameters<chain>,
 ): Promise<getTokens.ReturnType> {
-  const { chain = client.chain, addressOrSymbol } = parameters ?? {}
+  const { chain = client.chain } = parameters ?? {}
 
   const tokens = await RelayActions.getCapabilities(client, {
     chainId: chain?.id,
   }).then((capabilities) => capabilities.fees.tokens)
-
-  if (addressOrSymbol)
-    return tokens.filter((token) => {
-      if (Address.validate(addressOrSymbol))
-        return Address.isEqual(addressOrSymbol, token.address)
-      return addressOrSymbol === token.symbol
-    })
 
   return tokens
 }
@@ -32,11 +25,37 @@ export async function getTokens<chain extends Chains.Chain | undefined>(
 export declare namespace getTokens {
   export type Parameters<
     chain extends Chains.Chain | undefined = Chains.Chain | undefined,
-  > = GetChainParameter<chain> & {
-    addressOrSymbol?: Token.Symbol | Address.Address | undefined
-  }
+  > = GetChainParameter<chain>
 
   export type ReturnType = readonly Token.Token[]
+}
+
+export async function getToken<chain extends Chains.Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getToken.Parameters<chain>,
+): Promise<getToken.ReturnType> {
+  const { addressOrSymbol } = parameters
+  const tokens = await getTokens(client, parameters)
+  return tokens.find(getToken.predicate(addressOrSymbol))
+}
+
+export namespace getToken {
+  export type Parameters<
+    chain extends Chains.Chain | undefined = Chains.Chain | undefined,
+  > = getTokens.Parameters<chain> & {
+    addressOrSymbol: Token.Symbol | Address.Address
+  }
+
+  export type ReturnType = Token.Token | undefined
+
+  export function predicate(addressOrSymbol: Token.Symbol | Address.Address) {
+    return (token: Token.Token) => {
+      if (!addressOrSymbol) return false
+      if (Address.validate(addressOrSymbol))
+        return Address.isEqual(token.address, addressOrSymbol)
+      return addressOrSymbol === token.symbol
+    }
+  }
 }
 
 export async function resolveFeeTokens<chain extends Chains.Chain | undefined>(
