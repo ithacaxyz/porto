@@ -14,15 +14,6 @@ describe.runIf(Anvil.enabled)('getTokens', () => {
     expect(tokens).toMatchInlineSnapshot(`
       [
         {
-          "address": "0x0000000000000000000000000000000000000000",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": false,
-          "nativeRate": 1000000000000000000n,
-          "symbol": "ETH",
-          "uid": "ethereum",
-        },
-        {
           "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
           "decimals": 18,
           "feeToken": true,
@@ -30,6 +21,15 @@ describe.runIf(Anvil.enabled)('getTokens', () => {
           "nativeRate": 1000000000000000000n,
           "symbol": "EXP",
           "uid": "exp",
+        },
+        {
+          "address": "0x0000000000000000000000000000000000000000",
+          "decimals": 18,
+          "feeToken": true,
+          "interop": false,
+          "nativeRate": 1000000000000000000n,
+          "symbol": "ETH",
+          "uid": "ethereum",
         },
       ]
     `)
