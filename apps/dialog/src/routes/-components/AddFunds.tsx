@@ -65,11 +65,8 @@ export function AddFunds(props: AddFunds.Props) {
   const chain = RemoteHooks.useChain(porto, { chainId: resolvedChainId })
 
   const { data: tokens } = Tokens.getTokens.useQuery()
-  const { data: token } = Tokens.getTokens.useQuery({
+  const { data: token } = Tokens.getToken.useQuery({
     addressOrSymbol: tokenAddress,
-    select(data) {
-      return data?.[0]
-    },
   })
 
   const { data: assets, refetch: refetchAssets } = Hooks.useAssets({
