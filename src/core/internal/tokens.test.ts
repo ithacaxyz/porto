@@ -14,15 +14,6 @@ describe.runIf(Anvil.enabled)('getTokens', () => {
     expect(tokens).toMatchInlineSnapshot(`
       [
         {
-          "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": false,
-          "nativeRate": 1000000000000000000n,
-          "symbol": "EXP",
-          "uid": "exp",
-        },
-        {
           "address": "0x0000000000000000000000000000000000000000",
           "decimals": 18,
           "feeToken": true,
@@ -31,18 +22,6 @@ describe.runIf(Anvil.enabled)('getTokens', () => {
           "symbol": "ETH",
           "uid": "ethereum",
         },
-      ]
-    `)
-  })
-
-  test('param: addressOrSymbol (as symbol)', async () => {
-    const porto = TestConfig.getPorto()
-    const client = TestConfig.getRelayClient(porto)
-
-    const tokens = await Tokens.getTokens(client, { addressOrSymbol: 'EXP' })
-
-    expect(tokens).toMatchInlineSnapshot(`
-      [
         {
           "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
           "decimals": 18,
@@ -53,6 +32,27 @@ describe.runIf(Anvil.enabled)('getTokens', () => {
           "uid": "exp",
         },
       ]
+    `)
+  })
+})
+
+describe.runIf(Anvil.enabled)('getToken', () => {
+  test('param: addressOrSymbol (as symbol)', async () => {
+    const porto = TestConfig.getPorto()
+    const client = TestConfig.getRelayClient(porto)
+
+    const token = await Tokens.getToken(client, { addressOrSymbol: 'EXP' })
+
+    expect(token).toMatchInlineSnapshot(`
+      {
+        "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
+        "decimals": 18,
+        "feeToken": true,
+        "interop": false,
+        "nativeRate": 1000000000000000000n,
+        "symbol": "EXP",
+        "uid": "exp",
+      }
     `)
   })
 
@@ -60,22 +60,20 @@ describe.runIf(Anvil.enabled)('getTokens', () => {
     const porto = TestConfig.getPorto()
     const client = TestConfig.getRelayClient(porto)
 
-    const tokens = await Tokens.getTokens(client, {
+    const token = await Tokens.getToken(client, {
       addressOrSymbol: '0x0000000000000000000000000000000000000000',
     })
 
-    expect(tokens).toMatchInlineSnapshot(`
-      [
-        {
-          "address": "0x0000000000000000000000000000000000000000",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": false,
-          "nativeRate": 1000000000000000000n,
-          "symbol": "ETH",
-          "uid": "ethereum",
-        },
-      ]
+    expect(token).toMatchInlineSnapshot(`
+      {
+        "address": "0x0000000000000000000000000000000000000000",
+        "decimals": 18,
+        "feeToken": true,
+        "interop": false,
+        "nativeRate": 1000000000000000000n,
+        "symbol": "ETH",
+        "uid": "ethereum",
+      }
     `)
   })
 })

@@ -9,14 +9,13 @@ import { AddFunds } from '~/routes/-components/AddFunds'
 import { Layout } from '~/routes/-components/Layout'
 
 export function CheckBalance(props: CheckBalance.Props) {
-  const { address, children, onReject, query } = props
+  const { address, children, feeToken, onReject, query } = props
 
   const [step, setStep] = React.useState<'default' | 'success'>('default')
 
-  const tokens = Tokens.getTokens.useQuery({
-    addressOrSymbol: props.feeToken,
+  const { data: token } = Tokens.getToken.useQuery({
+    addressOrSymbol: feeToken,
   })
-  const [token] = tokens.data ?? []
 
   const quotes = query.data?.capabilities.quote.quotes ?? []
 
