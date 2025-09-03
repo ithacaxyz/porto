@@ -8,7 +8,14 @@ function RouteComponent() {
   return (
     <div>
       <p>Hello "/_dash/settings/"!</p>
-      <Link to="/settings/recovery">Recovery</Link>
+      <ul>
+        <li>
+          <Link to="/settings/recovery">Recovery</Link>
+        </li>
+        <li>
+          <Link to="/settings/permissions">Permissions</Link>
+        </li>
+      </ul>
     </div>
   )
 }
