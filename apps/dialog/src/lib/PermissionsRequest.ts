@@ -1,7 +1,7 @@
 import { Query } from '@porto/apps'
 import { useQuery } from '@tanstack/react-query'
-import * as Schema from 'effect/Schema'
 import * as PermissionsRequest from 'porto/core/internal/permissionsRequest.js'
+import * as Schema from 'porto/core/internal/schema/schema.js'
 import { Hooks } from 'porto/remote'
 import { porto } from './Porto.js'
 import * as Tokens from './Tokens.js'
@@ -13,12 +13,6 @@ export function useResolve(
 
   return useQuery({
     enabled: !!request,
-    initialData: request
-      ? {
-          ...Schema.decodeSync(PermissionsRequest.Schema)(request),
-          _encoded: request,
-        }
-      : undefined,
     async queryFn() {
       if (!request) throw new Error('no request found.')
 
@@ -35,9 +29,8 @@ export function useResolve(
           feeTokens,
         },
       )
-      const decoded = {
+      const decoded: typeof PermissionsRequest.Schema.Type = {
         ...grantPermissions,
-        feeLimit: undefined,
         permissions,
       }
       const _encoded = Schema.encodeSync(PermissionsRequest.Schema)(decoded)

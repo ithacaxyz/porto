@@ -627,9 +627,11 @@ export default defineConfig({
   ],
   vite: {
     plugins: [
+      // @ts-expect-error
       Mkcert({
         hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
       }),
+      // @ts-expect-error
       Plugins.Icons(),
     ],
     server: {
