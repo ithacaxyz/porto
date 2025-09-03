@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.84
+
+### Patch Changes
+
+- [`33ec682`](https://github.com/ithacaxyz/porto/commit/33ec68294da58a5d909b936775119eb4cd6d8e15) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where persisted current chain may not exist in app config.
+
 ## 0.0.83
 
 ### Patch Changes
