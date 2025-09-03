@@ -107,8 +107,8 @@ export function ActionRequest(props: ActionRequest.Props) {
           if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
         }}
         onReject={onReject}
-        swapType="swap"
         swapping={loading}
+        swapType="swap"
       />
     )
 
@@ -125,8 +125,8 @@ export function ActionRequest(props: ActionRequest.Props) {
           if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
         }}
         onReject={onReject}
-        swapType="convert"
         swapping={loading}
+        swapType="convert"
       />
     )
 
@@ -708,10 +708,10 @@ export namespace ActionRequest {
         if (decoded.functionName === 'approve') {
           const [spender, amount] = decoded.args
           return {
-            type: 'approve',
             amount,
             spender,
             tokenAddress: call.to,
+            type: 'approve',
           }
         }
       } catch {}
@@ -768,23 +768,23 @@ export namespace ActionRequest {
         outgoing[0]?.symbol === 'WETH'
       if (wrap || unwrap)
         return {
-          type: 'convert',
           assetIn: incoming[0] as SwapAsset,
           assetOut: outgoing[0] as SwapAsset,
           direction: wrap ? 'wrap' : 'unwrap',
+          type: 'convert',
         }
 
       // regular swap
       if (swap)
         return {
-          type: 'swap',
           assetIn: incoming[0] as SwapAsset,
           assetOut: outgoing[0] as SwapAsset,
+          type: 'swap',
         }
 
       // send: 1 outgoing
       if (assetDiffs.length === 1 && assetDiffs[0]?.direction === 'outgoing')
-        return { type: 'send', asset: assetDiffs[0] }
+        return { asset: assetDiffs[0], type: 'send' }
 
       return null
     }

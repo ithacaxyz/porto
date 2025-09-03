@@ -1015,7 +1015,10 @@ function SendCalls() {
                 {
                   data: AbiFunction.encodeData(
                     AbiFunction.fromAbi(exp1Abi, 'transfer'),
-                    [address || '0x0000000000000000000000000000000000000000', Value.fromEther('12.34')],
+                    [
+                      address || '0x0000000000000000000000000000000000000000',
+                      Value.fromEther('12.34'),
+                    ],
                   ),
                   to: exp1Address[chainId],
                 },

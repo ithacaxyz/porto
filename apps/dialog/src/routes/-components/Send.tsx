@@ -1,14 +1,14 @@
 import { ChainIcon } from '@porto/apps/components'
-import { ButtonArea, Button, TokenIcon } from '@porto/ui'
+import { Button, ButtonArea } from '@porto/ui'
 import { a, useTransition } from '@react-spring/web'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import * as React from 'react'
 import { CopyButton } from '~/components/CopyButton'
 import { porto } from '~/lib/Porto'
-import { PriceFormatter, ValueFormatter, StringFormatter } from '~/utils'
+import { PriceFormatter, StringFormatter, ValueFormatter } from '~/utils'
+import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideInfo from '~icons/lucide/info'
 import LucideSendHorizontal from '~icons/lucide/send-horizontal'
-import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import { Layout } from './Layout'
 
 export function Send(props: Send.Props) {
@@ -145,12 +145,12 @@ export namespace Send {
 
     return (
       <ButtonArea
-        className="relative font-medium text-[14px] text-th_base-secondary rounded-[4px] min-w-0"
-        style={{ flex: '1 1 auto' }}
-        onClick={onToggleCurrency}
+        className="relative min-w-0 rounded-[4px] font-medium text-[14px] text-th_base-secondary"
         disabled={!asset.fiat}
+        onClick={onToggleCurrency}
+        style={{ flex: '1 1 auto' }}
       >
-        <div className="invisible whitespace-nowrap truncate">
+        <div className="invisible truncate whitespace-nowrap">
           {fiatValue && tokenValue.length > fiatValue.length
             ? tokenValue
             : fiatValue || tokenValue}
@@ -159,7 +159,7 @@ export namespace Send {
           const value = item === 'fiat' && fiatValue ? fiatValue : tokenValue
           return (
             <a.div
-              className="absolute inset-0 origin-[100%_50%] flex items-center justify-end"
+              className="absolute inset-0 flex origin-[100%_50%] items-center justify-end"
               style={style}
               title={value}
             >
@@ -187,13 +187,13 @@ export namespace Send {
       if (!feeTotal) return null
       const feeNumber = Number(feeTotal)
       return {
-        short: PriceFormatter.format(feeNumber),
         full: new Intl.NumberFormat('en-US', {
-          style: 'currency',
           currency: 'USD',
           maximumFractionDigits: 8,
           minimumFractionDigits: 2,
+          style: 'currency',
         }).format(feeNumber),
+        short: PriceFormatter.format(feeNumber),
       }
     }, [fees])
 

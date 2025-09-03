@@ -1,14 +1,14 @@
 import { ChainIcon } from '@porto/apps/components'
-import { ButtonArea, Button, TokenIcon } from '@porto/ui'
+import { Button, ButtonArea, TokenIcon } from '@porto/ui'
 import { a, useTransition } from '@react-spring/web'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import * as React from 'react'
 import { CopyButton } from '~/components/CopyButton'
 import { porto } from '~/lib/Porto'
-import { PriceFormatter, ValueFormatter, StringFormatter } from '~/utils'
+import { PriceFormatter, StringFormatter, ValueFormatter } from '~/utils'
+import ArrowDown from '~icons/lucide/arrow-down'
 import LucideInfo from '~icons/lucide/info'
 import LucideSendToBack from '~icons/lucide/send-to-back'
-import ArrowDown from '~icons/lucide/arrow-down'
 import Star from '~icons/ph/star-four-bold'
 import { Layout } from './Layout'
 
@@ -29,11 +29,7 @@ export function Swap(props: Swap.Props) {
   const hasFiat = assetIn.fiat && assetOut.fiat
 
   const [currencyType, setCurrencyType] = React.useState<'fiat' | 'token'>(
-    swapType === 'convert' 
-      ? 'token' 
-      : hasFiat 
-        ? 'fiat' 
-        : 'token',
+    swapType === 'convert' ? 'token' : hasFiat ? 'fiat' : 'token',
   )
   const [showDetails, setShowDetails] = React.useState(false)
 
@@ -60,9 +56,9 @@ export function Swap(props: Swap.Props) {
               currencyType={currencyType}
               onToggleCurrency={toggle}
             />
-            <div className="relative -mx-[10px] flex justify-center">
+            <div className="-mx-[10px] relative flex justify-center">
               <hr className="absolute top-1/2 w-full border-th_separator border-dashed" />
-              <div className="relative bg-th_badge rounded-full size-[24px] flex items-center justify-center">
+              <div className="relative flex size-[24px] items-center justify-center rounded-full bg-th_badge">
                 <ArrowDown className="size-[16px] text-th_badge" />
               </div>
             </div>
@@ -175,35 +171,37 @@ export namespace Swap {
     return (
       <div className="flex w-full flex-row items-center gap-[4px]">
         <div className="shrink-0">
-          <TokenIcon symbol={asset.symbol} size={24} />
+          <TokenIcon size={24} symbol={asset.symbol} />
         </div>
-        <div className="flex flex-grow items-center gap-[8px] min-w-0">
-          <div className="flex items-center gap-[4px] min-w-[120px]">
-            <div 
-              className="font-medium text-[14px] text-th_base truncate max-w-[120px]"
+        <div className="flex min-w-0 flex-grow items-center gap-[8px]">
+          <div className="flex min-w-[120px] items-center gap-[4px]">
+            <div
+              className="max-w-[120px] truncate font-medium text-[14px] text-th_base"
               title={'name' in asset && asset.name ? asset.name : 'Unknown'}
             >
               {'name' in asset && asset.name ? asset.name : 'Unknown'}
             </div>
-            <div className="text-[12px] text-th_base-secondary bg-th_field h-[20px] rounded-th_small flex items-center px-[4px] font-medium">
+            <div className="flex h-[20px] items-center rounded-th_small bg-th_field px-[4px] font-medium text-[12px] text-th_base-secondary">
               {asset.symbol}
             </div>
           </div>
           <ButtonArea
-            className="relative font-medium text-[14px] text-th_base-secondary rounded-[4px] min-w-0"
-            style={{ flex: '1 1 auto' }}
-            onClick={onToggleCurrency}
+            className="relative min-w-0 rounded-[4px] font-medium text-[14px] text-th_base-secondary"
             disabled={!asset.fiat}
+            onClick={onToggleCurrency}
+            style={{ flex: '1 1 auto' }}
           >
             <div className="invisible truncate">
-              {fiatValue && tokenValue.length > fiatValue.length ? tokenValue : fiatValue || tokenValue}
+              {fiatValue && tokenValue.length > fiatValue.length
+                ? tokenValue
+                : fiatValue || tokenValue}
             </div>
             {transition((style, item) => {
               const value =
                 item === 'fiat' && fiatValue ? fiatValue : tokenValue
               return (
                 <a.div
-                  className="absolute inset-0 origin-[100%_50%] flex items-center justify-end"
+                  className="absolute inset-0 flex origin-[100%_50%] items-center justify-end"
                   style={style}
                   title={value}
                 >
@@ -233,13 +231,13 @@ export namespace Swap {
       if (!feeTotal) return null
       const feeNumber = Number(feeTotal)
       return {
-        short: PriceFormatter.format(feeNumber),
         full: new Intl.NumberFormat('en-US', {
-          style: 'currency',
           currency: 'USD',
           maximumFractionDigits: 8,
           minimumFractionDigits: 2,
+          style: 'currency',
         }).format(feeNumber),
+        short: PriceFormatter.format(feeNumber),
       }
     }, [fees])
 

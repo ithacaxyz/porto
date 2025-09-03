@@ -244,18 +244,26 @@ export namespace Approve {
     const { chainId, fees, loading } = props
 
     const { feeTotalFormatted, feeTotalFormattedFull } = React.useMemo(() => {
-      if (!fees) return { feeTotalFormatted: undefined, feeTotalFormattedFull: undefined }
+      if (!fees)
+        return {
+          feeTotalFormatted: undefined,
+          feeTotalFormattedFull: undefined,
+        }
       const feeTotal = fees['0x0']?.value
-      if (!feeTotal) return { feeTotalFormatted: undefined, feeTotalFormattedFull: undefined }
+      if (!feeTotal)
+        return {
+          feeTotalFormatted: undefined,
+          feeTotalFormattedFull: undefined,
+        }
       const feeNumber = Number(feeTotal)
       return {
         feeTotalFormatted: PriceFormatter.format(feeNumber),
         feeTotalFormattedFull: new Intl.NumberFormat('en-US', {
-          style: 'currency',
           currency: 'USD',
           maximumFractionDigits: 8,
-          minimumFractionDigits: 2
-        }).format(feeNumber)
+          minimumFractionDigits: 2,
+          style: 'currency',
+        }).format(feeNumber),
       }
     }, [fees])
 
