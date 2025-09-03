@@ -26,7 +26,6 @@ import {
   useWatchBlockNumber,
   WagmiProvider,
 } from 'wagmi'
-import { useResolvedChainId } from '~/lib/ChainResolver'
 import { porto } from '~/lib/Porto'
 import * as Tokens from '~/lib/Tokens'
 import { Layout } from '~/routes/-components/Layout'
@@ -60,9 +59,7 @@ export function AddFunds(props: AddFunds.Props) {
   const account = RemoteHooks.useAccount(porto)
   const address = props.address ?? account?.address
 
-  const resolvedChainId = useResolvedChainId({ chainId })
-
-  const chain = RemoteHooks.useChain(porto, { chainId: resolvedChainId })
+  const chain = RemoteHooks.useChain(porto, { chainId })
 
   const { data: tokens } = Tokens.getTokens.useQuery()
   const { data: token } = Tokens.getToken.useQuery({
