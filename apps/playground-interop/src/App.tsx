@@ -168,7 +168,7 @@ function Balances({ chainId }: { chainId: ChainId }) {
               asset.metadata?.decimals ?? 18,
             )
             let formatted = Number(formattedFull).toFixed(2)
-            if (formatted === '0.00' && asset.balance > 0n) formatted = `<0.01`
+            if (formatted === '0.00' && asset.balance > 0n) formatted = '<0.01'
             return asset ? (
               <tr key={asset.address}>
                 <td style={{ width: 100 }}>{symbol}</td>
