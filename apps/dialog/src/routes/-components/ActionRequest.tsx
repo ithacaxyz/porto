@@ -81,23 +81,6 @@ export function ActionRequest(props: ActionRequest.Props) {
 
   const destinationChainId = quote_destination?.chainId
 
-  if (identified?.type === 'approve')
-    return (
-      <Approve
-        amount={identified.amount}
-        approving={loading}
-        chainId={destinationChainId}
-        fees={sponsored ? undefined : feeTotals}
-        loading={prepareCallsQuery.isPending}
-        onApprove={() => {
-          if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
-        }}
-        onReject={onReject}
-        spender={identified.spender}
-        tokenAddress={identified.tokenAddress}
-      />
-    )
-
   return (
     <CheckBalance
       address={address}
@@ -105,98 +88,128 @@ export function ActionRequest(props: ActionRequest.Props) {
       onReject={onReject}
       query={prepareCallsQuery}
     >
-      {identified?.type === 'swap' || identified?.type === 'convert' ? (
-        <Swap
-          assetIn={identified.assetIn}
-          assetOut={identified.assetOut}
-          chainId={destinationChainId}
-          contractAddress={calls[0]?.to}
-          fees={sponsored ? undefined : feeTotals}
-          loading={prepareCallsQuery.isPending}
-          onApprove={() => {
-            if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
-          }}
-          onReject={onReject}
-          swapping={loading}
-          swapType={identified.type}
-        />
-      ) : identified?.type === 'send' && identified.to ? (
-        <Send
-          asset={identified.asset}
-          chainId={destinationChainId}
-          fees={sponsored ? undefined : feeTotals}
-          loading={prepareCallsQuery.isPending}
-          onApprove={() => {
-            if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
-          }}
-          onReject={onReject}
-          sending={loading}
-          to={identified.to}
-        />
-      ) : (
-        <Layout>
-          <Layout.Header>
-            <Layout.Header.Default
-              icon={prepareCallsQuery.isError ? TriangleAlert : Star}
-              title="Review action"
-              variant={prepareCallsQuery.isError ? 'warning' : 'default'}
+      {(() => {
+        // Route to the appropriate view based on the identified transaction type.
+        if (identified?.type === 'approve')
+          return (
+            <Approve
+              amount={identified.amount}
+              approving={loading}
+              chainId={destinationChainId}
+              fees={sponsored ? undefined : feeTotals}
+              loading={prepareCallsQuery.isPending}
+              onApprove={() => {
+                if (prepareCallsQuery.isSuccess)
+                  onApprove(prepareCallsQuery.data)
+              }}
+              onReject={onReject}
+              spender={identified.spender}
+              tokenAddress={identified.tokenAddress}
             />
-          </Layout.Header>
+          )
 
-          <Layout.Content className="pb-2!">
-            <ActionRequest.PaneWithDetails
-              error={prepareCallsQuery.error}
-              errorMessage="An error occurred while simulating the action. Proceed with caution."
-              feeTotals={feeTotals}
-              quotes={quotes}
-              status={
-                prepareCallsQuery.isPending
-                  ? 'pending'
-                  : prepareCallsQuery.isError
-                    ? 'error'
-                    : 'success'
-              }
-            >
-              {assetDiff.length > 0 ? (
-                <ActionRequest.AssetDiff assetDiff={assetDiff} />
-              ) : undefined}
-            </ActionRequest.PaneWithDetails>
-          </Layout.Content>
+        if (identified?.type === 'swap' || identified?.type === 'convert')
+          return (
+            <Swap
+              assetIn={identified.assetIn}
+              assetOut={identified.assetOut}
+              chainId={destinationChainId}
+              contractAddress={calls[0]?.to}
+              fees={sponsored ? undefined : feeTotals}
+              loading={prepareCallsQuery.isPending}
+              onApprove={() => {
+                if (prepareCallsQuery.isSuccess)
+                  onApprove(prepareCallsQuery.data)
+              }}
+              onReject={onReject}
+              swapping={loading}
+              swapType={identified.type}
+            />
+          )
 
-          <Layout.Footer>
-            <Layout.Footer.Actions>
-              <Button
-                disabled={prepareCallsQuery.isPending || loading}
-                onClick={onReject}
-                variant="negative-secondary"
+        if (identified?.type === 'send' && identified.to)
+          return (
+            <Send
+              asset={identified.asset}
+              chainId={destinationChainId}
+              fees={sponsored ? undefined : feeTotals}
+              loading={prepareCallsQuery.isPending}
+              onApprove={() => {
+                if (prepareCallsQuery.isSuccess)
+                  onApprove(prepareCallsQuery.data)
+              }}
+              onReject={onReject}
+              sending={loading}
+              to={identified.to}
+            />
+          )
+
+        // Fall back to generic "Action Request" view.
+        return (
+          <Layout>
+            <Layout.Header>
+              <Layout.Header.Default
+                icon={prepareCallsQuery.isError ? TriangleAlert : Star}
+                title="Review action"
+                variant={prepareCallsQuery.isError ? 'warning' : 'default'}
+              />
+            </Layout.Header>
+
+            <Layout.Content className="pb-2!">
+              <ActionRequest.PaneWithDetails
+                error={prepareCallsQuery.error}
+                errorMessage="An error occurred while simulating the action. Proceed with caution."
+                feeTotals={feeTotals}
+                quotes={quotes}
+                status={
+                  prepareCallsQuery.isPending
+                    ? 'pending'
+                    : prepareCallsQuery.isError
+                      ? 'error'
+                      : 'success'
+                }
               >
-                {prepareCallsQuery.isError ? 'Cancel' : 'Deny'}
-              </Button>
-              <Button
-                data-testid="confirm"
-                disabled={!prepareCallsQuery.isSuccess}
-                loading={loading && 'Sending…'}
-                onClick={() => {
-                  if (prepareCallsQuery.isError) {
-                    prepareCallsQuery.refetch()
-                    return
-                  }
-                  if (prepareCallsQuery.isSuccess)
-                    onApprove(prepareCallsQuery.data)
-                }}
-                variant={prepareCallsQuery.isError ? 'primary' : 'positive'}
-                width="grow"
-              >
-                {prepareCallsQuery.isError ? 'Retry' : 'Approve'}
-              </Button>
-            </Layout.Footer.Actions>
+                {assetDiff.length > 0 ? (
+                  <ActionRequest.AssetDiff assetDiff={assetDiff} />
+                ) : undefined}
+              </ActionRequest.PaneWithDetails>
+            </Layout.Content>
 
-            {account?.address && (
-              <Layout.Footer.Account address={account.address} />
-            )}
-          </Layout.Footer>
-        </Layout>
-      )}
+            <Layout.Footer>
+              <Layout.Footer.Actions>
+                <Button
+                  disabled={prepareCallsQuery.isPending || loading}
+                  onClick={onReject}
+                  variant="negative-secondary"
+                >
+                  {prepareCallsQuery.isError ? 'Cancel' : 'Deny'}
+                </Button>
+                <Button
+                  data-testid="confirm"
+                  disabled={!prepareCallsQuery.isSuccess}
+                  loading={loading && 'Sending…'}
+                  onClick={() => {
+                    if (prepareCallsQuery.isError) {
+                      prepareCallsQuery.refetch()
+                      return
+                    }
+                    if (prepareCallsQuery.isSuccess)
+                      onApprove(prepareCallsQuery.data)
+                  }}
+                  variant={prepareCallsQuery.isError ? 'primary' : 'positive'}
+                  width="grow"
+                >
+                  {prepareCallsQuery.isError ? 'Retry' : 'Approve'}
+                </Button>
+              </Layout.Footer.Actions>
+
+              {account?.address && (
+                <Layout.Footer.Account address={account.address} />
+              )}
+            </Layout.Footer>
+          </Layout>
+        )
+      })()}
     </CheckBalance>
   )
 }
