@@ -76,47 +76,6 @@ export namespace getAuthorization {
 }
 
 /**
- * Gets the authorization for a given address.
- *
- * @example
- * TODO
- *
- * @param client - The client to use.
- * @param parameters - Parameters.
- * @returns Result.
- */
-export async function getAuthorization(
-  client: Client,
-  parameters: getAuthorization.Parameters,
-): Promise<getAuthorization.ReturnType> {
-  try {
-    const method = 'wallet_getAuthorization' as const
-    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
-    const result = await withCache(
-      () =>
-        client.request<Schema>({
-          method,
-          params: [
-            Schema.encodeSync(RpcSchema.wallet_getAuthorization.Parameters)(
-              parameters,
-            ),
-          ],
-        }),
-      { cacheKey: `${client.uid}.${method}.${parameters.address}` },
-    )
-    return Schema.decodeSync(RpcSchema.wallet_getAuthorization.Response)(result)
-  } catch (error) {
-    parseSchemaError(error)
-    throw error
-  }
-}
-
-export namespace getAuthorization {
-  export type Parameters = RpcSchema.wallet_getAuthorization.Parameters
-  export type ReturnType = RpcSchema.wallet_getAuthorization.Response
-}
-
-/**
  * Gets the capabilities for a given chain ID.
  *
  * @example
