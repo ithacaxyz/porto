@@ -170,14 +170,9 @@ function Balances({ chainId }: { chainId: ChainId }) {
             let formatted = Number(formattedFull).toFixed(2)
             if (formatted === '0.00' && asset.balance > 0n) formatted = '<0.01'
             return asset ? (
-              <tr key={asset.address}>
+              <tr key={asset.address} title={`${formattedFull} ${symbol}`}>
                 <td style={{ width: 100 }}>{symbol}</td>
-                <td
-                  style={{ textAlign: 'right' }}
-                  title={`${formattedFull} ${symbol}`}
-                >
-                  {formatted}
-                </td>
+                <td style={{ textAlign: 'right' }}>{formatted}</td>
               </tr>
             ) : null
           })}
