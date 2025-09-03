@@ -1,4 +1,5 @@
 import * as Query from '@tanstack/react-query'
+import type { Address } from 'ox'
 import * as Tokens from 'porto/core/internal/tokens'
 import { Hooks } from 'porto/remote'
 import type { Chain, Client, Transport } from 'viem'
@@ -14,7 +15,7 @@ export namespace getTokens {
     client: Client<Transport, Chain>,
     parameters: queryOptions.Options<data>,
   ) {
-    const { addressOrSymbol, enabled, select } = parameters
+    const { enabled, select } = parameters
 
     return Query.queryOptions({
       enabled,
@@ -22,7 +23,7 @@ export namespace getTokens {
         const [, parameters] = queryKey
         return await Tokens.getTokens(client, parameters)
       },
-      queryKey: queryOptions.queryKey(client, { addressOrSymbol }),
+      queryKey: queryOptions.queryKey(client, {}),
       select,
     })
   }
@@ -62,6 +63,46 @@ export namespace getTokens {
       queryOptions.Options<data> & {
         chainId?: number | undefined
       }
+  }
+}
+
+export namespace getToken {
+  export function queryOptions(
+    client: Client<Transport, Chain>,
+    parameters: queryOptions.Options = {},
+  ) {
+    const { addressOrSymbol } = parameters
+
+    return getTokens.queryOptions(client, {
+      ...parameters,
+      enabled: !!addressOrSymbol,
+      select: (data) => data.find(Tokens.getToken.predicate(addressOrSymbol!)),
+    })
+  }
+
+  export namespace queryOptions {
+    export type Data = getTokens.queryOptions.Data[number]
+    export type QueryKey = getTokens.queryOptions.QueryKey
+    export type Options = getTokens.queryOptions.Options & {
+      addressOrSymbol?: string | Address.Address | undefined
+    }
+
+    export const queryKey = getTokens.queryOptions.queryKey
+    export namespace queryKey {
+      export type Options = getTokens.queryOptions.queryKey.Options
+    }
+  }
+
+  export function useQuery(parameters: useQuery.Parameters) {
+    const { chainId } = parameters
+    const client = Hooks.useRelayClient(porto, { chainId })
+    return Query.useQuery(queryOptions(client, parameters))
+  }
+
+  export namespace useQuery {
+    export type Parameters = queryOptions.Options & {
+      chainId?: number | undefined
+    }
   }
 }
 
