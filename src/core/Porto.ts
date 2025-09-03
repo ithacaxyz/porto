@@ -87,7 +87,10 @@ export function create(
         {
           merge(p, currentState) {
             const persistedState = p as State
-            const currentChainId = persistedState.chainIds[0]
+            const currentChainId =
+              config.chains.find(
+                (chain) => chain.id === persistedState.chainIds[0],
+              )?.id ?? config.chains[0].id
             const chainIds = [
               currentChainId,
               ...config.chains

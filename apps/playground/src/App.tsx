@@ -898,8 +898,14 @@ function SendCalls() {
           await porto.provider.request({
             method: 'eth_chainId',
           }),
-        ) as keyof typeof exp1Address
-        const account = result[0]!
+        )
+
+        if (!isExpChainId(chainId)) {
+          alert(`unsupported chainId: ${chainId}`)
+          throw new Error(`exp1 address not defined for chainId ${chainId}`)
+        }
+
+        const account = result[0]
         const recipient = address || account
 
         const params = (() => {
@@ -977,7 +983,7 @@ function SendCalls() {
                 {
                   data: AbiFunction.encodeData(
                     AbiFunction.fromAbi(exp1Abi, 'approve'),
-                    [recipient, Value.fromEther('50')],
+                    [account, Value.fromEther('50')],
                   ),
                   to: exp1Address[chainId],
                 },
@@ -985,8 +991,8 @@ function SendCalls() {
                   data: AbiFunction.encodeData(
                     AbiFunction.fromAbi(exp1Abi, 'transferFrom'),
                     [
-                      recipient,
-                      '0x0000000000000000000000000000000000000000',
+                      account,
+                      address || '0x0000000000000000000000000000000000000000',
                       Value.fromEther('50'),
                     ],
                   ),
@@ -998,6 +1004,30 @@ function SendCalls() {
                   {
                     symbol: 'EXP',
                     value: '50',
+                  },
+                ],
+              },
+            } as const
+
+          if (action === 'send')
+            return {
+              calls: [
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(exp1Abi, 'transfer'),
+                    [
+                      address || '0x0000000000000000000000000000000000000000',
+                      Value.fromEther('12.34'),
+                    ],
+                  ),
+                  to: exp1Address[chainId],
+                },
+              ],
+              capabilities: {
+                requiredFunds: [
+                  {
+                    symbol: 'EXP',
+                    value: '12.34',
                   },
                 ],
               },
@@ -1119,6 +1149,7 @@ function SendCalls() {
           <option value="swap-exp2">Swap 0.1 EXP2 for 10 EXP</option>
           <option value="approve">Approve 50 EXP</option>
           <option value="transfer">Transfer 50 EXP</option>
+          <option value="send">Send 12.34 EXP</option>
           <option value="mint-transfer">Mint 100 EXP2 + Mint NFT</option>
           <option value="mint-nft">Mint NFT</option>
           <option value="revert">Revert</option>
@@ -2118,3 +2149,6 @@ const getPermit2Data = (
     },
   } as const
 }
+
+const isExpChainId = (chainId: number): chainId is keyof typeof exp1Address =>
+  Object.hasOwn(exp1Address, chainId)

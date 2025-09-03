@@ -54,7 +54,7 @@ export function Approve(props: Approve.Props) {
       <Layout.Header>
         <Layout.Header.Default
           icon={LucideLockKeyholeOpen}
-          title="Authorize spend"
+          title="Allow spend"
           variant="default"
         />
       </Layout.Header>
@@ -243,11 +243,28 @@ export namespace Approve {
   export function Details(props: Details.Props) {
     const { chainId, fees, loading } = props
 
-    const feeTotal = React.useMemo(() => {
-      if (!fees) return
+    const { feeTotalFormatted, feeTotalFormattedFull } = React.useMemo(() => {
+      if (!fees)
+        return {
+          feeTotalFormatted: undefined,
+          feeTotalFormattedFull: undefined,
+        }
       const feeTotal = fees['0x0']?.value
-      if (!feeTotal) return
-      return PriceFormatter.format(Number(feeTotal))
+      if (!feeTotal)
+        return {
+          feeTotalFormatted: undefined,
+          feeTotalFormattedFull: undefined,
+        }
+      const feeNumber = Number(feeTotal)
+      return {
+        feeTotalFormatted: PriceFormatter.format(feeNumber),
+        feeTotalFormattedFull: new Intl.NumberFormat('en-US', {
+          currency: 'USD',
+          maximumFractionDigits: 8,
+          minimumFractionDigits: 2,
+          style: 'currency',
+        }).format(feeNumber),
+      }
     }, [fees])
 
     const chain = React.useMemo(
@@ -264,10 +281,12 @@ export namespace Approve {
 
     return (
       <>
-        {fees && (
+        {fees && feeTotalFormatted && (
           <div className="flex h-[18px] items-center justify-between text-[14px]">
             <div className="text-th_base-secondary">Fees (est.)</div>
-            <div className="font-medium">{feeTotal}</div>
+            <div className="font-medium" title={feeTotalFormattedFull}>
+              {feeTotalFormatted}
+            </div>
           </div>
         )}
         {chain && (
