@@ -74,7 +74,7 @@ function RouteComponent() {
         if (!relayUrl || new URL(relayUrl).hostname !== 'localhost')
           return Actions.respond(porto, request, {
             error: new Provider.UnauthorizedError(),
-          }).catch(() => {})
+          }).catch(() => { })
 
         // If the keys are not trusted by the relay, do not allow.
         const publicKeys = grantAdmins.map((admin) => admin.publicKey)
@@ -82,70 +82,115 @@ function RouteComponent() {
         if (!isValid)
           return Actions.respond(porto, request, {
             error: new Provider.UnauthorizedError(),
-          }).catch(() => {})
+          }).catch(() => { })
       }
 
-      const response = await Actions.respond(
-        porto,
-        {
-          ...request,
-          params: [
-            {
-              ...params[0],
-              capabilities: {
-                ...capabilities,
-                createAccount: email
-                  ? {
+      let response
+      try {
+        response = await Actions.respond(
+          porto,
+          {
+            ...request,
+            params: [
+              {
+                ...params[0],
+                capabilities: {
+                  ...capabilities,
+                  createAccount: email
+                    ? {
                       ...(typeof capabilities?.createAccount === 'object'
                         ? capabilities?.createAccount
                         : {}),
                       label: email,
                     }
-                  : capabilities?.createAccount || !signIn,
-                email: Boolean(email),
-                grantPermissions: grantPermissions?._encoded,
-                selectAccount,
-                ...(capabilities?.signInWithEthereum && {
-                  signInWithEthereum: {
-                    ...capabilities?.signInWithEthereum,
-                    domain:
-                      capabilities?.signInWithEthereum.domain ??
-                      referrerURL?.hostname,
-                    uri:
-                      capabilities?.signInWithEthereum.uri ?? referrerURL?.href,
-                  },
-                }),
-              },
-            },
-          ],
-        },
-        {
-          onError: (e) => {
-            // This detects an error that can sometimes happen when calling
-            // navigator.credentials.create() from inside an iframe, notably
-            // the Firefox + Bitwarden extension combination.
-            // See https://github.com/bitwarden/clients/issues/12590
-            if (
-              e?.message?.includes("Invalid 'sameOriginWithAncestors' value")
-            ) {
-              Dialog.store.setState({
-                error: {
-                  action: 'retry-in-popup',
-                  message:
-                    'Your browser doesn’t support passkey creation in the current context.',
-                  name: 'CREDENTIAL_CREATION_FAILED',
-                  secondaryMessage:
-                    'Please try again in a popup window for better compatibility.',
-                  title: 'Passkey creation not supported',
+                    : capabilities?.createAccount || !signIn,
+                  email: Boolean(email),
+                  grantPermissions: grantPermissions?._encoded,
+                  selectAccount,
+                  ...(capabilities?.signInWithEthereum && {
+                    signInWithEthereum: {
+                      ...capabilities?.signInWithEthereum,
+                      domain:
+                        capabilities?.signInWithEthereum.domain ??
+                        referrerURL?.hostname,
+                      uri:
+                        capabilities?.signInWithEthereum.uri ?? referrerURL?.href,
+                    },
+                  }),
                 },
-              })
-              // Prevent the response from being sent,
-              // since the error is handled by the dialog.
-              return { cancelResponse: true }
-            }
+              },
+            ],
           },
-        },
-      )
+          {
+            onError: (e) => {
+              // This detects an error that can sometimes happen when calling
+              // navigator.credentials.create() from inside an iframe, notably
+              // the Firefox + Bitwarden extension combination.
+              // See https://github.com/bitwarden/clients/issues/12590
+              if (
+                e?.message?.includes("Invalid 'sameOriginWithAncestors' value")
+              ) {
+                Dialog.store.setState({
+                  error: {
+                    action: 'retry-in-popup',
+                    message:
+                      'Your browser doesn\'t support passkey creation in the current context.',
+                    name: 'CREDENTIAL_CREATION_FAILED',
+                    secondaryMessage:
+                      'Please try again in a popup window for better compatibility.',
+                    title: 'Passkey creation not supported',
+                  },
+                })
+                // Prevent the response from being sent,
+                // since the error is handled by the dialog.
+                return { cancelResponse: true }
+              }
+
+              // For SIWE endpoint errors, we need to send them back to the provider
+              // so they can be displayed on the login form
+              let errorMessage = e?.message || 'Authentication failed'
+
+              // Extract error details from SIWE endpoint errors
+              if (e?.name === 'SiweEndpointError') {
+                const siweError = e as any
+                if (siweError.response?.errors && siweError.response.errors.length > 0) {
+                  errorMessage = siweError.response.errors[0].message || errorMessage
+                }
+              } else if (e?.name === 'RpcResponse.InternalError' && e?.cause?.name === 'SiweEndpointError') {
+                const siweError = e.cause as any
+                if (siweError.response?.errors && siweError.response.errors.length > 0) {
+                  errorMessage = siweError.response.errors[0].message || errorMessage
+                }
+              }
+
+              // Check if this is a user rejection error
+              if (e?.message === 'User rejected the request.') {
+                Actions.reject(porto, request).catch(() => { })
+                return { cancelResponse: true }
+              }
+
+              // Don't return cancelResponse here - let the error be handled by the catch block
+              // This will ensure proper error propagation
+              throw new Error(errorMessage)
+            },
+          },
+        )
+      } catch (error) {
+        // Send error response and return early
+        const errorMessage = error instanceof Error ? error.message : 'Authentication failed'
+        await Actions.respond(porto, request, {
+          error: {
+            code: 4001,
+            message: errorMessage
+          }
+        }).catch(() => { })
+        return // Exit early since we've handled the error
+      }
+
+      if (!response) {
+        // This shouldn't happen, but just in case
+        return
+      }
 
       const { accounts } = response as { accounts: { address: string }[] }
       const address = accounts[0]?.address

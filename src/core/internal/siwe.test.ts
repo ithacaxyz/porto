@@ -8,7 +8,7 @@ const client = TestConfig.getRelayClient(porto)
 
 let server: Http.Server | undefined
 afterEach(async () => {
-  await server?.closeAsync().catch(() => {})
+  await server?.closeAsync().catch(() => { })
 })
 
 describe('authenticate', () => {
@@ -23,6 +23,7 @@ describe('authenticate', () => {
           const data = JSON.parse(body)
           expect(data).toEqual({
             address: '0x1234567890123456789012345678901234567890',
+            chainId: 1,
             message: 'test message',
             signature: '0xdeadbeef',
             walletAddress: '0x1234567890123456789012345678901234567890',
@@ -48,6 +49,48 @@ describe('authenticate', () => {
     })
     expect(result).toEqual({
       token: 'test-token',
+    })
+  })
+
+  test('behavior: includes publicKey when provided', async () => {
+    server = await Http.createServer((req, res) => {
+      if (req.method === 'POST' && req.url === '/verify') {
+        let body = ''
+        req.on('data', (chunk) => {
+          body += chunk.toString()
+        })
+        req.on('end', () => {
+          const data = JSON.parse(body)
+          expect(data).toEqual({
+            address: '0x1234567890123456789012345678901234567890',
+            chainId: 1,
+            message: 'test message',
+            signature: '0xdeadbeef',
+            walletAddress: '0x1234567890123456789012345678901234567890',
+            publicKey: '0xabcdef123456',
+          })
+          res.writeHead(200, { 'Content-Type': 'application/json' })
+          res.end(JSON.stringify({ token: 'test-token-with-pubkey' }))
+        })
+      } else {
+        res.statusCode = 404
+        res.end('Not Found')
+      }
+    })
+
+    const result = await SiweModule.authenticate({
+      address: '0x1234567890123456789012345678901234567890',
+      authUrl: {
+        logout: `${server.url}/logout`,
+        nonce: `${server.url}/nonce`,
+        verify: `${server.url}/verify`,
+      },
+      message: 'test message',
+      signature: '0xdeadbeef',
+      publicKey: '0xabcdef123456',
+    })
+    expect(result).toEqual({
+      token: 'test-token-with-pubkey',
     })
   })
 

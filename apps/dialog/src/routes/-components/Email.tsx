@@ -35,10 +35,20 @@ export function Email(props: Email.Props) {
     state.referrer?.url?.toString().startsWith('cli'),
   )
   const hostname = Dialog.useStore((state) => state.referrer?.url?.hostname)
+  const customTheme = Dialog.useStore((state) => state.customTheme)
 
   const [mode, setMode] = React.useState<'sign-in' | 'sign-up'>('sign-in')
   const signingIn = mode === 'sign-in' && status === 'responding'
   const signingUp = mode === 'sign-up' && status === 'responding'
+
+  // Get theme labels with fallbacks to default text
+  const labels = customTheme?.labels || {}
+  const signInPrompt = labels.signInPrompt || 'Use <span className="font-medium">Porto</span> to sign in to'
+  const signInButton = labels.signInButton || 'Sign in with Porto'
+  const continueButton = labels.continueButton || 'Continue with Porto'
+  const signUpButton = labels.signUpButton || 'Sign up with Porto'
+  const createAccount = labels.createAccount || 'Create Porto account'
+  const exampleEmail = labels.exampleEmail || 'example@ithaca.xyz'
 
   const onSignUpSubmit = React.useCallback<
     React.FormEventHandler<HTMLFormElement>
@@ -57,7 +67,7 @@ export function Email(props: Email.Props) {
     if (cli) return undefined
     return (
       <>
-        Use <span className="font-medium">Porto</span> to sign in to{' '}
+        {signInPrompt}{' '}
         {hostname ? (
           <>
             <span className="font-medium">{hostname}</span>
@@ -69,7 +79,7 @@ export function Email(props: Email.Props) {
         .
       </>
     )
-  }, [actions, cli, hostname])
+  }, [actions, cli, hostname, signInPrompt])
 
   return (
     <Layout>
@@ -99,8 +109,8 @@ export function Email(props: Email.Props) {
             width="full"
           >
             {actions.includes('sign-up')
-              ? 'Sign in with Porto'
-              : 'Continue with Porto'}
+              ? signInButton
+              : continueButton}
           </Button>
         )}
 
@@ -116,22 +126,27 @@ export function Email(props: Email.Props) {
                 <div className="ms-2 h-px w-full bg-th_separator" />
               </div>
             )}
-            <div className="relative flex items-center">
-              <label className="sr-only" htmlFor="email">
-                Email
-              </label>
-              <Input
-                className="w-full user-invalid:bg-th_field user-invalid:ring-th_base-negative"
-                defaultValue={defaultValue}
-                disabled={status === 'loading' || signingIn}
-                name="email"
-                placeholder="example@ithaca.xyz"
-                type="email"
-              />
-              <div className="-tracking-[2.8%] absolute end-3 text-[12px] text-th_base-secondary leading-normal">
-                Optional
+            {!customTheme?.hideOptionalLabel && (
+              <div className="relative flex items-center">
+                <label className="sr-only" htmlFor="email">
+                  Email
+                </label>
+                <Input
+                  className="w-full user-invalid:bg-th_field user-invalid:ring-th_base-negative"
+                  defaultValue={defaultValue}
+                  disabled={status === 'loading' || signingIn}
+                  name="email"
+                  placeholder={exampleEmail}
+                  type="email"
+                />
+                <div className="-tracking-[2.8%] absolute end-3 text-[12px] text-th_base-secondary leading-normal">
+                  Optional
+                </div>
               </div>
-            </div>
+            )}
+            {customTheme?.hideOptionalLabel && (
+              <input type="hidden" name="email" value="" />
+            )}
             <Button
               data-testid="sign-up"
               disabled={status === 'loading' || signingIn}
@@ -145,11 +160,11 @@ export function Email(props: Email.Props) {
               </span>
               <span className="flex gap-2 group-has-[:user-invalid]:hidden">
                 {actions.includes('sign-in') ? (
-                  'Create Porto account'
+                  createAccount
                 ) : (
                   <>
                     <IconScanFace className="size-5.25" />
-                    Sign up with Porto
+                    {signUpButton}
                   </>
                 )}
               </span>
@@ -161,7 +176,7 @@ export function Email(props: Email.Props) {
           <div className="flex w-full justify-between gap-2">
             <div>
               <span className="text-th_base-secondary">Using</span>{' '}
-              {displayName}
+              <span className="text-th_base">{displayName}</span>
             </div>
             <TextButton
               color="link"
