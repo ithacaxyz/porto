@@ -22,6 +22,7 @@ import { Route as DashAssetsImport } from './routes/_dash/assets'
 import { Route as DashActivityImport } from './routes/_dash/activity'
 import { Route as DashSettingsIndexImport } from './routes/_dash/settings/index'
 import { Route as DashSettingsRecoveryImport } from './routes/_dash/settings/recovery'
+import { Route as DashSettingsPermissionsImport } from './routes/_dash/settings/permissions'
 
 // Create/Update Routes
 
@@ -87,6 +88,12 @@ const DashSettingsIndexRoute = DashSettingsIndexImport.update({
 const DashSettingsRecoveryRoute = DashSettingsRecoveryImport.update({
   id: '/settings/recovery',
   path: '/settings/recovery',
+  getParentRoute: () => DashRoute,
+} as any)
+
+const DashSettingsPermissionsRoute = DashSettingsPermissionsImport.update({
+  id: '/settings/permissions',
+  path: '/settings/permissions',
   getParentRoute: () => DashRoute,
 } as any)
 
@@ -157,6 +164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashIndexImport
       parentRoute: typeof DashImport
     }
+    '/_dash/settings/permissions': {
+      id: '/_dash/settings/permissions'
+      path: '/settings/permissions'
+      fullPath: '/settings/permissions'
+      preLoaderRoute: typeof DashSettingsPermissionsImport
+      parentRoute: typeof DashImport
+    }
     '/_dash/settings/recovery': {
       id: '/_dash/settings/recovery'
       path: '/settings/recovery'
@@ -182,6 +196,7 @@ interface DashRouteChildren {
   DashReceiveRoute: typeof DashReceiveRoute
   DashSavingsRoute: typeof DashSavingsRoute
   DashIndexRoute: typeof DashIndexRoute
+  DashSettingsPermissionsRoute: typeof DashSettingsPermissionsRoute
   DashSettingsRecoveryRoute: typeof DashSettingsRecoveryRoute
   DashSettingsIndexRoute: typeof DashSettingsIndexRoute
 }
@@ -192,6 +207,7 @@ const DashRouteChildren: DashRouteChildren = {
   DashReceiveRoute: DashReceiveRoute,
   DashSavingsRoute: DashSavingsRoute,
   DashIndexRoute: DashIndexRoute,
+  DashSettingsPermissionsRoute: DashSettingsPermissionsRoute,
   DashSettingsRecoveryRoute: DashSettingsRecoveryRoute,
   DashSettingsIndexRoute: DashSettingsIndexRoute,
 }
@@ -208,6 +224,7 @@ export interface FileRoutesByFullPath {
   '/receive': typeof DashReceiveRoute
   '/savings': typeof DashSavingsRoute
   '/': typeof DashIndexRoute
+  '/settings/permissions': typeof DashSettingsPermissionsRoute
   '/settings/recovery': typeof DashSettingsRecoveryRoute
   '/settings': typeof DashSettingsIndexRoute
 }
@@ -221,6 +238,7 @@ export interface FileRoutesByTo {
   '/receive': typeof DashReceiveRoute
   '/savings': typeof DashSavingsRoute
   '/': typeof DashIndexRoute
+  '/settings/permissions': typeof DashSettingsPermissionsRoute
   '/settings/recovery': typeof DashSettingsRecoveryRoute
   '/settings': typeof DashSettingsIndexRoute
 }
@@ -236,6 +254,7 @@ export interface FileRoutesById {
   '/_dash/receive': typeof DashReceiveRoute
   '/_dash/savings': typeof DashSavingsRoute
   '/_dash/': typeof DashIndexRoute
+  '/_dash/settings/permissions': typeof DashSettingsPermissionsRoute
   '/_dash/settings/recovery': typeof DashSettingsRecoveryRoute
   '/_dash/settings/': typeof DashSettingsIndexRoute
 }
@@ -252,6 +271,7 @@ export interface FileRouteTypes {
     | '/receive'
     | '/savings'
     | '/'
+    | '/settings/permissions'
     | '/settings/recovery'
     | '/settings'
   fileRoutesByTo: FileRoutesByTo
@@ -264,6 +284,7 @@ export interface FileRouteTypes {
     | '/receive'
     | '/savings'
     | '/'
+    | '/settings/permissions'
     | '/settings/recovery'
     | '/settings'
   id:
@@ -277,6 +298,7 @@ export interface FileRouteTypes {
     | '/_dash/receive'
     | '/_dash/savings'
     | '/_dash/'
+    | '/_dash/settings/permissions'
     | '/_dash/settings/recovery'
     | '/_dash/settings/'
   fileRoutesById: FileRoutesById
@@ -320,6 +342,7 @@ export const routeTree = rootRoute
         "/_dash/receive",
         "/_dash/savings",
         "/_dash/",
+        "/_dash/settings/permissions",
         "/_dash/settings/recovery",
         "/_dash/settings/"
       ]
@@ -351,6 +374,10 @@ export const routeTree = rootRoute
     },
     "/_dash/": {
       "filePath": "_dash/index.tsx",
+      "parent": "/_dash"
+    },
+    "/_dash/settings/permissions": {
+      "filePath": "_dash/settings/permissions.tsx",
       "parent": "/_dash"
     },
     "/_dash/settings/recovery": {
