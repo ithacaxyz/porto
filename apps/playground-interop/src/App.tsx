@@ -161,20 +161,26 @@ function Balances({ chainId }: { chainId: ChainId }) {
               <td>Loading...</td>
             </tr>
           )}
-          {assets?.map((asset) =>
-            asset ? (
+          {assets?.map((asset) => {
+            const symbol = asset.metadata?.symbol ?? 'ETH'
+            const formattedFull = formatUnits(
+              asset.balance,
+              asset.metadata?.decimals ?? 18,
+            )
+            let formatted = Number(formattedFull).toFixed(2)
+            if (formatted === '0.00' && asset.balance > 0n) formatted = `<0.01`
+            return asset ? (
               <tr key={asset.address}>
-                <td style={{ width: '100px' }}>
-                  {asset.metadata?.symbol ?? 'ETH'}
-                </td>
-                <td style={{ textAlign: 'right' }}>
-                  {Number(
-                    formatUnits(asset.balance, asset.metadata?.decimals ?? 18),
-                  ).toFixed(2)}
+                <td style={{ width: 100 }}>{symbol}</td>
+                <td
+                  style={{ textAlign: 'right' }}
+                  title={`${formattedFull} ${symbol}`}
+                >
+                  {formatted}
                 </td>
               </tr>
-            ) : null,
-          )}
+            ) : null
+          })}
         </tbody>
       </table>
     </div>
