@@ -51,7 +51,7 @@ export function Swap(props: Swap.Props) {
 
       <Layout.Content>
         <div className="flex flex-col gap-[8px]">
-          <div className="flex flex-col gap-[8px] rounded-th_medium bg-th_base-alt px-[10px] py-[10px]">
+          <div className="flex flex-col gap-[12px] rounded-th_medium bg-th_base-alt px-[10px] py-[12px]">
             <Swap.AssetRow
               asset={assetOut}
               currencyType={currencyType}
