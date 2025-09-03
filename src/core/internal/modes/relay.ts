@@ -271,9 +271,11 @@ export function relay(parameters: relay.Parameters = {}) {
           chainIds,
         })
 
-        return U.uniqBy(
-          [...keys, ...(account.keys ?? [])],
-          (key) => key.publicKey,
+        // deduplicate keys while preserving per-chain session keys
+        return U.uniqBy([...keys, ...(account.keys ?? [])], (key) =>
+          key.role === 'session'
+            ? `${key.publicKey}:${key.chainId ?? ''}`
+            : key.publicKey,
         )
       },
 
