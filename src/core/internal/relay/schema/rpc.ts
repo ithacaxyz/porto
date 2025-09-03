@@ -227,7 +227,22 @@ export namespace wallet_getCapabilities {
         /** Quote configuration. */
         recipient: u.address(),
         /** Tokens the fees can be paid in. */
+<<<<<<< HEAD
         tokens: z.readonly(z.array(Token.Token)),
+||||||| parent of bc3f8c7c (refactor: `Tokens` module)
+        tokens: Schema.Array(
+          Schema.Struct({
+            address: Primitive.Address,
+            decimals: Schema.Number,
+            interop: Schema.optional(Schema.Boolean),
+            nativeRate: Schema.optional(Primitive.BigInt),
+            symbol: Schema.String,
+            uid: Schema.String,
+          }),
+        ),
+=======
+        tokens: Schema.Array(Token.Token),
+>>>>>>> bc3f8c7c (refactor: `Tokens` module)
       }),
     }),
   )
