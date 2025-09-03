@@ -1,10 +1,10 @@
 import type { UseQueryResult } from '@tanstack/react-query'
 import { Address, Value } from 'ox'
-import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
+import type * as Token from 'porto/core/internal/schema/token.js'
 import type { RelayActions } from 'porto/viem'
 import * as React from 'react'
 import { zeroAddress } from 'viem'
-import * as FeeTokens from '~/lib/FeeTokens'
+import * as Tokens from '~/lib/Tokens'
 import { AddFunds } from '~/routes/-components/AddFunds'
 import { Layout } from '~/routes/-components/Layout'
 
@@ -13,9 +13,11 @@ export function CheckBalance(props: CheckBalance.Props) {
 
   const [step, setStep] = React.useState<'default' | 'success'>('default')
 
-  const feeTokens = FeeTokens.fetch.useQuery({
+  const tokens = Tokens.getTokens.useQuery({
     addressOrSymbol: props.feeToken,
   })
+  const [token] = tokens.data ?? []
+
   const quotes = query.data?.capabilities.quote.quotes ?? []
 
   // Check to see if the user has insufficient funds.
@@ -51,9 +53,9 @@ export function CheckBalance(props: CheckBalance.Props) {
     if (!insufficientFundsMatch) {
       // TODO: Remove once other pattern is back
       const pattern = /InsufficientBalance/
-      if (pattern.test(errorMessage))
+      if (token && pattern.test(errorMessage))
         return {
-          address: feeTokens.data?.[0]?.address,
+          address: token.address,
         } as const
       return undefined
     }
@@ -64,21 +66,18 @@ export function CheckBalance(props: CheckBalance.Props) {
       chainId: Number(chainId!),
       value: BigInt(value!),
     }
-  }, [quotes, query.error?.cause, feeTokens.data])
+  }, [quotes, query.error?.cause, token])
 
   const value = React.useMemo(() => {
     if (!deficitToken) return undefined
     if (!deficitToken.address) return undefined
     if (!deficitToken.value) return undefined
     if (deficitToken.value === 0n) return undefined
-    const feeToken = feeTokens.data?.find((token) =>
-      Address.isEqual(token.address, deficitToken.address),
-    )
-    if (!feeToken) return undefined
+    if (!token) return undefined
     // Add 20% to the deficit to account for fee fluctuations.
     const value = deficitToken.value * (120n / 100n)
-    return Value.format(value, feeToken.decimals)
-  }, [deficitToken, feeTokens.data])
+    return Value.format(value, token.decimals)
+  }, [deficitToken, token])
 
   if (step === 'success') return children
   if (query.isPending) return <Layout loading />
@@ -104,7 +103,7 @@ export namespace CheckBalance {
     address?: Address.Address | undefined
     chainId?: number | undefined
     children: React.ReactNode
-    feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
+    feeToken?: Token.Symbol | Address.Address | undefined
     onReject: () => void
     query: UseQueryResult<
       RelayActions.prepareCalls.ReturnType,

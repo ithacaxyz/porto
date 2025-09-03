@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'vitest'
 import * as Anvil from '../../../test/src/anvil.js'
 import * as TestConfig from '../../../test/src/config.js'
-import * as FeeTokens from './feeTokens.js'
 import * as RequiredFunds from './requiredFunds.js'
+import * as Tokens from './tokens.js'
 
 const porto = TestConfig.getPorto()
 const client = TestConfig.getRelayClient(porto)
-const feeTokens = await FeeTokens.fetch(client)
+const feeTokens = await Tokens.resolveFeeTokens(client)
 
 // TODO: unskip when interop supported
 describe.skip('toRelay', () => {

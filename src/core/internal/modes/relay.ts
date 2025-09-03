@@ -18,12 +18,12 @@ import * as Key from '../../../viem/Key.js'
 import * as RelayActions from '../../../viem/RelayActions.js'
 import type { RelayClient } from '../../../viem/RelayClient.js'
 import * as Erc8010 from '../erc8010.js'
-import * as FeeTokens from '../feeTokens.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import * as PreCalls from '../preCalls.js'
 import * as RequiredFunds from '../requiredFunds.js'
 import * as Siwe from '../siwe.js'
+import * as Tokens from '../tokens.js'
 import * as U from '../utils.js'
 
 /**
@@ -70,7 +70,7 @@ export function relay(parameters: relay.Parameters = {}) {
 
         const eoa = Account.fromPrivateKey(Secp256k1.randomPrivateKey())
 
-        const feeTokens = await FeeTokens.fetch(client, {
+        const feeTokens = await Tokens.resolveFeeTokens(client, {
           store: internal.store,
         })
 
@@ -285,7 +285,7 @@ export function relay(parameters: relay.Parameters = {}) {
           chainId: client.chain.id,
         })
 
-        const [feeToken] = await FeeTokens.fetch(client, {
+        const [feeToken] = await Tokens.resolveFeeTokens(client, {
           addressOrSymbol: parameters.feeToken,
           store: internal.store,
         })
@@ -309,7 +309,7 @@ export function relay(parameters: relay.Parameters = {}) {
           config: { storage },
         } = internal
 
-        const feeTokens = await FeeTokens.fetch(client, {
+        const feeTokens = await Tokens.resolveFeeTokens(client, {
           store: internal.store,
         })
 
@@ -341,7 +341,7 @@ export function relay(parameters: relay.Parameters = {}) {
           config: { storage },
         } = internal
 
-        const feeTokens = await FeeTokens.fetch(client, {
+        const feeTokens = await Tokens.resolveFeeTokens(client, {
           store: internal.store,
         })
         const authorizeKey = await PermissionsRequest.toKey(permissions, {
@@ -560,7 +560,7 @@ export function relay(parameters: relay.Parameters = {}) {
             storage,
           }))
 
-        const feeTokens = await FeeTokens.fetch(client, {
+        const feeTokens = await Tokens.resolveFeeTokens(client, {
           addressOrSymbol: parameters.feeToken,
           store: internal.store,
         })
@@ -610,7 +610,7 @@ export function relay(parameters: relay.Parameters = {}) {
         const { address, email, label, internal, permissions } = parameters
         const { client } = internal
 
-        const feeTokens = await FeeTokens.fetch(client, {
+        const feeTokens = await Tokens.resolveFeeTokens(client, {
           store: internal.store,
         })
 
@@ -661,7 +661,7 @@ export function relay(parameters: relay.Parameters = {}) {
           throw new Error('revoke the only WebAuthn key left.')
 
         try {
-          const [feeToken] = await FeeTokens.fetch(client, {
+          const [feeToken] = await Tokens.resolveFeeTokens(client, {
             addressOrSymbol: parameters.feeToken,
             store: internal.store,
           })
@@ -695,7 +695,7 @@ export function relay(parameters: relay.Parameters = {}) {
         if (key.role === 'admin') throw new Error('cannot revoke admins.')
 
         try {
-          const [feeToken] = await FeeTokens.fetch(client, {
+          const [feeToken] = await Tokens.resolveFeeTokens(client, {
             addressOrSymbol: parameters.feeToken,
             store: internal.store,
           })
@@ -742,7 +742,7 @@ export function relay(parameters: relay.Parameters = {}) {
           }))
 
         // Resolve fee token to use.
-        const feeTokens = await FeeTokens.fetch(client, {
+        const feeTokens = await Tokens.resolveFeeTokens(client, {
           addressOrSymbol: parameters.feeToken,
           store: internal.store,
         })

@@ -1,7 +1,7 @@
 import { Value } from 'ox'
 import { describe, expect, test } from 'vitest'
-import type * as FeeTokens from './feeTokens.js'
 import * as PermissionsRequest from './permissionsRequest.js'
+import type * as Tokens from './tokens.js'
 
 const feeTokens = [
   {
@@ -20,7 +20,7 @@ const feeTokens = [
     symbol: 'ETH',
     uid: 'ethereum',
   },
-] as const satisfies FeeTokens.FeeTokens
+] as const satisfies Tokens.Tokens
 
 describe('resolvePermissions', () => {
   test('default', () => {
@@ -452,7 +452,7 @@ describe('getFeeLimit', () => {
         symbol: 'ETH',
         uid: 'ethereum',
       },
-    ] as const satisfies FeeTokens.FeeTokens
+    ] as const satisfies Tokens.Tokens
 
     const result = PermissionsRequest.getFeeLimit(
       {
@@ -607,7 +607,7 @@ describe('getFeeLimit', () => {
         symbol: 'ETH',
         uid: 'ethereum',
       },
-    ] as const satisfies FeeTokens.FeeTokens
+    ] as const satisfies Tokens.Tokens
 
     const result = PermissionsRequest.getFeeLimit(
       {

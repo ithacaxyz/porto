@@ -12,8 +12,8 @@ import type * as PermissionsRequest from './permissionsRequest.js'
 import type * as Porto from './porto.js'
 import type * as PreCalls from './preCalls.js'
 import type * as Capabilities from './schema/capabilities.js'
-import type * as FeeToken from './schema/feeToken.js'
 import type * as RpcRequest from './schema/request.js'
+import type * as Token from './schema/token.js'
 import type { Assign, PartialBy } from './types.js'
 
 type Request = RpcRequest.parseRequest.ReturnType
@@ -131,7 +131,7 @@ export type Mode = {
       /** Internal properties. */
       internal: ActionsInternal
       /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
-      feeToken?: FeeToken.Symbol | Address.Address | undefined
+      feeToken?: Token.Symbol | Address.Address | undefined
       /** Key to authorize as an admin. */
       key: Key.from.Value
     }) => Promise<{
@@ -193,7 +193,7 @@ export type Mode = {
       /** Key that will be used to sign over the digest. */
       key?: Pick<Key.Key, 'prehash' | 'publicKey' | 'type'> | undefined
       /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
-      feeToken?: FeeToken.Symbol | Address.Address | undefined
+      feeToken?: Token.Symbol | Address.Address | undefined
       /** Internal properties. */
       internal: ActionsInternal
       /** Merchant RPC URL. */
@@ -248,7 +248,7 @@ export type Mode = {
       /** Account to revoke the permissions for. */
       account: Account.Account
       /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
-      feeToken?: FeeToken.Symbol | Address.Address | undefined
+      feeToken?: Token.Symbol | Address.Address | undefined
       /** ID of the admin to revoke. */
       id: Hex.Hex
       /** Internal properties. */
@@ -259,7 +259,7 @@ export type Mode = {
       /** Account to revoke the permissions for. */
       account: Account.Account
       /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
-      feeToken?: FeeToken.Symbol | Address.Address | undefined
+      feeToken?: Token.Symbol | Address.Address | undefined
       /** ID of the permissions to revoke. */
       id: Hex.Hex
       /** Internal properties. */
@@ -274,7 +274,7 @@ export type Mode = {
       /** Calls to execute. */
       calls: readonly Call.Call[]
       /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
-      feeToken?: FeeToken.Symbol | Address.Address | undefined
+      feeToken?: Token.Symbol | Address.Address | undefined
       /** Internal properties. */
       internal: ActionsInternal
       /** Required funds to execute the calls. */
