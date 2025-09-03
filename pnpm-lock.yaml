@@ -469,6 +469,9 @@ importers:
       '@porto/apps':
         specifier: workspace:*
         version: link:../~internal
+      '@porto/ui':
+        specifier: workspace:*
+        version: link:../ui
       '@sentry/react':
         specifier: 'catalog:'
         version: 9.22.0(react@19.1.0)
