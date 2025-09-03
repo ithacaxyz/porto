@@ -6,7 +6,13 @@ import * as Tokens from './tokens.js'
 
 const porto = TestConfig.getPorto()
 const client = TestConfig.getRelayClient(porto)
+<<<<<<< HEAD
 const tokens = await Tokens.getTokens(client)
+||||||| parent of bc3f8c7c (refactor: `Tokens` module)
+const feeTokens = await FeeTokens.fetch(client)
+=======
+const feeTokens = await Tokens.resolveFeeTokens(client)
+>>>>>>> bc3f8c7c (refactor: `Tokens` module)
 
 // TODO: unskip when interop supported
 describe.skip('toRelay', () => {
