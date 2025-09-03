@@ -3,8 +3,8 @@ import type * as Hex from 'ox/Hex'
 import * as Value from 'ox/Value'
 import { zeroAddress } from 'viem'
 import * as Key from '../../viem/Key.js'
-import type * as FeeTokens from './feeTokens.js'
 import * as Permissions from './schema/permissions.js'
+import type * as Tokens from './tokens.js'
 
 export const Schema = Permissions.Request
 
@@ -67,7 +67,7 @@ export async function toKey(
 export declare namespace toKey {
   export type Options = {
     chainId?: number | undefined
-    feeTokens?: FeeTokens.FeeTokens | undefined
+    feeTokens?: Tokens.Tokens | undefined
   }
 }
 
@@ -138,7 +138,7 @@ export function resolvePermissions(
 
 export declare namespace resolvePermissions {
   export type Options = {
-    feeTokens?: FeeTokens.FeeTokens | undefined
+    feeTokens?: Tokens.Tokens | undefined
   }
 }
 
@@ -198,12 +198,12 @@ export function getFeeLimit(
 
 export declare namespace getFeeLimit {
   export type Options = {
-    feeTokens: FeeTokens.FeeTokens
+    feeTokens: Tokens.Tokens
   }
 
   export type ReturnType =
     | {
-        token: FeeTokens.FeeToken
+        token: Tokens.Token
         value: bigint
       }
     | undefined
