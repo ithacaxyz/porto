@@ -1,6 +1,7 @@
 import { Button, Frame } from '@porto/ui'
 import { cx } from 'cva'
 import * as React from 'react'
+import { maxUint160, maxUint256 } from 'viem'
 import { useChains } from 'wagmi'
 import { CopyButton } from '~/components/CopyButton'
 import type * as TypedMessages from '~/lib/TypedMessages'
@@ -222,13 +223,14 @@ export namespace SignTypedMessageInvalid {
 export function SignPermit(props: SignPermit.Props) {
   const {
     amount,
+    approving,
     chainId,
     deadline,
+    onReject,
+    onSign,
+    permitType,
     spender,
     tokenContract,
-    onSign,
-    onReject,
-    approving,
   } = props
 
   const chains = useChains()
@@ -275,6 +277,9 @@ export function SignPermit(props: SignPermit.Props) {
       onReject={onReject}
       spender={spender}
       tokenAddress={tokenContract}
+      unlimited={
+        permitType === 'permit2' ? amount === maxUint160 : amount === maxUint256
+      }
     />
   )
 }
@@ -282,11 +287,12 @@ export function SignPermit(props: SignPermit.Props) {
 export namespace SignPermit {
   export type Props = {
     amount: bigint
+    approving: boolean
     chainId: number
     deadline: number
-    approving: boolean
     onReject: () => void
     onSign: () => void
+    permitType: 'erc-2612' | 'permit2'
     spender: `0x${string}`
     tokenContract: `0x${string}`
   }

@@ -4,7 +4,7 @@ import { a, useTransition } from '@react-spring/web'
 import { Value } from 'ox'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import * as React from 'react'
-import { erc20Abi, maxUint256 } from 'viem'
+import { erc20Abi } from 'viem'
 import { useReadContracts } from 'wagmi'
 import { CopyButton } from '~/components/CopyButton'
 import { porto } from '~/lib/Porto'
@@ -15,15 +15,16 @@ import { Layout } from './Layout'
 export function Approve(props: Approve.Props) {
   const {
     amount,
+    approving,
     chainId,
     expiresAt,
     fees,
     loading,
-    approving,
     onApprove,
     onReject,
     spender,
     tokenAddress,
+    unlimited,
   } = props
 
   const { feeTotalFormatted, feeTotalFormattedFull } = React.useMemo(() => {
@@ -80,7 +81,6 @@ export function Approve(props: Approve.Props) {
   })
 
   const [decimals, name, symbol] = tokenResult.data || []
-  const infinite = amount === maxUint256
 
   return (
     <Layout>
@@ -98,14 +98,14 @@ export function Approve(props: Approve.Props) {
             <Approve.AllowanceRow
               amount={
                 tokenResult.data &&
-                (infinite ? 'Any amount' : Value.format(amount, decimals))
+                (unlimited ? 'Any amount' : Value.format(amount, decimals))
               }
               error={tokenResult.error}
               expiresAt={expiresAt}
-              infinite={infinite}
               loading={tokenResult.isLoading}
               name={name}
               symbol={symbol}
+              unlimited={unlimited}
             />
           </div>
           <Details loading={loading}>
@@ -168,25 +168,26 @@ export function Approve(props: Approve.Props) {
 export namespace Approve {
   export type Props = {
     amount: bigint
+    approving?: boolean | undefined
     chainId?: number | undefined
     expiresAt?: Date
     fees?: Capabilities.feeTotals.Response | undefined
     loading?: boolean | undefined
-    approving?: boolean | undefined
     onApprove: () => void
     onReject: () => void
     spender: `0x${string}`
     tokenAddress: `0x${string}`
+    unlimited?: boolean | undefined
   }
 
   export function AllowanceRow({
     amount,
     error,
     expiresAt,
-    infinite,
     loading,
     name,
     symbol,
+    unlimited,
   }: AllowanceRow.Props) {
     const loadingTransition = useTransition(
       { error, loading },
@@ -247,7 +248,7 @@ export namespace Approve {
                 </div>
               </div>
               <div className="truncate font-medium text-[13px] text-th_base-secondary">
-                {infinite
+                {unlimited
                   ? 'Any amount'
                   : amount &&
                     `${Intl.NumberFormat('en-US', {
@@ -266,7 +267,7 @@ export namespace Approve {
       amount?: string | undefined
       error: Error | null
       expiresAt?: Date
-      infinite: boolean
+      unlimited?: boolean | undefined
       loading: boolean
       name?: string | undefined
       symbol?: string | undefined
