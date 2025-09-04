@@ -52,7 +52,7 @@ export function Send(props: Send.Props) {
       </Layout.Header>
 
       <Layout.Content>
-        <div className="flex flex-col gap-[8px] -mb-[4px]">
+        <div className="-mb-[4px] flex flex-col gap-[8px]">
           <div className="flex flex-col gap-[10px] rounded-th_medium bg-th_base-alt px-[10px] py-[10px]">
             <div className="flex w-full flex-row items-center gap-[8px]">
               <div className="shrink-0">

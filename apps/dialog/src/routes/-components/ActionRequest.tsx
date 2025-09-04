@@ -2,7 +2,6 @@ import { ChainIcon, Spinner } from '@porto/apps/components'
 import { Button, Details } from '@porto/ui'
 import { cx } from 'cva'
 import { type Address, Base64, type Hex } from 'ox'
-import type { Chains } from 'porto'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import type * as Quote_schema from 'porto/core/internal/relay/schema/quotes'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
@@ -559,7 +558,7 @@ export namespace ActionRequest {
                     <span className="font-medium">{destinationChain.name}</span>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-[6px]">
                     {sourceChains.map((chain) => (
                       <div key={chain!.id}>
                         <ChainIcon chainId={chain!.id} className="size-4.5" />

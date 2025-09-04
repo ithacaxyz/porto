@@ -38,9 +38,8 @@ export function Details({ children, loading }: Details.Props) {
   })
 
   const openTransition = useTransition(
-    { opened, loading },
+    { loading, opened },
     {
-      keys: (item) => (item.opened ? `o-${item.loading}` : 'c'),
       config: {
         friction: 40,
         tension: 500,
@@ -48,7 +47,8 @@ export function Details({ children, loading }: Details.Props) {
       enter: { opacity: 1, transform: 'scale(1)' },
       from: { opacity: 0, transform: 'scale(0.95)' },
       initial: { opacity: 1, transform: 'scale(1)' },
-      leave: { immediate: true, display: 'none' },
+      keys: (item) => (item.opened ? `o-${item.loading}` : 'c'),
+      leave: { display: 'none', immediate: true },
     },
   )
 

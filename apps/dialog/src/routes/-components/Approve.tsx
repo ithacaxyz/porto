@@ -93,7 +93,7 @@ export function Approve(props: Approve.Props) {
       </Layout.Header>
 
       <Layout.Content>
-        <div className="flex flex-col gap-[8px] -mb-[4px]">
+        <div className="-mb-[4px] flex flex-col gap-[8px]">
           <div className="flex flex-col gap-[10px] rounded-th_medium bg-th_base-alt p-[10px]">
             <Approve.AllowanceRow
               amount={

@@ -12,7 +12,7 @@ export function ComponentScreen({
   return (
     <Ui>
       <div className="flex max-w-2xl flex-col gap-4 py-4">
-        <h1 className="mb-4 text-2xl text-th_base flex gap-2 items-center">
+        <h1 className="mb-4 flex items-center gap-2 text-2xl text-th_base">
           {title}
         </h1>
         <div className="w-full space-y-6">{children}</div>
@@ -33,7 +33,7 @@ function ComponentScreenSection({
   return (
     <section className="w-full">
       {title && (
-        <h1 className="mb-3 text-lg text-th_base flex gap-2 items-center">
+        <h1 className="mb-3 flex items-center gap-2 text-lg text-th_base">
           {title}
         </h1>
       )}

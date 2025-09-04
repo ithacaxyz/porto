@@ -1,7 +1,7 @@
-import { Details, Button } from '@porto/ui'
+import { Button, Details } from '@porto/ui'
 import { createFileRoute } from '@tanstack/react-router'
-import { ComponentScreen } from '~/components/ComponentScreen/ComponentScreen'
 import { useState } from 'react'
+import { ComponentScreen } from '~/components/ComponentScreen/ComponentScreen'
 
 export const Route = createFileRoute('/Details')({
   component: DetailsComponent,
@@ -16,11 +16,11 @@ function DetailsComponent() {
         <>
           <div>Details</div>
           <Button
-            size="small"
             onClick={() => {
               setKey((v) => v + 1)
               setLoading(true)
             }}
+            size="small"
           >
             Reset
           </Button>
@@ -61,14 +61,14 @@ function DetailsComponent() {
         title={
           <>
             <div>Loading state</div>
-            <Button size="small" onClick={() => setLoading((v) => !v)}>
+            <Button onClick={() => setLoading((v) => !v)} size="small">
               {loading ? 'on' : 'off'}
             </Button>
           </>
         }
       >
         <div className="flex flex-col gap-2 rounded-lg bg-th_base p-3">
-          <Details loading={loading} key={key}>
+          <Details key={key} loading={loading}>
             <div className="flex h-[18px] items-center justify-between text-[14px]">
               <span className="text-th_base-secondary">Network</span>
               <span className="font-medium">Ethereum</span>
