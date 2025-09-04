@@ -80,7 +80,7 @@ const config = {
       polygon,
       sepolia,
     ],
-    feeToken: 'EXP',
+    feeToken: 'native',
     mode: Mode.relay({
       mock,
       persistPreCalls: false,
