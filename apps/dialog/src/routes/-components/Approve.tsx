@@ -40,12 +40,18 @@ export function Approve(props: Approve.Props) {
         abi: erc20Abi,
         address: tokenAddress,
         chainId: chainId as never,
+        functionName: 'name',
+      },
+      {
+        abi: erc20Abi,
+        address: tokenAddress,
+        chainId: chainId as never,
         functionName: 'symbol',
       },
     ],
   })
 
-  const [decimals, symbol] = tokenResult.data || []
+  const [decimals, name, symbol] = tokenResult.data || []
   const [showDetails, setShowDetails] = React.useState(false)
   const infinite = amount === maxUint256
 
@@ -71,21 +77,9 @@ export function Approve(props: Approve.Props) {
               expiresAt={expiresAt}
               infinite={infinite}
               loading={tokenResult.isLoading}
+              name={name}
               symbol={symbol}
             />
-            <hr className="-mx-[10px] border-th_separator" />
-            <div className="flex flex-row items-center gap-4">
-              <div className="whitespace-nowrap font-medium text-[14px] text-th_base-secondary">
-                {expiresAt ? 'Requested by' : 'Spender'}
-              </div>
-              <div
-                className="flex flex-grow items-center justify-end gap-2 text-[14px] text-th_base"
-                title={spender}
-              >
-                {StringFormatter.truncate(spender)}
-                <CopyButton value={spender} />
-              </div>
-            </div>
           </div>
           {showDetails ? (
             <div className="flex w-full items-center justify-between gap-[6px] rounded-th_medium bg-th_base-alt px-[12px] text-[13px]">
@@ -94,6 +88,7 @@ export function Approve(props: Approve.Props) {
                   chainId={chainId}
                   fees={fees}
                   loading={loading}
+                  spender={spender}
                 />
               </div>
             </div>
@@ -154,6 +149,7 @@ export namespace Approve {
     expiresAt,
     infinite,
     loading,
+    name,
     symbol,
   }: AllowanceRow.Props) {
     const loadingTransition = useTransition(
@@ -192,8 +188,16 @@ export namespace Approve {
             >
               <TokenIcon className="shrink-0" symbol={symbol} />
               <div className="flex flex-1 flex-col gap-[4px]">
-                <div className="text-nowrap font-medium text-[14px]">
-                  Spend {symbol}
+                <div className="flex items-center gap-[4px]">
+                  <div
+                    className="max-w-[120px] truncate font-medium text-[14px] text-th_base"
+                    title={name || 'Unknown'}
+                  >
+                    {name || 'Unknown'}
+                  </div>
+                  <div className="flex h-[20px] items-center rounded-th_small bg-th_field px-[4px] font-medium text-[12px] text-th_base-secondary">
+                    {symbol}
+                  </div>
                 </div>
                 <div className="text-nowrap text-[12px] text-th_base-secondary">
                   Expires{' '}
@@ -236,12 +240,13 @@ export namespace Approve {
       expiresAt?: Date
       infinite: boolean
       loading: boolean
+      name?: string | undefined
       symbol?: string | undefined
     }
   }
 
   export function Details(props: Details.Props) {
-    const { chainId, fees, loading } = props
+    const { chainId, fees, loading, spender } = props
 
     const { feeTotalFormatted, feeTotalFormattedFull } = React.useMemo(() => {
       if (!fees)
@@ -281,7 +286,17 @@ export namespace Approve {
 
     return (
       <>
-        {fees && feeTotalFormatted && (
+        <div className="flex h-[18px] items-center justify-between text-[14px]">
+          <span className="text-th_base-secondary">Requested by</span>
+          <div
+            className="flex items-center gap-[8px] font-medium"
+            title={spender}
+          >
+            {StringFormatter.truncate(spender)}
+            <CopyButton value={spender} />
+          </div>
+        </div>
+        {feeTotalFormatted && (
           <div className="flex h-[18px] items-center justify-between text-[14px]">
             <div className="text-th_base-secondary">Fees (est.)</div>
             <div className="font-medium" title={feeTotalFormattedFull}>
@@ -307,6 +322,7 @@ export namespace Approve {
       chainId?: number | undefined
       fees?: Capabilities.feeTotals.Response | undefined
       loading?: boolean | undefined
+      spender: `0x${string}`
     }
   }
 }
