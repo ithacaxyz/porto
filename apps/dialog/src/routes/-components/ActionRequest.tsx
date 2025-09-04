@@ -1,8 +1,8 @@
 import { ChainIcon, Spinner } from '@porto/apps/components'
-import { Button } from '@porto/ui'
+import { Button, ButtonArea, Details } from '@porto/ui'
+import { a, useTransition } from '@react-spring/web'
 import { cx } from 'cva'
 import { type Address, Base64, type Hex } from 'ox'
-import type { Chains } from 'porto'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import type * as Quote_schema from 'porto/core/internal/relay/schema/quotes'
 import type * as Rpc from 'porto/core/internal/schema/request'
@@ -24,7 +24,6 @@ import { PriceFormatter, ValueFormatter } from '~/utils'
 import ArrowDownLeft from '~icons/lucide/arrow-down-left'
 import ArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideFileText from '~icons/lucide/file-text'
-import LucideInfo from '~icons/lucide/info'
 import LucideMusic from '~icons/lucide/music'
 import LucideSparkles from '~icons/lucide/sparkles'
 import TriangleAlert from '~icons/lucide/triangle-alert'
@@ -325,11 +324,11 @@ export namespace ActionRequest {
 
       return (
         <div className="flex items-center gap-2 font-medium" key={symbol}>
-          <div className="relative flex size-6 items-center justify-center rounded-sm bg-th_badge">
+          <div className="relative flex size-6 items-center justify-center overflow-hidden rounded-sm bg-th_badge">
             {decoded?.type === 'image' ? (
               <img
-                alt={name ?? symbol}
-                className="min-h-6 min-w-6 rounded-sm object-cover text-transparent"
+                alt=""
+                className="size-6 rounded-sm object-cover"
                 src={decoded.url}
               />
             ) : decoded?.type === 'audio' ? (
@@ -342,21 +341,22 @@ export namespace ActionRequest {
               <LucideSparkles className="size-4 text-th_badge" />
             )}
           </div>
-          <div className="flex w-full justify-between">
-            <div className="flex flex-1 gap-1.5">
+          <div className="flex min-w-0 flex-1 justify-between gap-2">
+            <div className="flex min-w-0 flex-1 items-center gap-1.5">
               {name || symbol ? (
-                <div className="max-w-[150px] truncate">
+                <div className="min-w-0 flex-1 truncate" title={name || symbol}>
                   <span className="text-th_base">{name || symbol}</span>
                 </div>
               ) : (
                 <span className="text-th_base-secondary">No name provided</span>
               )}
-              <span className="text-th_base-tertiary">#{value}</span>
+              <span className="shrink-0 text-th_base-tertiary">#{value}</span>
             </div>
             <div
-              className={
-                receiving ? 'text-th_base-positive' : 'text-th_base-secondary'
-              }
+              className={cx('shrink-0', {
+                'text-th_base-positive': receiving,
+                'text-th_base-secondary': !receiving,
+              })}
             >
               {receiving ? '+' : '-'}1
             </div>
@@ -385,20 +385,32 @@ export namespace ActionRequest {
       const receiving = direction === 'incoming'
 
       const Icon = receiving ? ArrowDownLeft : ArrowUpRight
+
+      const fiatValue = fiat
+        ? PriceFormatter.format(Math.abs(fiat.value))
+        : null
+      const tokenValue = `${ValueFormatter.format(
+        value < 0n ? -value : value,
+        decimals ?? 0,
+      )} ${symbol}`
+
+      const transition = useTransition(currencyType, {
+        config: { friction: 50, tension: 1400 },
+        enter: { opacity: 1, transform: 'scale(1)' },
+        from: { opacity: 0, transform: 'scale(0.8)' },
+        initial: { opacity: 1, transform: 'scale(1)' },
+        leave: { immediate: true, opacity: 0 },
+      })
+
       return (
-        <button
-          className="relative flex w-[calc(100%+1rem)] cursor-pointer! items-center justify-between font-medium"
+        <div
+          className="relative flex w-full items-center justify-between gap-2 font-medium"
           key={symbol}
-          onClick={() => {
-            if (!fiat) return
-            setCurrencyType(currencyType === 'fiat' ? 'crypto' : 'fiat')
-          }}
-          type="button"
         >
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 flex-1 items-center gap-2">
             <div
               className={cx(
-                'flex size-6 items-center justify-center rounded-full',
+                'flex size-6 shrink-0 items-center justify-center rounded-full',
                 {
                   'bg-th_badge': !receiving,
                   'bg-th_badge-positive': receiving,
@@ -412,44 +424,41 @@ export namespace ActionRequest {
                 })}
               />
             </div>
-            <div>
+            <div className="truncate">
               {receiving ? 'Receive' : 'Spend'} {symbol}
             </div>
           </div>
-          <div>
-            <span
-              className={cx(
-                receiving ? 'text-th_base-positive' : 'text-th_base-secondary',
-              )}
-            >
-              <span
-                className={cx(
-                  '-translate-y-1/2 absolute top-[50%] right-4 transition-opacity duration-200 ease-[cubic-bezier(0.42,0,1,1)]',
-                  {
-                    'opacity-0': currencyType === 'crypto',
-                    'opacity-100': currencyType === 'fiat',
-                  },
-                )}
-              >
-                {currencyType === 'fiat' && fiat ? (
-                  <span>{PriceFormatter.format(fiat.value)}</span>
-                ) : null}
-              </span>
-              <span
-                className={cx(
-                  '-translate-y-1/2 absolute top-[50%] right-4 transition-opacity duration-200 ease-[cubic-bezier(0.42,0,1,1)]',
-                  {
-                    'opacity-0': currencyType === 'fiat',
-                    'opacity-100': currencyType === 'crypto',
-                  },
-                )}
-              >
-                {ValueFormatter.format(value, decimals ? (decimals ?? 0) : 0)}{' '}
-                {symbol}
-              </span>
-            </span>
-          </div>
-        </button>
+          <ButtonArea
+            className={cx(
+              'relative max-w-[200px] rounded-[4px] font-medium text-[14px]',
+              receiving ? 'text-th_base-positive' : 'text-th_base-secondary',
+            )}
+            disabled={!fiat}
+            onClick={() => {
+              if (!fiat) return
+              setCurrencyType(currencyType === 'fiat' ? 'crypto' : 'fiat')
+            }}
+          >
+            <div className="invisible truncate whitespace-nowrap">
+              {fiatValue && tokenValue.length > fiatValue.length
+                ? tokenValue
+                : fiatValue || tokenValue}
+            </div>
+            {transition((style, item) => {
+              const value =
+                item === 'fiat' && fiatValue ? fiatValue : tokenValue
+              return (
+                <a.div
+                  className="absolute inset-0 flex origin-[100%_50%] items-center justify-end"
+                  style={style}
+                  title={value}
+                >
+                  <span className="truncate">{value}</span>
+                </a.div>
+              )
+            })}
+          </ButtonArea>
+        </div>
       )
     }
 
@@ -461,95 +470,6 @@ export namespace ActionRequest {
         symbol: string
         value: bigint
       }
-    }
-  }
-
-  export function Details(props: Details.Props) {
-    const { feeTotals, quotes } = props
-
-    const quote_destination = React.useMemo(
-      () => quotes[quotes.length - 1],
-      [quotes],
-    )
-    const sponsored = React.useMemo(
-      () =>
-        quote_destination?.intent?.payer !==
-        '0x0000000000000000000000000000000000000000',
-      [quote_destination],
-    )
-
-    const feeTotal = React.useMemo(() => {
-      const feeTotal = feeTotals['0x0']?.value
-      if (!feeTotal) return
-      return PriceFormatter.format(Number(feeTotal))
-    }, [feeTotals])
-
-    const [destinationChain, ...sourceChains] = React.useMemo(() => {
-      return quotes
-        .map((quote) =>
-          porto.config.chains.find((chain) => chain.id === quote.chainId),
-        )
-        .toReversed()
-    }, [quotes])
-
-    return (
-      <div className="space-y-1.5">
-        {!sponsored && (
-          <div className="flex h-5.5 items-center justify-between text-[14px]">
-            <span className="text-[14px] text-th_base-secondary leading-4">
-              Fees (est.)
-            </span>
-            <div className="text-right">
-              {feeTotal ? (
-                <div className="flex items-center gap-2">
-                  <div className="font-medium leading-4">{feeTotal}</div>
-                </div>
-              ) : (
-                <span className="font-medium text-th_base-secondary">
-                  Loading…
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-
-        {destinationChain && (
-          <div className="flex h-5.5 items-center justify-between text-[14px]">
-            <span className="text-[14px] text-th_base-secondary">
-              Network{sourceChains.length > 0 ? 's' : ''}
-            </span>
-            {sourceChains.length === 0 ? (
-              <div className="flex items-center gap-1.5">
-                <ChainIcon chainId={destinationChain.id} />
-                <span className="font-medium">{destinationChain.name}</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1">
-                {sourceChains.map((chain) => (
-                  <div key={chain!.id}>
-                    <ChainIcon chainId={chain!.id} className="size-4.5" />
-                  </div>
-                ))}
-                <IconArrowRightCircle className="size-4" />
-                <div>
-                  <ChainIcon
-                    chainId={destinationChain.id}
-                    className="size-4.5"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  export namespace Details {
-    export type Props = {
-      chain?: Chains.Chain | undefined
-      feeTotals: Capabilities.feeTotals.Response
-      quotes: readonly Quote_schema.Quote[]
     }
   }
 
@@ -567,20 +487,27 @@ export namespace ActionRequest {
       () => React.Children.count(children) > 0,
       [children],
     )
-    const hasDetails = React.useMemo(
-      () => quotes || feeTotals,
-      [quotes, feeTotals],
-    )
     const showOverview = React.useMemo(
       () => hasChildren || status !== 'success',
       [status, hasChildren],
     )
 
-    // default to `true` if no children, otherwise false
-    const [viewQuote, setViewQuote] = React.useState(hasDetails && !hasChildren)
-    React.useEffect(() => {
-      if (hasDetails && !hasChildren) setViewQuote(true)
-    }, [hasDetails, hasChildren])
+    const sponsored =
+      quotes?.at(-1)?.intent?.payer !==
+      '0x0000000000000000000000000000000000000000'
+    const feeTotal = feeTotals?.['0x0']?.value
+    const feeTotalFormatted = feeTotal
+      ? PriceFormatter.format(Number(feeTotal))
+      : undefined
+    const [destinationChain, ...sourceChains] = React.useMemo(() => {
+      if (!quotes) return []
+      return quotes
+        .map((quote) =>
+          porto.config.chains.find((chain) => chain.id === quote.chainId),
+        )
+        .toReversed()
+    }, [quotes])
+    const hasDetails = (!sponsored && feeTotalFormatted) || destinationChain
 
     return (
       <div className="space-y-2">
@@ -623,22 +550,43 @@ export namespace ActionRequest {
           </div>
         )}
 
-        {status === 'success' && feeTotals && quotes && (
-          <div className="space-y-3 overflow-hidden rounded-lg bg-th_base-alt px-3 py-2">
-            <div className={viewQuote ? undefined : 'hidden'}>
-              <ActionRequest.Details feeTotals={feeTotals} quotes={quotes} />
-            </div>
-            {!viewQuote && (
-              <button
-                className="flex w-full cursor-pointer! items-center justify-center gap-1.5 text-[13px] text-th_base-secondary"
-                onClick={() => setViewQuote(true)}
-                type="button"
-              >
-                <LucideInfo className="size-4" />
-                <span>Show more details</span>
-              </button>
+        {status === 'success' && feeTotals && quotes && hasDetails && (
+          <Details>
+            {!sponsored && feeTotalFormatted && (
+              <div className="flex h-[18px] items-center justify-between text-[14px]">
+                <div className="text-th_base-secondary">Fees (est.)</div>
+                <div className="font-medium">{feeTotalFormatted}</div>
+              </div>
             )}
-          </div>
+            {destinationChain && (
+              <div className="flex h-[18px] items-center justify-between text-[14px]">
+                <span className="text-th_base-secondary">
+                  Network{sourceChains.length > 0 ? 's' : ''}
+                </span>
+                {sourceChains.length === 0 ? (
+                  <div className="flex items-center gap-[6px]">
+                    <ChainIcon chainId={destinationChain.id} />
+                    <span className="font-medium">{destinationChain.name}</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-[6px]">
+                    {sourceChains.map((chain) => (
+                      <div key={chain!.id}>
+                        <ChainIcon chainId={chain!.id} className="size-4.5" />
+                      </div>
+                    ))}
+                    <IconArrowRightCircle className="size-4" />
+                    <div>
+                      <ChainIcon
+                        chainId={destinationChain.id}
+                        className="size-4.5"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </Details>
         )}
       </div>
     )

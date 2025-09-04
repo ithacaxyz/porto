@@ -1,5 +1,5 @@
 import { ChainIcon } from '@porto/apps/components'
-import { Button, ButtonArea } from '@porto/ui'
+import { Button, ButtonArea, Details } from '@porto/ui'
 import { a, useTransition } from '@react-spring/web'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import { Hooks as RemoteHooks } from 'porto/remote'
@@ -8,7 +8,6 @@ import { CopyButton } from '~/components/CopyButton'
 import { porto } from '~/lib/Porto'
 import { PriceFormatter, StringFormatter, ValueFormatter } from '~/utils'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
-import LucideInfo from '~icons/lucide/info'
 import LucideSendHorizontal from '~icons/lucide/send-horizontal'
 import { Layout } from './Layout'
 
@@ -19,12 +18,28 @@ export function Send(props: Send.Props) {
   const [currencyType, setCurrencyType] = React.useState<'fiat' | 'token'>(
     asset.fiat ? 'fiat' : 'token',
   )
-  const [showDetails, setShowDetails] = React.useState(false)
 
   const toggle = () => {
     if (!asset.fiat) return
     setCurrencyType(currencyType === 'fiat' ? 'token' : 'fiat')
   }
+
+  const chain = RemoteHooks.useChain(porto, { chainId })
+
+  const feeFormatted = React.useMemo(() => {
+    const feeTotal = fees?.['0x0']?.value
+    if (!feeTotal) return null
+    const feeNumber = Number(feeTotal)
+    return {
+      full: new Intl.NumberFormat('en-US', {
+        currency: 'USD',
+        maximumFractionDigits: 8,
+        minimumFractionDigits: 2,
+        style: 'currency',
+      }).format(feeNumber),
+      short: PriceFormatter.format(feeNumber),
+    }
+  }, [fees])
 
   return (
     <Layout>
@@ -37,7 +52,7 @@ export function Send(props: Send.Props) {
       </Layout.Header>
 
       <Layout.Content>
-        <div className="flex flex-col gap-[8px]">
+        <div className="-mb-[4px] flex flex-col gap-[8px]">
           <div className="flex flex-col gap-[10px] rounded-th_medium bg-th_base-alt px-[10px] py-[10px]">
             <div className="flex w-full flex-row items-center gap-[8px]">
               <div className="shrink-0">
@@ -63,21 +78,25 @@ export function Send(props: Send.Props) {
             </div>
           </div>
 
-          {showDetails ? (
-            <div className="flex w-full items-center justify-between gap-[6px] rounded-th_medium bg-th_base-alt px-[12px] text-[13px]">
-              <div className="flex w-full flex-col gap-[6px] py-[8px]">
-                <Send.Details chainId={chainId} fees={fees} loading={loading} />
+          <Details loading={loading}>
+            {feeFormatted && (
+              <div className="flex h-[18px] items-center justify-between text-[14px]">
+                <div className="text-th_base-secondary">Fees (est.)</div>
+                <div className="font-medium" title={feeFormatted.full}>
+                  {feeFormatted.short}
+                </div>
               </div>
-            </div>
-          ) : (
-            <ButtonArea
-              className="flex h-[34px] w-full items-center justify-center gap-[6px] rounded-th_medium bg-th_base-alt text-[13px] text-th_base-secondary"
-              onClick={() => setShowDetails(true)}
-            >
-              <LucideInfo className="size-[16px]" />
-              <span>Show more details</span>
-            </ButtonArea>
-          )}
+            )}
+            {chain && (
+              <div className="flex h-[18px] items-center justify-between text-[14px]">
+                <span className="text-th_base-secondary">Network</span>
+                <div className="flex items-center gap-[6px]">
+                  <ChainIcon chainId={chain.id} />
+                  <span className="font-medium">{chain.name}</span>
+                </div>
+              </div>
+            )}
+          </Details>
         </div>
       </Layout.Content>
 
@@ -177,64 +196,6 @@ export namespace Send {
       asset: SendAsset
       currencyType: 'fiat' | 'token'
       onToggleCurrency: () => void
-    }
-  }
-
-  export function Details(props: Details.Props) {
-    const { chainId, fees, loading } = props
-
-    const feeFormatted = React.useMemo(() => {
-      const feeTotal = fees?.['0x0']?.value
-      if (!feeTotal) return null
-      const feeNumber = Number(feeTotal)
-      return {
-        full: new Intl.NumberFormat('en-US', {
-          currency: 'USD',
-          maximumFractionDigits: 8,
-          minimumFractionDigits: 2,
-          style: 'currency',
-        }).format(feeNumber),
-        short: PriceFormatter.format(feeNumber),
-      }
-    }, [fees])
-
-    const chain = RemoteHooks.useChain(porto, { chainId })
-
-    if (loading)
-      return (
-        <div className="flex h-[18px] items-center justify-center text-[14px] text-th_base-secondary">
-          Loading details…
-        </div>
-      )
-
-    return (
-      <>
-        {feeFormatted && (
-          <div className="flex h-[18px] items-center justify-between text-[14px]">
-            <div className="text-th_base-secondary">Fees (est.)</div>
-            <div className="font-medium" title={feeFormatted.full}>
-              {feeFormatted.short}
-            </div>
-          </div>
-        )}
-        {chain && (
-          <div className="flex h-[18px] items-center justify-between text-[14px]">
-            <span className="text-th_base-secondary">Network</span>
-            <div className="flex items-center gap-[6px]">
-              <ChainIcon chainId={chain.id} />
-              <span className="font-medium">{chain.name}</span>
-            </div>
-          </div>
-        )}
-      </>
-    )
-  }
-
-  export namespace Details {
-    export type Props = {
-      chainId?: number | undefined
-      fees?: Capabilities.feeTotals.Response | undefined
-      loading?: boolean | undefined
     }
   }
 }

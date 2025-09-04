@@ -1,6 +1,7 @@
 export { css, cva, cx } from '../styled-system/css'
 export { Button } from './Button/Button.js'
 export { ButtonArea } from './ButtonArea/ButtonArea.js'
+export { Details } from './Details/Details.js'
 export { Frame } from './Frame/Frame.js'
 export { Input } from './Input/Input.js'
 export { LightDarkImage } from './LightDarkImage/LightDarkImage.js'
