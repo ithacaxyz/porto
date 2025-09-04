@@ -117,7 +117,7 @@ export async function resolveFeeTokens<chain extends Chains.Chain | undefined>(
       `Fee token ${overrideFeeToken ?? defaultFeeToken} not found. Falling back to ${feeToken?.symbol} (${feeToken?.address}).`,
     )
 
-  return [feeToken, ...feeTokens.toSpliced(index, 1)]
+  return [feeToken, ...feeTokens.toSpliced(index !== -1 ? index : 0, 1)]
 }
 
 export declare namespace resolveFeeTokens {
