@@ -1,5 +1,5 @@
 import * as Address from 'ox/Address'
-import type { Client, Transport } from 'viem'
+import { type Client, type Transport, zeroAddress } from 'viem'
 import type { GetChainParameter } from '../../viem/internal/utils.js'
 import * as RelayActions from '../../viem/RelayActions.js'
 import type * as Chains from '../Chains.js'
@@ -67,6 +67,7 @@ export namespace getToken {
       if (!addressOrSymbol) return false
       if (Address.validate(addressOrSymbol))
         return Address.isEqual(token.address, addressOrSymbol)
+      if (addressOrSymbol === 'native') return token.address === zeroAddress
       return addressOrSymbol === token.symbol
     }
   }
@@ -96,12 +97,16 @@ export async function resolveFeeTokens<chain extends Chains.Chain | undefined>(
   )
   const index = feeTokens?.findIndex((feeToken) => {
     if (overrideFeeToken) {
+      if (overrideFeeToken === 'native') return feeToken.address === zeroAddress
       if (Address.validate(overrideFeeToken))
         return Address.isEqual(feeToken.address, overrideFeeToken)
       return overrideFeeToken === feeToken.symbol
     }
-    if (defaultFeeToken) return defaultFeeToken === feeToken.symbol
-    return feeToken.symbol === 'ETH'
+    if (defaultFeeToken) {
+      if (defaultFeeToken === 'native') return feeToken.address === zeroAddress
+      return defaultFeeToken === feeToken.symbol
+    }
+    return feeToken.address === zeroAddress
   })
 
   const feeToken = feeTokens?.[index !== -1 ? index : 0]!

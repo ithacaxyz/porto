@@ -43,9 +43,13 @@ The connector to use.
 
 ### feeToken
 
-`Address | undefined`
+- **Type:** `'native' | Token.Symbol | Address.Address`
 
-Optional fee token to use for the transaction.
+Token to use to cover fees. Accepts:
+
+- `"native"` (Default): The native token of the chain.
+- Symbol: Symbol of the fee token (e.g. `"USDC"`).
+- Address: Address of the fee token (e.g. `"0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"`).
 
 ### id
 

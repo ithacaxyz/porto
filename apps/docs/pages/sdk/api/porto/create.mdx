@@ -94,10 +94,14 @@ See [`Chains`](/sdk/api/chains) for a list of Porto-supported chains.
 
 ### feeToken
 
-- **Type:** `'ETH' | 'EXP' | 'USDC'`
-- **Default:** `EXP` (note: will change to `USDC` on Porto launch)
+- **Type:** `'native' | string`
+- **Default:** `native` 
 
-Token to use to pay for fees.
+Token to use to pay for fees. Accepts:
+
+- `"native"`: The native token of the chain.
+- Symbol: Symbol of the fee token (e.g. `"USDC"`).
+- Address: Address of the fee token (e.g. `"0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"`).
 
 ### merchantRpcUrl
 

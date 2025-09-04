@@ -46,9 +46,13 @@ Contract address to delegate to. Defaults to the account proxy contract.
 
 ### feeToken
 
-- **Type:** `Address.Address`
+- **Type:** `'native' | Token.Symbol | Address.Address`
 
-Token to use for transaction fees.
+Token to use to cover fees. Accepts:
+
+- `"native"` (Default): The native token of the chain.
+- Symbol: Symbol of the fee token (e.g. `"USDC"`).
+- Address: Address of the fee token (e.g. `"0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"`).
 
 ## Return Value
 

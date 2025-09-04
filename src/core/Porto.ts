@@ -180,7 +180,7 @@ export type Config<
   chains: chains
   /**
    * Token to use to pay for fees.
-   * @default 'USDC'
+   * @default 'native'
    */
   feeToken?: State['feeToken'] | undefined
   /**

@@ -44,7 +44,7 @@ const config = {
       polygon,
       sepolia,
     ],
-    feeToken: 'ETH',
+    feeToken: 'native',
     mode: Mode.relay({
       mock,
       persistPreCalls: false,

@@ -28,11 +28,13 @@ URL(s) to use for [SIWE authentication](/sdk/guides/authentication).
 
 ### feeToken
 
-`'ETH' | 'EXP' | undefined`
+`'native' | string | undefined`
 
-Token to use to pay for fees.
+Token to use to pay for fees. Accepts:
 
-**Default:** `'ETH'`
+- `"native"` (Default): The native token of the chain.
+- Symbol: Symbol of the fee token (e.g. `"USDC"`).
+- Address: Address of the fee token (e.g. `"0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"`).
 
 ### mode
 
