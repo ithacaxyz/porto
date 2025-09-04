@@ -10,65 +10,79 @@ An `intent` struct contains all the relevant data that allows a 3rd party like t
 The intent has to be signed by one of the [Keys](/contracts/account#keys) authorized in the user's account. Optionally, the intent can use a `paymaster` to pay on behalf of the user, in which case the intent also needs to be signed by the paymaster.
 
 ```solidity
-struct Intent {
-    ////////////////////////////////////////////////////////////////////////
-    // EIP-712 Fields
-    ////////////////////////////////////////////////////////////////////////
-    /// @dev The user's address.
-    address eoa;
-    /// @dev An encoded array of calls, using ERC 7821 batch encoding without opData.
-    /// `abi.encode(calls)`, where `calls` is of type `Call[]`.
-    /// This allows for more efficient safe forwarding to the EOA.
-    bytes executionData;
-    /// @dev Per delegated EOA.
-    /// This nonce is a 4337-style 2D nonce with some specializations:
-    /// - Upper 192 bits are used for the `seqKey` (sequence key).
-    ///   The upper 16 bits of the `seqKey` is `MULTICHAIN_NONCE_PREFIX`,
-    ///   then the Intent EIP712 hash will exclude the chain ID.
-    /// - Lower 64 bits are used for the sequential nonce corresponding to the `seqKey`.
-    uint256 nonce;
-    /// @dev The account paying the payment token.
-    /// If this is `address(0)`, it defaults to the `eoa`.
-    address payer;
-    /// @dev The ERC20 or native token used to pay for gas.
-    address paymentToken;
-    /// @dev The amount of the token to pay, before the call batch is executed
-    /// This will be required to be less than `totalPaymentMaxAmount`.
-    uint256 prePaymentMaxAmount;
-    /// @dev The maximum amount of the token to pay.
-    uint256 totalPaymentMaxAmount;
-    /// @dev The combined gas limit for payment, verification, and calling the EOA.
-    uint256 combinedGas;
-    /// @dev Optional array of encoded SignedCalls that will be verified and executed
-    /// before the validation of the overall Intent.
-    /// A PreCall will NOT have its gas limit or payment applied.
-    /// The overall Intent's gas limit and payment will be applied, encompassing all its PreCalls.
-    /// The execution of a PreCall will check and increment the nonce in the PreCall.
-    /// If at any point, any PreCall cannot be verified to be correct, or fails in execution,
-    /// the overall Intent will revert before validation, and execute will return a non-zero error.
-    bytes[] encodedPreCalls;
-    ////////////////////////////////////////////////////////////////////////
-    // Additional Fields (Not included in EIP-712)
-    ////////////////////////////////////////////////////////////////////////
-    /// @dev The actual pre payment amount, requested by the filler. MUST be less than or equal to `prePaymentMaxAmount`
-    uint256 prePaymentAmount;
-    /// @dev The actual total payment amount, requested by the filler. MUST be less than or equal to `totalPaymentMaxAmount`
-    uint256 totalPaymentAmount;
-    /// @dev The payment recipient for the ERC20 token.
-    /// Excluded from signature. The filler can replace this with their own address.
-    /// This enables multiple fillers, allowing for competitive filling, better uptime.
-    address paymentRecipient;
-    /// @dev The wrapped signature.
-    /// `abi.encodePacked(innerSignature, keyHash, prehash)`.
-    bytes signature;
-    /// @dev Optional payment signature to be passed into the `compensate` function
-    /// on the `payer`. This signature is NOT included in the EIP712 signature.
-    bytes paymentSignature;
-    /// @dev Optional. If non-zero, the EOA must use `supportedAccountImplementation`.
-    /// Otherwise, if left as `address(0)`, any EOA implementation will be supported.
-    /// This field is NOT included in the EIP712 signature.
-    address supportedAccountImplementation;
-}
+    struct Intent {
+        ////////////////////////////////////////////////////////////////////////
+        // EIP-712 Fields
+        ////////////////////////////////////////////////////////////////////////
+        /// @dev The user's address.
+        address eoa;
+        /// @dev An encoded array of calls, using ERC7579 batch execution encoding.
+        /// `abi.encode(calls)`, where `calls` is of type `Call[]`.
+        /// This allows for more efficient safe forwarding to the EOA.
+        bytes executionData;
+        /// @dev Per delegated EOA.
+        /// This nonce is a 4337-style 2D nonce with some specializations:
+        /// - Upper 192 bits are used for the `seqKey` (sequence key).
+        ///   The upper 16 bits of the `seqKey` is `MULTICHAIN_NONCE_PREFIX`,
+        ///   then the Intent EIP712 hash will exclude the chain ID.
+        /// - Lower 64 bits are used for the sequential nonce corresponding to the `seqKey`.
+        uint256 nonce;
+        /// @dev The account paying the payment token.
+        /// If this is `address(0)`, it defaults to the `eoa`.
+        address payer;
+        /// @dev The ERC20 or native token used to pay for gas.
+        address paymentToken;
+        /// @dev The maximum amount of the token to pay.
+        uint256 paymentMaxAmount;
+        /// @dev The combined gas limit for payment, verification, and calling the EOA.
+        uint256 combinedGas;
+        /// @dev Optional array of encoded SignedCalls that will be verified and executed
+        /// before the validation of the overall Intent.
+        /// A PreCall will NOT have its gas limit or payment applied.
+        /// The overall Intent's gas limit and payment will be applied, encompassing all its PreCalls.
+        /// The execution of a PreCall will check and increment the nonce in the PreCall.
+        /// If at any point, any PreCall cannot be verified to be correct, or fails in execution,
+        /// the overall Intent will revert before validation, and execute will return a non-zero error.
+        bytes[] encodedPreCalls;
+        /// @dev Only relevant for multi chain intents.
+        /// There should not be any duplicate token addresses. Use address(0) for native token.
+        /// If native token is used, the first transfer should be the native token transfer.
+        /// If encodedFundTransfers is not empty, then the intent is considered the output intent.
+        bytes[] encodedFundTransfers;
+        /// @dev The settler address.
+        address settler;
+        /// @dev The expiry timestamp for the intent. The intent is invalid after this timestamp.
+        /// If expiry timestamp is set to 0, then expiry is considered to be infinite.
+        uint256 expiry;
+        ////////////////////////////////////////////////////////////////////////
+        // Additional Fields (Not included in EIP-712)
+        ////////////////////////////////////////////////////////////////////////
+        /// @dev Whether the intent should use the multichain mode - i.e verify with merkle sigs
+        /// and send the cross chain message.
+        bool isMultichain;
+        /// @dev The funder address.
+        address funder;
+        /// @dev The funder signature.
+        bytes funderSignature;
+        /// @dev The settler context data to be passed to the settler.
+        bytes settlerContext;
+        /// @dev The actual payment amount, requested by the filler. MUST be less than or equal to `paymentMaxAmount`
+        uint256 paymentAmount;
+        /// @dev The payment recipient for the ERC20 token.
+        /// Excluded from signature. The filler can replace this with their own address.
+        /// This enables multiple fillers, allowing for competitive filling, better uptime.
+        address paymentRecipient;
+        /// @dev The wrapped signature.
+        /// `abi.encodePacked(innerSignature, keyHash, prehash)`.
+        bytes signature;
+        /// @dev Optional payment signature to be passed into the `compensate` function
+        /// on the `payer`. This signature is NOT included in the EIP712 signature.
+        bytes paymentSignature;
+        /// @dev Optional. If non-zero, the EOA must use `supportedAccountImplementation`.
+        /// Otherwise, if left as `address(0)`, any EOA implementation will be supported.
+        /// This field is NOT included in the EIP712 signature.
+        address supportedAccountImplementation;
+    }
 ```
 
 Let's go through each of these fields, to discuss the features enabled by intents.
@@ -77,43 +91,30 @@ Let's go through each of these fields, to discuss the features enabled by intent
 
 One of the most powerful use cases of executing through intents is that the Relay can abstract gas for users and get compensated in any token the user holds.
 
-We've removed the need for gas refunds and made pre payment of relay fees optional. Instead, Relay uses the `pay` function on the account to request payment in two almost identical tranches:
+We've removed the need for gas refunds. Instead, Relay uses the `pay` function on the account to request payment in two almost identical tranches:
 
-1. **prePayment** (before executing the user's call bundle):  
-   - If successful, the user's **nonce is incremented**, even if the call bundle fails during execution.
-
-2. **postPayment** (after executing the user's call bundle):  
-   - If this payment **fails**, the **entire execution of the call bundle is reverted**.
+1. **paymentAmount** (after intent validation):
+   - If successful, the account's **nonce is incremented** and will pay for the transaction, even if the call bundle fails during execution.
 
 Here's how the flow works:
 
 1. The user sends their calls to the relay.
 2. The relay analyzes the calls and determines the amount they want to be paid, in the `paymentToken` specified in the intent.
-3. The relay can run sophisticated griefing checks to assess risk. Based on this, they split the total payment between `prePayment` and `postPayment`.
+3. The relay simulates this operation and runs sophisticated griefing checks to assess risk, and returns a `paymentAmount` that the operation would cost.
 4. The relay can also set the `supportedAccountImplementation` field in the intent when sending it onchain, to reduce the risk of the user frontrunning them by upgrading their account.
-
-If the `postPayment` fails, the user's entire execution is reverted. This ensures users cannot exploit the system to get free executions.
 
 :::warning
 Beyond this, the contracts do not provide native griefing protection. It is up to the relay to simulate the call and evaluate the risk associated with each intent.
 
 Relay may choose to:
 - Only support accounts that follow ERC-4337 validation rules.
-- Charge the full fee as `postPayment` if they fully trust the user.
 :::
-
-We leave the decision of how to split the payment between `prePayment` and `postPayment` entirely to each relay.
 
 Our recommendations:
 
-1. Including both `prePayment` and `postPayment` in an intent introduces an extra ERC20 transfer, increasing gas costs. This tradeoff should be considered.
-2. Relay should build sophisticated offchain griefing defenses, such as reputation systems and risk premiums for new users.
-3. Charging only via `postPayment` allows the user to start execution without upfront funds. This enables use cases where funds become available only after the call—e.g., after withdrawing from a DApp.
+1. Relay should build sophisticated offchain griefing defenses, such as reputation systems and risk premiums for new users and implementations that have custom validation paths.
+2. Relayers that are less sophisticated can opt to rely on the `supportedAccountImplementation` check provided by the orchestrator.
 
-:::note
-There is no `postPayment` field in the intent. Post payment is calculated as `totalPayment - prePayment`.
-This is done to make the EIP-712 struct more explicit and readable.
-:::
 
 #### Paymasters
 On the topic of payments, DApps might want to sponsor payments for their users. 
@@ -128,6 +129,10 @@ This is done for a gas optimization, related to calldata compression.
 :::
 
 We've allowed porto accounts to act as paymasters for other porto accounts. This makes it extremely simple to spin up paymasters to sponsor gas for your users.
+
+:::note
+Paymasters should check that account implementations they sponsor gas for have a nonce implementation that invalidates nonces. Otherwise, an account could replay a paymaster signature infinitely many times to drain a paymaster.
+:::
 
 #### Execution
 The intent contains the following execution information:

@@ -1,4 +1,6 @@
+# Security
 
+⚠️ Contracts have been audited by Riley H, Kaden & Milotruck. 
 
 ## Bug Bounty
 
