@@ -371,7 +371,8 @@ function unwrapAndValidateSignature(bytes32 digest, bytes calldata signature) pu
   ```
 
 - **Description:** Implements EIP-1271. Checks if a given signature is valid for the provided digest.
-    - It first unwraps and validates the signature using `unwrapAndValidateSignature`.
+    - Signatures are replay-safe across accounts via a custom EIP-712 wrapper on the incoming digest.
+    - It then uses `unwrapAndValidateSignature` to validate the signature.
     - If valid, it further checks if the key used is a super admin key OR if `msg.sender` is an approved checker for that key hash.
     - This restriction (super admin or approved checker) is to prevent session keys from approving infinite allowances via Permit2 by default.
 - **Usage:**
