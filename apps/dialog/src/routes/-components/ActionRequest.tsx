@@ -1,5 +1,6 @@
 import { ChainIcon, Spinner } from '@porto/apps/components'
-import { Button, Details } from '@porto/ui'
+import { Button, ButtonArea, Details } from '@porto/ui'
+import { a, useTransition } from '@react-spring/web'
 import { cx } from 'cva'
 import { type Address, Base64, type Hex } from 'ox'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
@@ -323,11 +324,11 @@ export namespace ActionRequest {
 
       return (
         <div className="flex items-center gap-2 font-medium" key={symbol}>
-          <div className="relative flex size-6 items-center justify-center rounded-sm bg-th_badge">
+          <div className="relative flex size-6 items-center justify-center overflow-hidden rounded-sm bg-th_badge">
             {decoded?.type === 'image' ? (
               <img
-                alt={name ?? symbol}
-                className="min-h-6 min-w-6 rounded-sm object-cover text-transparent"
+                alt=""
+                className="size-6 rounded-sm object-cover"
                 src={decoded.url}
               />
             ) : decoded?.type === 'audio' ? (
@@ -340,21 +341,22 @@ export namespace ActionRequest {
               <LucideSparkles className="size-4 text-th_badge" />
             )}
           </div>
-          <div className="flex w-full justify-between">
-            <div className="flex flex-1 gap-1.5">
+          <div className="flex min-w-0 flex-1 justify-between gap-2">
+            <div className="flex min-w-0 flex-1 items-center gap-1.5">
               {name || symbol ? (
-                <div className="max-w-[150px] truncate">
+                <div className="min-w-0 flex-1 truncate" title={name || symbol}>
                   <span className="text-th_base">{name || symbol}</span>
                 </div>
               ) : (
                 <span className="text-th_base-secondary">No name provided</span>
               )}
-              <span className="text-th_base-tertiary">#{value}</span>
+              <span className="shrink-0 text-th_base-tertiary">#{value}</span>
             </div>
             <div
-              className={
-                receiving ? 'text-th_base-positive' : 'text-th_base-secondary'
-              }
+              className={cx('shrink-0', {
+                'text-th_base-positive': receiving,
+                'text-th_base-secondary': !receiving,
+              })}
             >
               {receiving ? '+' : '-'}1
             </div>
@@ -383,20 +385,32 @@ export namespace ActionRequest {
       const receiving = direction === 'incoming'
 
       const Icon = receiving ? ArrowDownLeft : ArrowUpRight
+
+      const fiatValue = fiat
+        ? PriceFormatter.format(Math.abs(fiat.value))
+        : null
+      const tokenValue = `${ValueFormatter.format(
+        value < 0n ? -value : value,
+        decimals ?? 0,
+      )} ${symbol}`
+
+      const transition = useTransition(currencyType, {
+        config: { friction: 50, tension: 1400 },
+        enter: { opacity: 1, transform: 'scale(1)' },
+        from: { opacity: 0, transform: 'scale(0.8)' },
+        initial: { opacity: 1, transform: 'scale(1)' },
+        leave: { immediate: true, opacity: 0 },
+      })
+
       return (
-        <button
-          className="relative flex w-[calc(100%+1rem)] cursor-pointer! items-center justify-between font-medium"
+        <div
+          className="relative flex w-full items-center justify-between gap-2 font-medium"
           key={symbol}
-          onClick={() => {
-            if (!fiat) return
-            setCurrencyType(currencyType === 'fiat' ? 'crypto' : 'fiat')
-          }}
-          type="button"
         >
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 flex-1 items-center gap-2">
             <div
               className={cx(
-                'flex size-6 items-center justify-center rounded-full',
+                'flex size-6 shrink-0 items-center justify-center rounded-full',
                 {
                   'bg-th_badge': !receiving,
                   'bg-th_badge-positive': receiving,
@@ -410,44 +424,41 @@ export namespace ActionRequest {
                 })}
               />
             </div>
-            <div>
+            <div className="truncate">
               {receiving ? 'Receive' : 'Spend'} {symbol}
             </div>
           </div>
-          <div>
-            <span
-              className={cx(
-                receiving ? 'text-th_base-positive' : 'text-th_base-secondary',
-              )}
-            >
-              <span
-                className={cx(
-                  '-translate-y-1/2 absolute top-[50%] right-4 transition-opacity duration-200 ease-[cubic-bezier(0.42,0,1,1)]',
-                  {
-                    'opacity-0': currencyType === 'crypto',
-                    'opacity-100': currencyType === 'fiat',
-                  },
-                )}
-              >
-                {currencyType === 'fiat' && fiat ? (
-                  <span>{PriceFormatter.format(fiat.value)}</span>
-                ) : null}
-              </span>
-              <span
-                className={cx(
-                  '-translate-y-1/2 absolute top-[50%] right-4 transition-opacity duration-200 ease-[cubic-bezier(0.42,0,1,1)]',
-                  {
-                    'opacity-0': currencyType === 'fiat',
-                    'opacity-100': currencyType === 'crypto',
-                  },
-                )}
-              >
-                {ValueFormatter.format(value, decimals ? (decimals ?? 0) : 0)}{' '}
-                {symbol}
-              </span>
-            </span>
-          </div>
-        </button>
+          <ButtonArea
+            className={cx(
+              'relative max-w-[200px] rounded-[4px] font-medium text-[14px]',
+              receiving ? 'text-th_base-positive' : 'text-th_base-secondary',
+            )}
+            disabled={!fiat}
+            onClick={() => {
+              if (!fiat) return
+              setCurrencyType(currencyType === 'fiat' ? 'crypto' : 'fiat')
+            }}
+          >
+            <div className="invisible truncate whitespace-nowrap">
+              {fiatValue && tokenValue.length > fiatValue.length
+                ? tokenValue
+                : fiatValue || tokenValue}
+            </div>
+            {transition((style, item) => {
+              const value =
+                item === 'fiat' && fiatValue ? fiatValue : tokenValue
+              return (
+                <a.div
+                  className="absolute inset-0 flex origin-[100%_50%] items-center justify-end"
+                  style={style}
+                  title={value}
+                >
+                  <span className="truncate">{value}</span>
+                </a.div>
+              )
+            })}
+          </ButtonArea>
+        </div>
       )
     }
 
