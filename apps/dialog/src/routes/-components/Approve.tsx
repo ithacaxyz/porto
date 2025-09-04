@@ -213,7 +213,8 @@ export namespace Approve {
               <div className="truncate font-medium text-[13px] text-th_base-secondary">
                 {infinite
                   ? 'Any amount'
-                  : amount && `${Intl.NumberFormat('en-US', {
+                  : amount &&
+                    `${Intl.NumberFormat('en-US', {
                       maximumFractionDigits: 4,
                     }).format(Number(amount))} ${symbol}`}
               </div>
