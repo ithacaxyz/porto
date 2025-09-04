@@ -1,5 +1,17 @@
 # porto
 
+## 0.0.85
+
+### Patch Changes
+
+- [#801](https://github.com/ithacaxyz/porto/pull/801) [`dc263bb`](https://github.com/ithacaxyz/porto/commit/dc263bb0fba5375c711e6e0574d36d8460485ccf) Thanks [@MagRelo](https://github.com/MagRelo)! - Updated trusted hosts
+
+- [#775](https://github.com/ithacaxyz/porto/pull/775) [`3f90fec`](https://github.com/ithacaxyz/porto/commit/3f90fec7e530c9b3c9587accfc83068da703d3d1) Thanks [@jxom](https://github.com/jxom)! - Added `RelayActions.signCalls`.
+
+- [#775](https://github.com/ithacaxyz/porto/pull/775) [`3f90fec`](https://github.com/ithacaxyz/porto/commit/3f90fec7e530c9b3c9587accfc83068da703d3d1) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Added required `address` parameter to `Key.sign` to support replay-safe signing.
+
+- [#775](https://github.com/ithacaxyz/porto/pull/775) [`3f90fec`](https://github.com/ithacaxyz/porto/commit/3f90fec7e530c9b3c9587accfc83068da703d3d1) Thanks [@jxom](https://github.com/jxom)! - Removed `wallet_updateAccount`. All account upgrades are orchestrated internally by the Relay.
+
 ## 0.0.84
 
 ### Patch Changes
