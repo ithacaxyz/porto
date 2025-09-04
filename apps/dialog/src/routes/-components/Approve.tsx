@@ -3,6 +3,7 @@ import { Button, Details, Spinner, TokenIcon } from '@porto/ui'
 import { a, useTransition } from '@react-spring/web'
 import { Value } from 'ox'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
+import { Hooks } from 'porto/remote'
 import * as React from 'react'
 import { erc20Abi } from 'viem'
 import { useReadContracts } from 'wagmi'
@@ -51,10 +52,7 @@ export function Approve(props: Approve.Props) {
     }
   }, [fees])
 
-  const chain = React.useMemo(
-    () => porto.config.chains.find((chain) => chain.id === chainId),
-    [chainId],
-  )
+  const chain = Hooks.useChain(porto, { chainId })
 
   const tokenResult = useReadContracts({
     allowFailure: false,
