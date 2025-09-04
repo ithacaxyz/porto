@@ -4,4 +4,5 @@ export const hostnames = [
   'daimo.ngrok.app',
   'localhost',
   'pay.daimo.com',
+  'cut-v2.mattlovan.dev'
 ]
