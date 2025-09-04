@@ -1,5 +1,5 @@
 import { ChainIcon, Spinner } from '@porto/apps/components'
-import { Button } from '@porto/ui'
+import { Button, Details } from '@porto/ui'
 import { cx } from 'cva'
 import { type Address, Base64, type Hex } from 'ox'
 import type { Chains } from 'porto'
@@ -24,7 +24,6 @@ import { PriceFormatter, ValueFormatter } from '~/utils'
 import ArrowDownLeft from '~icons/lucide/arrow-down-left'
 import ArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideFileText from '~icons/lucide/file-text'
-import LucideInfo from '~icons/lucide/info'
 import LucideMusic from '~icons/lucide/music'
 import LucideSparkles from '~icons/lucide/sparkles'
 import TriangleAlert from '~icons/lucide/triangle-alert'
@@ -464,95 +463,6 @@ export namespace ActionRequest {
     }
   }
 
-  export function Details(props: Details.Props) {
-    const { feeTotals, quotes } = props
-
-    const quote_destination = React.useMemo(
-      () => quotes[quotes.length - 1],
-      [quotes],
-    )
-    const sponsored = React.useMemo(
-      () =>
-        quote_destination?.intent?.payer !==
-        '0x0000000000000000000000000000000000000000',
-      [quote_destination],
-    )
-
-    const feeTotal = React.useMemo(() => {
-      const feeTotal = feeTotals['0x0']?.value
-      if (!feeTotal) return
-      return PriceFormatter.format(Number(feeTotal))
-    }, [feeTotals])
-
-    const [destinationChain, ...sourceChains] = React.useMemo(() => {
-      return quotes
-        .map((quote) =>
-          porto.config.chains.find((chain) => chain.id === quote.chainId),
-        )
-        .toReversed()
-    }, [quotes])
-
-    return (
-      <div className="space-y-1.5">
-        {!sponsored && (
-          <div className="flex h-5.5 items-center justify-between text-[14px]">
-            <span className="text-[14px] text-th_base-secondary leading-4">
-              Fees (est.)
-            </span>
-            <div className="text-right">
-              {feeTotal ? (
-                <div className="flex items-center gap-2">
-                  <div className="font-medium leading-4">{feeTotal}</div>
-                </div>
-              ) : (
-                <span className="font-medium text-th_base-secondary">
-                  Loading…
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-
-        {destinationChain && (
-          <div className="flex h-5.5 items-center justify-between text-[14px]">
-            <span className="text-[14px] text-th_base-secondary">
-              Network{sourceChains.length > 0 ? 's' : ''}
-            </span>
-            {sourceChains.length === 0 ? (
-              <div className="flex items-center gap-1.5">
-                <ChainIcon chainId={destinationChain.id} />
-                <span className="font-medium">{destinationChain.name}</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1">
-                {sourceChains.map((chain) => (
-                  <div key={chain!.id}>
-                    <ChainIcon chainId={chain!.id} className="size-4.5" />
-                  </div>
-                ))}
-                <IconArrowRightCircle className="size-4" />
-                <div>
-                  <ChainIcon
-                    chainId={destinationChain.id}
-                    className="size-4.5"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  export namespace Details {
-    export type Props = {
-      chain?: Chains.Chain | undefined
-      feeTotals: Capabilities.feeTotals.Response
-      quotes: readonly Quote_schema.Quote[]
-    }
-  }
-
   export function PaneWithDetails(props: PaneWithDetails.Props) {
     const {
       children,
@@ -567,20 +477,27 @@ export namespace ActionRequest {
       () => React.Children.count(children) > 0,
       [children],
     )
-    const hasDetails = React.useMemo(
-      () => quotes || feeTotals,
-      [quotes, feeTotals],
-    )
     const showOverview = React.useMemo(
       () => hasChildren || status !== 'success',
       [status, hasChildren],
     )
 
-    // default to `true` if no children, otherwise false
-    const [viewQuote, setViewQuote] = React.useState(hasDetails && !hasChildren)
-    React.useEffect(() => {
-      if (hasDetails && !hasChildren) setViewQuote(true)
-    }, [hasDetails, hasChildren])
+    const sponsored =
+      quotes?.at(-1)?.intent?.payer !==
+      '0x0000000000000000000000000000000000000000'
+    const feeTotal = feeTotals?.['0x0']?.value
+    const feeTotalFormatted = feeTotal
+      ? PriceFormatter.format(Number(feeTotal))
+      : undefined
+    const [destinationChain, ...sourceChains] = React.useMemo(() => {
+      if (!quotes) return []
+      return quotes
+        .map((quote) =>
+          porto.config.chains.find((chain) => chain.id === quote.chainId),
+        )
+        .toReversed()
+    }, [quotes])
+    const hasDetails = (!sponsored && feeTotalFormatted) || destinationChain
 
     return (
       <div className="space-y-2">
@@ -623,22 +540,43 @@ export namespace ActionRequest {
           </div>
         )}
 
-        {status === 'success' && feeTotals && quotes && (
-          <div className="space-y-3 overflow-hidden rounded-lg bg-th_base-alt px-3 py-2">
-            <div className={viewQuote ? undefined : 'hidden'}>
-              <ActionRequest.Details feeTotals={feeTotals} quotes={quotes} />
-            </div>
-            {!viewQuote && (
-              <button
-                className="flex w-full cursor-pointer! items-center justify-center gap-1.5 text-[13px] text-th_base-secondary"
-                onClick={() => setViewQuote(true)}
-                type="button"
-              >
-                <LucideInfo className="size-4" />
-                <span>Show more details</span>
-              </button>
+        {status === 'success' && feeTotals && quotes && hasDetails && (
+          <Details>
+            {!sponsored && feeTotalFormatted && (
+              <div className="flex h-[18px] items-center justify-between text-[14px]">
+                <div className="text-th_base-secondary">Fees (est.)</div>
+                <div className="font-medium">{feeTotalFormatted}</div>
+              </div>
             )}
-          </div>
+            {destinationChain && (
+              <div className="flex h-[18px] items-center justify-between text-[14px]">
+                <span className="text-th_base-secondary">
+                  Network{sourceChains.length > 0 ? 's' : ''}
+                </span>
+                {sourceChains.length === 0 ? (
+                  <div className="flex items-center gap-[6px]">
+                    <ChainIcon chainId={destinationChain.id} />
+                    <span className="font-medium">{destinationChain.name}</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1">
+                    {sourceChains.map((chain) => (
+                      <div key={chain!.id}>
+                        <ChainIcon chainId={chain!.id} className="size-4.5" />
+                      </div>
+                    ))}
+                    <IconArrowRightCircle className="size-4" />
+                    <div>
+                      <ChainIcon
+                        chainId={destinationChain.id}
+                        className="size-4.5"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </Details>
         )}
       </div>
     )

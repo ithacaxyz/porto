@@ -1,5 +1,5 @@
 import { ChainIcon } from '@porto/apps/components'
-import { Button, ButtonArea, Spinner, TokenIcon } from '@porto/ui'
+import { Button, Details, Spinner, TokenIcon } from '@porto/ui'
 import { a, useTransition } from '@react-spring/web'
 import { Value } from 'ox'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
@@ -9,7 +9,6 @@ import { useReadContracts } from 'wagmi'
 import { CopyButton } from '~/components/CopyButton'
 import { porto } from '~/lib/Porto'
 import { PriceFormatter, StringFormatter } from '~/utils'
-import LucideInfo from '~icons/lucide/info'
 import LucideLockKeyholeOpen from '~icons/lucide/lock-keyhole-open'
 import { Layout } from './Layout'
 
@@ -26,6 +25,35 @@ export function Approve(props: Approve.Props) {
     spender,
     tokenAddress,
   } = props
+
+  const { feeTotalFormatted, feeTotalFormattedFull } = React.useMemo(() => {
+    if (!fees)
+      return {
+        feeTotalFormatted: undefined,
+        feeTotalFormattedFull: undefined,
+      }
+    const feeTotal = fees['0x0']?.value
+    if (!feeTotal)
+      return {
+        feeTotalFormatted: undefined,
+        feeTotalFormattedFull: undefined,
+      }
+    const feeNumber = Number(feeTotal)
+    return {
+      feeTotalFormatted: PriceFormatter.format(feeNumber),
+      feeTotalFormattedFull: new Intl.NumberFormat('en-US', {
+        currency: 'USD',
+        maximumFractionDigits: 8,
+        minimumFractionDigits: 2,
+        style: 'currency',
+      }).format(feeNumber),
+    }
+  }, [fees])
+
+  const chain = React.useMemo(
+    () => porto.config.chains.find((chain) => chain.id === chainId),
+    [chainId],
+  )
 
   const tokenResult = useReadContracts({
     allowFailure: false,
@@ -52,7 +80,6 @@ export function Approve(props: Approve.Props) {
   })
 
   const [decimals, name, symbol] = tokenResult.data || []
-  const [showDetails, setShowDetails] = React.useState(false)
   const infinite = amount === maxUint256
 
   return (
@@ -66,7 +93,7 @@ export function Approve(props: Approve.Props) {
       </Layout.Header>
 
       <Layout.Content>
-        <div className="flex flex-col gap-[8px]">
+        <div className="flex flex-col gap-[8px] -mb-[4px]">
           <div className="flex flex-col gap-[10px] rounded-th_medium bg-th_base-alt p-[10px]">
             <Approve.AllowanceRow
               amount={
@@ -81,26 +108,35 @@ export function Approve(props: Approve.Props) {
               symbol={symbol}
             />
           </div>
-          {showDetails ? (
-            <div className="flex w-full items-center justify-between gap-[6px] rounded-th_medium bg-th_base-alt px-[12px] text-[13px]">
-              <div className="flex w-full flex-col gap-[6px] py-[8px]">
-                <Approve.Details
-                  chainId={chainId}
-                  fees={fees}
-                  loading={loading}
-                  spender={spender}
-                />
+          <Details loading={loading}>
+            <div className="flex h-[18px] items-center justify-between text-[14px]">
+              <span className="text-th_base-secondary">Requested by</span>
+              <div
+                className="flex items-center gap-[8px] font-medium"
+                title={spender}
+              >
+                {StringFormatter.truncate(spender)}
+                <CopyButton value={spender} />
               </div>
             </div>
-          ) : (
-            <ButtonArea
-              className="flex h-[34px] w-full items-center justify-center gap-[6px] rounded-th_medium bg-th_base-alt text-[13px] text-th_base-secondary"
-              onClick={() => setShowDetails(true)}
-            >
-              <LucideInfo className="size-4" />
-              <span>Show more details</span>
-            </ButtonArea>
-          )}
+            {feeTotalFormatted && (
+              <div className="flex h-[18px] items-center justify-between text-[14px]">
+                <div className="text-th_base-secondary">Fees (est.)</div>
+                <div className="font-medium" title={feeTotalFormattedFull}>
+                  {feeTotalFormatted}
+                </div>
+              </div>
+            )}
+            {chain && (
+              <div className="flex h-[18px] items-center justify-between text-[14px]">
+                <span className="text-th_base-secondary">Network</span>
+                <div className="flex items-center gap-[6px]">
+                  <ChainIcon chainId={chain.id} />
+                  <span className="font-medium">{chain.name}</span>
+                </div>
+              </div>
+            )}
+          </Details>
         </div>
       </Layout.Content>
 
@@ -213,7 +249,8 @@ export namespace Approve {
               <div className="truncate font-medium text-[13px] text-th_base-secondary">
                 {infinite
                   ? 'Any amount'
-                  : amount && `${Intl.NumberFormat('en-US', {
+                  : amount &&
+                    `${Intl.NumberFormat('en-US', {
                       maximumFractionDigits: 4,
                     }).format(Number(amount))} ${symbol}`}
               </div>
@@ -233,87 +270,6 @@ export namespace Approve {
       loading: boolean
       name?: string | undefined
       symbol?: string | undefined
-    }
-  }
-
-  export function Details(props: Details.Props) {
-    const { chainId, fees, loading, spender } = props
-
-    const { feeTotalFormatted, feeTotalFormattedFull } = React.useMemo(() => {
-      if (!fees)
-        return {
-          feeTotalFormatted: undefined,
-          feeTotalFormattedFull: undefined,
-        }
-      const feeTotal = fees['0x0']?.value
-      if (!feeTotal)
-        return {
-          feeTotalFormatted: undefined,
-          feeTotalFormattedFull: undefined,
-        }
-      const feeNumber = Number(feeTotal)
-      return {
-        feeTotalFormatted: PriceFormatter.format(feeNumber),
-        feeTotalFormattedFull: new Intl.NumberFormat('en-US', {
-          currency: 'USD',
-          maximumFractionDigits: 8,
-          minimumFractionDigits: 2,
-          style: 'currency',
-        }).format(feeNumber),
-      }
-    }, [fees])
-
-    const chain = React.useMemo(
-      () => porto.config.chains.find((chain) => chain.id === chainId),
-      [chainId],
-    )
-
-    if (loading)
-      return (
-        <div className="flex h-[18px] items-center justify-center text-[14px] text-th_base-secondary">
-          Loading details…
-        </div>
-      )
-
-    return (
-      <>
-        <div className="flex h-[18px] items-center justify-between text-[14px]">
-          <span className="text-th_base-secondary">Requested by</span>
-          <div
-            className="flex items-center gap-[8px] font-medium"
-            title={spender}
-          >
-            {StringFormatter.truncate(spender)}
-            <CopyButton value={spender} />
-          </div>
-        </div>
-        {feeTotalFormatted && (
-          <div className="flex h-[18px] items-center justify-between text-[14px]">
-            <div className="text-th_base-secondary">Fees (est.)</div>
-            <div className="font-medium" title={feeTotalFormattedFull}>
-              {feeTotalFormatted}
-            </div>
-          </div>
-        )}
-        {chain && (
-          <div className="flex h-[18px] items-center justify-between text-[14px]">
-            <span className="text-th_base-secondary">Network</span>
-            <div className="flex items-center gap-[6px]">
-              <ChainIcon chainId={chain.id} />
-              <span className="font-medium">{chain.name}</span>
-            </div>
-          </div>
-        )}
-      </>
-    )
-  }
-
-  export namespace Details {
-    export type Props = {
-      chainId?: number | undefined
-      fees?: Capabilities.feeTotals.Response | undefined
-      loading?: boolean | undefined
-      spender: `0x${string}`
     }
   }
 }
