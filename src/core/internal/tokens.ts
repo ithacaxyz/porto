@@ -92,9 +92,11 @@ export async function resolveFeeTokens<chain extends Chains.Chain | undefined>(
   } = parameters ?? {}
   const { feeToken: defaultFeeToken } = store?.getState() ?? {}
 
-  const feeTokens = await getTokens(client, { chain: chain! }).then((tokens) =>
-    tokens.filter((token) => token.feeToken),
-  )
+  const feeTokens = await getTokens(client, { chain: chain! })
+  // TODO: uncomment
+  // .then((tokens) =>
+  //   tokens.filter((token) => token.feeToken),
+  // )
   const index = feeTokens?.findIndex((feeToken) => {
     if (overrideFeeToken) {
       if (overrideFeeToken === 'native') return feeToken.address === zeroAddress
