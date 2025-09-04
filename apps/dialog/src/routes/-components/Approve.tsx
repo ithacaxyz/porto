@@ -188,16 +188,8 @@ export namespace Approve {
             >
               <TokenIcon className="shrink-0" symbol={symbol} />
               <div className="flex flex-1 flex-col gap-[4px]">
-                <div className="flex items-center gap-[4px]">
-                  <div
-                    className="max-w-[120px] truncate font-medium text-[14px] text-th_base"
-                    title={name || 'Unknown'}
-                  >
-                    {name || 'Unknown'}
-                  </div>
-                  <div className="flex h-[20px] items-center rounded-th_small bg-th_field px-[4px] font-medium text-[12px] text-th_base-secondary">
-                    {symbol}
-                  </div>
+                <div className="font-medium text-[14px] text-th_base">
+                  {name || 'Unknown'}
                 </div>
                 <div className="text-nowrap text-[12px] text-th_base-secondary">
                   Expires{' '}
@@ -221,10 +213,9 @@ export namespace Approve {
               <div className="truncate font-medium text-[13px] text-th_base-secondary">
                 {infinite
                   ? 'Any amount'
-                  : amount &&
-                    Intl.NumberFormat('en-US', {
+                  : amount && `${Intl.NumberFormat('en-US', {
                       maximumFractionDigits: 4,
-                    }).format(Number(amount))}
+                    }).format(Number(amount))} ${symbol}`}
               </div>
             </a.div>
           ),
