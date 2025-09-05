@@ -777,7 +777,7 @@ export namespace ActionRequest {
         assetDiffs[0].type !== 'erc721'
       )
         return {
-          asset: assetDiffs[0],
+          asset: assetDiffs[0] as CoinAsset,
           type: 'send',
         }
 
