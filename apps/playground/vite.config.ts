@@ -23,6 +23,7 @@ import {
 } from '../../test/src/_generated/addresses.js'
 import * as Anvil from '../../test/src/anvil.js'
 import { relay } from '../../test/src/prool.js'
+import { Plugins } from '../~internal/vite/index'
 
 const commitSha =
   ChildProcess.execSync('git rev-parse --short HEAD').toString().trim() ||
@@ -55,6 +56,7 @@ export default defineConfig(({ mode }) => {
             hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
           }),
       react(),
+      Plugins.Icons(),
       tailwindcss(),
       {
         // TODO(next): support `anvil2` & `anvil3`.

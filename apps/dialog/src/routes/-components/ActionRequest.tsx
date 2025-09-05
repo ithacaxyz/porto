@@ -598,20 +598,26 @@ export namespace ActionRequest {
           </span>
           {sourceChains.length === 0 ? (
             <div className="flex items-center gap-[6px]">
-              <ChainIcon chainId={destinationChain.id} />
+              <ChainIcon
+                chainId={destinationChain.id}
+                className="size-[18px]"
+              />
               <span className="font-medium">{destinationChain.name}</span>
             </div>
           ) : (
             <div className="flex items-center gap-[6px]">
               {sourceChains.map((chain) => (
-                <div key={chain.id}>
-                  <ChainIcon chainId={chain.id} className="size-4.5" />
-                </div>
+                <ChainIcon
+                  chainId={chain.id}
+                  className="size-[18px]"
+                  key={chain.id}
+                />
               ))}
-              <IconArrowRightCircle className="size-4" />
-              <div>
-                <ChainIcon chainId={destinationChain.id} className="size-4.5" />
-              </div>
+              <IconArrowRightCircle className="size-[18px]" />
+              <ChainIcon
+                chainId={destinationChain.id}
+                className="size-[18px]"
+              />
             </div>
           )}
         </div>
@@ -771,7 +777,7 @@ export namespace ActionRequest {
         assetDiffs[0].type !== 'erc721'
       )
         return {
-          asset: assetDiffs[0],
+          asset: assetDiffs[0] as CoinAsset,
           type: 'send',
         }
 
