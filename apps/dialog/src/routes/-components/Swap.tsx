@@ -1,22 +1,22 @@
-import { ChainIcon } from '@porto/apps/components'
 import { Button, ButtonArea, Details, TokenIcon } from '@porto/ui'
 import { a, useTransition } from '@react-spring/web'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
-import { Hooks as RemoteHooks } from 'porto/remote'
 import * as React from 'react'
 import { CopyButton } from '~/components/CopyButton'
-import { porto } from '~/lib/Porto'
 import { PriceFormatter, StringFormatter, ValueFormatter } from '~/utils'
+import type { Chain } from 'viem'
 import ArrowDown from '~icons/lucide/arrow-down'
 import LucideSendToBack from '~icons/lucide/send-to-back'
 import Star from '~icons/ph/star-four-bold'
 import { Layout } from './Layout'
+import { ActionRequest } from './ActionRequest'
 
 export function Swap(props: Swap.Props) {
   const {
     assetIn,
     assetOut,
     chainId,
+    chainsPath,
     contractAddress,
     fees,
     loading,
@@ -31,8 +31,6 @@ export function Swap(props: Swap.Props) {
   const [currencyType, setCurrencyType] = React.useState<'fiat' | 'token'>(
     swapType === 'convert' ? 'token' : hasFiat ? 'fiat' : 'token',
   )
-
-  const chain = RemoteHooks.useChain(porto, { chainId })
 
   const feeFormatted = React.useMemo(() => {
     const feeTotal = fees?.['0x0']?.value
@@ -110,15 +108,7 @@ export function Swap(props: Swap.Props) {
                 </div>
               </div>
             )}
-            {chain && (
-              <div className="flex h-[18px] items-center justify-between text-[14px]">
-                <span className="text-th_base-secondary">Network</span>
-                <div className="flex items-center gap-[6px]">
-                  <ChainIcon chainId={chain.id} />
-                  <span className="font-medium">{chain.name}</span>
-                </div>
-              </div>
-            )}
+            <ActionRequest.ChainsPath chainsPath={chainsPath} />
           </Details>
         </div>
       </Layout.Content>
@@ -158,6 +148,7 @@ export namespace Swap {
     assetIn: SwapAsset
     assetOut: SwapAsset
     chainId?: number | undefined
+    chainsPath: readonly Chain[]
     contractAddress?: `0x${string}` | undefined
     fees?: Capabilities.feeTotals.Response | undefined
     loading: boolean

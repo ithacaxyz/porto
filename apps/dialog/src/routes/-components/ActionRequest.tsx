@@ -15,6 +15,7 @@ import {
   decodeFunctionData,
   erc20Abi,
   ethAddress,
+  type Chain,
 } from 'viem'
 import { CheckBalance } from '~/components/CheckBalance'
 import * as Calls from '~/lib/Calls'
@@ -79,6 +80,7 @@ export function ActionRequest(props: ActionRequest.Props) {
   )
 
   const destinationChainId = quote_destination?.chainId
+  const chainsPath = ActionRequest.useChainsPath(quotes)
 
   return (
     <CheckBalance
@@ -113,6 +115,7 @@ export function ActionRequest(props: ActionRequest.Props) {
               assetIn={identified.assetIn}
               assetOut={identified.assetOut}
               chainId={destinationChainId}
+              chainsPath={chainsPath}
               contractAddress={calls[0]?.to}
               fees={sponsored ? undefined : feeTotals}
               loading={prepareCallsQuery.isPending}
@@ -499,15 +502,11 @@ export namespace ActionRequest {
     const feeTotalFormatted = feeTotal
       ? PriceFormatter.format(Number(feeTotal))
       : undefined
-    const [destinationChain, ...sourceChains] = React.useMemo(() => {
-      if (!quotes) return []
-      return quotes
-        .map((quote) =>
-          porto.config.chains.find((chain) => chain.id === quote.chainId),
-        )
-        .toReversed()
-    }, [quotes])
-    const hasDetails = (!sponsored && feeTotalFormatted) || destinationChain
+
+    const chainsPath = useChainsPath(quotes)
+
+    const hasDetails =
+      (!sponsored && feeTotalFormatted) || chainsPath.length > 0
 
     return (
       <div className="space-y-2">
@@ -558,34 +557,7 @@ export namespace ActionRequest {
                 <div className="font-medium">{feeTotalFormatted}</div>
               </div>
             )}
-            {destinationChain && (
-              <div className="flex h-[18px] items-center justify-between text-[14px]">
-                <span className="text-th_base-secondary">
-                  Network{sourceChains.length > 0 ? 's' : ''}
-                </span>
-                {sourceChains.length === 0 ? (
-                  <div className="flex items-center gap-[6px]">
-                    <ChainIcon chainId={destinationChain.id} />
-                    <span className="font-medium">{destinationChain.name}</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-[6px]">
-                    {sourceChains.map((chain) => (
-                      <div key={chain!.id}>
-                        <ChainIcon chainId={chain!.id} className="size-4.5" />
-                      </div>
-                    ))}
-                    <IconArrowRightCircle className="size-4" />
-                    <div>
-                      <ChainIcon
-                        chainId={destinationChain.id}
-                        className="size-4.5"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+            <ChainsPath chainsPath={chainsPath} />
           </Details>
         )}
       </div>
@@ -601,6 +573,61 @@ export namespace ActionRequest {
       quotes?: readonly Quote_schema.Quote[] | undefined
       status: 'pending' | 'error' | 'success'
     }
+  }
+
+  export function ChainsPath(props: ChainsPath.Props) {
+    const { chainsPath } = props
+    const [destinationChain, ...sourceChains] = chainsPath
+    return (
+      destinationChain && (
+        <div className="flex h-[18px] items-center justify-between text-[14px]">
+          <span className="text-th_base-secondary">
+            Network{sourceChains.length > 0 ? 's' : ''}
+          </span>
+          {sourceChains.length === 0 ? (
+            <div className="flex items-center gap-[6px]">
+              <ChainIcon chainId={destinationChain.id} />
+              <span className="font-medium">{destinationChain.name}</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-[6px]">
+              {sourceChains.map((chain) => (
+                <div key={chain.id}>
+                  <ChainIcon chainId={chain.id} className="size-4.5" />
+                </div>
+              ))}
+              <IconArrowRightCircle className="size-4" />
+              <div>
+                <ChainIcon chainId={destinationChain.id} className="size-4.5" />
+              </div>
+            </div>
+          )}
+        </div>
+      )
+    )
+  }
+
+  export namespace ChainsPath {
+    export type Props = {
+      chainsPath: readonly Chain[]
+    }
+  }
+
+  export function useChainsPath(
+    quotes: readonly Quote_schema.Quote[] | undefined,
+  ): readonly Chain[] {
+    return React.useMemo(() => {
+      if (!quotes) return []
+      return quotes
+        .map((quote) => {
+          const chain = porto.config.chains.find(
+            (chain) => chain.id === quote.chainId,
+          )
+          if (!chain) throw new Error('Chain not found')
+          return chain
+        })
+        .toReversed()
+    }, [quotes])
   }
 
   export function useIdentifyTx(
