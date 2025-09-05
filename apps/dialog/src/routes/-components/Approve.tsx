@@ -3,7 +3,7 @@ import { a, useTransition } from '@react-spring/web'
 import { Value } from 'ox'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import * as React from 'react'
-import { type Chain, erc20Abi } from 'viem'
+import { type Chain, erc20Abi, maxUint256 } from 'viem'
 import { useReadContracts } from 'wagmi'
 import { CopyButton } from '~/components/CopyButton'
 import { PriceFormatter, StringFormatter } from '~/utils'
@@ -23,8 +23,14 @@ export function Approve(props: Approve.Props) {
     onReject,
     spender,
     tokenAddress,
-    unlimited,
   } = props
+
+  let { unlimited } = props
+  if (unlimited === undefined) {
+    const precisionLossTolerance = 10n ** 64n
+    unlimited =
+      amount > (maxUint256 / precisionLossTolerance) * precisionLossTolerance
+  }
 
   const feeFormatted = React.useMemo(() => {
     const feeTotal = fees?.['0x0']?.value

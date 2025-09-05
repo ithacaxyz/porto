@@ -1,7 +1,7 @@
 import { Button, Frame } from '@porto/ui'
 import { cx } from 'cva'
 import * as React from 'react'
-import { maxUint160, maxUint256 } from 'viem'
+import { maxUint160 } from 'viem'
 import { useChains } from 'wagmi'
 import { CopyButton } from '~/components/CopyButton'
 import type * as TypedMessages from '~/lib/TypedMessages'
@@ -277,9 +277,7 @@ export function SignPermit(props: SignPermit.Props) {
       onReject={onReject}
       spender={spender}
       tokenAddress={tokenContract}
-      unlimited={
-        permitType === 'permit2' ? amount === maxUint160 : amount === maxUint256
-      }
+      unlimited={permitType === 'permit2' ? amount >= maxUint160 : undefined}
     />
   )
 }
