@@ -195,7 +195,7 @@ export function ActionRequest(props: ActionRequest.Props) {
                 <Button
                   data-testid="confirm"
                   disabled={!prepareCallsQuery.isSuccess}
-                  loading={loading && 'Sending…'}
+                  loading={loading && 'Confirming…'}
                   onClick={() => {
                     if (prepareCallsQuery.isError) {
                       prepareCallsQuery.refetch()
