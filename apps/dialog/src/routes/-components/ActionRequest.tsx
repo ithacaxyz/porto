@@ -79,7 +79,6 @@ export function ActionRequest(props: ActionRequest.Props) {
     assetDiff,
   )
 
-  const destinationChainId = quote_destination?.chainId
   const chainsPath = ActionRequest.useChainsPath(quotes)
 
   return (
