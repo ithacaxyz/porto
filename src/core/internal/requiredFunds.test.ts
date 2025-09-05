@@ -6,12 +6,12 @@ import * as Tokens from './tokens.js'
 
 const porto = TestConfig.getPorto()
 const client = TestConfig.getRelayClient(porto)
-const feeTokens = await Tokens.resolveFeeTokens(client)
+const tokens = await Tokens.getTokens(client)
 
 // TODO: unskip when interop supported
 describe.skip('toRelay', () => {
   test('param: empty requiredFunds array', async () => {
-    const result = RequiredFunds.toRelay([], { feeTokens })
+    const result = RequiredFunds.toRelay([], { tokens })
 
     expect(result).toMatchInlineSnapshot('[]')
   })
@@ -24,7 +24,7 @@ describe.skip('toRelay', () => {
           value: 1000000000000000000n,
         },
       ],
-      { feeTokens },
+      { tokens },
     )
 
     expect(result.map((x) => x.value)).toMatchInlineSnapshot(`
@@ -42,7 +42,7 @@ describe.skip('toRelay', () => {
           value: '1.5',
         },
       ],
-      { feeTokens },
+      { tokens },
     )
 
     expect(result[0]!.address).toBeDefined()
@@ -57,7 +57,7 @@ describe.skip('toRelay', () => {
           value: '2',
         },
       ],
-      { feeTokens },
+      { tokens },
     )
 
     expect(result[0]!.address).toBeDefined()
@@ -76,7 +76,7 @@ describe.skip('toRelay', () => {
           value: '0.5',
         },
       ],
-      { feeTokens },
+      { tokens },
     )
 
     expect(result[0]!.address).toBeDefined()
@@ -94,7 +94,7 @@ describe.skip('toRelay', () => {
             value: '1.0',
           },
         ],
-        { feeTokens },
+        { tokens },
       )
     } catch (error) {
       expect((error as Error).message).toMatch(
@@ -112,7 +112,7 @@ describe.skip('toRelay', () => {
             value: '1.0',
           },
         ],
-        { feeTokens },
+        { tokens },
       ),
     ).toThrowErrorMatchingInlineSnapshot(
       '[Error: interop token not found: UNKNOWN]',
@@ -132,7 +132,7 @@ describe.skip('toRelay', () => {
             value: '1.0',
           },
         ],
-        { feeTokens },
+        { tokens },
       ),
     ).toThrowErrorMatchingInlineSnapshot(
       '[Error: interop token not found: NONEXISTENT]',

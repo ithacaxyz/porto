@@ -560,16 +560,19 @@ export function relay(parameters: relay.Parameters = {}) {
             storage,
           }))
 
-        const feeTokens = await Tokens.resolveFeeTokens(client, {
-          addressOrSymbol: parameters.feeToken,
-          store: internal.store,
-        })
+        const [tokens, feeTokens] = await Promise.all([
+          Tokens.getTokens(client),
+          Tokens.resolveFeeTokens(client, {
+            addressOrSymbol: parameters.feeToken,
+            store: internal.store,
+          }),
+        ])
         const [feeToken] = feeTokens
 
         const requiredFunds = RequiredFunds.toRelay(
           parameters.requiredFunds ?? [],
           {
-            feeTokens,
+            tokens,
           },
         )
 
@@ -742,16 +745,19 @@ export function relay(parameters: relay.Parameters = {}) {
           }))
 
         // Resolve fee token to use.
-        const feeTokens = await Tokens.resolveFeeTokens(client, {
-          addressOrSymbol: parameters.feeToken,
-          store: internal.store,
-        })
+        const [tokens, feeTokens] = await Promise.all([
+          Tokens.getTokens(client),
+          Tokens.resolveFeeTokens(client, {
+            addressOrSymbol: parameters.feeToken,
+            store: internal.store,
+          }),
+        ])
         const [feeToken] = feeTokens
 
         const requiredFunds = RequiredFunds.toRelay(
           parameters.requiredFunds ?? [],
           {
-            feeTokens,
+            tokens,
           },
         )
 

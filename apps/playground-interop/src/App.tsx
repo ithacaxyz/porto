@@ -7,6 +7,7 @@ import {
   erc20Abi,
   formatUnits,
   parseEther,
+  parseUnits,
   stringify,
 } from 'viem'
 import {
@@ -263,7 +264,7 @@ function Transfer({ chainId }: { chainId: Exclude<ChainId, 0> }) {
   const { data: capabilities, isLoading } = useCapabilities({ chainId })
 
   const tokens = React.useMemo(
-    () => capabilities?.feeToken.tokens,
+    () => capabilities?.requiredFunds.tokens,
     [capabilities],
   )
 
@@ -277,6 +278,9 @@ function Transfer({ chainId }: { chainId: Exclude<ChainId, 0> }) {
             const to = (formData.get('to') || account.address) as Address
             const amount = formData.get('amount') as `${number}`
             const symbol = formData.get('symbol') as string
+            const decimals = tokens?.find(
+              (token) => token.symbol === symbol,
+            )?.decimals
 
             if (symbol === 'ETH') {
               sendCalls.sendCalls({
@@ -291,7 +295,7 @@ function Transfer({ chainId }: { chainId: Exclude<ChainId, 0> }) {
               return
             }
 
-            const token = capabilities?.feeToken.tokens.find(
+            const token = capabilities?.requiredFunds.tokens.find(
               (token) => token.symbol === symbol,
             )
             if (!token) throw new Error(`Token ${symbol} not found`)
@@ -300,7 +304,7 @@ function Transfer({ chainId }: { chainId: Exclude<ChainId, 0> }) {
               calls: [
                 {
                   abi: erc20Abi,
-                  args: [to, parseEther(amount)],
+                  args: [to, parseUnits(amount, decimals ?? 18)],
                   functionName: 'transfer',
                   to: token.address,
                 },

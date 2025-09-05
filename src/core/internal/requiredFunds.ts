@@ -15,18 +15,15 @@ export function toRelay(
   requiredFunds: toRelay.Value,
   options: toRelay.Options,
 ): toRelay.ReturnType {
-  const { feeTokens } = options
+  const { tokens } = options
 
-  const interopTokens = feeTokens.filter((feeToken) => feeToken.interop)
-
-  const [activeFeeToken] = feeTokens
-  if (!activeFeeToken) throw new Error('fee token not found.')
+  const interopTokens = tokens.filter((token) => token.interop)
 
   return requiredFunds.map((requiredFund) => {
     if (requiredFund.address) return requiredFund
 
     const interopToken = interopTokens.find(
-      (feeToken) => feeToken.symbol === requiredFund.symbol,
+      (token) => token.symbol === requiredFund.symbol,
     )
     if (!interopToken)
       throw new Error(`interop token not found: ${requiredFund.symbol}`)
@@ -42,7 +39,7 @@ export namespace toRelay {
   export type Value = Capabilities.requiredFunds.Request
 
   export type Options = {
-    feeTokens: readonly Token.Token[]
+    tokens: readonly Token.Token[]
   }
   export type ReturnType = Capabilities_relay.requiredFunds.Request
 }
