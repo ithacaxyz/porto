@@ -2,7 +2,12 @@ import { Dialog, Mode, Porto } from 'porto'
 
 export default defineContentScript({
   main() {
-    const porto = Porto.create()
+    const porto = Porto.create({
+      announceProvider: {
+        name: 'Porto (Extension)',
+        rdns: 'xyz.ithaca.porto.ext',
+      },
+    })
     ;(window as any).ethereum = porto.provider
 
     window.addEventListener('message', (event) => {

@@ -1,3 +1,4 @@
+import type * as Mipd from 'mipd'
 import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import type * as RpcRequest from 'ox/RpcRequest'
@@ -167,9 +168,10 @@ export type Config<
 > = {
   /**
    * Whether to announce the provider via EIP-6963.
+   * Also accepts EIP-6963 provider info.
    * @default true
    */
-  announceProvider: boolean
+  announceProvider: boolean | Partial<Mipd.EIP6963ProviderInfo>
   /**
    * API URL(s) to use for offchain SIWE authentication.
    */

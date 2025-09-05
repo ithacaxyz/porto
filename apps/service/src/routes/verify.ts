@@ -1,5 +1,6 @@
 import { env } from 'cloudflare:workers'
 import { Hono } from 'hono'
+import { hostnames } from 'porto/trusted-hosts'
 
 const ttl = 600
 
@@ -47,7 +48,7 @@ verifyApp.get('/', async (context) => {
 
 const extraConfig = {
   blacklist: [],
-  whitelist: ['porto.sh'],
+  whitelist: [hostnames],
 } as const
 
 export { verifyApp }

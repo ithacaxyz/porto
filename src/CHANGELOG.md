@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.86
+
+### Patch Changes
+
+- [`9fa05a6`](https://github.com/ithacaxyz/porto/commit/9fa05a6a2ee12e68d61f3979d28d2fc7b981c823) Thanks [@jxom](https://github.com/jxom)! - Added ability to pass EIP-6963 info to `Porto.create`.
+
 ## 0.0.85
 
 ### Patch Changes

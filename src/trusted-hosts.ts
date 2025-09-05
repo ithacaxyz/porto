@@ -5,4 +5,7 @@ export const hostnames = [
   'daimo.ngrok.app',
   'localhost',
   'pay.daimo.com',
+  'porto.sh',
+  'relay.link',
+  'uniswap.org',
 ]
