@@ -80,6 +80,25 @@ function DetailsComponent() {
           </Details>
         </div>
       </ComponentScreen.Section>
+
+      <ComponentScreen.Section title="Start opened">
+        <div className="flex flex-col gap-2 rounded-lg bg-th_base p-3">
+          <Details key={key} opened>
+            <div className="flex h-[18px] items-center justify-between text-[14px]">
+              <span className="text-th_base-secondary">Network</span>
+              <span className="font-medium">Ethereum</span>
+            </div>
+            <div className="flex h-[18px] items-center justify-between text-[14px]">
+              <span className="text-th_base-secondary">Gas fee</span>
+              <span className="font-medium">$2.45</span>
+            </div>
+            <div className="flex h-[18px] items-center justify-between text-[14px]">
+              <span className="text-th_base-secondary">Total</span>
+              <span className="font-medium">$102.45</span>
+            </div>
+          </Details>
+        </div>
+      </ComponentScreen.Section>
     </ComponentScreen>
   )
 }

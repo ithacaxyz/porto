@@ -551,7 +551,7 @@ export namespace ActionRequest {
         )}
 
         {status === 'success' && feeTotals && quotes && hasDetails && (
-          <Details>
+          <Details opened={!showOverview ? true : undefined}>
             {!sponsored && feeTotalFormatted && (
               <div className="flex h-[18px] items-center justify-between text-[14px]">
                 <div className="text-th_base-secondary">Fees (est.)</div>

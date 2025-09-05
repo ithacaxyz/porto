@@ -4,8 +4,13 @@ import LucideInfo from '~icons/lucide/info'
 import { css } from '../../styled-system/css'
 import { ButtonArea } from '../ButtonArea/ButtonArea.js'
 
-export function Details({ children, loading }: Details.Props) {
-  const [opened, setOpened] = useState(false)
+export function Details({
+  children,
+  loading,
+  opened: forceOpened,
+}: Details.Props) {
+  const [opened_, setOpened] = useState(forceOpened || false)
+  const opened = forceOpened ? true : opened_
 
   if (loading)
     children = (
@@ -135,5 +140,6 @@ export namespace Details {
   export type Props = {
     children: ReactNode
     loading?: boolean | ReactNode
+    opened?: boolean | undefined
   }
 }
