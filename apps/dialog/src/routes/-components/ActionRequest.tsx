@@ -11,11 +11,11 @@ import { Hooks } from 'porto/remote'
 import * as React from 'react'
 import {
   type Call,
+  type Chain,
   decodeAbiParameters,
   decodeFunctionData,
   erc20Abi,
   ethAddress,
-  type Chain,
 } from 'viem'
 import { CheckBalance } from '~/components/CheckBalance'
 import * as Calls from '~/lib/Calls'
@@ -96,7 +96,7 @@ export function ActionRequest(props: ActionRequest.Props) {
             <Approve
               amount={identified.amount}
               approving={loading}
-              chainId={destinationChainId}
+              chainsPath={chainsPath}
               fees={sponsored ? undefined : feeTotals}
               loading={prepareCallsQuery.isPending}
               onApprove={() => {
@@ -114,7 +114,6 @@ export function ActionRequest(props: ActionRequest.Props) {
             <Swap
               assetIn={identified.assetIn}
               assetOut={identified.assetOut}
-              chainId={destinationChainId}
               chainsPath={chainsPath}
               contractAddress={calls[0]?.to}
               fees={sponsored ? undefined : feeTotals}
@@ -133,7 +132,7 @@ export function ActionRequest(props: ActionRequest.Props) {
           return (
             <Send
               asset={identified.asset}
-              chainId={destinationChainId}
+              chainsPath={chainsPath}
               fees={sponsored ? undefined : feeTotals}
               loading={prepareCallsQuery.isPending}
               onApprove={() => {

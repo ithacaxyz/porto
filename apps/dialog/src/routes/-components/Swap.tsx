@@ -2,20 +2,19 @@ import { Button, ButtonArea, Details, TokenIcon } from '@porto/ui'
 import { a, useTransition } from '@react-spring/web'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import * as React from 'react'
+import type { Chain } from 'viem'
 import { CopyButton } from '~/components/CopyButton'
 import { PriceFormatter, StringFormatter, ValueFormatter } from '~/utils'
-import type { Chain } from 'viem'
 import ArrowDown from '~icons/lucide/arrow-down'
 import LucideSendToBack from '~icons/lucide/send-to-back'
 import Star from '~icons/ph/star-four-bold'
-import { Layout } from './Layout'
 import { ActionRequest } from './ActionRequest'
+import { Layout } from './Layout'
 
 export function Swap(props: Swap.Props) {
   const {
     assetIn,
     assetOut,
-    chainId,
     chainsPath,
     contractAddress,
     fees,
@@ -147,7 +146,6 @@ export namespace Swap {
   export type Props = {
     assetIn: SwapAsset
     assetOut: SwapAsset
-    chainId?: number | undefined
     chainsPath: readonly Chain[]
     contractAddress?: `0x${string}` | undefined
     fees?: Capabilities.feeTotals.Response | undefined
