@@ -2,13 +2,13 @@ import { Button, ButtonArea, Details } from '@porto/ui'
 import { a, useTransition } from '@react-spring/web'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import * as React from 'react'
+import type { Chain } from 'viem'
 import { CopyButton } from '~/components/CopyButton'
 import { PriceFormatter, StringFormatter, ValueFormatter } from '~/utils'
-import type { Chain } from 'viem'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideSendHorizontal from '~icons/lucide/send-horizontal'
-import { Layout } from './Layout'
 import { ActionRequest } from './ActionRequest'
+import { Layout } from './Layout'
 
 export function Send(props: Send.Props) {
   const { asset, chainsPath, fees, loading, onApprove, onReject, sending, to } =
