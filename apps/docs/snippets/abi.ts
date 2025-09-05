@@ -32,7 +32,7 @@ export const nftAbi = [
   // ...
 ] as const
 
-export const nftAddress = '0xFcc74F42621D03Fd234d5f40931D8B82923E4D29'
+export const nftAddress = '0xFcc74F42621D03Fd234d5f40931D8B82923E4D29' as const
 
 export const nftConfig = { abi: nftAbi, address: nftAddress } as const
 // [!endregion nft]
