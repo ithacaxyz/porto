@@ -3,6 +3,6 @@
   "include": ["src", "vite.config.ts"],
   "compilerOptions": {
     "noUncheckedIndexedAccess": false,
-    "types": ["unplugin-icons/types/react"]
+    "types": ["unplugin-icons/types/react", "typed-query-selector/strict"]
   }
 }
