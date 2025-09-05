@@ -133,7 +133,7 @@ export function Approve(props: Approve.Props) {
             variant="negative-secondary"
             width="grow"
           >
-            Deny
+            Cancel
           </Button>
           <Button
             disabled={tokenResult.isLoading || tokenResult.isError}

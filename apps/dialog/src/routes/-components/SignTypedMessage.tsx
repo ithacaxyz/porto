@@ -75,7 +75,7 @@ export function SignTypedMessage({
             variant="negative-secondary"
             width="grow"
           >
-            Deny
+            Cancel
           </Button>
           <Button
             loading={approving && 'Signing…'}
@@ -83,7 +83,7 @@ export function SignTypedMessage({
             variant="positive"
             width="grow"
           >
-            Approve
+            Sign
           </Button>
         </Layout.Footer.Actions>
       </Layout.Footer>
@@ -195,7 +195,7 @@ export function SignTypedMessageInvalid({
             variant="secondary"
             width="grow"
           >
-            Deny
+            Cancel
           </Button>
           <Button
             loading={approving && 'Signing…'}
@@ -203,7 +203,7 @@ export function SignTypedMessageInvalid({
             variant="negative"
             width="grow"
           >
-            Approve anyway
+            Sign anyway
           </Button>
         </Layout.Footer.Actions>
       </Layout.Footer>

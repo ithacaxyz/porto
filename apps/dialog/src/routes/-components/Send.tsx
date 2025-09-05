@@ -97,7 +97,7 @@ export function Send(props: Send.Props) {
             variant="negative-secondary"
             width="grow"
           >
-            Deny
+            Cancel
           </Button>
           <Button
             disabled={!onApprove}

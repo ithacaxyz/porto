@@ -120,7 +120,7 @@ export function Swap(props: Swap.Props) {
             variant="negative-secondary"
             width="grow"
           >
-            Deny
+            Cancel
           </Button>
           <Button
             disabled={!onApprove}
@@ -129,7 +129,7 @@ export function Swap(props: Swap.Props) {
             variant="positive"
             width="grow"
           >
-            Approve
+            Swap
           </Button>
         </Layout.Footer.Actions>
       </Layout.Footer>
