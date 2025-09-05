@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.87
+
+### Patch Changes
+
+- [`81db062`](https://github.com/ithacaxyz/porto/commit/81db062e543c3d7744c23112b8978ac9541d025f) Thanks [@jxom](https://github.com/jxom)! - Updated trusted hosts.
+
 ## 0.0.86
 
 ### Patch Changes
