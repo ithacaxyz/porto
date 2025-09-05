@@ -204,7 +204,7 @@ export namespace Approve {
             >
               <TokenIcon className="shrink-0" symbol={symbol} />
               <div className="flex flex-1 flex-col gap-[4px]">
-                <div className="font-medium text-[14px] text-th_base">
+                <div className="text-nowrap font-medium text-[14px] text-th_base">
                   {name || 'Unknown'}
                 </div>
                 <div className="text-nowrap text-[12px] text-th_base-secondary">

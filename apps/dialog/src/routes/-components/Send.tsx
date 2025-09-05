@@ -115,13 +115,8 @@ export function Send(props: Send.Props) {
 }
 
 export namespace Send {
-  type SendAsset = Exclude<
-    Capabilities.assetDiffs.AssetDiffAsset,
-    { type: 'erc721' }
-  >
-
   export type Props = {
-    asset: SendAsset
+    asset: ActionRequest.CoinAsset
     chainsPath: readonly Chain[]
     fees?: Capabilities.feeTotals.Response | undefined
     loading: boolean
@@ -182,7 +177,7 @@ export namespace Send {
 
   export namespace AmountButton {
     export type Props = {
-      asset: SendAsset
+      asset: ActionRequest.CoinAsset
       currencyType: 'fiat' | 'token'
       onToggleCurrency: () => void
     }

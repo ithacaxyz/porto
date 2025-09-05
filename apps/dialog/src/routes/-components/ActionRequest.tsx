@@ -74,12 +74,20 @@ export function ActionRequest(props: ActionRequest.Props) {
     quote_destination?.intent?.payer !==
     '0x0000000000000000000000000000000000000000'
 
+  const chainsPath = ActionRequest.useChainsPath(quotes)
+
   const identified = ActionRequest.useIdentifyTx(
     quote_destination?.intent.executionData ?? null,
     assetDiff,
   )
 
-  const chainsPath = ActionRequest.useChainsPath(quotes)
+  const addNativeCurrencyName = (asset: ActionRequest.CoinAsset) => {
+    if (asset.type !== null) return asset
+    return {
+      ...asset,
+      name: chainsPath[0]?.nativeCurrency.name,
+    }
+  }
 
   return (
     <CheckBalance
@@ -111,8 +119,8 @@ export function ActionRequest(props: ActionRequest.Props) {
         if (identified?.type === 'swap' || identified?.type === 'convert')
           return (
             <Swap
-              assetIn={identified.assetIn}
-              assetOut={identified.assetOut}
+              assetIn={addNativeCurrencyName(identified.assetIn)}
+              assetOut={addNativeCurrencyName(identified.assetOut)}
               chainsPath={chainsPath}
               contractAddress={calls[0]?.to}
               fees={sponsored ? undefined : feeTotals}
@@ -229,6 +237,12 @@ export namespace ActionRequest {
     onApprove: (data: Calls.prepareCalls.useQuery.Data) => void
     onReject: () => void
   }
+
+  export type CoinAsset =
+    | Extract<Capabilities.assetDiffs.AssetDiffAsset, { type: 'erc20' }>
+    | (Extract<Capabilities.assetDiffs.AssetDiffAsset, { type: null }> & {
+        name: string | undefined
+      })
 
   export function AssetDiff(props: AssetDiff.Props) {
     const { assetDiff } = props
@@ -774,9 +788,6 @@ export namespace ActionRequest {
         type: 'tuple[]',
       },
     ] as const
-
-    type Asset = Capabilities.assetDiffs.AssetDiffAsset
-    type CoinAsset = Exclude<Asset, { type: 'erc721' }>
 
     export type TxApprove = {
       type: 'approve'

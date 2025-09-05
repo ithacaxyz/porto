@@ -138,14 +138,9 @@ export function Swap(props: Swap.Props) {
 }
 
 export namespace Swap {
-  type SwapAsset = Exclude<
-    Capabilities.assetDiffs.AssetDiffAsset,
-    { type: 'erc721' }
-  >
-
   export type Props = {
-    assetIn: SwapAsset
-    assetOut: SwapAsset
+    assetIn: ActionRequest.CoinAsset
+    assetOut: ActionRequest.CoinAsset
     chainsPath: readonly Chain[]
     contractAddress?: `0x${string}` | undefined
     fees?: Capabilities.feeTotals.Response | undefined
@@ -177,6 +172,8 @@ export namespace Swap {
       leave: { immediate: true, opacity: 0 },
     })
 
+    const assetName = asset.name || asset.symbol || 'Unknown'
+
     return (
       <div className="flex w-full flex-row items-center gap-[4px]">
         <div className="shrink-0">
@@ -186,9 +183,9 @@ export namespace Swap {
           <div className="flex min-w-[120px] items-center gap-[4px]">
             <div
               className="max-w-[120px] truncate font-medium text-[14px] text-th_base"
-              title={'name' in asset && asset.name ? asset.name : 'Unknown'}
+              title={assetName}
             >
-              {'name' in asset && asset.name ? asset.name : 'Unknown'}
+              {assetName}
             </div>
             <div className="flex h-[20px] items-center rounded-th_small bg-th_field px-[4px] font-medium text-[12px] text-th_base-secondary">
               {asset.symbol}
@@ -226,7 +223,7 @@ export namespace Swap {
 
   export namespace AssetRow {
     export type Props = {
-      asset: SwapAsset
+      asset: ActionRequest.CoinAsset
       currencyType: 'fiat' | 'token'
       onToggleCurrency: () => void
     }
