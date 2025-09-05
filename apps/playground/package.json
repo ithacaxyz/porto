@@ -10,6 +10,7 @@
     "start": "vite preview"
   },
   "dependencies": {
+    "@iconify/json": "catalog:",
     "@porto/apps": "workspace:*",
     "@tailwindcss/vite": "catalog:",
     "eruda": "^3.4.3",
@@ -29,6 +30,7 @@
     "prool": "^0.0.23",
     "typescript": "catalog:",
     "vite": "catalog:",
+    "unplugin-icons": "catalog:",
     "vite-plugin-mkcert": "catalog:"
   }
 }
