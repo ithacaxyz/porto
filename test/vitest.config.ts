@@ -1,4 +1,5 @@
 import { basename, dirname, join } from 'node:path'
+import { playwright } from '@vitest/browser/providers/playwright'
 import { loadEnv } from 'vite'
 import { defineConfig } from 'vitest/config'
 
@@ -21,15 +22,12 @@ export default defineConfig(({ mode }) => {
         porto: join(__dirname, '../src'),
       },
       coverage: {
-        all: false,
         include: ['**/src/**'],
         provider: 'v8',
         reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
       },
       passWithNoTests: true,
-      resolveSnapshotPath: (path, ext) =>
-        join(join(dirname(path), '_snapshots'), `${basename(path)}${ext}`),
-      workspace: [
+      projects: [
         {
           extends: true,
           test: {
@@ -60,7 +58,7 @@ export default defineConfig(({ mode }) => {
                 { browser: 'firefox' },
                 { browser: 'webkit' },
               ],
-              provider: 'playwright',
+              provider: playwright(),
               screenshotFailures: false,
             },
             globalSetup: [join(__dirname, './globalSetup.browser.ts')],
@@ -71,6 +69,8 @@ export default defineConfig(({ mode }) => {
         },
         'apps/dialog/vite.config.ts',
       ],
+      resolveSnapshotPath: (path, ext) =>
+        join(join(dirname(path), '_snapshots'), `${basename(path)}${ext}`),
     },
   }
 })

@@ -1,10 +1,10 @@
-import * as process from 'node:child_process'
+import * as child_process from 'node:child_process'
 
 export default async function () {
-  let process_dialog: process.ChildProcess | undefined
+  let process_dialog: child_process.ChildProcess | undefined
   await fetch('http://localhost:5175').catch(() => {
     return new Promise<void>((resolve) => {
-      process_dialog = process.spawn(
+      process_dialog = child_process.spawn(
         'pnpm',
         ['--filter', 'dialog', 'dev', '--mode', 'test'],
         {
@@ -22,11 +22,11 @@ export default async function () {
     })
   })
   // TODO: use prool Relay instance directly.
-  let process_playground: process.ChildProcess | undefined
+  let process_playground: child_process.ChildProcess | undefined
   if (import.meta.env.VITE_DEFAULT_ENV === 'anvil')
     await fetch('http://localhost:5173').catch(() => {
       return new Promise<void>((resolve) => {
-        process_playground = process.spawn(
+        process_playground = child_process.spawn(
           'pnpm',
           ['--filter', 'playground', 'dev', '--mode', 'test'],
           {
