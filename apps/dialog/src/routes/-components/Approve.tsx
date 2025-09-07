@@ -1,31 +1,53 @@
-import { ChainIcon } from '@porto/apps/components'
-import { Button, ButtonArea, Spinner, TokenIcon } from '@porto/ui'
+import { Button, Details, Spinner, TokenIcon } from '@porto/ui'
 import { a, useTransition } from '@react-spring/web'
 import { Value } from 'ox'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import * as React from 'react'
-import { erc20Abi, maxUint256 } from 'viem'
+import { type Chain, erc20Abi, maxUint256 } from 'viem'
 import { useReadContracts } from 'wagmi'
 import { CopyButton } from '~/components/CopyButton'
-import { porto } from '~/lib/Porto'
 import { PriceFormatter, StringFormatter } from '~/utils'
-import LucideInfo from '~icons/lucide/info'
 import LucideLockKeyholeOpen from '~icons/lucide/lock-keyhole-open'
+import { ActionRequest } from './ActionRequest'
 import { Layout } from './Layout'
 
 export function Approve(props: Approve.Props) {
   const {
     amount,
-    chainId,
+    approving,
+    chainsPath,
     expiresAt,
     fees,
     loading,
-    approving,
     onApprove,
     onReject,
     spender,
     tokenAddress,
   } = props
+
+  let { unlimited } = props
+  if (unlimited === undefined) {
+    const precisionLossTolerance = 10n ** 64n
+    unlimited =
+      amount > (maxUint256 / precisionLossTolerance) * precisionLossTolerance
+  }
+
+  const feeFormatted = React.useMemo(() => {
+    const feeTotal = fees?.['0x0']?.value
+    if (!feeTotal) return null
+    const feeNumber = Number(feeTotal)
+    return {
+      full: new Intl.NumberFormat('en-US', {
+        currency: 'USD',
+        maximumFractionDigits: 8,
+        minimumFractionDigits: 2,
+        style: 'currency',
+      }).format(feeNumber),
+      short: PriceFormatter.format(feeNumber),
+    }
+  }, [fees])
+
+  const chainId = chainsPath[0]?.id
 
   const tokenResult = useReadContracts({
     allowFailure: false,
@@ -40,72 +62,66 @@ export function Approve(props: Approve.Props) {
         abi: erc20Abi,
         address: tokenAddress,
         chainId: chainId as never,
+        functionName: 'name',
+      },
+      {
+        abi: erc20Abi,
+        address: tokenAddress,
+        chainId: chainId as never,
         functionName: 'symbol',
       },
     ],
   })
 
-  const [decimals, symbol] = tokenResult.data || []
-  const [showDetails, setShowDetails] = React.useState(false)
-  const infinite = amount === maxUint256
+  const [decimals, name, symbol] = tokenResult.data || []
 
   return (
     <Layout>
       <Layout.Header>
         <Layout.Header.Default
           icon={LucideLockKeyholeOpen}
-          title="Authorize spend"
+          title="Allow spend"
           variant="default"
         />
       </Layout.Header>
 
       <Layout.Content>
-        <div className="flex flex-col gap-[8px]">
+        <div className="-mb-[4px] flex flex-col gap-[8px]">
           <div className="flex flex-col gap-[10px] rounded-th_medium bg-th_base-alt p-[10px]">
             <Approve.AllowanceRow
               amount={
                 tokenResult.data &&
-                (infinite ? 'Any amount' : Value.format(amount, decimals))
+                (unlimited ? 'Any amount' : Value.format(amount, decimals))
               }
               error={tokenResult.error}
               expiresAt={expiresAt}
-              infinite={infinite}
               loading={tokenResult.isLoading}
+              name={name}
               symbol={symbol}
+              unlimited={unlimited}
             />
-            <hr className="-mx-[10px] border-th_separator" />
-            <div className="flex flex-row items-center gap-4">
-              <div className="whitespace-nowrap font-medium text-[14px] text-th_base-secondary">
-                {expiresAt ? 'Requested by' : 'Spender'}
-              </div>
+          </div>
+          <Details loading={loading}>
+            <div className="flex h-[18px] items-center justify-between text-[14px]">
+              <span className="text-th_base-secondary">Requested by</span>
               <div
-                className="flex flex-grow items-center justify-end gap-2 text-[14px] text-th_base"
+                className="flex items-center gap-[8px] font-medium"
                 title={spender}
               >
                 {StringFormatter.truncate(spender)}
                 <CopyButton value={spender} />
               </div>
             </div>
-          </div>
-          {showDetails ? (
-            <div className="flex w-full items-center justify-between gap-[6px] rounded-th_medium bg-th_base-alt px-[12px] text-[13px]">
-              <div className="flex w-full flex-col gap-[6px] py-[8px]">
-                <Approve.Details
-                  chainId={chainId}
-                  fees={fees}
-                  loading={loading}
-                />
+            {feeFormatted && (
+              <div className="flex h-[18px] items-center justify-between text-[14px]">
+                <div className="text-th_base-secondary">Fees (est.)</div>
+                <div className="font-medium" title={feeFormatted.full}>
+                  {feeFormatted.short}
+                </div>
               </div>
-            </div>
-          ) : (
-            <ButtonArea
-              className="flex h-[34px] w-full items-center justify-center gap-[6px] rounded-th_medium bg-th_base-alt text-[13px] text-th_base-secondary"
-              onClick={() => setShowDetails(true)}
-            >
-              <LucideInfo className="size-4" />
-              <span>Show more details</span>
-            </ButtonArea>
-          )}
+            )}
+            <ActionRequest.ChainsPath chainsPath={chainsPath} />
+          </Details>
         </div>
       </Layout.Content>
 
@@ -117,7 +133,7 @@ export function Approve(props: Approve.Props) {
             variant="negative-secondary"
             width="grow"
           >
-            Deny
+            Cancel
           </Button>
           <Button
             disabled={tokenResult.isLoading || tokenResult.isError}
@@ -137,24 +153,26 @@ export function Approve(props: Approve.Props) {
 export namespace Approve {
   export type Props = {
     amount: bigint
-    chainId?: number | undefined
+    approving?: boolean | undefined
+    chainsPath: readonly Chain[]
     expiresAt?: Date
     fees?: Capabilities.feeTotals.Response | undefined
     loading?: boolean | undefined
-    approving?: boolean | undefined
     onApprove: () => void
     onReject: () => void
     spender: `0x${string}`
     tokenAddress: `0x${string}`
+    unlimited?: boolean | undefined
   }
 
   export function AllowanceRow({
     amount,
     error,
     expiresAt,
-    infinite,
     loading,
+    name,
     symbol,
+    unlimited,
   }: AllowanceRow.Props) {
     const loadingTransition = useTransition(
       { error, loading },
@@ -192,8 +210,8 @@ export namespace Approve {
             >
               <TokenIcon className="shrink-0" symbol={symbol} />
               <div className="flex flex-1 flex-col gap-[4px]">
-                <div className="text-nowrap font-medium text-[14px]">
-                  Spend {symbol}
+                <div className="text-nowrap font-medium text-[14px] text-th_base">
+                  {name || 'Unknown'}
                 </div>
                 <div className="text-nowrap text-[12px] text-th_base-secondary">
                   Expires{' '}
@@ -215,12 +233,12 @@ export namespace Approve {
                 </div>
               </div>
               <div className="truncate font-medium text-[13px] text-th_base-secondary">
-                {infinite
+                {unlimited
                   ? 'Any amount'
                   : amount &&
-                    Intl.NumberFormat('en-US', {
+                    `${Intl.NumberFormat('en-US', {
                       maximumFractionDigits: 4,
-                    }).format(Number(amount))}
+                    }).format(Number(amount))} ${symbol}`}
               </div>
             </a.div>
           ),
@@ -234,60 +252,10 @@ export namespace Approve {
       amount?: string | undefined
       error: Error | null
       expiresAt?: Date
-      infinite: boolean
+      unlimited?: boolean | undefined
       loading: boolean
+      name?: string | undefined
       symbol?: string | undefined
-    }
-  }
-
-  export function Details(props: Details.Props) {
-    const { chainId, fees, loading } = props
-
-    const feeTotal = React.useMemo(() => {
-      if (!fees) return
-      const feeTotal = fees['0x0']?.value
-      if (!feeTotal) return
-      return PriceFormatter.format(Number(feeTotal))
-    }, [fees])
-
-    const chain = React.useMemo(
-      () => porto.config.chains.find((chain) => chain.id === chainId),
-      [chainId],
-    )
-
-    if (loading)
-      return (
-        <div className="flex h-[18px] items-center justify-center text-[14px] text-th_base-secondary">
-          Loading details…
-        </div>
-      )
-
-    return (
-      <>
-        {fees && (
-          <div className="flex h-[18px] items-center justify-between text-[14px]">
-            <div className="text-th_base-secondary">Fees (est.)</div>
-            <div className="font-medium">{feeTotal}</div>
-          </div>
-        )}
-        {chain && (
-          <div className="flex h-[18px] items-center justify-between text-[14px]">
-            <span className="text-th_base-secondary">Network</span>
-            <div className="flex items-center gap-[6px]">
-              <ChainIcon chainId={chain.id} />
-              <span className="font-medium">{chain.name}</span>
-            </div>
-          </div>
-        )}
-      </>
-    )
-  }
-
-  export namespace Details {
-    export type Props = {
-      chainId?: number | undefined
-      fees?: Capabilities.feeTotals.Response | undefined
-      loading?: boolean | undefined
     }
   }
 }

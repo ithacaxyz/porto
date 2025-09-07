@@ -7,6 +7,7 @@ import {
   erc20Abi,
   formatUnits,
   parseEther,
+  parseUnits,
   stringify,
 } from 'viem'
 import {
@@ -161,20 +162,21 @@ function Balances({ chainId }: { chainId: ChainId }) {
               <td>Loading...</td>
             </tr>
           )}
-          {assets?.map((asset) =>
-            asset ? (
-              <tr key={asset.address}>
-                <td style={{ width: '100px' }}>
-                  {asset.metadata?.symbol ?? 'ETH'}
-                </td>
-                <td style={{ textAlign: 'right' }}>
-                  {Number(
-                    formatUnits(asset.balance, asset.metadata?.decimals ?? 18),
-                  ).toFixed(2)}
-                </td>
+          {assets?.map((asset) => {
+            const symbol = asset.metadata?.symbol ?? 'ETH'
+            const formattedFull = formatUnits(
+              asset.balance,
+              asset.metadata?.decimals ?? 18,
+            )
+            let formatted = Number(formattedFull).toFixed(2)
+            if (formatted === '0.00' && asset.balance > 0n) formatted = '<0.01'
+            return asset ? (
+              <tr key={asset.address} title={`${formattedFull} ${symbol}`}>
+                <td style={{ width: 100 }}>{symbol}</td>
+                <td style={{ textAlign: 'right' }}>{formatted}</td>
               </tr>
-            ) : null,
-          )}
+            ) : null
+          })}
         </tbody>
       </table>
     </div>
@@ -262,7 +264,7 @@ function Transfer({ chainId }: { chainId: Exclude<ChainId, 0> }) {
   const { data: capabilities, isLoading } = useCapabilities({ chainId })
 
   const tokens = React.useMemo(
-    () => capabilities?.feeToken.tokens,
+    () => capabilities?.requiredFunds.tokens,
     [capabilities],
   )
 
@@ -276,6 +278,9 @@ function Transfer({ chainId }: { chainId: Exclude<ChainId, 0> }) {
             const to = (formData.get('to') || account.address) as Address
             const amount = formData.get('amount') as `${number}`
             const symbol = formData.get('symbol') as string
+            const decimals = tokens?.find(
+              (token) => token.symbol === symbol,
+            )?.decimals
 
             if (symbol === 'ETH') {
               sendCalls.sendCalls({
@@ -290,7 +295,7 @@ function Transfer({ chainId }: { chainId: Exclude<ChainId, 0> }) {
               return
             }
 
-            const token = capabilities?.feeToken.tokens.find(
+            const token = capabilities?.requiredFunds.tokens.find(
               (token) => token.symbol === symbol,
             )
             if (!token) throw new Error(`Token ${symbol} not found`)
@@ -299,7 +304,7 @@ function Transfer({ chainId }: { chainId: Exclude<ChainId, 0> }) {
               calls: [
                 {
                   abi: erc20Abi,
-                  args: [to, parseEther(amount)],
+                  args: [to, parseUnits(amount, decimals ?? 18)],
                   functionName: 'transfer',
                   to: token.address,
                 },

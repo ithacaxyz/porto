@@ -1,7 +1,24 @@
 # Benchmarks
 
-The Porto account is fast!
+An updated list of benchmarks can be found in the [account repo](https://github.com/ithacaxyz/account/blob/main/snapshots/BenchmarkTest.json). 
 
-<img className="dark:hidden" src="/benchmarks-light.png" alt="Benchmarks" />
-<img className="hidden dark:block" src="/benchmarks.png" alt="Benchmarks" />
+## Table 1: Transaction Types
+
+These are the costs for performing the type of transaction listed below, for each account. The Porto account is roughly 40% cheaper across all operations. 
+
+| Transaction Type | Porto Account | Alchemy Modular Account | Coinbase Smart Wallet | Safe 4337 | Zerodev Kernel |
+|-----------------|----------------|------------------------|----------------------|-----------|----------------|
+| ERC20 Transfer | 129,892 | 179,448 (38% more) | 177,809 (37% more) | 197,515 (52% more) | 207,071 (59% more) |
+| Native Transfer | 131,294 | 180,829 (38% more) | 178,916 (36% more) | 198,595 (51% more) | 208,635 (59% more) |
+| Uniswap V2 Swap | 189,178 | 238,767 (26% more) | 237,571 (26% more) | 257,453 (36% more) | 266,487 (41% more) |
+
+## Table 2: Payment Methods (ERC20 Transfer)
+
+These are the costs for performing an ERC20 transfer using different payment options. The Porto account is the cheapest account across all operations, with bigger savings for the ERC20 self-pay mode.
+
+| Payment Method | Porto Account | Alchemy Modular Account | Coinbase Smart Wallet | Safe 4337 | Zerodev Kernel |
+|----------------|----------------|------------------------|----------------------|-----------|----------------|
+| Self-pay in native tokens | 129,892 | 179,448 (38% more) | 177,809 (37% more) | 197,515 (52% more) | 207,071 (59% more) |
+| Self-pay in ERC20 tokens | 147,545 | 224,973 (52% more) | 222,113 (51% more) | 238,658 (62% more) | 252,683 (71% more) |
+| App Sponsored in native tokens | 141,312 | 176,390 (25% more) | 175,213 (24% more) | 191,679 (36% more) | 204,074 (44% more) |
 

@@ -41,11 +41,16 @@ export namespace prepareCalls {
 
         if (!account) throw new Error('account is required.')
 
-        const feeTokens = await Query_porto.client.ensureQueryData(
-          Tokens.resolveFeeTokens.queryOptions(client, {
-            addressOrSymbol: feeToken,
-          }),
-        )
+        const [tokens, feeTokens] = await Promise.all([
+          Query_porto.client.ensureQueryData(
+            Tokens.getTokens.queryOptions(client, {}),
+          ),
+          Query_porto.client.ensureQueryData(
+            Tokens.resolveFeeTokens.queryOptions(client, {
+              addressOrSymbol: feeToken,
+            }),
+          ),
+        ])
         const [{ address: feeTokenAddress }] = feeTokens
 
         // Get pre-authorized keys to assign to the call bundle.
@@ -57,7 +62,7 @@ export namespace prepareCalls {
         const requiredFunds = RequiredFunds.toRelay(
           parameters.requiredFunds ?? [],
           {
-            feeTokens,
+            tokens,
           },
         )
 

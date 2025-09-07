@@ -7,6 +7,7 @@ export const sections = [
     screens: [
       'Button',
       'ButtonArea',
+      'Details',
       'Input',
       'PresetsInput',
       'Separator',

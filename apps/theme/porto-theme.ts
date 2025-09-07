@@ -35,7 +35,7 @@ export const portoTheme: PortoTheme = {
   ],
   separator: [
     'Separator color. Used for dividing elements, such as lines between sections or items.',
-    '#cecece',
+    '#e0e0e0',
     '#484848',
   ],
 

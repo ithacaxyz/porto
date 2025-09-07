@@ -1,4 +1,5 @@
 import { Env } from '@porto/apps'
+import { ChainIcon } from '@porto/apps/components'
 import {
   exp1Abi,
   exp1Address,
@@ -20,7 +21,7 @@ import {
 } from 'ox'
 import { Dialog } from 'porto'
 import * as React from 'react'
-import { hashTypedData, isAddress, maxUint256 } from 'viem'
+import { hashTypedData, isAddress, isHex, maxUint256 } from 'viem'
 import {
   generatePrivateKey,
   privateKeyToAccount,
@@ -216,19 +217,17 @@ function State() {
       {state.accounts.length === 0 ? (
         <div>Disconnected</div>
       ) : (
-        <>
+        <div className="flex flex-col gap-2">
           <div>Address: {state.accounts[0].address}</div>
+          <div>Chain ID: {state.chainIds[0]}</div>
+          <SwitchChain />
           <div>
-            Chain ID: {state.chainIds[0]}
-            <SwitchChain />
-          </div>
-          <div>
-            <p>Keys:</p>
+            <div>Keys:</div>
             <pre className="whitespace-pre-wrap break-all">
               {Json.stringify(state.accounts?.[0]?.keys, null, 2)}
             </pre>
           </div>
-        </>
+        </div>
       )}
     </div>
   )
@@ -730,33 +729,36 @@ function SwitchChain(props: { showTitle?: boolean }) {
   const [chainId, setChainId] = React.useState<number | undefined>(undefined)
 
   React.useEffect(() => {
-    porto.provider
-      .request({
-        method: 'eth_chainId',
-      })
-      .then((chainId) => setChainId(Hex.toNumber(chainId)))
+    const onChainChanged = (chainId: string) => {
+      if (isHex(chainId)) setChainId(Hex.toNumber(chainId))
+    }
+    porto.provider.request({ method: 'eth_chainId' }).then(onChainChanged)
+    porto.provider.on('chainChanged', onChainChanged)
+    return () => porto.provider.removeListener('chainChanged', onChainChanged)
   }, [])
 
   return (
     <div>
       {props.showTitle && <h3>wallet_switchEthereumChain</h3>}
-      <div>
-        {porto.config.chains.map((chain) => (
-          <button
-            disabled={chainId === chain.id}
-            key={chain.id}
-            onClick={async () => {
-              setChainId(chain.id)
-              await porto.provider.request({
-                method: 'wallet_switchEthereumChain',
-                params: [{ chainId: Hex.fromNumber(chain.id) }],
-              })
-            }}
-            type="button"
-          >
-            {chain.name}
-          </button>
-        ))}
+      <div className="flex flex-wrap gap-2">
+        {[...porto.config.chains]
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map((chain) => (
+            <button
+              className="inline-flex items-center gap-1.5 rounded-md border border-th_frame px-2 py-1 disabled:opacity-50"
+              disabled={chainId === undefined || chainId === chain.id}
+              key={chain.id}
+              onClick={() => {
+                porto.provider.request({
+                  method: 'wallet_switchEthereumChain',
+                  params: [{ chainId: Hex.fromNumber(chain.id) }],
+                })
+              }}
+              type="button"
+            >
+              <ChainIcon chainId={chain.id} className="h-3 w-3" /> {chain.name}
+            </button>
+          ))}
       </div>
     </div>
   )
@@ -877,8 +879,14 @@ function SendCalls() {
           await porto.provider.request({
             method: 'eth_chainId',
           }),
-        ) as keyof typeof exp1Address
-        const account = result[0]!
+        )
+
+        if (!isExpChainId(chainId)) {
+          alert(`unsupported chainId: ${chainId}`)
+          throw new Error(`exp1 address not defined for chainId ${chainId}`)
+        }
+
+        const account = result[0]
         const recipient = address || account
 
         const params = (() => {
@@ -956,7 +964,7 @@ function SendCalls() {
                 {
                   data: AbiFunction.encodeData(
                     AbiFunction.fromAbi(exp1Abi, 'approve'),
-                    [recipient, Value.fromEther('50')],
+                    [account, Value.fromEther('50')],
                   ),
                   to: exp1Address[chainId],
                 },
@@ -964,8 +972,8 @@ function SendCalls() {
                   data: AbiFunction.encodeData(
                     AbiFunction.fromAbi(exp1Abi, 'transferFrom'),
                     [
-                      recipient,
-                      '0x0000000000000000000000000000000000000000',
+                      account,
+                      address || '0x0000000000000000000000000000000000000000',
                       Value.fromEther('50'),
                     ],
                   ),
@@ -977,6 +985,30 @@ function SendCalls() {
                   {
                     symbol: 'EXP',
                     value: '50',
+                  },
+                ],
+              },
+            } as const
+
+          if (action === 'send')
+            return {
+              calls: [
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(exp1Abi, 'transfer'),
+                    [
+                      address || '0x0000000000000000000000000000000000000000',
+                      Value.fromEther('12.34'),
+                    ],
+                  ),
+                  to: exp1Address[chainId],
+                },
+              ],
+              capabilities: {
+                requiredFunds: [
+                  {
+                    symbol: 'EXP',
+                    value: '12.34',
                   },
                 ],
               },
@@ -1098,6 +1130,7 @@ function SendCalls() {
           <option value="swap-exp2">Swap 0.1 EXP2 for 10 EXP</option>
           <option value="approve">Approve 50 EXP</option>
           <option value="transfer">Transfer 50 EXP</option>
+          <option value="send">Send 12.34 EXP</option>
           <option value="mint-transfer">Mint 100 EXP2 + Mint NFT</option>
           <option value="mint-nft">Mint NFT</option>
           <option value="revert">Revert</option>
@@ -1623,7 +1656,7 @@ function SignTypedMessage() {
               await signPermit({
                 deadline: BigInt(Math.floor(Date.now() / 1000) + 60 * 10),
                 spender: spender && isAddress(spender) ? spender : null,
-                value: Value.fromEther(amount || '98797971.987239723'),
+                value: Value.fromEther(amount || '100'),
               }),
             )
           } catch (err) {
@@ -2087,3 +2120,6 @@ const getPermit2Data = (
     },
   } as const
 }
+
+const isExpChainId = (chainId: number): chainId is keyof typeof exp1Address =>
+  Object.hasOwn(exp1Address, chainId)

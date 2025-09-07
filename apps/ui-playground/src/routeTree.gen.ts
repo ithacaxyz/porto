@@ -21,6 +21,7 @@ import { Route as ScreenImport } from './routes/Screen'
 import { Route as PresetsInputImport } from './routes/PresetsInput'
 import { Route as InputImport } from './routes/Input'
 import { Route as FrameImport } from './routes/Frame'
+import { Route as DetailsImport } from './routes/Details'
 import { Route as ColorsImport } from './routes/Colors'
 import { Route as ButtonAreaImport } from './routes/ButtonArea'
 import { Route as ButtonImport } from './routes/Button'
@@ -88,6 +89,12 @@ const FrameRoute = FrameImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const DetailsRoute = DetailsImport.update({
+  id: '/Details',
+  path: '/Details',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const ColorsRoute = ColorsImport.update({
   id: '/Colors',
   path: '/Colors',
@@ -142,6 +149,13 @@ declare module '@tanstack/react-router' {
       path: '/Colors'
       fullPath: '/Colors'
       preLoaderRoute: typeof ColorsImport
+      parentRoute: typeof rootRoute
+    }
+    '/Details': {
+      id: '/Details'
+      path: '/Details'
+      fullPath: '/Details'
+      preLoaderRoute: typeof DetailsImport
       parentRoute: typeof rootRoute
     }
     '/Frame': {
@@ -224,6 +238,7 @@ export interface FileRoutesByFullPath {
   '/Button': typeof ButtonRoute
   '/ButtonArea': typeof ButtonAreaRoute
   '/Colors': typeof ColorsRoute
+  '/Details': typeof DetailsRoute
   '/Frame': typeof FrameRoute
   '/Input': typeof InputRoute
   '/PresetsInput': typeof PresetsInputRoute
@@ -241,6 +256,7 @@ export interface FileRoutesByTo {
   '/Button': typeof ButtonRoute
   '/ButtonArea': typeof ButtonAreaRoute
   '/Colors': typeof ColorsRoute
+  '/Details': typeof DetailsRoute
   '/Frame': typeof FrameRoute
   '/Input': typeof InputRoute
   '/PresetsInput': typeof PresetsInputRoute
@@ -259,6 +275,7 @@ export interface FileRoutesById {
   '/Button': typeof ButtonRoute
   '/ButtonArea': typeof ButtonAreaRoute
   '/Colors': typeof ColorsRoute
+  '/Details': typeof DetailsRoute
   '/Frame': typeof FrameRoute
   '/Input': typeof InputRoute
   '/PresetsInput': typeof PresetsInputRoute
@@ -278,6 +295,7 @@ export interface FileRouteTypes {
     | '/Button'
     | '/ButtonArea'
     | '/Colors'
+    | '/Details'
     | '/Frame'
     | '/Input'
     | '/PresetsInput'
@@ -294,6 +312,7 @@ export interface FileRouteTypes {
     | '/Button'
     | '/ButtonArea'
     | '/Colors'
+    | '/Details'
     | '/Frame'
     | '/Input'
     | '/PresetsInput'
@@ -310,6 +329,7 @@ export interface FileRouteTypes {
     | '/Button'
     | '/ButtonArea'
     | '/Colors'
+    | '/Details'
     | '/Frame'
     | '/Input'
     | '/PresetsInput'
@@ -328,6 +348,7 @@ export interface RootRouteChildren {
   ButtonRoute: typeof ButtonRoute
   ButtonAreaRoute: typeof ButtonAreaRoute
   ColorsRoute: typeof ColorsRoute
+  DetailsRoute: typeof DetailsRoute
   FrameRoute: typeof FrameRoute
   InputRoute: typeof InputRoute
   PresetsInputRoute: typeof PresetsInputRoute
@@ -345,6 +366,7 @@ const rootRouteChildren: RootRouteChildren = {
   ButtonRoute: ButtonRoute,
   ButtonAreaRoute: ButtonAreaRoute,
   ColorsRoute: ColorsRoute,
+  DetailsRoute: DetailsRoute,
   FrameRoute: FrameRoute,
   InputRoute: InputRoute,
   PresetsInputRoute: PresetsInputRoute,
@@ -371,6 +393,7 @@ export const routeTree = rootRoute
         "/Button",
         "/ButtonArea",
         "/Colors",
+        "/Details",
         "/Frame",
         "/Input",
         "/PresetsInput",
@@ -394,6 +417,9 @@ export const routeTree = rootRoute
     },
     "/Colors": {
       "filePath": "Colors.tsx"
+    },
+    "/Details": {
+      "filePath": "Details.tsx"
     },
     "/Frame": {
       "filePath": "Frame.tsx"

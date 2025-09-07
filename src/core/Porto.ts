@@ -1,3 +1,4 @@
+import type * as Mipd from 'mipd'
 import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import type * as RpcRequest from 'ox/RpcRequest'
@@ -87,7 +88,10 @@ export function create(
         {
           merge(p, currentState) {
             const persistedState = p as State
-            const currentChainId = persistedState.chainIds[0]
+            const currentChainId =
+              config.chains.find(
+                (chain) => chain.id === persistedState.chainIds[0],
+              )?.id ?? config.chains[0].id
             const chainIds = [
               currentChainId,
               ...config.chains
@@ -108,11 +112,10 @@ export function create(
                 Utils.normalizeValue(account),
               ),
               chainIds: state.chainIds,
-              feeToken: state.feeToken,
             } as unknown as State
           },
           storage: config.storage,
-          version: 3,
+          version: 4,
         },
       ),
     ),
@@ -165,9 +168,10 @@ export type Config<
 > = {
   /**
    * Whether to announce the provider via EIP-6963.
+   * Also accepts EIP-6963 provider info.
    * @default true
    */
-  announceProvider: boolean
+  announceProvider: boolean | Partial<Mipd.EIP6963ProviderInfo>
   /**
    * API URL(s) to use for offchain SIWE authentication.
    */
@@ -178,7 +182,7 @@ export type Config<
   chains: chains
   /**
    * Token to use to pay for fees.
-   * @default 'USDC'
+   * @default 'native'
    */
   feeToken?: State['feeToken'] | undefined
   /**

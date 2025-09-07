@@ -39,7 +39,7 @@ export function SignMessage(props: SignMessage.Props) {
       <Layout.Footer>
         <Layout.Footer.Actions>
           <Button disabled={loading} onClick={() => onReject()} width="grow">
-            No thanks
+            Cancel
           </Button>
           <Button
             loading={loading && 'Signing…'}

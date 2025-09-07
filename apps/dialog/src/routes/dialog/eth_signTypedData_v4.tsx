@@ -51,6 +51,7 @@ function RouteComponent() {
         deadline={Number(parsedData.message.deadline)}
         onReject={handleReject}
         onSign={handleSign}
+        permitType="erc-2612"
         spender={parsedData.message.spender}
         tokenContract={parsedData.domain.verifyingContract}
       />
@@ -65,6 +66,7 @@ function RouteComponent() {
         deadline={Number(parsedData.message.details.expiration)}
         onReject={handleReject}
         onSign={handleSign}
+        permitType="permit2"
         spender={parsedData.message.spender}
         tokenContract={parsedData.message.details.token}
       />

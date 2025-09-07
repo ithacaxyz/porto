@@ -223,10 +223,13 @@ export namespace wallet_getCapabilities {
         legacyAccountImplementations: Schema.Array(VersionedContract),
         /** Legacy orchestrator address. */
         legacyOrchestrators: Schema.Array(
-          Schema.Struct({
-            orchestrator: VersionedContract,
-            simulator: VersionedContract,
-          }),
+          Schema.Union(
+            Schema.Struct({
+              orchestrator: VersionedContract,
+              simulator: VersionedContract,
+            }),
+            VersionedContract,
+          ),
         ),
         /** Orchestrator address. */
         orchestrator: VersionedContract,

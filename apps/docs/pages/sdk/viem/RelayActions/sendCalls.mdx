@@ -55,9 +55,13 @@ Array of calls to execute.
 
 ### feeToken
 
-- **Type:** `Address.Address`
+- **Type:** `'native' | Token.Symbol | Address.Address`
 
-Token to use to cover fees.
+Token to use to cover fees. Accepts:
+
+- `"native"`: The native token of the chain.
+- Symbol: Symbol of the fee token (e.g. `"USDC"`).
+- Address: Address of the fee token (e.g. `"0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"`).
 
 ### key
 

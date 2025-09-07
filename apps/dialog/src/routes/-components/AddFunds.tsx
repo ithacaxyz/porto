@@ -433,7 +433,7 @@ function DepositCrypto(props: {
         size: asset.metadata?.decimals,
       })
       calls.push(
-        key === zeroAddress
+        key === 'native' || key === zeroAddress
           ? ({
               to: address as Address.Address,
               value: amount / 2n,

@@ -1,6 +1,7 @@
 import { Button, Frame } from '@porto/ui'
 import { cx } from 'cva'
 import * as React from 'react'
+import { maxUint160 } from 'viem'
 import { useChains } from 'wagmi'
 import { CopyButton } from '~/components/CopyButton'
 import type * as TypedMessages from '~/lib/TypedMessages'
@@ -74,7 +75,7 @@ export function SignTypedMessage({
             variant="negative-secondary"
             width="grow"
           >
-            Deny
+            Cancel
           </Button>
           <Button
             loading={approving && 'Signing…'}
@@ -82,7 +83,7 @@ export function SignTypedMessage({
             variant="positive"
             width="grow"
           >
-            Approve
+            Sign
           </Button>
         </Layout.Footer.Actions>
       </Layout.Footer>
@@ -194,7 +195,7 @@ export function SignTypedMessageInvalid({
             variant="secondary"
             width="grow"
           >
-            Deny
+            Cancel
           </Button>
           <Button
             loading={approving && 'Signing…'}
@@ -202,7 +203,7 @@ export function SignTypedMessageInvalid({
             variant="negative"
             width="grow"
           >
-            Approve anyway
+            Sign anyway
           </Button>
         </Layout.Footer.Actions>
       </Layout.Footer>
@@ -222,13 +223,14 @@ export namespace SignTypedMessageInvalid {
 export function SignPermit(props: SignPermit.Props) {
   const {
     amount,
+    approving,
     chainId,
     deadline,
+    onReject,
+    onSign,
+    permitType,
     spender,
     tokenContract,
-    onSign,
-    onReject,
-    approving,
   } = props
 
   const chains = useChains()
@@ -240,7 +242,7 @@ export function SignPermit(props: SignPermit.Props) {
         <Layout.Header>
           <Layout.Header.Default
             icon={LucideLockKeyholeOpen}
-            title="Authorize spend"
+            title="Allow spend"
             variant="default"
           />
         </Layout.Header>
@@ -269,12 +271,13 @@ export function SignPermit(props: SignPermit.Props) {
     <Approve
       amount={amount}
       approving={approving}
-      chainId={chainId}
+      chainsPath={[chain]}
       expiresAt={new Date(deadline * 1000)}
       onApprove={onSign}
       onReject={onReject}
       spender={spender}
       tokenAddress={tokenContract}
+      unlimited={permitType === 'permit2' ? amount >= maxUint160 : undefined}
     />
   )
 }
@@ -282,11 +285,12 @@ export function SignPermit(props: SignPermit.Props) {
 export namespace SignPermit {
   export type Props = {
     amount: bigint
+    approving: boolean
     chainId: number
     deadline: number
-    approving: boolean
     onReject: () => void
     onSign: () => void
+    permitType: 'erc-2612' | 'permit2'
     spender: `0x${string}`
     tokenContract: `0x${string}`
   }
