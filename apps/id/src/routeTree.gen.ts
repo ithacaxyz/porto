@@ -16,6 +16,7 @@ import { Route as AuthImport } from './routes/auth'
 import { Route as AboutImport } from './routes/about'
 import { Route as DashImport } from './routes/_dash'
 import { Route as DashIndexImport } from './routes/_dash/index'
+import { Route as EmailVerifyImport } from './routes/email.verify'
 import { Route as DashSavingsImport } from './routes/_dash/savings'
 import { Route as DashReceiveImport } from './routes/_dash/receive'
 import { Route as DashAssetsImport } from './routes/_dash/assets'
@@ -53,6 +54,12 @@ const DashIndexRoute = DashIndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => DashRoute,
+} as any)
+
+const EmailVerifyRoute = EmailVerifyImport.update({
+  id: '/email/verify',
+  path: '/email/verify',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const DashSavingsRoute = DashSavingsImport.update({
@@ -157,6 +164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashSavingsImport
       parentRoute: typeof DashImport
     }
+    '/email/verify': {
+      id: '/email/verify'
+      path: '/email/verify'
+      fullPath: '/email/verify'
+      preLoaderRoute: typeof EmailVerifyImport
+      parentRoute: typeof rootRoute
+    }
     '/_dash/': {
       id: '/_dash/'
       path: '/'
@@ -223,6 +237,7 @@ export interface FileRoutesByFullPath {
   '/assets': typeof DashAssetsRoute
   '/receive': typeof DashReceiveRoute
   '/savings': typeof DashSavingsRoute
+  '/email/verify': typeof EmailVerifyRoute
   '/': typeof DashIndexRoute
   '/settings/permissions': typeof DashSettingsPermissionsRoute
   '/settings/recovery': typeof DashSettingsRecoveryRoute
@@ -237,6 +252,7 @@ export interface FileRoutesByTo {
   '/assets': typeof DashAssetsRoute
   '/receive': typeof DashReceiveRoute
   '/savings': typeof DashSavingsRoute
+  '/email/verify': typeof EmailVerifyRoute
   '/': typeof DashIndexRoute
   '/settings/permissions': typeof DashSettingsPermissionsRoute
   '/settings/recovery': typeof DashSettingsRecoveryRoute
@@ -253,6 +269,7 @@ export interface FileRoutesById {
   '/_dash/assets': typeof DashAssetsRoute
   '/_dash/receive': typeof DashReceiveRoute
   '/_dash/savings': typeof DashSavingsRoute
+  '/email/verify': typeof EmailVerifyRoute
   '/_dash/': typeof DashIndexRoute
   '/_dash/settings/permissions': typeof DashSettingsPermissionsRoute
   '/_dash/settings/recovery': typeof DashSettingsRecoveryRoute
@@ -270,6 +287,7 @@ export interface FileRouteTypes {
     | '/assets'
     | '/receive'
     | '/savings'
+    | '/email/verify'
     | '/'
     | '/settings/permissions'
     | '/settings/recovery'
@@ -283,6 +301,7 @@ export interface FileRouteTypes {
     | '/assets'
     | '/receive'
     | '/savings'
+    | '/email/verify'
     | '/'
     | '/settings/permissions'
     | '/settings/recovery'
@@ -297,6 +316,7 @@ export interface FileRouteTypes {
     | '/_dash/assets'
     | '/_dash/receive'
     | '/_dash/savings'
+    | '/email/verify'
     | '/_dash/'
     | '/_dash/settings/permissions'
     | '/_dash/settings/recovery'
@@ -309,6 +329,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
   PlaygroundRoute: typeof PlaygroundRoute
+  EmailVerifyRoute: typeof EmailVerifyRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -316,6 +337,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
   PlaygroundRoute: PlaygroundRoute,
+  EmailVerifyRoute: EmailVerifyRoute,
 }
 
 export const routeTree = rootRoute
@@ -331,7 +353,8 @@ export const routeTree = rootRoute
         "/_dash",
         "/about",
         "/auth",
-        "/playground"
+        "/playground",
+        "/email/verify"
       ]
     },
     "/_dash": {
@@ -371,6 +394,9 @@ export const routeTree = rootRoute
     "/_dash/savings": {
       "filePath": "_dash/savings.tsx",
       "parent": "/_dash"
+    },
+    "/email/verify": {
+      "filePath": "email.verify.tsx"
     },
     "/_dash/": {
       "filePath": "_dash/index.tsx",
