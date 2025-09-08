@@ -7,11 +7,11 @@ import LucideCopyCheck from '~icons/lucide/copy-check'
 export function CopyButton({ value }: { value: string }) {
   const [isCopied, copyToClipboard] = useCopyToClipboard({ timeout: 800 })
   const transition = useTransition(isCopied ? LucideCopyCheck : LucideCopy, {
-    config: { friction: 60, tension: 1600 },
+    config: { friction: 70, tension: 1300 },
     enter: { opacity: 1, transform: 'scale(1)' },
-    from: { opacity: 1, transform: 'scale(0.2)' },
+    from: { opacity: 0, transform: 'scale(0)' },
     initial: { opacity: 1, transform: 'scale(1)' },
-    leave: { immediate: true, opacity: 0 },
+    leave: { opacity: 0, transform: 'scale(0.2)' },
   })
   return (
     <ButtonArea
