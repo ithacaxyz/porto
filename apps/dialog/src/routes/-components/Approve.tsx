@@ -1,4 +1,4 @@
-import { Button, Details, Spinner, TokenIcon } from '@porto/ui'
+import { Button, Details, Spinner, TokenIcon, TextButton } from '@porto/ui'
 import { a, useTransition } from '@react-spring/web'
 import { Value } from 'ox'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
@@ -97,6 +97,7 @@ export function Approve(props: Approve.Props) {
               expiresAt={expiresAt}
               loading={tokenResult.isLoading}
               name={name}
+              onRefetch={() => tokenResult.refetch()}
               symbol={symbol}
               unlimited={unlimited}
             />
@@ -171,6 +172,7 @@ export namespace Approve {
     expiresAt,
     loading,
     name,
+    onRefetch,
     symbol,
     unlimited,
   }: AllowanceRow.Props) {
@@ -195,7 +197,12 @@ export namespace Approve {
             >
               <div className="flex items-center gap-2">
                 {error ? (
-                  <>{String(error)} </>
+                  <>
+                    Error fetching token data.{' '}
+                    <TextButton onClick={onRefetch} className="text-th_link!">
+                      Retry
+                    </TextButton>
+                  </>
                 ) : (
                   <>
                     <Spinner /> fetching token data…
@@ -252,10 +259,11 @@ export namespace Approve {
       amount?: string | undefined
       error: Error | null
       expiresAt?: Date
-      unlimited?: boolean | undefined
       loading: boolean
       name?: string | undefined
+      onRefetch?: (() => void) | undefined
       symbol?: string | undefined
+      unlimited?: boolean | undefined
     }
   }
 }
