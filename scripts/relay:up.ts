@@ -7,7 +7,7 @@ import * as path from 'node:path'
 import { createClient, http } from 'viem'
 import * as RelayActions from '../src/viem/RelayActions.js'
 
-const files = (version: string) => [
+const updateFiles = (version: string) => [
   {
     path: 'compose.yaml',
     find: /FROM ghcr\.io\/ithacaxyz\/relay:v[\d.]+/,
@@ -24,15 +24,15 @@ const files = (version: string) => [
     replace: `version: 'v${version}'`,
   },
 ]
-const relayUrl = 'https://rpc.ithaca.xyz'
 
-// Get the version from CLI args or fetch from RelayActions.health
+const relayUrl = 'https://rpc.ithaca.xyz'
+const versionRegex = /v?(\d+\.\d+\.\d+)$/
+
 let version = process.argv[2]
 
 if (!version) {
   console.log(`No version provided, fetching latest from ${relayUrl}...\n`)
   try {
-    // Create a client to connect to the relay
     const client = createClient({
       transport: http(relayUrl),
     })
@@ -40,7 +40,7 @@ if (!version) {
     const health = await RelayActions.health(client)
 
     // Extract version from response like "23.0.8-dev (54a851c)" -> "23.0.8"
-    const match = health.version.match(/v?(\d+\.\d+\.\d+)/)
+    const match = health.version.match(versionRegex)
     if (!match) {
       console.error(
         'Could not extract version from health response:',
@@ -59,8 +59,17 @@ if (!version) {
   }
 }
 
+const match = version?.match(versionRegex)
+if (!match) {
+  console.error(`❌ Invalid version: ${version}`)
+  console.error('Please provide a version in the format of x.x.x')
+  process.exit(1)
+}
+
+version = match[1]
+
 const rootDir = path.resolve(import.meta.dirname, '..')
-for (const { path: relativePath, find, replace } of files(version!)) {
+for (const { path: relativePath, find, replace } of updateFiles(version!)) {
   const filePath = path.resolve(rootDir, relativePath)
   let content = fs.readFileSync(filePath, 'utf8')
   content = content.replace(find, replace)
