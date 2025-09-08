@@ -139,7 +139,7 @@ export default defineConfig(({ mode }) => {
               orchestrator: orchestratorAddress,
               simulator: simulatorAddress,
               txGasBuffer: 100_000n,
-              version: 'v23.0.8',
+              version: 'v24.0.2',
             }).start()
             await fetch(relayConfig.rpcUrl + '/start')
             return stop
