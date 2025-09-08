@@ -3,7 +3,7 @@ import { a, useTransition } from '@react-spring/web'
 import { Value } from 'ox'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import * as React from 'react'
-import { type Chain, erc20Abi, maxUint256, type Address } from 'viem'
+import { type Address, type Chain, erc20Abi, maxUint256 } from 'viem'
 import { useReadContracts } from 'wagmi'
 import { CopyButton } from '~/components/CopyButton'
 import { PriceFormatter, StringFormatter } from '~/utils'
@@ -234,8 +234,8 @@ export namespace Approve {
                 >
                   {name ||
                     StringFormatter.truncate(tokenAddress, {
-                      start: 5,
                       end: 3,
+                      start: 5,
                     })}
                 </div>
                 <div className="text-nowrap text-[12px] text-th_base-secondary">
