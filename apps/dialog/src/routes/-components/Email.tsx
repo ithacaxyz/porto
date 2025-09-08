@@ -9,6 +9,7 @@ import { Permissions } from '~/routes/-components/Permissions'
 import { StringFormatter } from '~/utils'
 import LucideHaze from '~icons/lucide/haze'
 import IconScanFace from '~icons/porto/scan-face'
+import { cx } from 'cva'
 
 export function Email(props: Email.Props) {
   const {
@@ -71,6 +72,8 @@ export function Email(props: Email.Props) {
     )
   }, [actions, cli, hostname])
 
+  const [invalid, setInvalid] = React.useState(false)
+
   return (
     <Layout>
       <Layout.Header className="flex-grow">
@@ -108,6 +111,10 @@ export function Email(props: Email.Props) {
           <form
             className="flex w-full flex-grow flex-col gap-2"
             onSubmit={onSignUpSubmit}
+            onInvalid={(event) => {
+              event.preventDefault()
+              setInvalid(true)
+            }}
           >
             {/* If "Sign in" button is present, show the "First time?" text for sign up. */}
             {actions.includes('sign-in') && (
@@ -121,12 +128,16 @@ export function Email(props: Email.Props) {
                 Email
               </label>
               <Input
-                className="w-full user-invalid:bg-th_field user-invalid:ring-th_base-negative"
+                className={cx(
+                  'w-full bg-th_field',
+                  invalid && ' not-focus-visible:border-th_negative',
+                )}
                 defaultValue={defaultValue}
                 disabled={status === 'loading' || signingIn}
                 name="email"
                 placeholder="example@ithaca.xyz"
                 type="email"
+                onChange={() => setInvalid(false)}
               />
               <div className="-tracking-[2.8%] absolute end-3 text-[12px] text-th_base-secondary leading-normal">
                 Optional
@@ -140,19 +151,16 @@ export function Email(props: Email.Props) {
               type="submit"
               variant={actions.includes('sign-in') ? 'secondary' : 'primary'}
             >
-              <span className="hidden group-has-[:user-invalid]:block">
-                Invalid email
-              </span>
-              <span className="flex gap-2 group-has-[:user-invalid]:hidden">
-                {actions.includes('sign-in') ? (
-                  'Create Porto account'
-                ) : (
-                  <>
-                    <IconScanFace className="size-5.25" />
-                    Sign up with Porto
-                  </>
-                )}
-              </span>
+              {invalid ? (
+                'Invalid email'
+              ) : actions.includes('sign-in') ? (
+                'Create Porto account'
+              ) : (
+                <div className="flex gap-2">
+                  <IconScanFace className="size-5.25" />
+                  Sign up with Porto
+                </div>
+              )}
             </Button>
           </form>
         ) : (
