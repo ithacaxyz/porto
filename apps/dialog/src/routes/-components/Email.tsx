@@ -1,5 +1,6 @@
 import { Input } from '@porto/apps/components'
 import { Button, TextButton } from '@porto/ui'
+import { cx } from 'cva'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
 import * as Dialog from '~/lib/Dialog'
@@ -9,7 +10,6 @@ import { Permissions } from '~/routes/-components/Permissions'
 import { StringFormatter } from '~/utils'
 import LucideHaze from '~icons/lucide/haze'
 import IconScanFace from '~icons/porto/scan-face'
-import { cx } from 'cva'
 
 export function Email(props: Email.Props) {
   const {
@@ -110,11 +110,11 @@ export function Email(props: Email.Props) {
         {actions.includes('sign-up') ? (
           <form
             className="flex w-full flex-grow flex-col gap-2"
-            onSubmit={onSignUpSubmit}
             onInvalid={(event) => {
               event.preventDefault()
               setInvalid(true)
             }}
+            onSubmit={onSignUpSubmit}
           >
             {/* If "Sign in" button is present, show the "First time?" text for sign up. */}
             {actions.includes('sign-in') && (
@@ -130,14 +130,14 @@ export function Email(props: Email.Props) {
               <Input
                 className={cx(
                   'w-full bg-th_field',
-                  invalid && ' not-focus-visible:border-th_negative',
+                  invalid && 'not-focus-visible:border-th_negative',
                 )}
                 defaultValue={defaultValue}
                 disabled={status === 'loading' || signingIn}
                 name="email"
+                onChange={() => setInvalid(false)}
                 placeholder="example@ithaca.xyz"
                 type="email"
-                onChange={() => setInvalid(false)}
               />
               <div className="-tracking-[2.8%] absolute end-3 text-[12px] text-th_base-secondary leading-normal">
                 Optional
