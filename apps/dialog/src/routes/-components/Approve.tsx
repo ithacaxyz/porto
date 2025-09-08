@@ -3,7 +3,7 @@ import { a, useTransition } from '@react-spring/web'
 import { Value } from 'ox'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import * as React from 'react'
-import { type Chain, erc20Abi, maxUint256 } from 'viem'
+import { type Chain, erc20Abi, maxUint256, type Address } from 'viem'
 import { useReadContracts } from 'wagmi'
 import { CopyButton } from '~/components/CopyButton'
 import { PriceFormatter, StringFormatter } from '~/utils'
@@ -49,8 +49,8 @@ export function Approve(props: Approve.Props) {
 
   const chainId = chainsPath[0]?.id
 
-  const tokenResult = useReadContracts({
-    allowFailure: false,
+  const tokenInfo = useReadContracts({
+    allowFailure: true,
     contracts: [
       {
         abi: erc20Abi,
@@ -71,11 +71,16 @@ export function Approve(props: Approve.Props) {
         functionName: 'symbol',
       },
     ],
+    query: {
+      select: ([decimals, name, symbol]) => ({
+        decimals: decimals.result ?? 18,
+        name: name.result,
+        symbol: symbol.result,
+      }),
+    },
   })
 
-  if (tokenResult.isError) console.error(tokenResult.error)
-
-  const [decimals, name, symbol] = tokenResult.data || []
+  if (tokenInfo.isError) console.error(tokenInfo.error)
 
   return (
     <Layout>
@@ -92,15 +97,18 @@ export function Approve(props: Approve.Props) {
           <div className="flex flex-col gap-[10px] rounded-th_medium bg-th_base-alt p-[10px]">
             <Approve.AllowanceRow
               amount={
-                tokenResult.data &&
-                (unlimited ? 'Any amount' : Value.format(amount, decimals))
+                unlimited
+                  ? 'Any amount'
+                  : tokenInfo.data &&
+                    Value.format(amount, tokenInfo.data.decimals)
               }
-              error={tokenResult.error}
+              error={tokenInfo.error}
               expiresAt={expiresAt}
-              loading={tokenResult.isLoading}
-              name={name}
-              onRefetch={() => tokenResult.refetch()}
-              symbol={symbol}
+              loading={tokenInfo.isLoading}
+              name={tokenInfo.data?.name}
+              onRefetch={() => tokenInfo.refetch()}
+              symbol={tokenInfo.data?.symbol}
+              tokenAddress={tokenAddress}
               unlimited={unlimited}
             />
           </div>
@@ -139,7 +147,7 @@ export function Approve(props: Approve.Props) {
             Cancel
           </Button>
           <Button
-            disabled={tokenResult.isLoading || tokenResult.isError}
+            disabled={tokenInfo.isLoading || tokenInfo.isError}
             loading={approving && 'Approving…'}
             onClick={onApprove}
             variant="positive"
@@ -176,6 +184,7 @@ export namespace Approve {
     name,
     onRefetch,
     symbol,
+    tokenAddress,
     unlimited,
   }: AllowanceRow.Props) {
     const loadingTransition = useTransition(
@@ -219,8 +228,15 @@ export namespace Approve {
             >
               <TokenIcon className="shrink-0" symbol={symbol} />
               <div className="flex flex-1 flex-col gap-[4px]">
-                <div className="text-nowrap font-medium text-[14px] text-th_base">
-                  {name || 'Unknown'}
+                <div
+                  className="text-nowrap font-medium text-[14px] text-th_base"
+                  title={name ? `${name} (${tokenAddress})` : tokenAddress}
+                >
+                  {name ||
+                    StringFormatter.truncate(tokenAddress, {
+                      start: 5,
+                      end: 3,
+                    })}
                 </div>
                 <div className="text-nowrap text-[12px] text-th_base-secondary">
                   Expires{' '}
@@ -247,7 +263,7 @@ export namespace Approve {
                   : amount &&
                     `${Intl.NumberFormat('en-US', {
                       maximumFractionDigits: 4,
-                    }).format(Number(amount))} ${symbol}`}
+                    }).format(Number(amount))} ${symbol ?? ''}`}
               </div>
             </a.div>
           ),
@@ -265,6 +281,7 @@ export namespace Approve {
       name?: string | undefined
       onRefetch?: (() => void) | undefined
       symbol?: string | undefined
+      tokenAddress: Address
       unlimited?: boolean | undefined
     }
   }
