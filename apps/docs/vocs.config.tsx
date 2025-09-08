@@ -104,12 +104,8 @@ export default defineConfig({
         text: 'Benchmarks',
       },
       {
-        link: '/contracts/security',
-        text: 'Security',
-      },
-      {
-        link: '/contracts/bug-bounty',
-        text: 'Bug Bounty',
+        link: '/contracts/security-and-bug-bounty',
+        text: 'Security & Bug Bounty',
       },
     ],
     '/relay': [
