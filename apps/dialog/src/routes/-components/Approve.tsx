@@ -1,4 +1,4 @@
-import { Button, Details, Spinner, TokenIcon, TextButton } from '@porto/ui'
+import { Button, Details, Spinner, TextButton, TokenIcon } from '@porto/ui'
 import { a, useTransition } from '@react-spring/web'
 import { Value } from 'ox'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
@@ -72,6 +72,8 @@ export function Approve(props: Approve.Props) {
       },
     ],
   })
+
+  if (tokenResult.isError) console.error(tokenResult.error)
 
   const [decimals, name, symbol] = tokenResult.data || []
 
@@ -199,7 +201,7 @@ export namespace Approve {
                 {error ? (
                   <>
                     Error fetching token data.{' '}
-                    <TextButton onClick={onRefetch} className="text-th_link!">
+                    <TextButton className="text-th_link!" onClick={onRefetch}>
                       Retry
                     </TextButton>
                   </>
