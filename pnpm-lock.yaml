@@ -17584,7 +17584,7 @@ snapshots:
 
   abitype@1.1.0(typescript@5.8.3)(zod@4.1.5):
     optionalDependencies:
-      typescript: 5.9.2
+      typescript: 5.8.3
       zod: 4.1.5
 
   abitype@1.1.0(typescript@5.9.2)(zod@3.22.4):
