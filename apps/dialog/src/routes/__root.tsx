@@ -81,7 +81,9 @@ function RouteComponent() {
     setControlledSize(mode === 'popup')
   }, [mode])
 
-  const enableEnsureVisibility = mode.includes('iframe') && visible && !trusted
+  const enableEnsureVisibility = Boolean(
+    mode.includes('iframe') && visible && !trusted,
+  )
 
   return (
     <>
@@ -175,7 +177,7 @@ function RouteComponent() {
           tag: env,
           verified: verifyStatus.data?.status === 'whitelisted',
         }}
-        visible={visible}
+        visible={visible ?? true}
       >
         <CheckError>
           <CheckUnsupportedBrowser>
