@@ -450,16 +450,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             storage,
           })
 
-        const key_response = await PermissionsRequest.toKey(
-          Schema.decodeSync(PermissionsRequest.Schema)(response),
-          {
-            chainId: client.chain.id,
-          },
-        )
-
-        return {
-          key: { ...key_response, ...key } as Key.Key,
-        }
+        return { key }
       },
 
       async loadAccounts(parameters) {

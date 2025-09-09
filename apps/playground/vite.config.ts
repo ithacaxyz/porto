@@ -207,7 +207,6 @@ export default defineConfig(({ mode }) => {
           await RelayActions.sendCalls(relayClient, {
             account: merchantAccount,
             calls: [],
-            feeToken: exp1Address,
           })
 
           // Handle merchant requests on `/merchant`.

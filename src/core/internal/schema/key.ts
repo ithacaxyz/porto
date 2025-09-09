@@ -1,6 +1,7 @@
 import * as Schema from 'effect/Schema'
 import * as Primitive from './primitive.js'
 import { OneOf } from './schema.js'
+import * as Token from './token.js'
 
 export const Base = Schema.Struct({
   /** Chain ID the key belongs to. If not provided, the key is valid on all chains. */
@@ -38,22 +39,14 @@ export const CallPermissions = Schema.Array(
 ).pipe(Schema.minItems(1))
 export type CallPermissions = typeof CallPermissions.Type
 
-export const FeeLimit = Schema.Struct({
-  currency: Schema.Union(
-    // inlined union used to be `FeeToken.kind`
-    Schema.Union(
-      Schema.Literal('ETH'),
-      Schema.Literal('USDC'),
-      Schema.Literal('USDT'),
-    ),
-    Schema.Literal('USD'),
-  ),
-  value: Schema.Union(
+export const FeeToken = Schema.Struct({
+  limit: Schema.Union(
     Schema.TemplateLiteral(Schema.Number, '.', Schema.Number),
     Schema.TemplateLiteral(Schema.Number),
   ).pipe(Schema.pattern(/^\d+(\.\d+)?$/)),
+  symbol: Schema.optional(Schema.Union(Schema.Literal('native'), Token.Symbol)),
 })
-export type FeeLimit = typeof FeeLimit.Type
+export type FeeToken = typeof FeeToken.Type
 
 export const SignatureVerificationPermission = Schema.Struct({
   addresses: Schema.Array(Primitive.Address),
@@ -80,7 +73,7 @@ export type Permissions = typeof Permissions.Type
 export const WithPermissions = Schema.extend(
   Base,
   Schema.Struct({
-    feeLimit: Schema.optional(FeeLimit),
+    feeToken: Schema.optional(Schema.NullOr(FeeToken)),
     permissions: Schema.optional(Permissions),
   }),
 )

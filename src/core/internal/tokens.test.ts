@@ -16,15 +16,6 @@ describe.runIf(!Anvil.enabled)('getTokens', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "address": "0x0000000000000000000000000000000000000000",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "ETH",
-          "uid": "teth",
-        },
-        {
           "address": "0x2d49a0e75c86779c391418214ec7e1b18e58bb34",
           "decimals": 18,
           "feeToken": true,
@@ -42,6 +33,15 @@ describe.runIf(!Anvil.enabled)('getTokens', () => {
           "symbol": "EXP2",
           "uid": "exp2",
         },
+        {
+          "address": "0x0000000000000000000000000000000000000000",
+          "decimals": 18,
+          "feeToken": true,
+          "interop": true,
+          "nativeRate": null,
+          "symbol": "ETH",
+          "uid": "teth",
+        },
       ]
     `)
   })
@@ -57,15 +57,6 @@ describe.runIf(!Anvil.enabled)('getTokens', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "address": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
-          "decimals": 6,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "USDT0",
-          "uid": "tether",
-        },
-        {
           "address": "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
           "decimals": 6,
           "feeToken": true,
@@ -73,6 +64,15 @@ describe.runIf(!Anvil.enabled)('getTokens', () => {
           "nativeRate": null,
           "symbol": "USDC",
           "uid": "usd-coin",
+        },
+        {
+          "address": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+          "decimals": 6,
+          "feeToken": true,
+          "interop": true,
+          "nativeRate": null,
+          "symbol": "USDT0",
+          "uid": "tether",
         },
         {
           "address": "0x0000000000000000000000000000000000000000",
@@ -152,88 +152,29 @@ describe.runIf(!Anvil.enabled)('getToken', () => {
   })
 })
 
-describe.runIf(!Anvil.enabled)('resolveFeeTokens', () => {
-  test('default', async () => {
-    const porto = TestConfig.getPorto()
-    const client = TestConfig.getRelayClient(porto)
-
-    const feeTokens = await Tokens.resolveFeeTokens(client)
-
-    expect(
-      feeTokens.map((x) => ({ ...x, nativeRate: null })),
-    ).toMatchInlineSnapshot(`
-      [
-        {
-          "address": "0x0000000000000000000000000000000000000000",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "ETH",
-          "uid": "teth",
-        },
-        {
-          "address": "0x2d49a0e75c86779c391418214ec7e1b18e58bb34",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "EXP",
-          "uid": "exp1",
-        },
-        {
-          "address": "0x7c61733e8a9c6dac20afeb46e9c4ba96c5a9f7cf",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "EXP2",
-          "uid": "exp2",
-        },
-      ]
-    `)
-  })
-
+describe.runIf(!Anvil.enabled)('resolveFeeToken', () => {
   test('behavior: with store', async () => {
     const porto = TestConfig.getPorto()
     const client = TestConfig.getRelayClient(porto)
 
-    const feeTokens = await Tokens.resolveFeeTokens(client, {
+    porto._internal.store.setState({
+      feeToken: 'EXP',
+    })
+
+    const feeToken = await Tokens.resolveFeeToken(client, {
       store: porto._internal.store,
     })
 
-    expect(
-      feeTokens.map((x) => ({ ...x, nativeRate: null })),
-    ).toMatchInlineSnapshot(`
-      [
-        {
-          "address": "0x2d49a0e75c86779c391418214ec7e1b18e58bb34",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "EXP",
-          "uid": "exp1",
-        },
-        {
-          "address": "0x0000000000000000000000000000000000000000",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "ETH",
-          "uid": "teth",
-        },
-        {
-          "address": "0x7c61733e8a9c6dac20afeb46e9c4ba96c5a9f7cf",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "EXP2",
-          "uid": "exp2",
-        },
-      ]
+    expect({ ...feeToken, nativeRate: null }).toMatchInlineSnapshot(`
+      {
+        "address": "0x2d49a0e75c86779c391418214ec7e1b18e58bb34",
+        "decimals": 18,
+        "feeToken": true,
+        "interop": true,
+        "nativeRate": null,
+        "symbol": "EXP",
+        "uid": "exp1",
+      }
     `)
   })
 
@@ -241,43 +182,21 @@ describe.runIf(!Anvil.enabled)('resolveFeeTokens', () => {
     const porto = TestConfig.getPorto()
     const client = TestConfig.getRelayClient(porto)
 
-    const feeTokens = await Tokens.resolveFeeTokens(client, {
+    const feeToken = await Tokens.resolveFeeToken(client, {
       addressOrSymbol: 'ETH',
       store: porto._internal.store,
     })
 
-    expect(
-      feeTokens.map((x) => ({ ...x, nativeRate: null })),
-    ).toMatchInlineSnapshot(`
-      [
-        {
-          "address": "0x0000000000000000000000000000000000000000",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "ETH",
-          "uid": "teth",
-        },
-        {
-          "address": "0x2d49a0e75c86779c391418214ec7e1b18e58bb34",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "EXP",
-          "uid": "exp1",
-        },
-        {
-          "address": "0x7c61733e8a9c6dac20afeb46e9c4ba96c5a9f7cf",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "EXP2",
-          "uid": "exp2",
-        },
-      ]
+    expect({ ...feeToken, nativeRate: null }).toMatchInlineSnapshot(`
+      {
+        "address": "0x0000000000000000000000000000000000000000",
+        "decimals": 18,
+        "feeToken": true,
+        "interop": true,
+        "nativeRate": null,
+        "symbol": "ETH",
+        "uid": "teth",
+      }
     `)
   })
 
@@ -285,44 +204,22 @@ describe.runIf(!Anvil.enabled)('resolveFeeTokens', () => {
     const porto = TestConfig.getPorto()
     const client = TestConfig.getRelayClient(porto)
 
-    const feeTokens = await Tokens.resolveFeeTokens(client, {
+    const feeToken = await Tokens.resolveFeeToken(client, {
       addressOrSymbol: 'native',
       chain: Chains.polygon,
       store: porto._internal.store,
     })
 
-    expect(
-      feeTokens.map((x) => ({ ...x, nativeRate: null })),
-    ).toMatchInlineSnapshot(`
-      [
-        {
-          "address": "0x0000000000000000000000000000000000000000",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": false,
-          "nativeRate": null,
-          "symbol": "POL",
-          "uid": "matic-network",
-        },
-        {
-          "address": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
-          "decimals": 6,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "USDT0",
-          "uid": "tether",
-        },
-        {
-          "address": "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
-          "decimals": 6,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "USDC",
-          "uid": "usd-coin",
-        },
-      ]
+    expect({ ...feeToken, nativeRate: null }).toMatchInlineSnapshot(`
+      {
+        "address": "0x0000000000000000000000000000000000000000",
+        "decimals": 18,
+        "feeToken": true,
+        "interop": false,
+        "nativeRate": null,
+        "symbol": "POL",
+        "uid": "matic-network",
+      }
     `)
   })
 
@@ -330,43 +227,43 @@ describe.runIf(!Anvil.enabled)('resolveFeeTokens', () => {
     const porto = TestConfig.getPorto()
     const client = TestConfig.getRelayClient(porto)
 
-    const feeTokens = await Tokens.resolveFeeTokens(client, {
+    const feeToken = await Tokens.resolveFeeToken(client, {
       addressOrSymbol: '0x0000000000000000000000000000000000000000',
       store: porto._internal.store,
     })
 
-    expect(
-      feeTokens.map((x) => ({ ...x, nativeRate: null })),
-    ).toMatchInlineSnapshot(`
-      [
-        {
-          "address": "0x0000000000000000000000000000000000000000",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "ETH",
-          "uid": "teth",
-        },
-        {
-          "address": "0x2d49a0e75c86779c391418214ec7e1b18e58bb34",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "EXP",
-          "uid": "exp1",
-        },
-        {
-          "address": "0x7c61733e8a9c6dac20afeb46e9c4ba96c5a9f7cf",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "EXP2",
-          "uid": "exp2",
-        },
-      ]
+    expect({ ...feeToken, nativeRate: null }).toMatchInlineSnapshot(`
+      {
+        "address": "0x0000000000000000000000000000000000000000",
+        "decimals": 18,
+        "feeToken": true,
+        "interop": true,
+        "nativeRate": null,
+        "symbol": "ETH",
+        "uid": "teth",
+      }
+    `)
+  })
+
+  test('param: feeToken (as address)', async () => {
+    const porto = TestConfig.getPorto()
+    const client = TestConfig.getRelayClient(porto)
+
+    const feeToken = await Tokens.resolveFeeToken(client, {
+      addressOrSymbol: '0x2d49a0e75c86779c391418214ec7e1b18e58bb34',
+      store: porto._internal.store,
+    })
+
+    expect({ ...feeToken, nativeRate: null }).toMatchInlineSnapshot(`
+      {
+        "address": "0x2d49a0e75c86779c391418214ec7e1b18e58bb34",
+        "decimals": 18,
+        "feeToken": true,
+        "interop": true,
+        "nativeRate": null,
+        "symbol": "EXP",
+        "uid": "exp1",
+      }
     `)
   })
 
@@ -378,53 +275,39 @@ describe.runIf(!Anvil.enabled)('resolveFeeTokens', () => {
       feeToken: 'ETH',
     })
 
-    const feeTokens = await Tokens.resolveFeeTokens(client, {
+    const feeToken = await Tokens.resolveFeeToken(client, {
       store: porto._internal.store,
     })
 
-    expect(
-      feeTokens.map((x) => ({ ...x, nativeRate: null })),
-    ).toMatchInlineSnapshot(`
-      [
-        {
-          "address": "0x0000000000000000000000000000000000000000",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "ETH",
-          "uid": "teth",
-        },
-        {
-          "address": "0x2d49a0e75c86779c391418214ec7e1b18e58bb34",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "EXP",
-          "uid": "exp1",
-        },
-        {
-          "address": "0x7c61733e8a9c6dac20afeb46e9c4ba96c5a9f7cf",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "EXP2",
-          "uid": "exp2",
-        },
-      ]
+    expect({ ...feeToken, nativeRate: null }).toMatchInlineSnapshot(`
+      {
+        "address": "0x0000000000000000000000000000000000000000",
+        "decimals": 18,
+        "feeToken": true,
+        "interop": true,
+        "nativeRate": null,
+        "symbol": "ETH",
+        "uid": "teth",
+      }
     `)
   })
 
-  test('behavior: falls back to first fee token if override/default not found', async () => {
+  test('behavior: falls back to storage fee token if override/default not found', async () => {
     const porto = TestConfig.getPorto()
     const client = TestConfig.getRelayClient(porto)
 
-    const feeTokens = await Tokens.resolveFeeTokens(client, {
-      addressOrSymbol: 'WAGMI',
+    porto._internal.store.setState({
+      feeToken: 'EXP',
     })
-    expect(feeTokens.length).toBeGreaterThanOrEqual(1)
-    expect(feeTokens[0]).toBeDefined()
+
+    const feeToken = await Tokens.resolveFeeToken(client, {
+      addressOrSymbol: 'WAGMI',
+      store: porto._internal.store,
+    })
+    expect({ ...feeToken, nativeRate: null }).toMatchInlineSnapshot(`
+      {
+        "nativeRate": null,
+      }
+    `)
   })
 })

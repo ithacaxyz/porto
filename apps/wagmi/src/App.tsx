@@ -29,6 +29,10 @@ import { exp1Address, exp1Config } from './contracts'
 const key = () =>
   ({
     expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
+    feeToken: {
+      limit: '1',
+      symbol: 'EXP',
+    },
     permissions: {
       calls: [
         {

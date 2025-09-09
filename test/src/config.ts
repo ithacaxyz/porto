@@ -31,7 +31,6 @@ export function getPorto(
 
   return Porto.create({
     chains,
-    feeToken: 'EXP',
     merchantRpcUrl,
     mode: mode({
       mock: true,

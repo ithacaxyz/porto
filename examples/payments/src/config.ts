@@ -4,7 +4,7 @@ import { baseSepolia } from 'wagmi/chains'
 
 export const config = createConfig({
   chains: [baseSepolia],
-  connectors: [porto({ feeToken: 'EXP' })],
+  connectors: [porto()],
   multiInjectedProviderDiscovery: false,
   pollingInterval: 1_000,
   transports: {
