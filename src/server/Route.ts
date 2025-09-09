@@ -27,15 +27,15 @@ export function from<
   env extends Env = BlankEnv,
   schema extends Schema = BlankSchema,
   basePath extends string = '/',
->(options: from.Base.ConstructorOptions<basePath> = {}) {
-  return new from.Base<env, schema, basePath>(options)
+>(options: from.Options<basePath> = {}) {
+  return new from.Inner<env, schema, basePath>(options)
 }
 
 export namespace from {
   export type Options<basePath extends string = '/'> =
-    Base.ConstructorOptions<basePath>
+    Inner.ConstructorOptions<basePath>
 
-  export class Base<
+  export class Inner<
     env extends Env = BlankEnv,
     schema extends Schema = BlankSchema,
     basePath extends string = '/',
@@ -47,7 +47,7 @@ export namespace from {
      *
      * @param options - constructor options
      */
-    constructor(options: Base.ConstructorOptions<basePath> = {}) {
+    constructor(options: Inner.ConstructorOptions<basePath> = {}) {
       const hono = new Hono<env, schema, basePath>().basePath(
         options.basePath ?? '/',
       )
@@ -89,7 +89,7 @@ export namespace from {
     }
   }
 
-  export declare namespace Base {
+  export declare namespace Inner {
     type ConstructorOptions<basePath extends string = '/'> = {
       /**
        * Base path of the request handler.

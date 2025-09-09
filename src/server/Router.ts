@@ -7,7 +7,7 @@ export function Router<
   schema extends Schema = BlankSchema,
   basePath extends string = '/',
 >(options: Router.Options<basePath> = {}) {
-  const handler = new Router.Base<env, schema, basePath>(options)
+  const handler = new Router.Inner<env, schema, basePath>(options)
   handler.hono.get('/', (c) =>
     c.text(`
 █▀█ █▀█ █▀█ ▀█▀ █▀█
@@ -19,15 +19,15 @@ export function Router<
 
 export namespace Router {
   export type Options<basePath extends string = '/'> = Omit<
-    Base.ConstructorOptions<basePath>,
+    Inner.ConstructorOptions<basePath>,
     'defaultPath'
   >
 
-  export class Base<
+  export class Inner<
     env extends Env = BlankEnv,
     schema extends Schema = BlankSchema,
     basePath extends string = '/',
-  > extends Route.from.Base<env, schema, basePath> {
+  > extends Route.from.Inner<env, schema, basePath> {
     /**
      * `.route()` allows grouping other Porto handlers in routes.
      *
@@ -45,15 +45,15 @@ export namespace Router {
       subBasePath extends string,
     >(
       path: path,
-      app: Route.from.Base<env, schema, subBasePath>,
-    ): Base<env, schema, subBasePath> {
+      app: Route.from.Inner<env, schema, subBasePath>,
+    ): Inner<env, schema, subBasePath> {
       this.hono.route(path, app.hono)
       return this as never
     }
   }
 
-  export declare namespace Base {
+  export declare namespace Inner {
     type ConstructorOptions<basePath extends string = '/'> =
-      Route.from.Base.ConstructorOptions<basePath>
+      Route.from.Inner.ConstructorOptions<basePath>
   }
 }
