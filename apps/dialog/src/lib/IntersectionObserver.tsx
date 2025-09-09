@@ -1,3 +1,4 @@
+import { cx } from 'cva'
 import * as IntersectionObserver from 'porto/core/internal/intersectionObserver'
 import * as React from 'react'
 import { useInView } from 'react-intersection-observer'
@@ -13,9 +14,18 @@ export function EnsureVisibility(props: {
   const referrer = Dialog.useStore((state) => state.referrer)
   const { ref, visible } = useEnsureVisibility({ enabled })
 
+  const showChildren = React.useMemo(() => IntersectionObserver.supported(), [])
+  const disableInteractions = !visible && showChildren
+
   return (
-    <div className="h-full w-full" ref={ref}>
-      {visible || !enabled ? (
+    <div
+      className={cx(
+        'h-full w-full',
+        disableInteractions && 'pointer-events-none',
+      )}
+      ref={ref}
+    >
+      {showChildren ? (
         children
       ) : (
         <Layout>
