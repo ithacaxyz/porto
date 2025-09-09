@@ -15,7 +15,7 @@ export function EnsureVisibility(props: {
   const { ref, visible } = useEnsureVisibility({ enabled })
 
   const showChildren = React.useMemo(
-    () => IntersectionObserver.supported() || !enabled,
+    () => !enabled || !IntersectionObserver.supported(),
     [enabled],
   )
   const disableInteractions = enabled && !visible && showChildren
