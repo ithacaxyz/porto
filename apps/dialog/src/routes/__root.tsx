@@ -81,6 +81,8 @@ function RouteComponent() {
     setControlledSize(mode === 'popup')
   }, [mode])
 
+  const enableEnsureVisibility = mode.includes('iframe') && visible && !trusted
+
   return (
     <>
       <HeadContent />
@@ -178,7 +180,7 @@ function RouteComponent() {
         <CheckError>
           <CheckUnsupportedBrowser>
             <CheckReferrer>
-              <EnsureVisibility enabled={visible && !trusted}>
+              <EnsureVisibility enabled={enableEnsureVisibility}>
                 <Outlet />
               </EnsureVisibility>
             </CheckReferrer>

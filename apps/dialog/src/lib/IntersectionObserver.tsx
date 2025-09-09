@@ -45,12 +45,9 @@ export function useEnsureVisibility(props: { enabled: boolean }) {
     threshold: [1.0],
     trackVisibility: true,
   })
-  const mode = Dialog.useStore((state) => state.mode)
   const [visible, setVisible] = React.useState(true)
 
   React.useEffect(() => {
-    // Only perform checks if we are in iframe mode.
-    if (!mode.includes('iframe')) return
     // Do not check if we are disabled.
     if (!props.enabled) return
     // Do not check if there is not an element to check.
@@ -69,7 +66,7 @@ export function useEnsureVisibility(props: { enabled: boolean }) {
       setVisible(isVisible)
     }, 500)
     return () => clearTimeout(timeout)
-  }, [entry, mode, props.enabled])
+  }, [entry, props.enabled])
 
   return { ref, visible }
 }
