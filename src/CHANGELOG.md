@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.88
+
+### Patch Changes
+
+- [`a5929c6`](https://github.com/ithacaxyz/porto/commit/a5929c6a27f987ce022aa9db848e2a4ddf5428d4) Thanks [@jxom](https://github.com/jxom)! - Removed `open` dependency.
+
 ## 0.0.87
 
 ### Patch Changes
