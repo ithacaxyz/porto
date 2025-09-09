@@ -885,8 +885,10 @@ describe('feeToken', () => {
       ).toThrowErrorMatchingInlineSnapshot(`
         [Schema.CoderError: Expected string, actual 123
 
-        Details: string | \`0x\${string}\`
-        ├─ Expected string, actual 123
+        Details: a string matching the pattern ^[A-Z]+$ | \`0x\${string}\`
+        ├─ a string matching the pattern ^[A-Z]+$
+        │  └─ From side refinement failure
+        │     └─ Expected string, actual 123
         └─ Expected \`0x\${string}\`, actual 123]
       `)
     })

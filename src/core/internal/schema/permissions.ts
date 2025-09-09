@@ -20,7 +20,7 @@ export const Request = Schema.Struct({
   address: Schema.optional(Primitive.Address),
   chainId: Schema.optional(Primitive.Number),
   expiry: Schema.Number.pipe(Schema.greaterThanOrEqualTo(1)),
-  feeLimit: Schema.optional(Key.FeeLimit),
+  feeToken: Schema.NullOr(Key.FeeToken),
   key: Schema.optional(Key.Base.pick('publicKey', 'type')),
   permissions: Schema.Struct({
     calls: Key.CallPermissions,

@@ -112,9 +112,9 @@ export const permissions = ({ chainId }: { chainId: ChainId }) => {
   }
   return {
     expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
-    feeLimit: {
-      currency: 'USD',
-      value: '1',
+    feeToken: {
+      limit: '1',
+      symbol: 'EXP',
     },
     permissions: {
       calls: [
@@ -153,7 +153,6 @@ const chains = [
 export const porto = Porto.create({
   ...config,
   chains,
-  feeToken: 'EXP',
   merchantRpcUrl: merchant ? '/merchant' : undefined,
   // We will be deferring mode setup until after hydration.
   mode: null,

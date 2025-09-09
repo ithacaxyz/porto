@@ -16,7 +16,6 @@ export const wagmiConfig = createConfig({
   connectors: [
     porto({
       ...config,
-      feeToken: testnet ? 'EXP' : undefined,
       mode: Mode.dialog({
         host: PortoConfig.getDialogHost(),
       }),

@@ -66,7 +66,6 @@ describe('rpcHandler', () => {
           to: contracts.exp1.address,
         },
       ],
-      feeToken: contracts.exp1.address,
       merchantRpcUrl: server.url,
     })
 
@@ -127,7 +126,6 @@ describe('rpcHandler', () => {
             to: contracts.exp1.address,
           },
         ],
-        feeToken: contracts.exp1.address,
         merchantRpcUrl: server.url,
       })
 
@@ -176,7 +174,6 @@ describe('rpcHandler', () => {
             to: contracts.exp2.address,
           },
         ],
-        feeToken: contracts.exp1.address,
         merchantRpcUrl: server.url,
       })
 
@@ -216,7 +213,6 @@ describe('rpcHandler', () => {
     const { id } = await RelayActions.sendCalls(client_dest, {
       account: merchantAccount,
       calls: [],
-      feeToken: contracts.exp1.address,
     })
     await waitForCallsStatus(client_dest, {
       id,
@@ -255,7 +251,6 @@ describe('rpcHandler', () => {
         },
       ],
       chain: chain_dest,
-      feeToken: contracts.exp1.address,
       merchantRpcUrl: server.url,
       requiredFunds: [
         {
@@ -312,7 +307,6 @@ describe('rpcHandler', () => {
             to: contracts.exp1.address,
           },
         ],
-        feeToken: contracts.exp1.address,
         merchantRpcUrl: server.url,
       }),
     ).rejects.toThrowError('InsufficientAllowance')

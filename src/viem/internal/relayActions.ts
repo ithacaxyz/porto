@@ -409,13 +409,13 @@ export async function prepareCalls<
     }
   })
 
-  const feeToken = capabilities.meta.feeToken ?? zeroAddress
+  const feeToken = capabilities?.meta?.feeToken ?? zeroAddress
 
   // In order to avoid a fee token deficit on the destination chain when a fee
   // balance exists on the source chains, we must include the fee token in
   // the required funds.
   const feeRequiredFunds = (() => {
-    if (!capabilities.requiredFunds) return undefined
+    if (!capabilities?.requiredFunds) return undefined
     const requiredFunds = capabilities.requiredFunds.find((fund) =>
       Address.isEqual(fund.address, feeToken),
     )
@@ -427,7 +427,7 @@ export async function prepareCalls<
 
   const requiredFunds = [
     ...(feeRequiredFunds ? [feeRequiredFunds] : []),
-    ...(capabilities.requiredFunds ?? []).filter(
+    ...(capabilities?.requiredFunds ?? []).filter(
       (fund) =>
         !feeRequiredFunds ||
         !Address.isEqual(fund.address, feeRequiredFunds.address),
@@ -445,6 +445,9 @@ export async function prepareCalls<
             calls,
             capabilities: {
               ...capabilities,
+              meta: {
+                ...capabilities?.meta,
+              },
               requiredFunds,
             },
             chainId: chain?.id!,
@@ -478,7 +481,7 @@ export namespace prepareCalls {
   > = {
     address?: Address.Address | undefined
     calls: Calls<Narrow<calls>>
-    capabilities: RpcSchema.wallet_prepareCalls.Capabilities
+    capabilities?: RpcSchema.wallet_prepareCalls.Capabilities | undefined
     key: RpcSchema.wallet_prepareCalls.Parameters['key']
   } & GetChainParameter<chain>
 
