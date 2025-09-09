@@ -15,7 +15,7 @@ export function EnsureVisibility(props: {
 
   return (
     <div ref={ref}>
-      {visible ? (
+      {visible || !enabled ? (
         children
       ) : (
         <Layout>

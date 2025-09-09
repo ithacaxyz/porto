@@ -53,8 +53,9 @@ function RouteComponent() {
 
   const trusted = React.useMemo(() => {
     if (!referrer?.url?.hostname) return false
+    if (verifyStatus.data?.status === 'whitelisted') return true
     return hostnames.includes(referrer?.url?.hostname)
-  }, [referrer])
+  }, [referrer, verifyStatus.data?.status])
 
   const { domain, subdomain, icon, url } = React.useMemo(() => {
     const hostnameParts = referrer?.url?.hostname.split('.').slice(-3)
