@@ -14,7 +14,7 @@ export function EnsureVisibility(props: {
   const { ref, visible } = useEnsureVisibility({ enabled })
 
   return (
-    <div ref={ref}>
+    <div className="h-full w-full" ref={ref}>
       {visible || !enabled ? (
         children
       ) : (
