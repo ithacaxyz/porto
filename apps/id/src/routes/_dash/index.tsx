@@ -1,13 +1,18 @@
 import * as Ariakit from '@ariakit/react'
+import { Toast } from '@porto/apps/components'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { type Address, Hex } from 'ox'
+import { type Address, Hex, Value } from 'ox'
 import { Porto } from 'porto'
 import { RelayActions, RelayClient, WalletActions } from 'porto/viem'
 import * as React from 'react'
-import { zeroAddress } from 'viem'
-import { useAccount } from 'wagmi'
-import { ValueFormatter } from '~/utils.ts'
+import { toast } from 'sonner'
+import { encodeFunctionData, erc20Abi, zeroAddress } from 'viem'
+import { useAccount, useSendCalls } from 'wagmi'
+import { waitForCallsStatus } from 'wagmi/actions'
+
+import * as Wagmi from '~/lib/Wagmi.ts'
+import { StringFormatter, ValueFormatter } from '~/utils.ts'
 import LucideChevronDown from '~icons/lucide/chevron-down'
 import LucideClipboardPaste from '~icons/lucide/clipboard-paste'
 import { config as portoConfig } from '../../lib/Porto.ts'
@@ -18,48 +23,180 @@ export const Route = createFileRoute('/_dash/')({
 
 function RouteComponent() {
   const { address } = useAccount()
-  const { data: balances } = useBalances({ address })
 
-  const options = React.useMemo(
-    () => (balances?.entries ? [...balances.entries()] : []),
-    [balances],
-  )
+  const { data: balances } = useBalances({ address })
+  const balancesMap = React.useMemo(() => {
+    return new Map<string, NonNullable<typeof balances>[number][1]>(balances)
+  }, [balances])
+
+  const sendCalls = useSendCalls({
+    mutation: {
+      onError(error) {
+        const userRejected = error.message
+          .toLowerCase()
+          .includes('user rejected')
+        if (userRejected) return
+        const notAllowed = error.message.toLowerCase().includes('not allowed')
+        toast.custom(
+          (t) => (
+            <Toast
+              className={t}
+              description={
+                notAllowed
+                  ? 'Transaction submission was cancelled.'
+                  : 'You do not have enough balance to complete this transaction.'
+              }
+              kind={notAllowed ? 'warn' : 'error'}
+              title={
+                notAllowed ? 'Transaction cancelled' : 'Transaction failed'
+              }
+            />
+          ),
+
+          { duration: 3_500 },
+        )
+      },
+    },
+  })
 
   const form = Ariakit.useFormStore({
     defaultValues: {
-      destination: '',
       recipient: '',
-      symbol: '',
-      tokenChainId: '',
+      sourceChainId: '1',
+      symbol: 'ETH',
+      targetChainId: '1',
       value: '',
     },
   })
+  const formState = Ariakit.useStoreState(form)
   form.useSubmit(async (state) => {
-    alert(JSON.stringify(state.values))
+    const sourceChainId = Number.parseInt(state.values.sourceChainId, 10) as
+      | ChainId
+      | 0
+    const targetChainId = Number.parseInt(
+      state.values.targetChainId,
+      10,
+    ) as ChainId
+    type ChainId = (typeof Wagmi.config)['chains'][number]['id']
+
+    const token = balancesMap
+      .get(state.values.symbol)
+      ?.find((balance) => balance.chainId === sourceChainId)
+    if (!token) throw new Error(`token not found for chain ID ${sourceChainId}`)
+
+    const to =
+      sourceChainId === 0
+        ? balancesMap
+            .get(state.values.symbol)
+            ?.find(
+              (balance) => balance.chainId !== sourceChainId && balance.interop,
+            )?.address
+        : token.address
+    if (!to)
+      throw new Error(`interop address not found for ${state.values.symbol}`)
+
+    const value = Value.from(state.values.value, token.decimals)
+    await sendCalls.sendCallsAsync(
+      {
+        calls:
+          to === zeroAddress
+            ? [{ to: state.values.recipient as Address.Address, value }]
+            : ([
+                {
+                  data: encodeFunctionData({
+                    abi: erc20Abi,
+                    args: [state.values.recipient as Address.Address, value],
+                    functionName: 'transfer',
+                  }),
+                  to,
+                },
+              ] as const),
+        capabilities: {
+          feeToken: to,
+          requiredFunds:
+            sourceChainId === 0
+              ? [
+                  {
+                    symbol: state.values.symbol,
+                    value: state.values.value as `${number}`,
+                  },
+                ]
+              : undefined,
+        },
+        chainId: targetChainId,
+      },
+      {
+        async onSuccess(data) {
+          const toastProps = { id: data.id }
+          try {
+            toast.custom(
+              (t) => (
+                <Toast
+                  className={t}
+                  description={`Sending ${state.values.value} ${state.values.symbol} to ${StringFormatter.truncate(state.values.recipient)} on ${state.values.targetChainId}`}
+                  kind="pending"
+                  title="Sending"
+                />
+              ),
+              toastProps,
+            )
+            await waitForCallsStatus(Wagmi.config as never, { id: data.id })
+            toast.custom(
+              (t) => (
+                <Toast
+                  className={t}
+                  description={`Sent ${state.values.value} ${state.values.symbol} to ${StringFormatter.truncate(state.values.recipient)} on ${state.values.targetChainId}`}
+                  kind="success"
+                  title="Sent"
+                />
+              ),
+              toastProps,
+            )
+          } catch (error) {
+            toast.custom(
+              (t) => (
+                <Toast
+                  className={t}
+                  description={`Failed to send ${state.values.value} ${state.values.symbol} to ${StringFormatter.truncate(state.values.recipient)} on ${state.values.targetChainId}`}
+                  kind="error"
+                  title="Send Failed"
+                />
+              ),
+              toastProps,
+            )
+          }
+        },
+      },
+    )
   })
 
-  const destination = form.useValue('destination')
-  const symbol = form.useValue('symbol')
-  const tokenChainId = form.useValue('tokenChainId')
-
   const selectedToken = React.useMemo(() => {
-    if (!balances?.get) return undefined
-    return balances
-      .get(symbol)
-      ?.find((balance) => balance.chainId.toString() === tokenChainId)
-  }, [balances, symbol, tokenChainId])
+    if (!balancesMap?.get) return undefined
+    return balancesMap
+      .get(formState.values.symbol)
+      ?.find(
+        (balance) =>
+          balance.chainId.toString() === formState.values.sourceChainId,
+      )
+  }, [balancesMap, formState.values.symbol, formState.values.sourceChainId])
 
-  const destinations = React.useMemo(() => {
-    if (!balances?.get) return []
+  const targetChains = React.useMemo(() => {
+    if (!balancesMap?.get) return []
     if (!selectedToken) return []
     if (selectedToken.interop === false) return [selectedToken.chainId]
+    if (formState.values.sourceChainId !== '0') return [selectedToken.chainId]
     return (
-      balances
-        .get(symbol)
+      balancesMap
+        .get(formState.values.symbol)
         ?.filter((balance) => balance.interop)
         .map((balance) => balance.chainId) ?? []
     )
-  }, [balances, selectedToken, symbol])
+  }, [
+    balancesMap,
+    selectedToken,
+    formState.values.symbol,
+    formState.values.sourceChainId,
+  ])
 
   return (
     <div className="flex h-full w-full items-center justify-center">
@@ -114,64 +251,67 @@ function RouteComponent() {
             <div className="flex w-full flex-col gap-1">
               <Ariakit.FormLabel
                 className="font-medium text-[13px] text-gray8 leading-none md:px-2"
-                name={form.names.tokenChainId}
+                name={form.names.sourceChainId}
               >
                 Select asset
               </Ariakit.FormLabel>
               <Ariakit.Role.button
                 render={
                   <Ariakit.FormControl
-                    name={form.names.tokenChainId}
+                    name={form.names.sourceChainId}
                     render={
                       <Ariakit.TabProvider
                         orientation="vertical"
-                        selectedId={symbol ? symbol : 'ETH'}
+                        selectedId={formState.values.symbol}
                         setSelectedId={(symbol) => {
                           if (!symbol) return
-                          const tokenChainId = balances
+                          const chainId = balancesMap
                             ?.get(symbol)?.[0]
                             ?.chainId.toString()
-                          if (!tokenChainId) return
-                          const destination = (() => {
-                            if (tokenChainId !== '0') return tokenChainId
-                            const balance = balances?.get(symbol)
+                          if (!chainId) return
+                          const targetChainId = (() => {
+                            if (chainId !== '0') return chainId
+                            const balance = balancesMap?.get(symbol)
                             const selected = balance?.find(
                               (balance) =>
-                                balance.chainId.toString() !== tokenChainId &&
+                                balance.chainId.toString() !== chainId &&
                                 balance.interop,
                             )
                             return selected?.chainId.toString()!
                           })()
                           form.setValues((values) => ({
                             ...values,
-                            destination,
+                            sourceChainId: chainId,
                             symbol,
-                            tokenChainId,
+                            targetChainId: targetChainId,
                           }))
                         }}
                       >
                         <Ariakit.SelectProvider
                           setValue={(value) => {
                             const fallbackSymbol = 'ETH'
-                            if (!symbol) form.setValue('symbol', fallbackSymbol)
-                            form.setValue('tokenChainId', value)
+                            if (!formState.values.symbol)
+                              form.setValue('symbol', fallbackSymbol)
+                            form.setValue('sourceChainId', value)
                             if (value !== '0')
-                              form.setValue('destination', value)
+                              form.setValue('targetChainId', value)
                             else {
-                              const balance = balances?.get(symbol)
+                              const balance = balancesMap?.get(
+                                formState.values.symbol,
+                              )
                               const selected = balance?.find(
                                 (balance) =>
                                   balance.chainId.toString() !== value &&
                                   balance.interop,
                               )
-                              form.setValue('destination', selected?.chainId)
+                              form.setValue('targetChainId', selected?.chainId)
                             }
                           }}
                         >
                           <Ariakit.Select
                             className="h-12 w-full min-w-40 rounded-full border border-gray4 bg-white ps-4 pe-4 font-medium text-[17px] placeholder:text-gray9 dark:bg-black"
                             disabled={!address}
-                            value={tokenChainId}
+                            value={formState.values.sourceChainId}
                           >
                             <div className="flex items-center justify-between">
                               {selectedToken ? (
@@ -192,14 +332,14 @@ function RouteComponent() {
                             sameWidth
                           >
                             <Ariakit.TabList className="flex flex-col">
-                              {options?.map(([symbol]) => (
+                              {balances?.map(([symbol]) => (
                                 <Ariakit.Tab id={symbol} key={symbol}>
                                   {symbol}
                                 </Ariakit.Tab>
                               ))}
                             </Ariakit.TabList>
 
-                            {options?.map(([symbol, values]) => (
+                            {balances?.map(([symbol, values]) => (
                               <Ariakit.TabPanel
                                 className="flex flex-col"
                                 id={symbol}
@@ -244,29 +384,29 @@ function RouteComponent() {
             <div className="flex w-full flex-col gap-1">
               <Ariakit.FormLabel
                 className="font-medium text-[13px] text-gray8 leading-none md:px-2"
-                name={form.names.destination}
+                name={form.names.targetChainId}
               >
                 Destination
               </Ariakit.FormLabel>
               <Ariakit.Role.button
                 render={
                   <Ariakit.FormControl
-                    name={form.names.destination}
+                    name={form.names.targetChainId}
                     render={
                       <Ariakit.SelectProvider
                         setValue={(value) =>
-                          form.setValue('destination', value)
+                          form.setValue('targetChainId', value)
                         }
                       >
                         <Ariakit.Select
                           className="h-12 w-full min-w-40 rounded-full border border-gray4 bg-white ps-4 pe-4 font-medium text-[17px] placeholder:text-gray9 dark:bg-black"
                           disabled={!address}
-                          value={destination}
+                          value={formState.values.targetChainId}
                         >
                           <div className="flex items-center justify-between">
-                            {destination ? (
+                            {formState.values.targetChainId ? (
                               <div className="flex gap-1">
-                                <div>{destination}</div>
+                                <div>{formState.values.targetChainId}</div>
                               </div>
                             ) : (
                               <div />
@@ -280,7 +420,7 @@ function RouteComponent() {
                           gutter={-48}
                           sameWidth
                         >
-                          {destinations.map((option) => (
+                          {targetChains.map((option) => (
                             <Ariakit.SelectItem
                               className="flex h-11.5 items-center gap-2.25 px-4 hover:bg-gray3 data-focus-visible:bg-gray4"
                               key={option}
@@ -325,10 +465,11 @@ function RouteComponent() {
                   selectedToken?.balance,
                   selectedToken?.decimals,
                 )}
-                min={0.0000000000000001}
+                min={0}
                 name={form.names.value}
                 placeholder="123"
                 required
+                step="any"
                 type="number"
               />
               <button
@@ -349,8 +490,11 @@ function RouteComponent() {
             </div>
           </div>
 
-          <Ariakit.FormSubmit className="mt-3.5 h-12 w-full rounded-full bg-gray3 font-medium text-[17px]">
-            Send
+          <Ariakit.FormSubmit
+            className="mt-3.5 h-12 w-full rounded-full bg-gray3 font-medium text-[17px]"
+            disabled={sendCalls.isPending}
+          >
+            {sendCalls.isPending ? 'Check For Prompt' : 'Send'}
           </Ariakit.FormSubmit>
         </div>
       </Ariakit.Form>
@@ -359,9 +503,9 @@ function RouteComponent() {
 }
 
 function useBalances(props: { address: Address.Address | undefined }) {
-  // TODO: Return cached data on page load
   return useQuery({
     enabled: Boolean(props.address),
+    initialData,
     async queryFn(ctx) {
       const account = ctx.queryKey[1]
       if (!account) throw new Error('account not connected')
@@ -431,8 +575,36 @@ function useBalances(props: { address: Address.Address | undefined }) {
         }
         balances.set(key, [interopBalance, ...(balances.get(key) ?? [])])
       }
-      return balances
+      return [...balances.entries()]
     },
     queryKey: ['balances', props.address] as const,
   })
 }
+
+const initialData = [
+  [
+    'ETH',
+    [
+      {
+        address: null,
+        balance: '0',
+        chainId: 0,
+        decimals: 18,
+        interop: null,
+        name: null,
+        nativeRate: null,
+        symbol: 'ETH',
+      },
+      {
+        address: '0x0000000000000000000000000000000000000000',
+        balance: '0',
+        chainId: 1,
+        decimals: 18,
+        interop: true,
+        name: null,
+        nativeRate: '1000000000000000000',
+        symbol: 'ETH',
+      },
+    ],
+  ],
+] as never
