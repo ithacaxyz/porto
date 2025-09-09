@@ -836,6 +836,7 @@ export function relay(parameters: relay.Parameters = {}) {
         const signature = await Account.sign(account, {
           key,
           payload: PersonalMessage.getSignPayload(data),
+          webAuthn,
         })
 
         return Erc8010.wrap(client, { address: account.address, signature })
@@ -858,6 +859,7 @@ export function relay(parameters: relay.Parameters = {}) {
           payload: TypedData.getSignPayload(data),
           // If the domain is the Orchestrator, we don't need to replay-safe sign.
           replaySafe: !isOrchestrator,
+          webAuthn,
         })
 
         return isOrchestrator
@@ -897,6 +899,7 @@ export function relay(parameters: relay.Parameters = {}) {
         const signature = await Account.sign(account, {
           key,
           payload: Hash.keccak256(Hex.fromString(`${email}${token}`)),
+          webAuthn,
         })
 
         return await RelayActions.verifyEmail(client, {
