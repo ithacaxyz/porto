@@ -114,7 +114,7 @@ export default defineConfig({
         text: 'Overview',
       },
       {
-        link: 'https://github.com/ithacaxyz/relay-issues',
+        link: 'https://github.com/ithacaxyz/relay',
         text: 'GitHub',
       },
       {
