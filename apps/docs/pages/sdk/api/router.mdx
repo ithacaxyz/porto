@@ -1,0 +1,28 @@
+# Router
+
+Instantiates a server framework-agnostic router for Porto.
+
+<center>
+  <img src="/router.svg" alt="Router" />
+</center>
+
+## Usage
+
+```ts twoslash
+// @noErrors
+import { Router, Route } from 'porto/server'
+
+const router = Router()
+  .route('/merchant', Route.merchant({/* ... */})
+  // .route('/auth', Route.auth({/* ... */}) 🚧
+  // .route('/rpc', Route.relay({/* ... */}) 🚧
+```
+
+## Routes
+
+| Route | Description |
+| ----- | --------- |
+| [`Route.merchant`](/sdk/api/router/merchant) | Route for Merchant RPC (call sponsoring, subscriptions, etc). |
+| `Route.auth` 🚧 | Route for a user authentication service. |
+| `Route.relay` 🚧 | Route for Relay RPC. |
+

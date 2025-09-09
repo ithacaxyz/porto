@@ -19,6 +19,7 @@
   ],
   "dependencies": {
     "effect": "^3.16.12",
+    "hono": "^4.9.6",
     "idb-keyval": "^6.2.1",
     "mipd": "^0.0.7",
     "ox": "^0.9.3",

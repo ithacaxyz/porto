@@ -16,8 +16,6 @@ import type * as RpcRequest from './schema/request.js'
 import type * as Token from './schema/token.js'
 import type { Assign, PartialBy } from './types.js'
 
-type Request = RpcRequest.parseRequest.ReturnType
-
 export type ActionsInternal<
   chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
     Chains.Chain,
@@ -27,7 +25,7 @@ export type ActionsInternal<
   /** Viem Client. */
   client: RelayClient
   /** RPC Request. */
-  request: Request
+  request: RpcRequest.Request
 }
 
 type PrepareCallsContext = {

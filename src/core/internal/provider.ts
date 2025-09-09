@@ -42,12 +42,12 @@ export function from<
 
   function getCapabilities(parameters: {
     chainIds: readonly Hex.Hex[]
-    request?: RpcRequest.parseRequest.ReturnType | undefined
+    request?: RpcRequest.Request | undefined
   }) {
     const { chainIds } = parameters
     const request =
       parameters.request ??
-      RpcRequest.parseRequest({
+      RpcRequest.validate({
         method: 'wallet_getCapabilities',
         params: [undefined, chainIds],
       })
@@ -81,11 +81,11 @@ export function from<
     async request(request_) {
       await Store.waitForHydration(store)
 
-      let request: RpcRequest.parseRequest.ReturnType
+      let request: RpcRequest.Request
       try {
-        request = RpcRequest.parseRequest(request_)
+        request = RpcRequest.validate(request_)
       } catch (e) {
-        const error = e as RpcRequest.parseRequest.Error
+        const error = e as RpcRequest.validate.Error
         if (!(error instanceof RpcResponse.MethodNotSupportedError)) throw error
 
         // catch unsupported methods
@@ -1255,7 +1255,9 @@ async function getMerchantRpcUrl(
   { storage }: { storage: Porto.Config['storage'] },
 ) {
   const defaultMerchantRpcUrl =
-    typeof window !== 'undefined' ? `${window.location.origin}/rpc` : undefined
+    typeof window !== 'undefined'
+      ? `${window.location.origin}/merchant`
+      : undefined
 
   // If a Merchant RPC URL is not provided, we will check if there is one set
   // up on the host.
