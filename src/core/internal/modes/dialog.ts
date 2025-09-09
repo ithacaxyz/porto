@@ -207,7 +207,11 @@ export function dialog(parameters: dialog.Parameters = {}) {
                     Schema.decodeSync(Permissions.Schema)(permission),
                   )
                   if (key_permission.id === key?.id)
-                    return { ...key_permission, ...key }
+                    return {
+                      ...key_permission,
+                      ...key,
+                      permissions: key_permission.permissions,
+                    }
                   return key_permission
                 } catch {
                   return undefined
@@ -544,7 +548,11 @@ export function dialog(parameters: dialog.Parameters = {}) {
                       Schema.decodeSync(Permissions.Schema)(permission),
                     )
                     if (key_permission.id === key?.id)
-                      return { ...key_permission, ...key }
+                      return {
+                        ...key_permission,
+                        ...key,
+                        permissions: key_permission.permissions,
+                      }
                     return key_permission
                   } catch {
                     return undefined
