@@ -1,6 +1,7 @@
 import type { RpcRequest, RpcResponse } from 'ox'
 import * as Provider from 'ox/Provider'
 import type { ThemeFragment } from '../theme/Theme.js'
+import * as IO from './internal/intersectionObserver.js'
 import { logger } from './internal/logger.js'
 import type { Internal } from './internal/porto.js'
 import * as UserAgent from './internal/userAgent.js'
@@ -356,7 +357,8 @@ export function iframe(options: iframe.Options = {}) {
           })
         },
         async syncRequests(requests) {
-          const { methodPolicies } = await messenger.waitForReady()
+          const { methodPolicies, trustedHosts } =
+            await messenger.waitForReady()
 
           const headless = requests?.every(
             (request) =>
@@ -380,7 +382,22 @@ export function iframe(options: iframe.Options = {}) {
             requests.map((x) => x.request),
           )
 
-          if (!headless && (unsupported || insecureProtocol))
+          const trusted =
+            // If IntersectionObserver is supported, Porto dialog will handle a visibility check.
+            IO.supported() ||
+            // If the host is in the trusted hosts list, we will trust the host will not occlude the iframe.
+            trustedHosts?.includes(hostUrl.hostname)
+
+          if (!trusted)
+            console.warn(
+              [
+                `Warning: Falling back to popup dialog as browser does not support IntersectionObserver v2 and host "${hostUrl.hostname}" is not trusted by Porto.`,
+                '',
+                `Add "${hostUrl.hostname}" to the trusted hosts list: https://github.com/ithacaxyz/porto/edit/main/src/trusted-hosts.ts`,
+              ].join('\n'),
+            )
+
+          if (!headless && (unsupported || insecureProtocol || !trusted))
             fallback.syncRequests(requests)
           else {
             const requiresConfirm = requests.some((x) =>

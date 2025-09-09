@@ -33,6 +33,7 @@ export type WithReady = Messenger & {
 export type ReadyOptions = {
   chainIds: readonly [number, ...number[]]
   methodPolicies?: MethodPolicies.MethodPolicies | undefined
+  trustedHosts?: string[] | undefined
 }
 
 /** Bridge messenger. */

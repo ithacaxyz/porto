@@ -8,8 +8,10 @@ import {
   useLocation,
 } from '@tanstack/react-router'
 import { Actions, Hooks } from 'porto/remote'
+import { hostnames } from 'porto/trusted-hosts'
 import * as React from 'react'
 import * as Dialog from '~/lib/Dialog'
+import { EnsureVisibility } from '~/lib/IntersectionObserver'
 import { porto } from '~/lib/Porto'
 import * as Referrer from '~/lib/Referrer'
 import LucideCircleAlert from '~icons/lucide/circle-alert'
@@ -48,6 +50,11 @@ function RouteComponent() {
   const display = Dialog.useStore((state) => state.display)
   const visible = Dialog.useStore((state) => state.visible)
   const verifyStatus = Referrer.useVerify()
+
+  const trusted = React.useMemo(() => {
+    if (!referrer?.url?.hostname) return false
+    return hostnames.includes(referrer?.url?.hostname)
+  }, [referrer])
 
   const { domain, subdomain, icon, url } = React.useMemo(() => {
     const hostnameParts = referrer?.url?.hostname.split('.').slice(-3)
@@ -170,7 +177,9 @@ function RouteComponent() {
         <CheckError>
           <CheckUnsupportedBrowser>
             <CheckReferrer>
-              <Outlet />
+              <EnsureVisibility enabled={visible && !trusted}>
+                <Outlet />
+              </EnsureVisibility>
             </CheckReferrer>
           </CheckUnsupportedBrowser>
         </CheckError>

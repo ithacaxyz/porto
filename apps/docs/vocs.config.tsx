@@ -173,6 +173,10 @@ export default defineConfig({
         text: 'DeepWiki',
       },
       {
+        link: '/sdk/production',
+        text: 'Deploying to Production',
+      },
+      {
         link: '/sdk/faq',
         text: 'FAQ',
       },
