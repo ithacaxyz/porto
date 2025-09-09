@@ -15,9 +15,9 @@ const token = '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa'
 
 const permissions = await WalletActions.grantPermissions(client, { // [!code focus]
   expiry: Math.floor(Date.now() / 1_000) + 60 * 60, // 1 hour // [!code focus]
-  feeLimit: { // [!code focus]
-    currency: 'USD', // [!code focus]
-    value: '1', // [!code focus] 
+  feeToken: { // [!code focus]
+    limit: '1', // [!code focus] 
+    symbol: 'USDC', // [!code focus]
   }, // [!code focus]
   permissions: { // [!code focus]
     calls: [{ // [!code focus]
@@ -56,9 +56,9 @@ const account = privateKeyToAccount('0x...') // [!code focus]
 // Grant permissions with custom key
 const permission = await WalletActions.grantPermissions(client, {
   expiry: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 1 week
-  feeLimit: {
-    currency: 'USD',
-    value: '1', 
+  feeToken: {
+    limit: '1', 
+    symbol: 'USDC',
   },
   key: { // [!code focus]
     publicKey: account.address, // [!code focus]
@@ -98,13 +98,13 @@ Address of the account to grant permissions on.
 
 Expiry timestamp of the permissions.
 
-### feeLimit
+### feeToken
 
-`{ currency: 'ETH' | 'USD' | 'USDC' | 'USDT', value: string } | undefined`
+`{ limit: string, symbol?: Token.Symbol | undefined } | undefined`
 
-Limit that the key can spend on fees. When provided,
-Porto will assign a spend permission on the user's
-selected fee token that is equal to the limit provided.
+Fee token that will be used with these permissions.
+
+If `symbol` is `undefined`, the native token will be used.
 
 ### key
 

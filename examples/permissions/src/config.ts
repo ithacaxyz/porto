@@ -6,7 +6,7 @@ import { exp1Config } from './contracts'
 
 export const config = createConfig({
   chains: [baseSepolia],
-  connectors: [porto({ feeToken: 'EXP' })],
+  connectors: [porto()],
   multiInjectedProviderDiscovery: false,
   pollingInterval: 1_000,
   transports: {

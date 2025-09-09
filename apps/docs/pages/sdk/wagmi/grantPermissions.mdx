@@ -15,9 +15,9 @@ const token = '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa'
 
 const permissions = await Actions.grantPermissions(config, {
   expiry: Math.floor(Date.now() / 1_000) + 60 * 60, // 1 hour
-  feeLimit: {
-    currency: 'USD',
-    value: '1',
+  feeToken: {
+    limit: '1',
+    symbol: 'USDC',
   },
   permissions: {
     calls: [{
@@ -106,13 +106,13 @@ The connector to use.
 
 Expiry timestamp of the permissions.
 
-### feeLimit
+### feeToken
 
-`{ currency: 'ETH' | 'USD' | 'USDC' | 'USDT', value: string } | undefined`
+`{ limit: string, symbol?: Token.Symbol | undefined }`
 
-Limit that the key can spend on fees. When provided,
-Porto will assign a spend permission on the user's
-selected fee token that is equal to the limit provided.
+Fee token that will be used with these permissions.
+
+If `symbol` is `undefined`, the native token will be used.
 
 ### key
 

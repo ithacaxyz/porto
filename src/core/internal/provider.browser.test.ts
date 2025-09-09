@@ -151,6 +151,10 @@ describe('wallet_getPermissions', () => {
               createAccount: true,
               grantPermissions: {
                 expiry: 9999999999,
+                feeToken: {
+                  limit: '1',
+                  symbol: 'EXP',
+                },
                 permissions: {
                   calls: [{ signature: 'mint()' }],
                 },
@@ -168,6 +172,10 @@ describe('wallet_getPermissions', () => {
         params: [
           {
             expiry: 9999999999,
+            feeToken: {
+              limit: '1',
+              symbol: 'EXP',
+            },
             permissions: { calls: [{ signature: 'mint()' }] },
           },
         ],
@@ -193,6 +201,10 @@ describe('wallet_getPermissions', () => {
               createAccount: true,
               grantPermissions: {
                 expiry: 9999999999,
+                feeToken: {
+                  limit: '1',
+                  symbol: 'EXP',
+                },
                 key: {
                   publicKey: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
                   type: 'secp256k1',
@@ -214,9 +226,9 @@ describe('wallet_getPermissions', () => {
         params: [
           {
             expiry: 9999999999,
-            feeLimit: {
-              currency: 'USD',
-              value: '1',
+            feeToken: {
+              limit: '1',
+              symbol: 'EXP',
             },
             key: {
               publicKey:

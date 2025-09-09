@@ -1,4 +1,3 @@
-import type * as Address from 'ox/Address'
 import * as Bytes from 'ox/Bytes'
 import * as Hash from 'ox/Hash'
 import * as Hex from 'ox/Hex'
@@ -70,9 +69,7 @@ export function relay(parameters: relay.Parameters = {}) {
 
         const eoa = Account.fromPrivateKey(Secp256k1.randomPrivateKey())
 
-        const feeTokens = await Tokens.resolveFeeTokens(client, {
-          store: internal.store,
-        })
+        const feeTokens = await Tokens.getTokens(client)
 
         const adminKey = !mock
           ? await Key.createWebAuthnP256({
@@ -98,7 +95,6 @@ export function relay(parameters: relay.Parameters = {}) {
             ...(adminKeys ?? []),
             ...(sessionKey ? [sessionKey] : []),
           ],
-          feeToken: feeTokens[0].address,
         })
 
         address_internal = eoa.address
@@ -286,14 +282,15 @@ export function relay(parameters: relay.Parameters = {}) {
           chainId: client.chain.id,
         })
 
-        const [feeToken] = await Tokens.resolveFeeTokens(client, {
+        const feeToken = await Tokens.resolveFeeToken(client, {
           addressOrSymbol: parameters.feeToken,
           store: internal.store,
         })
+
         const { id } = await RelayActions.sendCalls(client, {
           account,
           authorizeKeys: [authorizeKey],
-          feeToken: feeToken.address,
+          feeToken: feeToken?.address,
         })
         await waitForCallsStatus(client, {
           id,
@@ -310,9 +307,7 @@ export function relay(parameters: relay.Parameters = {}) {
           config: { storage },
         } = internal
 
-        const feeTokens = await Tokens.resolveFeeTokens(client, {
-          store: internal.store,
-        })
+        const feeTokens = await Tokens.getTokens(client)
 
         // Parse permissions request into a structured key.
         const authorizeKey = await PermissionsRequest.toKey(permissions, {
@@ -324,7 +319,6 @@ export function relay(parameters: relay.Parameters = {}) {
         const preCalls = await getAuthorizeKeyPreCalls(client, {
           account,
           authorizeKey,
-          feeToken: feeTokens[0].address,
         })
         if (persistPreCalls)
           await PreCalls.add(preCalls, {
@@ -342,9 +336,8 @@ export function relay(parameters: relay.Parameters = {}) {
           config: { storage },
         } = internal
 
-        const feeTokens = await Tokens.resolveFeeTokens(client, {
-          store: internal.store,
-        })
+        const feeTokens = await Tokens.getTokens(client)
+
         const authorizeKey = await PermissionsRequest.toKey(permissions, {
           chainId: client.chain.id,
           feeTokens,
@@ -357,7 +350,6 @@ export function relay(parameters: relay.Parameters = {}) {
               client,
               {
                 authorizeKeys: [authorizeKey],
-                feeToken: feeTokens[0].address,
                 preCalls: true,
               },
             )
@@ -561,14 +553,13 @@ export function relay(parameters: relay.Parameters = {}) {
             storage,
           }))
 
-        const [tokens, feeTokens] = await Promise.all([
+        const [tokens, feeToken] = await Promise.all([
           Tokens.getTokens(client),
-          Tokens.resolveFeeTokens(client, {
+          Tokens.resolveFeeToken(client, {
             addressOrSymbol: parameters.feeToken,
             store: internal.store,
           }),
         ])
-        const [feeToken] = feeTokens
 
         const requiredFunds = RequiredFunds.toRelay(
           parameters.requiredFunds ?? [],
@@ -581,7 +572,7 @@ export function relay(parameters: relay.Parameters = {}) {
           await RelayActions.prepareCalls(client, {
             account,
             calls,
-            feeToken: feeToken.address,
+            feeToken: feeToken?.address,
             key,
             merchantRpcUrl,
             preCalls,
@@ -614,9 +605,12 @@ export function relay(parameters: relay.Parameters = {}) {
         const { address, email, label, internal, permissions } = parameters
         const { client } = internal
 
-        const feeTokens = await Tokens.resolveFeeTokens(client, {
-          store: internal.store,
-        })
+        const [tokens, feeToken] = await Promise.all([
+          Tokens.getTokens(client),
+          Tokens.resolveFeeToken(client, {
+            store: internal.store,
+          }),
+        ])
 
         const adminKey = !mock
           ? await Key.createWebAuthnP256({
@@ -629,7 +623,7 @@ export function relay(parameters: relay.Parameters = {}) {
           : Key.createHeadlessWebAuthnP256()
         const sessionKey = await PermissionsRequest.toKey(permissions, {
           chainId: client.chain.id,
-          feeTokens,
+          feeTokens: tokens,
         })
 
         const { context, digests } = await RelayActions.prepareUpgradeAccount(
@@ -637,7 +631,7 @@ export function relay(parameters: relay.Parameters = {}) {
           {
             address,
             authorizeKeys: [adminKey, ...(sessionKey ? [sessionKey] : [])],
-            feeToken: feeTokens[0].address,
+            feeToken: feeToken?.address,
           },
         )
 
@@ -665,13 +659,13 @@ export function relay(parameters: relay.Parameters = {}) {
           throw new Error('revoke the only WebAuthn key left.')
 
         try {
-          const [feeToken] = await Tokens.resolveFeeTokens(client, {
+          const feeToken = await Tokens.resolveFeeToken(client, {
             addressOrSymbol: parameters.feeToken,
             store: internal.store,
           })
           const { id } = await RelayActions.sendCalls(client, {
             account,
-            feeToken: feeToken.address,
+            feeToken: feeToken?.address,
             revokeKeys: [key],
           })
           await waitForCallsStatus(client, {
@@ -699,13 +693,13 @@ export function relay(parameters: relay.Parameters = {}) {
         if (key.role === 'admin') throw new Error('cannot revoke admins.')
 
         try {
-          const [feeToken] = await Tokens.resolveFeeTokens(client, {
+          const feeToken = await Tokens.resolveFeeToken(client, {
             addressOrSymbol: parameters.feeToken,
             store: internal.store,
           })
           const { id } = await RelayActions.sendCalls(client, {
             account,
-            feeToken: feeToken.address,
+            feeToken: feeToken?.address,
             revokeKeys: [key],
           })
           await waitForCallsStatus(client, {
@@ -746,14 +740,13 @@ export function relay(parameters: relay.Parameters = {}) {
           }))
 
         // Resolve fee token to use.
-        const [tokens, feeTokens] = await Promise.all([
+        const [tokens, feeToken] = await Promise.all([
           Tokens.getTokens(client),
-          Tokens.resolveFeeTokens(client, {
+          Tokens.resolveFeeToken(client, {
             addressOrSymbol: parameters.feeToken,
             store: internal.store,
           }),
         ])
-        const [feeToken] = feeTokens
 
         const requiredFunds = RequiredFunds.toRelay(
           parameters.requiredFunds ?? [],
@@ -767,7 +760,7 @@ export function relay(parameters: relay.Parameters = {}) {
         const result = await RelayActions.sendCalls(client, {
           account,
           calls,
-          feeToken: feeToken.address,
+          feeToken: feeToken?.address,
           key,
           merchantRpcUrl,
           preCalls,
@@ -962,7 +955,7 @@ async function getAuthorizeKeyPreCalls(
   client: RelayClient,
   parameters: getAuthorizeKeyPreCalls.Parameters,
 ) {
-  const { account, authorizeKey, feeToken } = parameters
+  const { account, authorizeKey } = parameters
 
   const adminKey = account.keys?.find(
     (key) => key.role === 'admin' && key.privateKey,
@@ -972,7 +965,6 @@ async function getAuthorizeKeyPreCalls(
   const { context, digest } = await RelayActions.prepareCalls(client, {
     account,
     authorizeKeys: [authorizeKey],
-    feeToken,
     key: adminKey,
     preCalls: true,
   })
@@ -988,6 +980,5 @@ namespace getAuthorizeKeyPreCalls {
   export type Parameters = {
     account: Account.Account
     authorizeKey: Key.Key
-    feeToken: Address.Address
   }
 }

@@ -37,21 +37,21 @@ export namespace prepareCalls {
       // TODO: use EIP-1193 Provider + `wallet_prepareCalls` in the future
       // to dedupe.
       async queryFn({ queryKey }) {
-        const [, { account, feeToken, ...parameters }] = queryKey
+        const [, { account, feeToken: feeTokenOverride, ...parameters }] =
+          queryKey
 
         if (!account) throw new Error('account is required.')
 
-        const [tokens, feeTokens] = await Promise.all([
+        const [tokens, feeToken] = await Promise.all([
           Query_porto.client.ensureQueryData(
             Tokens.getTokens.queryOptions(client, {}),
           ),
           Query_porto.client.ensureQueryData(
-            Tokens.resolveFeeTokens.queryOptions(client, {
-              addressOrSymbol: feeToken,
+            Tokens.resolveFeeToken.queryOptions(client, {
+              addressOrSymbol: feeTokenOverride,
             }),
           ),
         ])
-        const [{ address: feeTokenAddress }] = feeTokens
 
         // Get pre-authorized keys to assign to the call bundle.
         const preCalls = await PreCalls.get({
@@ -69,7 +69,7 @@ export namespace prepareCalls {
         return await RelayActions.prepareCalls(client, {
           ...parameters,
           account,
-          feeToken: feeTokenAddress,
+          feeToken: feeToken?.address,
           preCalls,
           requiredFunds: multichain ? requiredFunds : undefined,
         })
