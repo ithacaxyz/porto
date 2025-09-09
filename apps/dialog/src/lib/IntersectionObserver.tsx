@@ -14,8 +14,11 @@ export function EnsureVisibility(props: {
   const referrer = Dialog.useStore((state) => state.referrer)
   const { ref, visible } = useEnsureVisibility({ enabled })
 
-  const showChildren = React.useMemo(() => IntersectionObserver.supported(), [])
-  const disableInteractions = !visible && showChildren
+  const showChildren = React.useMemo(
+    () => IntersectionObserver.supported() || !enabled,
+    [enabled],
+  )
+  const disableInteractions = enabled && !visible && showChildren
 
   return (
     <div
