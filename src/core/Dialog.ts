@@ -26,6 +26,11 @@ export type Dialog = {
     close: () => void
     destroy: () => void
     open: (parameters: any) => void
+    secure: () => Promise<{
+      frame: boolean
+      host: boolean
+      protocol: boolean
+    }>
     syncRequests: (requests: readonly QueuedRequest[]) => Promise<void>
   }
   supportsHeadless: boolean
@@ -356,9 +361,50 @@ export function iframe(options: iframe.Options = {}) {
             type: 'dialog-lifecycle',
           })
         },
+        async secure() {
+          const { trustedHosts } = await messenger.waitForReady()
+
+          const secureProtocol = (() => {
+            if (skipProtocolCheck) return true
+            const secure = window.location.protocol.startsWith('https')
+            if (!secure)
+              logger.warnOnce(
+                'Detected insecure protocol (HTTP).',
+                `\n\nThe Porto iframe is not supported on HTTP origins (${window.location.origin})`,
+                'due to lack of WebAuthn support.',
+                'See https://porto.sh/sdk#secure-origins-https for more information.',
+              )
+            return secure
+          })()
+          const intersectionObserverSupported = IO.supported()
+          const trustedHost =
+            // If IntersectionObserver is supported, Porto dialog will handle a visibility check.
+            // If the host is in the trusted hosts list, we will trust the host will not occlude the iframe.
+            Boolean(trustedHosts?.includes(hostUrl.hostname))
+
+          const secureFrame = Boolean(
+            intersectionObserverSupported || trustedHost,
+          )
+
+          if (!secureFrame)
+            console.warn(
+              [
+                `Warning: Browser does not support IntersectionObserver v2 or host "${hostUrl.hostname}" is not trusted by Porto.`,
+                'This may result in the dialog falling back to a popup.',
+                '',
+                `Add "${hostUrl.hostname}" to the trusted hosts list to enable iframe dialog: https://github.com/ithacaxyz/porto/edit/main/src/trusted-hosts.ts`,
+              ].join('\n'),
+            )
+
+          return {
+            frame: secureFrame,
+            host: trustedHost,
+            protocol: secureProtocol,
+          }
+        },
         async syncRequests(requests) {
-          const { methodPolicies, trustedHosts } =
-            await messenger.waitForReady()
+          const { methodPolicies } = await messenger.waitForReady()
+          const secure = await this.secure()
 
           const headless = requests?.every(
             (request) =>
@@ -366,38 +412,12 @@ export function iframe(options: iframe.Options = {}) {
                 (policy) => policy.method === request.request.method,
               )?.modes?.headless === true,
           )
-          const insecureProtocol = (() => {
-            if (skipProtocolCheck) return false
-            const insecure = !window.location.protocol.startsWith('https')
-            if (insecure)
-              logger.warnOnce(
-                'Detected insecure protocol (HTTP).',
-                `\n\nThe Porto iframe is not supported on HTTP origins (${window.location.origin})`,
-                'due to lack of WebAuthn support.',
-                'See https://porto.sh/sdk#secure-origins-https for more information.',
-              )
-            return insecure
-          })()
+
           const unsupported = includesUnsupported(
             requests.map((x) => x.request),
           )
 
-          const trusted =
-            // If IntersectionObserver is supported, Porto dialog will handle a visibility check.
-            IO.supported() ||
-            // If the host is in the trusted hosts list, we will trust the host will not occlude the iframe.
-            trustedHosts?.includes(hostUrl.hostname)
-
-          if (!trusted)
-            console.warn(
-              [
-                `Warning: Falling back to popup dialog as browser does not support IntersectionObserver v2 and host "${hostUrl.hostname}" is not trusted by Porto.`,
-                '',
-                `Add "${hostUrl.hostname}" to the trusted hosts list: https://github.com/ithacaxyz/porto/edit/main/src/trusted-hosts.ts`,
-              ].join('\n'),
-            )
-
-          if (!headless && (unsupported || insecureProtocol || !trusted))
+          if (!headless && (unsupported || !secure.protocol || !secure.frame))
             fallback.syncRequests(requests)
           else {
             const requiresConfirm = requests.some((x) =>
@@ -525,6 +545,13 @@ export function popup(options: popup.Options = {}) {
           window.removeEventListener('focus', onBlur)
           window.addEventListener('focus', onBlur)
         },
+        async secure() {
+          return {
+            frame: true,
+            host: true,
+            protocol: true,
+          }
+        },
         async syncRequests(requests) {
           const requiresConfirm = requests.some((x) =>
             requiresConfirmation(x.request),
@@ -572,6 +599,13 @@ export function noop() {
         close() {},
         destroy() {},
         open() {},
+        async secure() {
+          return {
+            frame: true,
+            host: true,
+            protocol: true,
+          }
+        },
         async syncRequests() {},
       }
     },
@@ -663,6 +697,13 @@ export function experimental_inline(options: inline.Options) {
             referrer: getReferrer(),
             type: 'init',
           })
+        },
+        async secure() {
+          return {
+            frame: true,
+            host: true,
+            protocol: true,
+          }
         },
         async syncRequests(requests) {
           messenger.send('rpc-requests', requests)

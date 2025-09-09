@@ -1115,6 +1115,9 @@ export function from<
     let unsubscribe_accounts: () => void = () => {}
     let unsubscribe_chain: () => void = () => {}
 
+    // Pre-fetch the merchant RPC URL to hit cache.
+    getMerchantRpcUrl(config.merchantRpcUrl, config).catch(() => {})
+
     Store.waitForHydration(store).then(() => {
       const chainId = store.getState().chainIds[0]
       getCapabilities({ chainIds: [Hex.fromNumber(chainId)] }).catch(() => {})
@@ -1139,6 +1142,7 @@ export function from<
         (state) => state.chainIds[0],
         (chainId, previousChainId) => {
           if (chainId === previousChainId) return
+          // Pre-fetch the capabilities to hit cache.
           getCapabilities({ chainIds: [Hex.fromNumber(chainId)] }).catch(
             () => {},
           )
@@ -1260,21 +1264,28 @@ async function getMerchantRpcUrl(
     if (!defaultMerchantRpcUrl) return undefined
 
     // If there is a cached flag, we will return the URL if it is set up.
-    const merchantRpcUrl_storage = await storage.getItem('porto.merchant-rpc')
+    const merchantRpcUrl_storage = await withCache(
+      () => storage.getItem('porto.merchant-rpc') as Promise<boolean>,
+      { cacheKey: 'getMerchantRpcUrl.storage' },
+    )
     if (typeof merchantRpcUrl_storage === 'boolean')
       return merchantRpcUrl_storage ? defaultMerchantRpcUrl : undefined
 
     // Fetch on the default Merchant RPC URL to see if it is set up.
-    const response = await fetch(defaultMerchantRpcUrl)
-      .then((x) => x.text())
-      .catch(() => undefined)
+    const response = await withCache(
+      () =>
+        fetch(defaultMerchantRpcUrl)
+          .then((x) => x.text())
+          .catch(() => undefined),
+      { cacheKey: `getMerchantRpcUrl.${defaultMerchantRpcUrl}` },
+    )
     if (response !== 'hello porto') {
-      await storage.setItem('porto.merchant-rpc', false)
+      storage.setItem('porto.merchant-rpc', false)
       return undefined
     }
 
     // If set up, we will cache the flag.
-    await storage.setItem('porto.merchant-rpc', true)
+    storage.setItem('porto.merchant-rpc', true)
     return defaultMerchantRpcUrl
   }
 

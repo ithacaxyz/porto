@@ -35,6 +35,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
   const listeners = new Set<(requestQueue: readonly QueuedRequest[]) => void>()
   const requestStore = RpcRequest.createStore()
 
+  let secure: { frame: boolean } | undefined
+
   // Function to instantiate a provider for the dialog. This
   // will be used to queue up requests for the dialog and
   // handle responses.
@@ -783,10 +785,12 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const feeToken = await resolveFeeToken(internal, parameters)
 
-        const preCalls = await PreCalls.get({
-          address: account.address,
-          storage,
-        })
+        const preCalls = secure?.frame
+          ? await PreCalls.get({
+              address: account.address,
+              storage,
+            })
+          : undefined
 
         // Try and extract an authorized key to sign the calls with.
         const key = await Mode.getAuthorizedExecuteKey({
@@ -1048,6 +1052,10 @@ export function dialog(parameters: dialog.Parameters = {}) {
         internal,
         theme,
         themeController,
+      })
+
+      dialog.secure().then((s) => {
+        secure = s
       })
 
       const unsubscribe = store.subscribe(
