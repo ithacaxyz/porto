@@ -4,7 +4,7 @@ Below are some things to consider before deploying to production.
 
 ## 1. Trusted Hosts
 
-To enable the `iframe` Dialog on all browsers in production, ensure your website hostname is added to 
+To enable the `iframe` Dialog on all browsers in production, ensure your website hostname is added to
 the [trusted hosts list](https://github.com/ithacaxyz/porto/blob/main/src/trusted-hosts.ts).
 
 Without this, the `iframe` Dialog will fallback to a popup on browsers that do not support the [IntersectionObserver v2 API](https://web.dev/articles/intersectionobserver-v2).
