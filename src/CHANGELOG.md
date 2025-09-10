@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.92
+
+### Patch Changes
+
+- [`3fbafa7`](https://github.com/ithacaxyz/porto/commit/3fbafa7e006c0203079a899e28d522b77ee4c3aa) Thanks [@jxom](https://github.com/jxom)! - Asserted that `key.id` is an address.
+
 ## 0.0.91
 
 ### Patch Changes
