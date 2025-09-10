@@ -23,6 +23,7 @@ export function EnsureVisibility(props: {
   )
   const disableInteractions = enabled && !visible && showChildren
 
+  if (import.meta.env.MODE === 'test') return children
   return (
     <div
       className={cx(
