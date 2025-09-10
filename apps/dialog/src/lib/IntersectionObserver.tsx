@@ -41,9 +41,8 @@ export function EnsureVisibility(props: {
               content={
                 <div className="space-y-2">
                   <p>
-                    The Porto dialog may be occluded in this context. For your
-                    safety, continuing will open this request in a separate
-                    window.
+                    The Porto dialog may be occluded in this context. The
+                    request will be opened in a new window.
                   </p>
                   <p className="text-sm text-th_base-secondary">
                     {IntersectionObserver.supported() ? (
@@ -66,8 +65,8 @@ export function EnsureVisibility(props: {
                 </div>
               }
               icon={LucideCircleAlert}
-              title="Warning"
-              variant="warning"
+              title="Continue in new window"
+              variant="default"
             />
           </Layout.Header>
 
