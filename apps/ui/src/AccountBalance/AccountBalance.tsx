@@ -112,10 +112,10 @@ export function AccountBalance({
           <div
             className={css({
               alignItems: 'center',
+              color: 'var(--color-th_accent)',
               display: 'flex',
               height: '100%',
               justifyContent: 'center',
-              color: 'var(--color-th_accent)',
             })}
           >
             <Spinner size="small" />
@@ -134,8 +134,8 @@ export function AccountBalance({
             <div
               className={css({
                 color: 'var(--text-color-th_base-secondary)',
-                fontSize: 10,
                 fontFamily: 'monospace',
+                fontSize: 10,
               })}
             >
               {amount}

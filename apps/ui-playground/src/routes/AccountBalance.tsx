@@ -24,39 +24,39 @@ function AccountBalanceComponent() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <AccountBalance
           amount="10.5 ETH"
+          amountFiat="$3,480.00"
           chainId={42161}
           loading={loadingStates.eth}
           onRefetch={() => handleRefetch('eth')}
-          amountFiat="$3,480.00"
-          tokenSymbol="ETH"
           tokenName="Ethereum"
+          tokenSymbol="ETH"
         />
         <AccountBalance
           amount="0.08 WBTC"
+          amountFiat="$5,200.00"
           chainId={137}
           loading={loadingStates.wbtc}
           onRefetch={() => handleRefetch('wbtc')}
-          amountFiat="$5,200.00"
-          tokenSymbol="WBTC"
           tokenName="Wrapped Bitcoin"
+          tokenSymbol="WBTC"
         />
         <AccountBalance
           amount="350.00 OP"
+          amountFiat="$1.85"
           chainId={10}
           loading={loadingStates.op}
           onRefetch={() => handleRefetch('op')}
-          amountFiat="$1.85"
-          tokenSymbol="OP"
           tokenName="Optimism"
+          tokenSymbol="OP"
         />
         <AccountBalance
           amount="2,500.00 USDT"
+          amountFiat="$1.00"
           chainId={8453}
           loading={loadingStates.usdt}
           onRefetch={() => handleRefetch('usdt')}
-          amountFiat="$1.00"
-          tokenSymbol="USDT"
           tokenName="Tether USD"
+          tokenSymbol="USDT"
         />
       </div>
     </ComponentScreen>
