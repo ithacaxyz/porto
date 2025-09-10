@@ -44,17 +44,22 @@ export function EnsureVisibility(props: {
                     Continuing will open this request in a new window.
                   </p>
                   <p className="text-sm text-th_base-secondary">
-                    Please contact the webmaster to ensure that no content is
-                    overlaying Porto, or add "{referrer?.url?.hostname}" as a
-                    trusted host to:{' '}
-                    <a
-                      className="break-all underline"
-                      href="https://github.com/ithacaxyz/porto/edit/main/src/trusted-hosts.ts"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      github.com/ithacaxyz/porto/edit/main/src/trusted-hosts.ts
-                    </a>
+                    {IntersectionObserver.supported() ? (
+                      'Please contact the webmaster to ensure no website content is overlaying Porto.'
+                    ) : (
+                      <>
+                        Please contact the webmaster to add "
+                        {referrer?.url?.hostname}" as a trusted host to:{' '}
+                        <a
+                          className="break-all underline"
+                          href="https://github.com/ithacaxyz/porto/edit/main/src/trusted-hosts.ts"
+                          rel="noopener noreferrer"
+                          target="_blank"
+                        >
+                          github.com/ithacaxyz/porto/edit/main/src/trusted-hosts.ts
+                        </a>
+                      </>
+                    )}
                   </p>
                 </div>
               }
