@@ -39,10 +39,6 @@ export function porto<
     onConnect(connectInfo: ProviderConnectInfo): void
   }
 
-  let portoInstance: Porto.Porto<chains>
-  let portoProvider: Provider | undefined
-  let providerPromise: Promise<Provider> | undefined
-
   return createConnector<Provider, Properties>((wagmiConfig) => {
     const chains = wagmiConfig.chains ?? config.chains ?? []
 
@@ -51,6 +47,10 @@ export function porto<
       return config.transports
     })()
 
+    let portoInstance: Porto.Porto<chains>
+    let portoProvider: Provider | undefined
+    let providerPromise: Promise<Provider> | undefined
+    
     let accountsChanged: Connector['onAccountsChanged'] | undefined
     let chainChanged: Connector['onChainChanged'] | undefined
     let connect: Connector['onConnect'] | undefined
