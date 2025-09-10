@@ -1,7 +1,8 @@
 import * as Ariakit from '@ariakit/react'
-import { Toast } from '@porto/apps/components'
+import { ChainIcon, Toast } from '@porto/apps/components'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import { cx } from 'cva'
 import { type Address, Hex, Value } from 'ox'
 import { Porto } from 'porto'
 import { RelayActions, RelayClient, WalletActions } from 'porto/viem'
@@ -10,11 +11,13 @@ import { toast } from 'sonner'
 import { encodeFunctionData, erc20Abi, zeroAddress } from 'viem'
 import { useAccount, useSendCalls } from 'wagmi'
 import { waitForCallsStatus } from 'wagmi/actions'
-
+import { TokenIcon } from '~/components/TokenIcon.tsx'
 import * as Wagmi from '~/lib/Wagmi.ts'
 import { StringFormatter, ValueFormatter } from '~/utils.ts'
+import LucideArrowLeftRight from '~icons/lucide/arrow-left-right'
 import LucideChevronDown from '~icons/lucide/chevron-down'
 import LucideClipboardPaste from '~icons/lucide/clipboard-paste'
+import LucideSendHorizontal from '~icons/lucide/send-horizontal'
 import { config as portoConfig } from '../../lib/Porto.ts'
 
 export const Route = createFileRoute('/_dash/')({
@@ -24,10 +27,10 @@ export const Route = createFileRoute('/_dash/')({
 function RouteComponent() {
   const { address } = useAccount()
 
-  const { data: balances } = useBalances({ address })
-  const balancesMap = React.useMemo(() => {
-    return new Map<string, NonNullable<typeof balances>[number][1]>(balances)
-  }, [balances])
+  const { data: assets } = useAssets({ address })
+  const assetsMap = React.useMemo(() => {
+    return new Map<string, NonNullable<typeof assets>[number][1]>(assets)
+  }, [assets])
 
   const sendCalls = useSendCalls({
     mutation: {
@@ -62,7 +65,7 @@ function RouteComponent() {
   const form = Ariakit.useFormStore({
     defaultValues: {
       recipient: '',
-      sourceChainId: '1',
+      sourceChainId: '0',
       symbol: 'ETH',
       targetChainId: '1',
       value: '',
@@ -79,14 +82,14 @@ function RouteComponent() {
     ) as ChainId
     type ChainId = (typeof Wagmi.config)['chains'][number]['id']
 
-    const token = balancesMap
+    const token = assetsMap
       .get(state.values.symbol)
       ?.find((balance) => balance.chainId === sourceChainId)
     if (!token) throw new Error(`token not found for chain ID ${sourceChainId}`)
 
     const to =
       sourceChainId === 0
-        ? balancesMap
+        ? assetsMap
             .get(state.values.symbol)
             ?.find(
               (balance) => balance.chainId !== sourceChainId && balance.interop,
@@ -138,7 +141,7 @@ function RouteComponent() {
                   title="Sending"
                 />
               ),
-              toastProps,
+              { ...toastProps, duration: Number.POSITIVE_INFINITY },
             )
             await waitForCallsStatus(Wagmi.config as never, { id: data.id })
             toast.custom(
@@ -150,7 +153,7 @@ function RouteComponent() {
                   title="Sent"
                 />
               ),
-              toastProps,
+              { ...toastProps, duration: 4_000 },
             )
           } catch (error) {
             toast.custom(
@@ -162,7 +165,7 @@ function RouteComponent() {
                   title="Send Failed"
                 />
               ),
-              toastProps,
+              { ...toastProps, duration: 5_000 },
             )
           }
         },
@@ -170,30 +173,43 @@ function RouteComponent() {
     )
   })
 
-  const selectedToken = React.useMemo(() => {
-    if (!balancesMap?.get) return undefined
-    return balancesMap
+  const asset = React.useMemo(() => {
+    if (!assetsMap?.get) return undefined
+    return assetsMap
       .get(formState.values.symbol)
       ?.find(
         (balance) =>
           balance.chainId.toString() === formState.values.sourceChainId,
       )
-  }, [balancesMap, formState.values.symbol, formState.values.sourceChainId])
+  }, [assetsMap, formState.values.symbol, formState.values.sourceChainId])
 
   const targetChains = React.useMemo(() => {
-    if (!balancesMap?.get) return []
-    if (!selectedToken) return []
-    if (selectedToken.interop === false) return [selectedToken.chainId]
-    if (formState.values.sourceChainId !== '0') return [selectedToken.chainId]
+    if (!assetsMap?.get) return []
+    if (!asset) return []
+    if (formState.values.sourceChainId !== '0' || asset.interop === false)
+      return [
+        {
+          id: asset.chainId,
+          name: asset.chainName,
+        },
+      ]
     return (
-      balancesMap
+      assetsMap
         .get(formState.values.symbol)
-        ?.filter((balance) => balance.interop)
-        .map((balance) => balance.chainId) ?? []
+        ?.filter((asset) => asset.interop)
+        .map((asset) => ({
+          id: asset.chainId,
+          name: asset.chainName,
+          testnet: Wagmi.getChainConfig(asset.chainId)?.testnet ?? false,
+        }))
+        .sort((a, b) => {
+          if (a.testnet !== b.testnet) return a.testnet ? 1 : -1
+          return a.name.localeCompare(b.name)
+        }) ?? []
     )
   }, [
-    balancesMap,
-    selectedToken,
+    assetsMap,
+    asset,
     formState.values.symbol,
     formState.values.sourceChainId,
   ])
@@ -202,23 +218,26 @@ function RouteComponent() {
     <div className="flex h-full w-full items-center justify-center">
       <Ariakit.Form
         aria-labelledby="send-funds"
-        className="flex h-full w-full flex-col items-center gap-2"
+        className="flex w-full flex-col items-center gap-6 md:max-w-100.5"
         store={form}
       >
-        <header className="flex-col items-center gap-1.5 text-center">
+        <header className="flex flex-col items-center justify-center gap-1.5 text-center">
+          <div className="mb-3 flex size-13 items-center justify-center rounded-full bg-blue3">
+            <LucideSendHorizontal className="text-blue10" />
+          </div>
           <h2
             className="-tracking-[2.8%] font-medium text-[27px] text-gray12 leading-full"
             id="send-funds"
           >
             Send funds
           </h2>
-          <p className="-tracking-[2.8%] text-[16px] text-gray10 leading-6.25 md:leading-full">
+          <p className="-tracking-[2.8%] max-w-55 text-[16px] text-gray10 leading-full">
             Transfer money instantly and globally with low fees.
           </p>
         </header>
 
-        <div className="flex w-full flex-col gap-2">
-          <div className="flex w-full flex-col gap-1">
+        <div className="flex w-full flex-col gap-3.5">
+          <div className="flex w-full flex-col gap-3">
             <Ariakit.FormLabel
               className="font-medium text-[13px] text-gray8 leading-none md:px-2"
               name={form.names.recipient}
@@ -247,8 +266,8 @@ function RouteComponent() {
             </div>
           </div>
 
-          <div className="flex gap-1">
-            <div className="flex w-full flex-col gap-1">
+          <div className="relative flex gap-1">
+            <div className="flex w-full flex-col gap-3">
               <Ariakit.FormLabel
                 className="font-medium text-[13px] text-gray8 leading-none md:px-2"
                 name={form.names.sourceChainId}
@@ -265,17 +284,17 @@ function RouteComponent() {
                         selectedId={formState.values.symbol}
                         setSelectedId={(symbol) => {
                           if (!symbol) return
-                          const chainId = balancesMap
+                          const chainId = assetsMap
                             ?.get(symbol)?.[0]
                             ?.chainId.toString()
                           if (!chainId) return
                           const targetChainId = (() => {
                             if (chainId !== '0') return chainId
-                            const balance = balancesMap?.get(symbol)
-                            const selected = balance?.find(
-                              (balance) =>
-                                balance.chainId.toString() !== chainId &&
-                                balance.interop,
+                            const assets = assetsMap?.get(symbol)
+                            const selected = assets?.find(
+                              (asset) =>
+                                asset.chainId.toString() !== chainId &&
+                                asset.interop,
                             )
                             return selected?.chainId.toString()!
                           })()
@@ -283,7 +302,7 @@ function RouteComponent() {
                             ...values,
                             sourceChainId: chainId,
                             symbol,
-                            targetChainId: targetChainId,
+                            targetChainId,
                           }))
                         }}
                       >
@@ -296,15 +315,18 @@ function RouteComponent() {
                             if (value !== '0')
                               form.setValue('targetChainId', value)
                             else {
-                              const balance = balancesMap?.get(
+                              const assets = assetsMap?.get(
                                 formState.values.symbol,
                               )
-                              const selected = balance?.find(
-                                (balance) =>
-                                  balance.chainId.toString() !== value &&
-                                  balance.interop,
+                              const selected = assets?.find(
+                                (asset) =>
+                                  asset.chainId.toString() !== value &&
+                                  asset.interop,
                               )
-                              form.setValue('targetChainId', selected?.chainId)
+                              form.setValue(
+                                'targetChainId',
+                                selected?.chainId.toString(),
+                              )
                             }
                           }}
                         >
@@ -314,10 +336,27 @@ function RouteComponent() {
                             value={formState.values.sourceChainId}
                           >
                             <div className="flex items-center justify-between">
-                              {selectedToken ? (
-                                <div className="flex gap-1">
-                                  <div>{selectedToken.symbol}</div>
-                                  <div>{selectedToken.chainId}</div>
+                              {asset ? (
+                                <div className="flex gap-2.5">
+                                  <div className="relative">
+                                    <TokenIcon
+                                      size={24}
+                                      symbol={asset.symbol}
+                                    />
+                                    <div className="-end-1.25 -bottom-1 absolute size-4">
+                                      {asset.chainId === 0 ? (
+                                        <div className="flex size-full items-center justify-center rounded-full bg-gray5">
+                                          <LucideArrowLeftRight className="size-2.5 text-gray10" />
+                                        </div>
+                                      ) : (
+                                        <ChainIcon
+                                          chainId={asset.chainId}
+                                          className="size-4"
+                                        />
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div>{asset.symbol}</div>
                                 </div>
                               ) : (
                                 <div />
@@ -327,46 +366,75 @@ function RouteComponent() {
                           </Ariakit.Select>
 
                           <Ariakit.SelectPopover
-                            className="z-100 flex overflow-hidden rounded-[24px] border border-gray4 bg-white outline-none dark:bg-black"
-                            gutter={-48}
-                            sameWidth
+                            className="z-100 flex overflow-hidden rounded-[14px] border border-gray4 bg-white outline-none dark:bg-black"
+                            gutter={10}
+                            wrapperProps={{
+                              className: 'w-auto! inset-x-0!',
+                            }}
                           >
-                            <Ariakit.TabList className="flex flex-col">
-                              {balances?.map(([symbol]) => (
-                                <Ariakit.Tab id={symbol} key={symbol}>
-                                  {symbol}
+                            <Ariakit.TabList className="h-full max-h-57 w-full overflow-y-auto border-gray4 border-e p-2.5">
+                              {assets?.map(([symbol]) => (
+                                <Ariakit.Tab
+                                  className="flex h-11.5 w-full items-center gap-2 rounded-[10px] px-3 font-medium text-[16px] hover:bg-gray3 data-focus-visible:bg-gray4"
+                                  id={symbol}
+                                  key={symbol}
+                                >
+                                  <TokenIcon size={24} symbol={symbol} />
+                                  <div>{symbol}</div>
                                 </Ariakit.Tab>
                               ))}
                             </Ariakit.TabList>
 
-                            {balances?.map(([symbol, values]) => (
+                            {assets?.map(([symbol, values]) => (
                               <Ariakit.TabPanel
-                                className="flex flex-col"
+                                className="flex max-h-57 w-full flex-col overflow-y-auto p-2.5 pt-4"
                                 id={symbol}
                                 key={symbol}
                                 unmountOnHide
                               >
-                                <div>
-                                  Total held{' '}
-                                  {values
-                                    .filter((value) => value.chainId === 0)
-                                    .reduce(
-                                      (sum, value) => sum + value.balance,
-                                      0n,
+                                <div className="mb-2 flex justify-between px-2 font-medium text-[13px] text-gray8 leading-none">
+                                  <div>Total held</div>
+                                  <div>
+                                    {ValueFormatter.format(
+                                      values
+                                        .filter((value) => value.chainId === 0)
+                                        .reduce(
+                                          (sum, value) => sum + value.balance,
+                                          0n,
+                                        ),
+                                      values[0]?.decimals,
                                     )}
+                                  </div>
                                 </div>
                                 <Ariakit.SelectList>
                                   {values.map((value) => (
                                     <Ariakit.SelectItem
-                                      className="flex items-center gap-2.25 px-4"
+                                      className="flex h-11.5 items-center justify-between gap-2 rounded-[10px] px-3 font-medium text-[16px] hover:bg-gray3 data-focus-visible:bg-gray4"
                                       key={value.chainId}
                                       value={value.chainId.toString()}
                                     >
-                                      {value.chainId}{' '}
-                                      {ValueFormatter.format(
-                                        value.balance,
-                                        value.decimals,
-                                      )}
+                                      <div className="flex gap-2.5">
+                                        {value.chainId !== 0 ? (
+                                          <ChainIcon
+                                            chainId={value.chainId}
+                                            className="size-6"
+                                          />
+                                        ) : (
+                                          <div className="flex size-6 items-center justify-center rounded-full bg-gray5">
+                                            <LucideArrowLeftRight className="size-4 text-gray10" />
+                                          </div>
+                                        )}
+                                        <div className="whitespace-nowrap">
+                                          {value.chainName}
+                                        </div>
+                                      </div>
+
+                                      <div>
+                                        {ValueFormatter.format(
+                                          value.balance,
+                                          value.decimals,
+                                        )}
+                                      </div>
                                     </Ariakit.SelectItem>
                                   ))}
                                 </Ariakit.SelectList>
@@ -381,7 +449,7 @@ function RouteComponent() {
               />
             </div>
 
-            <div className="flex w-full flex-col gap-1">
+            <div className="flex w-full flex-col gap-3">
               <Ariakit.FormLabel
                 className="font-medium text-[13px] text-gray8 leading-none md:px-2"
                 name={form.names.targetChainId}
@@ -399,36 +467,65 @@ function RouteComponent() {
                         }
                       >
                         <Ariakit.Select
-                          className="h-12 w-full min-w-40 rounded-full border border-gray4 bg-white ps-4 pe-4 font-medium text-[17px] placeholder:text-gray9 dark:bg-black"
-                          disabled={!address}
+                          className="h-12 w-full min-w-40 rounded-full border border-gray4 bg-white ps-4 pe-4 font-medium text-[17px] placeholder:text-gray9 disabled:bg-gray3 dark:bg-black"
+                          disabled={formState.values.sourceChainId !== '0'}
                           value={formState.values.targetChainId}
                         >
-                          <div className="flex items-center justify-between">
+                          <div className="flex items-center justify-between gap-2.5">
                             {formState.values.targetChainId ? (
-                              <div className="flex gap-1">
-                                <div>{formState.values.targetChainId}</div>
+                              <div className="flex gap-2.5">
+                                <ChainIcon
+                                  chainId={Number.parseInt(
+                                    formState.values.targetChainId,
+                                    10,
+                                  )}
+                                  className="size-6"
+                                />
+                                <div className="whitespace-nowrap">
+                                  {Wagmi.getChainConfig(
+                                    Number.parseInt(
+                                      formState.values.targetChainId,
+                                      10,
+                                    ),
+                                  )?.name ??
+                                    `Chain ID ${formState.values.targetChainId}`}
+                                </div>
                               </div>
                             ) : (
                               <div />
                             )}
-                            <LucideChevronDown className="text-gray9" />
+                            {formState.values.sourceChainId === '0' && (
+                              <LucideChevronDown className="text-gray9" />
+                            )}
                           </div>
                         </Ariakit.Select>
 
                         <Ariakit.SelectPopover
-                          className="z-100 overflow-hidden rounded-[24px] border border-gray4 bg-white outline-none dark:bg-black"
-                          gutter={-48}
+                          className="z-100 overflow-hidden rounded-[14px] border border-gray4 bg-white outline-none dark:bg-black"
+                          gutter={10}
                           sameWidth
                         >
-                          {targetChains.map((option) => (
-                            <Ariakit.SelectItem
-                              className="flex h-11.5 items-center gap-2.25 px-4 hover:bg-gray3 data-focus-visible:bg-gray4"
-                              key={option}
-                              value={option.toString()}
-                            >
-                              {option}
-                            </Ariakit.SelectItem>
-                          ))}
+                          <Ariakit.SelectList className="max-h-57 overflow-y-scroll">
+                            {targetChains.map((chain) => (
+                              <Ariakit.SelectItem
+                                className="flex h-12 items-center justify-between gap-2.25 px-4 hover:bg-gray3 data-focus-visible:bg-gray4"
+                                key={chain.id}
+                                value={chain.id.toString()}
+                              >
+                                <div className="flex gap-2.5">
+                                  <ChainIcon
+                                    chainId={chain.id}
+                                    className="size-6"
+                                  />
+                                  <div>{chain.name}</div>
+                                </div>
+                                {formState.values.targetChainId ===
+                                  chain.id.toString() && (
+                                  <div className="size-2 rounded-full bg-gray5" />
+                                )}
+                              </Ariakit.SelectItem>
+                            ))}
+                          </Ariakit.SelectList>
                         </Ariakit.SelectPopover>
                       </Ariakit.SelectProvider>
                     }
@@ -438,60 +535,63 @@ function RouteComponent() {
             </div>
           </div>
 
-          <div className="flex w-full flex-col">
-            <div className="flex w-full justify-between md:ps-2">
+          <div className="flex w-full flex-col gap-3">
+            <div className="flex w-full justify-between md:px-2">
               <Ariakit.FormLabel
-                className="font-medium text-[13px] text-gray8 leading-none md:px-2"
+                className="font-medium text-[13px] text-gray8 leading-none"
                 name={form.names.value}
               >
-                Value
+                Enter amount
               </Ariakit.FormLabel>
               <div className="font-medium text-[13px] text-gray8 leading-none">
                 <span className="text-gray9">
                   {Number(
-                    ValueFormatter.format(
-                      selectedToken?.balance,
-                      selectedToken?.decimals,
-                    ),
+                    ValueFormatter.format(asset?.balance, asset?.decimals),
                   )}
                 </span>{' '}
                 available
               </div>
             </div>
-            <div className="relative flex w-full items-center">
-              <Ariakit.FormInput
-                className="h-12 w-full rounded-full border border-gray4 bg-white ps-4 pe-11 font-medium text-[17px] placeholder:text-gray9 dark:bg-black"
-                max={ValueFormatter.format(
-                  selectedToken?.balance,
-                  selectedToken?.decimals,
-                )}
-                min={0}
-                name={form.names.value}
-                placeholder="123"
-                required
-                step="any"
-                type="number"
-              />
-              <button
-                className="absolute end-5 font-medium text-[13px] text-gray8 capitalize leading-none"
-                onClick={() => {
-                  form.setValues((values) => ({
-                    ...values,
-                    value: ValueFormatter.format(
-                      selectedToken?.balance,
-                      selectedToken?.decimals,
-                    ),
-                  }))
-                }}
-                type="button"
-              >
-                max
-              </button>
-            </div>
+            {formState.values.symbol && formState.values.targetChainId && (
+              <div className="relative flex w-full items-center">
+                <Ariakit.FormInput
+                  className="h-12 w-full rounded-full border border-gray4 bg-white ps-4 pe-11 font-medium text-[17px] placeholder:text-gray9 dark:bg-black"
+                  max={ValueFormatter.format(asset?.balance, asset?.decimals)}
+                  min={0}
+                  name={form.names.value}
+                  placeholder="123"
+                  required
+                  step="any"
+                  type="number"
+                />
+                <button
+                  className="absolute end-5 font-medium text-[13px] text-gray8 capitalize leading-none"
+                  onClick={() => {
+                    form.setValues((values) => ({
+                      ...values,
+                      value: ValueFormatter.format(
+                        asset?.balance,
+                        asset?.decimals,
+                      ),
+                    }))
+                  }}
+                  type="button"
+                >
+                  max
+                </button>
+              </div>
+            )}
           </div>
 
           <Ariakit.FormSubmit
-            className="mt-3.5 h-12 w-full rounded-full bg-gray3 font-medium text-[17px]"
+            className={cx(
+              'mt-3.5 h-12 w-full rounded-full font-medium text-[17px]',
+              formState.valid
+                ? sendCalls.isPending
+                  ? 'bg-gray3'
+                  : 'bg-accent'
+                : 'bg-gray3',
+            )}
             disabled={sendCalls.isPending}
           >
             {sendCalls.isPending ? 'Check For Prompt' : 'Send'}
@@ -502,7 +602,7 @@ function RouteComponent() {
   )
 }
 
-function useBalances(props: { address: Address.Address | undefined }) {
+function useAssets(props: { address: Address.Address | undefined }) {
   return useQuery({
     enabled: Boolean(props.address),
     initialData,
@@ -517,11 +617,12 @@ function useBalances(props: { address: Address.Address | undefined }) {
           Number.parseInt(chainId, 10),
         ),
       })
-      const balances = new Map<string, Balance[]>()
-      type Balance = {
+      const assetsMap = new Map<string, Asset[]>()
+      type Asset = {
         address: Address.Address | undefined
         balance: bigint
         chainId: number
+        chainName: string
         decimals: number
         interop: boolean | undefined
         name: string | undefined
@@ -541,8 +642,8 @@ function useBalances(props: { address: Address.Address | undefined }) {
               feeToken.symbol === symbol || feeToken.address === token.address,
           )
           const { interop, nativeRate } = feeToken ?? {}
-          balances.set(symbol, [
-            ...(balances.get(symbol) ?? []),
+          assetsMap.set(symbol, [
+            ...(assetsMap.get(symbol) ?? []),
             {
               address:
                 token.address === 'native'
@@ -550,6 +651,8 @@ function useBalances(props: { address: Address.Address | undefined }) {
                   : (token.address ?? zeroAddress),
               balance: token.balance,
               chainId,
+              chainName:
+                Wagmi.getChainConfig(chainId)?.name ?? `Chain ID ${chainId}`,
               decimals: token.metadata.decimals,
               interop,
               name: token.metadata.name,
@@ -559,10 +662,10 @@ function useBalances(props: { address: Address.Address | undefined }) {
           ])
         }
       }
-      for (const [key, values] of balances) {
+      for (const [key, values] of assetsMap) {
         const interopValues = values.filter((value) => value.interop)
         if (!interopValues.length) continue
-        const interopBalance = {
+        const interopAsset = {
           ...values[0]!,
           address: undefined,
           balance: interopValues.reduce(
@@ -570,14 +673,25 @@ function useBalances(props: { address: Address.Address | undefined }) {
             0n,
           ),
           chainId: 0,
+          chainName: 'Interop',
           interop: undefined,
           nativeRate: undefined,
         }
-        balances.set(key, [interopBalance, ...(balances.get(key) ?? [])])
+        assetsMap.set(key, [interopAsset, ...(assetsMap.get(key) ?? [])])
       }
-      return [...balances.entries()]
+
+      const boostedNames = ['ETH', 'USDC', 'USDT']
+      const boostedSet = new Set(boostedNames)
+      return [...assetsMap.entries()].sort((a, b) => {
+        const aIsBoosted = boostedSet.has(a[0])
+        const bIsBoosted = boostedSet.has(b[0])
+        if (aIsBoosted !== bIsBoosted) return aIsBoosted ? -1 : 1
+        if (aIsBoosted && bIsBoosted)
+          return boostedNames.indexOf(a[0]) - boostedNames.indexOf(b[0])
+        return a[0].localeCompare(b[0])
+      })
     },
-    queryKey: ['balances', props.address] as const,
+    queryKey: ['assets', props.address] as const,
   })
 }
 
