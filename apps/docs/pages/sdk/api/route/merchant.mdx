@@ -63,7 +63,7 @@ Use the `Router` to hook up the `Route.merchant` handler on your Cloudflare Work
 import { env } from 'cloudflare:workers'
 import { Router, Route } from 'porto/server'
 
-export default Router()
+export default Router({ basePath: '/api' })
   .route('/merchant', Route.merchant({
     address: env.MERCHANT_ADDRESS,
     key: env.MERCHANT_PRIVATE_KEY,
