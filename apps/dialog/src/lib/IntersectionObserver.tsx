@@ -40,8 +40,9 @@ export function EnsureVisibility(props: {
               content={
                 <div className="space-y-2">
                   <p>
-                    This Porto dialog may be occluded in this context.
-                    Continuing will open this request in a new window.
+                    The Porto dialog may be occluded in this context. For your
+                    safety, continuing will open this request in a separate
+                    window.
                   </p>
                   <p className="text-sm text-th_base-secondary">
                     {IntersectionObserver.supported() ? (
