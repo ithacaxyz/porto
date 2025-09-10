@@ -1,5 +1,14 @@
 # porto
 
+## 0.0.89
+
+### Patch Changes
+
+- [#825](https://github.com/ithacaxyz/porto/pull/825) [`4453819`](https://github.com/ithacaxyz/porto/commit/44538195ee25c4c87473246d44753e4e8f139526) Thanks [@o-az](https://github.com/o-az)! - Forwarded `webAuthn` adapters into signing paths for `Mode.Relay`.
+  This prevents WebAuthn signing on React Native from defaulting to `window.navigator.credentials` when platform is `android` or `ios`.
+
+- [#827](https://github.com/ithacaxyz/porto/pull/827) [`55cb72a`](https://github.com/ithacaxyz/porto/commit/55cb72a1b45d1907d7fd8e30147853768200b7eb) Thanks [@jxom](https://github.com/jxom)! - Added IntersectionObserver v2.
+
 ## 0.0.88
 
 ### Patch Changes
