@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.90
+
+### Patch Changes
+
+- [`418bcaf`](https://github.com/ithacaxyz/porto/commit/418bcafd28b6e887690ebf57e440b82dd220e8a9) Thanks [@jxom](https://github.com/jxom)! - Fixed hostname check.
+
 ## 0.0.89
 
 ### Patch Changes
