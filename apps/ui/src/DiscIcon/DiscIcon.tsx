@@ -3,7 +3,11 @@ import { Children, createContext, useContext, useEffect, useState } from 'react'
 import { css, cx } from '../../styled-system/css'
 
 const DiscIconContext = createContext<
-  { size?: DiscIcon.Size; border?: boolean } | undefined
+  | {
+      border?: boolean | number
+      size?: DiscIcon.Size
+    }
+  | undefined
 >(undefined)
 
 export function DiscIcon({
@@ -21,14 +25,12 @@ export function DiscIcon({
   const [error, setError] = useState(false)
   useEffect(() => setError(false), [])
 
-  const size_ = size ?? context?.size ?? 'medium'
-  const sizeResolved =
-    typeof size_ === 'string'
-      ? { large: 38, medium: 24, small: 16 }[size_]
-      : size_
+  size ??= context?.size ?? 'medium'
+  if (typeof size === 'string') size = DiscIcon.sizes[size]
 
-  const border_ = border ?? context?.border ?? false
-  const borderWidth = border_ ? (sizeResolved < 20 ? 2 : 3) : 0
+  border ??= context?.border ?? false
+  if (typeof border === 'boolean')
+    border = border ? (size <= 16 ? 1 : size <= 20 ? 2 : 3) : 0
 
   return (
     <div
@@ -43,8 +45,8 @@ export function DiscIcon({
         className,
       )}
       style={{
-        height: sizeResolved,
-        width: sizeResolved,
+        height: size,
+        width: size,
       }}
       title={title}
     >
@@ -55,8 +57,8 @@ export function DiscIcon({
             placeItems: 'center',
           })}
           style={{
-            height: sizeResolved - borderWidth * 2,
-            width: sizeResolved - borderWidth * 2,
+            height: size - border * 2,
+            width: size - border * 2,
           }}
         >
           {fallback}
@@ -67,10 +69,10 @@ export function DiscIcon({
           className={css({
             display: 'block',
           })}
-          height={sizeResolved - borderWidth * 2}
+          height={size - border * 2}
           onError={() => setError(true)}
           src={error && typeof fallback === 'string' ? fallback : src}
-          width={sizeResolved - borderWidth * 2}
+          width={size - border * 2}
           {...props}
         />
       ) : null}
@@ -83,33 +85,28 @@ export namespace DiscIcon {
     src?: string
     fallback?: string | ReactNode
     size?: Size | undefined
-    border?: boolean
+    border?: boolean | number
     alt?: string
     title?: string
   }
 
   export type Size = 'small' | 'medium' | 'large' | number
 
+  export const sizes = {
+    large: 38,
+    medium: 24,
+    small: 16,
+  }
+
   export function Stack({
-    children,
-    size = 'medium',
     border = true,
-    gap,
+    children,
     className,
+    gap,
+    size = 'medium',
   }: Stack.Props) {
-    const sizeResolved =
-      typeof size === 'string'
-        ? { large: 38, medium: 24, small: 16 }[size]
-        : size
-
-    const defaultGap = (() => {
-      if (sizeResolved < 20) return -2
-      if (sizeResolved <= 24) return -4
-      return -Math.round(sizeResolved * 0.3)
-    })()
-
-    const marginLeft = gap ?? defaultGap
-
+    if (typeof size !== 'number') size = sizes[size]
+    gap ??= size < 20 ? -2 : size <= 24 ? -4 : size * -0.3
     return (
       <DiscIconContext.Provider value={{ border, size }}>
         <div
@@ -121,10 +118,9 @@ export namespace DiscIcon {
             className,
           )}
         >
-          {Children.map(children, (child, index) => {
-            if (index === 0) return child
-            return <div style={{ marginLeft }}>{child}</div>
-          })}
+          {Children.map(children, (child, index) => (
+            <div style={{ marginLeft: index === 0 ? 0 : gap }}>{child}</div>
+          ))}
         </div>
       </DiscIconContext.Provider>
     )
@@ -132,11 +128,11 @@ export namespace DiscIcon {
 
   export namespace Stack {
     export interface Props {
+      border?: boolean | number
       children: React.ReactNode
-      size?: Size
-      border?: boolean
-      gap?: number
       className?: string
+      gap?: number
+      size?: Size
     }
   }
 }
