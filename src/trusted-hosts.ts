@@ -16,4 +16,6 @@ export const hostnames = [
   'rath.fi',
   'relay.link',
   'uniswap.org',
+  'jumper.exchange',
+  'playground.li.fi',
 ]
