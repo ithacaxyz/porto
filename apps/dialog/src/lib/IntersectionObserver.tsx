@@ -45,11 +45,11 @@ export function EnsureVisibility(props: {
                   </p>
                   <p className="text-sm text-th_base-secondary">
                     {IntersectionObserver.supported() ? (
-                      'Please contact the webmaster to ensure no website content is overlaying Porto.'
+                      'To avoid this message, please contact the webmaster to ensure no website content is overlaying Porto.'
                     ) : (
                       <>
-                        Please contact the webmaster to add "
-                        {referrer?.url?.hostname}" as a trusted host to:{' '}
+                        To avoid this message, please contact the webmaster to
+                        add "{referrer?.url?.hostname}" as a trusted host to:{' '}
                         <a
                           className="break-all underline"
                           href="https://github.com/ithacaxyz/porto/edit/main/src/trusted-hosts.ts"
