@@ -1,19 +1,19 @@
 import 'dotenv/config'
 import cors from 'cors'
 import express from 'express'
-import { MerchantRpc } from 'porto/server'
+import { Route } from 'porto/server'
 import ViteExpress from 'vite-express'
 
 const app = express()
 
 app.use(cors())
 
-app.all(
-  '/rpc',
-  MerchantRpc.requestListener({
-    address: process.env.MERCHANT_ADDRESS,
-    key: process.env.MERCHANT_PRIVATE_KEY,
-  }),
+app.use(
+  '/merchant',
+  Route.merchant({
+    address: process.env.MERCHANT_ADDRESS as `0x${string}`,
+    key: process.env.MERCHANT_PRIVATE_KEY as `0x${string}`,
+  }).listener,
 )
 
 ViteExpress.listen(app, 5173)

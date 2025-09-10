@@ -10,7 +10,7 @@ import {
   WebCryptoP256,
 } from 'ox'
 import { Key, Mode } from 'porto'
-import { MerchantRpc } from 'porto/server'
+import { Route } from 'porto/server'
 import { encodeFunctionData, hashMessage, hashTypedData } from 'viem'
 import {
   readContract,
@@ -1939,14 +1939,14 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         keys: [merchantKey],
       })
 
-      const listener = MerchantRpc.requestListener({
+      const listener = Route.merchant({
         ...porto.config,
         address: merchantAccount.address,
         key: {
           privateKey: merchantKey.privateKey!(),
           type: merchantKey.type,
         },
-      })
+      }).listener
       const server = await Http.createServer(listener)
 
       const {
@@ -2039,14 +2039,14 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         keys: [merchantKey],
       })
 
-      const listener = MerchantRpc.requestListener({
+      const listener = Route.merchant({
         ...p.config,
         address: merchantAccount.address,
         key: {
           privateKey: merchantKey.privateKey!(),
           type: merchantKey.type,
         },
-      })
+      }).listener
       const server = await Http.createServer(listener)
 
       const porto = getPorto({ merchantRpcUrl: server.url })

@@ -241,11 +241,22 @@ export default defineConfig({
             collapsed: false,
             items: [
               {
-                link: '/sdk/api/merchantRpc/requestHandler',
-                text: 'requestHandler',
+                link: '/sdk/api/route/merchant',
+                text: 'Route.merchant',
+              },
+              {
+                disabled: true,
+                link: '/sdk/api/route/auth',
+                text: 'Route.auth 🚧',
+              },
+              {
+                disabled: true,
+                link: '/sdk/api/route/relay',
+                text: 'Route.relay 🚧',
               },
             ],
-            text: 'MerchantRpc',
+            link: '/sdk/api/router',
+            text: 'Router',
           },
           {
             link: '/sdk/api/theme',

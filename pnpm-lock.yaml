@@ -1520,6 +1520,9 @@ importers:
       effect:
         specifier: ^3.16.12
         version: 3.16.12
+      hono:
+        specifier: ^4.9.6
+        version: 4.9.6
       idb-keyval:
         specifier: ^6.2.1
         version: 6.2.2
@@ -7473,6 +7476,10 @@ packages:
 
   hono@4.8.5:
     resolution: {integrity: sha512-Up2cQbtNz1s111qpnnECdTGqSIUIhZJMLikdKkshebQSEBcoUKq6XJayLGqSZWidiH0zfHRCJqFu062Mz5UuRA==}
+    engines: {node: '>=16.9.0'}
+
+  hono@4.9.6:
+    resolution: {integrity: sha512-doVjXhSFvYZ7y0dNokjwwSahcrAfdz+/BCLvAMa/vHLzjj8+CFyV5xteThGUsKdkaasgN+gF2mUxao+SGLpUeA==}
     engines: {node: '>=16.9.0'}
 
   hookable@5.5.3:
@@ -18617,6 +18624,8 @@ snapshots:
   hono@4.7.10: {}
 
   hono@4.8.5: {}
+
+  hono@4.9.6: {}
 
   hookable@5.5.3: {}
 
