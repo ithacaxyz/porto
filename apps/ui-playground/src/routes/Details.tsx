@@ -12,6 +12,7 @@ function DetailsComponent() {
   const [key, setKey] = useState(0)
   return (
     <ComponentScreen
+      maxWidth={360}
       title={
         <>
           <div>Details</div>

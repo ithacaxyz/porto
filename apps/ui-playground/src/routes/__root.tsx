@@ -9,9 +9,9 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   return (
-    <div className="grid h-screen min-w-200 select-none grid-cols-[220px_1fr] bg-th_base-plane text-th_base">
+    <div className="grid h-screen min-w-200 select-none grid-cols-[220px_1fr] overflow-hidden bg-th_base-plane text-th_base">
       <Sidebar />
-      <div className="focus-visible:-outline-offset-2 flex-1 overflow-y-scroll px-16 py-12 focus-visible:outline-2 focus-visible:outline-th_focus">
+      <div className="focus-visible:-outline-offset-2 overflow-y-auto px-16 py-12 focus-visible:outline-2 focus-visible:outline-th_focus">
         <Outlet />
       </div>
     </div>
@@ -21,7 +21,7 @@ function RootComponent() {
 function Sidebar() {
   const { colorScheme, setColorScheme } = useColorScheme()
   return (
-    <div className="flex flex-col gap-12 border-th_frame border-r bg-th_frame px-8 py-6 text-sm">
+    <div className="flex flex-col gap-12 overflow-y-auto border-th_frame border-r bg-th_frame px-8 py-6 text-sm">
       <div className="flex items-center justify-between">
         <Link
           className="-ml-2 flex h-full items-center whitespace-nowrap rounded-[2px] pr-2 pl-2 text-th_base outline-offset-2 focus-visible:outline-2 focus-visible:outline-th_focus"
