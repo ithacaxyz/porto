@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.91
+
+### Patch Changes
+
+- [#831](https://github.com/ithacaxyz/porto/pull/831) [`5df2f5d`](https://github.com/ithacaxyz/porto/commit/5df2f5d8cf6d61a0c00bd546778047b96082f6f6) Thanks [@o-az](https://github.com/o-az)! - Prefixed `crypto.randomUUID()` with `globalThis` to make React Native friendly
+
 ## 0.0.90
 
 ### Patch Changes
