@@ -1189,7 +1189,7 @@ function announce(
       icon,
       name,
       rdns,
-      uuid: crypto.randomUUID(),
+      uuid: globalThis.crypto.randomUUID(),
     },
     provider: provider as any,
   })

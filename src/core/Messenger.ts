@@ -172,7 +172,7 @@ export function fromWindow(
       return () => w.removeEventListener('message', handler)
     },
     async send(topic, payload, target) {
-      const id = crypto.randomUUID()
+      const id = globalThis.crypto.randomUUID()
       w.postMessage(
         Utils.normalizeValue({ id, payload, topic }),
         target ?? targetOrigin ?? '*',
@@ -326,7 +326,7 @@ export function cliRelay(options: cliRelay.Options): CliRelay {
   connect()
 
   async function request(topic: Topic, payload: any) {
-    const id = crypto.randomUUID()
+    const id = globalThis.crypto.randomUUID()
     const data = { id, payload, topic }
 
     const response = await fetch(relayUrl, {
