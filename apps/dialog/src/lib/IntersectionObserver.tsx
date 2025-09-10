@@ -1,7 +1,10 @@
+import { Button } from '@porto/ui'
 import { cx } from 'cva'
 import * as IntersectionObserver from 'porto/core/internal/intersectionObserver'
 import * as React from 'react'
 import { useInView } from 'react-intersection-observer'
+import { porto } from '~/lib/Porto'
+import LucideCircleAlert from '~icons/lucide/circle-alert'
 import { Layout } from '../routes/-components/Layout'
 import * as Dialog from './Dialog'
 
@@ -32,20 +35,51 @@ export function EnsureVisibility(props: {
         children
       ) : (
         <Layout>
-          <div className="p-3 text-sm text-th_base-secondary">
-            Unable to determine if Porto is visible. Ensure that the page has no
-            overlaying elements, or contact the webmaster to add "
-            {referrer?.url?.hostname}" to:{' '}
-            <a
-              className="break-all"
-              href="https://github.com/ithacaxyz/porto/edit/main/src/trusted-hosts.ts"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              https://github.com/ithacaxyz/porto/edit/main/src/trusted-hosts.ts
-            </a>
-            .
-          </div>
+          <Layout.Header>
+            <Layout.Header.Default
+              content={
+                <div className="space-y-2">
+                  <p>
+                    This Porto dialog may be occluded in this context.
+                    Continuing will open this request in a new window.
+                  </p>
+                  <p className="text-sm text-th_base-secondary">
+                    Please contact the webmaster to ensure that no content is
+                    overlaying Porto, or add "{referrer?.url?.hostname}" as a
+                    trusted host to:{' '}
+                    <a
+                      className="break-all underline"
+                      href="https://github.com/ithacaxyz/porto/edit/main/src/trusted-hosts.ts"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      github.com/ithacaxyz/porto/edit/main/src/trusted-hosts.ts
+                    </a>
+                  </p>
+                </div>
+              }
+              icon={LucideCircleAlert}
+              title="Warning"
+              variant="warning"
+            />
+          </Layout.Header>
+
+          <Layout.Footer>
+            <Layout.Footer.Actions>
+              <Button
+                className="flex-grow!"
+                onClick={() => {
+                  porto.messenger.send('__internal', {
+                    mode: 'popup',
+                    type: 'switch',
+                  })
+                }}
+                variant="primary"
+              >
+                Continue
+              </Button>
+            </Layout.Footer.Actions>
+          </Layout.Footer>
         </Layout>
       )}
     </div>
