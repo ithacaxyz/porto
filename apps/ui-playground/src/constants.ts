@@ -7,19 +7,25 @@ export const sections = [
     screens: [
       'Button',
       'ButtonArea',
-      'Details',
       'Input',
-      'PresetsInput',
       'Separator',
-      'ShowAfter',
+      'Spacer',
       'Spinner',
+    ],
+    title: 'Primitives',
+  },
+  {
+    screens: [
+      'AccountBalance',
+      'ChainIcon',
+      'Details',
+      'DiscIcon',
+      'Frame',
+      'PresetsInput',
+      'ShowAfter',
       'ThemeSwitch',
       'TokenIcon',
     ],
-    title: 'Base',
-  },
-  {
-    screens: ['Frame', 'Screen', 'Spacer'],
-    title: 'Layout',
+    title: 'Components',
   },
 ] as const
