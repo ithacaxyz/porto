@@ -25,11 +25,7 @@ export function Swap(props: Swap.Props) {
     swapping,
   } = props
 
-  const hasFiat = assetIn.fiat && assetOut.fiat
-
-  const [currencyType, setCurrencyType] = React.useState<'fiat' | 'token'>(
-    swapType === 'convert' ? 'token' : hasFiat ? 'fiat' : 'token',
-  )
+  const [fiatDisplay, setFiatDisplay] = React.useState(swapType !== 'convert')
 
   const feeFormatted = React.useMemo(() => {
     const feeTotal = fees?.['0x0']?.value
@@ -46,11 +42,6 @@ export function Swap(props: Swap.Props) {
     }
   }, [fees])
 
-  const toggle = () => {
-    if (!hasFiat) return
-    setCurrencyType(currencyType === 'fiat' ? 'token' : 'fiat')
-  }
-
   return (
     <Layout>
       <Layout.Header>
@@ -66,8 +57,8 @@ export function Swap(props: Swap.Props) {
           <div className="flex flex-col gap-[12px] rounded-th_medium bg-th_base-alt px-[10px] py-[12px]">
             <Swap.AssetRow
               asset={assetOut}
-              currencyType={currencyType}
-              onToggleCurrency={toggle}
+              fiatDisplay={fiatDisplay}
+              onFiatDisplayChange={setFiatDisplay}
             />
             <div className="-mx-[10px] relative flex justify-center">
               <hr className="absolute top-1/2 w-full border-th_separator border-dashed" />
@@ -77,8 +68,8 @@ export function Swap(props: Swap.Props) {
             </div>
             <Swap.AssetRow
               asset={assetIn}
-              currencyType={currencyType}
-              onToggleCurrency={toggle}
+              fiatDisplay={fiatDisplay}
+              onFiatDisplayChange={setFiatDisplay}
             />
             {swapType === 'swap' && contractAddress && (
               <>
@@ -152,22 +143,23 @@ export namespace Swap {
   }
 
   export function AssetRow(props: AssetRow.Props) {
-    const { asset, currencyType, onToggleCurrency } = props
+    const { asset, fiatDisplay, onFiatDisplayChange } = props
 
     const decimals = asset.decimals ?? 18
 
     const fiatValue = asset.fiat
       ? PriceFormatter.format(Math.abs(asset.fiat.value))
       : null
+
     const tokenValue = `${ValueFormatter.format(
       asset.value < 0n ? -asset.value : asset.value,
       decimals,
     )} ${asset.symbol}`
 
-    const transition = useTransition(currencyType, {
-      config: { friction: 50, tension: 1400 },
+    const transition = useTransition(asset.fiat ? fiatDisplay : true, {
+      config: { friction: 70, tension: 1300 },
       enter: { opacity: 1, transform: 'scale(1)' },
-      from: { opacity: 0, transform: 'scale(0.8)' },
+      from: { opacity: 0, transform: 'scale(0.7)' },
       initial: { opacity: 1, transform: 'scale(1)' },
       leave: { immediate: true, opacity: 0 },
     })
@@ -179,7 +171,7 @@ export namespace Swap {
         <div className="shrink-0">
           <TokenIcon size={24} symbol={asset.symbol} />
         </div>
-        <div className="flex min-w-0 flex-grow items-center gap-[8px]">
+        <div className="flex h-[24px] min-w-0 flex-grow items-center gap-[8px]">
           <div className="flex min-w-[120px] items-center gap-[4px]">
             <div
               className="max-w-[120px] truncate font-medium text-[14px] text-th_base"
@@ -192,27 +184,19 @@ export namespace Swap {
             </div>
           </div>
           <ButtonArea
-            className="relative min-w-0 rounded-[4px] font-medium text-[14px] text-th_base-secondary"
+            className="relative h-full min-w-0 rounded-[4px] font-medium text-[14px] text-th_base-secondary"
             disabled={!asset.fiat}
-            onClick={onToggleCurrency}
+            onClick={() => onFiatDisplayChange(!fiatDisplay)}
             style={{ flex: '1 1 auto' }}
           >
-            <div className="invisible truncate">
-              {fiatValue && tokenValue.length > fiatValue.length
-                ? tokenValue
-                : fiatValue || tokenValue}
-            </div>
-            {transition((style, item) => {
-              const value =
-                item === 'fiat' && fiatValue ? fiatValue : tokenValue
+            {transition((style, fiatDisplay) => {
+              const value = fiatDisplay && fiatValue ? fiatValue : tokenValue
               return (
-                <a.div
-                  className="absolute inset-0 flex origin-[100%_50%] items-center justify-end"
-                  style={style}
-                  title={value}
-                >
-                  <span className="truncate">{value}</span>
-                </a.div>
+                <div className="absolute inset-0 flex items-center justify-end">
+                  <a.span className="truncate" style={style} title={value}>
+                    {value}
+                  </a.span>
+                </div>
               )
             })}
           </ButtonArea>
@@ -224,8 +208,8 @@ export namespace Swap {
   export namespace AssetRow {
     export type Props = {
       asset: ActionRequest.CoinAsset
-      currencyType: 'fiat' | 'token'
-      onToggleCurrency: () => void
+      fiatDisplay: boolean
+      onFiatDisplayChange: (fiatDisplay: boolean) => void
     }
   }
 }

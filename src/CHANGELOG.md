@@ -1,5 +1,32 @@
 # porto
 
+## 0.0.91
+
+### Patch Changes
+
+- [#831](https://github.com/ithacaxyz/porto/pull/831) [`5df2f5d`](https://github.com/ithacaxyz/porto/commit/5df2f5d8cf6d61a0c00bd546778047b96082f6f6) Thanks [@o-az](https://github.com/o-az)! - Prefixed `crypto.randomUUID()` with `globalThis` to make React Native friendly
+
+## 0.0.90
+
+### Patch Changes
+
+- [`418bcaf`](https://github.com/ithacaxyz/porto/commit/418bcafd28b6e887690ebf57e440b82dd220e8a9) Thanks [@jxom](https://github.com/jxom)! - Fixed hostname check.
+
+## 0.0.89
+
+### Patch Changes
+
+- [#825](https://github.com/ithacaxyz/porto/pull/825) [`4453819`](https://github.com/ithacaxyz/porto/commit/44538195ee25c4c87473246d44753e4e8f139526) Thanks [@o-az](https://github.com/o-az)! - Forwarded `webAuthn` adapters into signing paths for `Mode.Relay`.
+  This prevents WebAuthn signing on React Native from defaulting to `window.navigator.credentials` when platform is `android` or `ios`.
+
+- [#827](https://github.com/ithacaxyz/porto/pull/827) [`55cb72a`](https://github.com/ithacaxyz/porto/commit/55cb72a1b45d1907d7fd8e30147853768200b7eb) Thanks [@jxom](https://github.com/jxom)! - Added IntersectionObserver v2.
+
+## 0.0.88
+
+### Patch Changes
+
+- [`a5929c6`](https://github.com/ithacaxyz/porto/commit/a5929c6a27f987ce022aa9db848e2a4ddf5428d4) Thanks [@jxom](https://github.com/jxom)! - Removed `open` dependency.
+
 ## 0.0.87
 
 ### Patch Changes

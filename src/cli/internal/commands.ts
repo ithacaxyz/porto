@@ -91,7 +91,7 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
   if (adminKey) Dialog.messenger.registerPublicKey(adminKey.publicKey)
 
   // Create an account.
-  s.start('Creating account (check browser window)...')
+  s.start('Creating account...')
   const { accounts } = await WalletActions.connect(client, {
     chainIds: [args.testnet ? Chains.baseSepolia.id : Chains.base.id],
     createAccount: true,
@@ -107,7 +107,7 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
   s.stop('Account created.')
 
   // Onramp the account (needed for delegation on next step).
-  s.start('Onramping (check browser window)...')
+  s.start('Onramping...')
   await client.request({
     method: 'wallet_addFunds',
     params: [

@@ -8,8 +8,10 @@ import {
   useLocation,
 } from '@tanstack/react-router'
 import { Actions, Hooks } from 'porto/remote'
+import { hostnames } from 'porto/trusted-hosts'
 import * as React from 'react'
 import * as Dialog from '~/lib/Dialog'
+import { EnsureVisibility } from '~/lib/IntersectionObserver'
 import { porto } from '~/lib/Porto'
 import * as Referrer from '~/lib/Referrer'
 import LucideCircleAlert from '~icons/lucide/circle-alert'
@@ -49,6 +51,12 @@ function RouteComponent() {
   const visible = Dialog.useStore((state) => state.visible)
   const verifyStatus = Referrer.useVerify()
 
+  const trusted = React.useMemo(() => {
+    if (!referrer?.url?.hostname) return false
+    if (verifyStatus.data?.status === 'whitelisted') return true
+    return hostnames.includes(referrer?.url?.hostname)
+  }, [referrer, verifyStatus.data?.status])
+
   const { domain, subdomain, icon, url } = React.useMemo(() => {
     const hostnameParts = referrer?.url?.hostname.split('.').slice(-3)
     const domain = hostnameParts?.slice(-2).join('.')
@@ -72,6 +80,10 @@ function RouteComponent() {
   React.useEffect(() => {
     setControlledSize(mode === 'popup')
   }, [mode])
+
+  const enableEnsureVisibility = Boolean(
+    mode.includes('iframe') && visible && !trusted,
+  )
 
   return (
     <>
@@ -165,12 +177,14 @@ function RouteComponent() {
           tag: env,
           verified: verifyStatus.data?.status === 'whitelisted',
         }}
-        visible={visible}
+        visible={visible ?? true}
       >
         <CheckError>
           <CheckUnsupportedBrowser>
             <CheckReferrer>
-              <Outlet />
+              <EnsureVisibility enabled={enableEnsureVisibility}>
+                <Outlet />
+              </EnsureVisibility>
             </CheckReferrer>
           </CheckUnsupportedBrowser>
         </CheckError>

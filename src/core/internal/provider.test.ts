@@ -1549,6 +1549,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       expect(
         accounts![0]!.keys?.map((x, i) => ({
           ...x,
+          chainId: null,
           expiry: i === 0 ? null : x.expiry,
           hash: i === 0 ? null : x.hash,
           id: i === 0 ? null : x.id,

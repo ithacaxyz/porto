@@ -3,6 +3,7 @@ import type * as Hex from 'ox/Hex'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
 import * as TypedData from 'ox/TypedData'
+import type * as WebAuthnP256 from 'ox/WebAuthnP256'
 import {
   hashMessage,
   hashTypedData,
@@ -184,7 +185,7 @@ export async function sign(
   account: Account,
   parameters: sign.Parameters,
 ): Promise<Compute<Hex.Hex>> {
-  const { storage, replaySafe = true, wrap = true } = parameters
+  const { storage, replaySafe = true, wrap = true, webAuthn } = parameters
 
   const key = getKey(account, parameters)
 
@@ -212,6 +213,7 @@ export async function sign(
         address: null,
         payload: hash,
         storage,
+        webAuthn,
         wrap,
       })
   })()
@@ -255,5 +257,16 @@ export declare namespace sign {
      * Whether to wrap the signature with key metadata.
      */
     wrap?: boolean | undefined
+    /**
+     * WebAuthn helpers for non-browser environments (e.g., React Native passkeys).
+     */
+    webAuthn?:
+      | {
+          createFn?:
+            | WebAuthnP256.createCredential.Options['createFn']
+            | undefined
+          getFn?: WebAuthnP256.sign.Options['getFn'] | undefined
+        }
+      | undefined
   }
 }

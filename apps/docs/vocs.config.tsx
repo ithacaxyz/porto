@@ -104,12 +104,8 @@ export default defineConfig({
         text: 'Benchmarks',
       },
       {
-        link: '/contracts/security',
-        text: 'Security',
-      },
-      {
-        link: '/contracts/bug-bounty',
-        text: 'Bug Bounty',
+        link: '/contracts/security-and-bug-bounty',
+        text: 'Security & Bug Bounty',
       },
     ],
     '/relay': [
@@ -118,7 +114,7 @@ export default defineConfig({
         text: 'Overview',
       },
       {
-        link: 'https://github.com/ithacaxyz/relay-issues',
+        link: 'https://github.com/ithacaxyz/relay',
         text: 'GitHub',
       },
       {
@@ -175,6 +171,10 @@ export default defineConfig({
       {
         link: 'https://deepwiki.com/ithacaxyz/porto',
         text: 'DeepWiki',
+      },
+      {
+        link: '/sdk/production',
+        text: 'Deploying to Production',
       },
       {
         link: '/sdk/faq',

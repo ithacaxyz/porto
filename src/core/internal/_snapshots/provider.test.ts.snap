@@ -320,7 +320,7 @@ exports[`relay > eth_accounts > behavior: disconnected 1`] = `[Provider.Disconne
 exports[`relay > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability (provided key) 1`] = `
 [
   {
-    "chainId": undefined,
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -337,7 +337,7 @@ exports[`relay > wallet_connect > behavior: \`createAccount\` + \`grantPermissio
     "type": "webauthn-p256",
   },
   {
-    "chainId": undefined,
+    "chainId": null,
     "expiry": 9999999999,
     "feeLimit": {
       "currency": "USD",

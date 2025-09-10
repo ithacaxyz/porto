@@ -1,6 +1,7 @@
 import type { RpcRequest, RpcResponse } from 'ox'
 import * as Provider from 'ox/Provider'
 import type { ThemeFragment } from '../theme/Theme.js'
+import * as IO from './internal/intersectionObserver.js'
 import { logger } from './internal/logger.js'
 import type { Internal } from './internal/porto.js'
 import * as UserAgent from './internal/userAgent.js'
@@ -25,6 +26,11 @@ export type Dialog = {
     close: () => void
     destroy: () => void
     open: (parameters: any) => void
+    secure: () => Promise<{
+      frame: boolean
+      host: boolean
+      protocol: boolean
+    }>
     syncRequests: (requests: readonly QueuedRequest[]) => Promise<void>
   }
   supportsHeadless: boolean
@@ -355,8 +361,49 @@ export function iframe(options: iframe.Options = {}) {
             type: 'dialog-lifecycle',
           })
         },
+        async secure() {
+          const { trustedHosts } = await messenger.waitForReady()
+
+          const secureProtocol = (() => {
+            if (skipProtocolCheck) return true
+            const secure = window.location.protocol.startsWith('https')
+            if (!secure)
+              logger.warnOnce(
+                'Detected insecure protocol (HTTP).',
+                `\n\nThe Porto iframe is not supported on HTTP origins (${window.location.origin})`,
+                'due to lack of WebAuthn support.',
+                'See https://porto.sh/sdk#secure-origins-https for more information.',
+              )
+            return secure
+          })()
+          const intersectionObserverSupported = IO.supported()
+          const trustedHost = Boolean(
+            trustedHosts?.includes(window.location.hostname),
+          )
+
+          const secureFrame = Boolean(
+            intersectionObserverSupported || trustedHost,
+          )
+
+          if (!secureFrame)
+            logger.warnOnce(
+              [
+                `Warning: Browser does not support IntersectionObserver v2 or host "${hostUrl.hostname}" is not trusted by Porto.`,
+                'This may result in the dialog falling back to a popup.',
+                '',
+                `Add "${hostUrl.hostname}" to the trusted hosts list to enable iframe dialog: https://github.com/ithacaxyz/porto/edit/main/src/trusted-hosts.ts`,
+              ].join('\n'),
+            )
+
+          return {
+            frame: secureFrame,
+            host: trustedHost,
+            protocol: secureProtocol,
+          }
+        },
         async syncRequests(requests) {
           const { methodPolicies } = await messenger.waitForReady()
+          const secure = await this.secure()
 
           const headless = requests?.every(
             (request) =>
@@ -364,23 +411,12 @@ export function iframe(options: iframe.Options = {}) {
                 (policy) => policy.method === request.request.method,
               )?.modes?.headless === true,
           )
-          const insecureProtocol = (() => {
-            if (skipProtocolCheck) return false
-            const insecure = !window.location.protocol.startsWith('https')
-            if (insecure)
-              logger.warnOnce(
-                'Detected insecure protocol (HTTP).',
-                `\n\nThe Porto iframe is not supported on HTTP origins (${window.location.origin})`,
-                'due to lack of WebAuthn support.',
-                'See https://porto.sh/sdk#secure-origins-https for more information.',
-              )
-            return insecure
-          })()
+
           const unsupported = includesUnsupported(
             requests.map((x) => x.request),
           )
 
-          if (!headless && (unsupported || insecureProtocol))
+          if (!headless && (unsupported || !secure.protocol || !secure.frame))
             fallback.syncRequests(requests)
           else {
             const requiresConfirm = requests.some((x) =>
@@ -508,6 +544,13 @@ export function popup(options: popup.Options = {}) {
           window.removeEventListener('focus', onBlur)
           window.addEventListener('focus', onBlur)
         },
+        async secure() {
+          return {
+            frame: true,
+            host: true,
+            protocol: true,
+          }
+        },
         async syncRequests(requests) {
           const requiresConfirm = requests.some((x) =>
             requiresConfirmation(x.request),
@@ -555,6 +598,13 @@ export function noop() {
         close() {},
         destroy() {},
         open() {},
+        async secure() {
+          return {
+            frame: true,
+            host: true,
+            protocol: true,
+          }
+        },
         async syncRequests() {},
       }
     },
@@ -646,6 +696,13 @@ export function experimental_inline(options: inline.Options) {
             referrer: getReferrer(),
             type: 'init',
           })
+        },
+        async secure() {
+          return {
+            frame: true,
+            host: true,
+            protocol: true,
+          }
         },
         async syncRequests(requests) {
           messenger.send('rpc-requests', requests)

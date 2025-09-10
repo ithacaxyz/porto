@@ -1,7 +1,7 @@
 {
   "name": "porto",
   "description": "Next-gen Account for Ethereum",
-  "version": "0.0.87",
+  "version": "0.0.91",
   "type": "module",
   "bin": {
     "porto": "./_dist/cli/bin/index.js"
@@ -21,7 +21,6 @@
     "effect": "^3.16.12",
     "idb-keyval": "^6.2.1",
     "mipd": "^0.0.7",
-    "open": "^10.1.0",
     "ox": "^0.9.3",
     "zustand": "^5.0.1"
   },

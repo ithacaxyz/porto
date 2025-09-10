@@ -128,7 +128,7 @@ export function create(
     getMode() {
       return mode
     },
-    id: crypto.randomUUID(),
+    id: globalThis.crypto.randomUUID(),
     setMode(i) {
       destroy?.()
       mode = i
