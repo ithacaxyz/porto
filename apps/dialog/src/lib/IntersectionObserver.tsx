@@ -23,7 +23,7 @@ export function EnsureVisibility(props: {
   return (
     <div
       className={cx(
-        'h-full w-full',
+        'flex h-full w-full flex-col',
         disableInteractions && 'pointer-events-none',
       )}
       ref={ref}
