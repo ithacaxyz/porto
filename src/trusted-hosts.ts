@@ -16,4 +16,5 @@ export const hostnames = [
   'rath.fi',
   'relay.link',
   'uniswap.org',
+  'happypath.enso.build',
 ]
