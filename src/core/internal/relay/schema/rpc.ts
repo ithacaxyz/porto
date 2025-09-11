@@ -165,32 +165,6 @@ export namespace wallet_getAuthorization {
   export type Response = z.infer<typeof Response>
 }
 
-export namespace wallet_getAuthorization {
-  export const Parameters = Schema.Struct({
-    address: Primitive.Address,
-  }).annotations({
-    identifier: 'Rpc.wallet_getAuthorization.Parameters',
-  })
-  export type Parameters = typeof Parameters.Type
-
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_getAuthorization'),
-    params: Schema.Tuple(Parameters),
-  }).annotations({
-    identifier: 'Rpc.wallet_getAuthorization.Request',
-  })
-  export type Request = typeof Request.Type
-
-  export const Response = Schema.Struct({
-    authorization: SignedAuthorization,
-    data: Primitive.Hex,
-    to: Primitive.Address,
-  }).annotations({
-    identifier: 'Rpc.wallet_getAuthorization.Response',
-  })
-  export type Response = typeof Response.Type
-}
-
 export namespace wallet_getCapabilities {
   /** Request for `wallet_getCapabilities`. */
   export const Request = z.object({
@@ -253,22 +227,7 @@ export namespace wallet_getCapabilities {
         /** Quote configuration. */
         recipient: u.address(),
         /** Tokens the fees can be paid in. */
-<<<<<<< HEAD
         tokens: z.readonly(z.array(Token.Token)),
-||||||| parent of bc3f8c7c (refactor: `Tokens` module)
-        tokens: Schema.Array(
-          Schema.Struct({
-            address: Primitive.Address,
-            decimals: Schema.Number,
-            interop: Schema.optional(Schema.Boolean),
-            nativeRate: Schema.optional(Primitive.BigInt),
-            symbol: Schema.String,
-            uid: Schema.String,
-          }),
-        ),
-=======
-        tokens: Schema.Array(Token.Token),
->>>>>>> bc3f8c7c (refactor: `Tokens` module)
       }),
     }),
   )

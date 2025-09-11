@@ -148,7 +148,15 @@ function RouteComponent() {
               (t) => (
                 <Toast
                   className={t}
-                  description={`Sending ${state.values.value} ${state.values.symbol} to ${StringFormatter.truncate(state.values.recipient)} on ${targetChainName}`}
+                  description={
+                    <div>
+                      Sending {state.values.value} {state.values.symbol} to{' '}
+                      <span className="whitespace-nowrap">
+                        {StringFormatter.truncate(state.values.recipient)}
+                      </span>{' '}
+                      on {targetChainName}
+                    </div>
+                  }
                   kind="pending"
                   title="Sending"
                 />
@@ -160,7 +168,15 @@ function RouteComponent() {
               (t) => (
                 <Toast
                   className={t}
-                  description={`Sent ${state.values.value} ${state.values.symbol} to ${StringFormatter.truncate(state.values.recipient)} on ${targetChainName}`}
+                  description={
+                    <div>
+                      Sent {state.values.value} {state.values.symbol} to{' '}
+                      <span className="whitespace-nowrap">
+                        {StringFormatter.truncate(state.values.recipient)}
+                      </span>{' '}
+                      on {targetChainName}
+                    </div>
+                  }
                   kind="success"
                   title="Sent"
                 />
@@ -172,7 +188,16 @@ function RouteComponent() {
               (t) => (
                 <Toast
                   className={t}
-                  description={`Failed to send ${state.values.value} ${state.values.symbol} to ${StringFormatter.truncate(state.values.recipient)} on ${targetChainName}`}
+                  description={
+                    <div>
+                      Failed to send {state.values.value} {state.values.symbol}{' '}
+                      to{' '}
+                      <span className="whitespace-nowrap">
+                        {StringFormatter.truncate(state.values.recipient)}
+                      </span>{' '}
+                      on {targetChainName}
+                    </div>
+                  }
                   kind="error"
                   title="Send Failed"
                 />
@@ -260,7 +285,7 @@ function RouteComponent() {
               <Ariakit.FormInput
                 className="h-12 w-full rounded-full border border-gray4 bg-white ps-4 pe-11 font-medium text-[17px] placeholder:text-gray9 dark:bg-black"
                 name={form.names.recipient}
-                placeholder="0xAbCd...1c2B or vitalik.eth"
+                placeholder="0xAbCd...1c2B"
                 required
                 type="text"
               />
@@ -385,7 +410,7 @@ function RouteComponent() {
                           </Ariakit.Select>
 
                           <Ariakit.SelectPopover
-                            className="z-100 flex select-none rounded-[14px] border border-gray4 bg-white outline-none dark:bg-black"
+                            className="scrollbar-width-thin scrollbar-gray6 z-100 flex select-none overflow-hidden rounded-[14px] border border-gray4 bg-white outline-none dark:bg-black"
                             gutter={10}
                             wrapperProps={{
                               className: 'w-auto! inset-x-0!',
@@ -404,7 +429,7 @@ function RouteComponent() {
                               ))}
                             </Ariakit.TabList>
 
-                            <div className="w-full border-gray4 border-s">
+                            <div className="w-full overflow-x-auto border-gray4 border-s">
                               {assets?.map(([symbol, values]) => (
                                 <Ariakit.TabPanel
                                   className="scrollbar-width-thin scrollbar-gray6 flex max-h-57 w-full flex-col overflow-y-auto p-2.5 pt-4"
@@ -637,6 +662,8 @@ function RouteComponent() {
   )
 }
 
+const porto = Porto.create({ ...portoConfig, announceProvider: false })
+
 function useAssets(props: { address: Address.Address | undefined }) {
   return useQuery({
     enabled: Boolean(props.address),
@@ -644,7 +671,6 @@ function useAssets(props: { address: Address.Address | undefined }) {
     async queryFn(ctx) {
       const account = ctx.queryKey[1]
       if (!account) throw new Error('account not connected')
-      const porto = Porto.create(portoConfig)
       const client = RelayClient.fromPorto(porto)
       const assets = await WalletActions.getAssets(client, { account })
       const capabilities = await RelayActions.getCapabilities(client, {
@@ -681,6 +707,7 @@ function useAssets(props: { address: Address.Address | undefined }) {
               interop,
               name: token.metadata.name,
               nativeRate,
+              price: token.metadata.price.price,
               symbol: token.metadata.symbol,
               testnet: chain?.testnet ?? false,
             },
@@ -769,6 +796,7 @@ const initialData = [
         interop: undefined,
         name: 'ETH',
         nativeRate: undefined,
+        price: 4458.19,
         symbol: 'ETH',
         testnet: false,
       },
@@ -781,6 +809,7 @@ const initialData = [
         interop: true,
         name: 'ETH',
         nativeRate: undefined,
+        price: 4458.19,
         symbol: 'ETH',
         testnet: false,
       },
@@ -798,6 +827,7 @@ const initialData = [
         interop: undefined,
         name: 'USDC',
         nativeRate: undefined,
+        price: 1,
         symbol: 'ETH',
         testnet: false,
       },
@@ -810,6 +840,7 @@ const initialData = [
         interop: true,
         name: 'USDC',
         nativeRate: undefined,
+        price: 1,
         symbol: 'ETH',
         testnet: false,
       },
@@ -826,6 +857,7 @@ type Asset = {
   interop: boolean | undefined
   name: string | undefined
   nativeRate: bigint | undefined
+  price: number
   symbol: string
   testnet: boolean
 }

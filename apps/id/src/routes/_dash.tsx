@@ -35,6 +35,9 @@ function RouteComponent() {
       navigate({ to: '/auth' })
     },
   })
+  React.useEffect(() => {
+    if (!address) navigate({ to: '/auth' })
+  }, [address, navigate])
 
   const links = React.useMemo(() => {
     return [
