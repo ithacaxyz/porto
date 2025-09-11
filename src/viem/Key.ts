@@ -983,7 +983,7 @@ export async function sign(key: Key, parameters: sign.Parameters) {
           cause: { response },
         })
       const id = Bytes.toHex(new Uint8Array(response.userHandle!))
-      if (key.id && !Address.isEqual(key.id, id))
+      if (key.id && Address.validate(key.id) && !Address.isEqual(key.id, id))
         throw new Error(
           `supplied webauthn key "${key.id}" does not match signature webauthn key "${id}"`,
           { cause: { id, key } },
