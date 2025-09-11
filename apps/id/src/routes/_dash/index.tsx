@@ -93,8 +93,14 @@ function RouteComponent() {
       sourceChainId <= 0
         ? assetsMap
             .get(state.values.symbol)
+            ?.sort((a, b) => (a.balance > b.balance ? -1 : 1))
             ?.find(
-              (balance) => balance.chainId !== sourceChainId && balance.interop,
+              (asset) =>
+                asset.chainId !== sourceChainId &&
+                asset.interop &&
+                (sourceChainId === 0
+                  ? asset.testnet === false
+                  : asset.testnet === true),
             )?.address
         : token.address
     if (!to)
@@ -133,12 +139,16 @@ function RouteComponent() {
       {
         async onSuccess(data) {
           const toastProps = { id: data.id }
+          const targetChainName =
+            Wagmi.getChainConfig(
+              Number.parseInt(state.values.targetChainId, 10),
+            )?.name ?? `Chain ${state.values.targetChainId}`
           try {
             toast.custom(
               (t) => (
                 <Toast
                   className={t}
-                  description={`Sending ${state.values.value} ${state.values.symbol} to ${StringFormatter.truncate(state.values.recipient)} on ${state.values.targetChainId}`}
+                  description={`Sending ${state.values.value} ${state.values.symbol} to ${StringFormatter.truncate(state.values.recipient)} on ${targetChainName}`}
                   kind="pending"
                   title="Sending"
                 />
@@ -150,7 +160,7 @@ function RouteComponent() {
               (t) => (
                 <Toast
                   className={t}
-                  description={`Sent ${state.values.value} ${state.values.symbol} to ${StringFormatter.truncate(state.values.recipient)} on ${state.values.targetChainId}`}
+                  description={`Sent ${state.values.value} ${state.values.symbol} to ${StringFormatter.truncate(state.values.recipient)} on ${targetChainName}`}
                   kind="success"
                   title="Sent"
                 />
@@ -162,7 +172,7 @@ function RouteComponent() {
               (t) => (
                 <Toast
                   className={t}
-                  description={`Failed to send ${state.values.value} ${state.values.symbol} to ${StringFormatter.truncate(state.values.recipient)} on ${state.values.targetChainId}`}
+                  description={`Failed to send ${state.values.value} ${state.values.symbol} to ${StringFormatter.truncate(state.values.recipient)} on ${targetChainName}`}
                   kind="error"
                   title="Send Failed"
                 />
@@ -250,7 +260,7 @@ function RouteComponent() {
               <Ariakit.FormInput
                 className="h-12 w-full rounded-full border border-gray4 bg-white ps-4 pe-11 font-medium text-[17px] placeholder:text-gray9 dark:bg-black"
                 name={form.names.recipient}
-                placeholder="0xA0Cf79..."
+                placeholder="0xAbCd...1c2B or vitalik.eth"
                 required
                 type="text"
               />
@@ -375,16 +385,16 @@ function RouteComponent() {
                           </Ariakit.Select>
 
                           <Ariakit.SelectPopover
-                            className="z-100 flex select-none overflow-hidden rounded-[14px] border border-gray4 bg-white outline-none dark:bg-black"
+                            className="z-100 flex select-none rounded-[14px] border border-gray4 bg-white outline-none dark:bg-black"
                             gutter={10}
                             wrapperProps={{
                               className: 'w-auto! inset-x-0!',
                             }}
                           >
-                            <Ariakit.TabList className="h-full max-h-57 min-w-36.5 overflow-y-auto p-2.5">
+                            <Ariakit.TabList className="scrollbar-width-thin scrollbar-gray6 h-full max-h-57 min-w-36.5 space-y-px overflow-y-auto p-2.5">
                               {assets?.map(([symbol]) => (
                                 <Ariakit.Tab
-                                  className="flex h-11.5 w-full items-center gap-2 rounded-[10px] px-3 font-medium text-[16px] hover:bg-gray3 data-focus-visible:bg-gray4"
+                                  className="flex h-11.5 w-full items-center gap-2 rounded-[10px] px-3 font-medium text-[16px] hover:bg-gray3 aria-selected:bg-gray4 data-focus-visible:bg-gray4"
                                   id={symbol}
                                   key={symbol}
                                 >
@@ -397,7 +407,7 @@ function RouteComponent() {
                             <div className="w-full border-gray4 border-s">
                               {assets?.map(([symbol, values]) => (
                                 <Ariakit.TabPanel
-                                  className="flex max-h-57 w-full flex-col overflow-y-auto p-2.5 pt-4"
+                                  className="scrollbar-width-thin scrollbar-gray6 flex max-h-57 w-full flex-col overflow-y-auto p-2.5 pt-4"
                                   id={symbol}
                                   key={symbol}
                                   unmountOnHide
@@ -418,10 +428,10 @@ function RouteComponent() {
                                       )}
                                     </div>
                                   </div>
-                                  <Ariakit.SelectList>
+                                  <Ariakit.SelectList className="outline-none">
                                     {values.map((value) => (
                                       <Ariakit.SelectItem
-                                        className="flex h-11.5 items-center justify-between gap-2 rounded-[10px] px-3 font-medium text-[16px] hover:bg-gray3 data-focus-visible:bg-gray4"
+                                        className="flex h-11.5 items-center justify-between gap-2 rounded-[10px] px-3 font-medium text-[16px] hover:bg-gray3 data-active-item:bg-gray4 data-focus-visible:bg-gray4"
                                         key={value.chainId}
                                         value={value.chainId.toString()}
                                       >
@@ -520,11 +530,11 @@ function RouteComponent() {
                         </Ariakit.Select>
 
                         <Ariakit.SelectPopover
-                          className="z-100 select-none overflow-hidden rounded-[14px] border border-gray4 bg-white outline-none dark:bg-black"
+                          className="z-100 select-none rounded-[14px] border border-gray4 bg-white outline-none dark:bg-black"
                           gutter={10}
                           sameWidth
                         >
-                          <Ariakit.SelectList className="max-h-57 overflow-y-scroll">
+                          <Ariakit.SelectList className="scrollbar-width-thin scrollbar-gray6 max-h-57 overflow-y-auto">
                             {targetChains.map((chain) => (
                               <Ariakit.SelectItem
                                 className="flex h-12 items-center justify-between gap-2.25 px-4 hover:bg-gray3 data-focus-visible:bg-gray4"
