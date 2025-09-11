@@ -1,4 +1,4 @@
-import { ChainIcon, Spinner } from '@porto/apps/components'
+import { Spinner } from '@porto/apps/components'
 import { Button, ButtonArea, ChainsPath, Details } from '@porto/ui'
 import { a, useTransition } from '@react-spring/web'
 import { cx } from 'cva'
