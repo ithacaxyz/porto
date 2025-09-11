@@ -92,11 +92,11 @@ export function Spinner({
         <circle
           cx="50%"
           cy="50%"
+          fill="none"
           r={radius}
           shapeRendering="geometricPrecision"
           stroke="var(--text-color-th_field-tertiary)"
           strokeWidth={thickness}
-          fill="none"
         />
         <g
           className={css({
