@@ -1,4 +1,11 @@
-import { Button, Details, Spinner, TextButton, TokenIcon } from '@porto/ui'
+import {
+  Button,
+  ChainsPath,
+  Details,
+  Spinner,
+  TextButton,
+  TokenIcon,
+} from '@porto/ui'
 import { a, useTransition } from '@react-spring/web'
 import { Value } from 'ox'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
@@ -113,25 +120,31 @@ export function Approve(props: Approve.Props) {
             />
           </div>
           <Details loading={loading}>
-            <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <span className="text-th_base-secondary">Requested by</span>
-              <div
-                className="flex items-center gap-[8px] font-medium"
-                title={spender}
-              >
-                {StringFormatter.truncate(spender)}
-                <CopyButton value={spender} />
-              </div>
-            </div>
-            {feeFormatted && (
-              <div className="flex h-[18px] items-center justify-between text-[14px]">
-                <div className="text-th_base-secondary">Fees (est.)</div>
-                <div className="font-medium" title={feeFormatted.full}>
-                  {feeFormatted.short}
+            <Details.Item
+              label="Requested by"
+              value={
+                <div className="flex items-center gap-[8px]" title={spender}>
+                  {StringFormatter.truncate(spender)}
+                  <CopyButton value={spender} />
                 </div>
-              </div>
+              }
+            />
+            {feeFormatted && (
+              <Details.Item
+                label="Fees (est.)"
+                value={
+                  <div title={feeFormatted.full}>{feeFormatted.short}</div>
+                }
+              />
             )}
-            <ActionRequest.ChainsPath chainsPath={chainsPath} />
+            {chainsPath.length > 0 && (
+              <Details.Item
+                label={`Network${chainsPath.length > 1 ? 's' : ''}`}
+                value={
+                  <ChainsPath chainIds={chainsPath.map((chain) => chain.id)} />
+                }
+              />
+            )}
           </Details>
         </div>
       </Layout.Content>

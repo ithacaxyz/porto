@@ -31,10 +31,7 @@ function DetailsComponent() {
       <ComponentScreen.Section title="Basic usage">
         <div className="flex flex-col gap-2 rounded-lg bg-th_base p-3">
           <Details key={key}>
-            <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <div className="text-th_base-secondary">Networks</div>
-              <ChainsPath chainIds={[10, 1]} />
-            </div>
+            <Details.Item label="Networks" value={<ChainsPath chainIds={[10, 1]} />} />
           </Details>
         </div>
       </ComponentScreen.Section>
@@ -42,18 +39,9 @@ function DetailsComponent() {
       <ComponentScreen.Section title="Multiple rows">
         <div className="flex flex-col gap-2 rounded-lg bg-th_base p-3">
           <Details key={key}>
-            <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <div className="text-th_base-secondary">Network</div>
-              <ChainsPath chainIds={[10, 42161, 1]} />
-            </div>
-            <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <div className="text-th_base-secondary">Gas fee</div>
-              <div className="font-medium">$2.45</div>
-            </div>
-            <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <div className="text-th_base-secondary">Total</div>
-              <div className="font-medium">$102.45</div>
-            </div>
+            <Details.Item label="Network" value={<ChainsPath chainIds={[10, 42161, 1]} />} />
+            <Details.Item label="Gas fee" value="$2.45" />
+            <Details.Item label="Total" value="$102.45" />
           </Details>
         </div>
       </ComponentScreen.Section>
@@ -70,14 +58,8 @@ function DetailsComponent() {
       >
         <div className="flex flex-col gap-2 rounded-lg bg-th_base p-3">
           <Details key={key} loading={loading}>
-            <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <div className="text-th_base-secondary">Network</div>
-              <ChainsPath chainIds={[10, 42161, 1]} />
-            </div>
-            <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <div className="text-th_base-secondary">Gas fee</div>
-              <div className="font-medium">$2.45</div>
-            </div>
+            <Details.Item label="Network" value={<ChainsPath chainIds={[10, 42161, 1]} />} />
+            <Details.Item label="Gas fee" value="$2.45" />
           </Details>
         </div>
       </ComponentScreen.Section>
@@ -85,18 +67,9 @@ function DetailsComponent() {
       <ComponentScreen.Section title="Start opened">
         <div className="flex flex-col gap-2 rounded-lg bg-th_base p-3">
           <Details key={key} opened>
-            <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <div className="text-th_base-secondary">Network</div>
-              <ChainsPath chainIds={[10, 42161, 1]} />
-            </div>
-            <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <div className="text-th_base-secondary">Gas fee</div>
-              <div className="font-medium">$2.45</div>
-            </div>
-            <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <div className="text-th_base-secondary">Total</div>
-              <div className="font-medium">$102.45</div>
-            </div>
+            <Details.Item label="Network" value={<ChainsPath chainIds={[10, 42161, 1]} />} />
+            <Details.Item label="Gas fee" value="$2.45" />
+            <Details.Item label="Total" value="$102.45" />
           </Details>
         </div>
       </ComponentScreen.Section>

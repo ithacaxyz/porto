@@ -140,4 +140,40 @@ export namespace Details {
     loading?: boolean | ReactNode
     opened?: boolean | undefined
   }
+
+  export function Item({ label, value }: Item.Props) {
+    return (
+      <div
+        className={css({
+          alignItems: 'center',
+          display: 'flex',
+          fontSize: 14,
+          height: 18,
+          justifyContent: 'space-between',
+        })}
+      >
+        <div
+          className={css({
+            color: 'var(--text-color-th_base-secondary)',
+          })}
+        >
+          {label}
+        </div>
+        <div
+          className={css({
+            fontWeight: 500,
+          })}
+        >
+          {value}
+        </div>
+      </div>
+    )
+  }
+
+  export namespace Item {
+    export type Props = {
+      label: ReactNode
+      value: ReactNode
+    }
+  }
 }

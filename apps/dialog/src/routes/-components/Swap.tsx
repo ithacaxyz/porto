@@ -1,4 +1,4 @@
-import { Button, ButtonArea, Details, TokenIcon } from '@porto/ui'
+import { Button, ButtonArea, ChainsPath, Details, TokenIcon } from '@porto/ui'
 import { a, useTransition } from '@react-spring/web'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import * as React from 'react'
@@ -91,14 +91,21 @@ export function Swap(props: Swap.Props) {
           </div>
           <Details loading={loading}>
             {feeFormatted && (
-              <div className="flex h-[18px] items-center justify-between text-[14px]">
-                <div className="text-th_base-secondary">Fees (est.)</div>
-                <div className="font-medium" title={feeFormatted.full}>
-                  {feeFormatted.short}
-                </div>
-              </div>
+              <Details.Item
+                label="Fees (est.)"
+                value={
+                  <div title={feeFormatted.full}>{feeFormatted.short}</div>
+                }
+              />
             )}
-            <ActionRequest.ChainsPath chainsPath={chainsPath} />
+            {chainsPath.length > 0 && (
+              <Details.Item
+                label={`Network${chainsPath.length > 1 ? 's' : ''}`}
+                value={
+                  <ChainsPath chainIds={chainsPath.map((chain) => chain.id)} />
+                }
+              />
+            )}
           </Details>
         </div>
       </Layout.Content>

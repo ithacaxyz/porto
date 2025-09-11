@@ -1,5 +1,5 @@
 import { ChainIcon, Spinner } from '@porto/apps/components'
-import { Button, ButtonArea, Details } from '@porto/ui'
+import { Button, ButtonArea, ChainsPath, Details } from '@porto/ui'
 import { a, useTransition } from '@react-spring/web'
 import { cx } from 'cva'
 import { type Address, Base64, type Hex } from 'ox'
@@ -30,7 +30,6 @@ import LucideSparkles from '~icons/lucide/sparkles'
 import TriangleAlert from '~icons/lucide/triangle-alert'
 import LucideVideo from '~icons/lucide/video'
 import Star from '~icons/ph/star-four-bold'
-import IconArrowRightCircle from '~icons/porto/arrow-right-circle'
 import { Approve } from '../-components/Approve'
 import { Send } from '../-components/Send'
 import { Swap } from '../-components/Swap'
@@ -564,12 +563,16 @@ export namespace ActionRequest {
         {status === 'success' && feeTotals && quotes && hasDetails && (
           <Details opened={!showOverview ? true : undefined}>
             {!sponsored && feeTotalFormatted && (
-              <div className="flex h-[18px] items-center justify-between text-[14px]">
-                <div className="text-th_base-secondary">Fees (est.)</div>
-                <div className="font-medium">{feeTotalFormatted}</div>
-              </div>
+              <Details.Item label="Fees (est.)" value={feeTotalFormatted} />
             )}
-            <ChainsPath chainsPath={chainsPath} />
+            {chainsPath.length > 0 && (
+              <Details.Item
+                label={`Network${chainsPath.length > 1 ? 's' : ''}`}
+                value={
+                  <ChainsPath chainIds={chainsPath.map((chain) => chain.id)} />
+                }
+              />
+            )}
           </Details>
         )}
       </div>
@@ -584,50 +587,6 @@ export namespace ActionRequest {
       errorMessage?: string | undefined
       quotes?: readonly Quote_schema.Quote[] | undefined
       status: 'pending' | 'error' | 'success'
-    }
-  }
-
-  export function ChainsPath(props: ChainsPath.Props) {
-    const { chainsPath } = props
-    const [destinationChain, ...sourceChains] = chainsPath
-    return (
-      destinationChain && (
-        <div className="flex h-[18px] items-center justify-between text-[14px]">
-          <span className="text-th_base-secondary">
-            Network{sourceChains.length > 0 ? 's' : ''}
-          </span>
-          {sourceChains.length === 0 ? (
-            <div className="flex items-center gap-[6px]">
-              <ChainIcon
-                chainId={destinationChain.id}
-                className="size-[18px]"
-              />
-              <span className="font-medium">{destinationChain.name}</span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-[6px]">
-              {sourceChains.map((chain) => (
-                <ChainIcon
-                  chainId={chain.id}
-                  className="size-[18px]"
-                  key={chain.id}
-                />
-              ))}
-              <IconArrowRightCircle className="size-[18px]" />
-              <ChainIcon
-                chainId={destinationChain.id}
-                className="size-[18px]"
-              />
-            </div>
-          )}
-        </div>
-      )
-    )
-  }
-
-  export namespace ChainsPath {
-    export type Props = {
-      chainsPath: readonly Chain[]
     }
   }
 
