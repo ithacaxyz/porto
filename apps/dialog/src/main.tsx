@@ -1,6 +1,6 @@
 import { Env, Theme } from '@porto/apps'
 import * as Sentry from '@sentry/react'
-import { hostnames } from 'porto'
+import { TrustedHosts } from 'porto/internal'
 import { Events } from 'porto/remote'
 import { Actions } from 'porto/wagmi'
 import { StrictMode } from 'react'
@@ -17,7 +17,7 @@ import './styles.css'
 if (import.meta.env.PROD) {
   Sentry.init({
     dsn: 'https://457697aad11614a3f667c8e61f6b9e20@o4509056062849024.ingest.us.sentry.io/4509080285741056',
-    enabled: hostnames.includes(window.location.hostname),
+    enabled: TrustedHosts.hostnames.includes(window.location.hostname),
     environment: Env.get(),
     integrations: [
       Sentry.replayIntegration(),
