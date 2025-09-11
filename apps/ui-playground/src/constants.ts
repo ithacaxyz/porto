@@ -5,7 +5,7 @@ export const sections = [
   },
   {
     screens: [
-      'AccountBalance',
+      'Balance',
       'Button',
       'ButtonArea',
       'ChainIcon',

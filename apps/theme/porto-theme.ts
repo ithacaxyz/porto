@@ -95,6 +95,11 @@ export const portoTheme: PortoTheme = {
     '#e5484d',
     '#e5484d',
   ],
+  baseContentWarning: [
+    'Warning base content color. Used over baseBackground for warning text and icons.',
+    '#e2a336',
+    '#f59e0b',
+  ],
   baseHoveredBackground: [
     'Base background color when hovered, e.g. for links showing a background color when hovered.',
     '#f0f0f0',

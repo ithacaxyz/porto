@@ -39,10 +39,10 @@ export function Spinner({
 
   const rotateAnim = useSpring({
     config: {
-      friction: 200,
+      friction: 500,
       mass: 3,
       precision: 0.1,
-      tension: ui?.reducedMotion ? 5 : 300,
+      tension: ui?.reducedMotion ? 5 : 200,
     },
     from: { progress: 0 },
     loop: true,
@@ -89,6 +89,15 @@ export function Spinner({
         role="presentation"
         width={size}
       >
+        <circle
+          cx="50%"
+          cy="50%"
+          r={radius}
+          shapeRendering="geometricPrecision"
+          stroke="var(--text-color-th_field-tertiary)"
+          strokeWidth={thickness}
+          fill="none"
+        />
         <g
           className={css({
             animation: 'spin 1s linear infinite',

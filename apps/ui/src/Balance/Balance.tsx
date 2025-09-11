@@ -1,3 +1,4 @@
+import { a, useTransition } from '@react-spring/web'
 import { Chains } from 'porto'
 import { css, cx } from '../../styled-system/css'
 import { ButtonArea } from '../ButtonArea/ButtonArea.js'
@@ -5,7 +6,7 @@ import { ChainIcon } from '../ChainIcon/ChainIcon.js'
 import { Spinner } from '../Spinner/Spinner.js'
 import { TokenIcon } from '../TokenIcon/TokenIcon.js'
 
-export function AccountBalance({
+export function Balance({
   amount,
   chainId,
   className,
@@ -14,8 +15,16 @@ export function AccountBalance({
   amountFiat,
   tokenSymbol,
   tokenName,
-}: AccountBalance.Props) {
+  warn = false,
+}: Balance.Props) {
   const chain = Chains.all.find((c) => c.id === chainId)
+  const transition = useTransition(loading, {
+    config: { friction: 70, tension: 1300 },
+    enter: { opacity: 1, transform: 'scale(1)' },
+    from: { opacity: 0, transform: 'scale(0.7)' },
+    initial: { opacity: 1, transform: 'scale(1)' },
+    leave: { immediate: true, display: 'none' },
+  })
   return (
     <div
       className={cx(
@@ -47,6 +56,7 @@ export function AccountBalance({
           height: '100%',
           justifyContent: 'space-between',
           paddingBlock: 8,
+          minWidth: 0,
         })}
       >
         <div
@@ -61,7 +71,11 @@ export function AccountBalance({
               color: 'var(--text-color-th_base)',
               fontSize: 14,
               fontWeight: 500,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
             })}
+            title={tokenName}
           >
             {tokenName}
           </div>
@@ -101,53 +115,90 @@ export function AccountBalance({
           height: '100%',
           justifyContent: 'space-between',
           marginLeft: 'auto',
-          outlineOffset: 0,
+          outlineOffset: -1,
           paddingBlock: 8,
           paddingInline: 12,
+          minWidth: 0,
+          flexShrink: 0,
+          maxWidth: '50%',
+          overflow: 'hidden',
         })}
         disabled={!onRefetch}
         onClick={onRefetch}
       >
-        {loading ? (
-          <div
-            className={css({
-              alignItems: 'center',
-              color: 'var(--color-th_accent)',
-              display: 'flex',
-              height: '100%',
-              justifyContent: 'center',
-            })}
-          >
-            <Spinner size="small" />
-          </div>
-        ) : (
-          <>
-            <div
+        {transition((style, isLoading) =>
+          isLoading ? (
+            <a.div
+              style={style}
               className={css({
-                color: 'var(--text-color-th_base)',
+                alignItems: 'center',
+                display: 'flex',
+                gap: 6,
+                height: '100%',
+                justifyContent: 'center',
                 fontSize: 14,
-                fontWeight: 500,
-              })}
-            >
-              {amountFiat}
-            </div>
-            <div
-              className={css({
                 color: 'var(--text-color-th_base-secondary)',
-                fontFamily: 'monospace',
-                fontSize: 10,
+              })}
+              title="Fetching balance…"
+            >
+              <Spinner size={22} thickness={3} />
+            </a.div>
+          ) : (
+            <a.div
+              style={style}
+              className={css({
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                alignItems: 'flex-end',
+                height: '100%',
+                width: '100%',
+                minWidth: 0,
               })}
             >
-              {amount}
-            </div>
-          </>
+              <div
+                className={cx(
+                  css({
+                    fontSize: 14,
+                    fontWeight: 500,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    width: '100%',
+                    textAlign: 'right',
+                  }),
+                  warn
+                    ? css({ color: 'var(--text-color-th_base-warning)' })
+                    : css({ color: 'var(--text-color-th_base)' }),
+                )}
+                title={amountFiat}
+              >
+                {amountFiat}
+              </div>
+              <div
+                className={css({
+                  color: 'var(--text-color-th_base-secondary)',
+                  fontFamily: 'monospace',
+                  fontSize: 10,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  width: '100%',
+                  textAlign: 'right',
+                })}
+                title={amount}
+              >
+                {amount}
+              </div>
+            </a.div>
+          ),
         )}
       </ButtonArea>
     </div>
   )
 }
 
-export namespace AccountBalance {
+export namespace Balance {
   export interface Props {
     amount: string
     chainId: number
@@ -157,5 +208,6 @@ export namespace AccountBalance {
     amountFiat: string
     tokenSymbol: string
     tokenName: string
+    warn?: boolean
   }
 }

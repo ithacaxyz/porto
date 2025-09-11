@@ -1,5 +1,5 @@
 export { css, cva, cx } from '../styled-system/css'
-export { AccountBalance } from './AccountBalance/AccountBalance.js'
+export { Balance } from './Balance/Balance.js'
 export { Button } from './Button/Button.js'
 export { ButtonArea } from './ButtonArea/ButtonArea.js'
 export { ChainIcon } from './ChainIcon/ChainIcon.js'

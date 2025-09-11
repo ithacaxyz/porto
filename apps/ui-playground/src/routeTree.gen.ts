@@ -27,7 +27,7 @@ import { Route as ColorsImport } from './routes/Colors'
 import { Route as ChainIconImport } from './routes/ChainIcon'
 import { Route as ButtonAreaImport } from './routes/ButtonArea'
 import { Route as ButtonImport } from './routes/Button'
-import { Route as AccountBalanceImport } from './routes/AccountBalance'
+import { Route as BalanceImport } from './routes/Balance'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
@@ -128,9 +128,9 @@ const ButtonRoute = ButtonImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AccountBalanceRoute = AccountBalanceImport.update({
-  id: '/AccountBalance',
-  path: '/AccountBalance',
+const BalanceRoute = BalanceImport.update({
+  id: '/Balance',
+  path: '/Balance',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -151,11 +151,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/AccountBalance': {
-      id: '/AccountBalance'
-      path: '/AccountBalance'
-      fullPath: '/AccountBalance'
-      preLoaderRoute: typeof AccountBalanceImport
+    '/Balance': {
+      id: '/Balance'
+      path: '/Balance'
+      fullPath: '/Balance'
+      preLoaderRoute: typeof BalanceImport
       parentRoute: typeof rootRoute
     }
     '/Button': {
@@ -277,7 +277,7 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/AccountBalance': typeof AccountBalanceRoute
+  '/Balance': typeof BalanceRoute
   '/Button': typeof ButtonRoute
   '/ButtonArea': typeof ButtonAreaRoute
   '/ChainIcon': typeof ChainIconRoute
@@ -298,7 +298,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/AccountBalance': typeof AccountBalanceRoute
+  '/Balance': typeof BalanceRoute
   '/Button': typeof ButtonRoute
   '/ButtonArea': typeof ButtonAreaRoute
   '/ChainIcon': typeof ChainIconRoute
@@ -320,7 +320,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/AccountBalance': typeof AccountBalanceRoute
+  '/Balance': typeof BalanceRoute
   '/Button': typeof ButtonRoute
   '/ButtonArea': typeof ButtonAreaRoute
   '/ChainIcon': typeof ChainIconRoute
@@ -343,7 +343,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/AccountBalance'
+    | '/Balance'
     | '/Button'
     | '/ButtonArea'
     | '/ChainIcon'
@@ -363,7 +363,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/AccountBalance'
+    | '/Balance'
     | '/Button'
     | '/ButtonArea'
     | '/ChainIcon'
@@ -383,7 +383,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/AccountBalance'
+    | '/Balance'
     | '/Button'
     | '/ButtonArea'
     | '/ChainIcon'
@@ -405,7 +405,7 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AccountBalanceRoute: typeof AccountBalanceRoute
+  BalanceRoute: typeof BalanceRoute
   ButtonRoute: typeof ButtonRoute
   ButtonAreaRoute: typeof ButtonAreaRoute
   ChainIconRoute: typeof ChainIconRoute
@@ -426,7 +426,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AccountBalanceRoute: AccountBalanceRoute,
+  BalanceRoute: BalanceRoute,
   ButtonRoute: ButtonRoute,
   ButtonAreaRoute: ButtonAreaRoute,
   ChainIconRoute: ChainIconRoute,
@@ -456,7 +456,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/AccountBalance",
+        "/Balance",
         "/Button",
         "/ButtonArea",
         "/ChainIcon",
@@ -478,8 +478,8 @@ export const routeTree = rootRoute
     "/": {
       "filePath": "index.tsx"
     },
-    "/AccountBalance": {
-      "filePath": "AccountBalance.tsx"
+    "/Balance": {
+      "filePath": "Balance.tsx"
     },
     "/Button": {
       "filePath": "Button.tsx"
