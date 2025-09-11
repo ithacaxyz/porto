@@ -25,10 +25,6 @@ jobs:
     name: 'Deploy'
     timeout-minutes: 3
     runs-on: ['ubuntu-latest']
-    strategy:
-      matrix:
-        worker:
-          - service
     steps:
       - name: Clone repository
         uses: actions/checkout@v5
@@ -38,8 +34,14 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
-      - name: 🔸 Cloudflare Workers - Deploy ${{ matrix.worker }}
+      - name: 🔸 Cloudflare Workers - Deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: pnpm --filter ${{ matrix.worker }} run deploy
+          APP_VERSION: ${{ github.sha }}
+        working-directory: apps/service
+        run: |
+          pnpm dlx wrangler@latest deploy \
+            --config='wrangler.json' \
+            --keep-vars \
+            --var 'APP_VERSION:${{ github.sha }}'
