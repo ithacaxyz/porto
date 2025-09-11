@@ -1,11 +1,7 @@
-declare const __APP_VERSION__: string
-
 interface EnvironmentVariables {
   readonly ENVIRONMENT: 'local' | 'production'
 
-  /** Workers System Environment Variables */
-  readonly WORKERS_CI_BRANCH: string
-  readonly WORKERS_CI_COMMIT_SHA: string
+  readonly APP_VERSION: string
 
   /** `/verify` route */
   readonly VERIFY_CONFIG_URL: string

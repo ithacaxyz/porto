@@ -24,7 +24,7 @@ app.use(trimTrailingSlash())
 app.get('/', (context) =>
   context.json({
     routes: ['/cors', '/verify', '/snapshot'],
-    version: __APP_VERSION__,
+    version: context.env.APP_VERSION,
   }),
 )
 
