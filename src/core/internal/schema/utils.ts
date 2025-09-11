@@ -16,6 +16,18 @@ export const bigint = () =>
     encode: (value) => Hex_ox.fromNumber(value),
   })
 
+export const is = <schema>(
+  schema: z.ZodMiniType,
+  message: unknown,
+): message is z.infer<schema> => {
+  try {
+    schema.parse(message)
+    return true
+  } catch {
+    return false
+  }
+}
+
 export function oneOf<const type extends readonly zc.SomeType[]>(
   options: type,
 ): Omit<z.ZodMiniUnion<type>, '_zod'> & {

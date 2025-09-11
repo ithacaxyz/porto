@@ -12,5 +12,5 @@ export const Token = z.object({
 })
 export type Token = z.infer<typeof Token>
 
-export const Symbol = z.string()
+export const Symbol = z.string().check(z.regex(/^[A-Z0-9]+$/))
 export type Symbol = z.infer<typeof Symbol>

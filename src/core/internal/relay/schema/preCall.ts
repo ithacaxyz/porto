@@ -32,10 +32,8 @@ export const PreCall = z.object({
 })
 export type PreCall = z.infer<typeof PreCall>
 
-export const Context = Schema.extend(
-  PreCall,
-  Schema.Struct({
-    chainId: Primitive.Number,
-  }),
-)
-export type Context = typeof Context.Type
+export const Context = z.object({
+  ...PreCall.shape,
+  chainId: u.number(),
+})
+export type Context = z.infer<typeof Context>

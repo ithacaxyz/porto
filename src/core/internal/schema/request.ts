@@ -6,7 +6,15 @@ import * as RpcRequest from './rpc.js'
 
 export * from './rpc.js'
 
-export const Request = z.discriminatedUnion('method', [
+export type Request = typeof Schema extends z.ZodMiniUnion<infer U>
+  ? {
+      [K in keyof U]: z.input<U[K]> & {
+        _decoded: z.output<U[K]>
+      }
+    }[number]
+  : never
+
+export const Schema = z.discriminatedUnion('method', [
   RpcRequest.account_verifyEmail.Request,
   RpcRequest.wallet_addFunds.Request,
   RpcRequest.eth_accounts.Request,
@@ -38,8 +46,21 @@ export const Request = z.discriminatedUnion('method', [
   RpcRequest.wallet_verifySignature.Request,
 ])
 
-export function parseRequest(value: unknown): parseRequest.ReturnType {
-  const result = z.safeParse(Request, value)
+export function validate(value: unknown) {
+  return validate_internal<Request>(Schema, value)
+}
+
+export namespace validate {
+  export type ReturnType = validate_internal.ReturnType<Request>
+  export type Error = validate_internal.Error
+}
+
+/** @internal */
+export function validate_internal<Request>(
+  schema: z.ZodMiniType,
+  value: unknown,
+): validate_internal.ReturnType<Request> {
+  const result = z.safeParse(schema, value)
 
   if (result.error) {
     const issue = result.error.issues.at(0)
@@ -61,14 +82,9 @@ export function parseRequest(value: unknown): parseRequest.ReturnType {
   } as never
 }
 
-export declare namespace parseRequest {
-  export type ReturnType = typeof Request extends z.ZodMiniUnion<infer U>
-    ? {
-        [K in keyof U]: z.input<U[K]> & {
-          _decoded: z.output<U[K]>
-        }
-      }[number]
-    : never
+/** @internal */
+export declare namespace validate_internal {
+  export type ReturnType<Request> = Request
 
   export type Error = RpcResponse.InvalidParamsError | Errors.GlobalErrorType
 }

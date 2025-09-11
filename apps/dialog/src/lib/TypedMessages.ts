@@ -1,3 +1,4 @@
+import * as u from 'porto/core/internal/schema/utils.js'
 import * as z from 'zod/mini'
 
 const SchemaAddress = z.templateLiteral(['0x', z.string()])
@@ -28,16 +29,8 @@ export const TypedMessageSchema = z.object({
     ),
   ),
 })
-export const isTypedMessage = (
-  message: unknown,
-): message is z.infer<typeof TypedMessageSchema> => {
-  try {
-    TypedMessageSchema.parse(message)
-    return true
-  } catch {
-    return false
-  }
-}
+export const isTypedMessage = (message: unknown) =>
+  u.is(TypedMessageSchema, message)
 
 // ERC-2612 (Permit)
 export const PermitSchema = z.object({
@@ -56,16 +49,7 @@ export const PermitSchema = z.object({
   }),
   primaryType: z.literal('Permit'),
 })
-export const isPermit = (
-  message: unknown,
-): message is z.infer<typeof PermitSchema> => {
-  try {
-    PermitSchema.parse(message)
-    return true
-  } catch {
-    return false
-  }
-}
+export const isPermit = (message: unknown) => u.is(PermitSchema, message)
 
 // Permit2
 export const Permit2Schema = z.object({
@@ -86,13 +70,4 @@ export const Permit2Schema = z.object({
   }),
   primaryType: z.literal('PermitSingle'),
 })
-export const isPermit2 = (
-  message: unknown,
-): message is z.infer<typeof Permit2Schema> => {
-  try {
-    Permit2Schema.parse(message)
-    return true
-  } catch {
-    return false
-  }
-}
+export const isPermit2 = (message: unknown) => u.is(Permit2Schema, message)

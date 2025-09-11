@@ -1,4 +1,5 @@
 import * as z from 'zod/mini'
+import * as Token from './token.js'
 import * as u from './utils.js'
 
 export const Base = z.object({
@@ -46,20 +47,16 @@ export const CallPermissions = z.readonly(
 )
 export type CallPermissions = z.infer<typeof CallPermissions>
 
-export const FeeLimit = z.object({
-  currency: z.union([
-    // inlined union used to be `FeeToken.kind`
-    z.union([z.literal('ETH'), z.literal('USDC'), z.literal('USDT')]),
-    z.literal('USD'),
-  ]),
-  value: z
+export const FeeToken = z.object({
+  limit: z
     .union([
       z.templateLiteral([z.number(), '.', z.number()]),
       z.templateLiteral([z.number()]),
     ])
     .check(z.regex(/^\d+(\.\d+)?$/)),
+  symbol: z.optional(z.union([z.literal('native'), Token.Symbol])),
 })
-export type FeeLimit = z.infer<typeof FeeLimit>
+export type FeeToken = z.infer<typeof FeeToken>
 
 export const SignatureVerificationPermission = z.object({
   addresses: z.readonly(z.array(u.address())),
@@ -95,7 +92,7 @@ export type Permissions = z.infer<typeof Permissions>
 
 export const WithPermissions = z.object({
   ...Base.shape,
-  feeLimit: z.optional(FeeLimit),
+  feeToken: z.optional(z.nullable(FeeToken)),
   permissions: z.optional(Permissions),
 })
 export type WithPermissions = z.infer<typeof WithPermissions>
