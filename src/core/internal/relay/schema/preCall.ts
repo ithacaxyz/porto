@@ -31,3 +31,11 @@ export const PreCall = Schema.Struct({
   signature: Primitive.Hex,
 })
 export type PreCall = typeof PreCall.Type
+
+export const Context = Schema.extend(
+  PreCall,
+  Schema.Struct({
+    chainId: Primitive.Number,
+  }),
+)
+export type Context = typeof Context.Type

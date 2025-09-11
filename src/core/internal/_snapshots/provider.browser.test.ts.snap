@@ -22,7 +22,13 @@ exports[`wallet_getPermissions > behavior: grant on connect; grant another; get 
           "to": null,
         },
       ],
-      "spend": undefined,
+      "spend": [
+        {
+          "limit": null,
+          "period": "year",
+          "token": null,
+        },
+      ],
     },
   },
   {
@@ -75,7 +81,13 @@ exports[`wallet_getPermissions > behavior: grant on connect; grant another; get 
           "to": null,
         },
       ],
-      "spend": undefined,
+      "spend": [
+        {
+          "limit": null,
+          "period": "year",
+          "token": null,
+        },
+      ],
     },
   },
   {

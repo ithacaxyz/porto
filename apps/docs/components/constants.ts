@@ -13,11 +13,15 @@ export const permissions = (chainId: ChainId) => {
   }
   return {
     expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
+    feeToken: {
+      limit: '1',
+      symbol: 'EXP',
+    },
     permissions: {
       calls: [{ to: exp1Token }],
       spend: [
         {
-          limit: Value.fromEther('100'),
+          limit: Value.fromEther('99'),
           period: 'hour',
           token: exp1Token,
         },

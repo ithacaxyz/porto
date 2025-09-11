@@ -9,7 +9,7 @@ import { AddFunds } from '~/routes/-components/AddFunds'
 import { Layout } from '~/routes/-components/Layout'
 
 export function CheckBalance(props: CheckBalance.Props) {
-  const { address, children, feeToken, onReject, query } = props
+  const { address, children, feeToken = 'native', onReject, query } = props
 
   const [step, setStep] = React.useState<'default' | 'success'>('default')
 

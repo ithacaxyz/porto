@@ -3,7 +3,7 @@ import { type Client, type Transport, zeroAddress } from 'viem'
 import type { GetChainParameter } from '../../viem/internal/utils.js'
 import * as RelayActions from '../../viem/RelayActions.js'
 import type * as Chains from '../Chains.js'
-import type { Store } from '../Porto.js'
+import type { State, Store } from '../Porto.js'
 import type * as Token from './schema/token.js'
 
 export type { Token } from './schema/token.js'
@@ -74,65 +74,52 @@ export namespace getToken {
 }
 
 /**
- * Resolves fee tokens for a given chain. Prioritizes the provided address or symbol,
- * or the default fee token stored in state.
+ * Resolves the fee token to use. Resolves the provided address or symbol,
+ * or the defaults to the fee token stored in state.
  *
  * @param client - Client.
  * @param parameters - Parameters.
- * @returns Fee tokens.
+ * @returns Fee token.
  */
-export async function resolveFeeTokens<chain extends Chains.Chain | undefined>(
+export async function resolveFeeToken<chain extends Chains.Chain | undefined>(
   client: Client<Transport, chain>,
-  parameters?: resolveFeeTokens.Parameters<chain> | undefined,
-): Promise<resolveFeeTokens.ReturnType> {
-  const {
-    addressOrSymbol: overrideFeeToken,
-    chain = client.chain,
-    store,
-  } = parameters ?? {}
-  const { feeToken: defaultFeeToken } = store?.getState() ?? {}
+  parameters?: resolveFeeToken.Parameters<chain> | undefined,
+): Promise<resolveFeeToken.ReturnType> {
+  const { chain = client.chain, store } = parameters ?? {}
+  const state = (store?.getState() ?? {}) as State
+  const addressOrSymbol = parameters?.addressOrSymbol ?? state.feeToken
 
   const feeTokens = await getTokens(client, { chain: chain! }).then((tokens) =>
     tokens.filter((token) => token.feeToken),
   )
-  const index = feeTokens?.findIndex((feeToken) => {
-    if (overrideFeeToken) {
-      if (overrideFeeToken === 'native') return feeToken.address === zeroAddress
-      if (Address.validate(overrideFeeToken))
-        return Address.isEqual(feeToken.address, overrideFeeToken)
-      return overrideFeeToken === feeToken.symbol
-    }
-    if (defaultFeeToken) {
-      if (defaultFeeToken === 'native') return feeToken.address === zeroAddress
-      return defaultFeeToken === feeToken.symbol
-    }
-    return feeToken.address === zeroAddress
+  const feeToken = feeTokens?.find((feeToken) => {
+    if (!addressOrSymbol) return false
+    if (addressOrSymbol === 'native' && feeToken.address === zeroAddress)
+      return true
+    if (
+      Address.validate(addressOrSymbol) &&
+      Address.isEqual(feeToken.address, addressOrSymbol)
+    )
+      return true
+    return addressOrSymbol === feeToken.symbol
   })
 
-  const feeToken = feeTokens?.[index !== -1 ? index : 0]!
-  if (index === -1)
-    console.warn(
-      `Fee token ${overrideFeeToken ?? defaultFeeToken} not found. Falling back to ${feeToken?.symbol} (${feeToken?.address}).`,
-    )
-
-  return [feeToken, ...feeTokens.toSpliced(index !== -1 ? index : 0, 1)]
+  return feeToken
 }
 
-export declare namespace resolveFeeTokens {
+export declare namespace resolveFeeToken {
   export type Parameters<
     chain extends Chains.Chain | undefined = Chains.Chain | undefined,
   > = getTokens.Parameters<chain> & {
     /**
-     * Fee token to use. If provided, and the token exists, it will take precedence over
-     * the fee token stored in state, and will be returned as first fee token.
+     * Fee token to resolve.
      */
     addressOrSymbol?: Token.Symbol | Address.Address | undefined
     /**
-     * Porto store. If provided, the fee token stored in state will take precedence
-     * and will be returned as first fee token.
+     * Porto store.
      */
     store?: Store<any> | undefined
   }
 
-  export type ReturnType = readonly [Token.Token, ...Token.Token[]]
+  export type ReturnType = Token.Token | undefined
 }

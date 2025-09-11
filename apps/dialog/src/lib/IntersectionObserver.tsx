@@ -95,7 +95,7 @@ export function EnsureVisibility(props: {
 export function useEnsureVisibility(props: { enabled: boolean }) {
   const { ref, entry } = useInView({
     delay: 100,
-    threshold: [1.0],
+    threshold: [0.99],
     trackVisibility: true,
   })
   const [visible, setVisible] = React.useState(true)

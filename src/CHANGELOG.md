@@ -1,5 +1,37 @@
 # porto
 
+## 0.1.0
+
+### Minor Changes
+
+- [#817](https://github.com/ithacaxyz/porto/pull/817) [`68cd125`](https://github.com/ithacaxyz/porto/commit/68cd125638dddc88a1fd39ee79daedfbd3d6d054) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renamed `MerchantRpc.requestListener` to `Route.merchant`. [See docs](https://porto.sh/sdk/api/route/merchant).
+
+- [#817](https://github.com/ithacaxyz/porto/pull/817) [`68cd125`](https://github.com/ithacaxyz/porto/commit/68cd125638dddc88a1fd39ee79daedfbd3d6d054) Thanks [@jxom](https://github.com/jxom)! - Added `Router` + `Route` modules to `porto/server`. [See docs](https://porto.sh/sdk/api/router)
+
+  <img width="500px" alt="ray-so-export (15)" src="https://github.com/user-attachments/assets/4fc5bc98-8922-4a03-afe0-158a23697b0c" />
+
+- [#817](https://github.com/ithacaxyz/porto/pull/817) [`68cd125`](https://github.com/ithacaxyz/porto/commit/68cd125638dddc88a1fd39ee79daedfbd3d6d054) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** The `feeLimit` property on the `wallet_grantPermissions` request has been repurposed to `feeToken`, and is now required.
+
+  Instead of `feeLimit`'s currency automatically being matched with a fee token, you must now manually specify the fee token. This fee token will be used for calls that use this permission. In the future, we may have automatic inference of fee tokens for permissioned calls.
+
+  ```diff
+  provider.request({
+    method: 'wallet_grantPermissions',
+    params: [{
+      expiry: 1715328000,
+  -   feeLimit: {
+  -     currency: 'USD',
+  -     value: '1',
+  -   },
+  +   feeToken: {
+  +     limit: '1',
+  +     symbol: 'USDC',
+  +   },
+      permissions: { ... }
+    }],
+  })
+  ```
+
 ## 0.0.93
 
 ### Patch Changes

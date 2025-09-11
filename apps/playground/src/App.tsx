@@ -870,7 +870,6 @@ function SendCalls() {
         const formData = new FormData(e.target as HTMLFormElement)
         const action = formData.get('action') as string | null
         const address = formData.get('address') as `0x${string}` | null
-        const feeToken = formData.get('feeToken') as string | null
 
         const result = await porto.provider.request({
           method: 'eth_accounts',
@@ -1107,12 +1106,6 @@ function SendCalls() {
           params: [
             {
               ...params,
-              capabilities: {
-                ...params.capabilities,
-                feeToken: (feeToken === 'ETH'
-                  ? '0x0000000000000000000000000000000000000000'
-                  : exp1Address[chainId]) as any,
-              },
               from: account,
               version: '1',
             },
@@ -1137,11 +1130,6 @@ function SendCalls() {
           <option value="noop">Noop Calls</option>
         </select>
         <input name="address" placeholder="address" type="text" />
-        Fee Token:
-        <select defaultValue="EXP" name="feeToken">
-          <option value="EXP">EXP</option>
-          <option value="ETH">ETH</option>
-        </select>
         <button type="submit">Send</button>
       </div>
       {id && (

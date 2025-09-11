@@ -12,5 +12,5 @@ export const Token = Schema.Struct({
 })
 export type Token = typeof Token.Type
 
-export const Symbol = Schema.String
+export const Symbol = Schema.String.pipe(Schema.pattern(/^[A-Z0-9]+$/))
 export type Symbol = typeof Symbol.Type

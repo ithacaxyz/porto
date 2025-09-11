@@ -113,10 +113,10 @@ export namespace getToken {
  * Resolves fee tokens for a given chain. Prioritizes the provded address or symbol,
  * or the default fee token stored in state.
  */
-export namespace resolveFeeTokens {
+export namespace resolveFeeToken {
   export function queryOptions(
     client: Client<Transport, Chain>,
-    parameters: queryOptions.Options = {},
+    parameters: queryOptions.Options,
   ) {
     const { addressOrSymbol, enabled } = parameters
 
@@ -124,7 +124,8 @@ export namespace resolveFeeTokens {
       enabled,
       async queryFn({ queryKey }) {
         const [, parameters] = queryKey
-        return await Tokens.resolveFeeTokens(client, parameters)
+        const result = await Tokens.resolveFeeToken(client, parameters)
+        return result || (null as unknown as queryOptions.Data)
       },
       queryKey: queryOptions.queryKey(client, {
         addressOrSymbol,
@@ -134,7 +135,7 @@ export namespace resolveFeeTokens {
   }
 
   export namespace queryOptions {
-    export type Data = Tokens.resolveFeeTokens.ReturnType
+    export type Data = Tokens.resolveFeeToken.ReturnType
     export type QueryKey = ReturnType<typeof queryKey>
 
     export type Options = queryKey.Options &
@@ -144,11 +145,11 @@ export namespace resolveFeeTokens {
       client: Client,
       options: queryKey.Options,
     ) {
-      return ['Tokens.resolveFeeTokens', options, client.uid] as const
+      return ['Tokens.resolveFeeToken', options, client.uid] as const
     }
 
     export namespace queryKey {
-      export type Options = Tokens.resolveFeeTokens.Parameters<Chain>
+      export type Options = Tokens.resolveFeeToken.Parameters<Chain>
     }
   }
 

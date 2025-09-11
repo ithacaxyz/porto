@@ -489,7 +489,7 @@ export namespace wallet_prepareCalls {
     /** Quote for the call bundle. */
     context: Schema.Struct({
       /** Quote for the call bundle. */
-      preCall: Schema.optional(Schema.partial(PreCall.PreCall)),
+      preCall: Schema.optional(Schema.partial(PreCall.Context)),
       /** The call bundle. */
       quote: Schema.optional(Schema.partial(Quotes.Signed)),
     }),
@@ -647,7 +647,7 @@ export namespace wallet_sendPreparedCalls {
     /** Quote for the call bundle. */
     context: Schema.Struct({
       /** The call bundle. */
-      preCall: Schema.optional(Schema.partial(PreCall.PreCall)),
+      preCall: Schema.optional(Schema.partial(PreCall.Context)),
       /** Quote for the call bundle. */
       quote: Schema.optional(Schema.partial(Quotes.Signed)),
     }),

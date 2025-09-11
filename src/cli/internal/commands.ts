@@ -134,9 +134,6 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
       params: [
         {
           calls: [],
-          capabilities: {
-            feeToken: args.testnet ? 'EXP' : undefined,
-          },
           key: adminKey,
         },
       ],

@@ -3,6 +3,7 @@ import {
   Hex,
   PublicKey,
   Secp256k1,
+  Value,
   WebAuthnP256,
   WebCryptoP256,
 } from 'ox'
@@ -10,10 +11,32 @@ import { verifyHash } from 'viem/actions'
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
 import { createAccount } from '../../test/src/actions.js'
 import * as TestConfig from '../../test/src/config.js'
+import type * as Tokens from '../core/internal/tokens.js'
 import * as Key from './Key.js'
 
 const porto = TestConfig.getPorto()
 const client = TestConfig.getRelayClient(porto)
+
+const feeTokens = [
+  {
+    address: '0x97870b32890d3f1f089489a29007863a5678089d',
+    decimals: 6,
+    feeToken: true,
+    interop: true,
+    nativeRate: 387750000000000n,
+    symbol: 'EXP',
+    uid: 'exp',
+  },
+  {
+    address: '0x0000000000000000000000000000000000000000',
+    decimals: 18,
+    feeToken: true,
+    interop: true,
+    nativeRate: 10n ** 18n,
+    symbol: 'ETH',
+    uid: 'ethereum',
+  },
+] as const satisfies Tokens.Tokens
 
 describe('createP256', () => {
   test('default', () => {
@@ -28,7 +51,7 @@ describe('createP256', () => {
       {
         "chainId": undefined,
         "expiry": 0,
-        "feeLimit": undefined,
+        "feeToken": undefined,
         "permissions": undefined,
         "prehash": false,
         "privateKey": [Function],
@@ -52,7 +75,7 @@ describe('createSecp256k1', () => {
       {
         "chainId": undefined,
         "expiry": 0,
-        "feeLimit": undefined,
+        "feeToken": undefined,
         "permissions": undefined,
         "prehash": false,
         "privateKey": [Function],
@@ -134,7 +157,7 @@ describe('createWebAuthnP256', () => {
       {
         "chainId": undefined,
         "expiry": 0,
-        "feeLimit": undefined,
+        "feeToken": undefined,
         "permissions": undefined,
         "prehash": false,
         "privateKey": {
@@ -190,7 +213,7 @@ describe('createWebCryptoP256', () => {
       {
         "chainId": undefined,
         "expiry": 0,
-        "feeLimit": undefined,
+        "feeToken": undefined,
         "permissions": undefined,
         "prehash": true,
         "privateKey": CryptoKey {},
@@ -408,7 +431,7 @@ describe('fromP256', () => {
       {
         "chainId": undefined,
         "expiry": 0,
-        "feeLimit": undefined,
+        "feeToken": undefined,
         "hash": "0xed7ac7c7b35b77e97be67b84f5889e0ab3ecc69ab65d57db191e11f8811e9965",
         "id": "0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008",
         "permissions": undefined,
@@ -432,7 +455,7 @@ describe('fromP256', () => {
       {
         "chainId": undefined,
         "expiry": 69420,
-        "feeLimit": undefined,
+        "feeToken": undefined,
         "hash": "0xed7ac7c7b35b77e97be67b84f5889e0ab3ecc69ab65d57db191e11f8811e9965",
         "id": "0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008",
         "permissions": undefined,
@@ -524,7 +547,7 @@ describe('fromSecp256k1', () => {
       {
         "chainId": undefined,
         "expiry": 0,
-        "feeLimit": undefined,
+        "feeToken": undefined,
         "hash": "0xd325ebfdb383f9fca8e4e1c443cdceddda39f1f860824156b75ec85f11b94a35",
         "id": "0x673ee8aabd3a62434cb9e3d7c6f9492e286bcb08",
         "permissions": undefined,
@@ -546,7 +569,7 @@ describe('fromSecp256k1', () => {
       {
         "chainId": undefined,
         "expiry": 0,
-        "feeLimit": undefined,
+        "feeToken": undefined,
         "hash": "0x6ce15638cb31daec095a6f3834f344957f69c7dc09ff935917447b3d65976595",
         "id": "0x0000000000000000000000000000000000000000",
         "permissions": undefined,
@@ -569,7 +592,7 @@ describe('fromSecp256k1', () => {
       {
         "chainId": undefined,
         "expiry": 0,
-        "feeLimit": undefined,
+        "feeToken": undefined,
         "hash": "0xd325ebfdb383f9fca8e4e1c443cdceddda39f1f860824156b75ec85f11b94a35",
         "id": "0x673ee8aabd3a62434cb9e3d7c6f9492e286bcb08",
         "permissions": undefined,
@@ -631,7 +654,7 @@ describe('fromWebAuthnP256', () => {
       {
         "chainId": undefined,
         "expiry": 0,
-        "feeLimit": undefined,
+        "feeToken": undefined,
         "hash": "0x2a7a39929a819ed8472f7fe3aa65a758432cc8ab833e9999f50217d55c70c50f",
         "id": "0x0000000000000000000000000000000000000000",
         "permissions": undefined,
@@ -680,7 +703,7 @@ describe('fromWebCryptoP256', () => {
       {
         "chainId": undefined,
         "expiry": 0,
-        "feeLimit": undefined,
+        "feeToken": undefined,
         "hash": "0xa2085f4d3a69fcf0182dbe60a3b7da9b5fd8b2b54d7ea39d345ba82d6edc8fe1",
         "id": "0x410e2eb4820de45c0dd6730c300c3c66b8bc5885c963067fe0ff29c5e480329009d8fbd71e76257a2d5577e2211a62114eca15c9218d488209fa789a45497124",
         "permissions": undefined,
@@ -764,5 +787,634 @@ describe('toRelay', () => {
         "type": "p256",
       }
     `)
+  })
+
+  test('behavior: feeToken', () => {
+    const key = Key.fromP256({
+      feeToken: {
+        limit: '1',
+        symbol: 'EXP',
+      },
+      permissions: {
+        calls: [
+          {
+            signature: 'mint()',
+          },
+          {
+            signature: '0xdeadbeef',
+            to: '0x0000000000000000000000000000000000000000',
+          },
+        ],
+        spend: [
+          {
+            limit: 1000000000000000000n,
+            period: 'minute',
+            token: '0x0000000000000000000000000000000000000000',
+          },
+        ],
+      },
+      privateKey:
+        '0x59ff6b8de3b3b39e94b6f9fc0590cf4e3eaa9b6736e6a49c9a6b324c4f58cb9f',
+    })
+
+    expect(Key.toRelay(key, { feeTokens })).toMatchInlineSnapshot(`
+      {
+        "expiry": 0,
+        "permissions": [
+          {
+            "selector": "0x1249c58b",
+            "to": "0x3232323232323232323232323232323232323232",
+            "type": "call",
+          },
+          {
+            "selector": "0xdeadbeef",
+            "to": "0x0000000000000000000000000000000000000000",
+            "type": "call",
+          },
+          {
+            "limit": 1000000n,
+            "period": "minute",
+            "token": "0x97870b32890d3f1f089489a29007863a5678089d",
+            "type": "spend",
+          },
+          {
+            "limit": 1000000000000000000n,
+            "period": "minute",
+            "token": "0x0000000000000000000000000000000000000000",
+            "type": "spend",
+          },
+        ],
+        "prehash": false,
+        "publicKey": "0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008",
+        "role": "admin",
+        "type": "p256",
+      }
+    `)
+  })
+
+  test('behavior: feeToken (existing spend permission)', () => {
+    const key = Key.fromP256({
+      feeToken: {
+        limit: '1',
+        symbol: 'ETH',
+      },
+      permissions: {
+        calls: [
+          {
+            signature: 'mint()',
+          },
+          {
+            signature: '0xdeadbeef',
+            to: '0x0000000000000000000000000000000000000000',
+          },
+        ],
+        spend: [
+          {
+            limit: 1000000000000000000n,
+            period: 'minute',
+            token: '0x0000000000000000000000000000000000000001',
+          },
+          {
+            limit: 1000000000000000000n,
+            period: 'minute',
+            token: '0x0000000000000000000000000000000000000000',
+          },
+        ],
+      },
+      privateKey:
+        '0x59ff6b8de3b3b39e94b6f9fc0590cf4e3eaa9b6736e6a49c9a6b324c4f58cb9f',
+    })
+
+    expect(Key.toRelay(key, { feeTokens })).toMatchInlineSnapshot(`
+      {
+        "expiry": 0,
+        "permissions": [
+          {
+            "selector": "0x1249c58b",
+            "to": "0x3232323232323232323232323232323232323232",
+            "type": "call",
+          },
+          {
+            "selector": "0xdeadbeef",
+            "to": "0x0000000000000000000000000000000000000000",
+            "type": "call",
+          },
+          {
+            "limit": 2000000000000000000n,
+            "period": "minute",
+            "token": "0x0000000000000000000000000000000000000000",
+            "type": "spend",
+          },
+          {
+            "limit": 1000000000000000000n,
+            "period": "minute",
+            "token": "0x0000000000000000000000000000000000000001",
+            "type": "spend",
+          },
+        ],
+        "prehash": false,
+        "publicKey": "0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008",
+        "role": "admin",
+        "type": "p256",
+      }
+    `)
+  })
+})
+
+describe('resolvePermissions', () => {
+  test('default', () => {
+    const result = Key.resolvePermissions(
+      {
+        feeToken: {
+          limit: '10',
+          symbol: 'EXP',
+        },
+        permissions: {
+          calls: [],
+          spend: [
+            {
+              limit: Value.from('15', 6),
+              period: 'year',
+              token: '0x97870b32890d3f1f089489a29007863a5678089d',
+            },
+          ],
+        },
+      },
+      {
+        feeTokens,
+      },
+    )
+
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "calls": [],
+        "spend": [
+          {
+            "limit": 25000000n,
+            "period": "year",
+            "token": "0x97870b32890d3f1f089489a29007863a5678089d",
+          },
+        ],
+      }
+    `)
+  })
+
+  test('behavior: no fee tokens provided', async () => {
+    const result = Key.resolvePermissions(
+      {
+        permissions: {
+          calls: [],
+          spend: [
+            {
+              limit: Value.from('15', 6),
+              period: 'year',
+              token: '0x97870b32890d3f1f089489a29007863a5678089d',
+            },
+          ],
+        },
+      },
+      {},
+    )
+
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "calls": [],
+        "spend": [
+          {
+            "limit": 15000000n,
+            "period": "year",
+            "token": "0x97870b32890d3f1f089489a29007863a5678089d",
+          },
+        ],
+      }
+    `)
+  })
+
+  test('behavior: empty fee tokens array', async () => {
+    const result = Key.resolvePermissions(
+      {
+        permissions: {
+          calls: [],
+          spend: [
+            {
+              limit: Value.from('15', 6),
+              period: 'year',
+              token: '0x97870b32890d3f1f089489a29007863a5678089d',
+            },
+          ],
+        },
+      },
+      {
+        feeTokens: [],
+      },
+    )
+
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "calls": [],
+        "spend": [
+          {
+            "limit": 15000000n,
+            "period": "year",
+            "token": "0x97870b32890d3f1f089489a29007863a5678089d",
+          },
+        ],
+      }
+    `)
+  })
+
+  test('behavior: no existing spend permissions', async () => {
+    const result = Key.resolvePermissions(
+      {
+        feeToken: {
+          limit: '5',
+          symbol: 'EXP',
+        },
+        permissions: {
+          calls: [],
+        },
+      },
+      {
+        feeTokens,
+      },
+    )
+
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "calls": [],
+        "spend": [
+          {
+            "limit": 5000000n,
+            "period": "year",
+            "token": "0x97870b32890d3f1f089489a29007863a5678089d",
+          },
+        ],
+      }
+    `)
+  })
+
+  test('behavior: no matching spend permission but has other permissions', async () => {
+    const result = Key.resolvePermissions(
+      {
+        feeToken: {
+          limit: '5',
+          symbol: 'EXP',
+        },
+        permissions: {
+          calls: [],
+          spend: [
+            {
+              limit: Value.from('10', 18),
+              period: 'month',
+              token: '0x0000000000000000000000000000000000000000',
+            },
+            {
+              limit: Value.from('20', 18),
+              period: 'day',
+              token: '0x1111111111111111111111111111111111111111',
+            },
+          ],
+        },
+      },
+      {
+        feeTokens,
+      },
+    )
+
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "calls": [],
+        "spend": [
+          {
+            "limit": 5000000n,
+            "period": "day",
+            "token": "0x97870b32890d3f1f089489a29007863a5678089d",
+          },
+          {
+            "limit": 10000000000000000000n,
+            "period": "month",
+            "token": "0x0000000000000000000000000000000000000000",
+          },
+          {
+            "limit": 20000000000000000000n,
+            "period": "day",
+            "token": "0x1111111111111111111111111111111111111111",
+          },
+        ],
+      }
+    `)
+  })
+
+  test('behavior: updates existing spend permission with matching fee token', async () => {
+    const result = Key.resolvePermissions(
+      {
+        feeToken: {
+          limit: '3',
+          symbol: 'EXP',
+        },
+        permissions: {
+          calls: [],
+          spend: [
+            {
+              limit: Value.from('5', 18),
+              period: 'day',
+              token: '0x0000000000000000000000000000000000000000',
+            },
+            {
+              limit: Value.from('10', 6),
+              period: 'month',
+              token: '0x97870b32890d3f1f089489a29007863a5678089d',
+            },
+          ],
+        },
+      },
+      {
+        feeTokens,
+      },
+    )
+
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "calls": [],
+        "spend": [
+          {
+            "limit": 13000000n,
+            "period": "month",
+            "token": "0x97870b32890d3f1f089489a29007863a5678089d",
+          },
+          {
+            "limit": 5000000000000000000n,
+            "period": "day",
+            "token": "0x0000000000000000000000000000000000000000",
+          },
+        ],
+      }
+    `)
+  })
+
+  test('behavior: handles ETH spend permission (ETH fee token)', async () => {
+    const result = Key.resolvePermissions(
+      {
+        feeToken: {
+          limit: '2',
+          symbol: 'ETH',
+        },
+        permissions: {
+          calls: [],
+          spend: [
+            {
+              limit: Value.from('10', 18),
+              period: 'week',
+            },
+          ],
+        },
+      },
+      {
+        feeTokens: feeTokens.toReversed(),
+      },
+    )
+
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "calls": [],
+        "spend": [
+          {
+            "limit": 12000000000000000000n,
+            "period": "week",
+          },
+        ],
+      }
+    `)
+  })
+
+  test('behavior: preserves other permission fields', async () => {
+    const result = Key.resolvePermissions(
+      {
+        feeToken: {
+          limit: '1',
+          symbol: 'EXP',
+        },
+        permissions: {
+          calls: [
+            {
+              signature: '0x12345678',
+              to: '0x1234567890123456789012345678901234567890',
+            },
+          ],
+          spend: [],
+        },
+      },
+      {
+        feeTokens,
+      },
+    )
+
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "calls": [
+          {
+            "signature": "0x12345678",
+            "to": "0x1234567890123456789012345678901234567890",
+          },
+        ],
+        "spend": [
+          {
+            "limit": 1000000n,
+            "period": "year",
+            "token": "0x97870b32890d3f1f089489a29007863a5678089d",
+          },
+        ],
+      }
+    `)
+  })
+
+  test('behavior: handles zero fee limit', async () => {
+    const result = Key.resolvePermissions(
+      {
+        feeToken: {
+          limit: '0',
+          symbol: 'EXP',
+        },
+        permissions: {
+          calls: [],
+          spend: [
+            {
+              limit: Value.from('5', 6),
+              period: 'day',
+              token: '0x97870b32890d3f1f089489a29007863a5678089d',
+            },
+          ],
+        },
+      },
+      {
+        feeTokens,
+      },
+    )
+
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "calls": [],
+        "spend": [
+          {
+            "limit": 5000000n,
+            "period": "day",
+            "token": "0x97870b32890d3f1f089489a29007863a5678089d",
+          },
+        ],
+      }
+    `)
+  })
+})
+
+describe('getFeeToken', () => {
+  test('default', () => {
+    const feeToken = Key.getFeeToken(
+      {
+        feeToken: {
+          limit: '0.01',
+          symbol: 'EXP',
+        },
+        permissions: {
+          calls: [],
+          spend: [
+            {
+              limit: 1000000000000000000n,
+              period: 'year',
+            },
+          ],
+        },
+      },
+      {
+        feeTokens,
+      },
+    )
+
+    expect(feeToken).toMatchInlineSnapshot(`
+      {
+        "address": "0x97870b32890d3f1f089489a29007863a5678089d",
+        "decimals": 6,
+        "feeToken": true,
+        "interop": true,
+        "nativeRate": 387750000000000n,
+        "symbol": "EXP",
+        "uid": "exp",
+        "value": 10000n,
+      }
+    `)
+  })
+
+  test('behavior: handles native fee token', () => {
+    const result = Key.getFeeToken(
+      {
+        feeToken: {
+          limit: '0.01',
+          symbol: 'native',
+        },
+      },
+      {
+        feeTokens,
+      },
+    )
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "address": "0x0000000000000000000000000000000000000000",
+        "decimals": 18,
+        "feeToken": true,
+        "interop": true,
+        "nativeRate": 1000000000000000000n,
+        "symbol": "ETH",
+        "uid": "ethereum",
+        "value": 10000000000000000n,
+      }
+    `)
+  })
+
+  test('behavior: returns default when no fee limit', () => {
+    const request = {
+      permissions: {
+        calls: [],
+      },
+    } as const
+    const result = Key.getFeeToken(request, {
+      feeTokens,
+    })
+    expect(result).toMatchInlineSnapshot('undefined')
+  })
+
+  test('behavior: returns zero when null fee limit', () => {
+    const request = {
+      permissions: {
+        calls: [],
+        feeToken: null,
+      },
+    } as const
+    const result = Key.getFeeToken(request, {
+      feeTokens,
+    })
+    expect(result).toMatchInlineSnapshot('undefined')
+  })
+
+  test('behavior: returns zero value when limit token not found', () => {
+    const tokens = [
+      {
+        address: '0x0000000000000000000000000000000000000000',
+        decimals: 18,
+        interop: true,
+        nativeRate: 10n ** 18n,
+        symbol: 'ETH',
+        uid: 'ethereum',
+      },
+    ] as const satisfies Tokens.Tokens
+
+    const result = Key.getFeeToken(
+      {
+        feeToken: {
+          limit: '0.01',
+          symbol: 'EXP',
+        },
+        permissions: {
+          calls: [],
+        },
+      },
+      {
+        feeTokens: tokens,
+      },
+    )
+    expect(result).toMatchInlineSnapshot('undefined')
+  })
+
+  test('behavior: handles tokens without native rate', () => {
+    const tokens = [
+      {
+        address: '0x97870b32890d3f1f089489a29007863a5678089d',
+        decimals: 18,
+        interop: true,
+        symbol: 'EXP',
+        uid: 'exp',
+      },
+      {
+        address: '0x0000000000000000000000000000000000000000',
+        decimals: 18,
+        interop: true,
+        symbol: 'ETH',
+        uid: 'ethereum',
+      },
+    ] as const satisfies Tokens.Tokens
+
+    const result = Key.getFeeToken(
+      {
+        feeToken: {
+          limit: '0.01',
+          symbol: 'ETH',
+        },
+        permissions: {
+          calls: [],
+        },
+      },
+      {
+        feeTokens: tokens,
+      },
+    )
+    expect(result?.value).toMatchInlineSnapshot('10000000000000000n')
   })
 })

@@ -1,3 +1,4 @@
+import { setTimeout } from 'node:timers/promises'
 import { Value } from 'ox'
 import { Key } from 'porto/viem'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
@@ -95,9 +96,9 @@ describe('grantPermissions', () => {
 
     const response = await WalletActions.grantPermissions(walletClient, {
       expiry: 99999999999,
-      feeLimit: {
-        currency: 'USD',
-        value: '1',
+      feeToken: {
+        limit: '1',
+        symbol: 'EXP',
       },
       key: {
         publicKey: '0x0000000000000000000000000000000000000000',
@@ -210,9 +211,9 @@ describe('getPermissions', () => {
 
     await WalletActions.grantPermissions(walletClient, {
       expiry: 99999999999,
-      feeLimit: {
-        currency: 'USD',
-        value: '1',
+      feeToken: {
+        limit: '1',
+        symbol: 'EXP',
       },
       key: {
         publicKey: '0x0000000000000000000000000000000000000000',
@@ -319,9 +320,9 @@ describe('revokePermissions', () => {
 
     const { id } = await WalletActions.grantPermissions(walletClient, {
       expiry: 99999999999,
-      feeLimit: {
-        currency: 'USD',
-        value: '1',
+      feeToken: {
+        limit: '1',
+        symbol: 'EXP',
       },
       permissions: {
         calls: [
@@ -375,9 +376,9 @@ describe('prepareCalls + sendPreparedCalls', () => {
       createAccount: true,
       grantPermissions: {
         expiry: 9999999999,
-        feeLimit: {
-          currency: 'USD',
-          value: '1',
+        feeToken: {
+          limit: '1',
+          symbol: 'EXP',
         },
         key: sessionKey,
         permissions: {
@@ -426,6 +427,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
     const { status } = await Actions.waitForCallsStatus(walletClient, {
       id: response[0]!.id,
     })
+    await setTimeout(2_000)
 
     expect(status).toBe('success')
   })

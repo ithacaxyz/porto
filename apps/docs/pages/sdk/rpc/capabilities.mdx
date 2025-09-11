@@ -128,15 +128,13 @@ type Capability = {
     expiry: number
 
     /** 
-     * Limit that the key can spend on fees. When provided,
-     * Porto will assign a spend permission on the user's
-     * selected fee token that is equal to the limit provided.
+     * Fee token that will be used with these permissions.
      */
-    feeLimit?: {
-      /** Currency of the limit. */
-      currency: 'ETH' | 'USD' | 'USDC' | 'USDT'
-      /** Value of the limit in the currency's unit (e.g. '1' = 1 USDC). */
-      value: string
+    feeToken: {
+      /** Value of the limit in the symbols's unit (e.g. '1' = 1 USDC). */
+      limit: string
+      /** Symbol of the fee token. `undefined` for native token. */
+      symbol?: Token.Symbol | undefined
     } | undefined,
 
     /**
@@ -191,9 +189,9 @@ const capabilities = await provider.request({
     capabilities: { // [!code focus]
       grantPermissions: { // [!code focus]
         expiry: 1727078400, // [!code focus]
-        feeLimit: { // [!code focus]
-          currency: 'USD', // [!code focus]
-          value: '1', // [!code focus] 
+        feeToken: { // [!code focus]
+          limit: '1', // [!code focus] 
+          symbol: 'USDC', // [!code focus]
         }, // [!code focus]
         permissions: { // [!code focus]
           calls: [{ signature: 'subscribe()' }], // [!code focus]

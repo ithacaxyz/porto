@@ -44,7 +44,6 @@ const config = {
       polygon,
       sepolia,
     ],
-    feeToken: 'native',
     mode: Mode.relay({
       mock,
       persistPreCalls: false,
@@ -80,7 +79,6 @@ const config = {
       polygon,
       sepolia,
     ],
-    feeToken: 'native',
     mode: Mode.relay({
       mock,
       persistPreCalls: false,

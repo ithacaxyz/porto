@@ -10,12 +10,15 @@ import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
 import * as TypedData from 'ox/TypedData'
+import * as Value from 'ox/Value'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import * as WebCryptoP256 from 'ox/WebCryptoP256'
+import { zeroAddress } from 'viem'
 import * as Call from '../core/internal/call.js'
 import type * as RelayKey_schema from '../core/internal/relay/schema/key.js'
 import type * as RelayPermission_schema from '../core/internal/relay/schema/permission.js'
 import type * as Key_schema from '../core/internal/schema/key.js'
+import type * as Tokens from '../core/internal/tokens.js'
 import type {
   Compute,
   ExactPartial,
@@ -171,7 +174,10 @@ export function createP256(parameters: createP256.Parameters = {}) {
 }
 
 export declare namespace createP256 {
-  type Parameters = Pick<fromP256.Parameters, 'expiry' | 'permissions' | 'role'>
+  type Parameters = Pick<
+    fromP256.Parameters,
+    'expiry' | 'feeToken' | 'permissions' | 'role'
+  >
 }
 
 /**
@@ -205,7 +211,7 @@ export function createSecp256k1(parameters: createSecp256k1.Parameters = {}) {
 export declare namespace createSecp256k1 {
   type Parameters = Pick<
     fromSecp256k1.Parameters,
-    'expiry' | 'permissions' | 'role'
+    'expiry' | 'feeToken' | 'permissions' | 'role'
   >
 }
 
@@ -280,7 +286,7 @@ export async function createWebAuthnP256(
 export declare namespace createWebAuthnP256 {
   type Parameters = Pick<
     fromWebAuthnP256.Parameters,
-    'expiry' | 'permissions' | 'role'
+    'expiry' | 'feeToken' | 'permissions' | 'role'
   > & {
     /**
      * Credential creation function. Useful for environments that do not support
@@ -331,7 +337,7 @@ export function createHeadlessWebAuthnP256(
 export declare namespace createHeadlessWebAuthnP256 {
   type Parameters = Pick<
     fromHeadlessWebAuthnP256.Parameters,
-    'expiry' | 'permissions' | 'role'
+    'expiry' | 'feeToken' | 'permissions' | 'role'
   >
 }
 
@@ -368,7 +374,7 @@ export async function createWebCryptoP256(
 export declare namespace createWebCryptoP256 {
   type Parameters = Pick<
     fromWebCryptoP256.Parameters,
-    'expiry' | 'permissions' | 'role'
+    'expiry' | 'feeToken' | 'permissions' | 'role'
   >
 }
 
@@ -511,7 +517,7 @@ export declare namespace from {
  * @returns P256 key.
  */
 export function fromP256(parameters: fromP256.Parameters) {
-  const { chainId, expiry, feeLimit, permissions, privateKey, role } =
+  const { chainId, expiry, feeToken, permissions, privateKey, role } =
     parameters
   const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
     includePrefix: false,
@@ -519,7 +525,7 @@ export function fromP256(parameters: fromP256.Parameters) {
   return from({
     chainId,
     expiry,
-    feeLimit,
+    feeToken,
     permissions,
     privateKey() {
       return privateKey
@@ -533,7 +539,7 @@ export function fromP256(parameters: fromP256.Parameters) {
 export declare namespace fromP256 {
   type Parameters = Pick<
     from.Value,
-    'chainId' | 'expiry' | 'feeLimit' | 'permissions' | 'role'
+    'chainId' | 'expiry' | 'feeToken' | 'permissions' | 'role'
   > & {
     /** P256 private key. */
     privateKey: Hex.Hex
@@ -624,7 +630,7 @@ export function fromSecp256k1(parameters: fromSecp256k1.Parameters) {
   })()
   return from({
     expiry: parameters.expiry ?? 0,
-    feeLimit: parameters.feeLimit,
+    feeToken: parameters.feeToken,
     permissions: parameters.permissions,
     privateKey: privateKey ? () => privateKey : undefined,
     publicKey,
@@ -636,7 +642,7 @@ export function fromSecp256k1(parameters: fromSecp256k1.Parameters) {
 export declare namespace fromSecp256k1 {
   type Parameters = Pick<
     from.Value,
-    'expiry' | 'feeLimit' | 'permissions' | 'role'
+    'expiry' | 'feeToken' | 'permissions' | 'role'
   > &
     OneOf<
       | {
@@ -688,7 +694,7 @@ export function fromWebAuthnP256(parameters: fromWebAuthnP256.Parameters) {
   return from({
     chainId: parameters.chainId,
     expiry: parameters.expiry ?? 0,
-    feeLimit: parameters.feeLimit,
+    feeToken: parameters.feeToken,
     id,
     permissions: parameters.permissions,
     privateKey: {
@@ -704,7 +710,7 @@ export function fromWebAuthnP256(parameters: fromWebAuthnP256.Parameters) {
 export declare namespace fromWebAuthnP256 {
   type Parameters = Pick<
     from.Value,
-    'chainId' | 'expiry' | 'feeLimit' | 'id' | 'permissions' | 'role'
+    'chainId' | 'expiry' | 'feeToken' | 'id' | 'permissions' | 'role'
   > & {
     /** WebAuthnP256 Credential. */
     credential: Pick<WebAuthnP256.P256Credential, 'id' | 'publicKey'>
@@ -749,7 +755,7 @@ export function fromHeadlessWebAuthnP256(
   return from({
     chainId: parameters.chainId,
     expiry: parameters.expiry ?? 0,
-    feeLimit: parameters.feeLimit,
+    feeToken: parameters.feeToken,
     permissions: parameters.permissions,
     privateKey: {
       privateKey() {
@@ -765,7 +771,7 @@ export function fromHeadlessWebAuthnP256(
 export declare namespace fromHeadlessWebAuthnP256 {
   type Parameters = Pick<
     from.Value,
-    'chainId' | 'expiry' | 'feeLimit' | 'permissions' | 'role'
+    'chainId' | 'expiry' | 'feeToken' | 'permissions' | 'role'
   > & {
     /** P256 private key. */
     privateKey: Hex.Hex
@@ -799,7 +805,7 @@ export declare namespace fromHeadlessWebAuthnP256 {
  * @returns WebCryptoP256 key.
  */
 export function fromWebCryptoP256(parameters: fromWebCryptoP256.Parameters) {
-  const { chainId, expiry, feeLimit, keyPair, permissions, role } = parameters
+  const { chainId, expiry, feeToken, keyPair, permissions, role } = parameters
   const { privateKey } = keyPair
   const publicKey = PublicKey.toHex(keyPair.publicKey, {
     includePrefix: false,
@@ -807,7 +813,7 @@ export function fromWebCryptoP256(parameters: fromWebCryptoP256.Parameters) {
   return from({
     chainId,
     expiry,
-    feeLimit,
+    feeToken,
     permissions,
     prehash: true,
     privateKey,
@@ -820,7 +826,7 @@ export function fromWebCryptoP256(parameters: fromWebCryptoP256.Parameters) {
 export declare namespace fromWebCryptoP256 {
   type Parameters = Pick<
     from.Value,
-    'chainId' | 'expiry' | 'feeLimit' | 'permissions' | 'role'
+    'chainId' | 'expiry' | 'feeToken' | 'permissions' | 'role'
   > & {
     /** P256 private key. */
     keyPair: Awaited<ReturnType<typeof WebCryptoP256.createKeyPair>>
@@ -1058,10 +1064,14 @@ export function toRelay(
   options: toRelay.Options = {},
 ): RequiredBy<Relay, 'prehash'> {
   const { expiry = 0, prehash = false, publicKey, role = 'admin', type } = key
-  const { orchestrator } = options
+  const { feeTokens, orchestrator } = options
 
   // biome-ignore lint/complexity/useFlatMap: i know
-  const permissions = Object.entries(key.permissions ?? {})
+  const permissions = Object.entries(
+    resolvePermissions(key, {
+      feeTokens,
+    }),
+  )
     // biome-ignore lint/suspicious/useIterableCallbackReturn: _
     .map(([key, v]) => {
       if (key === 'calls') {
@@ -1079,7 +1089,7 @@ export function toRelay(
           } as const satisfies RelayPermission_schema.CallPermission
         })
       }
-      if (key === 'feeLimit') return
+      if (key === 'feeToken') return
       if (key === 'spend') {
         const value = v as Key_schema.SpendPermissions
         return value.map(({ limit, period, token }) => {
@@ -1124,9 +1134,133 @@ export declare namespace toRelay {
   >
 
   type Options = {
+    /** Fee tokens. */
+    feeTokens?: readonly Tokens.Token[] | undefined
     /** Orchestrator address. */
     orchestrator?: Address.Address | undefined
   }
+}
+
+/**
+ * Resolves the permissions for the permissions request, and if needed, adds
+ * the fee limit to the spend permissions.
+ *
+ * @param request - Permissions request.
+ * @param options - Options.
+ * @returns Resolved permissions.
+ */
+export function resolvePermissions(
+  key: Pick<Key, 'feeToken' | 'permissions'>,
+  options: resolvePermissions.Options,
+) {
+  const { permissions } = key
+
+  const calls = permissions?.calls ? [...permissions.calls] : []
+  const spend = permissions?.spend ? [...permissions.spend] : []
+
+  const feeTokens = options.feeTokens?.filter((token) => token.feeToken)
+  if (feeTokens && feeTokens.length > 0) {
+    const feeToken = getFeeToken(key, {
+      feeTokens,
+    })
+
+    if (feeToken) {
+      let index = -1
+      let minPeriod: number = toSerializedSpendPeriod.year
+
+      for (let i = 0; i < spend.length; i++) {
+        const s = spend[i]!
+        if (s.token && Address.isEqual(feeToken.address, s.token)) {
+          index = i
+          break
+        }
+        if (!s.token && feeToken.address === zeroAddress) {
+          index = i
+          break
+        }
+
+        const period = toSerializedSpendPeriod[s.period]
+        if (period < minPeriod) minPeriod = period
+      }
+
+      // If there is a token assigned to a spend permission and the fee token
+      // is the same, update the limit to account for the fee.
+      if (index !== -1) {
+        spend[index] = {
+          ...spend[index]!,
+          limit: spend[index]!.limit + feeToken.value,
+        }
+        // Assign this as the first spend permission, as it will be used
+        // as the fee token for call bundles that use this key.
+        spend.unshift(spend.splice(index, 1)[0]!)
+      }
+      // Update the spend permissions to account for the fee token.
+      // The fee token permission must be assigned as the first spend
+      // permission as it will be used as the fee token for call bundles
+      // that use this key.
+      else if (typeof minPeriod === 'number')
+        spend.unshift({
+          limit: feeToken.value,
+          period:
+            fromSerializedSpendPeriod[
+              minPeriod as keyof typeof fromSerializedSpendPeriod
+            ],
+          token: feeToken.address,
+        })
+    }
+  }
+
+  return { ...permissions, calls, spend }
+}
+
+export declare namespace resolvePermissions {
+  export type Options = {
+    feeTokens?: Tokens.Tokens | null | undefined
+  }
+}
+
+/**
+ * Gets the fee limit (in units of the fee token) to be used for the
+ * authorized permissions.
+ *
+ * @param request - The permissions request to get the fee limit for.
+ * @param options - Options.
+ * @returns Fee limit (in units of the fee token).
+ */
+export function getFeeToken(
+  key: Pick<Key, 'feeToken' | 'permissions'>,
+  options: getFeeToken.Options,
+): getFeeToken.ReturnType {
+  const { feeTokens } = options
+
+  if (!key.feeToken) return undefined
+
+  const feeToken = feeTokens.find((token) => {
+    if (key.feeToken!.symbol === token.symbol) return true
+    if (!key.feeToken!.symbol) return token.address === zeroAddress
+    if (key.feeToken!.symbol === 'native') return token.address === zeroAddress
+    return false
+  })
+  if (!feeToken) return undefined
+
+  const value = Value.from(key.feeToken.limit, feeToken.decimals)
+
+  return {
+    ...feeToken,
+    value,
+  }
+}
+
+export declare namespace getFeeToken {
+  export type Options = {
+    feeTokens: Tokens.Tokens
+  }
+
+  export type ReturnType =
+    | (Tokens.Token & {
+        value: bigint
+      })
+    | undefined
 }
 
 ///////////////////////////////////////////////////////////////////////////

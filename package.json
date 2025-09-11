@@ -34,6 +34,7 @@
     "preconstruct": "tsx ./scripts/preconstruct.ts",
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
+    "relay:up": "tsx scripts/relay:up.ts",
     "test": "vitest -c ./test/vitest.config.ts --project default",
     "test:browser": "vitest -c ./test/vitest.config.ts --project browser"
   },
