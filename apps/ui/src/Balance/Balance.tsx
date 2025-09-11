@@ -23,7 +23,7 @@ export function Balance({
     enter: { opacity: 1, transform: 'scale(1)' },
     from: { opacity: 0, transform: 'scale(0.7)' },
     initial: { opacity: 1, transform: 'scale(1)' },
-    leave: { immediate: true, display: 'none' },
+    leave: { display: 'none', immediate: true },
   })
   return (
     <div
@@ -55,8 +55,8 @@ export function Balance({
           flexDirection: 'column',
           height: '100%',
           justifyContent: 'space-between',
-          paddingBlock: 8,
           minWidth: 0,
+          paddingBlock: 8,
         })}
       >
         <div
@@ -112,16 +112,16 @@ export function Balance({
           borderRadius: 'var(--radius-th_medium)',
           display: 'flex',
           flexDirection: 'column',
+          flexShrink: 0,
           height: '100%',
           justifyContent: 'space-between',
           marginLeft: 'auto',
+          maxWidth: '50%',
+          minWidth: 0,
           outlineOffset: -1,
+          overflow: 'hidden',
           paddingBlock: 8,
           paddingInline: 12,
-          minWidth: 0,
-          flexShrink: 0,
-          maxWidth: '50%',
-          overflow: 'hidden',
         })}
         disabled={!onRefetch}
         onClick={onRefetch}
@@ -129,32 +129,32 @@ export function Balance({
         {transition((style, isLoading) =>
           isLoading ? (
             <a.div
-              style={style}
               className={css({
                 alignItems: 'center',
+                color: 'var(--text-color-th_base-secondary)',
                 display: 'flex',
+                fontSize: 14,
                 gap: 6,
                 height: '100%',
                 justifyContent: 'center',
-                fontSize: 14,
-                color: 'var(--text-color-th_base-secondary)',
               })}
+              style={style}
               title="Fetching balance…"
             >
               <Spinner size={22} thickness={3} />
             </a.div>
           ) : (
             <a.div
-              style={style}
               className={css({
+                alignItems: 'flex-end',
                 display: 'flex',
                 flexDirection: 'column',
-                justifyContent: 'space-between',
-                alignItems: 'flex-end',
                 height: '100%',
-                width: '100%',
+                justifyContent: 'space-between',
                 minWidth: 0,
+                width: '100%',
               })}
+              style={style}
             >
               <div
                 className={cx(
@@ -162,10 +162,10 @@ export function Balance({
                     fontSize: 14,
                     fontWeight: 500,
                     overflow: 'hidden',
+                    textAlign: 'right',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
                     width: '100%',
-                    textAlign: 'right',
                   }),
                   warn
                     ? css({ color: 'var(--text-color-th_base-warning)' })
@@ -181,10 +181,10 @@ export function Balance({
                   fontFamily: 'monospace',
                   fontSize: 10,
                   overflow: 'hidden',
+                  textAlign: 'right',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
                   width: '100%',
-                  textAlign: 'right',
                 })}
                 title={amount}
               >
