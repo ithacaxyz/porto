@@ -24,7 +24,7 @@ app.use(trimTrailingSlash())
 app.get('/', (context) =>
   context.json({
     routes: ['/cors', '/verify', '/snapshot'],
-    version: context.env.WORKERS_CI_COMMIT_SHA ?? 'running locally',
+    version: __APP_VERSION__,
   }),
 )
 
