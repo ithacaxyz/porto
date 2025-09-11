@@ -31,3 +31,11 @@ export const PreCall = z.object({
   signature: u.hex(),
 })
 export type PreCall = z.infer<typeof PreCall>
+
+export const Context = Schema.extend(
+  PreCall,
+  Schema.Struct({
+    chainId: Primitive.Number,
+  }),
+)
+export type Context = typeof Context.Type

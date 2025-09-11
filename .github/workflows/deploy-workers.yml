@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - 'apps/service/**'
+      - 'apps/~internal/**'
+      - 'src/trusted-hosts.ts'
+      - '.github/workflows/deploy-workers.yml'
   workflow_dispatch:
 
 concurrency:

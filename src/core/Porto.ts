@@ -115,7 +115,7 @@ export function create(
             } as unknown as State
           },
           storage: config.storage,
-          version: 4,
+          version: 5,
         },
       ),
     ),

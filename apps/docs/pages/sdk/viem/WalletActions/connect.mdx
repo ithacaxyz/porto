@@ -48,9 +48,9 @@ const token = '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa'
 const result = await WalletActions.connect(client, {
   grantPermissions: { // [!code focus]
     expiry: Math.floor(Date.now() / 1_000) + 60 * 60, // 1 hour // [!code focus]
-    feeLimit: { // [!code focus]
-      currency: 'USD', // [!code focus]
-      value: '1', // [!code focus] 
+    feeToken: { // [!code focus]
+      limit: '1', // [!code focus] 
+      symbol: 'USDC', // [!code focus]
     }, // [!code focus]
     permissions: { // [!code focus]
       calls: [{ // [!code focus]
@@ -78,9 +78,9 @@ const result = await WalletActions.connect(client, {
     return await WalletActions.connect(client, {
       grantPermissions: {
         expiry: Math.floor(Date.now() / 1_000) + 60 * 60, // 1 hour
-        feeLimit: {
-          currency: 'USD',
-          value: '1',  
+        feeToken: {
+          limit: '1',  
+          symbol: 'USDC',
         },
         permissions: {
           calls: [{
@@ -120,16 +120,14 @@ type GrantPermissions = {
   expiry: number
 
   /** 
-   * Limit that the key can spend on fees. When provided,
-   * Porto will assign a spend permission on the user's
-   * selected fee token that is equal to the limit provided.
-   */
-  feeLimit?: {
-    /** Currency of the limit. */
-    currency: 'ETH' | 'USD' | 'USDC' | 'USDT'
-    /** Value of the limit in the currency's unit (e.g. '1' = 1 USDC). */
-    value: string
-  } | undefined,
+     * Fee token that will be used with these permissions.
+     */
+    feeToken: {
+      /** Value of the limit in the symbols's unit (e.g. '1' = 1 USDC). */
+      limit: string
+      /** Symbol of the fee token. `undefined` for native token. */
+      symbol?: Token.Symbol | undefined
+    } | undefined,
 
   /** Key to grant permissions to. Defaults to a wallet-managed key. */
   key?: {

@@ -1,29 +1,27 @@
 import { Hex, Value } from 'ox'
-import { Key, RelayActions } from 'porto'
-import { MerchantRpc } from 'porto/server'
+import { Key } from 'porto'
+import { Route } from 'porto/server'
 import { readContract, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
-
 import * as TestActions from '../../test/src/actions.js'
 import * as TestConfig from '../../test/src/config.js'
 import * as Http from '../../test/src/http.js'
 import type { ExactPartial } from '../core/internal/types.js'
+import * as RelayActions from '../viem/RelayActions.js'
 
 const porto = TestConfig.getPorto()
 const client = TestConfig.getRelayClient(porto)
 const contracts = await TestConfig.getContracts(porto)
 
 let server: Http.Server | undefined
-async function setup(
-  options: ExactPartial<MerchantRpc.requestHandler.Options> = {},
-) {
+async function setup(options: ExactPartial<Route.merchant.Options> = {}) {
   const merchantKey = Key.createSecp256k1()
   const merchantAccount = await TestActions.createAccount(client, {
     deploy: true,
     keys: [merchantKey],
   })
 
-  const listener = MerchantRpc.requestListener({
+  const route = Route.merchant({
     ...porto.config,
     ...options,
     address: merchantAccount.address,
@@ -31,13 +29,13 @@ async function setup(
   })
 
   if (server) await server.closeAsync()
-  server = await Http.createServer(listener)
+  server = await Http.createServer(route.listener)
 
-  return { merchantAccount, server }
+  return { merchantAccount, route, server }
 }
 
-describe('rpcHandler', () => {
-  test('default', async () => {
+describe('merchant', () => {
+  test('behavior: simple', async () => {
     const { server, merchantAccount } = await setup()
 
     const userKey = Key.createHeadlessWebAuthnP256()
@@ -66,7 +64,6 @@ describe('rpcHandler', () => {
           to: contracts.exp1.address,
         },
       ],
-      feeToken: contracts.exp1.address,
       merchantRpcUrl: server.url,
     })
 
@@ -127,7 +124,6 @@ describe('rpcHandler', () => {
             to: contracts.exp1.address,
           },
         ],
-        feeToken: contracts.exp1.address,
         merchantRpcUrl: server.url,
       })
 
@@ -176,7 +172,6 @@ describe('rpcHandler', () => {
             to: contracts.exp2.address,
           },
         ],
-        feeToken: contracts.exp1.address,
         merchantRpcUrl: server.url,
       })
 
@@ -216,7 +211,6 @@ describe('rpcHandler', () => {
     const { id } = await RelayActions.sendCalls(client_dest, {
       account: merchantAccount,
       calls: [],
-      feeToken: contracts.exp1.address,
     })
     await waitForCallsStatus(client_dest, {
       id,
@@ -255,7 +249,6 @@ describe('rpcHandler', () => {
         },
       ],
       chain: chain_dest,
-      feeToken: contracts.exp1.address,
       merchantRpcUrl: server.url,
       requiredFunds: [
         {
@@ -289,6 +282,15 @@ describe('rpcHandler', () => {
     expect(merchantBalance_post).toBeLessThan(merchantBalance_pre)
   })
 
+  test('behavior: route response (GET)', async () => {
+    const { route } = await setup()
+
+    const response = await route.hono.request('http://localhost')
+    expect(response.status).toBe(200)
+    expect(response.headers.get('access-control-allow-origin')).toBe('*')
+    expect(await response.text()).toBe('ok')
+  })
+
   test('error: contract error', async () => {
     const { server } = await setup()
 
@@ -312,9 +314,40 @@ describe('rpcHandler', () => {
             to: contracts.exp1.address,
           },
         ],
-        feeToken: contracts.exp1.address,
         merchantRpcUrl: server.url,
       }),
     ).rejects.toThrowError('InsufficientAllowance')
+  })
+
+  test('error: invalid params', async () => {
+    const { server } = await setup()
+
+    const response = await fetch(server.url, {
+      body: JSON.stringify({
+        id: 1,
+        jsonrpc: '2.0',
+        method: 'wallet_prepareCalls',
+        params: ['foo'],
+      }),
+      method: 'POST',
+    }).then((r) => r.json())
+    expect(response).toMatchInlineSnapshot(`
+      {
+        "error": {
+          "code": -32602,
+          "message": "Expected wallet_prepareCalls.Parameters, actual "foo"
+      Path: params.0
+
+      Details: Request.Request
+      └─ { readonly method: "wallet_prepareCalls"; readonly params: readonly [wallet_prepareCalls.Parameters]; readonly _returnType: unknown; readonly id: number; readonly jsonrpc: "2.0" }
+         └─ ["params"]
+            └─ readonly [wallet_prepareCalls.Parameters]
+               └─ [0]
+                  └─ Expected wallet_prepareCalls.Parameters, actual "foo"",
+        },
+        "id": 1,
+        "jsonrpc": "2.0",
+      }
+    `)
   })
 })

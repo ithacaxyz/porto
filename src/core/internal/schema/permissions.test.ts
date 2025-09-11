@@ -427,9 +427,9 @@ describe('Request', () => {
       address: '0x1234567890123456789012345678901234567890',
       chainId: '0x1',
       expiry: 1000,
-      feeLimit: {
-        currency: 'USDC',
-        value: '1',
+      feeToken: {
+        limit: '1',
+        symbol: 'USDC',
       },
       key: {
         publicKey: '0xdeadbeef',
@@ -459,9 +459,9 @@ describe('Request', () => {
         "address": "0x1234567890123456789012345678901234567890",
         "chainId": 1,
         "expiry": 1000,
-        "feeLimit": {
-          "currency": "USDC",
-          "value": "1",
+        "feeToken": {
+          "limit": "1",
+          "symbol": "USDC",
         },
         "key": {
           "publicKey": "0xdeadbeef",
@@ -494,9 +494,9 @@ describe('Request', () => {
   test('behavior: parses valid request with minimal fields', () => {
     const result = z.parse(Permissions.Request, {
       expiry: 1000,
-      feeLimit: {
-        currency: 'USDC',
-        value: '1',
+      feeToken: {
+        limit: '1',
+        symbol: 'USDC',
       },
       permissions: {
         calls: [
@@ -510,9 +510,9 @@ describe('Request', () => {
     expect(result).toMatchInlineSnapshot(`
       {
         "expiry": 1000,
-        "feeLimit": {
-          "currency": "USDC",
-          "value": "1",
+        "feeToken": {
+          "limit": "1",
+          "symbol": "USDC",
         },
         "permissions": {
           "calls": [
@@ -532,9 +532,9 @@ describe('Request', () => {
     for (const period of periods) {
       const result = z.parse(Permissions.Request, {
         expiry: 1000,
-        feeLimit: {
-          currency: 'USDC',
-          value: '1',
+        feeToken: {
+          limit: '1',
+          symbol: 'USDC',
         },
         permissions: {
           calls: [
@@ -560,9 +560,9 @@ describe('Request', () => {
       address: '0x1234567890123456789012345678901234567890',
       chainId: 1,
       expiry: 1000,
-      feeLimit: {
-        currency: 'USDC',
-        value: '1',
+      feeToken: {
+        limit: '1',
+        symbol: 'USDC',
       },
       permissions: {
         calls: [
@@ -579,9 +579,9 @@ describe('Request', () => {
   test('behavior: encodes spend limit bigint to hex', () => {
     const result = z.encode(Permissions.Request, {
       expiry: 1000,
-      feeLimit: {
-        currency: 'USDC',
-        value: '1',
+      feeToken: {
+        limit: '1',
+        symbol: 'USDC',
       },
       permissions: {
         calls: [
@@ -606,9 +606,9 @@ describe('Request', () => {
       address: '0x1234567890123456789012345678901234567890',
       chainId: 42161,
       expiry: 2000,
-      feeLimit: {
-        currency: 'USDC',
-        value: '1',
+      feeToken: {
+        limit: '1',
+        symbol: 'USDC',
       },
       key: {
         publicKey: '0xabcdef',
@@ -637,9 +637,9 @@ describe('Request', () => {
         "address": "0x1234567890123456789012345678901234567890",
         "chainId": "0xa4b1",
         "expiry": 2000,
-        "feeLimit": {
-          "currency": "USDC",
-          "value": "1",
+        "feeToken": {
+          "limit": "1",
+          "symbol": "USDC",
         },
         "key": {
           "publicKey": "0xabcdef",
@@ -671,9 +671,9 @@ describe('Request', () => {
   test('behavior: encodes request with minimal fields', () => {
     const result = z.encode(Permissions.Request, {
       expiry: 500,
-      feeLimit: {
-        currency: 'USDC',
-        value: '1',
+      feeToken: {
+        limit: '1',
+        symbol: 'USDC',
       },
       permissions: {
         calls: [
@@ -686,9 +686,9 @@ describe('Request', () => {
     expect(result).toMatchInlineSnapshot(`
       {
         "expiry": 500,
-        "feeLimit": {
-          "currency": "USDC",
-          "value": "1",
+        "feeToken": {
+          "limit": "1",
+          "symbol": "USDC",
         },
         "permissions": {
           "calls": [
@@ -711,9 +711,9 @@ describe('Request', () => {
     ({ limit, expected }) => {
       const result = z.encode(Permissions.Request, {
         expiry: 1000,
-        feeLimit: {
-          currency: 'USDC',
-          value: '1',
+        feeToken: {
+          limit: '1',
+          symbol: 'USDC',
         },
         permissions: {
           calls: [

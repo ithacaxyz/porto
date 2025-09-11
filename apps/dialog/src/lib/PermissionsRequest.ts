@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import * as PermissionsRequest from 'porto/core/internal/permissionsRequest.js'
 import { Hooks } from 'porto/remote'
 import * as z from 'zod/mini'
+import { Key } from 'porto/viem'
 import { porto } from './Porto.js'
 import * as Tokens from './Tokens.js'
 
@@ -25,17 +26,14 @@ export function useResolve(
       const grantPermissions = z.decode(PermissionsRequest.Schema, request)
 
       const feeTokens = await Query.client.ensureQueryData(
-        Tokens.resolveFeeTokens.queryOptions(client),
+        Tokens.getTokens.queryOptions(client, {}),
       )
-      const permissions = PermissionsRequest.resolvePermissions(
-        grantPermissions,
-        {
-          feeTokens,
-        },
-      )
+      const permissions = Key.resolvePermissions(grantPermissions, {
+        feeTokens,
+      })
       const decoded = {
         ...grantPermissions,
-        feeLimit: undefined,
+        feeToken: null,
         permissions,
       }
       const _encoded = z.encode(PermissionsRequest.Schema, decoded)
@@ -49,5 +47,5 @@ export function useResolve(
 }
 
 export declare namespace useFetch {
-  export type Parameters = Tokens.resolveFeeTokens.queryOptions.Options
+  export type Parameters = Tokens.getTokens.queryOptions.Options
 }

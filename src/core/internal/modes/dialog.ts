@@ -208,7 +208,11 @@ export function dialog(parameters: dialog.Parameters = {}) {
                     z.decode(Permissions.Schema, permission),
                   )
                   if (key_permission.id === key?.id)
-                    return { ...key_permission, ...key }
+                    return {
+                      ...key_permission,
+                      ...key,
+                      permissions: key_permission.permissions,
+                    }
                   return key_permission
                 } catch {
                   return undefined
@@ -451,7 +455,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
           })
 
         const key_response = await PermissionsRequest.toKey(
-          z.decode(PermissionsRequest.Schema, response),
+          Schema.decodeSync(PermissionsRequest.Schema)(response),
           {
             chainId: client.chain.id,
           },
@@ -553,7 +557,11 @@ export function dialog(parameters: dialog.Parameters = {}) {
                       z.decode(Permissions.Schema, permission),
                     )
                     if (key_permission.id === key?.id)
-                      return { ...key_permission, ...key }
+                      return {
+                        ...key_permission,
+                        ...key,
+                        permissions: key_permission.permissions,
+                      }
                     return key_permission
                   } catch {
                     return undefined

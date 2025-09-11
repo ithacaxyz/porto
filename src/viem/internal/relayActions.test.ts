@@ -154,7 +154,6 @@ describe('getAssets', () => {
           to: contracts.exp1.address,
         },
       ],
-      feeToken: contracts.exp1.address,
     })
 
     const result = await getAssets(client, {
@@ -193,7 +192,6 @@ describe('getAssets', () => {
           to: contracts.exp1.address,
         },
       ],
-      feeToken: contracts.exp1.address,
     })
 
     const result = await getAssets(client, {
@@ -238,7 +236,6 @@ describe('getAssets', () => {
           to: contracts.exp1.address,
         },
       ],
-      feeToken: contracts.exp1.address,
     })
 
     const result = await getAssets(client, {
@@ -364,11 +361,6 @@ describe('getCallsStatus', () => {
           value: 0n,
         },
       ],
-      capabilities: {
-        meta: {
-          feeToken: contracts.exp1.address,
-        },
-      },
       key: {
         prehash: false,
         publicKey: key.publicKey,
@@ -406,7 +398,6 @@ describe('getKeys', () => {
     await sendCalls(client, {
       account,
       calls: [],
-      feeToken: contracts.exp1.address,
     })
 
     const result = await getKeys(client, {
@@ -449,7 +440,6 @@ describe('getKeys', () => {
     await sendCalls(client, {
       account,
       calls: [],
-      feeToken: contracts.exp1.address,
     })
 
     const result = await getKeys(client, {
@@ -490,7 +480,6 @@ describe('getKeys', () => {
       account,
       authorizeKeys: [key_3],
       calls: [],
-      feeToken: contracts.exp1.address,
     })
     await waitForCallsStatus(client, {
       id,
@@ -530,11 +519,6 @@ describe('prepareCalls + sendPreparedCalls', () => {
           value: 0n,
         },
       ],
-      capabilities: {
-        meta: {
-          feeToken: contracts.exp1.address,
-        },
-      },
       key: {
         prehash: false,
         publicKey: key.publicKey,
@@ -593,7 +577,6 @@ describe('prepareCalls + sendPreparedCalls', () => {
       capabilities: {
         meta: {
           feePayer: merchantAccount.address,
-          feeToken: contracts.exp1.address,
         },
       },
       key: {
@@ -685,6 +668,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
         ],
         capabilities: {
           meta: {
+            // TODO: allow `requiredFunds` to be set without `feeToken`
             feeToken: contracts.exp1.address,
           },
           requiredFunds: [
@@ -772,6 +756,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
         ],
         capabilities: {
           meta: {
+            // TODO: allow `requiredFunds` to be set without `feeToken`
             feeToken: contracts.exp1.address,
           },
           requiredFunds: [
@@ -845,11 +830,6 @@ describe('prepareCalls + sendPreparedCalls', () => {
           to: contracts.exp1.address,
         },
       ],
-      capabilities: {
-        meta: {
-          feeToken: contracts.exp1.address,
-        },
-      },
       key: {
         prehash: false,
         publicKey: key.publicKey,
@@ -881,9 +861,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
         address: account.address,
         calls: [],
         capabilities: {
-          meta: {
-            feeToken: contracts.exp1.address,
-          },
+          meta: {},
         },
         key: {
           prehash: false,
@@ -913,9 +891,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
           },
         ],
         capabilities: {
-          meta: {
-            feeToken: contracts.exp1.address,
-          },
+          meta: {},
         },
         key: {
           prehash: false,
@@ -982,11 +958,6 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
     const req = await prepareCalls(client, {
       address: eoa.address,
       calls: [],
-      capabilities: {
-        meta: {
-          feeToken: contracts.exp1.address,
-        },
-      },
       key: adminKey,
     })
     const signature = await eoa.sign({ hash: req.digest })
@@ -1067,11 +1038,6 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
     const req = await prepareCalls(client, {
       address: eoa.address,
       calls: [],
-      capabilities: {
-        meta: {
-          feeToken: contracts.exp1.address,
-        },
-      },
       key: adminKey,
     })
     const signature = await eoa.sign({ hash: req.digest })
@@ -1173,11 +1139,6 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
     const req = await prepareCalls(client, {
       address: eoa.address,
       calls: [],
-      capabilities: {
-        meta: {
-          feeToken: contracts.exp1.address,
-        },
-      },
       key: adminKey,
     })
     const signature = await eoa.sign({ hash: req.digest })

@@ -1,3 +1,5 @@
+declare const __APP_VERSION__: string
+
 interface EnvironmentVariables {
   readonly ENVIRONMENT: 'local' | 'production'
 

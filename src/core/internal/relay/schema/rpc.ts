@@ -439,7 +439,7 @@ export namespace wallet_prepareCalls {
     /** Quote for the call bundle. */
     context: z.object({
       /** Quote for the call bundle. */
-      preCall: z.optional(z.partial(PreCall.PreCall)),
+      preCall: z.optional(z.partial(PreCall.Context)),
       /** The call bundle. */
       quote: z.optional(z.partial(Quotes.Signed)),
     }),
@@ -584,7 +584,7 @@ export namespace wallet_sendPreparedCalls {
     /** Quote for the call bundle. */
     context: z.object({
       /** The call bundle. */
-      preCall: z.optional(z.partial(PreCall.PreCall)),
+      preCall: z.optional(z.partial(PreCall.Context)),
       /** Quote for the call bundle. */
       quote: z.optional(z.partial(Quotes.Signed)),
     }),

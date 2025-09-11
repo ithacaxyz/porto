@@ -23,7 +23,7 @@ export function parseSearchRequest<
     if ('_decoded' in search && search._decoded) return search as never
     if (search._decoded) return search as never
 
-    const request = RpcRequest.parseRequest(search)
+    const request = RpcRequest.validate(search)
     if (request.method === method)
       return {
         ...request,
@@ -48,7 +48,7 @@ export namespace parseSearchRequest {
 
   export type ReturnType<
     method extends RpcSchema.ExtractMethodName<porto_RpcSchema.Schema>,
-  > = Extract<RpcRequest.parseRequest.ReturnType, { method: method }> & {
+  > = Extract<RpcRequest.Request, { method: method }> & {
     jsonrpc: '2.0'
     id: number
     _returnType: undefined

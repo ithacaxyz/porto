@@ -10,7 +10,7 @@ import {
   orchestratorAddress,
   simulatorAddress,
 } from './_generated/addresses.js'
-import { exp1Address } from './_generated/contracts.js'
+import { exp1Address, exp2Address } from './_generated/contracts.js'
 import * as Anvil from './anvil.js'
 import { poolId, relay } from './prool.js'
 
@@ -33,6 +33,7 @@ export const instances = {
     feeTokens: [
       '0x0000000000000000000000000000000000000000',
       exp1Address[Chains.anvil.id],
+      exp2Address[Chains.anvil.id],
     ],
     interopToken: exp1Address[Chains.anvil.id],
   }),
@@ -92,7 +93,7 @@ function defineRelay(parameters: {
             http: {
               port,
             },
-            version: 'v23.0.8',
+            version: 'v24.0.3',
           }),
         port,
       }).start()
