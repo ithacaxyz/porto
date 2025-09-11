@@ -24,6 +24,7 @@ import { Route as FrameImport } from './routes/Frame'
 import { Route as DiscIconImport } from './routes/DiscIcon'
 import { Route as DetailsImport } from './routes/Details'
 import { Route as ColorsImport } from './routes/Colors'
+import { Route as ChainsPathImport } from './routes/ChainsPath'
 import { Route as ChainIconImport } from './routes/ChainIcon'
 import { Route as ButtonAreaImport } from './routes/ButtonArea'
 import { Route as ButtonImport } from './routes/Button'
@@ -110,6 +111,12 @@ const ColorsRoute = ColorsImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const ChainsPathRoute = ChainsPathImport.update({
+  id: '/ChainsPath',
+  path: '/ChainsPath',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const ChainIconRoute = ChainIconImport.update({
   id: '/ChainIcon',
   path: '/ChainIcon',
@@ -177,6 +184,13 @@ declare module '@tanstack/react-router' {
       path: '/ChainIcon'
       fullPath: '/ChainIcon'
       preLoaderRoute: typeof ChainIconImport
+      parentRoute: typeof rootRoute
+    }
+    '/ChainsPath': {
+      id: '/ChainsPath'
+      path: '/ChainsPath'
+      fullPath: '/ChainsPath'
+      preLoaderRoute: typeof ChainsPathImport
       parentRoute: typeof rootRoute
     }
     '/Colors': {
@@ -281,6 +295,7 @@ export interface FileRoutesByFullPath {
   '/Button': typeof ButtonRoute
   '/ButtonArea': typeof ButtonAreaRoute
   '/ChainIcon': typeof ChainIconRoute
+  '/ChainsPath': typeof ChainsPathRoute
   '/Colors': typeof ColorsRoute
   '/Details': typeof DetailsRoute
   '/DiscIcon': typeof DiscIconRoute
@@ -302,6 +317,7 @@ export interface FileRoutesByTo {
   '/Button': typeof ButtonRoute
   '/ButtonArea': typeof ButtonAreaRoute
   '/ChainIcon': typeof ChainIconRoute
+  '/ChainsPath': typeof ChainsPathRoute
   '/Colors': typeof ColorsRoute
   '/Details': typeof DetailsRoute
   '/DiscIcon': typeof DiscIconRoute
@@ -324,6 +340,7 @@ export interface FileRoutesById {
   '/Button': typeof ButtonRoute
   '/ButtonArea': typeof ButtonAreaRoute
   '/ChainIcon': typeof ChainIconRoute
+  '/ChainsPath': typeof ChainsPathRoute
   '/Colors': typeof ColorsRoute
   '/Details': typeof DetailsRoute
   '/DiscIcon': typeof DiscIconRoute
@@ -347,6 +364,7 @@ export interface FileRouteTypes {
     | '/Button'
     | '/ButtonArea'
     | '/ChainIcon'
+    | '/ChainsPath'
     | '/Colors'
     | '/Details'
     | '/DiscIcon'
@@ -367,6 +385,7 @@ export interface FileRouteTypes {
     | '/Button'
     | '/ButtonArea'
     | '/ChainIcon'
+    | '/ChainsPath'
     | '/Colors'
     | '/Details'
     | '/DiscIcon'
@@ -387,6 +406,7 @@ export interface FileRouteTypes {
     | '/Button'
     | '/ButtonArea'
     | '/ChainIcon'
+    | '/ChainsPath'
     | '/Colors'
     | '/Details'
     | '/DiscIcon'
@@ -409,6 +429,7 @@ export interface RootRouteChildren {
   ButtonRoute: typeof ButtonRoute
   ButtonAreaRoute: typeof ButtonAreaRoute
   ChainIconRoute: typeof ChainIconRoute
+  ChainsPathRoute: typeof ChainsPathRoute
   ColorsRoute: typeof ColorsRoute
   DetailsRoute: typeof DetailsRoute
   DiscIconRoute: typeof DiscIconRoute
@@ -430,6 +451,7 @@ const rootRouteChildren: RootRouteChildren = {
   ButtonRoute: ButtonRoute,
   ButtonAreaRoute: ButtonAreaRoute,
   ChainIconRoute: ChainIconRoute,
+  ChainsPathRoute: ChainsPathRoute,
   ColorsRoute: ColorsRoute,
   DetailsRoute: DetailsRoute,
   DiscIconRoute: DiscIconRoute,
@@ -460,6 +482,7 @@ export const routeTree = rootRoute
         "/Button",
         "/ButtonArea",
         "/ChainIcon",
+        "/ChainsPath",
         "/Colors",
         "/Details",
         "/DiscIcon",
@@ -489,6 +512,9 @@ export const routeTree = rootRoute
     },
     "/ChainIcon": {
       "filePath": "ChainIcon.tsx"
+    },
+    "/ChainsPath": {
+      "filePath": "ChainsPath.tsx"
     },
     "/Colors": {
       "filePath": "Colors.tsx"

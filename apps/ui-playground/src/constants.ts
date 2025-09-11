@@ -9,6 +9,7 @@ export const sections = [
       'Button',
       'ButtonArea',
       'ChainIcon',
+      'ChainsPath',
       'Details',
       'DiscIcon',
       // 'Frame',

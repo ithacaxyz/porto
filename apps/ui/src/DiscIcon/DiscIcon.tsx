@@ -106,7 +106,7 @@ export namespace DiscIcon {
     size = 'medium',
   }: Stack.Props) {
     if (typeof size !== 'number') size = sizes[size]
-    gap ??= size < 20 ? -2 : size <= 24 ? -4 : size * -0.3
+    gap ??= size * -0.3
     return (
       <DiscIconContext.Provider value={{ border, size }}>
         <div

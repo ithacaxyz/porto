@@ -1,4 +1,4 @@
-import { Button, Details } from '@porto/ui'
+import { Button, ChainsPath, Details } from '@porto/ui'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { ComponentScreen } from '~/components/ComponentScreen/ComponentScreen'
@@ -32,8 +32,8 @@ function DetailsComponent() {
         <div className="flex flex-col gap-2 rounded-lg bg-th_base p-3">
           <Details key={key}>
             <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <span className="text-th_base-secondary">Network</span>
-              <span className="font-medium">Ethereum</span>
+              <div className="text-th_base-secondary">Networks</div>
+              <ChainsPath chainIds={[10, 1]} />
             </div>
           </Details>
         </div>
@@ -43,16 +43,16 @@ function DetailsComponent() {
         <div className="flex flex-col gap-2 rounded-lg bg-th_base p-3">
           <Details key={key}>
             <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <span className="text-th_base-secondary">Network</span>
-              <span className="font-medium">Ethereum</span>
+              <div className="text-th_base-secondary">Network</div>
+              <ChainsPath chainIds={[10, 42161, 1]} />
             </div>
             <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <span className="text-th_base-secondary">Gas fee</span>
-              <span className="font-medium">$2.45</span>
+              <div className="text-th_base-secondary">Gas fee</div>
+              <div className="font-medium">$2.45</div>
             </div>
             <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <span className="text-th_base-secondary">Total</span>
-              <span className="font-medium">$102.45</span>
+              <div className="text-th_base-secondary">Total</div>
+              <div className="font-medium">$102.45</div>
             </div>
           </Details>
         </div>
@@ -71,12 +71,12 @@ function DetailsComponent() {
         <div className="flex flex-col gap-2 rounded-lg bg-th_base p-3">
           <Details key={key} loading={loading}>
             <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <span className="text-th_base-secondary">Network</span>
-              <span className="font-medium">Ethereum</span>
+              <div className="text-th_base-secondary">Network</div>
+              <ChainsPath chainIds={[10, 42161, 1]} />
             </div>
             <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <span className="text-th_base-secondary">Gas fee</span>
-              <span className="font-medium">$2.45</span>
+              <div className="text-th_base-secondary">Gas fee</div>
+              <div className="font-medium">$2.45</div>
             </div>
           </Details>
         </div>
@@ -86,16 +86,16 @@ function DetailsComponent() {
         <div className="flex flex-col gap-2 rounded-lg bg-th_base p-3">
           <Details key={key} opened>
             <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <span className="text-th_base-secondary">Network</span>
-              <span className="font-medium">Ethereum</span>
+              <div className="text-th_base-secondary">Network</div>
+              <ChainsPath chainIds={[10, 42161, 1]} />
             </div>
             <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <span className="text-th_base-secondary">Gas fee</span>
-              <span className="font-medium">$2.45</span>
+              <div className="text-th_base-secondary">Gas fee</div>
+              <div className="font-medium">$2.45</div>
             </div>
             <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <span className="text-th_base-secondary">Total</span>
-              <span className="font-medium">$102.45</span>
+              <div className="text-th_base-secondary">Total</div>
+              <div className="font-medium">$102.45</div>
             </div>
           </Details>
         </div>

@@ -38,6 +38,7 @@ const chainInfoCache = new Map<
   number,
   { chain: Chain | null; key: string | null }
 >()
+
 function getChainInfo(chainId: number) {
   if (chainInfoCache.has(chainId)) return chainInfoCache.get(chainId)!
 

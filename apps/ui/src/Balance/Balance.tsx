@@ -118,13 +118,13 @@ export function Balance({
           marginLeft: 'auto',
           maxWidth: '50%',
           minWidth: 0,
-          outlineOffset: -1,
           overflow: 'hidden',
           paddingBlock: 8,
           paddingInline: 12,
         })}
         disabled={!onRefetch}
         onClick={onRefetch}
+        style={{ outlineOffset: -1 }}
       >
         {transition((style, isLoading) =>
           isLoading ? (

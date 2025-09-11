@@ -46,10 +46,7 @@ export function Details({
   const openTransition = useTransition(
     { loading, opened },
     {
-      config: {
-        friction: 40,
-        tension: 500,
-      },
+      config: { friction: 40, tension: loading ? 1200 : 500 },
       enter: { opacity: 1, transform: 'scale(1)' },
       from: { opacity: 0, transform: 'scale(0.95)' },
       initial: { opacity: 1, transform: 'scale(1)' },
