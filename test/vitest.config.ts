@@ -32,6 +32,7 @@ export default defineConfig(({ mode }) => {
           extends: true,
           test: {
             exclude: [
+              '**/node_modules/**',
               '**/*.yaml',
               'src/**/*.browser.test.ts',
               ...(env.VITE_DEFAULT_ENV !== 'anvil'

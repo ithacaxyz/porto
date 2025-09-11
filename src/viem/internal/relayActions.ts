@@ -4,7 +4,6 @@
  * @see https://porto.sh/relay
  */
 
-import { ParseError } from 'effect/ParseResult'
 import * as AbiError from 'ox/AbiError'
 import * as AbiFunction from 'ox/AbiFunction'
 import * as Address from 'ox/Address'
@@ -26,9 +25,9 @@ import {
   type GetExecuteErrorReturnType,
   getExecuteError,
 } from 'viem/experimental/erc7821'
+import * as z from 'zod/mini'
+import * as zError from 'zod-validation-error'
 import * as RpcSchema from '../../core/internal/relay/rpcSchema.js'
-import * as Schema from '../../core/internal/schema/schema.js'
-import { CoderError } from '../../core/internal/schema/schema.js'
 import type { IsUndefined, OneOf } from '../../core/internal/types.js'
 import * as U from '../../core/internal/utils.js'
 import type { sendCalls } from '../RelayActions.js'
@@ -56,14 +55,12 @@ export async function getAuthorization(
         client.request<Schema>({
           method,
           params: [
-            Schema.encodeSync(RpcSchema.wallet_getAuthorization.Parameters)(
-              parameters,
-            ),
+            z.encode(RpcSchema.wallet_getAuthorization.Parameters, parameters),
           ],
         }),
       { cacheKey: `${client.uid}.${method}.${parameters.address}` },
     )
-    return Schema.decodeSync(RpcSchema.wallet_getAuthorization.Response)(result)
+    return z.decode(RpcSchema.wallet_getAuthorization.Response, result)
   } catch (error) {
     parseSchemaError(error)
     throw error
@@ -119,9 +116,7 @@ export async function getCapabilities<
     )
     const parsed = (() => {
       if (options.raw) return result as never
-      return Schema.decodeUnknownSync(
-        RpcSchema.wallet_getCapabilities.Response,
-      )(result)
+      return z.decode(RpcSchema.wallet_getCapabilities.Response, result)
     })()
     if (options.chainIds) return parsed as never
     return Object.values(parsed)[0]! as never
@@ -162,7 +157,7 @@ export namespace getCapabilities {
     raw extends boolean = false,
     //
     value = raw extends true
-      ? typeof RpcSchema.wallet_getCapabilities.Response.Encoded
+      ? z.input<typeof RpcSchema.wallet_getCapabilities.Response>
       : RpcSchema.wallet_getCapabilities.Response,
   > = IsUndefined<chainIds> extends true ? ValueOf<value> : value
 
@@ -184,7 +179,7 @@ export async function getAssets(
     const result = await client.request<Schema>({
       method,
       params: [
-        Schema.encodeSync(RpcSchema.wallet_getAssets.Parameters)({
+        z.encode(RpcSchema.wallet_getAssets.Parameters, {
           account,
           assetFilter,
           assetTypeFilter,
@@ -193,9 +188,7 @@ export async function getAssets(
       ],
     })
 
-    const value = Schema.decodeUnknownSync(RpcSchema.wallet_getAssets.Response)(
-      result,
-    )
+    const value = z.decode(RpcSchema.wallet_getAssets.Response, result)
     const decoded = Object.entries(value).reduce(
       (acc, [key, value]) => {
         acc[Hex.toNumber(key as `0x${string}`)] = value
@@ -244,9 +237,7 @@ export async function addFaucetFunds(
       {
         method,
         params: [
-          Schema.encodeSync(RpcSchema.wallet_addFaucetFunds.Parameters)(
-            parameters,
-          ),
+          z.encode(RpcSchema.wallet_addFaucetFunds.Parameters, parameters),
         ],
       },
       {
@@ -287,9 +278,7 @@ export async function getCallsStatus(
       method,
       params: [id],
     })
-    return Schema.decodeUnknownSync(RpcSchema.wallet_getCallsStatus.Response)(
-      result,
-    )
+    return z.decode(RpcSchema.wallet_getCallsStatus.Response, result)
   } catch (error) {
     parseSchemaError(error)
     throw error
@@ -328,13 +317,13 @@ export async function getKeys(
     const result = await client.request<Schema>({
       method,
       params: [
-        Schema.encodeSync(RpcSchema.wallet_getKeys.Parameters)({
+        z.encode(RpcSchema.wallet_getKeys.Parameters, {
           address,
           chainIds,
         }),
       ],
     })
-    return Schema.decodeSync(RpcSchema.wallet_getKeys.Response)(result)
+    return z.decode(RpcSchema.wallet_getKeys.Response, result)
   } catch (error) {
     parseSchemaError(error)
     throw error
@@ -368,7 +357,7 @@ export async function health(client: Client): Promise<health.ReturnType> {
       }),
     { cacheKey: `${client.uid}.${method}` },
   )
-  return Schema.decodeSync(RpcSchema.health.Response)(result)
+  return z.decode(RpcSchema.health.Response, result)
 }
 
 export namespace health {
@@ -441,7 +430,7 @@ export async function prepareCalls<
       {
         method,
         params: [
-          Schema.encodeSync(RpcSchema.wallet_prepareCalls.Parameters)({
+          z.encode(RpcSchema.wallet_prepareCalls.Parameters, {
             calls,
             capabilities: {
               ...capabilities,
@@ -463,7 +452,7 @@ export async function prepareCalls<
         retryCount: 0,
       },
     )
-    return Schema.decodeSync(RpcSchema.wallet_prepareCalls.Response)(result)
+    return z.decode(RpcSchema.wallet_prepareCalls.Response, result)
   } catch (error) {
     parseSchemaError(error)
     parseExecutionError(error, { calls: parameters.calls })
@@ -518,7 +507,8 @@ export async function prepareUpgradeAccount<chain extends Chain | undefined>(
       {
         method,
         params: [
-          Schema.encodeSync(RpcSchema.wallet_prepareUpgradeAccount.Parameters)(
+          z.encode(
+            RpcSchema.wallet_prepareUpgradeAccount.Parameters,
             U.normalizeValue({
               address,
               capabilities,
@@ -532,9 +522,7 @@ export async function prepareUpgradeAccount<chain extends Chain | undefined>(
         retryCount: 0,
       },
     )
-    return Schema.decodeSync(RpcSchema.wallet_prepareUpgradeAccount.Response)(
-      result,
-    )
+    return z.decode(RpcSchema.wallet_prepareUpgradeAccount.Response, result)
   } catch (error) {
     parseSchemaError(error)
     parseExecutionError(error)
@@ -580,7 +568,7 @@ export async function sendPreparedCalls(
       {
         method,
         params: [
-          Schema.encodeSync(RpcSchema.wallet_sendPreparedCalls.Parameters)({
+          z.encode(RpcSchema.wallet_sendPreparedCalls.Parameters, {
             capabilities,
             context: {
               preCall: context.preCall,
@@ -599,9 +587,7 @@ export async function sendPreparedCalls(
         retryCount: 0,
       },
     )
-    return Schema.decodeSync(RpcSchema.wallet_sendPreparedCalls.Response)(
-      result,
-    )
+    return z.decode(RpcSchema.wallet_sendPreparedCalls.Response, result)
   } catch (error) {
     parseSchemaError(error)
     parseExecutionError(error)
@@ -643,7 +629,7 @@ export async function setEmail(
       {
         method,
         params: [
-          Schema.encodeSync(RpcSchema.account_setEmail.Parameters)({
+          z.encode(RpcSchema.account_setEmail.Parameters, {
             email,
             walletAddress,
           }),
@@ -653,7 +639,7 @@ export async function setEmail(
         retryCount: 0,
       },
     )
-    return Schema.decodeSync(RpcSchema.account_setEmail.Response)(result)
+    return z.decode(RpcSchema.account_setEmail.Response, result)
   } catch (error) {
     parseSchemaError(error)
     parseExecutionError(error)
@@ -695,7 +681,7 @@ export async function upgradeAccount(
       {
         method,
         params: [
-          Schema.encodeSync(RpcSchema.wallet_upgradeAccount.Parameters)({
+          z.encode(RpcSchema.wallet_upgradeAccount.Parameters, {
             context,
             signatures,
           }),
@@ -746,7 +732,7 @@ export async function verifyEmail(
       {
         method,
         params: [
-          Schema.encodeSync(RpcSchema.account_verifyEmail.Parameters)({
+          z.encode(RpcSchema.account_verifyEmail.Parameters, {
             chainId,
             email,
             signature,
@@ -759,7 +745,7 @@ export async function verifyEmail(
         retryCount: 0,
       },
     )
-    return Schema.decodeSync(RpcSchema.account_verifyEmail.Response)(result)
+    return z.decode(RpcSchema.account_verifyEmail.Response, result)
   } catch (error) {
     parseSchemaError(error)
     parseExecutionError(error)
@@ -815,7 +801,7 @@ export async function verifySignature<chain extends Chain | undefined>(
           {
             method,
             params: [
-              Schema.encodeSync(RpcSchema.wallet_verifySignature.Parameters)({
+              z.encode(RpcSchema.wallet_verifySignature.Parameters, {
                 address,
                 chainId: chain?.id!,
                 digest,
@@ -831,7 +817,7 @@ export async function verifySignature<chain extends Chain | undefined>(
       if (result.valid) return result
       return fallback()
     })()
-    return Schema.decodeSync(RpcSchema.wallet_verifySignature.Response)(result)
+    return z.decode(RpcSchema.wallet_verifySignature.Response, result)
   } catch (error) {
     parseSchemaError(error)
     throw error
@@ -904,11 +890,11 @@ export declare namespace parseExecutionError {
 
 /** Thrown when schema validation fails. */
 export function parseSchemaError(e: unknown) {
-  if (e instanceof ParseError) throw new CoderError(e)
+  if ((e as any).name === '$ZodError') throw zError.fromError(e)
 }
 
 export declare namespace parseSchemaError {
-  type ErrorType = CoderError
+  type ErrorType = zError.ValidationError | Errors.GlobalErrorType
 }
 
 /** Thrown when the execution fails. */

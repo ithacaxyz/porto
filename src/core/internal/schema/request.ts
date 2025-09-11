@@ -1,14 +1,12 @@
-import * as Either from 'effect/Either'
-import type { ParseIssue } from 'effect/ParseResult'
-import * as Schema from 'effect/Schema'
 import type * as Errors from 'ox/Errors'
 import * as RpcResponse from 'ox/RpcResponse'
+import * as z from 'zod/mini'
+import * as zError from 'zod-validation-error'
 import * as RpcRequest from './rpc.js'
-import { CoderError } from './schema.js'
 
 export * from './rpc.js'
 
-export const Request = Schema.Union(
+export const Request = z.discriminatedUnion('method', [
   RpcRequest.account_verifyEmail.Request,
   RpcRequest.wallet_addFunds.Request,
   RpcRequest.eth_accounts.Request,
@@ -38,39 +36,36 @@ export const Request = Schema.Union(
   RpcRequest.wallet_sendPreparedCalls.Request,
   RpcRequest.wallet_switchEthereumChain.Request,
   RpcRequest.wallet_verifySignature.Request,
-).annotations({
-  identifier: 'Request.Request',
-  parseOptions: {},
-})
+])
 
 export function parseRequest(value: unknown): parseRequest.ReturnType {
-  Schema.validateEither(Schema.encodedSchema(Request))(value)
+  const result = z.safeParse(Request, value)
 
-  const _decoded = Schema.decodeUnknownEither(Request)(value).pipe(
-    Either.getOrThrowWith((left) => {
-      if (left.issue._tag === 'Composite') {
-        const [parent] = left.issue.issues as readonly [ParseIssue]
-        if (parent._tag === 'Composite' && !Array.isArray(parent.issues)) {
-          const issue = parent.issues as ParseIssue
-          if (issue._tag === 'Pointer' && issue.path === 'method')
-            return new RpcResponse.MethodNotSupportedError()
-        }
-      }
-      return new RpcResponse.InvalidParamsError(new CoderError(left))
-    }),
-  )
+  if (result.error) {
+    const issue = result.error.issues.at(0)
+    if (
+      issue?.code === 'invalid_union' &&
+      (issue as any).note === 'No matching discriminator'
+    )
+      throw new RpcResponse.MethodNotSupportedError()
+    throw new RpcResponse.InvalidParamsError(
+      zError.fromError(result.error, {
+        prefix: (value as { method?: string | undefined })?.method,
+      }),
+    )
+  }
 
   return {
-    ...(value as typeof Request.Encoded),
-    _decoded,
+    ...(value as any),
+    _decoded: result.data,
   } as never
 }
 
 export declare namespace parseRequest {
-  export type ReturnType = typeof Request extends Schema.Union<infer U>
+  export type ReturnType = typeof Request extends z.ZodMiniUnion<infer U>
     ? {
-        [K in keyof U]: U[K]['Encoded'] & {
-          _decoded: U[K]['Type']
+        [K in keyof U]: z.input<U[K]> & {
+          _decoded: z.output<U[K]>
         }
       }[number]
     : never

@@ -1,10 +1,11 @@
 import { describe, expect, test } from 'vitest'
-import * as Schema from '../../schema/schema.js'
+import * as z from 'zod/mini'
+import * as zError from 'zod-validation-error'
 import * as Permission from './permission.js'
 
 describe('CallPermission', () => {
   test('behavior: parses valid call permission', () => {
-    const result = Schema.decodeUnknownSync(Permission.CallPermission)({
+    const result = z.parse(Permission.CallPermission, {
       selector: '0xa9059cbb',
       to: '0x1234567890123456789012345678901234567890',
       type: 'call',
@@ -19,7 +20,7 @@ describe('CallPermission', () => {
   })
 
   test('behavior: encodes call permission', () => {
-    const result = Schema.encodeSync(Permission.CallPermission)({
+    const result = z.encode(Permission.CallPermission, {
       selector: '0xa9059cbb',
       to: '0x1234567890123456789012345678901234567890',
       type: 'call',
@@ -34,108 +35,90 @@ describe('CallPermission', () => {
   })
 
   test('param: rejects missing selector', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permission.CallPermission)({
-        to: '0x1234567890123456789012345678901234567890',
-        type: 'call',
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: \`selector\` is missing
-      Path: selector
-
-      Details: { readonly selector: \`0x\${string}\`; readonly to: \`0x\${string}\`; readonly type: "call" }
-      └─ ["selector"]
-         └─ is missing]
-    `)
+    expect(
+      zError.fromError(
+        z.safeParse(Permission.CallPermission, {
+          to: '0x1234567890123456789012345678901234567890',
+          type: 'call',
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `[ZodValidationError: Validation error: Invalid input at "selector"]`,
+    )
   })
 
   test('param: rejects missing to address', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permission.CallPermission)({
-        selector: '0xa9059cbb',
-        type: 'call',
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: \`to\` is missing
-      Path: to
-
-      Details: { readonly selector: \`0x\${string}\`; readonly to: \`0x\${string}\`; readonly type: "call" }
-      └─ ["to"]
-         └─ is missing]
-    `)
+    expect(
+      zError.fromError(
+        z.safeParse(Permission.CallPermission, {
+          selector: '0xa9059cbb',
+          type: 'call',
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `[ZodValidationError: Validation error: Invalid input at "to"]`,
+    )
   })
 
   test('param: rejects missing type', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permission.CallPermission)({
-        selector: '0xa9059cbb',
-        to: '0x1234567890123456789012345678901234567890',
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: \`type\` is missing
-      Path: type
-
-      Details: { readonly selector: \`0x\${string}\`; readonly to: \`0x\${string}\`; readonly type: "call" }
-      └─ ["type"]
-         └─ is missing]
-    `)
+    expect(
+      zError.fromError(
+        z.safeParse(Permission.CallPermission, {
+          selector: '0xa9059cbb',
+          to: '0x1234567890123456789012345678901234567890',
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `[ZodValidationError: Validation error: Invalid input at "type"]`,
+    )
   })
 
   test('error: rejects invalid selector format', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permission.CallPermission)({
-        selector: 'invalid-selector',
-        to: '0x1234567890123456789012345678901234567890',
-        type: 'call',
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-selector"
-      Path: selector
-
-      Details: { readonly selector: \`0x\${string}\`; readonly to: \`0x\${string}\`; readonly type: "call" }
-      └─ ["selector"]
-         └─ Expected \`0x\${string}\`, actual "invalid-selector"]
-    `)
+    expect(
+      zError.fromError(
+        z.safeParse(Permission.CallPermission, {
+          selector: 'invalid-selector',
+          to: '0x1234567890123456789012345678901234567890',
+          type: 'call',
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `[ZodValidationError: Validation error: Invalid input at "selector"]`,
+    )
   })
 
   test('error: rejects invalid to address format', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permission.CallPermission)({
-        selector: '0xa9059cbb',
-        to: 'invalid-address',
-        type: 'call',
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-address"
-      Path: to
-
-      Details: { readonly selector: \`0x\${string}\`; readonly to: \`0x\${string}\`; readonly type: "call" }
-      └─ ["to"]
-         └─ Expected \`0x\${string}\`, actual "invalid-address"]
-    `)
+    expect(
+      zError.fromError(
+        z.safeParse(Permission.CallPermission, {
+          selector: '0xa9059cbb',
+          to: 'invalid-address',
+          type: 'call',
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `[ZodValidationError: Validation error: Invalid input at "to"]`,
+    )
   })
 
   test('error: rejects invalid type', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permission.CallPermission)({
-        selector: '0xa9059cbb',
-        to: '0x1234567890123456789012345678901234567890',
-        type: 'invalid-type',
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected "call", actual "invalid-type"
-      Path: type
-
-      Details: { readonly selector: \`0x\${string}\`; readonly to: \`0x\${string}\`; readonly type: "call" }
-      └─ ["type"]
-         └─ Expected "call", actual "invalid-type"]
-    `)
+    expect(
+      zError.fromError(
+        z.safeParse(Permission.CallPermission, {
+          selector: '0xa9059cbb',
+          to: '0x1234567890123456789012345678901234567890',
+          type: 'invalid-type',
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `[ZodValidationError: Validation error: Invalid input at "type"]`,
+    )
   })
 })
 
 describe('SpendPermission', () => {
   test('behavior: parses valid spend permission with all fields', () => {
-    const result = Schema.decodeUnknownSync(Permission.SpendPermission)({
+    const result = z.parse(Permission.SpendPermission, {
       limit: '0x64',
       period: 'day',
       token: '0x1234567890123456789012345678901234567890',
@@ -152,7 +135,7 @@ describe('SpendPermission', () => {
   })
 
   test('behavior: parses valid spend permission with null token', () => {
-    const result = Schema.decodeUnknownSync(Permission.SpendPermission)({
+    const result = z.parse(Permission.SpendPermission, {
       limit: '0x64',
       period: 'day',
       token: null,
@@ -169,7 +152,7 @@ describe('SpendPermission', () => {
   })
 
   test('behavior: parses valid spend permission without token', () => {
-    const result = Schema.decodeUnknownSync(Permission.SpendPermission)({
+    const result = z.parse(Permission.SpendPermission, {
       limit: '0x64',
       period: 'day',
       type: 'spend',
@@ -193,7 +176,7 @@ describe('SpendPermission', () => {
   ])(
     'behavior: parses valid spend permission with period $period',
     ({ period }) => {
-      const result = Schema.decodeUnknownSync(Permission.SpendPermission)({
+      const result = z.parse(Permission.SpendPermission, {
         limit: '0x64',
         period,
         type: 'spend',
@@ -203,7 +186,7 @@ describe('SpendPermission', () => {
   )
 
   test('behavior: encodes spend permission with BigInt limit', () => {
-    const result = Schema.encodeSync(Permission.SpendPermission)({
+    const result = z.encode(Permission.SpendPermission, {
       limit: 1000n,
       period: 'day',
       type: 'spend',
@@ -218,7 +201,7 @@ describe('SpendPermission', () => {
   })
 
   test('behavior: encodes spend permission with token', () => {
-    const result = Schema.encodeSync(Permission.SpendPermission)({
+    const result = z.encode(Permission.SpendPermission, {
       limit: 255n,
       period: 'hour',
       token: '0x1234567890123456789012345678901234567890',
@@ -235,7 +218,7 @@ describe('SpendPermission', () => {
   })
 
   test('behavior: encodes spend permission with null token', () => {
-    const result = Schema.encodeSync(Permission.SpendPermission)({
+    const result = z.encode(Permission.SpendPermission, {
       limit: 0n,
       period: 'week',
       token: null,
@@ -259,7 +242,7 @@ describe('SpendPermission', () => {
   ])(
     'behavior: encodes spend limit $limit to $expected',
     ({ limit, expected }) => {
-      const result = Schema.encodeSync(Permission.SpendPermission)({
+      const result = z.encode(Permission.SpendPermission, {
         limit,
         period: 'day',
         type: 'spend',
@@ -269,138 +252,105 @@ describe('SpendPermission', () => {
   )
 
   test('param: rejects missing limit', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permission.SpendPermission)({
-        period: 'day',
-        type: 'spend',
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: \`limit\` is missing
-      Path: limit
-
-      Details: { readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | null | undefined; readonly type: "spend" }
-      └─ ["limit"]
-         └─ is missing]
-    `)
+    expect(
+      zError.fromError(
+        z.safeParse(Permission.SpendPermission, {
+          period: 'day',
+          type: 'spend',
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `[ZodValidationError: Validation error: Invalid input at "limit"]`,
+    )
   })
 
   test('param: rejects missing period', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permission.SpendPermission)({
-        limit: '0x64',
-        type: 'spend',
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: \`period\` is missing
-      Path: period
-
-      Details: { readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | null | undefined; readonly type: "spend" }
-      └─ ["period"]
-         └─ is missing]
-    `)
+    expect(
+      zError.fromError(
+        z.safeParse(Permission.SpendPermission, {
+          limit: '0x64',
+          type: 'spend',
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `[ZodValidationError: Validation error: Invalid input at "period"]`,
+    )
   })
 
   test('param: rejects missing type', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permission.SpendPermission)({
-        limit: '0x64',
-        period: 'day',
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: \`type\` is missing
-      Path: type
-
-      Details: { readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | null | undefined; readonly type: "spend" }
-      └─ ["type"]
-         └─ is missing]
-    `)
+    expect(
+      zError.fromError(
+        z.safeParse(Permission.SpendPermission, {
+          limit: '0x64',
+          period: 'day',
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `[ZodValidationError: Validation error: Invalid input at "type"]`,
+    )
   })
 
   test('error: rejects invalid limit format', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permission.SpendPermission)({
-        limit: 'invalid-limit',
-        period: 'day',
-        type: 'spend',
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-limit"
-      Path: limit
-
-      Details: { readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | null | undefined; readonly type: "spend" }
-      └─ ["limit"]
-         └─ (\`0x\${string}\` <-> bigint)
-            └─ Encoded side transformation failure
-               └─ Expected \`0x\${string}\`, actual "invalid-limit"]
-    `)
+    expect(
+      zError.fromError(
+        z.safeParse(Permission.SpendPermission, {
+          limit: 'invalid-limit',
+          period: 'day',
+          type: 'spend',
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `[ZodValidationError: Validation error: Invalid input at "limit"]`,
+    )
   })
 
   test('error: rejects invalid period', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permission.SpendPermission)({
-        limit: '0x64',
-        period: 'invalid-period',
-        type: 'spend',
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected "minute", actual "invalid-period"
-      Path: period
-
-      Details: { readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | null | undefined; readonly type: "spend" }
-      └─ ["period"]
-         └─ "minute" | "hour" | "day" | "week" | "month" | "year"
-            ├─ Expected "minute", actual "invalid-period"
-            ├─ Expected "hour", actual "invalid-period"
-            ├─ Expected "day", actual "invalid-period"
-            ├─ Expected "week", actual "invalid-period"
-            ├─ Expected "month", actual "invalid-period"
-            └─ Expected "year", actual "invalid-period"]
-    `)
+    expect(
+      zError.fromError(
+        z.safeParse(Permission.SpendPermission, {
+          limit: '0x64',
+          period: 'invalid-period',
+          type: 'spend',
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `[ZodValidationError: Validation error: Invalid input at "period"]`,
+    )
   })
 
   test('error: rejects invalid type', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permission.SpendPermission)({
-        limit: '0x64',
-        period: 'day',
-        type: 'invalid-type',
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected "spend", actual "invalid-type"
-      Path: type
-
-      Details: { readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | null | undefined; readonly type: "spend" }
-      └─ ["type"]
-         └─ Expected "spend", actual "invalid-type"]
-    `)
+    expect(
+      zError.fromError(
+        z.safeParse(Permission.SpendPermission, {
+          limit: '0x64',
+          period: 'day',
+          type: 'invalid-type',
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `[ZodValidationError: Validation error: Invalid input at "type"]`,
+    )
   })
 
   test('error: rejects invalid token format', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permission.SpendPermission)({
-        limit: '0x64',
-        period: 'day',
-        token: 'invalid-token',
-        type: 'spend',
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-token"
-      Path: token
-
-      Details: { readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | null | undefined; readonly type: "spend" }
-      └─ ["token"]
-         └─ \`0x\${string}\` | null | undefined
-            ├─ \`0x\${string}\` | null
-            │  ├─ Expected \`0x\${string}\`, actual "invalid-token"
-            │  └─ Expected null, actual "invalid-token"
-            └─ Expected undefined, actual "invalid-token"]
-    `)
+    expect(
+      zError.fromError(
+        z.safeParse(Permission.SpendPermission, {
+          limit: '0x64',
+          period: 'day',
+          token: 'invalid-token',
+          type: 'spend',
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `[ZodValidationError: Validation error: Invalid input at "token"]`,
+    )
   })
 })
 
 describe('Permission', () => {
   test('behavior: parses call permission', () => {
-    const result = Schema.decodeUnknownSync(Permission.Permission)({
+    const result = z.parse(Permission.Permission, {
       selector: '0xa9059cbb',
       to: '0x1234567890123456789012345678901234567890',
       type: 'call',
@@ -415,7 +365,7 @@ describe('Permission', () => {
   })
 
   test('behavior: parses spend permission', () => {
-    const result = Schema.decodeUnknownSync(Permission.Permission)({
+    const result = z.parse(Permission.Permission, {
       limit: '0x64',
       period: 'day',
       type: 'spend',
@@ -430,34 +380,24 @@ describe('Permission', () => {
   })
 
   test('error: rejects invalid permission type', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permission.Permission)({
-        selector: '0xa9059cbb',
-        to: '0x1234567890123456789012345678901234567890',
-        type: 'invalid-type',
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected "call" | "spend", actual "invalid-type"
-      Path: type
-
-      Details: { readonly selector: \`0x\${string}\`; readonly to: \`0x\${string}\`; readonly type: "call" } | { readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | null | undefined; readonly type: "spend" }
-      └─ { readonly type: "call" | "spend" }
-         └─ ["type"]
-            └─ Expected "call" | "spend", actual "invalid-type"]
-    `)
+    expect(
+      zError.fromError(
+        z.safeParse(Permission.Permission, {
+          selector: '0xa9059cbb',
+          to: '0x1234567890123456789012345678901234567890',
+          type: 'invalid-type',
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `[ZodValidationError: Validation error: Invalid input at "type" or Invalid input at "limit"; Invalid input at "period"; Invalid input at "type"]`,
+    )
   })
 
   test('error: rejects empty object', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permission.Permission)({}),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: \`type\` is missing
-      Path: type
-
-      Details: { readonly selector: \`0x\${string}\`; readonly to: \`0x\${string}\`; readonly type: "call" } | { readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | null | undefined; readonly type: "spend" }
-      └─ { readonly type: "call" | "spend" }
-         └─ ["type"]
-            └─ is missing]
-    `)
+    expect(
+      zError.fromError(z.safeParse(Permission.Permission, {}).error),
+    ).toMatchInlineSnapshot(
+      `[ZodValidationError: Validation error: Invalid input at "selector"; Invalid input at "to"; Invalid input at "type" or Invalid input at "limit"; Invalid input at "period"; Invalid input at "type"]`,
+    )
   })
 })

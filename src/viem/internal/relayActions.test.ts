@@ -892,18 +892,9 @@ describe('prepareCalls + sendPreparedCalls', () => {
           type: 'webauthnp256',
         },
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "cheese"
-      Path: key.publicKey
-
-      Details: wallet_prepareCalls.Parameters
-      └─ ["key"]
-         └─ { readonly prehash: boolean; readonly publicKey: \`0x\${string}\`; readonly type: "p256" | "secp256k1" | "webauthnp256" } | undefined
-            ├─ { readonly prehash: boolean; readonly publicKey: \`0x\${string}\`; readonly type: "p256" | "secp256k1" | "webauthnp256" }
-            │  └─ ["publicKey"]
-            │     └─ Expected \`0x\${string}\`, actual "cheese"
-            └─ Expected undefined, actual {"prehash":false,"publicKey":"cheese","type":"webauthnp256"}]
-    `)
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[ZodValidationError: Validation error: Invalid input at "key.publicKey"]`,
+    )
   })
 
   test('error: schema encoding', async () => {
@@ -934,21 +925,9 @@ describe('prepareCalls + sendPreparedCalls', () => {
           type: 'falcon',
         },
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected "p256", actual "falcon"
-      Path: key.type
-
-      Details: wallet_prepareCalls.Parameters
-      └─ ["key"]
-         └─ { readonly prehash: boolean; readonly publicKey: \`0x\${string}\`; readonly type: "p256" | "secp256k1" | "webauthnp256" } | undefined
-            ├─ { readonly prehash: boolean; readonly publicKey: \`0x\${string}\`; readonly type: "p256" | "secp256k1" | "webauthnp256" }
-            │  └─ ["type"]
-            │     └─ "p256" | "secp256k1" | "webauthnp256"
-            │        ├─ Expected "p256", actual "falcon"
-            │        ├─ Expected "secp256k1", actual "falcon"
-            │        └─ Expected "webauthnp256", actual "falcon"
-            └─ Expected undefined, actual {"prehash":false,"publicKey":"0x0000000000000000000000000000000000000000000000000000000000000000","type":"falcon"}]
-    `)
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[ZodValidationError: Validation error: Invalid input at "key.type"]`,
+    )
   })
 })
 
@@ -1238,20 +1217,9 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
         ],
         delegation: contracts.accountProxy.address,
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "INVALID!"
-      Path: capabilities.authorizeKeys.0.publicKey
-
-      Details: Rpc.wallet_prepareUpgradeAccount.Parameters
-      └─ ["capabilities"]
-         └─ Rpc.wallet_prepareUpgradeAccount.Capabilities
-            └─ ["authorizeKeys"]
-               └─ ReadonlyArray<{ readonly expiry: (\`0x\${string}\` <-> number); readonly prehash?: boolean | undefined; readonly publicKey: \`0x\${string}\`; readonly role: "admin" | "normal"; readonly type: "p256" | "secp256k1" | "webauthnp256"; readonly permissions: ReadonlyArray<{ readonly selector: \`0x\${string}\`; readonly to: \`0x\${string}\`; readonly type: "call" } | { readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | null | undefined; readonly type: "spend" }> }>
-                  └─ [0]
-                     └─ { readonly expiry: (\`0x\${string}\` <-> number); readonly prehash?: boolean | undefined; readonly publicKey: \`0x\${string}\`; readonly role: "admin" | "normal"; readonly type: "p256" | "secp256k1" | "webauthnp256"; readonly permissions: ReadonlyArray<{ readonly selector: \`0x\${string}\`; readonly to: \`0x\${string}\`; readonly type: "call" } | { readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | null | undefined; readonly type: "spend" }> }
-                        └─ ["publicKey"]
-                           └─ Expected \`0x\${string}\`, actual "INVALID!"]
-    `)
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[ZodValidationError: Validation error: Invalid input at "capabilities.authorizeKeys[0].publicKey"]`,
+    )
 
     await expect(() =>
       prepareUpgradeAccount(client, {
@@ -1269,20 +1237,9 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
         ],
         delegation: contracts.accountProxy.address,
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "INVALID!"
-      Path: capabilities.authorizeKeys.0.publicKey
-
-      Details: Rpc.wallet_prepareUpgradeAccount.Parameters
-      └─ ["capabilities"]
-         └─ Rpc.wallet_prepareUpgradeAccount.Capabilities
-            └─ ["authorizeKeys"]
-               └─ ReadonlyArray<{ readonly expiry: (\`0x\${string}\` <-> number); readonly prehash?: boolean | undefined; readonly publicKey: \`0x\${string}\`; readonly role: "admin" | "normal"; readonly type: "p256" | "secp256k1" | "webauthnp256"; readonly permissions: ReadonlyArray<{ readonly selector: \`0x\${string}\`; readonly to: \`0x\${string}\`; readonly type: "call" } | { readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | null | undefined; readonly type: "spend" }> }>
-                  └─ [0]
-                     └─ { readonly expiry: (\`0x\${string}\` <-> number); readonly prehash?: boolean | undefined; readonly publicKey: \`0x\${string}\`; readonly role: "admin" | "normal"; readonly type: "p256" | "secp256k1" | "webauthnp256"; readonly permissions: ReadonlyArray<{ readonly selector: \`0x\${string}\`; readonly to: \`0x\${string}\`; readonly type: "call" } | { readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | null | undefined; readonly type: "spend" }> }
-                        └─ ["publicKey"]
-                           └─ Expected \`0x\${string}\`, actual "INVALID!"]
-    `)
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[ZodValidationError: Validation error: Invalid input at "capabilities.authorizeKeys[0].publicKey"]`,
+    )
   })
 })
 

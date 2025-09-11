@@ -5,6 +5,7 @@ import * as RpcRequest from 'ox/RpcRequest'
 import * as RpcResponse from 'ox/RpcResponse'
 import * as RpcSchema from 'ox/RpcSchema'
 import { waitForCallsStatus } from 'viem/actions'
+import * as z from 'zod/mini'
 import type { ThemeFragment } from '../../../theme/Theme.js'
 import * as Account from '../../../viem/Account.js'
 import * as Key from '../../../viem/Key.js'
@@ -17,7 +18,6 @@ import * as Permissions from '../permissions.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import type * as Porto from '../porto.js'
 import * as PreCalls from '../preCalls.js'
-import * as Schema from '../schema/schema.js'
 import type * as Token from '../schema/token.js'
 import * as Siwe from '../siwe.js'
 import * as U from '../utils.js'
@@ -166,7 +166,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
             // Convert the key into a permission.
             const permissionsRequest = key
-              ? Schema.encodeSync(PermissionsRequest.Schema)(
+              ? z.encode(
+                  PermissionsRequest.Schema,
                   PermissionsRequest.fromKey(key),
                 )
               : undefined
@@ -204,7 +205,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
               ?.map((permission) => {
                 try {
                   const key_permission = Permissions.toKey(
-                    Schema.decodeSync(Permissions.Schema)(permission),
+                    z.decode(Permissions.Schema, permission),
                   )
                   if (key_permission.id === key?.id)
                     return { ...key_permission, ...key }
@@ -311,9 +312,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const provider = getProvider(store)
         const result = await provider.request(request)
-        return Schema.decodeSync(RpcSchema_porto.wallet_getAssets.Response)(
-          result,
-        )
+        return z.decode(RpcSchema_porto.wallet_getAssets.Response, result)
       },
 
       async getCallsStatus(parameters) {
@@ -360,16 +359,14 @@ export function dialog(parameters: dialog.Parameters = {}) {
           const result = await provider.request({
             method: 'wallet_getKeys',
             params: [
-              Schema.encodeSync(RpcSchema_porto.wallet_getKeys.Parameters)({
+              z.encode(RpcSchema_porto.wallet_getKeys.Parameters, {
                 address: account.address,
                 chainIds,
               }),
             ],
           })
 
-          return Schema.decodeSync(RpcSchema_porto.wallet_getKeys.Response)(
-            result,
-          )
+          return z.decode(RpcSchema_porto.wallet_getKeys.Response, result)
         })()
 
         return U.uniqBy(
@@ -434,7 +431,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
         })
         if (!key) throw new Error('no key found.')
 
-        const permissionsRequest = Schema.encodeSync(PermissionsRequest.Schema)(
+        const permissionsRequest = z.encode(
+          PermissionsRequest.Schema,
           PermissionsRequest.fromKey(key),
         )
 
@@ -453,7 +451,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
           })
 
         const key_response = await PermissionsRequest.toKey(
-          Schema.decodeSync(PermissionsRequest.Schema)(response),
+          z.decode(PermissionsRequest.Schema, response),
           {
             chainId: client.chain.id,
           },
@@ -471,10 +469,11 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const provider = getProvider(store)
 
-        const request =
-          internal.request as typeof RpcSchema_porto.wallet_connect.Request.Encoded & {
-            _decoded: RpcSchema_porto.wallet_connect.Request
-          }
+        const request = internal.request as z.input<
+          typeof RpcSchema_porto.wallet_connect.Request
+        > & {
+          _decoded: RpcSchema_porto.wallet_connect.Request
+        }
 
         if (
           request.method !== 'wallet_connect' &&
@@ -504,7 +503,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
           // Convert the key into a permissions request.
           const permissionsRequest = key
-            ? Schema.encodeSync(PermissionsRequest.Schema)(
+            ? z.encode(
+                PermissionsRequest.Schema,
                 PermissionsRequest.fromKey(key),
               )
             : undefined
@@ -550,7 +550,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 ?.map((permission) => {
                   try {
                     const key_permission = Permissions.toKey(
-                      Schema.decodeSync(Permissions.Schema)(permission),
+                      z.decode(Permissions.Schema, permission),
                     )
                     if (key_permission.id === key?.id)
                       return { ...key_permission, ...key }
@@ -623,9 +623,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
         })
 
         const provider = getProvider(store)
-        const result = Schema.decodeSync(
+        const result = z.decode(
           RpcSchema_porto.wallet_prepareCalls.Response,
-        )(
           await provider.request({
             ...request,
             params: [
@@ -676,9 +675,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         // Convert the key into a permission.
         const permissionsRequest = key
-          ? Schema.encodeSync(PermissionsRequest.Schema)(
-              PermissionsRequest.fromKey(key),
-            )
+          ? z.encode(PermissionsRequest.Schema, PermissionsRequest.fromKey(key))
           : undefined
 
         // Send a request off to the dialog to prepare the upgrade.
@@ -809,7 +806,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
           try {
             // TODO: use eventual Viem Action.
             const req = await provider.request(
-              Schema.encodeSync(RpcSchema_porto.wallet_prepareCalls.Request)({
+              z.encode(RpcSchema_porto.wallet_prepareCalls.Request, {
                 method: 'wallet_prepareCalls',
                 params: [
                   {

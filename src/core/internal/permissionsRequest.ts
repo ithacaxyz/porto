@@ -2,13 +2,14 @@ import * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import * as Value from 'ox/Value'
 import { zeroAddress } from 'viem'
+import type * as z from 'zod/mini'
 import * as Key from '../../viem/Key.js'
 import * as Permissions from './schema/permissions.js'
 import type * as Tokens from './tokens.js'
 
 export const Schema = Permissions.Request
 
-export type PermissionsRequest = typeof Schema.Type
+export type PermissionsRequest = z.infer<typeof Schema>
 
 export function fromKey(key: Key.Key): PermissionsRequest {
   const { expiry, feeLimit, permissions, publicKey, type } = key

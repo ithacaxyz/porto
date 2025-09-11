@@ -21,7 +21,7 @@ import type {
   UseQueryParameters,
   UseQueryReturnType,
 } from 'wagmi/query'
-import * as Schema from '../../core/internal/schema/schema.js'
+import * as z from 'zod/mini'
 
 import * as RpcSchema from '../../core/RpcSchema.js'
 import {
@@ -130,9 +130,10 @@ export function useAdmins<
         if (event.type !== 'adminsChanged') return
         queryClient.setQueryData(queryKey, (data: any) => ({
           ...data,
-          keys: Schema.decodeUnknownSync(
-            RpcSchema.wallet_getAdmins.Response.fields.keys,
-          )(event.data),
+          keys: z.parse(
+            RpcSchema.wallet_getAdmins.Response.shape.keys,
+            event.data,
+          ),
         }))
       })
     })()
@@ -489,9 +490,7 @@ export function usePermissions<
         if (event.type !== 'permissionsChanged') return
         queryClient.setQueryData(
           queryKey,
-          Schema.decodeUnknownSync(RpcSchema.wallet_getPermissions.Response)(
-            event.data,
-          ),
+          z.parse(RpcSchema.wallet_getPermissions.Response, event.data),
         )
       })
     })()

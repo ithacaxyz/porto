@@ -1,13 +1,14 @@
 import { describe, expect, test } from 'vitest'
+import * as z from 'zod/mini'
+import * as zError from 'zod-validation-error'
 import * as Capabilities from './capabilities.js'
-import * as Schema from './schema.js'
 
 describe('atomic', () => {
   describe('GetCapabilitiesResponse', () => {
     test('behavior: parse supported status', () => {
-      const result = Schema.decodeUnknownSync(
-        Capabilities.atomic.GetCapabilitiesResponse,
-      )({ status: 'supported' })
+      const result = z.parse(Capabilities.atomic.GetCapabilitiesResponse, {
+        status: 'supported',
+      })
       expect(result).toMatchInlineSnapshot(`
           {
             "status": "supported",
@@ -16,9 +17,9 @@ describe('atomic', () => {
     })
 
     test('behavior: parse unsupported status', () => {
-      const result = Schema.decodeUnknownSync(
-        Capabilities.atomic.GetCapabilitiesResponse,
-      )({ status: 'unsupported' })
+      const result = z.parse(Capabilities.atomic.GetCapabilitiesResponse, {
+        status: 'unsupported',
+      })
       expect(result).toMatchInlineSnapshot(`
           {
             "status": "unsupported",
@@ -27,29 +28,25 @@ describe('atomic', () => {
     })
 
     test('error: reject invalid status', () => {
-      expect(() =>
-        Schema.decodeUnknownSync(Capabilities.atomic.GetCapabilitiesResponse)({
-          status: 'invalid',
-        }),
-      ).toThrowErrorMatchingInlineSnapshot(`
-        [Schema.CoderError: Expected "supported", actual "invalid"
-        Path: status
-
-        Details: { readonly status: "supported" | "unsupported" }
-        └─ ["status"]
-           └─ "supported" | "unsupported"
-              ├─ Expected "supported", actual "invalid"
-              └─ Expected "unsupported", actual "invalid"]
-      `)
+      expect(
+        zError.fromError(
+          z.safeParse(Capabilities.atomic.GetCapabilitiesResponse, {
+            status: 'invalid',
+          }).error,
+        ),
+      ).toMatchInlineSnapshot(
+        `[ZodValidationError: Validation error: Invalid input at "status"]`,
+      )
     })
 
     test('behavior: encode supported status', () => {
-      const decoded = Schema.decodeUnknownSync(
+      const decoded = z.parse(Capabilities.atomic.GetCapabilitiesResponse, {
+        status: 'supported',
+      })
+      const encoded = z.encode(
         Capabilities.atomic.GetCapabilitiesResponse,
-      )({ status: 'supported' })
-      const encoded = Schema.encodeSync(
-        Capabilities.atomic.GetCapabilitiesResponse,
-      )(decoded)
+        decoded,
+      )
       expect(encoded).toMatchInlineSnapshot(`
         {
           "status": "supported",
@@ -58,12 +55,13 @@ describe('atomic', () => {
     })
 
     test('behavior: encode unsupported status', () => {
-      const decoded = Schema.decodeUnknownSync(
+      const decoded = z.parse(Capabilities.atomic.GetCapabilitiesResponse, {
+        status: 'unsupported',
+      })
+      const encoded = z.encode(
         Capabilities.atomic.GetCapabilitiesResponse,
-      )({ status: 'unsupported' })
-      const encoded = Schema.encodeSync(
-        Capabilities.atomic.GetCapabilitiesResponse,
-      )(decoded)
+        decoded,
+      )
       expect(encoded).toMatchInlineSnapshot(`
         {
           "status": "unsupported",
@@ -73,31 +71,29 @@ describe('atomic', () => {
 
     test('behavior: round-trip encoding/decoding preserves data', () => {
       const originalData = { status: 'supported' as const }
-      const decoded = Schema.decodeUnknownSync(
+      const decoded = z.parse(
         Capabilities.atomic.GetCapabilitiesResponse,
-      )(originalData)
-      const encoded = Schema.encodeSync(
+        originalData,
+      )
+      const encoded = z.encode(
         Capabilities.atomic.GetCapabilitiesResponse,
-      )(decoded)
-      const reDecoded = Schema.decodeUnknownSync(
+        decoded,
+      )
+      const reDecoded = z.parse(
         Capabilities.atomic.GetCapabilitiesResponse,
-      )(encoded)
+        encoded,
+      )
       expect(reDecoded).toEqual(decoded)
     })
 
     test('error: reject missing status', () => {
-      expect(() =>
-        Schema.decodeUnknownSync(Capabilities.atomic.GetCapabilitiesResponse)(
-          {},
+      expect(
+        zError.fromError(
+          z.safeParse(Capabilities.atomic.GetCapabilitiesResponse, {}).error,
         ),
-      ).toThrowErrorMatchingInlineSnapshot(`
-        [Schema.CoderError: \`status\` is missing
-        Path: status
-
-        Details: { readonly status: "supported" | "unsupported" }
-        └─ ["status"]
-           └─ is missing]
-      `)
+      ).toMatchInlineSnapshot(
+        `[ZodValidationError: Validation error: Invalid input at "status"]`,
+      )
     })
   })
 })
@@ -105,23 +101,19 @@ describe('atomic', () => {
 describe('createAccount', () => {
   describe('Request', () => {
     test('behavior: parse boolean true', () => {
-      const result = Schema.decodeUnknownSync(
-        Capabilities.createAccount.Request,
-      )(true)
+      const result = z.parse(Capabilities.createAccount.Request, true)
       expect(result).toBe(true)
     })
 
     test('behavior: parse boolean false', () => {
-      const result = Schema.decodeUnknownSync(
-        Capabilities.createAccount.Request,
-      )(false)
+      const result = z.parse(Capabilities.createAccount.Request, false)
       expect(result).toBe(false)
     })
 
     test('behavior: parse object with chainId', () => {
-      const result = Schema.decodeUnknownSync(
-        Capabilities.createAccount.Request,
-      )({ chainId: '0x1' })
+      const result = z.parse(Capabilities.createAccount.Request, {
+        chainId: '0x1',
+      })
       expect(result).toMatchInlineSnapshot(`
           {
             "chainId": 1,
@@ -130,9 +122,9 @@ describe('createAccount', () => {
     })
 
     test('behavior: parse object with label', () => {
-      const result = Schema.decodeUnknownSync(
-        Capabilities.createAccount.Request,
-      )({ label: 'My Account' })
+      const result = z.parse(Capabilities.createAccount.Request, {
+        label: 'My Account',
+      })
       expect(result).toMatchInlineSnapshot(`
           {
             "label": "My Account",
@@ -141,9 +133,10 @@ describe('createAccount', () => {
     })
 
     test('behavior: parse object with both chainId and label', () => {
-      const result = Schema.decodeUnknownSync(
-        Capabilities.createAccount.Request,
-      )({ chainId: '0xa', label: 'Test Account' })
+      const result = z.parse(Capabilities.createAccount.Request, {
+        chainId: '0xa',
+        label: 'Test Account',
+      })
       expect(result).toMatchInlineSnapshot(`
           {
             "chainId": 10,
@@ -153,40 +146,26 @@ describe('createAccount', () => {
     })
 
     test('behavior: parse empty object', () => {
-      const result = Schema.decodeUnknownSync(
-        Capabilities.createAccount.Request,
-      )({})
+      const result = z.parse(Capabilities.createAccount.Request, {})
       expect(result).toMatchInlineSnapshot('{}')
     })
 
     test('behavior: encode boolean true', () => {
-      const decoded = Schema.decodeUnknownSync(
-        Capabilities.createAccount.Request,
-      )(true)
-      const encoded = Schema.encodeSync(Capabilities.createAccount.Request)(
-        decoded,
-      )
+      const decoded = z.parse(Capabilities.createAccount.Request, true)
+      const encoded = z.encode(Capabilities.createAccount.Request, decoded)
       expect(encoded).toBe(true)
     })
 
     test('behavior: encode boolean false', () => {
-      const decoded = Schema.decodeUnknownSync(
-        Capabilities.createAccount.Request,
-      )(false)
-      const encoded = Schema.encodeSync(Capabilities.createAccount.Request)(
-        decoded,
-      )
+      const decoded = z.parse(Capabilities.createAccount.Request, false)
+      const encoded = z.encode(Capabilities.createAccount.Request, decoded)
       expect(encoded).toBe(false)
     })
 
     test('behavior: encode object with chainId back to hex', () => {
       const originalData = { chainId: '0xa' }
-      const decoded = Schema.decodeUnknownSync(
-        Capabilities.createAccount.Request,
-      )(originalData)
-      const encoded = Schema.encodeSync(Capabilities.createAccount.Request)(
-        decoded,
-      )
+      const decoded = z.parse(Capabilities.createAccount.Request, originalData)
+      const encoded = z.encode(Capabilities.createAccount.Request, decoded)
       expect(encoded).toMatchInlineSnapshot(`
         {
           "chainId": "0xa",
@@ -196,12 +175,8 @@ describe('createAccount', () => {
 
     test('behavior: encode object with label', () => {
       const originalData = { label: 'My Account' }
-      const decoded = Schema.decodeUnknownSync(
-        Capabilities.createAccount.Request,
-      )(originalData)
-      const encoded = Schema.encodeSync(Capabilities.createAccount.Request)(
-        decoded,
-      )
+      const decoded = z.parse(Capabilities.createAccount.Request, originalData)
+      const encoded = z.encode(Capabilities.createAccount.Request, decoded)
       expect(encoded).toMatchInlineSnapshot(`
         {
           "label": "My Account",
@@ -211,12 +186,8 @@ describe('createAccount', () => {
 
     test('behavior: encode object with both chainId and label', () => {
       const originalData = { chainId: '0x1', label: 'Test Account' }
-      const decoded = Schema.decodeUnknownSync(
-        Capabilities.createAccount.Request,
-      )(originalData)
-      const encoded = Schema.encodeSync(Capabilities.createAccount.Request)(
-        decoded,
-      )
+      const decoded = z.parse(Capabilities.createAccount.Request, originalData)
+      const encoded = z.encode(Capabilities.createAccount.Request, decoded)
       expect(encoded).toMatchInlineSnapshot(`
         {
           "chainId": "0x1",
@@ -226,12 +197,8 @@ describe('createAccount', () => {
     })
 
     test('behavior: encode empty object', () => {
-      const decoded = Schema.decodeUnknownSync(
-        Capabilities.createAccount.Request,
-      )({})
-      const encoded = Schema.encodeSync(Capabilities.createAccount.Request)(
-        decoded,
-      )
+      const decoded = z.parse(Capabilities.createAccount.Request, {})
+      const encoded = z.encode(Capabilities.createAccount.Request, decoded)
       expect(encoded).toMatchInlineSnapshot('{}')
     })
 
@@ -255,22 +222,18 @@ describe('createAccount', () => {
         input: { chainId: 1, label: 'Both Fields' },
       },
     ])('behavior: encodes $case correctly', ({ input, expected }) => {
-      const encoded = Schema.encodeSync(Capabilities.createAccount.Request)(
-        input,
-      )
+      const encoded = z.encode(Capabilities.createAccount.Request, input)
       expect(encoded).toEqual(expected)
     })
 
     test('error: reject invalid type', () => {
-      expect(() =>
-        Schema.decodeUnknownSync(Capabilities.createAccount.Request)('string'),
-      ).toThrowErrorMatchingInlineSnapshot(`
-        [Schema.CoderError: Expected boolean, actual "string"
-
-        Details: boolean | { readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly label?: string | undefined }
-        ├─ Expected boolean, actual "string"
-        └─ Expected { readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly label?: string | undefined }, actual "string"]
-      `)
+      expect(
+        zError.fromError(
+          z.safeParse(Capabilities.createAccount.Request, 'string').error,
+        ),
+      ).toMatchInlineSnapshot(
+        '[ZodValidationError: Validation error: Invalid input]',
+      )
     })
   })
 })
@@ -278,9 +241,7 @@ describe('createAccount', () => {
 describe('signInWithEthereum', () => {
   describe('Request', () => {
     test('behavior: parse struct with nonce and no authUrl', () => {
-      const result = Schema.decodeUnknownSync(
-        Capabilities.signInWithEthereum.Request,
-      )({
+      const result = z.parse(Capabilities.signInWithEthereum.Request, {
         nonce: 'abc123',
       })
       expect(result).toMatchInlineSnapshot(`
@@ -291,9 +252,7 @@ describe('signInWithEthereum', () => {
     })
 
     test('behavior: parse struct with authUrl string', () => {
-      const result = Schema.decodeUnknownSync(
-        Capabilities.signInWithEthereum.Request,
-      )({
+      const result = z.parse(Capabilities.signInWithEthereum.Request, {
         authUrl: 'https://example.com/auth',
         nonce: 'xyz789',
       })
@@ -305,9 +264,7 @@ describe('signInWithEthereum', () => {
     })
 
     test('behavior: parse struct with all optional fields', () => {
-      const result = Schema.decodeUnknownSync(
-        Capabilities.signInWithEthereum.Request,
-      )({
+      const result = z.parse(Capabilities.signInWithEthereum.Request, {
         authUrl: undefined,
         chainId: 1,
         domain: 'example.com',
@@ -343,32 +300,24 @@ describe('signInWithEthereum', () => {
     })
 
     test('error: reject struct without nonce', () => {
-      expect(() =>
-        Schema.decodeUnknownSync(Capabilities.signInWithEthereum.Request)({
-          domain: 'example.com',
-        }),
-      ).toThrowErrorMatchingInlineSnapshot(`
-        [Schema.CoderError: \`nonce\` is missing
-        Path: nonce
-
-        Details: { readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce: string; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined } | { readonly authUrl: string | { readonly logout: string; readonly nonce: string; readonly verify: string }; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
-        ├─ { readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce: string; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
-        │  └─ ["nonce"]
-        │     └─ is missing
-        └─ { readonly authUrl: string | { readonly logout: string; readonly nonce: string; readonly verify: string }; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
-           └─ ["authUrl"]
-              └─ is missing]
-      `)
+      expect(
+        zError.fromError(
+          z.safeParse(Capabilities.signInWithEthereum.Request, {
+            domain: 'example.com',
+          }).error,
+        ),
+      ).toMatchInlineSnapshot(
+        `[ZodValidationError: Validation error: Invalid input at "nonce" or Invalid input at "authUrl"]`,
+      )
     })
 
     test('behavior: encode struct with nonce', () => {
       const originalData = { nonce: 'abc123' }
-      const decoded = Schema.decodeUnknownSync(
+      const decoded = z.parse(
         Capabilities.signInWithEthereum.Request,
-      )(originalData)
-      const encoded = Schema.encodeSync(
-        Capabilities.signInWithEthereum.Request,
-      )(decoded)
+        originalData,
+      )
+      const encoded = z.encode(Capabilities.signInWithEthereum.Request, decoded)
       expect(encoded).toMatchInlineSnapshot(`
         {
           "nonce": "abc123",
@@ -381,12 +330,11 @@ describe('signInWithEthereum', () => {
         authUrl: 'https://example.com/auth',
         nonce: 'xyz789',
       }
-      const decoded = Schema.decodeUnknownSync(
+      const decoded = z.parse(
         Capabilities.signInWithEthereum.Request,
-      )(originalData)
-      const encoded = Schema.encodeSync(
-        Capabilities.signInWithEthereum.Request,
-      )(decoded)
+        originalData,
+      )
+      const encoded = z.encode(Capabilities.signInWithEthereum.Request, decoded)
       expect(encoded).toMatchInlineSnapshot(`
         {
           "nonce": "xyz789",
@@ -410,12 +358,11 @@ describe('signInWithEthereum', () => {
         uri: 'https://example.com',
         version: '1' as const,
       }
-      const decoded = Schema.decodeUnknownSync(
+      const decoded = z.parse(
         Capabilities.signInWithEthereum.Request,
-      )(originalData)
-      const encoded = Schema.encodeSync(
-        Capabilities.signInWithEthereum.Request,
-      )(decoded)
+        originalData,
+      )
+      const encoded = z.encode(Capabilities.signInWithEthereum.Request, decoded)
       expect(encoded).toMatchInlineSnapshot(`
         {
           "chainId": 1,
@@ -480,40 +427,27 @@ describe('signInWithEthereum', () => {
         },
       },
     ])('behavior: encodes $case correctly', ({ input, expected }) => {
-      const encoded = Schema.encodeSync(
-        Capabilities.signInWithEthereum.Request,
-      )(input)
+      const encoded = z.encode(Capabilities.signInWithEthereum.Request, input)
       expect(encoded).toEqual(expected)
     })
 
     test('error: reject invalid version', () => {
-      expect(() =>
-        Schema.decodeUnknownSync(Capabilities.signInWithEthereum.Request)({
-          nonce: 'test',
-          version: '2',
-        }),
-      ).toThrowErrorMatchingInlineSnapshot(`
-        [Schema.CoderError: Expected "1", actual "2"
-        Path: version
-
-        Details: { readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce: string; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined } | { readonly authUrl: string | { readonly logout: string; readonly nonce: string; readonly verify: string }; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
-        ├─ { readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce: string; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
-        │  └─ ["version"]
-        │     └─ "1" | undefined
-        │        ├─ Expected "1", actual "2"
-        │        └─ Expected undefined, actual "2"
-        └─ { readonly authUrl: string | { readonly logout: string; readonly nonce: string; readonly verify: string }; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
-           └─ ["authUrl"]
-              └─ is missing]
-      `)
+      expect(
+        zError.fromError(
+          z.safeParse(Capabilities.signInWithEthereum.Request, {
+            nonce: 'test',
+            version: '2',
+          }).error,
+        ),
+      ).toMatchInlineSnapshot(
+        `[ZodValidationError: Validation error: Invalid input at "version" or Invalid input at "authUrl"; Invalid input at "version"]`,
+      )
     })
   })
 
   describe('Response', () => {
     test('behavior: parse valid response', () => {
-      const result = Schema.decodeUnknownSync(
-        Capabilities.signInWithEthereum.Response,
-      )({
+      const result = z.parse(Capabilities.signInWithEthereum.Response, {
         message: 'Sign in to example.com',
         signature: '0xdeadbeef',
       })
@@ -526,33 +460,27 @@ describe('signInWithEthereum', () => {
     })
 
     test('error: reject missing message', () => {
-      expect(() =>
-        Schema.decodeUnknownSync(Capabilities.signInWithEthereum.Response)({
-          signature: '0xdeadbeef',
-        }),
-      ).toThrowErrorMatchingInlineSnapshot(`
-        [Schema.CoderError: \`message\` is missing
-        Path: message
-
-        Details: { readonly message: string; readonly signature: \`0x\${string}\`; readonly token?: string | undefined }
-        └─ ["message"]
-           └─ is missing]
-      `)
+      expect(
+        zError.fromError(
+          z.safeParse(Capabilities.signInWithEthereum.Response, {
+            signature: '0xdeadbeef',
+          }).error,
+        ),
+      ).toMatchInlineSnapshot(
+        `[ZodValidationError: Validation error: Invalid input at "message"]`,
+      )
     })
 
     test('error: reject missing signature', () => {
-      expect(() =>
-        Schema.decodeUnknownSync(Capabilities.signInWithEthereum.Response)({
-          message: 'Sign in',
-        }),
-      ).toThrowErrorMatchingInlineSnapshot(`
-        [Schema.CoderError: \`signature\` is missing
-        Path: signature
-
-        Details: { readonly message: string; readonly signature: \`0x\${string}\`; readonly token?: string | undefined }
-        └─ ["signature"]
-           └─ is missing]
-      `)
+      expect(
+        zError.fromError(
+          z.safeParse(Capabilities.signInWithEthereum.Response, {
+            message: 'Sign in',
+          }).error,
+        ),
+      ).toMatchInlineSnapshot(
+        `[ZodValidationError: Validation error: Invalid input at "signature"]`,
+      )
     })
 
     test('behavior: encode valid response', () => {
@@ -560,12 +488,14 @@ describe('signInWithEthereum', () => {
         message: 'Sign in to example.com',
         signature: '0xdeadbeef',
       }
-      const decoded = Schema.decodeUnknownSync(
+      const decoded = z.parse(
         Capabilities.signInWithEthereum.Response,
-      )(originalData)
-      const encoded = Schema.encodeSync(
+        originalData,
+      )
+      const encoded = z.encode(
         Capabilities.signInWithEthereum.Response,
-      )(decoded)
+        decoded,
+      )
       expect(encoded).toMatchInlineSnapshot(`
         {
           "message": "Sign in to example.com",
@@ -576,12 +506,11 @@ describe('signInWithEthereum', () => {
 
     test('behavior: encodes response preserving signature format', () => {
       const input = { message: 'Test message', signature: '0x123456789abcdef' }
-      const decoded = Schema.decodeUnknownSync(
+      const decoded = z.parse(Capabilities.signInWithEthereum.Response, input)
+      const encoded = z.encode(
         Capabilities.signInWithEthereum.Response,
-      )(input)
-      const encoded = Schema.encodeSync(
-        Capabilities.signInWithEthereum.Response,
-      )(decoded)
+        decoded,
+      )
       expect(encoded).toEqual({
         message: 'Test message',
         signature: '0x123456789abcdef',
@@ -589,19 +518,16 @@ describe('signInWithEthereum', () => {
     })
 
     test('error: reject invalid signature format', () => {
-      expect(() =>
-        Schema.decodeUnknownSync(Capabilities.signInWithEthereum.Response)({
-          message: 'Sign in',
-          signature: 'invalid',
-        }),
-      ).toThrowErrorMatchingInlineSnapshot(`
-        [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid"
-        Path: signature
-
-        Details: { readonly message: string; readonly signature: \`0x\${string}\`; readonly token?: string | undefined }
-        └─ ["signature"]
-           └─ Expected \`0x\${string}\`, actual "invalid"]
-      `)
+      expect(
+        zError.fromError(
+          z.safeParse(Capabilities.signInWithEthereum.Response, {
+            message: 'Sign in',
+            signature: 'invalid',
+          }).error,
+        ),
+      ).toMatchInlineSnapshot(
+        `[ZodValidationError: Validation error: Invalid input at "signature"]`,
+      )
     })
   })
 })
@@ -609,9 +535,7 @@ describe('signInWithEthereum', () => {
 describe('feeToken', () => {
   describe('GetCapabilitiesResponse', () => {
     test('behavior: parse response with empty tokens', () => {
-      const result = Schema.decodeUnknownSync(
-        Capabilities.feeToken.GetCapabilitiesResponse,
-      )({
+      const result = z.parse(Capabilities.feeToken.GetCapabilitiesResponse, {
         supported: true,
         tokens: [],
       })
@@ -624,9 +548,7 @@ describe('feeToken', () => {
     })
 
     test('behavior: parse response with tokens', () => {
-      const result = Schema.decodeUnknownSync(
-        Capabilities.feeToken.GetCapabilitiesResponse,
-      )({
+      const result = z.parse(Capabilities.feeToken.GetCapabilitiesResponse, {
         supported: true,
         tokens: [
           {
@@ -671,30 +593,27 @@ describe('feeToken', () => {
     })
 
     test('error: reject missing supported field', () => {
-      expect(() =>
-        Schema.decodeUnknownSync(Capabilities.feeToken.GetCapabilitiesResponse)(
-          {
+      expect(
+        zError.fromError(
+          z.safeParse(Capabilities.feeToken.GetCapabilitiesResponse, {
             tokens: [],
-          },
+          }).error,
         ),
-      ).toThrowErrorMatchingInlineSnapshot(`
-        [Schema.CoderError: \`supported\` is missing
-        Path: supported
-
-        Details: { readonly supported: boolean; readonly tokens: ReadonlyArray<{ readonly address: \`0x\${string}\`; readonly decimals: number; readonly feeToken?: boolean | undefined; readonly interop?: boolean | undefined; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string; readonly uid: string }> }
-        └─ ["supported"]
-           └─ is missing]
-      `)
+      ).toMatchInlineSnapshot(
+        `[ZodValidationError: Validation error: Invalid input at "supported"]`,
+      )
     })
 
     test('behavior: encode response with empty tokens', () => {
       const originalData = { supported: true, tokens: [] }
-      const decoded = Schema.decodeUnknownSync(
+      const decoded = z.parse(
         Capabilities.feeToken.GetCapabilitiesResponse,
-      )(originalData)
-      const encoded = Schema.encodeSync(
+        originalData,
+      )
+      const encoded = z.encode(
         Capabilities.feeToken.GetCapabilitiesResponse,
-      )(decoded)
+        decoded,
+      )
       expect(encoded).toMatchInlineSnapshot(`
         {
           "supported": true,
@@ -724,12 +643,14 @@ describe('feeToken', () => {
           },
         ],
       }
-      const decoded = Schema.decodeUnknownSync(
+      const decoded = z.parse(
         Capabilities.feeToken.GetCapabilitiesResponse,
-      )(originalData)
-      const encoded = Schema.encodeSync(
+        originalData,
+      )
+      const encoded = z.encode(
         Capabilities.feeToken.GetCapabilitiesResponse,
-      )(decoded)
+        decoded,
+      )
       expect(encoded).toMatchInlineSnapshot(`
         {
           "supported": true,
@@ -797,64 +718,54 @@ describe('feeToken', () => {
     ])(
       'behavior: encodes feeToken data correctly for $case',
       ({ input, expected }) => {
-        const encoded = Schema.encodeSync(
+        const encoded = z.encode(
           Capabilities.feeToken.GetCapabilitiesResponse,
-        )(input)
+          input,
+        )
         expect(encoded).toEqual(expected)
       },
     )
 
     test('error: reject invalid token structure', () => {
-      expect(() =>
-        Schema.decodeUnknownSync(Capabilities.feeToken.GetCapabilitiesResponse)(
-          {
+      expect(
+        zError.fromError(
+          z.safeParse(Capabilities.feeToken.GetCapabilitiesResponse, {
             supported: false,
             tokens: [{ invalid: 'token' }],
-          },
+          }).error,
         ),
-      ).toThrowErrorMatchingInlineSnapshot(`
-        [Schema.CoderError: \`address\` is missing
-        Path: tokens.0.address
-
-        Details: { readonly supported: boolean; readonly tokens: ReadonlyArray<{ readonly address: \`0x\${string}\`; readonly decimals: number; readonly feeToken?: boolean | undefined; readonly interop?: boolean | undefined; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string; readonly uid: string }> }
-        └─ ["tokens"]
-           └─ ReadonlyArray<{ readonly address: \`0x\${string}\`; readonly decimals: number; readonly feeToken?: boolean | undefined; readonly interop?: boolean | undefined; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string; readonly uid: string }>
-              └─ [0]
-                 └─ { readonly address: \`0x\${string}\`; readonly decimals: number; readonly feeToken?: boolean | undefined; readonly interop?: boolean | undefined; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string; readonly uid: string }
-                    └─ ["address"]
-                       └─ is missing]
-      `)
+      ).toMatchInlineSnapshot(
+        `[ZodValidationError: Validation error: Invalid input at "tokens[0].address"; Invalid input at "tokens[0].decimals"; Invalid input at "tokens[0].symbol"; Invalid input at "tokens[0].uid"]`,
+      )
     })
   })
 
   describe('Request', () => {
     test('behavior: parse string symbol', () => {
-      const result = Schema.decodeUnknownSync(Capabilities.feeToken.Request)(
-        'USDC',
-      )
+      const result = z.parse(Capabilities.feeToken.Request, 'USDC')
       expect(result).toBe('USDC')
     })
 
     test('behavior: parse address', () => {
-      const result = Schema.decodeUnknownSync(Capabilities.feeToken.Request)(
+      const result = z.parse(
+        Capabilities.feeToken.Request,
         '0x1234567890abcdef',
       )
       expect(result).toBe('0x1234567890abcdef')
     })
 
     test('behavior: encode string symbol', () => {
-      const decoded = Schema.decodeUnknownSync(Capabilities.feeToken.Request)(
-        'USDC',
-      )
-      const encoded = Schema.encodeSync(Capabilities.feeToken.Request)(decoded)
+      const decoded = z.parse(Capabilities.feeToken.Request, 'USDC')
+      const encoded = z.encode(Capabilities.feeToken.Request, decoded)
       expect(encoded).toBe('USDC')
     })
 
     test('behavior: encode address', () => {
-      const decoded = Schema.decodeUnknownSync(Capabilities.feeToken.Request)(
+      const decoded = z.parse(
+        Capabilities.feeToken.Request,
         '0x1234567890abcdef',
       )
-      const encoded = Schema.encodeSync(Capabilities.feeToken.Request)(decoded)
+      const encoded = z.encode(Capabilities.feeToken.Request, decoded)
       expect(encoded).toBe('0x1234567890abcdef')
     })
 
@@ -874,21 +785,17 @@ describe('feeToken', () => {
     ])(
       'behavior: encodes feeToken request data correctly for $case',
       ({ input, expected }) => {
-        const encoded = Schema.encodeSync(Capabilities.feeToken.Request)(input)
+        const encoded = z.encode(Capabilities.feeToken.Request, input)
         expect(encoded).toBe(expected)
       },
     )
 
     test('error: reject invalid address format', () => {
-      expect(() =>
-        Schema.decodeUnknownSync(Capabilities.feeToken.Request)(123),
-      ).toThrowErrorMatchingInlineSnapshot(`
-        [Schema.CoderError: Expected string, actual 123
-
-        Details: string | \`0x\${string}\`
-        ├─ Expected string, actual 123
-        └─ Expected \`0x\${string}\`, actual 123]
-      `)
+      expect(
+        zError.fromError(z.safeParse(Capabilities.feeToken.Request, 123).error),
+      ).toMatchInlineSnapshot(
+        '[ZodValidationError: Validation error: Invalid input]',
+      )
     })
   })
 })
@@ -896,9 +803,9 @@ describe('feeToken', () => {
 describe('merchant', () => {
   describe('GetCapabilitiesResponse', () => {
     test('behavior: parse supported true', () => {
-      const result = Schema.decodeUnknownSync(
-        Capabilities.merchant.GetCapabilitiesResponse,
-      )({ supported: true })
+      const result = z.parse(Capabilities.merchant.GetCapabilitiesResponse, {
+        supported: true,
+      })
       expect(result).toMatchInlineSnapshot(`
           {
             "supported": true,
@@ -907,9 +814,9 @@ describe('merchant', () => {
     })
 
     test('behavior: parse supported false', () => {
-      const result = Schema.decodeUnknownSync(
-        Capabilities.merchant.GetCapabilitiesResponse,
-      )({ supported: false })
+      const result = z.parse(Capabilities.merchant.GetCapabilitiesResponse, {
+        supported: false,
+      })
       expect(result).toMatchInlineSnapshot(`
           {
             "supported": false,
@@ -918,12 +825,13 @@ describe('merchant', () => {
     })
 
     test('behavior: encode supported true', () => {
-      const decoded = Schema.decodeUnknownSync(
+      const decoded = z.parse(Capabilities.merchant.GetCapabilitiesResponse, {
+        supported: true,
+      })
+      const encoded = z.encode(
         Capabilities.merchant.GetCapabilitiesResponse,
-      )({ supported: true })
-      const encoded = Schema.encodeSync(
-        Capabilities.merchant.GetCapabilitiesResponse,
-      )(decoded)
+        decoded,
+      )
       expect(encoded).toMatchInlineSnapshot(`
         {
           "supported": true,
@@ -932,12 +840,13 @@ describe('merchant', () => {
     })
 
     test('behavior: encode supported false', () => {
-      const decoded = Schema.decodeUnknownSync(
+      const decoded = z.parse(Capabilities.merchant.GetCapabilitiesResponse, {
+        supported: false,
+      })
+      const encoded = z.encode(
         Capabilities.merchant.GetCapabilitiesResponse,
-      )({ supported: false })
-      const encoded = Schema.encodeSync(
-        Capabilities.merchant.GetCapabilitiesResponse,
-      )(decoded)
+        decoded,
+      )
       expect(encoded).toMatchInlineSnapshot(`
         {
           "supported": false,
@@ -959,26 +868,22 @@ describe('merchant', () => {
     ])(
       'behavior: encodes merchant data correctly for $case',
       ({ input, expected }) => {
-        const encoded = Schema.encodeSync(
+        const encoded = z.encode(
           Capabilities.merchant.GetCapabilitiesResponse,
-        )(input)
+          input,
+        )
         expect(encoded).toEqual(expected)
       },
     )
 
     test('error: reject missing supported field', () => {
-      expect(() =>
-        Schema.decodeUnknownSync(Capabilities.merchant.GetCapabilitiesResponse)(
-          {},
+      expect(
+        zError.fromError(
+          z.safeParse(Capabilities.merchant.GetCapabilitiesResponse, {}).error,
         ),
-      ).toThrowErrorMatchingInlineSnapshot(`
-        [Schema.CoderError: \`supported\` is missing
-        Path: supported
-
-        Details: { readonly supported: boolean }
-        └─ ["supported"]
-           └─ is missing]
-      `)
+      ).toMatchInlineSnapshot(
+        `[ZodValidationError: Validation error: Invalid input at "supported"]`,
+      )
     })
   })
 })
@@ -986,9 +891,9 @@ describe('merchant', () => {
 describe('permissions', () => {
   describe('GetCapabilitiesResponse', () => {
     test('behavior: parse response', () => {
-      const result = Schema.decodeUnknownSync(
-        Capabilities.permissions.GetCapabilitiesResponse,
-      )({ supported: true })
+      const result = z.parse(Capabilities.permissions.GetCapabilitiesResponse, {
+        supported: true,
+      })
       expect(result).toMatchInlineSnapshot(`
           {
             "supported": true,
@@ -997,12 +902,14 @@ describe('permissions', () => {
     })
 
     test('behavior: encode permissions response', () => {
-      const decoded = Schema.decodeUnknownSync(
+      const decoded = z.parse(
         Capabilities.permissions.GetCapabilitiesResponse,
-      )({ supported: true })
-      const encoded = Schema.encodeSync(
+        { supported: true },
+      )
+      const encoded = z.encode(
         Capabilities.permissions.GetCapabilitiesResponse,
-      )(decoded)
+        decoded,
+      )
       expect(encoded).toMatchInlineSnapshot(`
         {
           "supported": true,
@@ -1024,41 +931,37 @@ describe('permissions', () => {
     ])(
       'behavior: encodes permissions response data correctly for $case',
       ({ input, expected }) => {
-        const encoded = Schema.encodeSync(
+        const encoded = z.encode(
           Capabilities.permissions.GetCapabilitiesResponse,
-        )(input)
+          input,
+        )
         expect(encoded).toEqual(expected)
       },
     )
 
     test('error: reject invalid type', () => {
-      expect(() =>
-        Schema.decodeUnknownSync(
-          Capabilities.permissions.GetCapabilitiesResponse,
-        )({ supported: 'yes' }),
-      ).toThrowErrorMatchingInlineSnapshot(`
-        [Schema.CoderError: Expected boolean, actual "yes"
-        Path: supported
-
-        Details: { readonly supported: boolean }
-        └─ ["supported"]
-           └─ Expected boolean, actual "yes"]
-      `)
+      expect(
+        zError.fromError(
+          z.safeParse(Capabilities.permissions.GetCapabilitiesResponse, {
+            supported: 'yes',
+          }).error,
+        ),
+      ).toMatchInlineSnapshot(
+        `[ZodValidationError: Validation error: Invalid input at "supported"]`,
+      )
     })
   })
 
   describe('Request', () => {
     test('behavior: parse empty object', () => {
-      const result = Schema.decodeUnknownSync(Capabilities.permissions.Request)(
-        {},
-      )
+      const result = z.parse(Capabilities.permissions.Request, {})
       expect(result).toMatchInlineSnapshot('{}')
     })
 
     test('behavior: parse with id', () => {
-      const result = Schema.decodeUnknownSync(Capabilities.permissions.Request)(
-        { id: '0xabc123' },
-      )
+      const result = z.parse(Capabilities.permissions.Request, {
+        id: '0xabc123',
+      })
       expect(result).toMatchInlineSnapshot(`
           {
             "id": "0xabc123",
@@ -1067,23 +970,15 @@ describe('permissions', () => {
     })
 
     test('behavior: encode empty object', () => {
-      const decoded = Schema.decodeUnknownSync(
-        Capabilities.permissions.Request,
-      )({})
-      const encoded = Schema.encodeSync(Capabilities.permissions.Request)(
-        decoded,
-      )
+      const decoded = z.parse(Capabilities.permissions.Request, {})
+      const encoded = z.encode(Capabilities.permissions.Request, decoded)
       expect(encoded).toMatchInlineSnapshot('{}')
     })
 
     test('behavior: encode with id', () => {
       const originalData = { id: '0xabc123' }
-      const decoded = Schema.decodeUnknownSync(
-        Capabilities.permissions.Request,
-      )(originalData)
-      const encoded = Schema.encodeSync(Capabilities.permissions.Request)(
-        decoded,
-      )
+      const decoded = z.parse(Capabilities.permissions.Request, originalData)
+      const encoded = z.encode(Capabilities.permissions.Request, decoded)
       expect(encoded).toMatchInlineSnapshot(`
         {
           "id": "0xabc123",
@@ -1106,30 +1001,21 @@ describe('permissions', () => {
     ] as const)(
       'behavior: encodes permissions request data correctly for $case',
       ({ input, expected }) => {
-        const encoded = Schema.encodeSync(Capabilities.permissions.Request)(
-          input,
-        )
+        const encoded = z.encode(Capabilities.permissions.Request, input)
         expect(encoded).toEqual(expected)
       },
     )
 
     test('error: reject invalid id format', () => {
-      expect(() =>
-        Schema.decodeUnknownSync(Capabilities.permissions.Request)({
-          id: 'not-hex',
-        }),
-      ).toThrowErrorMatchingInlineSnapshot(`
-        [Schema.CoderError: Expected \`0x\${string}\`, actual "not-hex"
-        Path: id
-
-        Details: { readonly id?: \`0x\${string}\` | null | undefined }
-        └─ ["id"]
-           └─ \`0x\${string}\` | null | undefined
-              ├─ \`0x\${string}\` | null
-              │  ├─ Expected \`0x\${string}\`, actual "not-hex"
-              │  └─ Expected null, actual "not-hex"
-              └─ Expected undefined, actual "not-hex"]
-      `)
+      expect(
+        zError.fromError(
+          z.safeParse(Capabilities.permissions.Request, {
+            id: 'not-hex',
+          }).error,
+        ),
+      ).toMatchInlineSnapshot(
+        `[ZodValidationError: Validation error: Invalid input at "id"]`,
+      )
     })
   })
 })
@@ -1137,12 +1023,12 @@ describe('permissions', () => {
 describe('preCalls', () => {
   describe('Request', () => {
     test('behavior: parse empty array', () => {
-      const result = Schema.decodeUnknownSync(Capabilities.preCalls.Request)([])
+      const result = z.parse(Capabilities.preCalls.Request, [])
       expect(result).toMatchInlineSnapshot('[]')
     })
 
     test('behavior: parse array with entries', () => {
-      const result = Schema.decodeUnknownSync(Capabilities.preCalls.Request)([
+      const result = z.parse(Capabilities.preCalls.Request, [
         {
           context: { foo: 'bar' },
           signature: '0xdeadbeef',
@@ -1169,27 +1055,18 @@ describe('preCalls', () => {
     })
 
     test('error: reject entry without signature', () => {
-      expect(() =>
-        Schema.decodeUnknownSync(Capabilities.preCalls.Request)([
-          { context: {} },
-        ]),
-      ).toThrowErrorMatchingInlineSnapshot(`
-        [Schema.CoderError: \`signature\` is missing
-        Path: 0.signature
-
-        Details: ReadonlyArray<{ readonly context: unknown; readonly signature: \`0x\${string}\` }>
-        └─ [0]
-           └─ { readonly context: unknown; readonly signature: \`0x\${string}\` }
-              └─ ["signature"]
-                 └─ is missing]
-      `)
+      expect(
+        zError.fromError(
+          z.safeParse(Capabilities.preCalls.Request, [{ context: {} }]).error,
+        ),
+      ).toMatchInlineSnapshot(
+        `[ZodValidationError: Validation error: Invalid input at "[0].signature"]`,
+      )
     })
 
     test('behavior: encode empty array', () => {
-      const decoded = Schema.decodeUnknownSync(Capabilities.preCalls.Request)(
-        [],
-      )
-      const encoded = Schema.encodeSync(Capabilities.preCalls.Request)(decoded)
+      const decoded = z.parse(Capabilities.preCalls.Request, [])
+      const encoded = z.encode(Capabilities.preCalls.Request, decoded)
       expect(encoded).toMatchInlineSnapshot('[]')
     })
 
@@ -1204,10 +1081,8 @@ describe('preCalls', () => {
           signature: '0xfeedface',
         },
       ]
-      const decoded = Schema.decodeUnknownSync(Capabilities.preCalls.Request)(
-        originalData,
-      )
-      const encoded = Schema.encodeSync(Capabilities.preCalls.Request)(decoded)
+      const decoded = z.parse(Capabilities.preCalls.Request, originalData)
+      const encoded = z.encode(Capabilities.preCalls.Request, decoded)
       expect(encoded).toMatchInlineSnapshot(`
         [
           {
@@ -1231,10 +1106,8 @@ describe('preCalls', () => {
         { context: true, signature: '0x789' },
         { context: { nested: { object: 'value' } }, signature: '0xabc' },
       ]
-      const decoded = Schema.decodeUnknownSync(Capabilities.preCalls.Request)(
-        originalData,
-      )
-      const encoded = Schema.encodeSync(Capabilities.preCalls.Request)(decoded)
+      const decoded = z.parse(Capabilities.preCalls.Request, originalData)
+      const encoded = z.encode(Capabilities.preCalls.Request, decoded)
       expect(encoded).toMatchInlineSnapshot(`
         [
           {
@@ -1282,26 +1155,21 @@ describe('preCalls', () => {
     ] as const)(
       'behavior: encodes preCalls data correctly for $case',
       ({ input, expected }) => {
-        const encoded = Schema.encodeSync(Capabilities.preCalls.Request)(input)
+        const encoded = z.encode(Capabilities.preCalls.Request, input)
         expect(encoded).toEqual(expected)
       },
     )
 
     test('error: reject invalid signature format', () => {
-      expect(() =>
-        Schema.decodeUnknownSync(Capabilities.preCalls.Request)([
-          { context: null, signature: 'invalid' },
-        ]),
-      ).toThrowErrorMatchingInlineSnapshot(`
-        [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid"
-        Path: 0.signature
-
-        Details: ReadonlyArray<{ readonly context: unknown; readonly signature: \`0x\${string}\` }>
-        └─ [0]
-           └─ { readonly context: unknown; readonly signature: \`0x\${string}\` }
-              └─ ["signature"]
-                 └─ Expected \`0x\${string}\`, actual "invalid"]
-      `)
+      expect(
+        zError.fromError(
+          z.safeParse(Capabilities.preCalls.Request, [
+            { context: null, signature: 'invalid' },
+          ]).error,
+        ),
+      ).toMatchInlineSnapshot(
+        `[ZodValidationError: Validation error: Invalid input at "[0].signature"]`,
+      )
     })
   })
 })
@@ -1309,36 +1177,30 @@ describe('preCalls', () => {
 describe('merchantRpcUrl', () => {
   describe('Request', () => {
     test('behavior: parse string url', () => {
-      const result = Schema.decodeUnknownSync(
+      const result = z.parse(
         Capabilities.merchantRpcUrl.Request,
-      )('https://rpc.example.com')
+        'https://rpc.example.com',
+      )
       expect(result).toBe('https://rpc.example.com')
     })
 
     test('behavior: parse empty string', () => {
-      const result = Schema.decodeUnknownSync(
-        Capabilities.merchantRpcUrl.Request,
-      )('')
+      const result = z.parse(Capabilities.merchantRpcUrl.Request, '')
       expect(result).toBe('')
     })
 
     test('behavior: encode string url', () => {
-      const decoded = Schema.decodeUnknownSync(
+      const decoded = z.parse(
         Capabilities.merchantRpcUrl.Request,
-      )('https://rpc.example.com')
-      const encoded = Schema.encodeSync(Capabilities.merchantRpcUrl.Request)(
-        decoded,
+        'https://rpc.example.com',
       )
+      const encoded = z.encode(Capabilities.merchantRpcUrl.Request, decoded)
       expect(encoded).toBe('https://rpc.example.com')
     })
 
     test('behavior: encode empty string', () => {
-      const decoded = Schema.decodeUnknownSync(
-        Capabilities.merchantRpcUrl.Request,
-      )('')
-      const encoded = Schema.encodeSync(Capabilities.merchantRpcUrl.Request)(
-        decoded,
-      )
+      const decoded = z.parse(Capabilities.merchantRpcUrl.Request, '')
+      const encoded = z.encode(Capabilities.merchantRpcUrl.Request, decoded)
       expect(encoded).toBe('')
     })
 
@@ -1362,22 +1224,18 @@ describe('merchantRpcUrl', () => {
     ])(
       'behavior: encodes merchantRpcUrl data correctly for $case',
       ({ input, expected }) => {
-        const encoded = Schema.encodeSync(Capabilities.merchantRpcUrl.Request)(
-          input,
-        )
+        const encoded = z.encode(Capabilities.merchantRpcUrl.Request, input)
         expect(encoded).toBe(expected)
       },
     )
 
     test('error: reject non-string', () => {
-      expect(() =>
-        Schema.decodeUnknownSync(Capabilities.merchantRpcUrl.Request)(123),
-      ).toThrowErrorMatchingInlineSnapshot(
-        `
-        [Schema.CoderError: Expected string, actual 123
-
-        Details: Expected string, actual 123]
-      `,
+      expect(
+        zError.fromError(
+          z.safeParse(Capabilities.merchantRpcUrl.Request, 123).error,
+        ),
+      ).toMatchInlineSnapshot(
+        '[ZodValidationError: Validation error: Invalid input]',
       )
     })
   })
