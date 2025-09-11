@@ -141,7 +141,11 @@ export function Balance({
               style={style}
               title="Fetching balance…"
             >
-              <Spinner size={22} thickness={3} />
+              <Spinner
+                baseColor="var(--text-color-th_field-tertiary)"
+                size={22}
+                thickness={3}
+              />
             </a.div>
           ) : (
             <a.div
