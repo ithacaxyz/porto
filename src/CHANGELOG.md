@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.93
+
+### Patch Changes
+
+- [#837](https://github.com/ithacaxyz/porto/pull/837) [`fdcd88b`](https://github.com/ithacaxyz/porto/commit/fdcd88b19e92a8cd9804a092f6f0984a1c61e88e) Thanks [@jxom](https://github.com/jxom)! - Added dynamic imports for Porto modules in `porto` Connector. Reduces static `porto` bundle size by 13x.
+
 ## 0.0.92
 
 ### Patch Changes
