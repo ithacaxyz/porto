@@ -8,7 +8,7 @@ import { PriceFormatter, StringFormatter, ValueFormatter } from '~/utils'
 import ArrowDown from '~icons/lucide/arrow-down'
 import LucideSendToBack from '~icons/lucide/send-to-back'
 import Star from '~icons/ph/star-four-bold'
-import { ActionRequest } from './ActionRequest'
+import type { ActionRequest } from './ActionRequest'
 import { Layout } from './Layout'
 
 export function Swap(props: Swap.Props) {

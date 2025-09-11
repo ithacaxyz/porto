@@ -7,7 +7,7 @@ import { CopyButton } from '~/components/CopyButton'
 import { PriceFormatter, StringFormatter, ValueFormatter } from '~/utils'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideSendHorizontal from '~icons/lucide/send-horizontal'
-import { ActionRequest } from './ActionRequest'
+import type { ActionRequest } from './ActionRequest'
 import { Layout } from './Layout'
 
 export function Send(props: Send.Props) {

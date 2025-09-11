@@ -15,7 +15,6 @@ import { useReadContracts } from 'wagmi'
 import { CopyButton } from '~/components/CopyButton'
 import { PriceFormatter, StringFormatter } from '~/utils'
 import LucideLockKeyholeOpen from '~icons/lucide/lock-keyhole-open'
-import { ActionRequest } from './ActionRequest'
 import { Layout } from './Layout'
 
 export function Approve(props: Approve.Props) {
