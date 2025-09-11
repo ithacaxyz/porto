@@ -19,6 +19,22 @@ html,
   }
 }
 
+@utility scrollbar-gutter-auto {
+  scrollbar-gutter: auto;
+}
+
+@utility scrollbar-gutter-stable {
+  scrollbar-gutter: stable;
+}
+
+@utility scrollbar-width-thin {
+  scrollbar-width: thin;
+}
+
+@utility scrollbar-* {
+  scrollbar-color: --value(--color-\*) transparent;
+}
+
 .popover {
   opacity: 0;
   transition: opacity 150ms;
