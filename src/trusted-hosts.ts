@@ -22,6 +22,7 @@ export const hostnames = [
   'playground.li.fi',
   'happypath.enso.build',
   'app.ens.domains',
+  'stg.localhost',
   'www.bungee.exchange',
   'sponsor-porto.vercel.app',
 ]
