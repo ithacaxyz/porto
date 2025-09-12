@@ -10,7 +10,6 @@ import type * as RpcSchema from '../RpcSchema.js'
 import * as Call from './call.js'
 import type * as PermissionsRequest from './permissionsRequest.js'
 import type * as Porto from './porto.js'
-import type * as PreCalls from './preCalls.js'
 import type * as Capabilities from './schema/capabilities.js'
 import type * as RpcRequest from './schema/request.js'
 import type * as Token from './schema/token.js'
@@ -147,8 +146,6 @@ export type Mode = {
     }) => Promise<{
       /** Key the permissions are granted to. */
       key: Key.Key
-      /** Pre-calls to be executed. */
-      preCalls?: PreCalls.PreCalls | undefined
     }>
 
     loadAccounts: (parameters: {
@@ -179,8 +176,6 @@ export type Mode = {
             }
           | undefined
       })[]
-      /** Pre-calls to be executed (e.g. key authorization). */
-      preCalls?: PreCalls.PreCalls | undefined
     }>
 
     prepareCalls: (parameters: {
@@ -196,8 +191,6 @@ export type Mode = {
       internal: ActionsInternal
       /** Merchant RPC URL. */
       merchantUrl?: string | undefined
-      /** Pre-calls to be executed. */
-      preCalls?: PreCalls.PreCalls | undefined
       /** Required funds to execute the calls. */
       requiredFunds?:
         | RpcSchema.wallet_prepareCalls.Capabilities['requiredFunds']
@@ -281,8 +274,6 @@ export type Mode = {
         | undefined
       /** Permissions ID to use to execute the calls. */
       permissionsId?: Hex.Hex | null | undefined
-      /** Pre-calls to be executed. */
-      preCalls?: PreCalls.PreCalls | undefined
       /** Merchant RPC URL. */
       merchantUrl?: string | undefined
     }) => Promise<{ id: Hex.Hex }>

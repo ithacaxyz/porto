@@ -19,7 +19,6 @@ import type { RelayClient } from '../../../viem/RelayClient.js'
 import * as Erc8010 from '../erc8010.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
-import * as PreCalls from '../preCalls.js'
 import * as RequiredFunds from '../requiredFunds.js'
 import * as Siwe from '../siwe.js'
 import * as Tokens from '../tokens.js'
@@ -35,7 +34,7 @@ import * as U from '../utils.js'
  */
 export function relay(parameters: relay.Parameters = {}) {
   const config = parameters
-  const { mock, multichain = true, persistPreCalls = true, webAuthn } = config
+  const { mock, multichain = true, webAuthn } = config
 
   let address_internal: Hex.Hex | undefined
   let email_internal: string | undefined
@@ -302,10 +301,7 @@ export function relay(parameters: relay.Parameters = {}) {
 
       async grantPermissions(parameters) {
         const { account, internal, permissions } = parameters
-        const {
-          client,
-          config: { storage },
-        } = internal
+        const { client } = internal
 
         const feeTokens = await Tokens.getTokens(client)
 
@@ -316,25 +312,17 @@ export function relay(parameters: relay.Parameters = {}) {
         })
         if (!authorizeKey) throw new Error('key to authorize not found.')
 
-        const preCalls = await getAuthorizeKeyPreCalls(client, {
+        await sendAuthorizeKeyPreCalls(client, {
           account,
           authorizeKey,
         })
-        if (persistPreCalls)
-          await PreCalls.add(preCalls, {
-            address: account.address,
-            storage,
-          })
 
-        return { key: authorizeKey, preCalls }
+        return { key: authorizeKey }
       },
 
       async loadAccounts(parameters) {
         const { internal, permissions, signInWithEthereum } = parameters
-        const {
-          client,
-          config: { storage },
-        } = internal
+        const { client } = internal
 
         const feeTokens = await Tokens.getTokens(client)
 
@@ -446,12 +434,12 @@ export function relay(parameters: relay.Parameters = {}) {
           ),
         })
 
+        const adminKey = Account.getKey(account, { role: 'admin' })!
+
         // Get the signature of the authorize session key pre-call.
         const signature = await (async () => {
           // If we don't have a digest, we never signed over anything.
           if (digest === '0x') return undefined
-
-          const adminKey = Account.getKey(account, { role: 'admin' })!
 
           // If we signed to authorize the session key at credential
           // discovery, we will need to form the signature and store it
@@ -472,17 +460,6 @@ export function relay(parameters: relay.Parameters = {}) {
             payload: digest,
           })
         })()
-
-        const preCalls =
-          context && signature && digestType === 'precall'
-            ? [{ context, signature }]
-            : []
-
-        if (persistPreCalls)
-          await PreCalls.add(preCalls, {
-            address: account.address,
-            storage,
-          })
 
         const signInWithEthereum_response = await (async () => {
           if (!signInWithEthereum) return undefined
@@ -525,16 +502,12 @@ export function relay(parameters: relay.Parameters = {}) {
               signInWithEthereum: signInWithEthereum_response,
             },
           ],
-          preCalls,
         }
       },
 
       async prepareCalls(parameters) {
         const { account, calls, internal, merchantUrl } = parameters
-        const {
-          client,
-          config: { storage },
-        } = internal
+        const { client } = internal
 
         // Try and extract an authorized key to sign the calls with.
         const key =
@@ -544,14 +517,6 @@ export function relay(parameters: relay.Parameters = {}) {
             calls,
           }))
         if (!key) throw new Error('cannot find authorized key to sign with.')
-
-        // Get pre-authorized keys to assign to the call bundle.
-        const preCalls =
-          parameters.preCalls ??
-          (await PreCalls.get({
-            address: account.address,
-            storage,
-          }))
 
         const [tokens, feeToken] = await Promise.all([
           Tokens.getTokens(client),
@@ -575,7 +540,6 @@ export function relay(parameters: relay.Parameters = {}) {
             feeToken: feeToken?.address,
             key,
             merchantUrl,
-            preCalls,
             requiredFunds: multichain ? requiredFunds : undefined,
           })
 
@@ -718,10 +682,7 @@ export function relay(parameters: relay.Parameters = {}) {
 
       async sendCalls(parameters) {
         const { account, asTxHash, calls, internal, merchantUrl } = parameters
-        const {
-          client,
-          config: { storage },
-        } = internal
+        const { client } = internal
 
         // Try and extract an authorized key to sign the calls with.
         const key = await Mode.getAuthorizedExecuteKey({
@@ -729,14 +690,6 @@ export function relay(parameters: relay.Parameters = {}) {
           calls,
           permissionsId: parameters.permissionsId,
         })
-
-        // Get pre-authorized keys to assign to the call bundle.
-        const preCalls =
-          parameters.preCalls ??
-          (await PreCalls.get({
-            address: account.address,
-            storage,
-          }))
 
         // Resolve fee token to use.
         const [tokens, feeToken] = await Promise.all([
@@ -762,13 +715,7 @@ export function relay(parameters: relay.Parameters = {}) {
           feeToken: feeToken?.address,
           key,
           merchantUrl,
-          preCalls,
           requiredFunds: multichain ? requiredFunds : undefined,
-        })
-
-        await PreCalls.clear({
-          address: account.address,
-          storage,
         })
 
         if (asTxHash) {
@@ -795,22 +742,13 @@ export function relay(parameters: relay.Parameters = {}) {
 
       async sendPreparedCalls(parameters) {
         const { context, key, internal, signature } = parameters
-        const {
-          client,
-          config: { storage },
-        } = internal
+        const { client } = internal
 
         const { id } = await RelayActions.sendPreparedCalls(client, {
           context: context as never,
           key,
           signature,
         })
-
-        if ((context?.account as any)?.address)
-          await PreCalls.clear({
-            address: (context.account as any).address,
-            storage,
-          })
 
         return id
       },
@@ -927,16 +865,6 @@ export declare namespace relay {
      */
     multichain?: boolean | undefined
     /**
-     * Whether to store pre-calls in a persistent storage.
-     *
-     * If this is set to `false`, it is expected that the consumer
-     * will manually store pre-calls, and provide them to actions
-     * that support a `preCalls` parameter.
-     *
-     * @default true
-     */
-    persistPreCalls?: boolean | undefined
-    /**
      * WebAuthn configuration.
      */
     webAuthn?:
@@ -950,9 +878,9 @@ export declare namespace relay {
   }
 }
 
-async function getAuthorizeKeyPreCalls(
+async function sendAuthorizeKeyPreCalls(
   client: RelayClient,
-  parameters: getAuthorizeKeyPreCalls.Parameters,
+  parameters: sendAuthorizeKeyPreCalls.Parameters,
 ) {
   const { account, authorizeKey } = parameters
 
@@ -971,11 +899,14 @@ async function getAuthorizeKeyPreCalls(
     address: null,
     payload: digest,
   })
-
-  return [{ context, signature }] satisfies PreCalls.PreCalls
+  await RelayActions.sendPreparedCalls(client, {
+    context,
+    key: adminKey,
+    signature,
+  })
 }
 
-namespace getAuthorizeKeyPreCalls {
+namespace sendAuthorizeKeyPreCalls {
   export type Parameters = {
     account: Account.Account
     authorizeKey: Key.Key
