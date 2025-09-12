@@ -399,7 +399,7 @@ export namespace wallet_connect {
 
   export const Request = z.object({
     method: z.literal('wallet_connect'),
-    params: z.optional(z.readonly(z.readonly(z.tuple([Parameters])))),
+    params: z.optional(z.readonly(z.tuple([Parameters]))),
   })
   export type Request = z.infer<typeof Request>
 

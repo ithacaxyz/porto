@@ -84,14 +84,12 @@ export namespace authorizeKeys {
 
   /** Represents a key authorization response. */
   export const Response = z.readonly(
-    z.readonly(
-      z.array(
-        z.object({
-          ...Key.WithPermissions.shape,
-          /** The hash of the authorized key. */
-          hash: u.hex(),
-        }),
-      ),
+    z.array(
+      z.object({
+        ...Key.WithPermissions.shape,
+        /** The hash of the authorized key. */
+        hash: u.hex(),
+      }),
     ),
   )
   export type Response = z.infer<typeof Response>
