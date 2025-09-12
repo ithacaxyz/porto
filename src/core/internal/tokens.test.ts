@@ -16,6 +16,15 @@ describe.runIf(!Anvil.enabled)('getTokens', () => {
     ).toMatchInlineSnapshot(`
       [
         {
+          "address": "0x7c61733e8a9c6dac20afeb46e9c4ba96c5a9f7cf",
+          "decimals": 18,
+          "feeToken": true,
+          "interop": true,
+          "nativeRate": null,
+          "symbol": "EXP2",
+          "uid": "exp2",
+        },
+        {
           "address": "0x0000000000000000000000000000000000000000",
           "decimals": 18,
           "feeToken": true,
@@ -33,15 +42,6 @@ describe.runIf(!Anvil.enabled)('getTokens', () => {
           "symbol": "EXP",
           "uid": "exp1",
         },
-        {
-          "address": "0x7c61733e8a9c6dac20afeb46e9c4ba96c5a9f7cf",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "EXP2",
-          "uid": "exp2",
-        },
       ]
     `)
   })
@@ -57,13 +57,13 @@ describe.runIf(!Anvil.enabled)('getTokens', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "address": "0x0000000000000000000000000000000000000000",
-          "decimals": 18,
+          "address": "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
+          "decimals": 6,
           "feeToken": true,
-          "interop": false,
+          "interop": true,
           "nativeRate": null,
-          "symbol": "POL",
-          "uid": "matic-network",
+          "symbol": "USDC",
+          "uid": "usd-coin",
         },
         {
           "address": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
@@ -75,13 +75,13 @@ describe.runIf(!Anvil.enabled)('getTokens', () => {
           "uid": "tether",
         },
         {
-          "address": "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
-          "decimals": 6,
+          "address": "0x0000000000000000000000000000000000000000",
+          "decimals": 18,
           "feeToken": true,
-          "interop": true,
+          "interop": false,
           "nativeRate": null,
-          "symbol": "USDC",
-          "uid": "usd-coin",
+          "symbol": "POL",
+          "uid": "matic-network",
         },
       ]
     `)
