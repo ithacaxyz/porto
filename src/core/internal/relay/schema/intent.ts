@@ -164,6 +164,7 @@ export const Intent = Schema.Union(
     totalPaymentMaxAmount: Primitive.BigInt,
   }),
 )
+
 export type Intent = typeof Intent.Type
 
 export const Partial = Schema.Struct({

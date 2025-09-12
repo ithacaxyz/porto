@@ -318,6 +318,10 @@ export namespace wallet_getAssets {
             Schema.Struct({
               decimals: Schema.Number,
               name: Schema.String,
+              price: Schema.Struct({
+                currency: Schema.String,
+                price: Schema.Number,
+              }),
               symbol: Schema.String,
             }),
           ),
@@ -330,6 +334,10 @@ export namespace wallet_getAssets {
             Schema.Struct({
               decimals: Schema.Number,
               name: Schema.optional(Schema.String),
+              price: Schema.Struct({
+                currency: Schema.String,
+                price: Schema.Number,
+              }),
               symbol: Schema.optional(Schema.String),
             }),
           ),

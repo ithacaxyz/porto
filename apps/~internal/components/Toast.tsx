@@ -1,6 +1,7 @@
 import { cx } from 'cva'
 import CircleAlertIcon from '~icons/lucide/circle-alert'
 import CheckCircleIcon from '~icons/lucide/circle-check'
+import { Spinner } from './Spinner'
 
 export function Toast(props: Toast.Props) {
   const { kind, title, description, className } = props
@@ -23,6 +24,11 @@ export function Toast(props: Toast.Props) {
           )) ||
           (kind === 'warn' && (
             <CircleAlertIcon className="size-6 text-amber8" />
+          )) ||
+          (kind === 'pending' && (
+            <div className="size-6">
+              <Spinner />
+            </div>
           ))}
         <span className="font-[550] text-gray12">{title}</span>
       </div>
@@ -38,6 +44,6 @@ export declare namespace Toast {
     title: string
     description: string | React.ReactNode
     className?: string | number
-    kind: 'success' | 'error' | 'warn'
+    kind: 'success' | 'error' | 'warn' | 'pending'
   }
 }

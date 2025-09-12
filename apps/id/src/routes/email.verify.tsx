@@ -11,7 +11,7 @@ import LucidePictureInPicture2 from '~icons/lucide/picture-in-picture-2'
 import IconFingerprint from '~icons/porto/finger-print'
 import { Layout } from './-components/Layout.tsx'
 
-export const Route = createFileRoute('/_layout/email/verify')({
+export const Route = createFileRoute('/email/verify')({
   component: RouteComponent,
   head() {
     return {
@@ -75,71 +75,68 @@ function RouteComponent() {
   }, [email, verifyEmail.status])
 
   return (
-    <div className="flex h-full flex-col justify-between">
-      <Layout.Header
-        left={
-          <div className="-tracking-[2.8%] font-medium text-gray9">
-            Email verification
-          </div>
-        }
-        right={<Button render={<Link to="/">Cancel</Link>} size="small" />}
-      />
-
-      <div className="mx-auto flex max-w-[356px] flex-col items-center gap-2.5">
-        {content.icon}
-        <h1 className="-tracking-[2.8%] text-center font-medium text-[27px] text-gray12">
-          {content.title}
-        </h1>
-        {content.description && (
-          <p className="-tracking-[2.8%] text-center text-[18px] text-gray12 leading-[24px]">
-            {content.description}
-          </p>
-        )}
-        <div className="-tracking-[2.8%] text-center text-[17px] text-gray10 leading-[24px]">
-          {content.subtext}
-        </div>
-        {verifyEmail.status === 'success' ? (
-          <Button
-            className="mt-4 w-full"
-            render={<Link to="/">Done</Link>}
-            variant="accent"
-          />
-        ) : (
-          <Button
-            className="mt-4 flex w-full items-center gap-2"
-            disabled={connect.isPending || verifyEmail.isPending}
-            onClick={() => {
-              if (status === 'disconnected')
-                connect.connect({ connector: connector! })
-              else
-                verifyEmail.mutate({
-                  chainId: chainId as never,
-                  email,
-                  token,
-                  walletAddress: address as never,
-                })
-            }}
-            variant={
-              connect.isPending || verifyEmail.isPending ? undefined : 'accent'
-            }
-          >
-            {connect.isPending || verifyEmail.isPending ? (
-              <>
-                <LucidePictureInPicture2 className="size-5" />
-                Check passkey prompt
-              </>
-            ) : status === 'disconnected' ? (
-              'Sign in'
-            ) : verifyEmail.status === 'error' ? (
-              'Try again'
-            ) : (
-              'Continue'
+    <Layout>
+      <Layout.Content>
+        <div className="mx-auto flex h-full w-full max-w-[328px] flex-col justify-center gap-y-6 max-lg:gap-y-20">
+          <div className="mx-auto flex max-w-[356px] flex-col items-center gap-2.5">
+            {content.icon}
+            <h1 className="-tracking-[2.8%] text-center font-medium text-[27px] text-gray12">
+              {content.title}
+            </h1>
+            {content.description && (
+              <p className="-tracking-[2.8%] text-center text-[18px] text-gray12 leading-[24px]">
+                {content.description}
+              </p>
             )}
-          </Button>
-        )}
-      </div>
+            <div className="-tracking-[2.8%] text-center text-[17px] text-gray10 leading-[24px]">
+              {content.subtext}
+            </div>
+            {verifyEmail.status === 'success' ? (
+              <Button
+                className="mt-4 w-full"
+                render={<Link to="/">Done</Link>}
+                variant="accent"
+              />
+            ) : (
+              <Button
+                className="mt-4 flex w-full items-center gap-2"
+                disabled={connect.isPending || verifyEmail.isPending}
+                onClick={() => {
+                  if (status === 'disconnected')
+                    connect.connect({ connector: connector! })
+                  else
+                    verifyEmail.mutate({
+                      chainId: chainId as never,
+                      email,
+                      token,
+                      walletAddress: address as never,
+                    })
+                }}
+                variant={
+                  connect.isPending || verifyEmail.isPending
+                    ? undefined
+                    : 'accent'
+                }
+              >
+                {connect.isPending || verifyEmail.isPending ? (
+                  <>
+                    <LucidePictureInPicture2 className="size-5" />
+                    Check passkey prompt
+                  </>
+                ) : status === 'disconnected' ? (
+                  'Sign in'
+                ) : verifyEmail.status === 'error' ? (
+                  'Try again'
+                ) : (
+                  'Continue'
+                )}
+              </Button>
+            )}
+          </div>
 
-      <div />
-    </div>
+          <div />
+        </div>
+      </Layout.Content>
+    </Layout>
   )
 }

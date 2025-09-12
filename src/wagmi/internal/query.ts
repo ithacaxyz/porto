@@ -20,7 +20,7 @@ export declare namespace getAdminsQueryKey {
 }
 
 export function getPermissionsQueryKey<config extends Config>(
-  options: getPermissions.Parameters<config> = {},
+  options: getPermissions.Parameters = {},
 ) {
   const { connector, ...parameters } = options
   return [
