@@ -2,9 +2,9 @@
 "porto": minor
 ---
 
-**Breaking:** 
+**Breaking:**
 
-- Renamed `merchantRpcUrl` to `merchantUrl`. 
+- Renamed `merchantRpcUrl` to `merchantUrl`.
 
 - Removed automatic `merchantUrl` inference to enhance clarity and avoid astonishment. If you have set up a Merchant API route via `Route.merchant`, you will need to explicitly pass the URL to `Porto.create(){:js}` or the `porto` Connector.
 
