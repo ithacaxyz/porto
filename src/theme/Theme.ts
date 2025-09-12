@@ -1,4 +1,5 @@
 import * as z from 'zod/mini'
+import * as u from '../core/internal/schema/utils.js'
 
 export const ThemeColorScheme = z.union([
   z.literal('light'),
@@ -6,16 +7,9 @@ export const ThemeColorScheme = z.union([
   z.literal('light dark'),
 ])
 export type ThemeColorScheme = z.infer<typeof ThemeColorScheme>
-export const isThemeColorScheme = (
-  value: unknown,
-): value is ThemeColorScheme => {
-  try {
-    ThemeColorScheme.parse(value)
-    return true
-  } catch {
-    return false
-  }
-}
+
+export const isThemeColorScheme = (value: unknown) =>
+  u.is(ThemeColorScheme, value)
 
 /**
  * Porto theme definition.
