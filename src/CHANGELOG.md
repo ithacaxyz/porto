@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.1
+
+### Patch Changes
+
+- [`1f7e601`](https://github.com/ithacaxyz/porto/commit/1f7e601c738940242c0c71cb3f0ff867d4f13987) Thanks [@jxom](https://github.com/jxom)! - Fixed `wagmi` Connector module imports.
+
 ## 0.2.0
 
 ### Minor Changes
