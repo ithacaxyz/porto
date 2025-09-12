@@ -723,17 +723,13 @@ exports[`relay > wallet_getPermissions > behavior: grant on connect > grant anot
     "permissions": {
       "calls": [
         {
-          "signature": "0x1249c58b",
-          "to": null,
-        },
-        {
-          "signature": "0x32323232",
+          "signature": "mint()",
           "to": null,
         },
       ],
       "spend": [
         {
-          "limit": "0x1bc16d674ec80000",
+          "limit": "0xde0b6b3a7640000",
           "period": "day",
           "token": null,
         },
@@ -774,40 +770,6 @@ exports[`relay > wallet_getPermissions > behavior: grant on connect > grant anot
         {
           "limit": "0x1bc16d674ec80000",
           "period": "year",
-          "token": null,
-        },
-      ],
-    },
-  },
-  {
-    "address": null,
-    "chainId": null,
-    "expiry": 9999999999,
-    "id": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
-    "key": {
-      "publicKey": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
-      "type": "p256",
-    },
-    "permissions": {
-      "calls": [
-        {
-          "signature": "0x1249c58b",
-          "to": null,
-        },
-        {
-          "signature": "0x32323232",
-          "to": null,
-        },
-      ],
-      "spend": [
-        {
-          "limit": "0x1bc16d674ec80000",
-          "period": "day",
-          "token": null,
-        },
-        {
-          "limit": "0x14d1120d7b160000",
-          "period": "day",
           "token": null,
         },
       ],
