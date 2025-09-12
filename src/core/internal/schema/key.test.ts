@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import * as z from 'zod/mini'
-import * as u from './utils.js'
 import * as Key from './key.js'
+import * as u from './utils.js'
 
 describe('Base', () => {
   test('behavior: parses valid base key', () => {

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import * as z from 'zod/mini'
-import * as u from './utils.js'
 import * as Permissions from './permissions.js'
+import * as u from './utils.js'
 
 describe('Permissions', () => {
   test('behavior: parses valid permissions with all fields', () => {

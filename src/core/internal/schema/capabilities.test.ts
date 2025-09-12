@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import * as z from 'zod/mini'
-import * as u from './utils.js'
 import * as Capabilities from './capabilities.js'
+import * as u from './utils.js'
 
 describe('atomic', () => {
   describe('GetCapabilitiesResponse', () => {

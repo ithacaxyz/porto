@@ -1,8 +1,8 @@
 import type * as Errors from 'ox/Errors'
 import * as RpcResponse from 'ox/RpcResponse'
 import * as z from 'zod/mini'
-import * as u from './utils.js'
 import * as RpcRequest from './rpc.js'
+import * as u from './utils.js'
 
 export * from './rpc.js'
 
