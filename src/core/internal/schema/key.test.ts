@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import * as z from 'zod/mini'
-import * as zError from 'zod-validation-error'
+import * as u from './utils.js'
 import * as Key from './key.js'
 
 describe('Base', () => {
@@ -75,7 +75,7 @@ describe('Base', () => {
 
   test('error: rejects invalid role', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Key.Base, {
           expiry: '0x0',
           hash: '0x0',
@@ -86,13 +86,19 @@ describe('Base', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "role"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`role\`: Invalid union value.
+        - Expected "admin"
+        - Expected "session"]
+    `,
     )
   })
 
   test('error: rejects invalid type', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Key.Base, {
           expiry: '0x0',
           hash: '0x0',
@@ -103,7 +109,15 @@ describe('Base', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "type"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`type\`: Invalid union value.
+        - Expected "address"
+        - Expected "p256"
+        - Expected "secp256k1"
+        - Expected "webauthn-p256"]
+    `,
     )
   })
 })
@@ -174,15 +188,19 @@ describe('CallPermissions', () => {
 
   test('error: rejects empty array', () => {
     expect(
-      zError.fromError(z.safeParse(Key.CallPermissions, []).error),
+      u.toValidationError(z.safeParse(Key.CallPermissions, []).error),
     ).toMatchInlineSnapshot(
-      '[ZodValidationError: Validation error: Invalid input]',
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - array must be at least 1]
+    `,
     )
   })
 
   test('error: rejects both signature and to as undefined', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Key.CallPermissions, [
           {
             signature: undefined,
@@ -191,7 +209,15 @@ describe('CallPermissions', () => {
         ]).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "[0].signature"; Invalid input at "[0].to" or Invalid input at "[0].signature" or Invalid input at "[0].to"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`[0]\`: Invalid union value.
+        - at \`signature\`: Expected string. 
+        - at \`to\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`signature\`: Expected string. 
+        - at \`to\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.]
+    `,
     )
   })
 })
@@ -227,13 +253,17 @@ describe('SignatureVerificationPermission', () => {
 
   test('error: rejects invalid address format', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Key.SignatureVerificationPermission, {
           addresses: ['invalid-address'],
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "addresses[0]"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`addresses[0]\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+    `,
     )
   })
 })
@@ -314,7 +344,7 @@ describe('SpendPermissions', () => {
 
   test('error: rejects invalid period', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Key.SpendPermissions, [
           {
             limit: '0x1',
@@ -323,7 +353,17 @@ describe('SpendPermissions', () => {
         ]).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "[0].period"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`[0].period\`: Invalid union value.
+        - Expected "minute"
+        - Expected "hour"
+        - Expected "day"
+        - Expected "week"
+        - Expected "month"
+        - Expected "year"]
+    `,
     )
   })
 })

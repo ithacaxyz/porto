@@ -23,7 +23,6 @@
     "mipd": "^0.0.7",
     "ox": "^0.9.6",
     "zod": "^4.1.5",
-    "zod-validation-error": "^4.0.1",
     "zustand": "^5.0.1"
   },
   "peerDependencies": {

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import * as z from 'zod/mini'
-import * as zError from 'zod-validation-error'
+import * as u from '../../schema/utils.js'
 import * as Permission from './permission.js'
 
 describe('CallPermission', () => {
@@ -36,46 +36,58 @@ describe('CallPermission', () => {
 
   test('param: rejects missing selector', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permission.CallPermission, {
           to: '0x1234567890123456789012345678901234567890',
           type: 'call',
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "selector"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`selector\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.]
+    `,
     )
   })
 
   test('param: rejects missing to address', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permission.CallPermission, {
           selector: '0xa9059cbb',
           type: 'call',
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "to"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`to\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.]
+    `,
     )
   })
 
   test('param: rejects missing type', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permission.CallPermission, {
           selector: '0xa9059cbb',
           to: '0x1234567890123456789012345678901234567890',
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "type"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`type\`: Expected "call"]
+    `,
     )
   })
 
   test('error: rejects invalid selector format', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permission.CallPermission, {
           selector: 'invalid-selector',
           to: '0x1234567890123456789012345678901234567890',
@@ -83,13 +95,17 @@ describe('CallPermission', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "selector"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`selector\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+    `,
     )
   })
 
   test('error: rejects invalid to address format', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permission.CallPermission, {
           selector: '0xa9059cbb',
           to: 'invalid-address',
@@ -97,13 +113,17 @@ describe('CallPermission', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "to"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`to\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+    `,
     )
   })
 
   test('error: rejects invalid type', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permission.CallPermission, {
           selector: '0xa9059cbb',
           to: '0x1234567890123456789012345678901234567890',
@@ -111,7 +131,11 @@ describe('CallPermission', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "type"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`type\`: Expected "call"]
+    `,
     )
   })
 })
@@ -253,46 +277,64 @@ describe('SpendPermission', () => {
 
   test('param: rejects missing limit', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permission.SpendPermission, {
           period: 'day',
           type: 'spend',
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "limit"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`limit\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.]
+    `,
     )
   })
 
   test('param: rejects missing period', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permission.SpendPermission, {
           limit: '0x64',
           type: 'spend',
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "period"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`period\`: Invalid union value.
+        - Expected "minute"
+        - Expected "hour"
+        - Expected "day"
+        - Expected "week"
+        - Expected "month"
+        - Expected "year"]
+    `,
     )
   })
 
   test('param: rejects missing type', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permission.SpendPermission, {
           limit: '0x64',
           period: 'day',
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "type"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`type\`: Expected "spend"]
+    `,
     )
   })
 
   test('error: rejects invalid limit format', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permission.SpendPermission, {
           limit: 'invalid-limit',
           period: 'day',
@@ -300,13 +342,17 @@ describe('SpendPermission', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "limit"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`limit\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+    `,
     )
   })
 
   test('error: rejects invalid period', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permission.SpendPermission, {
           limit: '0x64',
           period: 'invalid-period',
@@ -314,13 +360,23 @@ describe('SpendPermission', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "period"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`period\`: Invalid union value.
+        - Expected "minute"
+        - Expected "hour"
+        - Expected "day"
+        - Expected "week"
+        - Expected "month"
+        - Expected "year"]
+    `,
     )
   })
 
   test('error: rejects invalid type', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permission.SpendPermission, {
           limit: '0x64',
           period: 'day',
@@ -328,13 +384,17 @@ describe('SpendPermission', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "type"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`type\`: Expected "spend"]
+    `,
     )
   })
 
   test('error: rejects invalid token format', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permission.SpendPermission, {
           limit: '0x64',
           period: 'day',
@@ -343,7 +403,13 @@ describe('SpendPermission', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "token"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`token\`: Invalid union value.
+        - Must match pattern: ^0x[\\s\\S]{0,}$
+        - Expected null. ]
+    `,
     )
   })
 })
@@ -381,7 +447,7 @@ describe('Permission', () => {
 
   test('error: rejects invalid permission type', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permission.Permission, {
           selector: '0xa9059cbb',
           to: '0x1234567890123456789012345678901234567890',
@@ -389,15 +455,45 @@ describe('Permission', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "type" or Invalid input at "limit"; Invalid input at "period"; Invalid input at "type"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - Invalid union value.
+        - at \`type\`: Expected "call"
+        - at \`limit\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`period\`: Invalid union value.
+          - Expected "minute"
+          - Expected "hour"
+          - Expected "day"
+          - Expected "week"
+          - Expected "month"
+          - Expected "year"
+        - at \`type\`: Expected "spend"]
+    `,
     )
   })
 
   test('error: rejects empty object', () => {
     expect(
-      zError.fromError(z.safeParse(Permission.Permission, {}).error),
+      u.toValidationError(z.safeParse(Permission.Permission, {}).error),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "selector"; Invalid input at "to"; Invalid input at "type" or Invalid input at "limit"; Invalid input at "period"; Invalid input at "type"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - Invalid union value.
+        - at \`selector\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`to\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`type\`: Expected "call"
+        - at \`limit\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`period\`: Invalid union value.
+          - Expected "minute"
+          - Expected "hour"
+          - Expected "day"
+          - Expected "week"
+          - Expected "month"
+          - Expected "year"
+        - at \`type\`: Expected "spend"]
+    `,
     )
   })
 })

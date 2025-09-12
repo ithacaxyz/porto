@@ -235,7 +235,7 @@ describe('Quote', () => {
                 "format": "template_literal",
                 "pattern": "^0x[\\\\s\\\\S]{0,}$",
                 "path": [],
-                "message": "Invalid input"
+                "message": "Needs string in format ^0x[A-Fa-f0-9]{40}$."
               }
             ],
             [
@@ -271,7 +271,7 @@ describe('Quote', () => {
           "path": [
             "orchestrator"
           ],
-          "message": "Invalid input"
+          "message": "Needs string in format ^0x[A-Fa-f0-9]{40}$."
         }
       ]]
     `)
@@ -292,7 +292,7 @@ describe('Quote', () => {
           "path": [
             "ethPrice"
           ],
-          "message": "Invalid input"
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
         }
       ]]
     `)
@@ -313,7 +313,7 @@ describe('Quote', () => {
           "path": [
             "chainId"
           ],
-          "message": "Invalid input"
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
         }
       ]]
     `)
@@ -333,7 +333,7 @@ describe('Quote', () => {
           "path": [
             "chainId"
           ],
-          "message": "Invalid input"
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
         },
         {
           "expected": "template_literal",
@@ -341,7 +341,7 @@ describe('Quote', () => {
           "path": [
             "ethPrice"
           ],
-          "message": "Invalid input"
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
         },
         {
           "expected": "template_literal",
@@ -349,7 +349,7 @@ describe('Quote', () => {
           "path": [
             "extraPayment"
           ],
-          "message": "Invalid input"
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
         },
         {
           "expected": "template_literal",
@@ -357,7 +357,7 @@ describe('Quote', () => {
           "path": [
             "feeTokenDeficit"
           ],
-          "message": "Invalid input"
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
         },
         {
           "code": "invalid_union",
@@ -398,7 +398,7 @@ describe('Quote', () => {
           "path": [
             "orchestrator"
           ],
-          "message": "Invalid input"
+          "message": "Needs string in format ^0x[A-Fa-f0-9]{40}$."
         },
         {
           "expected": "number",
@@ -414,7 +414,7 @@ describe('Quote', () => {
           "path": [
             "txGas"
           ],
-          "message": "Invalid input"
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
         }
       ]]
     `)
@@ -439,7 +439,7 @@ describe('Quote', () => {
             "nativeFeeEstimate",
             "maxFeePerGas"
           ],
-          "message": "Invalid input"
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
         }
       ]]
     `)
@@ -753,7 +753,7 @@ describe('Signed', () => {
           "path": [
             "hash"
           ],
-          "message": "Invalid input"
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
         }
       ]]
     `)
@@ -774,7 +774,7 @@ describe('Signed', () => {
           "path": [
             "r"
           ],
-          "message": "Invalid input"
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
         }
       ]]
     `)
@@ -795,7 +795,7 @@ describe('Signed', () => {
           "path": [
             "s"
           ],
-          "message": "Invalid input"
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
         }
       ]]
     `)
@@ -816,7 +816,7 @@ describe('Signed', () => {
           "path": [
             "v"
           ],
-          "message": "Invalid input"
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
         }
       ]]
     `)
@@ -837,7 +837,7 @@ describe('Signed', () => {
           "path": [
             "yParity"
           ],
-          "message": "Invalid input"
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
         }
       ]]
     `)
@@ -859,7 +859,7 @@ describe('Signed', () => {
           "path": [
             "hash"
           ],
-          "message": "Invalid input"
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
         },
         {
           "expected": "template_literal",
@@ -867,7 +867,7 @@ describe('Signed', () => {
           "path": [
             "r"
           ],
-          "message": "Invalid input"
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
         },
         {
           "expected": "template_literal",
@@ -875,7 +875,7 @@ describe('Signed', () => {
           "path": [
             "s"
           ],
-          "message": "Invalid input"
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
         }
       ]]
     `)

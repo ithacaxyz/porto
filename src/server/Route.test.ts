@@ -335,15 +335,9 @@ describe('merchant', () => {
       {
         "error": {
           "code": -32602,
-          "message": "Expected wallet_prepareCalls.Parameters, actual "foo"
-      Path: params.0
+          "message": "Validation failed with 1 error:
 
-      Details: Request.Request
-      └─ { readonly method: "wallet_prepareCalls"; readonly params: readonly [wallet_prepareCalls.Parameters]; readonly _returnType: unknown; readonly id: number; readonly jsonrpc: "2.0" }
-         └─ ["params"]
-            └─ readonly [wallet_prepareCalls.Parameters]
-               └─ [0]
-                  └─ Expected wallet_prepareCalls.Parameters, actual "foo"",
+      - at \`params[0]\`: Expected object. ",
         },
         "id": 1,
         "jsonrpc": "2.0",

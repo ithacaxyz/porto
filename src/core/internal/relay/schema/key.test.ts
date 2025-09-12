@@ -1,20 +1,32 @@
 import { describe, expect, test } from 'vitest'
 import * as z from 'zod/mini'
-import * as zError from 'zod-validation-error'
+import * as u from '../../schema/utils.js'
 import * as Key from './key.js'
 
 describe('Key', () => {
   test('param: validates required fields', () => {
     expect(
-      zError.fromError(z.safeParse(Key.Key, {}).error),
+      u.toValidationError(z.safeParse(Key.Key, {}).error),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "expiry"; Invalid input at "publicKey"; Invalid input at "role"; Invalid input at "type"]`,
+      `
+      [Schema.ValidationError: Validation failed with 4 errors:
+
+      - at \`expiry\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+      - at \`publicKey\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+      - at \`role\`: Invalid union value.
+        - Expected "admin"
+        - Expected "normal"
+      - at \`type\`: Invalid union value.
+        - Expected "p256"
+        - Expected "secp256k1"
+        - Expected "webauthnp256"]
+    `,
     )
   })
 
   test('param: validates expiry as number', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Key.Key, {
           expiry: 'invalid',
           publicKey: '0x1234',
@@ -23,13 +35,17 @@ describe('Key', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "expiry"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`expiry\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+    `,
     )
   })
 
   test('param: validates publicKey as hex', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Key.Key, {
           expiry: '0x499602d2',
           publicKey: 'invalid-hex',
@@ -38,13 +54,17 @@ describe('Key', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "publicKey"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`publicKey\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+    `,
     )
   })
 
   test('param: validates role enum', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Key.Key, {
           expiry: '0x499602d2',
           publicKey: '0x1234',
@@ -53,13 +73,19 @@ describe('Key', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "role"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`role\`: Invalid union value.
+        - Expected "admin"
+        - Expected "normal"]
+    `,
     )
   })
 
   test('param: validates type enum', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Key.Key, {
           expiry: '0x499602d2',
           publicKey: '0x1234',
@@ -68,13 +94,20 @@ describe('Key', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "type"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`type\`: Invalid union value.
+        - Expected "p256"
+        - Expected "secp256k1"
+        - Expected "webauthnp256"]
+    `,
     )
   })
 
   test('param: validates prehash as boolean when provided', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Key.Key, {
           expiry: '0x499602d2',
           prehash: 'invalid',
@@ -84,7 +117,11 @@ describe('Key', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "prehash"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`prehash\`: Expected boolean. ]
+    `,
     )
   })
 
@@ -107,7 +144,7 @@ describe('Key', () => {
   })
 
   test('behavior: accepts valid key with optional prehash', () => {
-    const key = zError.fromError(
+    const key = u.toValidationError(
       z.safeParse(Key.Key, {
         expiry: '0x 499602d2',
         prehash: true,
@@ -118,7 +155,11 @@ describe('Key', () => {
     )
 
     expect(key).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "expiry"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`expiry\`: Expected number. ]
+    `,
     )
   })
 
@@ -151,7 +192,7 @@ describe('Key', () => {
 
   test('error: rejects invalid role values', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Key.Key, {
           expiry: '0x499602d2',
           publicKey: '0x1234567890abcdef',
@@ -160,13 +201,19 @@ describe('Key', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "role"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`role\`: Invalid union value.
+        - Expected "admin"
+        - Expected "normal"]
+    `,
     )
   })
 
   test('error: rejects invalid type values', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Key.Key, {
           expiry: '0x123',
           publicKey: '0x1234567890abcdef',
@@ -175,7 +222,14 @@ describe('Key', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "type"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`type\`: Invalid union value.
+        - Expected "p256"
+        - Expected "secp256k1"
+        - Expected "webauthnp256"]
+    `,
     )
   })
 
@@ -204,7 +258,7 @@ describe('Key', () => {
 describe('WithPermissions', () => {
   test('param: validates permissions array', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Key.WithPermissions, {
           expiry: '0x499602d2',
           permissions: 'invalid',
@@ -214,13 +268,17 @@ describe('WithPermissions', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "permissions"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`permissions\`: Expected array. ]
+    `,
     )
   })
 
   test('param: validates permission objects in array', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Key.WithPermissions, {
           expiry: '0x499602d2',
           permissions: [{ invalid: 'permission' }],
@@ -230,7 +288,23 @@ describe('WithPermissions', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "permissions[0].selector"; Invalid input at "permissions[0].to"; Invalid input at "permissions[0].type" or Invalid input at "permissions[0].limit"; Invalid input at "permissions[0].period"; Invalid input at "permissions[0].type"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`permissions[0]\`: Invalid union value.
+        - at \`selector\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`to\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`type\`: Expected "call"
+        - at \`limit\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`period\`: Invalid union value.
+          - Expected "minute"
+          - Expected "hour"
+          - Expected "day"
+          - Expected "week"
+          - Expected "month"
+          - Expected "year"
+        - at \`type\`: Expected "spend"]
+    `,
     )
   })
 
@@ -298,7 +372,7 @@ describe('WithPermissions', () => {
 
   test('error: rejects missing permissions field', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Key.WithPermissions, {
           expiry: '0x499602d2',
           publicKey: '0x1234567890abcdef',
@@ -307,7 +381,11 @@ describe('WithPermissions', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "permissions"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`permissions\`: Expected array. ]
+    `,
     )
   })
 

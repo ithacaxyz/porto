@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import * as z from 'zod/mini'
-import * as zError from 'zod-validation-error'
+import * as u from './utils.js'
 import * as Permissions from './permissions.js'
 
 describe('Permissions', () => {
@@ -336,7 +336,7 @@ describe('Permissions', () => {
 
   test('error: rejects invalid address format', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permissions.Permissions, {
           address: 'invalid-address',
           expiry: 1000,
@@ -356,13 +356,17 @@ describe('Permissions', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "address"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`address\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+    `,
     )
   })
 
   test('error: rejects invalid key type', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permissions.Permissions, {
           address: '0x1234567890123456789012345678901234567890',
           expiry: 1000,
@@ -382,26 +386,41 @@ describe('Permissions', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "key.type"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`key.type\`: Invalid union value.
+        - Expected "address"
+        - Expected "p256"
+        - Expected "secp256k1"
+        - Expected "webauthn-p256"]
+    `,
     )
   })
 
   test('error: rejects missing required fields', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permissions.Permissions, {
           address: '0x1234567890123456789012345678901234567890',
           // Missing expiry, id, key, permissions
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "expiry"; Invalid input at "id"; Invalid input at "key"; Invalid input at "permissions"]`,
+      `
+      [Schema.ValidationError: Validation failed with 4 errors:
+
+      - at \`expiry\`: Expected number. 
+      - at \`id\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+      - at \`key\`: Expected object. 
+      - at \`permissions\`: Expected object. ]
+    `,
     )
   })
 
   test('error: rejects empty calls array', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permissions.Permissions, {
           address: '0x1234567890123456789012345678901234567890',
           expiry: 1000,
@@ -416,7 +435,11 @@ describe('Permissions', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "permissions.calls"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`permissions.calls\`: array must be at least 1]
+    `,
     )
   })
 })
@@ -736,7 +759,7 @@ describe('Request', () => {
 
   test('error: rejects invalid expiry (zero)', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permissions.Request, {
           expiry: 0,
           permissions: {
@@ -750,13 +773,18 @@ describe('Request', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "expiry"]`,
+      `
+      [Schema.ValidationError: Validation failed with 2 errors:
+
+      - at \`expiry\`: number must be at least 1
+      - at \`feeToken\`: Expected object. ]
+    `,
     )
   })
 
   test('error: rejects invalid expiry (negative)', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permissions.Request, {
           expiry: -1,
           permissions: {
@@ -770,26 +798,36 @@ describe('Request', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "expiry"]`,
+      `
+      [Schema.ValidationError: Validation failed with 2 errors:
+
+      - at \`expiry\`: number must be at least 1
+      - at \`feeToken\`: Expected object. ]
+    `,
     )
   })
 
   test('error: rejects missing required permissions', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permissions.Request, {
           expiry: 1000,
           // Missing permissions
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "permissions"]`,
+      `
+      [Schema.ValidationError: Validation failed with 2 errors:
+
+      - at \`feeToken\`: Expected object. 
+      - at \`permissions\`: Expected object. ]
+    `,
     )
   })
 
   test('error: rejects invalid spend period', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permissions.Request, {
           expiry: 1000,
           permissions: {
@@ -809,13 +847,24 @@ describe('Request', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "permissions.spend[0].period"]`,
+      `
+      [Schema.ValidationError: Validation failed with 2 errors:
+
+      - at \`feeToken\`: Expected object. 
+      - at \`permissions.spend[0].period\`: Invalid union value.
+        - Expected "minute"
+        - Expected "hour"
+        - Expected "day"
+        - Expected "week"
+        - Expected "month"
+        - Expected "year"]
+    `,
     )
   })
 
   test('error: rejects invalid feeLimit currency', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permissions.Request, {
           expiry: 1000,
           feeLimit: {
@@ -833,13 +882,17 @@ describe('Request', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "feeLimit.currency"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`feeToken\`: Expected object. ]
+    `,
     )
   })
 
   test('error: rejects invalid feeLimit value format', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permissions.Request, {
           expiry: 1000,
           feeLimit: {
@@ -857,13 +910,17 @@ describe('Request', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "feeLimit.value"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`feeToken\`: Expected object. ]
+    `,
     )
   })
 
   test('error: rejects feeLimit with multiple decimal points', () => {
     expect(
-      zError.fromError(
+      u.toValidationError(
         z.safeParse(Permissions.Request, {
           expiry: 1000,
           feeLimit: {
@@ -881,7 +938,11 @@ describe('Request', () => {
         }).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "feeLimit.value"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`feeToken\`: Expected object. ]
+    `,
     )
   })
 })

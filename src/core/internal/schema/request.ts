@@ -1,7 +1,7 @@
 import type * as Errors from 'ox/Errors'
 import * as RpcResponse from 'ox/RpcResponse'
 import * as z from 'zod/mini'
-import * as zError from 'zod-validation-error'
+import * as u from './utils.js'
 import * as RpcRequest from './rpc.js'
 
 export * from './rpc.js'
@@ -69,11 +69,7 @@ export function validate_internal<Request>(
       (issue as any).note === 'No matching discriminator'
     )
       throw new RpcResponse.MethodNotSupportedError()
-    throw new RpcResponse.InvalidParamsError(
-      zError.fromError(result.error, {
-        prefix: (value as { method?: string | undefined })?.method,
-      }),
-    )
+    throw new RpcResponse.InvalidParamsError(u.toValidationError(result.error))
   }
 
   return {

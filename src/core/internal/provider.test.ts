@@ -3535,7 +3535,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         // @ts-expect-error
         params: [{ to: 1 }],
       }),
-    ).rejects.toThrowError('Validation error: Invalid input at "params[0].to"')
+    ).rejects.matchSnapshot()
   })
 })
 

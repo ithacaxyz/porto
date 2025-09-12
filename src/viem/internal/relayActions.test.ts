@@ -871,7 +871,11 @@ describe('prepareCalls + sendPreparedCalls', () => {
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "key.publicKey"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`key.publicKey\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+    `,
     )
   })
 
@@ -902,7 +906,14 @@ describe('prepareCalls + sendPreparedCalls', () => {
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "key.type"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`key.type\`: Invalid union value.
+        - Expected "p256"
+        - Expected "secp256k1"
+        - Expected "webauthnp256"]
+    `,
     )
   })
 })
@@ -1179,7 +1190,11 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
         delegation: contracts.accountProxy.address,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "capabilities.authorizeKeys[0].publicKey"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`capabilities.authorizeKeys[0].publicKey\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+    `,
     )
 
     await expect(() =>
@@ -1199,7 +1214,11 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
         delegation: contracts.accountProxy.address,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "capabilities.authorizeKeys[0].publicKey"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`capabilities.authorizeKeys[0].publicKey\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+    `,
     )
   })
 })

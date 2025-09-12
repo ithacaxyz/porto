@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import * as z from 'zod/mini'
-import * as zError from 'zod-validation-error'
+import * as u from './utils.js'
 import * as Capabilities from './capabilities.js'
 
 describe('atomic', () => {
@@ -29,13 +29,19 @@ describe('atomic', () => {
 
     test('error: reject invalid status', () => {
       expect(
-        zError.fromError(
+        u.toValidationError(
           z.safeParse(Capabilities.atomic.GetCapabilitiesResponse, {
             status: 'invalid',
           }).error,
         ),
       ).toMatchInlineSnapshot(
-        `[ZodValidationError: Validation error: Invalid input at "status"]`,
+        `
+        [Schema.ValidationError: Validation failed with 1 error:
+
+        - at \`status\`: Invalid union value.
+          - Expected "supported"
+          - Expected "unsupported"]
+      `,
       )
     })
 
@@ -88,11 +94,17 @@ describe('atomic', () => {
 
     test('error: reject missing status', () => {
       expect(
-        zError.fromError(
+        u.toValidationError(
           z.safeParse(Capabilities.atomic.GetCapabilitiesResponse, {}).error,
         ),
       ).toMatchInlineSnapshot(
-        `[ZodValidationError: Validation error: Invalid input at "status"]`,
+        `
+        [Schema.ValidationError: Validation failed with 1 error:
+
+        - at \`status\`: Invalid union value.
+          - Expected "supported"
+          - Expected "unsupported"]
+      `,
       )
     })
   })
@@ -228,11 +240,17 @@ describe('createAccount', () => {
 
     test('error: reject invalid type', () => {
       expect(
-        zError.fromError(
+        u.toValidationError(
           z.safeParse(Capabilities.createAccount.Request, 'string').error,
         ),
       ).toMatchInlineSnapshot(
-        '[ZodValidationError: Validation error: Invalid input]',
+        `
+        [Schema.ValidationError: Validation failed with 1 error:
+
+        - Invalid union value.
+          - Expected boolean. 
+          - Expected object. ]
+      `,
       )
     })
   })
@@ -301,13 +319,21 @@ describe('signInWithEthereum', () => {
 
     test('error: reject struct without nonce', () => {
       expect(
-        zError.fromError(
+        u.toValidationError(
           z.safeParse(Capabilities.signInWithEthereum.Request, {
             domain: 'example.com',
           }).error,
         ),
       ).toMatchInlineSnapshot(
-        `[ZodValidationError: Validation error: Invalid input at "nonce" or Invalid input at "authUrl"]`,
+        `
+        [Schema.ValidationError: Validation failed with 1 error:
+
+        - Invalid union value.
+          - at \`nonce\`: Expected string. 
+          - at \`authUrl\`: Invalid union value.
+            - Expected string. 
+            - Expected object. ]
+      `,
       )
     })
 
@@ -433,14 +459,23 @@ describe('signInWithEthereum', () => {
 
     test('error: reject invalid version', () => {
       expect(
-        zError.fromError(
+        u.toValidationError(
           z.safeParse(Capabilities.signInWithEthereum.Request, {
             nonce: 'test',
             version: '2',
           }).error,
         ),
       ).toMatchInlineSnapshot(
-        `[ZodValidationError: Validation error: Invalid input at "version" or Invalid input at "authUrl"; Invalid input at "version"]`,
+        `
+        [Schema.ValidationError: Validation failed with 1 error:
+
+        - Invalid union value.
+          - at \`version\`: Expected "1"
+          - at \`authUrl\`: Invalid union value.
+            - Expected string. 
+            - Expected object. 
+          - at \`version\`: Expected "1"]
+      `,
       )
     })
   })
@@ -461,25 +496,33 @@ describe('signInWithEthereum', () => {
 
     test('error: reject missing message', () => {
       expect(
-        zError.fromError(
+        u.toValidationError(
           z.safeParse(Capabilities.signInWithEthereum.Response, {
             signature: '0xdeadbeef',
           }).error,
         ),
       ).toMatchInlineSnapshot(
-        `[ZodValidationError: Validation error: Invalid input at "message"]`,
+        `
+        [Schema.ValidationError: Validation failed with 1 error:
+
+        - at \`message\`: Expected string. ]
+      `,
       )
     })
 
     test('error: reject missing signature', () => {
       expect(
-        zError.fromError(
+        u.toValidationError(
           z.safeParse(Capabilities.signInWithEthereum.Response, {
             message: 'Sign in',
           }).error,
         ),
       ).toMatchInlineSnapshot(
-        `[ZodValidationError: Validation error: Invalid input at "signature"]`,
+        `
+        [Schema.ValidationError: Validation failed with 1 error:
+
+        - at \`signature\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.]
+      `,
       )
     })
 
@@ -519,14 +562,18 @@ describe('signInWithEthereum', () => {
 
     test('error: reject invalid signature format', () => {
       expect(
-        zError.fromError(
+        u.toValidationError(
           z.safeParse(Capabilities.signInWithEthereum.Response, {
             message: 'Sign in',
             signature: 'invalid',
           }).error,
         ),
       ).toMatchInlineSnapshot(
-        `[ZodValidationError: Validation error: Invalid input at "signature"]`,
+        `
+        [Schema.ValidationError: Validation failed with 1 error:
+
+        - at \`signature\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+      `,
       )
     })
   })
@@ -594,13 +641,17 @@ describe('feeToken', () => {
 
     test('error: reject missing supported field', () => {
       expect(
-        zError.fromError(
+        u.toValidationError(
           z.safeParse(Capabilities.feeToken.GetCapabilitiesResponse, {
             tokens: [],
           }).error,
         ),
       ).toMatchInlineSnapshot(
-        `[ZodValidationError: Validation error: Invalid input at "supported"]`,
+        `
+        [Schema.ValidationError: Validation failed with 1 error:
+
+        - at \`supported\`: Expected boolean. ]
+      `,
       )
     })
 
@@ -728,14 +779,21 @@ describe('feeToken', () => {
 
     test('error: reject invalid token structure', () => {
       expect(
-        zError.fromError(
+        u.toValidationError(
           z.safeParse(Capabilities.feeToken.GetCapabilitiesResponse, {
             supported: false,
             tokens: [{ invalid: 'token' }],
           }).error,
         ),
       ).toMatchInlineSnapshot(
-        `[ZodValidationError: Validation error: Invalid input at "tokens[0].address"; Invalid input at "tokens[0].decimals"; Invalid input at "tokens[0].symbol"; Invalid input at "tokens[0].uid"]`,
+        `
+        [Schema.ValidationError: Validation failed with 4 errors:
+
+        - at \`tokens[0].address\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`tokens[0].decimals\`: Expected number. 
+        - at \`tokens[0].symbol\`: Expected string. 
+        - at \`tokens[0].uid\`: Expected string. ]
+      `,
       )
     })
   })
@@ -792,9 +850,17 @@ describe('feeToken', () => {
 
     test('error: reject invalid address format', () => {
       expect(
-        zError.fromError(z.safeParse(Capabilities.feeToken.Request, 123).error),
+        u.toValidationError(
+          z.safeParse(Capabilities.feeToken.Request, 123).error,
+        ),
       ).toMatchInlineSnapshot(
-        '[ZodValidationError: Validation error: Invalid input]',
+        `
+        [Schema.ValidationError: Validation failed with 1 error:
+
+        - Invalid union value.
+          - Expected string. 
+          - Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.]
+      `,
       )
     })
   })
@@ -878,11 +944,15 @@ describe('merchant', () => {
 
     test('error: reject missing supported field', () => {
       expect(
-        zError.fromError(
+        u.toValidationError(
           z.safeParse(Capabilities.merchant.GetCapabilitiesResponse, {}).error,
         ),
       ).toMatchInlineSnapshot(
-        `[ZodValidationError: Validation error: Invalid input at "supported"]`,
+        `
+        [Schema.ValidationError: Validation failed with 1 error:
+
+        - at \`supported\`: Expected boolean. ]
+      `,
       )
     })
   })
@@ -941,13 +1011,17 @@ describe('permissions', () => {
 
     test('error: reject invalid type', () => {
       expect(
-        zError.fromError(
+        u.toValidationError(
           z.safeParse(Capabilities.permissions.GetCapabilitiesResponse, {
             supported: 'yes',
           }).error,
         ),
       ).toMatchInlineSnapshot(
-        `[ZodValidationError: Validation error: Invalid input at "supported"]`,
+        `
+        [Schema.ValidationError: Validation failed with 1 error:
+
+        - at \`supported\`: Expected boolean. ]
+      `,
       )
     })
   })
@@ -1008,13 +1082,19 @@ describe('permissions', () => {
 
     test('error: reject invalid id format', () => {
       expect(
-        zError.fromError(
+        u.toValidationError(
           z.safeParse(Capabilities.permissions.Request, {
             id: 'not-hex',
           }).error,
         ),
       ).toMatchInlineSnapshot(
-        `[ZodValidationError: Validation error: Invalid input at "id"]`,
+        `
+        [Schema.ValidationError: Validation failed with 1 error:
+
+        - at \`id\`: Invalid union value.
+          - Must match pattern: ^0x[\\s\\S]{0,}$
+          - Expected null. ]
+      `,
       )
     })
   })
@@ -1056,11 +1136,15 @@ describe('preCalls', () => {
 
     test('error: reject entry without signature', () => {
       expect(
-        zError.fromError(
+        u.toValidationError(
           z.safeParse(Capabilities.preCalls.Request, [{ context: {} }]).error,
         ),
       ).toMatchInlineSnapshot(
-        `[ZodValidationError: Validation error: Invalid input at "[0].signature"]`,
+        `
+        [Schema.ValidationError: Validation failed with 1 error:
+
+        - at \`[0].signature\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.]
+      `,
       )
     })
 
@@ -1162,13 +1246,17 @@ describe('preCalls', () => {
 
     test('error: reject invalid signature format', () => {
       expect(
-        zError.fromError(
+        u.toValidationError(
           z.safeParse(Capabilities.preCalls.Request, [
             { context: null, signature: 'invalid' },
           ]).error,
         ),
       ).toMatchInlineSnapshot(
-        `[ZodValidationError: Validation error: Invalid input at "[0].signature"]`,
+        `
+        [Schema.ValidationError: Validation failed with 1 error:
+
+        - at \`[0].signature\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+      `,
       )
     })
   })
@@ -1231,11 +1319,15 @@ describe('merchantRpcUrl', () => {
 
     test('error: reject non-string', () => {
       expect(
-        zError.fromError(
+        u.toValidationError(
           z.safeParse(Capabilities.merchantRpcUrl.Request, 123).error,
         ),
       ).toMatchInlineSnapshot(
-        '[ZodValidationError: Validation error: Invalid input]',
+        `
+        [Schema.ValidationError: Validation failed with 1 error:
+
+        - Expected string. ]
+      `,
       )
     })
   })

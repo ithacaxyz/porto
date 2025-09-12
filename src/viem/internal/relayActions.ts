@@ -25,7 +25,7 @@ import {
   getExecuteError,
 } from 'viem/experimental/erc7821'
 import * as z from 'zod/mini'
-import * as zError from 'zod-validation-error'
+import * as u from '../../core/internal/schema/utils.js'
 import * as RpcSchema from '../../core/internal/relay/rpcSchema.js'
 import type { IsUndefined, OneOf } from '../../core/internal/types.js'
 import * as U from '../../core/internal/utils.js'
@@ -894,11 +894,11 @@ export declare namespace parseExecutionError {
 
 /** Thrown when schema validation fails. */
 export function parseSchemaError(e: unknown) {
-  if ((e as any).name === '$ZodError') throw zError.fromError(e)
+  if ((e as any).name === '$ZodError') throw u.toValidationError(e)
 }
 
 export declare namespace parseSchemaError {
-  type ErrorType = zError.ValidationError | Errors.GlobalErrorType
+  type ErrorType = u.ValidationError | Errors.GlobalErrorType
 }
 
 /** Thrown when the execution fails. */

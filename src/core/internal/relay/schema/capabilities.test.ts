@@ -1,29 +1,46 @@
 import { describe, expect, test } from 'vitest'
 import * as z from 'zod/mini'
-import * as zError from 'zod-validation-error'
+import * as u from '../../schema/utils.js'
 import * as Capabilities from './capabilities.js'
 
 describe('authorizeKeys', () => {
   describe('Request', () => {
     test('param: validates as array', () => {
       expect(
-        zError.fromError(
+        u.toValidationError(
           z.safeParse(Capabilities.authorizeKeys.Request, 'invalid' as never)
             .error,
         ),
       ).toMatchInlineSnapshot(
-        '[ZodValidationError: Validation error: Invalid input]',
+        `
+        [Schema.ValidationError: Validation failed with 1 error:
+
+        - Expected array. ]
+      `,
       )
     })
 
     test('param: validates array items as key with permissions', () => {
       expect(
-        zError.fromError(
+        u.toValidationError(
           z.safeParse(Capabilities.authorizeKeys.Request, [{ invalid: 'key' }])
             .error,
         ),
       ).toMatchInlineSnapshot(
-        `[ZodValidationError: Validation error: Invalid input at "[0].expiry"; Invalid input at "[0].publicKey"; Invalid input at "[0].role"; Invalid input at "[0].type"; Invalid input at "[0].permissions"]`,
+        `
+        [Schema.ValidationError: Validation failed with 5 errors:
+
+        - at \`[0].expiry\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`[0].publicKey\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`[0].role\`: Invalid union value.
+          - Expected "admin"
+          - Expected "normal"
+        - at \`[0].type\`: Invalid union value.
+          - Expected "p256"
+          - Expected "secp256k1"
+          - Expected "webauthnp256"
+        - at \`[0].permissions\`: Expected array. ]
+      `,
       )
     })
 
@@ -174,7 +191,7 @@ describe('authorizeKeys', () => {
               0,
               "hash"
             ],
-            "message": "Invalid input"
+            "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
           }
         ]]
       `)
@@ -202,7 +219,7 @@ describe('authorizeKeys', () => {
               0,
               "hash"
             ],
-            "message": "Invalid input"
+            "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
           }
         ]]
       `)
@@ -341,7 +358,7 @@ describe('meta', () => {
             "path": [
               "feePayer"
             ],
-            "message": "Invalid input"
+            "message": "Needs string in format ^0x[A-Fa-f0-9]{40}$."
           }
         ]]
       `)
@@ -361,7 +378,7 @@ describe('meta', () => {
             "path": [
               "feeToken"
             ],
-            "message": "Invalid input"
+            "message": "Needs string in format ^0x[A-Fa-f0-9]{40}$."
           }
         ]]
       `)
@@ -381,7 +398,7 @@ describe('meta', () => {
             "path": [
               "nonce"
             ],
-            "message": "Invalid input"
+            "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
           }
         ]]
       `)
@@ -483,24 +500,32 @@ describe('revokeKeys', () => {
 
     test('param: validates array items have hash field', () => {
       expect(
-        zError.fromError(
+        u.toValidationError(
           z.safeParse(Capabilities.revokeKeys.Request, [{ invalid: 'field' }])
             .error,
         ),
       ).toMatchInlineSnapshot(
-        `[ZodValidationError: Validation error: Invalid input at "[0].hash"]`,
+        `
+        [Schema.ValidationError: Validation failed with 1 error:
+
+        - at \`[0].hash\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.]
+      `,
       )
     })
 
     test('param: validates hash as hex string', () => {
       expect(
-        zError.fromError(
+        u.toValidationError(
           z.safeParse(Capabilities.revokeKeys.Request, [
             { hash: 'invalid-hex' },
           ]).error,
         ),
       ).toMatchInlineSnapshot(
-        `[ZodValidationError: Validation error: Invalid input at "[0].hash"]`,
+        `
+        [Schema.ValidationError: Validation failed with 1 error:
+
+        - at \`[0].hash\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+      `,
       )
     })
 
@@ -550,34 +575,46 @@ describe('revokeKeys', () => {
   describe('Response', () => {
     test('param: validates as array', () => {
       expect(
-        zError.fromError(
+        u.toValidationError(
           z.safeParse(Capabilities.revokeKeys.Response, 'invalid').error,
         ),
       ).toMatchInlineSnapshot(
-        '[ZodValidationError: Validation error: Invalid input]',
+        `
+        [Schema.ValidationError: Validation failed with 1 error:
+
+        - Expected array. ]
+      `,
       )
     })
 
     test('param: validates array items have hash field', () => {
       expect(
-        zError.fromError(
+        u.toValidationError(
           z.safeParse(Capabilities.revokeKeys.Response, [{ invalid: 'field' }])
             .error,
         ),
       ).toMatchInlineSnapshot(
-        `[ZodValidationError: Validation error: Invalid input at "[0].hash"]`,
+        `
+        [Schema.ValidationError: Validation failed with 1 error:
+
+        - at \`[0].hash\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.]
+      `,
       )
     })
 
     test('param: validates hash as hex string', () => {
       expect(
-        zError.fromError(
+        u.toValidationError(
           z.safeParse(Capabilities.revokeKeys.Response, [
             { hash: 'invalid-hex' },
           ]).error,
         ),
       ).toMatchInlineSnapshot(
-        `[ZodValidationError: Validation error: Invalid input at "[0].hash"]`,
+        `
+        [Schema.ValidationError: Validation failed with 1 error:
+
+        - at \`[0].hash\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+      `,
       )
     })
 

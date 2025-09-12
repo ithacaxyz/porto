@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import * as z from 'zod/mini'
-import * as zodError from 'zod-validation-error'
+import * as u from '../../schema/utils.js'
 import * as Intent from './intent.js'
 
 describe('Intent', () => {
@@ -137,40 +137,104 @@ describe('Intent', () => {
 
   test('error: rejects invalid address format', () => {
     expect(
-      zodError.fromError(
+      u.toValidationError(
         z.safeDecode(Intent.Intent, {
           ...validIntentData,
           eoa: 'invalid-address',
         } as never).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "eoa" or Invalid input at "eoa"; Invalid input at "prePaymentAmount"; Invalid input at "prePaymentMaxAmount"; Invalid input at "totalPaymentAmount"; Invalid input at "totalPaymentMaxAmount"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - Invalid union value.
+        - at \`eoa\`: Must match pattern: ^0x[\\s\\S]{0,}$
+        - at \`eoa\`: Must match pattern: ^0x[\\s\\S]{0,}$
+        - at \`prePaymentAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`prePaymentMaxAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`totalPaymentAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`totalPaymentMaxAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.]
+    `,
     )
   })
 
   test('error: rejects invalid hex format for BigInt fields', () => {
     expect(
-      zodError.fromError(
+      u.toValidationError(
         z.safeDecode(Intent.Intent, {
           ...validIntentData,
           combinedGas: 'not-hex',
         } as never).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "combinedGas" or Invalid input at "combinedGas"; Invalid input at "prePaymentAmount"; Invalid input at "prePaymentMaxAmount"; Invalid input at "totalPaymentAmount"; Invalid input at "totalPaymentMaxAmount"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - Invalid union value.
+        - at \`combinedGas\`: Must match pattern: ^0x[\\s\\S]{0,}$
+        - at \`combinedGas\`: Must match pattern: ^0x[\\s\\S]{0,}$
+        - at \`prePaymentAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`prePaymentMaxAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`totalPaymentAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`totalPaymentMaxAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.]
+    `,
     )
   })
 
   test('error: rejects missing required fields', () => {
     expect(
-      zodError.fromError(
+      u.toValidationError(
         z.safeDecode(Intent.Intent, {
           eoa: '0x1234567890123456789012345678901234567890',
           // Missing other required fields
         } as never).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "combinedGas"; Invalid input at "encodedFundTransfers"; Invalid input at "encodedPreCalls"; Invalid input at "executionData"; Invalid input at "expiry"; Invalid input at "funder"; Invalid input at "funderSignature"; Invalid input at "isMultichain"; Invalid input at "nonce"; Invalid input at "payer"; Invalid input at "paymentAmount"; Invalid input at "paymentMaxAmount"; Invalid input at "paymentRecipient"; Invalid input at "paymentSignature"; Invalid input at "paymentToken"; Invalid input at "settler"; Invalid input at "settlerContext"; Invalid input at "signature"; Invalid input at "supportedAccountImplementation" or Invalid input at "combinedGas"; Invalid input at "encodedFundTransfers"; Invalid input at "encodedPreCalls"; Invalid input at "executionData"; Invalid input at "expiry"; Invalid input at "funder"; Invalid input at "funderSignature"; Invalid input at "isMultichain"; Invalid input at "nonce"; Invalid input at "payer"; Invalid input at "paymentRecipient"; Invalid input at "paymentSignature"; Invalid input at "paymentToken"; Invalid input at "prePaymentAmount"; Invalid input at "prePaymentMaxAmount"; Invalid input at "settler"; Invalid input at "settlerContext"; Invalid input at "signature"; Invalid input at "supportedAccountImplementation"; Invalid input at "totalPaymentAmount"; Invalid input at "totalPaymentMaxAmount"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - Invalid union value.
+        - at \`combinedGas\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`encodedFundTransfers\`: Expected array. 
+        - at \`encodedPreCalls\`: Expected array. 
+        - at \`executionData\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`expiry\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`funder\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`funderSignature\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`isMultichain\`: Expected boolean. 
+        - at \`nonce\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`payer\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`paymentAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`paymentMaxAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`paymentRecipient\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`paymentSignature\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`paymentToken\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`settler\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`settlerContext\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`signature\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`supportedAccountImplementation\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`combinedGas\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`encodedFundTransfers\`: Expected array. 
+        - at \`encodedPreCalls\`: Expected array. 
+        - at \`executionData\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`expiry\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`funder\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`funderSignature\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`isMultichain\`: Expected boolean. 
+        - at \`nonce\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`payer\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`paymentRecipient\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`paymentSignature\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`paymentToken\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`prePaymentAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`prePaymentMaxAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`settler\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`settlerContext\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`signature\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`supportedAccountImplementation\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`totalPaymentAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`totalPaymentMaxAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.]
+    `,
     )
   })
 
@@ -179,8 +243,18 @@ describe('Intent', () => {
       ...validIntentData,
       encodedPreCalls: ['0xvalid', 'invalid-hex'],
     } as never)
-    expect(zodError.fromError(error as never)).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "encodedPreCalls[1]" or Invalid input at "encodedPreCalls[1]"; Invalid input at "prePaymentAmount"; Invalid input at "prePaymentMaxAmount"; Invalid input at "totalPaymentAmount"; Invalid input at "totalPaymentMaxAmount"]`,
+    expect(u.toValidationError(error as never)).toMatchInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - Invalid union value.
+        - at \`encodedPreCalls[1]\`: Must match pattern: ^0x[\\s\\S]{0,}$
+        - at \`encodedPreCalls[1]\`: Must match pattern: ^0x[\\s\\S]{0,}$
+        - at \`prePaymentAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`prePaymentMaxAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`totalPaymentAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`totalPaymentMaxAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.]
+    `,
     )
   })
 })
@@ -260,53 +334,70 @@ describe('Partial', () => {
 
   test('error: rejects invalid address in partial', () => {
     expect(
-      zodError.fromError(
+      u.toValidationError(
         z.safeDecode(Intent.Partial, {
           ...validPartialData,
           eoa: 'invalid-address',
         } as never).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "eoa"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`eoa\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+    `,
     )
   })
 
   test('error: rejects invalid hex for executionData', () => {
     expect(
-      zodError.fromError(
+      u.toValidationError(
         z.safeDecode(Intent.Partial, {
           ...validPartialData,
           executionData: 'not-hex',
         } as never).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "executionData"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`executionData\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+    `,
     )
   })
 
   test('error: rejects invalid hex for nonce', () => {
     expect(
-      zodError.fromError(
+      u.toValidationError(
         z.safeDecode(Intent.Partial, {
           ...validPartialData,
           nonce: 'not-hex',
         } as never).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "nonce"]`,
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
+
+      - at \`nonce\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+    `,
     )
   })
 
   test('error: rejects missing required fields in partial', () => {
     expect(
-      zodError.fromError(
+      u.toValidationError(
         z.safeDecode(Intent.Partial, {
           eoa: '0x1234567890123456789012345678901234567890',
           // Missing executionData and nonce
         } as never).error,
       ),
     ).toMatchInlineSnapshot(
-      `[ZodValidationError: Validation error: Invalid input at "executionData"; Invalid input at "nonce"]`,
+      `
+      [Schema.ValidationError: Validation failed with 2 errors:
+
+      - at \`executionData\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+      - at \`nonce\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.]
+    `,
     )
   })
 
