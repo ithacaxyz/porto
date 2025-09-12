@@ -64,7 +64,7 @@ describe('merchant', () => {
           to: contracts.exp1.address,
         },
       ],
-      merchantRpcUrl: server.url,
+      merchantUrl: server.url,
     })
 
     await waitForCallsStatus(client, {
@@ -124,7 +124,7 @@ describe('merchant', () => {
             to: contracts.exp1.address,
           },
         ],
-        merchantRpcUrl: server.url,
+        merchantUrl: server.url,
       })
 
       await waitForCallsStatus(client, {
@@ -172,7 +172,7 @@ describe('merchant', () => {
             to: contracts.exp2.address,
           },
         ],
-        merchantRpcUrl: server.url,
+        merchantUrl: server.url,
       })
 
       await waitForCallsStatus(client, {
@@ -249,7 +249,7 @@ describe('merchant', () => {
         },
       ],
       chain: chain_dest,
-      merchantRpcUrl: server.url,
+      merchantUrl: server.url,
       requiredFunds: [
         {
           address: contracts.exp1.address,
@@ -314,7 +314,7 @@ describe('merchant', () => {
             to: contracts.exp1.address,
           },
         ],
-        merchantRpcUrl: server.url,
+        merchantUrl: server.url,
       }),
     ).rejects.toThrowError('InsufficientAllowance')
   })

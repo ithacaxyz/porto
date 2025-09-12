@@ -56,7 +56,7 @@ function Account() {
 
 function Connect() {
   const connect = useConnect()
-  const [connector] = connect.connectors
+  const [, connector] = connect.connectors
 
   return (
     <div>
@@ -64,7 +64,6 @@ function Connect() {
       <button
         onClick={() =>
           connect.connect({
-            capabilities: {},
             connector,
           })
         }

@@ -36,7 +36,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
 
   const getPorto = (
     config: {
-      merchantRpcUrl?: string | undefined
+      merchantUrl?: string | undefined
       relayRpcUrl?: string | undefined
     } = {},
   ) =>
@@ -1994,7 +1994,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
               },
             ],
             capabilities: {
-              merchantRpcUrl: server.url,
+              merchantUrl: server.url,
             },
             from: address,
             version: '1',
@@ -2049,7 +2049,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       }).listener
       const server = await Http.createServer(listener)
 
-      const porto = getPorto({ merchantRpcUrl: server.url })
+      const porto = getPorto({ merchantUrl: server.url })
 
       const {
         accounts: [account],
@@ -2131,7 +2131,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       const p = getPorto()
       const contracts = await TestConfig.getContracts(p)
 
-      const porto = getPorto({ merchantRpcUrl: 'https://example.com/rpc' })
+      const porto = getPorto({ merchantUrl: 'https://example.com/rpc' })
 
       const {
         accounts: [account],

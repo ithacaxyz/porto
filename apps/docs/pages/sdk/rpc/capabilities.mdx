@@ -326,18 +326,18 @@ behalf of their users.
 
 ### Request Capabilities
 
-#### `merchantRpcUrl`
+#### `merchantUrl`
 
 URL of the endpoint that will be used to front (and sponsor) call bundles for users.
 
-The following JSON-RPC methods support the `merchantRpcUrl` request capability:
+The following JSON-RPC methods support the `merchantUrl` request capability:
 
 - [`wallet_prepareCalls`](/sdk/rpc/wallet_prepareCalls)
 - [`wallet_sendCalls`](/sdk/rpc/wallet_sendCalls)
 
 ```ts
 type Capability = {
-  merchantRpcUrl: string
+  merchantUrl: string
 }
 ```
 
@@ -349,7 +349,7 @@ const capabilities = await provider.request({
   method: 'wallet_sendCalls',
   params: [{
     capabilities: {
-      merchantRpcUrl: 'https://myapp.com/rpc'
+      merchantUrl: 'https://myapp.com/rpc'
     },
     /* ... */
   }]

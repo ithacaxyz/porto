@@ -78,7 +78,7 @@ We will do this by passing the URL to it on `Porto.create(){:js}`.
 
 ```ts
 const porto = await Porto.create({
-  merchantRpcUrl: '/porto/merchant' // [!code focus]
+  merchantUrl: '/porto/merchant' // [!code focus]
 })
 ```
 
@@ -90,7 +90,7 @@ to it on `Porto.create(){:js}`.
 import { Porto } from 'porto'
 
 const porto = await Porto.create({
-  merchantRpcUrl: 'https://myapi.com/porto/merchant' // [!code focus]
+  merchantUrl: 'https://myapi.com/porto/merchant' // [!code focus]
 })
 ```
 

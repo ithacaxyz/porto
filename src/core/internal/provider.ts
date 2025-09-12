@@ -249,8 +249,8 @@ export function from<
               request,
               store,
             },
-            merchantRpcUrl: UrlString.toAbsolute(
-              config.merchantRpcUrl ?? capabilities?.merchantRpcUrl,
+            merchantUrl: UrlString.toAbsolute(
+              config.merchantUrl ?? capabilities?.merchantUrl,
             ),
             preCalls: capabilities?.preCalls as any,
           })
@@ -963,8 +963,8 @@ export function from<
               store,
             },
             key,
-            merchantRpcUrl: UrlString.toAbsolute(
-              config.merchantRpcUrl ?? capabilities?.merchantRpcUrl,
+            merchantUrl: UrlString.toAbsolute(
+              config.merchantUrl ?? capabilities?.merchantUrl,
             ),
             preCalls: capabilities?.preCalls as any,
             requiredFunds: capabilities?.requiredFunds,
@@ -1034,6 +1034,8 @@ export function from<
             : state.accounts[0]
           if (!account) throw new ox_Provider.UnauthorizedError()
 
+          console.log(config.merchantUrl, capabilities?.merchantUrl)
+
           const { id } = await getMode().actions.sendCalls({
             account,
             calls,
@@ -1044,8 +1046,8 @@ export function from<
               request,
               store,
             },
-            merchantRpcUrl: UrlString.toAbsolute(
-              config.merchantRpcUrl ?? capabilities?.merchantRpcUrl,
+            merchantUrl: UrlString.toAbsolute(
+              config.merchantUrl ?? capabilities?.merchantUrl,
             ),
             permissionsId: capabilities?.permissions?.id,
             preCalls: capabilities?.preCalls as any,

@@ -1308,27 +1308,27 @@ describe('preCalls', () => {
   })
 })
 
-describe('merchantRpcUrl', () => {
+describe('merchantUrl', () => {
   describe('Request', () => {
     test('behavior: parse string url', () => {
-      const result = Schema.decodeUnknownSync(
-        Capabilities.merchantRpcUrl.Request,
-      )('https://rpc.example.com')
+      const result = Schema.decodeUnknownSync(Capabilities.merchantUrl.Request)(
+        'https://rpc.example.com',
+      )
       expect(result).toBe('https://rpc.example.com')
     })
 
     test('behavior: parse empty string', () => {
-      const result = Schema.decodeUnknownSync(
-        Capabilities.merchantRpcUrl.Request,
-      )('')
+      const result = Schema.decodeUnknownSync(Capabilities.merchantUrl.Request)(
+        '',
+      )
       expect(result).toBe('')
     })
 
     test('behavior: encode string url', () => {
       const decoded = Schema.decodeUnknownSync(
-        Capabilities.merchantRpcUrl.Request,
+        Capabilities.merchantUrl.Request,
       )('https://rpc.example.com')
-      const encoded = Schema.encodeSync(Capabilities.merchantRpcUrl.Request)(
+      const encoded = Schema.encodeSync(Capabilities.merchantUrl.Request)(
         decoded,
       )
       expect(encoded).toBe('https://rpc.example.com')
@@ -1336,9 +1336,9 @@ describe('merchantRpcUrl', () => {
 
     test('behavior: encode empty string', () => {
       const decoded = Schema.decodeUnknownSync(
-        Capabilities.merchantRpcUrl.Request,
+        Capabilities.merchantUrl.Request,
       )('')
-      const encoded = Schema.encodeSync(Capabilities.merchantRpcUrl.Request)(
+      const encoded = Schema.encodeSync(Capabilities.merchantUrl.Request)(
         decoded,
       )
       expect(encoded).toBe('')
@@ -1362,9 +1362,9 @@ describe('merchantRpcUrl', () => {
         input: 'wss://eth-mainnet.alchemyapi.io/v2/demo',
       },
     ])(
-      'behavior: encodes merchantRpcUrl data correctly for $case',
+      'behavior: encodes merchantUrl data correctly for $case',
       ({ input, expected }) => {
-        const encoded = Schema.encodeSync(Capabilities.merchantRpcUrl.Request)(
+        const encoded = Schema.encodeSync(Capabilities.merchantUrl.Request)(
           input,
         )
         expect(encoded).toBe(expected)
@@ -1373,7 +1373,7 @@ describe('merchantRpcUrl', () => {
 
     test('error: reject non-string', () => {
       expect(() =>
-        Schema.decodeUnknownSync(Capabilities.merchantRpcUrl.Request)(123),
+        Schema.decodeUnknownSync(Capabilities.merchantUrl.Request)(123),
       ).toThrowErrorMatchingInlineSnapshot(
         `
         [Schema.CoderError: Expected string, actual 123

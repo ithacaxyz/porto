@@ -129,7 +129,7 @@ export namespace preCalls {
   export type Response = typeof Response.Type
 }
 
-export namespace merchantRpcUrl {
+export namespace merchantUrl {
   export const Request = Schema.String
   export type Request = typeof Request.Type
 }

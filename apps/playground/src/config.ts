@@ -153,7 +153,7 @@ const chains = [
 export const porto = Porto.create({
   ...config,
   chains,
-  merchantRpcUrl: merchant ? '/merchant' : undefined,
+  merchantUrl: merchant ? '/merchant' : undefined,
   // We will be deferring mode setup until after hydration.
   mode: null,
 })

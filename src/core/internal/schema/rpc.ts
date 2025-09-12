@@ -144,7 +144,7 @@ export namespace eth_sendTransaction {
         capabilities: Schema.optional(
           Schema.Struct({
             feeToken: Schema.optional(C.feeToken.Request),
-            merchantRpcUrl: Schema.optional(C.merchantRpcUrl.Request),
+            merchantUrl: Schema.optional(C.merchantUrl.Request),
             preCalls: Schema.optional(C.preCalls.Request),
           }),
         ),
@@ -662,7 +662,7 @@ export namespace wallet_getKeys {
 export namespace wallet_prepareCalls {
   export const Capabilities = Schema.Struct({
     feeToken: Schema.optional(C.feeToken.Request),
-    merchantRpcUrl: Schema.optional(C.merchantRpcUrl.Request),
+    merchantUrl: Schema.optional(C.merchantUrl.Request),
     permissions: Schema.optional(C.permissions.Request),
     preCalls: Schema.optional(C.preCalls.Request),
     requiredFunds: Schema.optional(C.requiredFunds.Request),

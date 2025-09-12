@@ -18,24 +18,29 @@ import * as Route from 'porto/server/Route'
 
 ## Usage
 
-`Route.merchant` is compatible with any server framework that supports the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
-or [Node.js Request Listener](https://nodejs.org/api/http.html#httpcreateserveroptions-requestlistener), including:
-
-- [Next.js](#nextjs)
-- [Cloudflare Workers](#cloudflare-workers)
-- [Hono](#hono)
-- [Deno](https://deno.com)
-- [Express](#express)
-
 ```ts twoslash
 // @noErrors
 import { Route } from 'porto/server'
 
-const router = Route.merchant({
+const route = Route.merchant({
   address: process.env.MERCHANT_ADDRESS,
   key: process.env.MERCHANT_PRIVATE_KEY,
 })
 ```
+
+### Frameworks
+
+`Route.merchant` is compatible with any server framework that supports the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
+or [Node.js Request Listener](https://nodejs.org/api/http.html#httpcreateserveroptions-requestlistener).
+
+Examples:
+
+- [Next.js](/sdk/api/router#nextjs)
+- [Cloudflare Workers](/sdk/api/router#cloudflare-workers)
+- [Hono](/sdk/api/router#hono)
+- [Bun](/sdk/api/router#bun)
+- [Deno](/sdk/api/router#deno)
+- [Express](/sdk/api/router#express)
 
 ### Conditional Sponsoring
 
@@ -82,8 +87,6 @@ const route = Route.merchant({
 type Parameters = {
   /** Address of the Merchant Account. */
   address: Address.Address
-  /** Base path of the request handler. */
-  basePath?: string | undefined
   /** An Admin Key of the Merchant Account to use for signing. */
   key:
     | Hex.Hex

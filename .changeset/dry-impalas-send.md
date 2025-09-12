@@ -2,7 +2,11 @@
 "porto": minor
 ---
 
-**Breaking:** Removed automatic `merchantRpcUrl` inference to enhance clarity and avoid astonishment. If you have set up a Merchant API route via `Route.merchant`, you will need to explicitly pass the URL to `Porto.create(){:js}` or the `porto` Connector.
+**Breaking:** 
+
+- Renamed `merchantRpcUrl` to `merchantUrl`. 
+
+- Removed automatic `merchantUrl` inference to enhance clarity and avoid astonishment. If you have set up a Merchant API route via `Route.merchant`, you will need to explicitly pass the URL to `Porto.create(){:js}` or the `porto` Connector.
 
 See `config.ts` below (that uses the `api/worker.ts` server):
 
@@ -10,7 +14,7 @@ See `config.ts` below (that uses the `api/worker.ts` server):
 
 ```diff
 const porto = Porto.create({
-+ merchantRpcUrl: '/porto/merchant'
++ merchantUrl: '/porto/merchant'
 })
 ```
 
