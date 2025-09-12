@@ -23,8 +23,8 @@ export const bigint = () =>
     encode: (value) => Hex_ox.fromNumber(value),
   })
 
-export const is = <schema>(
-  schema: z.ZodMiniType,
+export const is = <schema extends z.ZodMiniType>(
+  schema: schema,
   message: unknown,
 ): message is z.infer<schema> => {
   try {
