@@ -26,7 +26,7 @@ const updateFiles = (version: string) => [
 ]
 
 const relayUrl = 'https://rpc.ithaca.xyz'
-const versionRegex = /v?(\d+\.\d+\.\d+)$/
+const versionRegex = /v?(\d+\.\d+\.\d+)/
 
 let version = process.argv[2]
 
