@@ -15,7 +15,6 @@ import * as ContractActions from '../../../viem/ContractActions.js'
 import * as RelayActions_internal from '../../../viem/internal/relayActions.js'
 import * as Key from '../../../viem/Key.js'
 import * as RelayActions from '../../../viem/RelayActions.js'
-import type { RelayClient } from '../../../viem/RelayClient.js'
 import * as Erc8010 from '../erc8010.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
@@ -312,9 +311,25 @@ export function relay(parameters: relay.Parameters = {}) {
         })
         if (!authorizeKey) throw new Error('key to authorize not found.')
 
-        await sendAuthorizeKeyPreCalls(client, {
+        const adminKey = account.keys?.find(
+          (key) => key.role === 'admin' && key.privateKey,
+        )
+        if (!adminKey) throw new Error('admin key not found.')
+
+        const { context, digest } = await RelayActions.prepareCalls(client, {
           account,
-          authorizeKey,
+          authorizeKeys: [authorizeKey],
+          key: adminKey,
+          preCalls: true,
+        })
+        const signature = await Key.sign(adminKey, {
+          address: null,
+          payload: digest,
+        })
+        await RelayActions.sendPreparedCalls(client, {
+          context,
+          key: adminKey,
+          signature,
         })
 
         return { key: authorizeKey }
@@ -332,22 +347,9 @@ export function relay(parameters: relay.Parameters = {}) {
         })
 
         // Prepare calls to sign over the session key or SIWE message to authorize.
-        const { context, digest, digestType, message } = await (async () => {
-          if (authorizeKey) {
-            const { context, digest } = await RelayActions.prepareCalls(
-              client,
-              {
-                authorizeKeys: [authorizeKey],
-                preCalls: true,
-              },
-            )
-            return {
-              context,
-              digest,
-              digestType: 'precall',
-              message: undefined,
-            } as const
-          }
+        // TODO: figure out with relay if we can prepare the "precall" here also.
+        // prepareCalls requires the EOA address, but we don't know it here.
+        const { digest, digestType, message } = await (async () => {
           if (signInWithEthereum && parameters.address) {
             const message = await Siwe.buildMessage(
               client,
@@ -456,10 +458,28 @@ export function relay(parameters: relay.Parameters = {}) {
           // Otherwise, we will sign over the digest for authorizing
           // the session key.
           return await Key.sign(adminKey, {
-            address: digestType === 'precall' ? null : account.address,
+            address: account.address,
             payload: digest,
           })
         })()
+
+        // Prepare and send the authorize key pre-call.
+        if (authorizeKey) {
+          const { context, digest } = await RelayActions.prepareCalls(client, {
+            account,
+            authorizeKeys: [authorizeKey],
+            preCalls: true,
+          })
+          const signature = await Key.sign(adminKey, {
+            address: null,
+            payload: digest,
+          })
+          await RelayActions.sendPreparedCalls(client, {
+            context,
+            key: adminKey,
+            signature,
+          })
+        }
 
         const signInWithEthereum_response = await (async () => {
           if (!signInWithEthereum) return undefined
@@ -875,40 +895,5 @@ export declare namespace relay {
           getFn?: WebAuthnP256.sign.Options['getFn'] | undefined
         }
       | undefined
-  }
-}
-
-async function sendAuthorizeKeyPreCalls(
-  client: RelayClient,
-  parameters: sendAuthorizeKeyPreCalls.Parameters,
-) {
-  const { account, authorizeKey } = parameters
-
-  const adminKey = account.keys?.find(
-    (key) => key.role === 'admin' && key.privateKey,
-  )
-  if (!adminKey) throw new Error('admin key not found.')
-
-  const { context, digest } = await RelayActions.prepareCalls(client, {
-    account,
-    authorizeKeys: [authorizeKey],
-    key: adminKey,
-    preCalls: true,
-  })
-  const signature = await Key.sign(adminKey, {
-    address: null,
-    payload: digest,
-  })
-  await RelayActions.sendPreparedCalls(client, {
-    context,
-    key: adminKey,
-    signature,
-  })
-}
-
-namespace sendAuthorizeKeyPreCalls {
-  export type Parameters = {
-    account: Account.Account
-    authorizeKey: Key.Key
   }
 }
