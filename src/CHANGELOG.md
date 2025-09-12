@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.2
+
+### Patch Changes
+
+- [`0853d71`](https://github.com/ithacaxyz/porto/commit/0853d71c67dc905ee2d543ec4e274adb1beb2551) Thanks [@jxom](https://github.com/jxom)! - Removed console log.
+
 ## 0.2.1
 
 ### Patch Changes
