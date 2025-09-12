@@ -13,11 +13,10 @@ import {
   UserRejectedRequestError,
   withRetry,
 } from 'viem'
-import * as z from 'zod/mini'
 import type * as Chains from '../core/Chains.js'
 import type { ExactPartial } from '../core/internal/types.js'
 import type * as Porto from '../core/Porto.js'
-import * as RpcSchema from '../core/RpcSchema.js'
+import type * as RpcSchema from '../core/RpcSchema.js'
 
 export function porto<
   const chains extends readonly [Chains.Chain, ...Chains.Chain[]],
@@ -48,6 +47,8 @@ export function porto<
     })()
 
     let porto_promise: Promise<Porto.Porto<chains>> | undefined
+    let z_promise: Promise<typeof import('zod/mini')>
+    let RpcSchema_promise: Promise<typeof import('../core/RpcSchema.js')>
 
     let accountsChanged: Connector['onAccountsChanged'] | undefined
     let chainChanged: Connector['onChainChanged'] | undefined
@@ -76,6 +77,11 @@ export function porto<
         }
 
         const provider = (await this.getProvider()) as Provider
+
+        z_promise ??= (() => import('zod/mini'))()
+        RpcSchema_promise ??= (() => import('../core/RpcSchema.js'))()
+
+        const [z, RpcSchema] = await Promise.all([z_promise, RpcSchema_promise])
 
         try {
           if (!accounts?.length && !isReconnecting) {
