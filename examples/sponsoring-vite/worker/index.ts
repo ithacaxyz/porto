@@ -2,7 +2,8 @@ import { env } from 'cloudflare:workers'
 import { Route, Router } from 'porto/server'
 import * as Contracts from '../src/contracts.ts'
 
-export default Router().route(
+export default Router({ basePath: '/porto' }).route(
+  '/merchant',
   Route.merchant({
     address: env.MERCHANT_ADDRESS as `0x${string}`,
     key: env.MERCHANT_PRIVATE_KEY as `0x${string}`,

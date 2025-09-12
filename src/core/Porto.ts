@@ -191,7 +191,7 @@ export type Config<
    */
   mode: Mode.Mode | null
   /**
-   * URL to use for merchant functionality.
+   * URL to use for merchant server.
    */
   merchantRpcUrl?: string | undefined
   /**
