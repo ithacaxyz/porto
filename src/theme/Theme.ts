@@ -134,14 +134,7 @@ export const LightDarkColor = z.readonly(z.tuple([Color, Color]))
  * - The string "transparent".
  */
 export type Color = z.infer<typeof Color>
-export const isColor = (value: unknown): value is Color => {
-  try {
-    Color.parse(value)
-    return true
-  } catch {
-    return false
-  }
-}
+export const isColor = (value: unknown) => u.is(Color, value)
 
 /**
  * A light + dark color pair to be used in themes.
@@ -151,11 +144,4 @@ export const isColor = (value: unknown): value is Color => {
  *   - `dark` is the color used in dark mode.
  */
 export type LightDarkColor = z.infer<typeof LightDarkColor>
-export const isLightDarkColor = (value: unknown): value is LightDarkColor => {
-  try {
-    LightDarkColor.parse(value)
-    return true
-  } catch {
-    return false
-  }
-}
+export const isLightDarkColor = (value: unknown) => u.is(LightDarkColor, value)
