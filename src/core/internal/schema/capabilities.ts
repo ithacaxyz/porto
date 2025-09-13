@@ -127,7 +127,7 @@ export namespace preCalls {
   export type Response = z.infer<typeof Response>
 }
 
-export namespace merchantRpcUrl {
+export namespace merchantUrl {
   export const Request = z.string()
   export type Request = z.infer<typeof Request>
 }

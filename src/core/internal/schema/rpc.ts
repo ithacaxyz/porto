@@ -111,7 +111,7 @@ export namespace eth_sendTransaction {
           capabilities: z.optional(
             z.object({
               feeToken: z.optional(C.feeToken.Request),
-              merchantRpcUrl: z.optional(C.merchantRpcUrl.Request),
+              merchantUrl: z.optional(C.merchantUrl.Request),
               preCalls: z.optional(C.preCalls.Request),
             }),
           ),
@@ -549,7 +549,7 @@ export namespace wallet_getKeys {
 export namespace wallet_prepareCalls {
   export const Capabilities = z.object({
     feeToken: z.optional(C.feeToken.Request),
-    merchantRpcUrl: z.optional(C.merchantRpcUrl.Request),
+    merchantUrl: z.optional(C.merchantUrl.Request),
     permissions: z.optional(C.permissions.Request),
     preCalls: z.optional(C.preCalls.Request),
     requiredFunds: z.optional(C.requiredFunds.Request),

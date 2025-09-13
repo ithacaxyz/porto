@@ -17,6 +17,7 @@ import type * as Porto_internal from './porto.js'
 import * as RpcRequest from './schema/request.js'
 import * as Rpc from './schema/rpc.js'
 import * as Store from './store.js'
+import * as UrlString from './urlString.js'
 
 export type Provider = ox_Provider.Provider<{
   includeEvents: true
@@ -248,9 +249,8 @@ export function from<
               request,
               store,
             },
-            merchantRpcUrl: await getMerchantRpcUrl(
-              config.merchantRpcUrl ?? capabilities?.merchantRpcUrl,
-              config,
+            merchantUrl: UrlString.toAbsolute(
+              config.merchantUrl ?? capabilities?.merchantUrl,
             ),
             preCalls: capabilities?.preCalls as any,
           })
@@ -969,9 +969,8 @@ export function from<
               store,
             },
             key,
-            merchantRpcUrl: await getMerchantRpcUrl(
-              config.merchantRpcUrl ?? capabilities?.merchantRpcUrl,
-              config,
+            merchantUrl: UrlString.toAbsolute(
+              config.merchantUrl ?? capabilities?.merchantUrl,
             ),
             preCalls: capabilities?.preCalls as any,
             requiredFunds: capabilities?.requiredFunds,
@@ -1051,9 +1050,8 @@ export function from<
               request,
               store,
             },
-            merchantRpcUrl: await getMerchantRpcUrl(
-              config.merchantRpcUrl ?? capabilities?.merchantRpcUrl,
-              config,
+            merchantUrl: UrlString.toAbsolute(
+              config.merchantUrl ?? capabilities?.merchantUrl,
             ),
             permissionsId: capabilities?.permissions?.id,
             preCalls: capabilities?.preCalls as any,
@@ -1120,9 +1118,6 @@ export function from<
   function setup() {
     let unsubscribe_accounts: () => void = () => {}
     let unsubscribe_chain: () => void = () => {}
-
-    // Pre-fetch the merchant RPC URL to hit cache.
-    getMerchantRpcUrl(config.merchantRpcUrl, config).catch(() => {})
 
     Store.waitForHydration(store).then(() => {
       const chainId = store.getState().chainIds[0]
@@ -1255,53 +1250,4 @@ function getActivePermissions(
       }
     })
     .filter(Boolean) as never
-}
-
-async function getMerchantRpcUrl(
-  merchantRpcUrl: string | undefined,
-  { storage }: { storage: Porto.Config['storage'] },
-) {
-  const defaultMerchantRpcUrl =
-    typeof window !== 'undefined'
-      ? `${window.location.origin}/merchant`
-      : undefined
-
-  // If a Merchant RPC URL is not provided, we will check if there is one set
-  // up on the host.
-  if (!merchantRpcUrl) {
-    // If there is no default Merchant RPC URL, we will return undefined.
-    if (!defaultMerchantRpcUrl) return undefined
-
-    // If there is a cached flag, we will return the URL if it is set up.
-    const merchantRpcUrl_storage = await withCache(
-      () => storage.getItem('porto.merchant-rpc') as Promise<boolean>,
-      { cacheKey: 'getMerchantRpcUrl.storage' },
-    )
-    if (typeof merchantRpcUrl_storage === 'boolean')
-      return merchantRpcUrl_storage ? defaultMerchantRpcUrl : undefined
-
-    // Fetch on the default Merchant RPC URL to see if it is set up.
-    const response = await withCache(
-      () =>
-        fetch(defaultMerchantRpcUrl)
-          .then((x) => x.text())
-          .catch(() => undefined),
-      { cacheKey: `getMerchantRpcUrl.${defaultMerchantRpcUrl}` },
-    )
-    if (response !== 'hello porto') {
-      storage.setItem('porto.merchant-rpc', false)
-      return undefined
-    }
-
-    // If set up, we will cache the flag.
-    storage.setItem('porto.merchant-rpc', true)
-    return defaultMerchantRpcUrl
-  }
-
-  // If the Merchant RPC URL is a relative URL, we will convert it to an
-  // absolute URL.
-  if (merchantRpcUrl.startsWith('/'))
-    return `${window.location.origin}${merchantRpcUrl}`
-
-  return merchantRpcUrl
 }

@@ -65,7 +65,7 @@ export function create(
     authUrl: parameters.authUrl,
     chains,
     feeToken: parameters.feeToken,
-    merchantRpcUrl: parameters.merchantRpcUrl,
+    merchantUrl: parameters.merchantUrl,
     mode: parameters.mode ?? defaultConfig.mode,
     relay: parameters.relay ?? defaultConfig.relay,
     storage: parameters.storage ?? defaultConfig.storage,
@@ -191,9 +191,9 @@ export type Config<
    */
   mode: Mode.Mode | null
   /**
-   * URL to use for merchant functionality.
+   * URL to use for merchant server.
    */
-  merchantRpcUrl?: string | undefined
+  merchantUrl?: string | undefined
   /**
    * Relay RPC Transport override.
    */

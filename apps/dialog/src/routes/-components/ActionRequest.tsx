@@ -42,7 +42,7 @@ export function ActionRequest(props: ActionRequest.Props) {
     chainId,
     feeToken,
     loading,
-    merchantRpcUrl,
+    merchantUrl,
     onApprove,
     onReject,
     requiredFunds,
@@ -55,7 +55,7 @@ export function ActionRequest(props: ActionRequest.Props) {
     calls,
     chainId,
     feeToken,
-    merchantRpcUrl,
+    merchantUrl,
     refetchInterval: ({ state }) => (state.error ? false : 15_000),
     requiredFunds,
   })
@@ -230,7 +230,7 @@ export namespace ActionRequest {
     checkBalance?: boolean | undefined
     feeToken?: Token.Symbol | Address.Address | undefined
     loading?: boolean | undefined
-    merchantRpcUrl?: string | undefined
+    merchantUrl?: string | undefined
     requiredFunds?:
       | Calls.prepareCalls.queryOptions.Options['requiredFunds']
       | undefined

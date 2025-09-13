@@ -196,7 +196,7 @@ export type Mode = {
       /** Internal properties. */
       internal: ActionsInternal
       /** Merchant RPC URL. */
-      merchantRpcUrl?: string | undefined
+      merchantUrl?: string | undefined
       /** Pre-calls to be executed. */
       preCalls?: PreCalls.PreCalls | undefined
       /** Required funds to execute the calls. */
@@ -285,7 +285,7 @@ export type Mode = {
       /** Pre-calls to be executed. */
       preCalls?: PreCalls.PreCalls | undefined
       /** Merchant RPC URL. */
-      merchantRpcUrl?: string | undefined
+      merchantUrl?: string | undefined
     }) => Promise<{ id: Hex.Hex }>
 
     sendPreparedCalls: (parameters: {

@@ -19,7 +19,7 @@ function RouteComponent() {
   const { capabilities, calls, chainId, from } =
     request._decoded.params[0] ?? {}
 
-  const { feeToken, merchantRpcUrl, requiredFunds } = capabilities ?? {}
+  const { feeToken, merchantUrl, requiredFunds } = capabilities ?? {}
 
   const account = Hooks.useAccount(porto, { address: from })
   const client = Hooks.useRelayClient(porto, { chainId })
@@ -61,7 +61,7 @@ function RouteComponent() {
       chainId={chainId}
       feeToken={feeToken}
       loading={respond.isPending}
-      merchantRpcUrl={merchantRpcUrl}
+      merchantUrl={merchantUrl}
       onApprove={(data) => respond.mutate(data)}
       onReject={() => Actions.reject(porto, request!)}
       requiredFunds={requiredFunds}

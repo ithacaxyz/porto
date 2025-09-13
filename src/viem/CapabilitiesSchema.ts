@@ -12,7 +12,7 @@ export type CapabilitiesSchema = {
   sendCalls: {
     Request: Pick<
       Rpc.wallet_prepareCalls.Capabilities,
-      'feeToken' | 'permissions' | 'merchantRpcUrl'
+      'feeToken' | 'permissions' | 'merchantUrl'
     >
   }
 }

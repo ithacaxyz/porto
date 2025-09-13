@@ -1262,33 +1262,33 @@ describe('preCalls', () => {
   })
 })
 
-describe('merchantRpcUrl', () => {
+describe('merchantUrl', () => {
   describe('Request', () => {
     test('behavior: parse string url', () => {
       const result = z.parse(
-        Capabilities.merchantRpcUrl.Request,
+        Capabilities.merchantUrl.Request,
         'https://rpc.example.com',
       )
       expect(result).toBe('https://rpc.example.com')
     })
 
     test('behavior: parse empty string', () => {
-      const result = z.parse(Capabilities.merchantRpcUrl.Request, '')
+      const result = z.parse(Capabilities.merchantUrl.Request, '')
       expect(result).toBe('')
     })
 
     test('behavior: encode string url', () => {
       const decoded = z.parse(
-        Capabilities.merchantRpcUrl.Request,
+        Capabilities.merchantUrl.Request,
         'https://rpc.example.com',
       )
-      const encoded = z.encode(Capabilities.merchantRpcUrl.Request, decoded)
+      const encoded = z.encode(Capabilities.merchantUrl.Request, decoded)
       expect(encoded).toBe('https://rpc.example.com')
     })
 
     test('behavior: encode empty string', () => {
-      const decoded = z.parse(Capabilities.merchantRpcUrl.Request, '')
-      const encoded = z.encode(Capabilities.merchantRpcUrl.Request, decoded)
+      const decoded = z.parse(Capabilities.merchantUrl.Request, '')
+      const encoded = z.encode(Capabilities.merchantUrl.Request, decoded)
       expect(encoded).toBe('')
     })
 
@@ -1310,9 +1310,9 @@ describe('merchantRpcUrl', () => {
         input: 'wss://eth-mainnet.alchemyapi.io/v2/demo',
       },
     ])(
-      'behavior: encodes merchantRpcUrl data correctly for $case',
+      'behavior: encodes merchantUrl data correctly for $case',
       ({ input, expected }) => {
-        const encoded = z.encode(Capabilities.merchantRpcUrl.Request, input)
+        const encoded = z.encode(Capabilities.merchantUrl.Request, input)
         expect(encoded).toBe(expected)
       },
     )
@@ -1320,7 +1320,7 @@ describe('merchantRpcUrl', () => {
     test('error: reject non-string', () => {
       expect(
         u.toValidationError(
-          z.safeParse(Capabilities.merchantRpcUrl.Request, 123).error,
+          z.safeParse(Capabilities.merchantUrl.Request, 123).error,
         ),
       ).toMatchInlineSnapshot(
         `

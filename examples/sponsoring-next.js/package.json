@@ -1,5 +1,5 @@
 {
-  "name": "next-subscriptions-example",
+  "name": "next-sponsoring-example",
   "private": true,
   "scripts": {
     "dev": "next dev --experimental-https",

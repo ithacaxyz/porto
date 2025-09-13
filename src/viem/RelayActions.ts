@@ -126,7 +126,7 @@ export async function prepareCalls<
     calls,
     chain = client.chain,
     feePayer,
-    merchantRpcUrl,
+    merchantUrl,
     nonce,
     preCalls,
     requiredFunds,
@@ -197,10 +197,10 @@ export async function prepareCalls<
   }
 
   const { capabilities, context, digest, typedData } = await (async () => {
-    if (merchantRpcUrl) {
+    if (merchantUrl) {
       // TODO: remove this once relay implements `wallet_verifyCalls` for
       // permissionless merchants.
-      const hostname = new URL(merchantRpcUrl).hostname
+      const hostname = new URL(merchantUrl).hostname
       if (!hostnames.includes(hostname))
         throw new Error(
           'Merchant hostname "' +
@@ -210,7 +210,7 @@ export async function prepareCalls<
 
       const client_ = createClient({
         chain: client.chain,
-        transport: http(merchantRpcUrl),
+        transport: http(merchantUrl),
       })
       // Prepare with Merchant RPC.
       return await prepare(client_).catch((e) => {
@@ -267,7 +267,7 @@ export namespace prepareCalls {
       /** Additional keys to revoke from the account. */
       revokeKeys?: readonly Key.Key[] | undefined
       /** Merchant RPC URL. */
-      merchantRpcUrl?: string | undefined
+      merchantUrl?: string | undefined
     } & Omit<Capabilities.meta.Request, 'keyHash'>
 
   export type ReturnType = {
@@ -487,7 +487,7 @@ export declare namespace sendCalls {
           >[]
         | undefined
       /** Merchant RPC URL. */
-      merchantRpcUrl?: string | undefined
+      merchantUrl?: string | undefined
     }
 
   export type ReturnType = RelayActions.sendPreparedCalls.ReturnType

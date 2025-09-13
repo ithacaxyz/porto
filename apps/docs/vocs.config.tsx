@@ -251,8 +251,8 @@ export default defineConfig({
               },
               {
                 disabled: true,
-                link: '/sdk/api/route/relay',
-                text: 'Route.relay 🚧',
+                link: '/sdk/api/route/selfRelay',
+                text: 'Route.selfRelay 🚧',
               },
             ],
             link: '/sdk/api/router',

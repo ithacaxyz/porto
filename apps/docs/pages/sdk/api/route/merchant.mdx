@@ -18,15 +18,6 @@ import * as Route from 'porto/server/Route'
 
 ## Usage
 
-`Route.merchant` is compatible with any server framework that supports the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
-or [Node.js Request Listener](https://nodejs.org/api/http.html#httpcreateserveroptions-requestlistener), including:
-
-- [Next.js](#nextjs)
-- [Cloudflare Workers](#cloudflare-workers)
-- [Hono](#hono)
-- [Deno](https://deno.com)
-- [Express](#express)
-
 ```ts twoslash
 // @noErrors
 import { Route } from 'porto/server'
@@ -37,82 +28,19 @@ const route = Route.merchant({
 })
 ```
 
-### Next.js
+### Frameworks
 
-Expose the `fetch` handler from `Route.merchant` to the `GET`, `OPTIONS`, and `POST` exports:
+`Route.merchant` is compatible with any server framework that supports the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
+or [Node.js Request Listener](https://nodejs.org/api/http.html#httpcreateserveroptions-requestlistener).
 
-```ts [app/merchant/route.ts]
-import { Route } from 'porto/server'
+Examples:
 
-const route = Route.merchant({
-  address: process.env.NEXT_PUBLIC_MERCHANT_ADDRESS,
-  key: process.env.NEXT_PUBLIC_MERCHANT_PRIVATE_KEY,
-})
-
-export const GET = route.fetch
-export const OPTIONS = route.fetch
-export const POST = route.fetch
-
-```
-
-### Cloudflare Workers
-
-Use the `Router` to hook up the `Route.merchant` handler on your Cloudflare Worker.
-
-```ts
-import { env } from 'cloudflare:workers'
-import { Router, Route } from 'porto/server'
-
-export default Router({ basePath: '/api' })
-  .route('/merchant', Route.merchant({
-    address: env.MERCHANT_ADDRESS,
-    key: env.MERCHANT_PRIVATE_KEY,
-  })
-) satisfies ExportedHandler<Env>
-
-```
-
-### Hono
-
-Use the `Route.merchant` function directly in your Hono server.
-
-```ts
-import { Hono } from 'hono'
-import { Route } from 'porto/server'
-
-const app = new Hono()
-
-app.route('/merchant', Route.merchant({
-  address: c.env.MERCHANT_ADDRESS,
-  key: c.env.MERCHANT_PRIVATE_KEY,
-}))
-
-export default app
-```
-
-### Express
-
-If you are using a server framework that supports the Node.js `http` API (e.g. [Express](https://expressjs.com)) instead of the Fetch API, you can use the `.listener` function:
-
-```ts
-import express from 'express'
-import { Route } from 'porto/server'
-
-const app = express()
-
-app.use('/merchant', Route.merchant({
-  address: process.env.MERCHANT_ADDRESS,
-  key: process.env.MERCHANT_PRIVATE_KEY,
-}).listener)
-
-app.listen(3000)
-```
-
-### Other Frameworks
-
-Using [`Route.merchant#fetch`](#usage) (for [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) frameworks) or [`Route.merchant#listener`](#express) (for [Node.js](https://nodejs.org) API frameworks) should get you far enough.
-
-If you would like to see an example of your framework here, please [open a discussion](https://github.com/ithacaxyz/porto/discussions/new) and we'll add it.
+- [Next.js](/sdk/api/router#nextjs)
+- [Cloudflare Workers](/sdk/api/router#cloudflare-workers)
+- [Hono](/sdk/api/router#hono)
+- [Bun](/sdk/api/router#bun)
+- [Deno](/sdk/api/router#deno)
+- [Express](/sdk/api/router#express)
 
 ### Conditional Sponsoring
 
@@ -159,8 +87,6 @@ const route = Route.merchant({
 type Parameters = {
   /** Address of the Merchant Account. */
   address: Address.Address
-  /** Base path of the request handler. */
-  basePath?: string | undefined
   /** An Admin Key of the Merchant Account to use for signing. */
   key:
     | Hex.Hex

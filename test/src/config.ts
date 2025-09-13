@@ -14,13 +14,13 @@ export const chains = getChains(env)
 export function getPorto(
   parameters: {
     mode?: (parameters: { mock: boolean }) => Mode.Mode | undefined
-    merchantRpcUrl?: string | undefined
+    merchantUrl?: string | undefined
     relayRpcUrl?: string | undefined
   } = {},
 ) {
   const {
     mode = Mode.relay,
-    merchantRpcUrl,
+    merchantUrl,
     relayRpcUrl: overrideRelayRpcUrl = process.env.VITE_RELAY_URL,
   } = parameters
 
@@ -31,7 +31,7 @@ export function getPorto(
 
   return Porto.create({
     chains,
-    merchantRpcUrl,
+    merchantUrl,
     mode: mode({
       mock: true,
       multichain: env !== 'anvil',

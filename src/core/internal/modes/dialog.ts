@@ -767,7 +767,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
           asTxHash,
           calls,
           internal,
-          merchantRpcUrl,
+          merchantUrl,
           requiredFunds,
         } = parameters
         const {
@@ -815,7 +815,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                         ? request._decoded.params?.[0]?.capabilities
                         : undefined),
                       feeToken,
-                      merchantRpcUrl,
+                      merchantUrl,
                       preCalls,
                       requiredFunds,
                     },
@@ -898,7 +898,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 // @ts-expect-error
                 capabilities: {
                   feeToken,
-                  merchantRpcUrl,
+                  merchantUrl,
                   preCalls,
                 },
               },
@@ -923,7 +923,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 capabilities: {
                   ...request.params?.[0]?.capabilities,
                   feeToken,
-                  merchantRpcUrl,
+                  merchantUrl,
                   preCalls,
                 },
               },

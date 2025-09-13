@@ -25,7 +25,7 @@ export namespace prepareCalls {
       calls,
       feePayer,
       feeToken,
-      merchantRpcUrl,
+      merchantUrl,
       nonce,
       requiredFunds,
       refetchInterval,
@@ -80,7 +80,7 @@ export namespace prepareCalls {
         calls,
         feePayer,
         feeToken,
-        merchantRpcUrl,
+        merchantUrl,
         nonce,
         requiredFunds,
         revokeKeys,
@@ -117,7 +117,7 @@ export namespace prepareCalls {
       > & {
         account?: Account.Account | undefined
         feeToken?: Token.Symbol | Address.Address | undefined
-        merchantRpcUrl?: string | undefined
+        merchantUrl?: string | undefined
         requiredFunds?: Capabilities_schema.requiredFunds.Request | undefined
       }
     }

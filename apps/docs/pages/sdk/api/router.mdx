@@ -34,7 +34,7 @@ const router = Router()
 import { env } from 'cloudflare:workers'
 import { Router, Route } from 'porto/server'
 
-export default Router({ basePath: '/api' })
+export default Router({ basePath: '/porto' })
   .route('/merchant', Route.merchant({ /* ... */ })
   // .route('/auth', Route.auth({/* ... */}) 🚧
   // .route('/rpc', Route.relay({/* ... */}) 🚧
@@ -43,18 +43,18 @@ export default Router({ basePath: '/api' })
 
 ### Next.js
 
-```ts [app/api/[[...routes]]/route.ts]
+```ts [app/porto/[[...routes]]/route.ts]
 import { Router, Route } from 'porto/server'
 
-const router = Router({ basePath: '/api' })
+const porto = Router({ basePath: '/porto' })
   .route('/merchant', Route.merchant({ /* ... */ })
   // .route('/auth', Route.auth({/* ... */}) 🚧
   // .route('/rpc', Route.relay({/* ... */}) 🚧
 )
 
-export const GET = router.fetch
-export const OPTIONS = router.fetch
-export const POST = router.fetch
+export const GET = porto.fetch
+export const OPTIONS = porto.fetch
+export const POST = porto.fetch
 ```
 
 ### Hono
@@ -65,14 +65,14 @@ import { Router, Route } from 'porto/server'
 
 const app = new Hono()
 
-const router = Router()
+const porto = Router()
   .route('/merchant', Route.merchant({ /* ... */ })
   // .route('/auth', Route.auth({/* ... */}) 🚧
   // .route('/rpc', Route.relay({/* ... */}) 🚧
 )
 
 
-app.route('/api', router.hono)
+app.route('/porto', porto.hono)
 
 export default app
 ```
@@ -82,13 +82,13 @@ export default app
 ```ts
 import { Router, Route } from 'porto/server'
 
-const router = Router({ basePath: '/api' })
+const porto = Router({ basePath: '/porto' })
   .route('/merchant', Route.merchant({ /* ... */ })
   // .route('/auth', Route.auth({/* ... */}) 🚧
   // .route('/rpc', Route.relay({/* ... */}) 🚧
 )
 
-Bun.serve(router)
+Bun.serve(porto)
 ```
 
 ### Deno
@@ -96,13 +96,13 @@ Bun.serve(router)
 ```ts
 import { Router, Route } from 'porto/server'
 
-const router = Router({ basePath: '/api' })
+const porto = Router({ basePath: '/porto' })
   .route('/merchant', Route.merchant({ /* ... */ })
   // .route('/auth', Route.auth({/* ... */}) 🚧
   // .route('/rpc', Route.relay({/* ... */}) 🚧
 )
 
-Deno.serve(router.fetch)
+Deno.serve(porto.fetch)
 ```
 
 ### Express
@@ -113,13 +113,13 @@ import { Router, Route } from 'porto/server'
 
 const app = express()
 
-const router = Router()
+const porto = Router({ basePath: '/porto' })
   .route('/merchant', Route.merchant({ /* ... */ })
   // .route('/auth', Route.auth({/* ... */}) 🚧
   // .route('/rpc', Route.relay({/* ... */}) 🚧
 )
 
-app.use('/api', router.listener)
+app.use(porto.listener)
 
 app.listen(3000)
 ```

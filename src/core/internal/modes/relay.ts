@@ -530,7 +530,7 @@ export function relay(parameters: relay.Parameters = {}) {
       },
 
       async prepareCalls(parameters) {
-        const { account, calls, internal, merchantRpcUrl } = parameters
+        const { account, calls, internal, merchantUrl } = parameters
         const {
           client,
           config: { storage },
@@ -574,7 +574,7 @@ export function relay(parameters: relay.Parameters = {}) {
             calls,
             feeToken: feeToken?.address,
             key,
-            merchantRpcUrl,
+            merchantUrl,
             preCalls,
             requiredFunds: multichain ? requiredFunds : undefined,
           })
@@ -717,8 +717,7 @@ export function relay(parameters: relay.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, asTxHash, calls, internal, merchantRpcUrl } =
-          parameters
+        const { account, asTxHash, calls, internal, merchantUrl } = parameters
         const {
           client,
           config: { storage },
@@ -762,7 +761,7 @@ export function relay(parameters: relay.Parameters = {}) {
           calls,
           feeToken: feeToken?.address,
           key,
-          merchantRpcUrl,
+          merchantUrl,
           preCalls,
           requiredFunds: multichain ? requiredFunds : undefined,
         })

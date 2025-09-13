@@ -46,18 +46,20 @@ MERCHANT_ADDRESS=0x...
 MERCHANT_PRIVATE_KEY=0x...
 ```
 
-### Set up Merchant RPC Route
+### Set up Merchant API Route
 
-Next, we will set up our Merchant RPC Route at a `/merchant` endpoint.
+Next, we will set up our [Merchant API Route](/sdk/api/route/merchant) at a `/porto/merchant` endpoint.
+
 For this example, we will use a Cloudflare Worker, however, you could also use a
 server framework of your choice (Next.js, Deno, Express, etc).
-There are usages for each of the frameworks in the [`Route.merchant` API reference](/sdk/api/route/merchant).
+
+There are usages for each of the frameworks in the [`Router` API reference](/sdk/api/router#frameworks).
 
 ```ts
 import { env } from 'cloudflare:workers'
 import { Router, Route } from 'porto/server'
 
-export default Router()
+export default Router({ basePath: '/porto' })
   .route('/merchant', Route.merchant({
     address: env.MERCHANT_ADDRESS as `0x${string}`,
     key: env.MERCHANT_PRIVATE_KEY as `0x${string}`,
@@ -67,18 +69,28 @@ export default Router()
     // },
   }),
 ) satisfies ExportedHandler<Env>
+```
 
+### Hook up API
+
+Now that we have our Merchant API Route set up, we need to hook it up to our app.
+We will do this by passing the URL to it on `Porto.create(){:js}`.
+
+```ts
+const porto = await Porto.create({
+  merchantUrl: '/porto/merchant' // [!code focus]
+})
 ```
 
 :::note
-If your server is at a different location to your app, you will need to pass the URL
+If your server is at a different location to your app, you will need to pass the absolute URL
 to it on `Porto.create(){:js}`.
 
 ```ts twoslash  
 import { Porto } from 'porto'
 
 const porto = await Porto.create({
-  merchantRpcUrl: 'https://myapi.com/merchant'
+  merchantUrl: 'https://myapi.com/porto/merchant' // [!code focus]
 })
 ```
 
@@ -86,7 +98,6 @@ const porto = await Porto.create({
 
 ### Done
 
-That's it! Once you have a server set up at the `/merchant` path of your app (or another remote URL), Porto will automatically
-detect it and route through this endpoint for future calls to perform (and sponsor) a transaction.
+That's it! Now you can start sponsoring calls for your users.
 
 ::::
