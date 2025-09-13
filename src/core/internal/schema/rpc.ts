@@ -1,551 +1,446 @@
-import * as Schema from 'effect/Schema'
+import * as z from 'zod/mini'
 import * as Quotes from '../relay/schema/quotes.js'
 import * as Rpc_relay from '../relay/schema/rpc.js'
 import * as C from './capabilities.js'
 import * as Key from './key.js'
 import * as Permissions from './permissions.js'
-import * as Primitive from './primitive.js'
+import * as u from './utils.js'
 
-const KeyWithCredentialId = Schema.extend(
-  Key.Base.pick('id', 'publicKey', 'type'),
-  Schema.Struct({
-    credentialId: Schema.optional(Schema.String),
-    privateKey: Schema.optional(Schema.Any),
-  }),
-)
+const KeyWithCredentialId = z.object({
+  ...z.pick(Key.Base, { id: true, publicKey: true, type: true }).shape,
+  credentialId: z.optional(z.string()),
+  privateKey: z.optional(z.any()),
+})
 
 export namespace account_setEmail {
-  export const Parameters = Schema.Struct({
-    email: Schema.String,
-    walletAddress: Primitive.Address,
-  }).annotations({
-    identifier: 'Rpc.account_setEmail.Parameters',
+  export const Parameters = z.object({
+    email: z.string(),
+    walletAddress: u.address(),
   })
+  export type Parameters = z.infer<typeof Parameters>
 
-  export type Parameters = typeof Parameters.Type
-
-  export const Request = Schema.Struct({
-    method: Schema.Literal('account_setEmail'),
-    params: Schema.Tuple(Parameters),
-  }).annotations({
-    identifier: 'Rpc.account_setEmail.Request',
+  export const Request = z.object({
+    method: z.literal('account_setEmail'),
+    params: z.readonly(z.tuple([Parameters])),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
-  export const Response = Schema.Null.annotations({
-    identifier: 'Rpc.account_setEmail.Response',
-  })
-  export type Response = typeof Response.Type
+  export const Response = z.null()
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace account_verifyEmail {
-  export const Parameters = Schema.Struct({
-    chainId: Primitive.Number,
-    email: Schema.String,
-    token: Schema.String,
-    walletAddress: Primitive.Address,
-  }).annotations({
-    identifier: 'Rpc.account_verifyEmail.Parameters',
+  export const Parameters = z.object({
+    chainId: u.number(),
+    email: z.string(),
+    token: z.string(),
+    walletAddress: u.address(),
   })
+  export type Parameters = z.infer<typeof Parameters>
 
-  export type Parameters = typeof Parameters.Type
-
-  export const Request = Schema.Struct({
-    method: Schema.Literal('account_verifyEmail'),
-    params: Schema.Tuple(Parameters),
-  }).annotations({
-    identifier: 'Rpc.account_verifyEmail.Request',
+  export const Request = z.object({
+    method: z.literal('account_verifyEmail'),
+    params: z.readonly(z.tuple([Parameters])),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
-  export const Response = Schema.Null.annotations({
-    identifier: 'Rpc.account_verifyEmail.Response',
-  })
-  export type Response = typeof Response.Type
+  export const Response = z.null()
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace wallet_addFunds {
-  export const Parameters = Schema.Struct({
-    address: Schema.optional(Primitive.Address),
-    chainId: Schema.optional(Primitive.Number),
-    token: Schema.optional(Primitive.Address),
-    value: Schema.optional(Schema.String),
-  }).annotations({
-    identifier: 'Rpc.wallet_addFunds.Parameters',
+  export const Parameters = z.object({
+    address: z.optional(u.address()),
+    chainId: z.optional(u.number()),
+    token: z.optional(u.address()),
+    value: z.optional(z.string()),
   })
+  export type Parameters = z.infer<typeof Parameters>
 
-  export type Parameters = typeof Parameters.Type
-
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_addFunds'),
-    params: Schema.Tuple(Parameters),
-  }).annotations({
-    identifier: 'Rpc.wallet_addFunds.Request',
+  export const Request = z.object({
+    method: z.literal('wallet_addFunds'),
+    params: z.readonly(z.tuple([Parameters])),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
-  export const Response = Schema.Struct({
-    id: Primitive.Hex,
-  }).annotations({
-    identifier: 'Rpc.wallet_addFunds.Response',
+  export const Response = z.object({
+    id: u.hex(),
   })
-  export type Response = typeof Response.Type
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace eth_accounts {
-  export const Request = Schema.Struct({
-    method: Schema.Literal('eth_accounts'),
-    params: Schema.optional(Schema.Unknown),
-  }).annotations({
-    identifier: 'Rpc.eth_accounts.Request',
+  export const Request = z.object({
+    method: z.literal('eth_accounts'),
+    params: z.optional(z.unknown()),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
-  export const Response = Schema.Array(Primitive.Address).annotations({
-    identifier: 'Rpc.eth_accounts.Response',
-  })
-  export type Response = typeof Response.Type
+  export const Response = z.readonly(z.array(u.address()))
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace eth_chainId {
-  export const Request = Schema.Struct({
-    method: Schema.Literal('eth_chainId'),
-    params: Schema.optional(Schema.Unknown),
-  }).annotations({
-    identifier: 'Rpc.eth_chainId.Request',
+  export const Request = z.object({
+    method: z.literal('eth_chainId'),
+    params: z.optional(z.unknown()),
   })
-  export type Request = typeof Request.Type
-  export const Response = Primitive.Hex.annotations({
-    identifier: 'Rpc.eth_chainId.Response',
-  })
-  export type Response = typeof Response.Type
+  export type Request = z.infer<typeof Request>
+
+  export const Response = u.hex()
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace eth_requestAccounts {
-  export const Request = Schema.Struct({
-    method: Schema.Literal('eth_requestAccounts'),
-    params: Schema.optional(Schema.Unknown),
-  }).annotations({
-    identifier: 'Rpc.eth_requestAccounts.Request',
+  export const Request = z.object({
+    method: z.literal('eth_requestAccounts'),
+    params: z.optional(z.unknown()),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
-  export const Response = Schema.Array(Primitive.Address).annotations({
-    identifier: 'Rpc.eth_requestAccounts.Response',
-  })
-  export type Response = typeof Response.Type
+  export const Response = z.readonly(z.array(u.address()))
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace eth_sendTransaction {
-  export const Request = Schema.Struct({
-    method: Schema.Literal('eth_sendTransaction'),
-    params: Schema.Tuple(
-      Schema.Struct({
-        capabilities: Schema.optional(
-          Schema.Struct({
-            feeToken: Schema.optional(C.feeToken.Request),
-            merchantUrl: Schema.optional(C.merchantUrl.Request),
-            preCalls: Schema.optional(C.preCalls.Request),
-          }),
-        ),
-        chainId: Schema.optional(Primitive.Number),
-        data: Schema.optional(Primitive.Hex),
-        from: Schema.optional(Primitive.Address),
-        to: Primitive.Address,
-        value: Schema.optional(Primitive.BigInt),
-      }),
+  export const Request = z.object({
+    method: z.literal('eth_sendTransaction'),
+    params: z.readonly(
+      z.tuple([
+        z.object({
+          capabilities: z.optional(
+            z.object({
+              feeToken: z.optional(C.feeToken.Request),
+              merchantUrl: z.optional(C.merchantUrl.Request),
+              preCalls: z.optional(C.preCalls.Request),
+            }),
+          ),
+          chainId: z.optional(u.number()),
+          data: z.optional(u.hex()),
+          from: z.optional(u.address()),
+          to: u.address(),
+          value: z.optional(u.bigint()),
+        }),
+      ]),
     ),
-  }).annotations({
-    identifier: 'Rpc.eth_sendTransaction.Request',
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
-  export const Response = Primitive.Hex.annotations({
-    identifier: 'Rpc.eth_sendTransaction.Response',
-  })
-  export type Response = typeof Response.Type
+  export const Response = u.hex()
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace eth_signTypedData_v4 {
-  export const Request = Schema.Struct({
-    method: Schema.Literal('eth_signTypedData_v4'),
-    params: Schema.Tuple(Primitive.Address, Schema.String),
-  }).annotations({
-    identifier: 'Rpc.eth_signTypedData_v4.Request',
+  export const Request = z.object({
+    method: z.literal('eth_signTypedData_v4'),
+    params: z.readonly(z.tuple([u.address(), z.string()])),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
-  export const Response = Primitive.Hex.annotations({
-    identifier: 'Rpc.eth_signTypedData_v4.Response',
-  })
-  export type Response = typeof Response.Type
+  export const Response = u.hex()
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace wallet_getAdmins {
-  export const Parameters = Schema.Struct({
-    address: Schema.optional(Primitive.Address),
-    chainId: Schema.optional(Primitive.Number),
-  }).annotations({
-    identifier: 'Rpc.wallet_getAdmins.Parameters',
+  export const Parameters = z.object({
+    address: z.optional(u.address()),
+    chainId: z.optional(u.number()),
   })
-  export type Parameters = typeof Parameters.Type
+  export type Parameters = z.infer<typeof Parameters>
 
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_getAdmins'),
-    params: Schema.optional(Schema.Tuple(Parameters)),
-  }).annotations({
-    identifier: 'Rpc.wallet_getAdmins.Request',
+  export const Request = z.object({
+    method: z.literal('wallet_getAdmins'),
+    params: z.optional(z.readonly(z.tuple([Parameters]))),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
   export const Key = KeyWithCredentialId
 
-  export const Response = Schema.Struct({
-    address: Primitive.Address,
-    chainId: Primitive.Number,
-    keys: Schema.Array(Key),
-  }).annotations({
-    identifier: 'Rpc.wallet_getAdmins.Response',
+  export const Response = z.object({
+    address: u.address(),
+    chainId: u.number(),
+    keys: z.readonly(z.array(Key)),
   })
-  export type Response = typeof Response.Type
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace wallet_grantAdmin {
-  export const Capabilities = Schema.Struct({
-    feeToken: Schema.optional(C.feeToken.Request),
-  }).annotations({
-    identifier: 'Rpc.wallet_grantAdmin.Capabilities',
+  export const Capabilities = z.object({
+    feeToken: z.optional(C.feeToken.Request),
   })
-  export type Capabilities = typeof Capabilities.Type
+  export type Capabilities = z.infer<typeof Capabilities>
 
-  export const Parameters = Schema.Struct({
+  export const Parameters = z.object({
     /** Address of the account to authorize the admin for. */
-    address: Schema.optional(Primitive.Address),
+    address: z.optional(u.address()),
     /** Capabilities. */
-    capabilities: Schema.optional(Capabilities),
+    capabilities: z.optional(Capabilities),
     /** Chain ID. */
-    chainId: Schema.optional(Primitive.Number),
+    chainId: z.optional(u.number()),
     /** Admin Key to authorize. */
-    key: Key.Base.pick('publicKey', 'type'),
-  }).annotations({
-    identifier: 'Rpc.wallet_grantAdmin.Parameters',
+    key: z.pick(Key.Base, { publicKey: true, type: true }),
   })
-  export type Parameters = typeof Parameters.Type
+  export type Parameters = z.infer<typeof Parameters>
 
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_grantAdmin'),
-    params: Schema.Tuple(Parameters),
-  }).annotations({
-    identifier: 'Rpc.wallet_grantAdmin.Request',
+  export const Request = z.object({
+    method: z.literal('wallet_grantAdmin'),
+    params: z.readonly(z.tuple([Parameters])),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
-  export const Response = Schema.Struct({
-    address: Primitive.Address,
-    chainId: Primitive.Number,
+  export const Response = z.object({
+    address: u.address(),
+    chainId: u.number(),
     key: wallet_getAdmins.Key,
-  }).annotations({
-    identifier: 'Rpc.wallet_grantAdmin.Response',
   })
-  export type Response = typeof Response.Type
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace wallet_grantPermissions {
   export const Parameters = Permissions.Request
-  export type Parameters = typeof Parameters.Type
+  export type Parameters = z.infer<typeof Parameters>
 
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_grantPermissions'),
-    params: Schema.Tuple(Parameters),
-  }).annotations({
-    identifier: 'Rpc.wallet_grantPermissions.Request',
+  export const Request = z.object({
+    method: z.literal('wallet_grantPermissions'),
+    params: z.readonly(z.tuple([Parameters])),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
-  export const ResponseCapabilities = Schema.Struct({
-    preCalls: Schema.optional(C.preCalls.Response),
-  }).annotations({
-    identifier: 'Rpc.wallet_grantPermissions.ResponseCapabilities',
+  export const ResponseCapabilities = z.object({
+    preCalls: z.optional(C.preCalls.Response),
   })
-  export type ResponseCapabilities = typeof ResponseCapabilities.Type
+  export type ResponseCapabilities = z.infer<typeof ResponseCapabilities>
 
-  export const Response = Schema.extend(
-    Permissions.Permissions,
-    Schema.Struct({
-      capabilities: Schema.optional(Schema.Any),
-    }),
-  ).annotations({
-    identifier: 'Rpc.wallet_grantPermissions.Response',
+  export const Response = z.object({
+    ...Permissions.Permissions.shape,
+    capabilities: z.optional(z.any()),
   })
-  export type Response = typeof Response.Type
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace wallet_getAccountVersion {
-  export const Parameters = Schema.Struct({
-    address: Schema.optional(Primitive.Address),
-  }).annotations({
-    identifier: 'Rpc.wallet_getAccountVersion.Parameters',
+  export const Parameters = z.object({
+    address: z.optional(u.address()),
   })
-  export type Parameters = typeof Parameters.Type
+  export type Parameters = z.infer<typeof Parameters>
 
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_getAccountVersion'),
-    params: Schema.optional(Schema.Tuple(Parameters)),
-  }).annotations({
-    identifier: 'Rpc.wallet_getAccountVersion.Request',
+  export const Request = z.object({
+    method: z.literal('wallet_getAccountVersion'),
+    params: z.optional(z.readonly(z.tuple([Parameters]))),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
-  export const Response = Schema.Struct({
-    current: Schema.String,
-    latest: Schema.String,
-  }).annotations({
-    identifier: 'Rpc.wallet_getAccountVersion.Response',
+  export const Response = z.object({
+    current: z.string(),
+    latest: z.string(),
   })
-  export type Response = typeof Response.Type
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace wallet_getPermissions {
-  export const Parameters = Schema.Struct({
-    address: Schema.optional(Primitive.Address),
-    chainIds: Schema.optional(Schema.Array(Primitive.Number)),
-  }).annotations({
-    identifier: 'Rpc.wallet_getPermissions.Parameters',
+  export const Parameters = z.object({
+    address: z.optional(u.address()),
+    chainIds: z.optional(z.readonly(z.array(u.number()))),
   })
-  export type Parameters = typeof Parameters.Type
+  export type Parameters = z.infer<typeof Parameters>
 
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_getPermissions'),
-    params: Schema.optional(Schema.Tuple(Parameters)),
-  }).annotations({
-    identifier: 'Rpc.wallet_getPermissions.Request',
+  export const Request = z.object({
+    method: z.literal('wallet_getPermissions'),
+    params: z.optional(z.readonly(z.tuple([Parameters]))),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
   export const Response = C.permissions.Response
-  export type Response = typeof Response.Type
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace wallet_revokeAdmin {
-  export const Capabilities = Schema.Struct({
-    feeToken: Schema.optional(C.feeToken.Request),
-  }).annotations({
-    identifier: 'Rpc.wallet_revokeAdmin.Capabilities',
+  export const Capabilities = z.object({
+    feeToken: z.optional(C.feeToken.Request),
   })
-  export type Capabilities = typeof Capabilities.Type
+  export type Capabilities = z.infer<typeof Capabilities>
 
-  export const Parameters = Schema.Struct({
-    address: Schema.optional(Primitive.Address),
-    capabilities: Schema.optional(Capabilities),
-    chainId: Schema.optional(Primitive.Number),
-    id: Primitive.Hex,
-  }).annotations({
-    identifier: 'Rpc.wallet_revokeAdmin.Parameters',
+  export const Parameters = z.object({
+    address: z.optional(u.address()),
+    capabilities: z.optional(Capabilities),
+    chainId: z.optional(u.number()),
+    id: u.hex(),
   })
-  export type Parameters = typeof Parameters.Type
+  export type Parameters = z.infer<typeof Parameters>
 
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_revokeAdmin'),
-    params: Schema.Tuple(Parameters),
-  }).annotations({
-    identifier: 'Rpc.wallet_revokeAdmin.Request',
+  export const Request = z.object({
+    method: z.literal('wallet_revokeAdmin'),
+    params: z.readonly(z.tuple([Parameters])),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
   export const Response = undefined
 }
 
 export namespace wallet_revokePermissions {
-  export const Capabilities = Schema.Struct({
-    feeToken: Schema.optional(C.feeToken.Request),
-  }).annotations({
-    identifier: 'Rpc.wallet_revokePermissions.Capabilities',
+  export const Capabilities = z.object({
+    feeToken: z.optional(C.feeToken.Request),
   })
-  export type Capabilities = typeof Capabilities.Type
+  export type Capabilities = z.infer<typeof Capabilities>
 
-  export const Parameters = Schema.Struct({
-    address: Schema.optional(Primitive.Address),
-    capabilities: Schema.optional(Capabilities),
-    id: Primitive.Hex,
-  }).annotations({
-    identifier: 'Rpc.wallet_revokePermissions.Parameters',
+  export const Parameters = z.object({
+    address: z.optional(u.address()),
+    capabilities: z.optional(Capabilities),
+    id: u.hex(),
   })
-  export type Parameters = typeof Parameters.Type
+  export type Parameters = z.infer<typeof Parameters>
 
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_revokePermissions'),
-    params: Schema.Tuple(Parameters),
-  }).annotations({
-    identifier: 'Rpc.wallet_revokePermissions.Request',
+  export const Request = z.object({
+    method: z.literal('wallet_revokePermissions'),
+    params: z.readonly(z.tuple([Parameters])),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
   export const Response = undefined
 }
 
 export namespace wallet_switchEthereumChain {
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_switchEthereumChain'),
-    params: Schema.Tuple(
-      Schema.Struct({
-        chainId: Primitive.Hex,
-      }),
+  export const Request = z.object({
+    method: z.literal('wallet_switchEthereumChain'),
+    params: z.readonly(
+      z.tuple([
+        z.object({
+          chainId: u.hex(),
+        }),
+      ]),
     ),
-  }).annotations({
-    identifier: 'Rpc.wallet_switchEthereumChain.Request',
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 }
 
 export namespace wallet_upgradeAccount {
-  export const Parameters = Schema.Struct({
-    context: Schema.Unknown,
-    signatures: Schema.Struct({
-      auth: Primitive.Hex,
-      exec: Primitive.Hex,
+  export const Parameters = z.object({
+    context: z.unknown(),
+    signatures: z.object({
+      auth: u.hex(),
+      exec: u.hex(),
     }),
-  }).annotations({
-    identifier: 'Rpc.wallet_upgradeAccount.Parameters',
   })
-  export type Parameters = typeof Parameters.Type
+  export type Parameters = z.infer<typeof Parameters>
 
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_upgradeAccount'),
-    params: Schema.Tuple(Parameters),
-  }).annotations({
-    identifier: 'Rpc.wallet_upgradeAccount.Request',
+  export const Request = z.object({
+    method: z.literal('wallet_upgradeAccount'),
+    params: z.readonly(z.tuple([Parameters])),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
-  export const ResponseCapabilities = Schema.Struct({
-    admins: Schema.optional(Schema.Array(wallet_getAdmins.Key)),
-    permissions: Schema.optional(C.permissions.Response),
-  }).annotations({
-    identifier: 'Rpc.wallet_upgradeAccount.ResponseCapabilities',
+  export const ResponseCapabilities = z.object({
+    admins: z.optional(z.readonly(z.array(wallet_getAdmins.Key))),
+    permissions: z.optional(C.permissions.Response),
   })
-  export type ResponseCapabilities = typeof ResponseCapabilities.Type
+  export type ResponseCapabilities = z.infer<typeof ResponseCapabilities>
 
-  export const Response = Schema.Struct({
-    address: Primitive.Address,
-    capabilities: Schema.optional(ResponseCapabilities),
-  }).annotations({
-    identifier: 'Rpc.wallet_upgradeAccount.Response',
+  export const Response = z.object({
+    address: u.address(),
+    capabilities: z.optional(ResponseCapabilities),
   })
-  export type Response = typeof Response.Type
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace personal_sign {
-  export const Request = Schema.Struct({
-    method: Schema.Literal('personal_sign'),
-    params: Schema.Tuple(Primitive.Hex, Primitive.Address),
-  }).annotations({
-    identifier: 'Rpc.personal_sign.Request',
+  export const Request = z.object({
+    method: z.literal('personal_sign'),
+    params: z.readonly(z.tuple([u.hex(), u.address()])),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
-  export const Response = Primitive.Hex.annotations({
-    identifier: 'Rpc.personal_sign.Response',
-  })
+  export const Response = u.hex()
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace porto_ping {
-  export const Request = Schema.Struct({
-    method: Schema.Literal('porto_ping'),
-    params: Schema.optional(Schema.Undefined),
-  }).annotations({
-    identifier: 'Rpc.porto_ping.Request',
+  export const Request = z.object({
+    method: z.literal('porto_ping'),
+    params: z.optional(z.undefined()),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
-  export const Response = Schema.Literal('pong').annotations({
-    identifier: 'Rpc.porto_ping.Response',
-  })
+  export const Response = z.literal('pong')
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace wallet_connect {
-  export const Capabilities = Schema.Struct({
-    createAccount: Schema.optional(C.createAccount.Request),
-    email: Schema.optional(Schema.Boolean),
-    grantAdmins: Schema.optional(
-      Schema.Array(Key.Base.pick('publicKey', 'type')),
+  export const Capabilities = z.object({
+    createAccount: z.optional(C.createAccount.Request),
+    email: z.optional(z.boolean()),
+    grantAdmins: z.optional(
+      z.readonly(z.array(z.pick(Key.Base, { publicKey: true, type: true }))),
     ),
-    grantPermissions: Schema.optional(C.grantPermissions.Request),
-    preCalls: Schema.optional(C.preCalls.Request),
-    selectAccount: Schema.optional(
-      Schema.Union(
-        Schema.Boolean,
-        Schema.Struct({
-          address: Primitive.Address,
-          key: Schema.optional(
-            Schema.Struct({
-              credentialId: Schema.optional(Schema.String),
-              publicKey: Primitive.Hex,
+    grantPermissions: z.optional(C.grantPermissions.Request),
+    preCalls: z.optional(C.preCalls.Request),
+    selectAccount: z.optional(
+      z.union([
+        z.boolean(),
+        z.object({
+          address: u.address(),
+          key: z.optional(
+            z.object({
+              credentialId: z.optional(z.string()),
+              publicKey: u.hex(),
             }),
           ),
         }),
-      ),
+      ]),
     ),
-    signInWithEthereum: Schema.optional(C.signInWithEthereum.Request),
-  }).annotations({
-    identifier: 'Rpc.wallet_connect.Capabilities',
+    signInWithEthereum: z.optional(C.signInWithEthereum.Request),
   })
-  export type Capabilities = typeof Capabilities.Type
+  export type Capabilities = z.infer<typeof Capabilities>
 
-  export const Parameters = Schema.Struct({
-    capabilities: Schema.optional(Capabilities),
-    chainIds: Schema.optional(Schema.Array(Primitive.Number)),
+  export const Parameters = z.object({
+    capabilities: z.optional(Capabilities),
+    chainIds: z.optional(z.readonly(z.array(u.number()))),
   })
-  export type Parameters = typeof Parameters.Type
+  export type Parameters = z.infer<typeof Parameters>
 
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_connect'),
-    params: Schema.optional(Schema.Tuple(Parameters)),
-  }).annotations({
-    identifier: 'Rpc.wallet_connect.Request',
+  export const Request = z.object({
+    method: z.literal('wallet_connect'),
+    params: z.optional(z.readonly(z.tuple([Parameters]))),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
-  export const ResponseCapabilities = Schema.Struct({
-    admins: Schema.optional(
-      Schema.Array(
-        Schema.extend(
-          Key.Base.pick('id', 'publicKey', 'type'),
-          Schema.Struct({
-            credentialId: Schema.optional(Schema.String),
+  export const ResponseCapabilities = z.object({
+    admins: z.optional(
+      z.readonly(
+        z.array(
+          z.object({
+            ...z.pick(Key.Base, { id: true, publicKey: true, type: true })
+              .shape,
+            credentialId: z.optional(z.string()),
           }),
         ),
       ),
     ),
-    permissions: Schema.optional(C.permissions.Response),
-    preCalls: Schema.optional(C.preCalls.Response),
-    signInWithEthereum: Schema.optional(C.signInWithEthereum.Response),
-  }).annotations({
-    identifier: 'Rpc.wallet_connect.ResponseCapabilities',
+    permissions: z.optional(C.permissions.Response),
+    preCalls: z.optional(C.preCalls.Response),
+    signInWithEthereum: z.optional(C.signInWithEthereum.Response),
   })
-  export type ResponseCapabilities = typeof ResponseCapabilities.Type
+  export type ResponseCapabilities = z.infer<typeof ResponseCapabilities>
 
-  export const Response = Schema.Struct({
-    accounts: Schema.Array(
-      Schema.Struct({
-        address: Primitive.Address,
-        capabilities: Schema.optional(ResponseCapabilities),
-      }),
+  export const Response = z.object({
+    accounts: z.readonly(
+      z.array(
+        z.object({
+          address: u.address(),
+          capabilities: z.optional(ResponseCapabilities),
+        }),
+      ),
     ),
-    chainIds: Schema.Array(Primitive.Number),
-  }).annotations({
-    identifier: 'Rpc.wallet_connect.Response',
+    chainIds: z.readonly(z.array(u.number())),
   })
-  export type Response = typeof Response.Type
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace wallet_disconnect {
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_disconnect'),
-    params: Schema.optional(Schema.Unknown),
-  }).annotations({
-    identifier: 'Rpc.wallet_disconnect.Request',
+  export const Request = z.object({
+    method: z.literal('wallet_disconnect'),
+    params: z.optional(z.unknown()),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
   export const Response = undefined
 }
@@ -553,322 +448,282 @@ export namespace wallet_disconnect {
 export namespace wallet_getAssets {
   /** Parameters  */
   export const Parameters = Rpc_relay.wallet_getAssets.Parameters
-  export type Parameters = typeof Parameters.Type
+  export type Parameters = z.infer<typeof Parameters>
 
   /** Request for `wallet_getAssets`. */
   export const Request = Rpc_relay.wallet_getAssets.Request
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
   /** Response for `wallet_getAssets`. */
   export const Response = Rpc_relay.wallet_getAssets.Response
-  export type Response = typeof Response.Type
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace wallet_getCallsStatus {
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_getCallsStatus'),
-    params: Schema.Tuple(Primitive.Hex),
-  }).annotations({
-    identifier: 'Rpc.wallet_getCallsStatus.Request',
+  export const Request = z.object({
+    method: z.literal('wallet_getCallsStatus'),
+    params: z.tuple([u.hex()]),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
-  export const Response = Schema.Struct({
-    atomic: Schema.Boolean,
-    chainId: Primitive.Number,
-    id: Schema.String,
-    receipts: Schema.optional(
-      Schema.Array(
-        Schema.Struct({
-          blockHash: Primitive.Hex,
-          blockNumber: Primitive.Hex,
-          gasUsed: Primitive.Hex,
-          logs: Schema.Array(
-            Schema.Struct({
-              address: Primitive.Address,
-              data: Primitive.Hex,
-              topics: Schema.Array(Primitive.Hex),
-            }),
-          ),
-          status: Primitive.Hex,
-          transactionHash: Primitive.Hex,
-        }),
-      ),
-    ),
-    status: Schema.Number,
-    version: Schema.String,
-  }).annotations({
-    identifier: 'Rpc.wallet_getCallsStatus.Response',
-  })
-  export type Response = typeof Response.Type
-}
-
-export namespace wallet_getCapabilities {
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_getCapabilities'),
-    params: Schema.optional(
-      Schema.Union(
-        Schema.Tuple(Primitive.Hex),
-        Schema.Tuple(
-          Schema.Union(Primitive.Hex, Schema.Undefined),
-          Schema.Array(Primitive.Number),
+  export const Response = z.object({
+    atomic: z.boolean(),
+    chainId: u.number(),
+    id: z.string(),
+    receipts: z.optional(
+      z.readonly(
+        z.array(
+          z.object({
+            blockHash: u.hex(),
+            blockNumber: u.hex(),
+            gasUsed: u.hex(),
+            logs: z.readonly(
+              z.array(
+                z.object({
+                  address: u.address(),
+                  data: u.hex(),
+                  topics: z.readonly(z.array(u.hex())),
+                }),
+              ),
+            ),
+            status: u.hex(),
+            transactionHash: u.hex(),
+          }),
         ),
       ),
     ),
-  }).annotations({
-    identifier: 'Rpc.wallet_getCapabilities.Request',
+    status: z.number(),
+    version: z.string(),
   })
-  export type Request = typeof Request.Type
+  export type Response = z.infer<typeof Response>
+}
 
-  export const Response = Schema.Record({
-    key: Primitive.Hex,
-    value: Schema.Struct({
+export namespace wallet_getCapabilities {
+  export const Request = z.object({
+    method: z.literal('wallet_getCapabilities'),
+    params: z.optional(
+      z.union([
+        z.readonly(z.tuple([u.hex()])),
+        z.readonly(
+          z.tuple([
+            z.union([u.hex(), z.undefined()]),
+            z.readonly(z.array(u.number())),
+          ]),
+        ),
+      ]),
+    ),
+  })
+  export type Request = z.infer<typeof Request>
+
+  export const Response = z.record(
+    u.hex(),
+    z.object({
       atomic: C.atomic.GetCapabilitiesResponse,
       feeToken: C.feeToken.GetCapabilitiesResponse,
       merchant: C.merchant.GetCapabilitiesResponse,
       permissions: C.permissions.GetCapabilitiesResponse,
       requiredFunds: C.requiredFunds.GetCapabilitiesResponse,
     }),
-  }).annotations({
-    identifier: 'Rpc.wallet_getCapabilities.Response',
-  })
-  export type Response = typeof Response.Type
-  export type Response_encoded = typeof Response.Encoded
+  )
+  export type Response = z.infer<typeof Response>
+  export type Response_encoded = z.input<typeof Response>
 }
 
 export namespace wallet_getKeys {
-  export const Parameters = Schema.Struct({
-    address: Primitive.Address,
-    chainIds: Schema.optional(Schema.Array(Primitive.Number)),
-  }).annotations({
-    identifier: 'Rpc.wallet_getKeys.Parameters',
+  export const Parameters = z.object({
+    address: u.address(),
+    chainIds: z.optional(z.readonly(z.array(u.number()))),
   })
-  export type Parameters = typeof Parameters.Type
+  export type Parameters = z.infer<typeof Parameters>
 
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_getKeys'),
-    params: Schema.Tuple(Parameters),
-  }).annotations({
-    identifier: 'Rpc.wallet_getKeys.Request',
+  export const Request = z.object({
+    method: z.literal('wallet_getKeys'),
+    params: z.readonly(z.tuple([Parameters])),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
-  export const Response = Schema.Array(Key.WithPermissions).annotations({
-    identifier: 'Rpc.wallet_getKeys.Response',
-  })
-  export type Response = typeof Response.Type
+  export const Response = z.readonly(z.array(Key.WithPermissions))
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace wallet_prepareCalls {
-  export const Capabilities = Schema.Struct({
-    feeToken: Schema.optional(C.feeToken.Request),
-    merchantUrl: Schema.optional(C.merchantUrl.Request),
-    permissions: Schema.optional(C.permissions.Request),
-    preCalls: Schema.optional(C.preCalls.Request),
-    requiredFunds: Schema.optional(C.requiredFunds.Request),
-  }).annotations({
-    identifier: 'Rpc.wallet_prepareCalls.Capabilities',
+  export const Capabilities = z.object({
+    feeToken: z.optional(C.feeToken.Request),
+    merchantUrl: z.optional(C.merchantUrl.Request),
+    permissions: z.optional(C.permissions.Request),
+    preCalls: z.optional(C.preCalls.Request),
+    requiredFunds: z.optional(C.requiredFunds.Request),
   })
-  export type Capabilities = typeof Capabilities.Type
+  export type Capabilities = z.infer<typeof Capabilities>
 
-  export const Parameters = Schema.Struct({
-    calls: Schema.Array(
-      Schema.Struct({
-        data: Schema.optional(Primitive.Hex),
-        to: Primitive.Address,
-        value: Schema.optional(Primitive.BigInt),
-      }),
-    ),
-    capabilities: Schema.optional(Capabilities),
-    chainId: Schema.optional(Primitive.Number),
-    from: Schema.optional(Primitive.Address),
-    key: Schema.optional(Key.Base.pick('prehash', 'publicKey', 'type')),
-    version: Schema.optional(Schema.String),
-  }).annotations({
-    identifier: 'Rpc.wallet_prepareCalls.Parameters',
-  })
-  export type Parameters = typeof Parameters.Type
-
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_prepareCalls'),
-    params: Schema.Tuple(Parameters),
-  }).annotations({
-    identifier: 'Rpc.wallet_prepareCalls.Request',
-  })
-  export type Request = typeof Request.Type
-
-  export const Response = Schema.Struct({
-    capabilities: Schema.optional(
-      Schema.extend(
-        Rpc_relay.wallet_prepareCalls.ResponseCapabilities,
-        Schema.Struct({
-          quote: Schema.optional(Quotes.Signed),
+  export const Parameters = z.object({
+    calls: z.readonly(
+      z.array(
+        z.object({
+          data: z.optional(u.hex()),
+          to: u.address(),
+          value: z.optional(u.bigint()),
         }),
       ),
     ),
-    chainId: Primitive.Hex,
-    context: Schema.Struct({
-      account: Schema.Struct({
-        address: Primitive.Address,
-      }),
-      calls: Parameters.fields.calls,
-      nonce: Primitive.BigInt,
-      quote: Schema.optional(Schema.partial(Quotes.Signed)),
-    }),
-    digest: Primitive.Hex,
-    key: Key.Base.pick('prehash', 'publicKey', 'type'),
-    typedData: Schema.Struct({
-      domain: Schema.Union(
-        Schema.Struct({
-          chainId: Schema.Number,
-          name: Schema.String,
-          verifyingContract: Primitive.Address,
-          version: Schema.String,
-        }),
-        Schema.Struct({}),
-      ),
-      message: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
-      primaryType: Schema.String,
-      types: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
-    }),
-  }).annotations({
-    identifier: 'Rpc.wallet_prepareCalls.Response',
+    capabilities: z.optional(Capabilities),
+    chainId: z.optional(u.number()),
+    from: z.optional(u.address()),
+    key: z.optional(
+      z.pick(Key.Base, { prehash: true, publicKey: true, type: true }),
+    ),
+    version: z.optional(z.string()),
   })
-  export type Response = typeof Response.Type
+  export type Parameters = z.infer<typeof Parameters>
+
+  export const Request = z.object({
+    method: z.literal('wallet_prepareCalls'),
+    params: z.readonly(z.tuple([Parameters])),
+  })
+  export type Request = z.infer<typeof Request>
+
+  export const Response = z.object({
+    capabilities: z.optional(
+      z.object({
+        ...Rpc_relay.wallet_prepareCalls.ResponseCapabilities.shape,
+        quote: z.optional(Quotes.Signed),
+      }),
+    ),
+    chainId: u.hex(),
+    context: z.object({
+      account: z.object({
+        address: u.address(),
+      }),
+      calls: Parameters.shape.calls,
+      nonce: u.bigint(),
+      quote: z.optional(z.partial(Quotes.Signed)),
+    }),
+    digest: u.hex(),
+    key: z.pick(Key.Base, { prehash: true, publicKey: true, type: true }),
+    typedData: z.object({
+      domain: z.union([
+        z.object({
+          chainId: u.number(),
+          name: z.string(),
+          verifyingContract: u.address(),
+          version: z.string(),
+        }),
+        z.object({}),
+      ]),
+      message: z.record(z.string(), z.unknown()),
+      primaryType: z.string(),
+      types: z.record(z.string(), z.unknown()),
+    }),
+  })
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace wallet_prepareUpgradeAccount {
-  export const Capabilities = Schema.extend(
-    wallet_connect.Capabilities,
-    Schema.Struct({
-      label: Schema.optional(Schema.String),
-    }).annotations({
-      identifier: 'Rpc.wallet_prepareUpgradeAccount.CapabilitiesExtension',
+  export const Capabilities = z.object({
+    ...wallet_connect.Capabilities.shape,
+    label: z.optional(z.string()),
+  })
+  export type Capabilities = z.infer<typeof Capabilities>
+
+  export const Parameters = z.object({
+    address: u.address(),
+    capabilities: z.optional(Capabilities),
+    chainId: z.optional(u.number()),
+  })
+  export type Parameters = z.infer<typeof Parameters>
+
+  export const Request = z.object({
+    method: z.literal('wallet_prepareUpgradeAccount'),
+    params: z.readonly(z.tuple([Parameters])),
+  })
+  export type Request = z.infer<typeof Request>
+
+  export const Response = z.object({
+    context: z.unknown(),
+    digests: z.object({
+      auth: u.hex(),
+      exec: u.hex(),
     }),
-  ).annotations({
-    identifier: 'Rpc.wallet_prepareUpgradeAccount.Capabilities',
   })
-  export type Capabilities = typeof Capabilities.Type
-
-  export const Parameters = Schema.Struct({
-    address: Primitive.Address,
-    capabilities: Schema.optional(Capabilities),
-    chainId: Schema.optional(Primitive.Number),
-  }).annotations({
-    identifier: 'Rpc.wallet_prepareUpgradeAccount.Parameters',
-  })
-  export type Parameters = typeof Parameters.Type
-
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_prepareUpgradeAccount'),
-    params: Schema.Tuple(Parameters),
-  }).annotations({
-    identifier: 'Rpc.wallet_prepareUpgradeAccount.Request',
-  })
-  export type Request = typeof Request.Type
-
-  export const Response = Schema.Struct({
-    context: Schema.Unknown,
-    digests: Schema.Struct({
-      auth: Primitive.Hex,
-      exec: Primitive.Hex,
-    }),
-  }).annotations({
-    identifier: 'Rpc.wallet_prepareUpgradeAccount.Response',
-  })
-  export type Response = typeof Response.Type
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace wallet_sendCalls {
   export const Capabilities = wallet_prepareCalls.Capabilities
-  export type Capabilities = typeof Capabilities.Type
-  export type Capabilities_encoded = typeof Capabilities.Encoded
+  export type Capabilities = z.infer<typeof Capabilities>
+  export type Capabilities_encoded = z.input<typeof Capabilities>
 
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_sendCalls'),
-    params: Schema.Tuple(wallet_prepareCalls.Parameters.omit('key')),
-  }).annotations({
-    identifier: 'Rpc.wallet_sendCalls.Request',
+  export const Request = z.object({
+    method: z.literal('wallet_sendCalls'),
+    params: z.readonly(
+      z.tuple([z.omit(wallet_prepareCalls.Parameters, { key: true })]),
+    ),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
-  export const Response = Schema.Struct({
-    id: Primitive.Hex,
-  }).annotations({
-    identifier: 'Rpc.wallet_sendCalls.Response',
+  export const Response = z.object({
+    id: u.hex(),
   })
-  export type Response = typeof Response.Type
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace wallet_sendPreparedCalls {
-  export const Parameters = Schema.Struct({
-    capabilities: wallet_prepareCalls.Response.fields.capabilities,
-    chainId: Primitive.Hex,
-    context: wallet_prepareCalls.Response.fields.context,
-    key: wallet_prepareCalls.Response.fields.key,
-    signature: Primitive.Hex,
-  }).annotations({
-    identifier: 'Rpc.wallet_sendPreparedCalls.Parameters',
+  export const Parameters = z.object({
+    capabilities: wallet_prepareCalls.Response.shape.capabilities,
+    chainId: u.hex(),
+    context: wallet_prepareCalls.Response.shape.context,
+    key: wallet_prepareCalls.Response.shape.key,
+    signature: u.hex(),
   })
-  export type Parameters = typeof Parameters.Type
+  export type Parameters = z.infer<typeof Parameters>
 
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_sendPreparedCalls'),
-    params: Schema.Tuple(Parameters),
-  }).annotations({
-    identifier: 'Rpc.wallet_sendPreparedCalls.Request',
+  export const Request = z.object({
+    method: z.literal('wallet_sendPreparedCalls'),
+    params: z.readonly(z.tuple([Parameters])),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
-  export const Response = Schema.Array(
-    Schema.Struct({
-      capabilities: Schema.optional(
-        Schema.Record({ key: Schema.String, value: Schema.Any }),
-      ),
-      id: Primitive.Hex,
-    }),
-  ).annotations({
-    identifier: 'Rpc.wallet_sendPreparedCalls.Response',
-  })
-  export type Response = typeof Response.Type
+  export const Response = z.readonly(
+    z.array(
+      z.object({
+        capabilities: z.optional(z.record(z.string(), z.unknown())),
+        id: u.hex(),
+      }),
+    ),
+  )
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace wallet_verifySignature {
-  export const Parameters = Schema.Struct({
+  export const Parameters = z.object({
     /** Address of the account. */
-    address: Primitive.Address,
+    address: u.address(),
     /** Chain ID. */
-    chainId: Schema.optional(Primitive.Number),
+    chainId: z.optional(u.number()),
     /** Digest to verify. */
-    digest: Primitive.Hex,
+    digest: u.hex(),
     /** Signature to verify. */
-    signature: Primitive.Hex,
-  }).annotations({
-    identifier: 'Rpc.wallet_verifySignature.Parameters',
+    signature: u.hex(),
   })
-  export type Parameters = typeof Parameters.Type
+  export type Parameters = z.infer<typeof Parameters>
 
   /** Request for `wallet_verifySignature`. */
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_verifySignature'),
-    params: Schema.Tuple(Parameters),
-  }).annotations({
-    identifier: 'Rpc.wallet_verifySignature.Request',
+  export const Request = z.object({
+    method: z.literal('wallet_verifySignature'),
+    params: z.readonly(z.tuple([Parameters])),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
   /** Response for `wallet_verifySignature`. */
-  export const Response = Schema.Struct({
+  export const Response = z.object({
     /** Address of the account. */
-    address: Primitive.Address,
+    address: u.address(),
     /** Chain ID. */
-    chainId: Primitive.Number,
+    chainId: u.number(),
     /** Proof that can be used to verify the signature. */
-    proof: Schema.optional(Schema.Unknown),
+    proof: z.optional(z.unknown()),
     /** Whether the signature is valid. */
-    valid: Schema.Boolean,
-  }).annotations({
-    identifier: 'Rpc.wallet_verifySignature.Response',
+    valid: z.boolean(),
   })
-  export type Response = typeof Response.Type
+  export type Response = z.infer<typeof Response>
 }

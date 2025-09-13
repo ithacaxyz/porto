@@ -4,6 +4,7 @@ import * as Hex from 'ox/Hex'
 import * as ox_Provider from 'ox/Provider'
 import * as RpcResponse from 'ox/RpcResponse'
 import { type ValueOf, withCache } from 'viem'
+import * as z from 'zod/mini'
 import * as Account from '../../viem/Account.js'
 import * as Actions from '../../viem/internal/relayActions.js'
 import type * as Key from '../../viem/Key.js'
@@ -15,7 +16,6 @@ import * as Permissions from './permissions.js'
 import type * as Porto_internal from './porto.js'
 import * as RpcRequest from './schema/request.js'
 import * as Rpc from './schema/rpc.js'
-import * as Schema from './schema/schema.js'
 import * as Store from './store.js'
 import * as UrlString from './urlString.js'
 
@@ -172,13 +172,13 @@ export function from<
             throw new ox_Provider.DisconnectedError()
           return state.accounts.map(
             (account) => account.address,
-          ) satisfies typeof Rpc.eth_accounts.Response.Encoded
+          ) satisfies z.input<typeof Rpc.eth_accounts.Response>
         }
 
         case 'eth_chainId': {
-          return Hex.fromNumber(
-            state.chainIds[0],
-          ) satisfies typeof Rpc.eth_chainId.Response.Encoded
+          return Hex.fromNumber(state.chainIds[0]) satisfies z.input<
+            typeof Rpc.eth_chainId.Response
+          >
         }
 
         case 'eth_requestAccounts': {
@@ -187,7 +187,7 @@ export function from<
           if (state.accounts.length > 0 && lock.get('eth_requestAccounts'))
             return state.accounts.map(
               (account) => account.address,
-            ) satisfies typeof Rpc.eth_requestAccounts.Response.Encoded
+            ) satisfies z.input<typeof Rpc.eth_requestAccounts.Response>
 
           const client = getClient()
 
@@ -209,9 +209,9 @@ export function from<
           lock.set('eth_requestAccounts', true)
           setTimeout(() => lock.delete('eth_requestAccounts'), 1_000)
 
-          return accounts.map(
-            (account) => account.address,
-          ) satisfies typeof Rpc.eth_requestAccounts.Response.Encoded
+          return accounts.map((account) => account.address) satisfies z.input<
+            typeof Rpc.eth_requestAccounts.Response
+          >
         }
 
         case 'eth_sendTransaction': {
@@ -254,7 +254,7 @@ export function from<
             ),
           })
 
-          return id satisfies typeof Rpc.eth_sendTransaction.Response.Encoded
+          return id satisfies z.input<typeof Rpc.eth_sendTransaction.Response>
         }
 
         case 'eth_signTypedData_v4': {
@@ -281,7 +281,9 @@ export function from<
             },
           })
 
-          return signature satisfies typeof Rpc.eth_signTypedData_v4.Response.Encoded
+          return signature satisfies z.input<
+            typeof Rpc.eth_signTypedData_v4.Response
+          >
         }
 
         case 'wallet_grantAdmin': {
@@ -344,7 +346,7 @@ export function from<
             type: 'adminsChanged',
           })
 
-          return Schema.encodeSync(Rpc.wallet_grantAdmin.Response)({
+          return z.encode(Rpc.wallet_grantAdmin.Response, {
             address: account.address,
             chainId: client.chain.id,
             key: admins.at(-1)!,
@@ -400,7 +402,7 @@ export function from<
             type: 'permissionsChanged',
           })
 
-          return Schema.encodeSync(Rpc.wallet_grantPermissions.Response)({
+          return z.encode(Rpc.wallet_grantPermissions.Response, {
             ...Permissions.fromKey(key, {
               address: account.address,
             }),
@@ -433,7 +435,7 @@ export function from<
           })
           const admins = getAdmins(keys)
 
-          return Schema.encodeSync(Rpc.wallet_getAdmins.Response)({
+          return z.encode(Rpc.wallet_getAdmins.Response, {
             address: account.address,
             chainId: client.chain.id,
             keys: admins,
@@ -471,7 +473,7 @@ export function from<
           return {
             context,
             digests,
-          } satisfies typeof Rpc.wallet_prepareUpgradeAccount.Response.Encoded
+          } satisfies z.input<typeof Rpc.wallet_prepareUpgradeAccount.Response>
         }
 
         case 'wallet_getAccountVersion': {
@@ -504,7 +506,7 @@ export function from<
           return {
             current,
             latest,
-          } satisfies typeof Rpc.wallet_getAccountVersion.Response.Encoded
+          } satisfies z.input<typeof Rpc.wallet_getAccountVersion.Response>
         }
 
         case 'wallet_getKeys': {
@@ -526,7 +528,7 @@ export function from<
             internal: { client, config, request, store },
           })
 
-          return Schema.encodeSync(Rpc.wallet_getKeys.Response)(keys)
+          return z.encode(Rpc.wallet_getKeys.Response, keys)
         }
 
         case 'wallet_getPermissions': {
@@ -558,7 +560,9 @@ export function from<
             address: account.address,
           })
 
-          return permissions satisfies typeof Rpc.wallet_getPermissions.Response.Encoded
+          return permissions satisfies z.input<
+            typeof Rpc.wallet_getPermissions.Response
+          >
         }
 
         case 'wallet_revokeAdmin': {
@@ -703,11 +707,11 @@ export function from<
               admins,
               ...(permissions.length > 0 ? { permissions } : {}),
             },
-          } satisfies typeof Rpc.wallet_upgradeAccount.Response.Encoded
+          } satisfies z.input<typeof Rpc.wallet_upgradeAccount.Response>
         }
 
         case 'porto_ping': {
-          return 'pong' satisfies typeof Rpc.porto_ping.Response.Encoded
+          return 'pong' satisfies z.input<typeof Rpc.porto_ping.Response>
         }
 
         case 'personal_sign': {
@@ -734,7 +738,7 @@ export function from<
             },
           })
 
-          return signature satisfies typeof Rpc.personal_sign.Response.Encoded
+          return signature satisfies z.input<typeof Rpc.personal_sign.Response>
         }
 
         case 'wallet_connect': {
@@ -851,7 +855,7 @@ export function from<
             chainIds: chainIds_response.map((chainId) =>
               Hex.fromNumber(chainId),
             ),
-          } satisfies typeof Rpc.wallet_connect.Response.Encoded
+          } satisfies z.input<typeof Rpc.wallet_connect.Response>
         }
 
         case 'wallet_disconnect': {
@@ -899,7 +903,7 @@ export function from<
             {} as Record<string, ValueOf<typeof response>>,
           )
 
-          return Schema.encodeSync(Rpc.wallet_getAssets.Response)(value)
+          return z.encode(Rpc.wallet_getAssets.Response, value)
         }
 
         case 'wallet_getCallsStatus': {
@@ -917,7 +921,9 @@ export function from<
             },
           })
 
-          return response satisfies typeof Rpc.wallet_getCallsStatus.Response.Encoded
+          return response satisfies z.input<
+            typeof Rpc.wallet_getCallsStatus.Response
+          >
         }
 
         case 'wallet_getCapabilities': {
@@ -960,7 +966,7 @@ export function from<
             requiredFunds: capabilities?.requiredFunds,
           })
 
-          return Schema.encodeSync(Rpc.wallet_prepareCalls.Response)({
+          return z.encode(Rpc.wallet_prepareCalls.Response, {
             capabilities: rest.capabilities,
             chainId: Hex.fromNumber(rest.chainId ?? client.chain.id),
             context: {
@@ -1000,9 +1006,9 @@ export function from<
             signature,
           })
 
-          return [
-            { id: hash },
-          ] satisfies typeof Rpc.wallet_sendPreparedCalls.Response.Encoded
+          return [{ id: hash }] satisfies z.input<
+            typeof Rpc.wallet_sendPreparedCalls.Response
+          >
         }
 
         case 'wallet_sendCalls': {
@@ -1041,7 +1047,7 @@ export function from<
             requiredFunds: capabilities?.requiredFunds,
           })
 
-          return { id } satisfies typeof Rpc.wallet_sendCalls.Response.Encoded
+          return { id } satisfies z.input<typeof Rpc.wallet_sendCalls.Response>
         }
 
         case 'wallet_switchEthereumChain': {
@@ -1092,7 +1098,7 @@ export function from<
             ...result,
             address,
             chainId: Hex.fromNumber(client.chain.id),
-          } satisfies typeof Rpc.wallet_verifySignature.Response.Encoded
+          } satisfies z.input<typeof Rpc.wallet_verifySignature.Response>
         }
       }
     },
@@ -1185,12 +1191,12 @@ function announce(
 
 function getAdmins(
   keys: readonly Key.Key[],
-): (typeof Rpc.wallet_getAdmins.Response.Encoded)['keys'] {
+): z.input<typeof Rpc.wallet_getAdmins.Response>['keys'] {
   return keys
     .map((key) => {
       if (key.role !== 'admin') return undefined
       try {
-        return Schema.encodeSync(Rpc.wallet_getAdmins.Key)({
+        return z.encode(Rpc.wallet_getAdmins.Key, {
           id: key.id ?? key.publicKey,
           publicKey: key.publicKey,
           type: key.type,
@@ -1216,7 +1222,7 @@ function getAdmins(
 function getActivePermissions(
   keys: readonly Key.Key[],
   { address }: { address: Address.Address },
-): typeof Rpc.wallet_getPermissions.Response.Encoded {
+): z.input<typeof Rpc.wallet_getPermissions.Response> {
   return keys
     .map((key) => {
       if (!key.chainId) return undefined
@@ -1224,7 +1230,8 @@ function getActivePermissions(
       if (key.expiry > 0 && key.expiry < BigInt(Math.floor(Date.now() / 1000)))
         return undefined
       try {
-        return Schema.encodeSync(Permissions.Schema)(
+        return z.encode(
+          Permissions.Schema,
           Permissions.fromKey(key, { address }),
         )
       } catch {

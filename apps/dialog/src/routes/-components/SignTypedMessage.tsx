@@ -3,6 +3,7 @@ import { cx } from 'cva'
 import * as React from 'react'
 import { maxUint160 } from 'viem'
 import { useChains } from 'wagmi'
+import type * as z from 'zod/mini'
 import { CopyButton } from '~/components/CopyButton'
 import type * as TypedMessages from '~/lib/TypedMessages'
 import LucideLockKeyholeOpen from '~icons/lucide/lock-keyhole-open'
@@ -93,7 +94,7 @@ export function SignTypedMessage({
 
 export namespace SignTypedMessage {
   export type Props = {
-    data: typeof TypedMessages.TypedMessageSchema.Type
+    data: z.infer<typeof TypedMessages.TypedMessageSchema>
     onSign: () => void
     onReject: () => void
     approving: boolean

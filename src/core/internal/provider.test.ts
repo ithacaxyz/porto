@@ -3476,7 +3476,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         ],
       })
 
-      const signature = await signTypedData(walletClient, typedData)
+      const signature = await signTypedData(walletClient, typedData as never)
 
       const result = await porto.provider.request({
         method: 'wallet_sendPreparedCalls',
@@ -3521,6 +3521,21 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
     ).rejects.toThrowError(
       'The provider does not support the requested method.',
     )
+  })
+
+  test('behavior: invalid params', async () => {
+    const porto = getPorto()
+    await porto.provider.request({
+      method: 'wallet_connect',
+      params: [{ capabilities: { createAccount: true } }],
+    })
+    await expect(() =>
+      porto.provider.request({
+        method: 'eth_sendTransaction',
+        // @ts-expect-error
+        params: [{ to: 1 }],
+      }),
+    ).rejects.matchSnapshot()
   })
 })
 

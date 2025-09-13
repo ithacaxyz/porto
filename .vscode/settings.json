@@ -68,7 +68,7 @@
     "plaintext": "html"
   },
   "typescript.enablePromptUseWorkspaceTsdk": true,
-  "typescript.experimental.useTsgo": false,
+  "typescript.experimental.useTsgo": true,
   "typescript.preferences.autoImportFileExcludePatterns": ["**/index.js"],
   "typescript.tsdk": "node_modules/typescript/lib"
 }

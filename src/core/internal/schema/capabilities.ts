@@ -1,160 +1,162 @@
-import * as Schema from 'effect/Schema'
+import * as z from 'zod/mini'
 import * as Token from '../schema/token.js'
 import * as Permissions from './permissions.js'
-import * as Primitive from './primitive.js'
-import { OneOf } from './schema.js'
+import * as u from './utils.js'
 
 export namespace atomic {
-  export const GetCapabilitiesResponse = Schema.Struct({
-    status: Schema.Union(
-      Schema.Literal('supported'),
-      Schema.Literal('unsupported'),
-    ),
+  export const GetCapabilitiesResponse = z.object({
+    status: z.union([z.literal('supported'), z.literal('unsupported')]),
   })
-  export type GetCapabilitiesResponse = typeof GetCapabilitiesResponse.Type
+  export type GetCapabilitiesResponse = z.infer<typeof GetCapabilitiesResponse>
 }
 
 export namespace createAccount {
-  export const Request = Schema.Union(
-    Schema.Boolean,
-    Schema.Struct({
-      chainId: Schema.optional(Primitive.Number),
-      label: Schema.optional(Schema.String),
+  export const Request = z.union([
+    z.boolean(),
+    z.object({
+      chainId: z.optional(u.number()),
+      label: z.optional(z.string()),
     }),
-  )
-  export type Request = typeof Request.Type
+  ])
+  export type Request = z.infer<typeof Request>
 }
 
 export namespace signInWithEthereum {
-  export const Request = OneOf(
+  export const Request = u.oneOf([
     /** Standard EIP-4361 request object. */
-    Schema.Struct({
-      chainId: Schema.optional(Schema.Number),
-      domain: Schema.optional(Schema.String),
-      expirationTime: Schema.optional(Schema.DateFromSelf),
-      issuedAt: Schema.optional(Schema.DateFromSelf),
-      nonce: Schema.String,
-      notBefore: Schema.optional(Schema.DateFromSelf),
-      requestId: Schema.optional(Schema.String),
-      resources: Schema.optional(Schema.Array(Schema.String)),
-      scheme: Schema.optional(Schema.String),
-      statement: Schema.optional(Schema.String),
-      uri: Schema.optional(Schema.String),
-      version: Schema.optional(Schema.Literal('1')),
+    z.object({
+      chainId: z.optional(z.number()),
+      domain: z.optional(z.string()),
+      expirationTime: z.optional(z.date()),
+      issuedAt: z.optional(z.date()),
+      nonce: z.string(),
+      notBefore: z.optional(z.date()),
+      requestId: z.optional(z.string()),
+      resources: z.optional(z.readonly(z.array(z.string()))),
+      scheme: z.optional(z.string()),
+      statement: z.optional(z.string()),
+      uri: z.optional(z.string()),
+      version: z.optional(z.literal('1')),
     }),
     /**
      * EIP-4361 request object with an additional `authUrl` field, used
      * to fetch and infer the `nonce`.
      */
-    Schema.Struct({
-      authUrl: Schema.Union(
-        Schema.String,
-        Schema.Struct({
-          logout: Schema.String,
-          nonce: Schema.String,
-          verify: Schema.String,
+    z.object({
+      authUrl: z.union([
+        z.string(),
+        z.object({
+          logout: z.string(),
+          nonce: z.string(),
+          verify: z.string(),
         }),
-      ),
-      chainId: Schema.optional(Schema.Number),
-      domain: Schema.optional(Schema.String),
-      expirationTime: Schema.optional(Schema.DateFromSelf),
-      issuedAt: Schema.optional(Schema.DateFromSelf),
-      notBefore: Schema.optional(Schema.DateFromSelf),
-      requestId: Schema.optional(Schema.String),
-      resources: Schema.optional(Schema.Array(Schema.String)),
-      scheme: Schema.optional(Schema.String),
-      statement: Schema.optional(Schema.String),
-      uri: Schema.optional(Schema.String),
-      version: Schema.optional(Schema.Literal('1')),
+      ]),
+      chainId: z.optional(u.number()),
+      domain: z.optional(z.string()),
+      expirationTime: z.optional(z.date()),
+      issuedAt: z.optional(z.date()),
+      notBefore: z.optional(z.date()),
+      requestId: z.optional(z.string()),
+      resources: z.optional(z.readonly(z.array(z.string()))),
+      scheme: z.optional(z.string()),
+      statement: z.optional(z.string()),
+      uri: z.optional(z.string()),
+      version: z.optional(z.literal('1')),
     }),
-  )
-  export type Request = typeof Request.Type
+  ])
+  export type Request = z.infer<typeof Request>
 
-  export const Response = Schema.Struct({
-    message: Schema.String,
-    signature: Primitive.Hex,
-    token: Schema.optional(Schema.String),
+  export const Response = z.object({
+    message: z.string(),
+    signature: u.hex(),
+    token: z.optional(z.string()),
   })
-  export type Response = typeof Response.Type
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace feeToken {
-  export const GetCapabilitiesResponse = Schema.Struct({
-    supported: Schema.Boolean,
-    tokens: Schema.Array(Token.Token),
+  export const GetCapabilitiesResponse = z.object({
+    supported: z.boolean(),
+    tokens: z.readonly(z.array(Token.Token)),
   })
-  export type GetCapabilitiesResponse = typeof GetCapabilitiesResponse.Type
+  export type GetCapabilitiesResponse = z.infer<typeof GetCapabilitiesResponse>
 
-  export const Request = Schema.Union(Token.Symbol, Primitive.Address)
-  export type Request = typeof Request.Type
+  export const Request = z.union([Token.Symbol, u.address()])
+  export type Request = z.infer<typeof Request>
 }
 
 export namespace grantPermissions {
   export const Request = Permissions.Request
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 }
 
 export namespace merchant {
-  export const GetCapabilitiesResponse = Schema.Struct({
-    supported: Schema.Boolean,
+  export const GetCapabilitiesResponse = z.object({
+    supported: z.boolean(),
   })
-  export type GetCapabilitiesResponse = typeof GetCapabilitiesResponse.Type
+  export type GetCapabilitiesResponse = z.infer<typeof GetCapabilitiesResponse>
 }
 
 export namespace permissions {
-  export const GetCapabilitiesResponse = Schema.Struct({
-    supported: Schema.Boolean,
+  export const GetCapabilitiesResponse = z.object({
+    supported: z.boolean(),
   })
-  export type GetCapabilitiesResponse = typeof GetCapabilitiesResponse.Type
+  export type GetCapabilitiesResponse = z.infer<typeof GetCapabilitiesResponse>
 
-  export const Request = Schema.Struct({
-    id: Schema.optional(Schema.Union(Primitive.Hex, Schema.Null)),
+  export const Request = z.object({
+    id: z.optional(z.union([u.hex(), z.null()])),
   })
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
 
-  export const Response = Schema.Array(Permissions.Permissions)
-  export type Response = typeof Response.Type
+  export const Response = z.readonly(z.array(Permissions.Permissions))
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace preCalls {
-  export const Request = Schema.Array(
-    Schema.Struct({
-      context: Schema.Unknown,
-      signature: Primitive.Hex,
-    }),
-  )
-  export type Request = typeof Request.Type
-
-  export const Response = Request
-  export type Response = typeof Response.Type
-}
-
-export namespace merchantUrl {
-  export const Request = Schema.String
-  export type Request = typeof Request.Type
-}
-
-export namespace requiredFunds {
-  export const GetCapabilitiesResponse = Schema.Struct({
-    supported: Schema.Boolean,
-    tokens: Schema.Array(Token.Token),
-  })
-  export type GetCapabilitiesResponse = typeof GetCapabilitiesResponse.Type
-
-  export const Request = Schema.Array(
-    OneOf(
-      Schema.Struct({
-        address: Primitive.Address,
-        value: Primitive.BigInt,
-      }),
-      Schema.Struct({
-        symbol: Token.Symbol,
-        value: Schema.Union(
-          Schema.TemplateLiteral(Schema.Number, '.', Schema.Number),
-          Schema.TemplateLiteral(Schema.Number),
-        ).pipe(Schema.pattern(/^\d+(\.\d+)?$/)),
+  export const Request = z.readonly(
+    z.array(
+      z.object({
+        context: z.unknown(),
+        signature: u.hex(),
       }),
     ),
   )
-  export type Request = typeof Request.Type
+  export type Request = z.infer<typeof Request>
+
+  export const Response = Request
+  export type Response = z.infer<typeof Response>
+}
+
+export namespace merchantUrl {
+  export const Request = z.string()
+  export type Request = z.infer<typeof Request>
+}
+
+export namespace requiredFunds {
+  export const GetCapabilitiesResponse = z.object({
+    supported: z.boolean(),
+    tokens: z.readonly(z.array(Token.Token)),
+  })
+  export type GetCapabilitiesResponse = z.infer<typeof GetCapabilitiesResponse>
+
+  export const Request = z.readonly(
+    z.array(
+      u.oneOf([
+        z.object({
+          address: u.address(),
+          value: u.bigint(),
+        }),
+        z.object({
+          symbol: Token.Symbol,
+          value: z
+            .union([
+              z.templateLiteral([z.number(), '.', z.number()]),
+              z.templateLiteral([z.number()]),
+            ])
+            .check(z.regex(/^\d+(\.\d+)?$/)),
+        }),
+      ]),
+    ),
+  )
+  export type Request = z.infer<typeof Request>
 }

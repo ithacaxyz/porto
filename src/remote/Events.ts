@@ -1,7 +1,7 @@
-import * as Schema from 'effect/Schema'
 import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import * as Provider from 'ox/Provider'
+import * as z from 'zod/mini'
 import * as Rpc from '../core/internal/schema/rpc.js'
 import type { Payload } from '../core/Messenger.js'
 import * as Actions from './Actions.js'
@@ -47,8 +47,9 @@ export function onDialogRequest(
     }
 
     if (request.method === 'wallet_connect') {
-      const params = Schema.decodeUnknownSync(Rpc.wallet_connect.Parameters)(
-        request.params?.[0],
+      const params = z.decode(
+        Rpc.wallet_connect.Parameters,
+        request.params?.[0] as never,
       )
 
       // Extract chainIds that the app has requested.

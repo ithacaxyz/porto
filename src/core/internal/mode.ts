@@ -1,6 +1,7 @@
 import * as AbiItem from 'ox/AbiItem'
 import type * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
+import type * as z from 'zod/mini'
 
 import type * as Account from '../../viem/Account.js'
 import type * as Key from '../../viem/Key.js'
@@ -102,7 +103,7 @@ export type Mode = {
       id: Hex.Hex
       /** Internal properties. */
       internal: ActionsInternal
-    }) => Promise<typeof RpcSchema.wallet_getCallsStatus.Response.Encoded>
+    }) => Promise<z.input<typeof RpcSchema.wallet_getCallsStatus.Response>>
 
     getCapabilities: (parameters: {
       /** Chain IDs to get the capabilities for. */
@@ -111,7 +112,7 @@ export type Mode = {
       internal: Omit<ActionsInternal, 'client'> & {
         getClient: (chainId: Hex.Hex | number) => RelayClient
       }
-    }) => Promise<typeof RpcSchema.wallet_getCapabilities.Response.Encoded>
+    }) => Promise<z.input<typeof RpcSchema.wallet_getCapabilities.Response>>
 
     getKeys: (parameters: {
       /** Account to get the keys for. */

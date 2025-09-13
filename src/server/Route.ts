@@ -1,4 +1,3 @@
-import * as effect_Schema from 'effect/Schema'
 import { type Env, type ExecutionContext, Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { poweredBy } from 'hono/powered-by'
@@ -8,6 +7,7 @@ import type * as Hex from 'ox/Hex'
 import * as RpcResponse from 'ox/RpcResponse'
 import * as TypedData from 'ox/TypedData'
 import { createClient, rpcSchema } from 'viem'
+import * as z from 'zod/mini'
 import type * as RpcSchema_relay from '../core/internal/relay/rpcSchema.js'
 import * as Request from '../core/internal/relay/schema/request.js'
 import * as Rpc from '../core/internal/relay/schema/rpc.js'
@@ -184,9 +184,10 @@ export function merchant(options: merchant.Options) {
               },
             ],
           })
-          const { typedData } = effect_Schema.decodeSync(
+          const { typedData } = z.decode(
             Rpc.wallet_prepareCalls.Response,
-          )(result)
+            result,
+          )
 
           const signature = sponsor
             ? await Key.sign(key, {

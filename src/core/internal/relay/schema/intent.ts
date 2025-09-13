@@ -4,37 +4,37 @@
  * @see https://github.com/ithacaxyz/relay/blob/main/src/types/intent.rs
  */
 
-import * as Schema from 'effect/Schema'
-import * as Primitive from '../../schema/primitive.js'
+import * as z from 'zod/mini'
+import * as u from '../../schema/utils.js'
 
-export const Intent = Schema.Union(
-  Schema.Struct({
-    combinedGas: Primitive.BigInt,
-    encodedFundTransfers: Schema.Array(Primitive.Hex),
-    encodedPreCalls: Schema.Array(Primitive.Hex),
-    eoa: Primitive.Address,
-    executionData: Primitive.Hex,
-    expiry: Primitive.BigInt,
-    funder: Primitive.Address,
-    funderSignature: Primitive.Hex,
-    isMultichain: Schema.Boolean,
-    nonce: Primitive.BigInt,
-    payer: Primitive.Address,
-    paymentAmount: Primitive.BigInt,
-    paymentMaxAmount: Primitive.BigInt,
-    paymentRecipient: Primitive.Address,
-    paymentSignature: Primitive.Hex,
-    paymentToken: Primitive.Address,
-    settler: Primitive.Address,
-    settlerContext: Primitive.Hex,
-    signature: Primitive.Hex,
-    supportedAccountImplementation: Primitive.Address,
+export const Intent = z.union([
+  z.object({
+    combinedGas: u.bigint(),
+    encodedFundTransfers: z.readonly(z.array(u.hex())),
+    encodedPreCalls: z.readonly(z.array(u.hex())),
+    eoa: u.address(),
+    executionData: u.hex(),
+    expiry: u.bigint(),
+    funder: u.address(),
+    funderSignature: u.hex(),
+    isMultichain: z.boolean(),
+    nonce: u.bigint(),
+    payer: u.address(),
+    paymentAmount: u.bigint(),
+    paymentMaxAmount: u.bigint(),
+    paymentRecipient: u.address(),
+    paymentSignature: u.hex(),
+    paymentToken: u.address(),
+    settler: u.address(),
+    settlerContext: u.hex(),
+    signature: u.hex(),
+    supportedAccountImplementation: u.address(),
   }),
-  Schema.Struct({
+  z.object({
     /** The combined gas limit for payment, verification, and calling the EOA. */
-    combinedGas: Primitive.BigInt,
+    combinedGas: u.bigint(),
     /** Only relevant for multi chain intents. */
-    encodedFundTransfers: Schema.Array(Primitive.Hex),
+    encodedFundTransfers: z.readonly(z.array(u.hex())),
     /**
      * Optional array of encoded Intents that will be verified and executed
      * before the validation of the overall Intent.
@@ -49,24 +49,24 @@ export const Intent = Schema.Union(
      * The `encodedPreCalls` are included in the EIP712 signature, which enables execution order
      * to be enforced on-the-fly even if the nonces are from different sequences.
      */
-    encodedPreCalls: Schema.Array(Primitive.Hex),
+    encodedPreCalls: z.readonly(z.array(u.hex())),
     /** Users address. */
-    eoa: Primitive.Address,
+    eoa: u.address(),
     /**
      * An encoded array of calls, using ERC7579 batch execution encoding.
      *
      * The format is `abi.encode(calls)`, where `calls` is an array of type `Call[]`.
      * This allows for more efficient safe forwarding to the EOA.
      */
-    executionData: Primitive.Hex,
+    executionData: u.hex(),
     /** The expiration time of the intent. */
-    expiry: Primitive.BigInt,
+    expiry: u.bigint(),
     /** The funder address. */
-    funder: Primitive.Address,
+    funder: u.address(),
     /** The funder's signature. */
-    funderSignature: Primitive.Hex,
+    funderSignature: u.hex(),
     /** Whether the intent is a multi-chain intent. */
-    isMultichain: Schema.Boolean,
+    isMultichain: z.boolean(),
     /** Per delegated EOA.
      *
      * # Memory layout
@@ -97,12 +97,12 @@ export const Intent = Schema.Union(
      * can sign their intents using a random sequence key. On the other hand, if
      * they do care about ordering, they would use the same sequence key.
      */
-    nonce: Primitive.BigInt,
+    nonce: u.bigint(),
     /**
      * The account paying the payment token.
      * If this is `address(0)`, it defaults to the `eoa`.
      */
-    payer: Primitive.Address,
+    payer: u.address(),
     /**
      * The payment recipient for the ERC20 token.
      *
@@ -111,64 +111,64 @@ export const Intent = Schema.Union(
      * This enables multiple fillers, allowing for competitive filling, better uptime.
      * If `address(0)`, the payment will be accrued by the entry point.
      */
-    paymentRecipient: Primitive.Address,
+    paymentRecipient: u.address(),
     /**
      * Optional payment signature to be passed into the `compensate` function
      * on the `payer`. This signature is NOT included in the EIP712 signature.
      */
-    paymentSignature: Primitive.Hex,
+    paymentSignature: u.hex(),
     /** The ERC20 or native token used to pay for gas. */
-    paymentToken: Primitive.Address,
+    paymentToken: u.address(),
     /**
      * The actual pre payment amount, requested by the filler.
      * MUST be less than or equal to `prePaymentMaxAmount`.
      */
-    prePaymentAmount: Primitive.BigInt,
+    prePaymentAmount: u.bigint(),
     /**
      * The amount of the token to pay, before the call batch is executed.
      * This will be required to be less than `totalPaymentMaxAmount`.
      */
-    prePaymentMaxAmount: Primitive.BigInt,
+    prePaymentMaxAmount: u.bigint(),
     /**
      * The address of the settler.
      */
-    settler: Primitive.Address,
+    settler: u.address(),
     /**
      * Context data passed to the settler for processing attestations.
      *
      * This data is ABI-encoded and contains information needed by the settler
      * to process the multichain intent (e.g., list of chain IDs).
      */
-    settlerContext: Primitive.Hex,
+    settlerContext: u.hex(),
     /**
      * The actual total payment amount, requested by the filler.
      * MUST be less than or equal to `totalPaymentMaxAmount`
      */
-    signature: Primitive.Hex,
+    signature: u.hex(),
     /**
      * Optional. If non-zero, the EOA must use `supportedAccountImplementation`.
      * Otherwise, if left as `address(0)`, any EOA implementation will be supported.
      * This field is NOT included in the EIP712 signature.
      */
-    supportedAccountImplementation: Primitive.Address,
+    supportedAccountImplementation: u.address(),
     /**
      * The wrapped signature.
      *
      * The format is `abi.encodePacked(innerSignature, keyHash, prehash)` for most signatures,
      * except if it is signed by the EOA root key, in which case `abi.encodePacked(r, s, v)` is valid as well.
      */
-    totalPaymentAmount: Primitive.BigInt,
+    totalPaymentAmount: u.bigint(),
     /**
      * The maximum amount of the token to pay.
      */
-    totalPaymentMaxAmount: Primitive.BigInt,
+    totalPaymentMaxAmount: u.bigint(),
   }),
-)
-export type Intent = typeof Intent.Type
+])
+export type Intent = z.infer<typeof Intent>
 
-export const Partial = Schema.Struct({
-  eoa: Primitive.Address,
-  executionData: Primitive.Hex,
-  nonce: Primitive.BigInt,
+export const Partial = z.object({
+  eoa: u.address(),
+  executionData: u.hex(),
+  nonce: u.bigint(),
 })
-export type Partial = typeof Partial.Type
+export type Partial = z.infer<typeof Partial>

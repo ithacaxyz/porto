@@ -1,31 +1,31 @@
-import * as Schema from 'effect/Schema'
+import * as z from 'zod/mini'
 import * as Key from './key.js'
-import * as Primitive from './primitive.js'
+import * as u from './utils.js'
 
-export const Permissions = Schema.Struct({
-  address: Primitive.Address,
-  chainId: Schema.optional(Primitive.Number),
-  expiry: Schema.Number,
-  id: Primitive.Hex,
-  key: Key.Base.pick('publicKey', 'type'),
-  permissions: Schema.Struct({
+export const Permissions = z.object({
+  address: u.address(),
+  chainId: z.optional(u.number()),
+  expiry: z.number(),
+  id: u.hex(),
+  key: z.pick(Key.Base, { publicKey: true, type: true }),
+  permissions: z.object({
     calls: Key.CallPermissions,
-    signatureVerification: Schema.optional(Key.SignatureVerificationPermission),
-    spend: Schema.optional(Key.SpendPermissions),
+    signatureVerification: z.optional(Key.SignatureVerificationPermission),
+    spend: z.optional(Key.SpendPermissions),
   }),
 })
-export type Permissions = typeof Permissions.Type
+export type Permissions = z.infer<typeof Permissions>
 
-export const Request = Schema.Struct({
-  address: Schema.optional(Primitive.Address),
-  chainId: Schema.optional(Primitive.Number),
-  expiry: Schema.Number.pipe(Schema.greaterThanOrEqualTo(1)),
-  feeToken: Schema.NullOr(Key.FeeToken),
-  key: Schema.optional(Key.Base.pick('publicKey', 'type')),
-  permissions: Schema.Struct({
+export const Request = z.object({
+  address: z.optional(u.address()),
+  chainId: z.optional(u.number()),
+  expiry: z.number().check(z.gte(1)),
+  feeToken: z.nullable(Key.FeeToken),
+  key: z.optional(z.pick(Key.Base, { publicKey: true, type: true })),
+  permissions: z.object({
     calls: Key.CallPermissions,
-    signatureVerification: Schema.optional(Key.SignatureVerificationPermission),
-    spend: Schema.optional(Key.SpendPermissions),
+    signatureVerification: z.optional(Key.SignatureVerificationPermission),
+    spend: z.optional(Key.SpendPermissions),
   }),
 })
-export type Request = typeof Request.Type
+export type Request = z.infer<typeof Request>

@@ -315,6 +315,18 @@ exports[`contract > wallet_sendCalls > behavior: not provider-managed permission
 
 exports[`contract > wallet_sendCalls > behavior: permission does not exist 1`] = `[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]`;
 
+exports[`relay > behavior: invalid params > Validation error: Invalid input at "params[0].to" 1`] = `
+[RpcResponse.InvalidParamsError: Validation failed with 1 error:
+
+- at \`params[0].to\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.]
+`;
+
+exports[`relay > behavior: invalid params 1`] = `
+[RpcResponse.InvalidParamsError: Validation failed with 1 error:
+
+- at \`params[0].to\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.]
+`;
+
 exports[`relay > eth_accounts > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
 
 exports[`relay > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability (provided key) 1`] = `
@@ -451,57 +463,15 @@ exports[`relay > wallet_connect > behavior: \`createAccount\` capability >
 `;
 
 exports[`relay > wallet_connect > behavior: \`grantPermissions\` capability (no permissions) 1`] = `
-[RpcResponse.InvalidParamsError: Expected an array of at least 1 item(s), actual []
-Path: params.0.capabilities.grantPermissions.permissions.calls
+[RpcResponse.InvalidParamsError: Validation failed with 1 error:
 
-Details: Request.Request
-└─ Rpc.wallet_connect.Request
-   └─ ["params"]
-      └─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined; readonly chainIds?: ReadonlyArray<(\`0x\${string}\` <-> number)> | undefined }] | undefined
-         ├─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined; readonly chainIds?: ReadonlyArray<(\`0x\${string}\` <-> number)> | undefined }]
-         │  └─ [0]
-         │     └─ { readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined; readonly chainIds?: ReadonlyArray<(\`0x\${string}\` <-> number)> | undefined }
-         │        └─ ["capabilities"]
-         │           └─ Rpc.wallet_connect.Capabilities | undefined
-         │              ├─ Rpc.wallet_connect.Capabilities
-         │              │  └─ ["grantPermissions"]
-         │              │     └─ { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeToken: { readonly limit: a string matching the pattern ^\\d+(\\.\\d+)?$; readonly symbol?: "native" | a string matching the pattern ^[A-Z0-9]+$ | undefined } | null; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } } | undefined
-         │              │        ├─ { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeToken: { readonly limit: a string matching the pattern ^\\d+(\\.\\d+)?$; readonly symbol?: "native" | a string matching the pattern ^[A-Z0-9]+$ | undefined } | null; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
-         │              │        │  └─ ["permissions"]
-         │              │        │     └─ { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined }
-         │              │        │        └─ ["calls"]
-         │              │        │           └─ minItems(1)
-         │              │        │              └─ Predicate refinement failure
-         │              │        │                 └─ Expected an array of at least 1 item(s), actual []
-         │              │        └─ Expected undefined, actual {"expiry":9999999,"feeToken":{"limit":"1","symbol":"EXP"},"permissions":{"calls":[]}}
-         │              └─ Expected undefined, actual {"createAccount":true,"grantPermissions":{"expiry":9999999,"feeToken":{"limit":"1","symbol":"EXP"},"permissions":{"calls":[]}}}
-         └─ Expected undefined, actual [{"capabilities":{"createAccount":true,"grantPermissions":{"expiry":9999999,"feeToken":{"limit":"1","symbol":"EXP"},"permissions":{"calls":[]}}}}]]
+- at \`params[0].capabilities.grantPermissions.permissions.calls\`: array must be at least 1]
 `;
 
 exports[`relay > wallet_connect > behavior: \`grantPermissions\` capability (unlimited expiry) 1`] = `
-[RpcResponse.InvalidParamsError: Expected a number greater than or equal to 1, actual 0
-Path: params.0.capabilities.grantPermissions.expiry
+[RpcResponse.InvalidParamsError: Validation failed with 1 error:
 
-Details: Request.Request
-└─ Rpc.wallet_connect.Request
-   └─ ["params"]
-      └─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined; readonly chainIds?: ReadonlyArray<(\`0x\${string}\` <-> number)> | undefined }] | undefined
-         ├─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined; readonly chainIds?: ReadonlyArray<(\`0x\${string}\` <-> number)> | undefined }]
-         │  └─ [0]
-         │     └─ { readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined; readonly chainIds?: ReadonlyArray<(\`0x\${string}\` <-> number)> | undefined }
-         │        └─ ["capabilities"]
-         │           └─ Rpc.wallet_connect.Capabilities | undefined
-         │              ├─ Rpc.wallet_connect.Capabilities
-         │              │  └─ ["grantPermissions"]
-         │              │     └─ { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeToken: { readonly limit: a string matching the pattern ^\\d+(\\.\\d+)?$; readonly symbol?: "native" | a string matching the pattern ^[A-Z0-9]+$ | undefined } | null; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } } | undefined
-         │              │        ├─ { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeToken: { readonly limit: a string matching the pattern ^\\d+(\\.\\d+)?$; readonly symbol?: "native" | a string matching the pattern ^[A-Z0-9]+$ | undefined } | null; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
-         │              │        │  └─ ["expiry"]
-         │              │        │     └─ greaterThanOrEqualTo(1)
-         │              │        │        └─ Predicate refinement failure
-         │              │        │           └─ Expected a number greater than or equal to 1, actual 0
-         │              │        └─ Expected undefined, actual {"expiry":0,"feeToken":{"limit":"1","symbol":"EXP"},"permissions":{"calls":[{"signature":"mint()"}]}}
-         │              └─ Expected undefined, actual {"createAccount":true,"grantPermissions":{"expiry":0,"feeToken":{"limit":"1","symbol":"EXP"},"permissions":{"calls":[{"signature":"mint()"}]}}}
-         └─ Expected undefined, actual [{"capabilities":{"createAccount":true,"grantPermissions":{"expiry":0,"feeToken":{"limit":"1","symbol":"EXP"},"permissions":{"calls":[{"signature":"mint()"}]}}}}]]
+- at \`params[0].capabilities.grantPermissions.expiry\`: number must be at least 1]
 `;
 
 exports[`relay > wallet_connect > default 1`] = `
@@ -787,21 +757,9 @@ exports[`relay > wallet_grantAdmin > default 1`] = `
 `;
 
 exports[`relay > wallet_grantPermissions > behavior: no permissions 1`] = `
-[RpcResponse.InvalidParamsError: Expected an array of at least 1 item(s), actual []
-Path: params.0.permissions.calls
+[RpcResponse.InvalidParamsError: Validation failed with 1 error:
 
-Details: Request.Request
-└─ Rpc.wallet_grantPermissions.Request
-   └─ ["params"]
-      └─ readonly [{ readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeToken: { readonly limit: a string matching the pattern ^\\d+(\\.\\d+)?$; readonly symbol?: "native" | a string matching the pattern ^[A-Z0-9]+$ | undefined } | null; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }]
-         └─ [0]
-            └─ { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeToken: { readonly limit: a string matching the pattern ^\\d+(\\.\\d+)?$; readonly symbol?: "native" | a string matching the pattern ^[A-Z0-9]+$ | undefined } | null; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
-               └─ ["permissions"]
-                  └─ { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined }
-                     └─ ["calls"]
-                        └─ minItems(1)
-                           └─ Predicate refinement failure
-                              └─ Expected an array of at least 1 item(s), actual []]
+- at \`params[0].permissions.calls\`: array must be at least 1]
 `;
 
 exports[`relay > wallet_grantPermissions > behavior: provided key 1`] = `
@@ -955,19 +913,9 @@ exports[`relay > wallet_grantPermissions > behavior: provided key 3`] = `
 `;
 
 exports[`relay > wallet_grantPermissions > behavior: unlimited expiry 1`] = `
-[RpcResponse.InvalidParamsError: Expected a number greater than or equal to 1, actual 0
-Path: params.0.expiry
+[RpcResponse.InvalidParamsError: Validation failed with 1 error:
 
-Details: Request.Request
-└─ Rpc.wallet_grantPermissions.Request
-   └─ ["params"]
-      └─ readonly [{ readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeToken: { readonly limit: a string matching the pattern ^\\d+(\\.\\d+)?$; readonly symbol?: "native" | a string matching the pattern ^[A-Z0-9]+$ | undefined } | null; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }]
-         └─ [0]
-            └─ { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeToken: { readonly limit: a string matching the pattern ^\\d+(\\.\\d+)?$; readonly symbol?: "native" | a string matching the pattern ^[A-Z0-9]+$ | undefined } | null; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
-               └─ ["expiry"]
-                  └─ greaterThanOrEqualTo(1)
-                     └─ Predicate refinement failure
-                        └─ Expected a number greater than or equal to 1, actual 0]
+- at \`params[0].expiry\`: number must be at least 1]
 `;
 
 exports[`relay > wallet_grantPermissions > default 1`] = `
@@ -1145,21 +1093,9 @@ exports[`relay > wallet_revokePermissions > default 2`] = `
 `;
 
 exports[`relay > wallet_sendCalls > behavior: no calls.to 1`] = `
-[RpcResponse.InvalidParamsError: \`to\` is missing
-Path: params.0.calls.0.to
+[RpcResponse.InvalidParamsError: Validation failed with 1 error:
 
-Details: Request.Request
-└─ Rpc.wallet_sendCalls.Request
-   └─ ["params"]
-      └─ readonly [{ readonly calls: ReadonlyArray<{ readonly data?: \`0x\${string}\` | undefined; readonly to: \`0x\${string}\`; readonly value?: (\`0x\${string}\` <-> bigint) | undefined }>; readonly capabilities?: Rpc.wallet_prepareCalls.Capabilities | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly from?: \`0x\${string}\` | undefined; readonly version?: string | undefined }]
-         └─ [0]
-            └─ { readonly calls: ReadonlyArray<{ readonly data?: \`0x\${string}\` | undefined; readonly to: \`0x\${string}\`; readonly value?: (\`0x\${string}\` <-> bigint) | undefined }>; readonly capabilities?: Rpc.wallet_prepareCalls.Capabilities | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly from?: \`0x\${string}\` | undefined; readonly version?: string | undefined }
-               └─ ["calls"]
-                  └─ ReadonlyArray<{ readonly data?: \`0x\${string}\` | undefined; readonly to: \`0x\${string}\`; readonly value?: (\`0x\${string}\` <-> bigint) | undefined }>
-                     └─ [0]
-                        └─ { readonly data?: \`0x\${string}\` | undefined; readonly to: \`0x\${string}\`; readonly value?: (\`0x\${string}\` <-> bigint) | undefined }
-                           └─ ["to"]
-                              └─ is missing]
+- at \`params[0].calls[0].to\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.]
 `;
 
 exports[`relay > wallet_sendCalls > behavior: not provider-managed permission 1`] = `[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]`;

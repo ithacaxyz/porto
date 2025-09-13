@@ -31,7 +31,7 @@ import {
   waitForCallsStatus,
   writeContract,
 } from 'viem/actions'
-import * as Schema from '../core/internal/schema/schema.js'
+import * as z from 'zod/mini'
 import * as RpcSchema from '../core/RpcSchema.js'
 import * as Account from './Account.js'
 import type { GetAccountParameter } from './internal/utils.js'
@@ -62,12 +62,10 @@ export async function addFunds(
     Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
   >({
     method,
-    params: [
-      Schema.encodeSync(RpcSchema.wallet_addFunds.Parameters)(parameters),
-    ],
+    params: [z.encode(RpcSchema.wallet_addFunds.Parameters, parameters)],
   })
 
-  return Schema.decodeSync(RpcSchema.wallet_addFunds.Response)(response)
+  return z.decode(RpcSchema.wallet_addFunds.Response, response)
 }
 
 export declare namespace addFunds {
@@ -97,14 +95,14 @@ export async function getAssets<
   >({
     method,
     params: [
-      Schema.encodeSync(RpcSchema.wallet_getAssets.Parameters)({
+      z.encode(RpcSchema.wallet_getAssets.Parameters, {
         ...rest,
         account: account_.address,
       }),
     ],
   })
 
-  const value = Schema.decodeSync(RpcSchema.wallet_getAssets.Response)(response)
+  const value = z.decode(RpcSchema.wallet_getAssets.Response, response)
   const decoded = Object.entries(value).reduce(
     (acc, [key, value]) => {
       acc[Hex.toNumber(key as `0x${string}`)] = value
@@ -136,14 +134,14 @@ export async function connect(
   >({
     method,
     params: [
-      Schema.encodeSync(RpcSchema.wallet_connect.Parameters)({
+      z.encode(RpcSchema.wallet_connect.Parameters, {
         capabilities,
         chainIds,
       }),
     ],
   })
 
-  return Schema.decodeSync(RpcSchema.wallet_connect.Response)(response)
+  return z.decode(RpcSchema.wallet_connect.Response, response)
 }
 
 export declare namespace connect {
@@ -173,12 +171,10 @@ export async function getAdmins(
     Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
   >({
     method,
-    params: [
-      Schema.encodeSync(RpcSchema.wallet_getAdmins.Parameters)(parameters),
-    ],
+    params: [z.encode(RpcSchema.wallet_getAdmins.Parameters, parameters)],
   })
 
-  return Schema.decodeSync(RpcSchema.wallet_getAdmins.Response)(response)
+  return z.decode(RpcSchema.wallet_getAdmins.Response, response)
 }
 
 export declare namespace getAdmins {
@@ -197,12 +193,10 @@ export async function getPermissions(
     Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
   >({
     method,
-    params: [
-      Schema.encodeSync(RpcSchema.wallet_getPermissions.Parameters)(parameters),
-    ],
+    params: [z.encode(RpcSchema.wallet_getPermissions.Parameters, parameters)],
   })
 
-  return Schema.decodeSync(RpcSchema.wallet_getPermissions.Response)(response)
+  return z.decode(RpcSchema.wallet_getPermissions.Response, response)
 }
 
 export declare namespace getPermissions {
@@ -221,12 +215,10 @@ export async function grantAdmin(
     Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
   >({
     method,
-    params: [
-      Schema.encodeSync(RpcSchema.wallet_grantAdmin.Parameters)(parameters),
-    ],
+    params: [z.encode(RpcSchema.wallet_grantAdmin.Parameters, parameters)],
   })
 
-  return Schema.decodeSync(RpcSchema.wallet_grantAdmin.Response)(response)
+  return z.decode(RpcSchema.wallet_grantAdmin.Response, response)
 }
 
 export declare namespace grantAdmin {
@@ -247,13 +239,11 @@ export async function grantPermissions(
   >({
     method,
     params: [
-      Schema.encodeSync(RpcSchema.wallet_grantPermissions.Parameters)(
-        parameters,
-      ),
+      z.encode(RpcSchema.wallet_grantPermissions.Parameters, parameters),
     ],
   })
 
-  return Schema.decodeSync(RpcSchema.wallet_grantPermissions.Response)(response)
+  return z.decode(RpcSchema.wallet_grantPermissions.Response, response)
 }
 
 export declare namespace grantPermissions {
@@ -275,7 +265,7 @@ export async function prepareCalls<
   >({
     method,
     params: [
-      Schema.encodeSync(RpcSchema.wallet_prepareCalls.Parameters)({
+      z.encode(RpcSchema.wallet_prepareCalls.Parameters, {
         ...parameters,
         calls: (parameters.calls ?? []).map((c) => {
           const call = c as Call
@@ -292,7 +282,7 @@ export async function prepareCalls<
     ],
   })
 
-  return Schema.decodeSync(RpcSchema.wallet_prepareCalls.Response)(response)
+  return z.decode(RpcSchema.wallet_prepareCalls.Response, response)
 }
 
 export declare namespace prepareCalls {
@@ -316,9 +306,7 @@ export async function revokeAdmin(
     Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
   >({
     method,
-    params: [
-      Schema.encodeSync(RpcSchema.wallet_revokeAdmin.Parameters)(parameters),
-    ],
+    params: [z.encode(RpcSchema.wallet_revokeAdmin.Parameters, parameters)],
   })
   return undefined
 }
@@ -339,7 +327,7 @@ export async function revokePermissions(
   >({
     method,
     params: [
-      Schema.encodeSync(RpcSchema.wallet_revokePermissions.Parameters)({
+      z.encode(RpcSchema.wallet_revokePermissions.Parameters, {
         address,
         capabilities,
         id,
@@ -365,15 +353,11 @@ export async function sendPreparedCalls(
   >({
     method,
     params: [
-      Schema.encodeSync(RpcSchema.wallet_sendPreparedCalls.Parameters)(
-        parameters,
-      ),
+      z.encode(RpcSchema.wallet_sendPreparedCalls.Parameters, parameters),
     ],
   })
 
-  return Schema.decodeSync(RpcSchema.wallet_sendPreparedCalls.Response)(
-    response,
-  )
+  return z.decode(RpcSchema.wallet_sendPreparedCalls.Response, response)
 }
 
 export declare namespace sendPreparedCalls {
@@ -395,7 +379,7 @@ export async function upgradeAccount(
   >({
     method,
     params: [
-      Schema.encodeSync(RpcSchema.wallet_prepareUpgradeAccount.Parameters)({
+      z.encode(RpcSchema.wallet_prepareUpgradeAccount.Parameters, {
         address: account.address,
         capabilities,
         chainId,
@@ -415,14 +399,14 @@ export async function upgradeAccount(
   >({
     method: method_upgrade,
     params: [
-      Schema.encodeSync(RpcSchema.wallet_upgradeAccount.Parameters)({
+      z.encode(RpcSchema.wallet_upgradeAccount.Parameters, {
         context,
         signatures,
       }),
     ],
   })
 
-  return Schema.decodeSync(RpcSchema.wallet_upgradeAccount.Response)(response)
+  return z.decode(RpcSchema.wallet_upgradeAccount.Response, response)
 }
 
 export declare namespace upgradeAccount {

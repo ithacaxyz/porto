@@ -1,34 +1,34 @@
-import * as Schema from 'effect/Schema'
-import * as Primitive from '../../schema/primitive.js'
+import * as z from 'zod/mini'
+import * as u from '../../schema/utils.js'
 
-export const CallPermission = Schema.Struct({
+export const CallPermission = z.object({
   /** The selector of the function this permission applies to. */
-  selector: Primitive.Hex,
+  selector: u.hex(),
   /** The address of the contract this permission applies to. */
-  to: Primitive.Address,
+  to: u.address(),
   /** Permission type. */
-  type: Schema.Literal('call'),
+  type: z.literal('call'),
 })
-export type CallPermission = typeof CallPermission.Type
+export type CallPermission = z.infer<typeof CallPermission>
 
-export const SpendPermission = Schema.Struct({
+export const SpendPermission = z.object({
   /** The maximum amount that can be spent in the given period. */
-  limit: Primitive.BigInt,
+  limit: u.bigint(),
   /** The period of the limit. */
-  period: Schema.Union(
-    Schema.Literal('minute'),
-    Schema.Literal('hour'),
-    Schema.Literal('day'),
-    Schema.Literal('week'),
-    Schema.Literal('month'),
-    Schema.Literal('year'),
-  ),
+  period: z.union([
+    z.literal('minute'),
+    z.literal('hour'),
+    z.literal('day'),
+    z.literal('week'),
+    z.literal('month'),
+    z.literal('year'),
+  ]),
   /** The token this permission applies to. If `None`, defaults to native token (ETH). */
-  token: Schema.optional(Schema.Union(Primitive.Address, Schema.Null)),
+  token: z.optional(z.union([u.address(), z.null()])),
   /** Permission type. */
-  type: Schema.Literal('spend'),
+  type: z.literal('spend'),
 })
-export type SpendPermission = typeof SpendPermission.Type
+export type SpendPermission = z.infer<typeof SpendPermission>
 
-export const Permission = Schema.Union(CallPermission, SpendPermission)
-export type Permission = typeof Permission.Type
+export const Permission = z.union([CallPermission, SpendPermission])
+export type Permission = z.infer<typeof Permission>
