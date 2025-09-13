@@ -252,7 +252,6 @@ export function from<
             merchantUrl: UrlString.toAbsolute(
               config.merchantUrl ?? capabilities?.merchantUrl,
             ),
-            preCalls: capabilities?.preCalls as any,
           })
 
           return id satisfies z.input<typeof Rpc.eth_sendTransaction.Response>
@@ -370,7 +369,7 @@ export function from<
 
           const client = getClient(chainId)
 
-          const { key, preCalls } = await getMode().actions.grantPermissions({
+          const { key } = await getMode().actions.grantPermissions({
             account,
             internal: {
               client,
@@ -407,13 +406,6 @@ export function from<
             ...Permissions.fromKey(key, {
               address: account.address,
             }),
-            ...(preCalls
-              ? {
-                  capabilities: {
-                    preCalls,
-                  },
-                }
-              : {}),
           })
         }
 
@@ -771,7 +763,7 @@ export function from<
             store,
           }
 
-          const { accounts, preCalls } = await (async () => {
+          const { accounts } = await (async () => {
             if (email || createAccount) {
               const { label = undefined } =
                 typeof createAccount === 'object' ? createAccount : {}
@@ -855,7 +847,6 @@ export function from<
                       address: account.address,
                     })
                   : [],
-                preCalls,
                 ...(account.signInWithEthereum && {
                   signInWithEthereum: account.signInWithEthereum,
                 }),
@@ -972,7 +963,6 @@ export function from<
             merchantUrl: UrlString.toAbsolute(
               config.merchantUrl ?? capabilities?.merchantUrl,
             ),
-            preCalls: capabilities?.preCalls as any,
             requiredFunds: capabilities?.requiredFunds,
           })
 
@@ -1054,7 +1044,6 @@ export function from<
               config.merchantUrl ?? capabilities?.merchantUrl,
             ),
             permissionsId: capabilities?.permissions?.id,
-            preCalls: capabilities?.preCalls as any,
             requiredFunds: capabilities?.requiredFunds,
           })
 

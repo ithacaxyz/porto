@@ -17,7 +17,6 @@ import * as Mode from '../mode.js'
 import * as Permissions from '../permissions.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import type * as Porto from '../porto.js'
-import * as PreCalls from '../preCalls.js'
 import type * as Token from '../schema/token.js'
 import * as Siwe from '../siwe.js'
 import * as U from '../utils.js'
@@ -34,8 +33,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
   const listeners = new Set<(requestQueue: readonly QueuedRequest[]) => void>()
   const requestStore = RpcRequest.createStore()
-
-  let secure: { frame: boolean } | undefined
 
   // Function to instantiate a provider for the dialog. This
   // will be used to queue up requests for the dialog and
@@ -219,13 +216,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 }
               })
               .filter(Boolean) as readonly Key.Key[]
-
-            const { preCalls } = account.capabilities ?? {}
-            if (preCalls)
-              await PreCalls.add(preCalls as PreCalls.PreCalls, {
-                address: account.address,
-                storage,
-              })
 
             const signInWithEthereum_response = await (async () => {
               if (!account.capabilities?.signInWithEthereum) return
@@ -414,13 +404,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
       },
 
       async grantPermissions(parameters) {
-        const { account, internal } = parameters
-        const {
-          client,
-          config: { storage },
-          request,
-          store,
-        } = internal
+        const { internal } = parameters
+        const { client, request, store } = internal
 
         if (request.method !== 'wallet_grantPermissions')
           throw new Error(
@@ -442,17 +427,10 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         // Send a request off to the dialog to grant the permissions.
         const provider = getProvider(store)
-        const response = await provider.request({
+        await provider.request({
           method: 'wallet_grantPermissions',
           params: [permissionsRequest],
         })
-
-        const { preCalls } = response.capabilities ?? {}
-        if (preCalls)
-          await PreCalls.add(preCalls as PreCalls.PreCalls, {
-            address: account.address,
-            storage,
-          })
 
         return { key }
       },
@@ -525,17 +503,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
             ],
           })
 
-          await Promise.all(
-            accounts.map(async (account) => {
-              const { preCalls } = account.capabilities ?? {}
-              if (!preCalls) return
-              await PreCalls.add(preCalls as PreCalls.PreCalls, {
-                address: account.address,
-                storage,
-              })
-            }),
-          )
-
           return Promise.all(
             accounts.map(async (account) => {
               const adminKeys = account.capabilities?.admins
@@ -602,11 +569,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
       async prepareCalls(parameters) {
         const { account, internal } = parameters
-        const {
-          config: { storage },
-          store,
-          request,
-        } = internal
+        const { store, request } = internal
 
         if (request.method !== 'wallet_prepareCalls')
           throw new Error('Cannot prepare calls for method: ' + request.method)
@@ -615,11 +578,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
           return fallback.actions.prepareCalls(parameters)
 
         const feeToken = await resolveFeeToken(internal, parameters)
-
-        const preCalls = await PreCalls.get({
-          address: account.address,
-          storage,
-        })
 
         const provider = getProvider(store)
         const result = z.decode(
@@ -632,7 +590,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 capabilities: {
                   ...request.params?.[0]?.capabilities,
                   feeToken,
-                  preCalls,
                 },
               },
             ],
@@ -770,23 +727,11 @@ export function dialog(parameters: dialog.Parameters = {}) {
           merchantUrl,
           requiredFunds,
         } = parameters
-        const {
-          config: { storage },
-          client,
-          store,
-          request,
-        } = internal
+        const { client, store, request } = internal
 
         const provider = getProvider(store)
 
         const feeToken = await resolveFeeToken(internal, parameters)
-
-        const preCalls = secure?.frame
-          ? await PreCalls.get({
-              address: account.address,
-              storage,
-            })
-          : undefined
 
         // Try and extract an authorized key to sign the calls with.
         const key = await Mode.getAuthorizedExecuteKey({
@@ -816,7 +761,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
                         : undefined),
                       feeToken,
                       merchantUrl,
-                      preCalls,
                       requiredFunds,
                     },
                     chainId: client.chain.id,
@@ -851,11 +795,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
                   signature,
                 },
               ],
-            })
-
-            await PreCalls.clear({
-              address: account.address,
-              storage,
             })
 
             const response = result[0]
@@ -899,15 +838,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 capabilities: {
                   feeToken,
                   merchantUrl,
-                  preCalls,
                 },
               },
             ],
-          })
-
-          await PreCalls.clear({
-            address: account.address,
-            storage,
           })
 
           return { id }
@@ -924,15 +857,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
                   ...request.params?.[0]?.capabilities,
                   feeToken,
                   merchantUrl,
-                  preCalls,
                 },
               },
             ],
-          })
-
-          await PreCalls.clear({
-            address: account.address,
-            storage,
           })
 
           return result
@@ -942,12 +869,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
       },
 
       async sendPreparedCalls(parameters) {
-        const { account, internal } = parameters
-        const {
-          config: { storage },
-          store,
-          request,
-        } = internal
+        const { internal } = parameters
+        const { store, request } = internal
 
         if (request.method !== 'wallet_sendPreparedCalls')
           throw new Error(
@@ -959,12 +882,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const provider = getProvider(store)
         const result = await provider.request(request)
-
-        if (account.address)
-          await PreCalls.clear({
-            address: account.address,
-            storage,
-          })
 
         const id = result[0]?.id
         if (!id) throw new Error('id not found')
@@ -1048,10 +965,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
         internal,
         theme,
         themeController,
-      })
-
-      dialog.secure().then((s) => {
-        secure = s
       })
 
       const unsubscribe = store.subscribe(

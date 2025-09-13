@@ -138,26 +138,6 @@ const porto = Porto.create({
 })
 ```
 
-#### persistPreCalls
-
-- **Type**: `boolean`
-- **Default**: `true`
-
-Whether to store pre-calls in a persistent storage.
-If this is set to `false`, it is expected that the consumer
-will manually store pre-calls, and provide them to actions
-that support a `preCalls` parameter.
-
-```ts twoslash
-import { Porto, Mode } from 'porto'
-
-const porto = Porto.create({
-  mode: Mode.relay({
-    persistPreCalls: false, // [!code focus]
-  }),
-})
-```
-
 #### webAuthn
 
 #### webAuthn.createFn
