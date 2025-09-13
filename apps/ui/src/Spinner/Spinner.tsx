@@ -21,6 +21,7 @@ const CIRCLES = [
 
 export function Spinner({
   animateMount,
+  baseColor = 'transparent',
   color,
   padding,
   size = 'medium',
@@ -42,7 +43,7 @@ export function Spinner({
       friction: 500,
       mass: 3,
       precision: 0.1,
-      tension: ui?.reducedMotion ? 5 : 200,
+      tension: ui?.reducedMotion ? 5 : 400,
     },
     from: { progress: 0 },
     loop: true,
@@ -95,7 +96,7 @@ export function Spinner({
           fill="none"
           r={radius}
           shapeRendering="geometricPrecision"
-          stroke="var(--text-color-th_field-tertiary)"
+          stroke={baseColor}
           strokeWidth={thickness}
         />
         <g
@@ -136,6 +137,7 @@ export function Spinner({
 export namespace Spinner {
   export type Props = {
     animateMount?: boolean | undefined
+    baseColor?: string | undefined
     color?: string | undefined
     padding?: number | undefined
     size?: Size | undefined

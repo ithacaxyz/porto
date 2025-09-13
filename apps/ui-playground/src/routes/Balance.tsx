@@ -26,7 +26,7 @@ function BalanceComponent() {
           amount="10.5 ETH"
           amountFiat="$3,480.00"
           chainId={42161}
-          loading={loadingStates.eth}
+          fetching={loadingStates.eth}
           onRefetch={() => handleRefetch('eth')}
           tokenName="Ethereum"
           tokenSymbol="ETH"
@@ -35,7 +35,7 @@ function BalanceComponent() {
           amount="0.08 WBTC"
           amountFiat="$5,200.00"
           chainId={137}
-          loading={loadingStates.wbtc}
+          fetching={loadingStates.wbtc}
           onRefetch={() => handleRefetch('wbtc')}
           tokenName="Wrapped Bitcoin"
           tokenSymbol="WBTC"
@@ -44,7 +44,7 @@ function BalanceComponent() {
           amount="350.00 OP"
           amountFiat="$1.85"
           chainId={10}
-          loading={loadingStates.op}
+          fetching={loadingStates.op}
           onRefetch={() => handleRefetch('op')}
           tokenName="Optimism"
           tokenSymbol="OP"
@@ -53,7 +53,7 @@ function BalanceComponent() {
           amount="2,500.00 USDT"
           amountFiat="$1.00"
           chainId={8453}
-          loading={loadingStates.usdt}
+          fetching={loadingStates.usdt}
           onRefetch={() => handleRefetch('usdt')}
           tokenName="Tether USD"
           tokenSymbol="USDT"
@@ -62,7 +62,7 @@ function BalanceComponent() {
           amount="0.12 ETH"
           amountFiat="$396.00"
           chainId={1}
-          loading={loadingStates.warn}
+          fetching={loadingStates.warn}
           onRefetch={() => handleRefetch('warn')}
           tokenName="Ethereum"
           tokenSymbol="ETH"
@@ -72,7 +72,7 @@ function BalanceComponent() {
           amount="999,999.123456789123456789 TKN"
           amountFiat="$999,999,999,999,999.99"
           chainId={1}
-          loading={loadingStates.long}
+          fetching={loadingStates.long}
           onRefetch={() => handleRefetch('long')}
           tokenName="Super Long Token Name"
           tokenSymbol="SUPERLONGTOKEN"

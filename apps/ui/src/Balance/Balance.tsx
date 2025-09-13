@@ -10,7 +10,7 @@ export function Balance({
   amount,
   chainId,
   className,
-  loading = false,
+  fetching = false,
   onRefetch,
   amountFiat,
   tokenSymbol,
@@ -18,10 +18,10 @@ export function Balance({
   warn = false,
 }: Balance.Props) {
   const chain = Chains.all.find((c) => c.id === chainId)
-  const transition = useTransition(loading, {
+  const transition = useTransition(fetching, {
     config: { friction: 70, tension: 1300 },
     enter: { opacity: 1, transform: 'scale(1)' },
-    from: { opacity: 0, transform: `scale(${loading ? 0.3 : 0.9})` },
+    from: { opacity: 0, transform: `scale(${fetching ? 0.3 : 0.9})` },
     initial: { opacity: 1, transform: 'scale(1)' },
     leave: { display: 'none', immediate: true },
   })
@@ -122,7 +122,7 @@ export function Balance({
           paddingBlock: 8,
           paddingInline: 12,
         })}
-        disabled={!onRefetch}
+        disabled={!onRefetch || fetching}
         onClick={onRefetch}
         style={{ outlineOffset: -1 }}
       >
@@ -207,7 +207,7 @@ export namespace Balance {
     amount: string
     chainId: number
     className?: string
-    loading?: boolean
+    fetching?: boolean
     onRefetch?: () => void
     amountFiat: string
     tokenSymbol: string
