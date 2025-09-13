@@ -8,10 +8,8 @@ interface EnvironmentVariables {
   readonly WORKERS_CI_COMMIT_SHA: string
 
   /** `/onramp` route */
-  readonly STRIPE_API_KEY: string
-  readonly STRIPE_PUBLISHABLE_KEY: string
-  readonly SANDBOX_STRIPE_API_KEY: string
-  readonly SANDBOX_STRIPE_PUBLISHABLE_KEY: string
+  readonly CB_API_KEY_ID: string
+  readonly CB_API_KEY_SECRET: string
 
   /** `/verify` route */
   readonly VERIFY_CONFIG_URL: string
