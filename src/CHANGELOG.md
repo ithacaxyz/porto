@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.3
+
+### Patch Changes
+
+- [#848](https://github.com/ithacaxyz/porto/pull/848) [`8ecff2a`](https://github.com/ithacaxyz/porto/commit/8ecff2ab72eada9aa7cdbd5d6ff6c0c58caccafc) Thanks [@jxom](https://github.com/jxom)! - Deferred pre-call management to the Relay instead of the SDK.
+
 ## 0.2.2
 
 ### Patch Changes
