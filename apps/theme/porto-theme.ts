@@ -325,6 +325,23 @@ export const portoTheme: PortoTheme = {
     '#eeeeee',
   ],
 
+  // warning
+  warningBackground: [
+    'Warning background color. Generally yellow or orange, used for elements indicating caution or a warning state.',
+    '#fefbe9',
+    '#252018',
+  ],
+  warningContent: [
+    'Warning content color. Used over warningBackground for text and icons in warning elements.',
+    '#e2a336',
+    '#8f6424',
+  ],
+  warningBorder: [
+    'Warning border color. Used around warning surfaces.',
+    '#e2a336',
+    '#8f6424',
+  ],
+
   // field
   fieldBackground: [
     'Field background color. Used for input fields, text areas, some edit buttons, and other form elements.',

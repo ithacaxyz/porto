@@ -60,6 +60,9 @@
   --background-color-th_strong: light-dark(#202020, #eeeeee);
   --text-color-th_strong: light-dark(#ffffff, #000000);
   --border-color-th_strong: light-dark(#202020, #eeeeee);
+  --background-color-th_warning: light-dark(#fefbe9, #252018);
+  --text-color-th_warning: light-dark(#e2a336, #8f6424);
+  --border-color-th_warning: light-dark(#e2a336, #8f6424);
   --background-color-th_field: light-dark(#f9f9f9, #191919);
   --border-color-th_field: light-dark(#e0e0e0, #313131);
   --text-color-th_field: light-dark(#202020, #eeeeee);
