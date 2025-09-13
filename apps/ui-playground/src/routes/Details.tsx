@@ -1,4 +1,4 @@
-import { Button, Details } from '@porto/ui'
+import { Button, ChainsPath, Details } from '@porto/ui'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { ComponentScreen } from '~/components/ComponentScreen/ComponentScreen'
@@ -12,6 +12,7 @@ function DetailsComponent() {
   const [key, setKey] = useState(0)
   return (
     <ComponentScreen
+      maxWidth={360}
       title={
         <>
           <div>Details</div>
@@ -30,10 +31,10 @@ function DetailsComponent() {
       <ComponentScreen.Section title="Basic usage">
         <div className="flex flex-col gap-2 rounded-lg bg-th_base p-3">
           <Details key={key}>
-            <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <span className="text-th_base-secondary">Network</span>
-              <span className="font-medium">Ethereum</span>
-            </div>
+            <Details.Item
+              label="Networks"
+              value={<ChainsPath chainIds={[10, 1]} />}
+            />
           </Details>
         </div>
       </ComponentScreen.Section>
@@ -41,18 +42,12 @@ function DetailsComponent() {
       <ComponentScreen.Section title="Multiple rows">
         <div className="flex flex-col gap-2 rounded-lg bg-th_base p-3">
           <Details key={key}>
-            <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <span className="text-th_base-secondary">Network</span>
-              <span className="font-medium">Ethereum</span>
-            </div>
-            <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <span className="text-th_base-secondary">Gas fee</span>
-              <span className="font-medium">$2.45</span>
-            </div>
-            <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <span className="text-th_base-secondary">Total</span>
-              <span className="font-medium">$102.45</span>
-            </div>
+            <Details.Item
+              label="Network"
+              value={<ChainsPath chainIds={[10, 42161, 1]} />}
+            />
+            <Details.Item label="Gas fee" value="$2.45" />
+            <Details.Item label="Total" value="$102.45" />
           </Details>
         </div>
       </ComponentScreen.Section>
@@ -69,14 +64,11 @@ function DetailsComponent() {
       >
         <div className="flex flex-col gap-2 rounded-lg bg-th_base p-3">
           <Details key={key} loading={loading}>
-            <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <span className="text-th_base-secondary">Network</span>
-              <span className="font-medium">Ethereum</span>
-            </div>
-            <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <span className="text-th_base-secondary">Gas fee</span>
-              <span className="font-medium">$2.45</span>
-            </div>
+            <Details.Item
+              label="Network"
+              value={<ChainsPath chainIds={[10, 42161, 1]} />}
+            />
+            <Details.Item label="Gas fee" value="$2.45" />
           </Details>
         </div>
       </ComponentScreen.Section>
@@ -84,18 +76,12 @@ function DetailsComponent() {
       <ComponentScreen.Section title="Start opened">
         <div className="flex flex-col gap-2 rounded-lg bg-th_base p-3">
           <Details key={key} opened>
-            <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <span className="text-th_base-secondary">Network</span>
-              <span className="font-medium">Ethereum</span>
-            </div>
-            <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <span className="text-th_base-secondary">Gas fee</span>
-              <span className="font-medium">$2.45</span>
-            </div>
-            <div className="flex h-[18px] items-center justify-between text-[14px]">
-              <span className="text-th_base-secondary">Total</span>
-              <span className="font-medium">$102.45</span>
-            </div>
+            <Details.Item
+              label="Network"
+              value={<ChainsPath chainIds={[10, 42161, 1]} />}
+            />
+            <Details.Item label="Gas fee" value="$2.45" />
+            <Details.Item label="Total" value="$102.45" />
           </Details>
         </div>
       </ComponentScreen.Section>

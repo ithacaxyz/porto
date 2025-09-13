@@ -13,7 +13,6 @@ function SpacerComponent() {
   const { colorScheme } = useColorScheme()
   const [mode, setMode] = useState<Frame.ModeName>('dialog')
   const space = mode === 'dialog' ? 8 : 24
-
   const app = (
     <Frame
       colorScheme={colorScheme}

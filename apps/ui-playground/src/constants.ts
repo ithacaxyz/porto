@@ -5,21 +5,23 @@ export const sections = [
   },
   {
     screens: [
+      'Balance',
       'Button',
       'ButtonArea',
+      'ChainIcon',
+      'ChainsPath',
       'Details',
+      'DiscIcon',
+      // 'Frame',
       'Input',
       'PresetsInput',
       'Separator',
       'ShowAfter',
+      // 'Spacer',
       'Spinner',
       'ThemeSwitch',
       'TokenIcon',
     ],
-    title: 'Base',
-  },
-  {
-    screens: ['Frame', 'Screen', 'Spacer'],
-    title: 'Layout',
+    title: 'Components',
   },
 ] as const

@@ -21,10 +21,14 @@ import { Route as ScreenImport } from './routes/Screen'
 import { Route as PresetsInputImport } from './routes/PresetsInput'
 import { Route as InputImport } from './routes/Input'
 import { Route as FrameImport } from './routes/Frame'
+import { Route as DiscIconImport } from './routes/DiscIcon'
 import { Route as DetailsImport } from './routes/Details'
 import { Route as ColorsImport } from './routes/Colors'
+import { Route as ChainsPathImport } from './routes/ChainsPath'
+import { Route as ChainIconImport } from './routes/ChainIcon'
 import { Route as ButtonAreaImport } from './routes/ButtonArea'
 import { Route as ButtonImport } from './routes/Button'
+import { Route as BalanceImport } from './routes/Balance'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
@@ -89,6 +93,12 @@ const FrameRoute = FrameImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const DiscIconRoute = DiscIconImport.update({
+  id: '/DiscIcon',
+  path: '/DiscIcon',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const DetailsRoute = DetailsImport.update({
   id: '/Details',
   path: '/Details',
@@ -101,6 +111,18 @@ const ColorsRoute = ColorsImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const ChainsPathRoute = ChainsPathImport.update({
+  id: '/ChainsPath',
+  path: '/ChainsPath',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ChainIconRoute = ChainIconImport.update({
+  id: '/ChainIcon',
+  path: '/ChainIcon',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const ButtonAreaRoute = ButtonAreaImport.update({
   id: '/ButtonArea',
   path: '/ButtonArea',
@@ -110,6 +132,12 @@ const ButtonAreaRoute = ButtonAreaImport.update({
 const ButtonRoute = ButtonImport.update({
   id: '/Button',
   path: '/Button',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const BalanceRoute = BalanceImport.update({
+  id: '/Balance',
+  path: '/Balance',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -130,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/Balance': {
+      id: '/Balance'
+      path: '/Balance'
+      fullPath: '/Balance'
+      preLoaderRoute: typeof BalanceImport
+      parentRoute: typeof rootRoute
+    }
     '/Button': {
       id: '/Button'
       path: '/Button'
@@ -144,6 +179,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ButtonAreaImport
       parentRoute: typeof rootRoute
     }
+    '/ChainIcon': {
+      id: '/ChainIcon'
+      path: '/ChainIcon'
+      fullPath: '/ChainIcon'
+      preLoaderRoute: typeof ChainIconImport
+      parentRoute: typeof rootRoute
+    }
+    '/ChainsPath': {
+      id: '/ChainsPath'
+      path: '/ChainsPath'
+      fullPath: '/ChainsPath'
+      preLoaderRoute: typeof ChainsPathImport
+      parentRoute: typeof rootRoute
+    }
     '/Colors': {
       id: '/Colors'
       path: '/Colors'
@@ -156,6 +205,13 @@ declare module '@tanstack/react-router' {
       path: '/Details'
       fullPath: '/Details'
       preLoaderRoute: typeof DetailsImport
+      parentRoute: typeof rootRoute
+    }
+    '/DiscIcon': {
+      id: '/DiscIcon'
+      path: '/DiscIcon'
+      fullPath: '/DiscIcon'
+      preLoaderRoute: typeof DiscIconImport
       parentRoute: typeof rootRoute
     }
     '/Frame': {
@@ -235,10 +291,14 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/Balance': typeof BalanceRoute
   '/Button': typeof ButtonRoute
   '/ButtonArea': typeof ButtonAreaRoute
+  '/ChainIcon': typeof ChainIconRoute
+  '/ChainsPath': typeof ChainsPathRoute
   '/Colors': typeof ColorsRoute
   '/Details': typeof DetailsRoute
+  '/DiscIcon': typeof DiscIconRoute
   '/Frame': typeof FrameRoute
   '/Input': typeof InputRoute
   '/PresetsInput': typeof PresetsInputRoute
@@ -253,10 +313,14 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/Balance': typeof BalanceRoute
   '/Button': typeof ButtonRoute
   '/ButtonArea': typeof ButtonAreaRoute
+  '/ChainIcon': typeof ChainIconRoute
+  '/ChainsPath': typeof ChainsPathRoute
   '/Colors': typeof ColorsRoute
   '/Details': typeof DetailsRoute
+  '/DiscIcon': typeof DiscIconRoute
   '/Frame': typeof FrameRoute
   '/Input': typeof InputRoute
   '/PresetsInput': typeof PresetsInputRoute
@@ -272,10 +336,14 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/Balance': typeof BalanceRoute
   '/Button': typeof ButtonRoute
   '/ButtonArea': typeof ButtonAreaRoute
+  '/ChainIcon': typeof ChainIconRoute
+  '/ChainsPath': typeof ChainsPathRoute
   '/Colors': typeof ColorsRoute
   '/Details': typeof DetailsRoute
+  '/DiscIcon': typeof DiscIconRoute
   '/Frame': typeof FrameRoute
   '/Input': typeof InputRoute
   '/PresetsInput': typeof PresetsInputRoute
@@ -292,10 +360,14 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/Balance'
     | '/Button'
     | '/ButtonArea'
+    | '/ChainIcon'
+    | '/ChainsPath'
     | '/Colors'
     | '/Details'
+    | '/DiscIcon'
     | '/Frame'
     | '/Input'
     | '/PresetsInput'
@@ -309,10 +381,14 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/Balance'
     | '/Button'
     | '/ButtonArea'
+    | '/ChainIcon'
+    | '/ChainsPath'
     | '/Colors'
     | '/Details'
+    | '/DiscIcon'
     | '/Frame'
     | '/Input'
     | '/PresetsInput'
@@ -326,10 +402,14 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/Balance'
     | '/Button'
     | '/ButtonArea'
+    | '/ChainIcon'
+    | '/ChainsPath'
     | '/Colors'
     | '/Details'
+    | '/DiscIcon'
     | '/Frame'
     | '/Input'
     | '/PresetsInput'
@@ -345,10 +425,14 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BalanceRoute: typeof BalanceRoute
   ButtonRoute: typeof ButtonRoute
   ButtonAreaRoute: typeof ButtonAreaRoute
+  ChainIconRoute: typeof ChainIconRoute
+  ChainsPathRoute: typeof ChainsPathRoute
   ColorsRoute: typeof ColorsRoute
   DetailsRoute: typeof DetailsRoute
+  DiscIconRoute: typeof DiscIconRoute
   FrameRoute: typeof FrameRoute
   InputRoute: typeof InputRoute
   PresetsInputRoute: typeof PresetsInputRoute
@@ -363,10 +447,14 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BalanceRoute: BalanceRoute,
   ButtonRoute: ButtonRoute,
   ButtonAreaRoute: ButtonAreaRoute,
+  ChainIconRoute: ChainIconRoute,
+  ChainsPathRoute: ChainsPathRoute,
   ColorsRoute: ColorsRoute,
   DetailsRoute: DetailsRoute,
+  DiscIconRoute: DiscIconRoute,
   FrameRoute: FrameRoute,
   InputRoute: InputRoute,
   PresetsInputRoute: PresetsInputRoute,
@@ -390,10 +478,14 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/Balance",
         "/Button",
         "/ButtonArea",
+        "/ChainIcon",
+        "/ChainsPath",
         "/Colors",
         "/Details",
+        "/DiscIcon",
         "/Frame",
         "/Input",
         "/PresetsInput",
@@ -409,17 +501,29 @@ export const routeTree = rootRoute
     "/": {
       "filePath": "index.tsx"
     },
+    "/Balance": {
+      "filePath": "Balance.tsx"
+    },
     "/Button": {
       "filePath": "Button.tsx"
     },
     "/ButtonArea": {
       "filePath": "ButtonArea.tsx"
     },
+    "/ChainIcon": {
+      "filePath": "ChainIcon.tsx"
+    },
+    "/ChainsPath": {
+      "filePath": "ChainsPath.tsx"
+    },
     "/Colors": {
       "filePath": "Colors.tsx"
     },
     "/Details": {
       "filePath": "Details.tsx"
+    },
+    "/DiscIcon": {
+      "filePath": "DiscIcon.tsx"
     },
     "/Frame": {
       "filePath": "Frame.tsx"

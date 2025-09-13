@@ -350,7 +350,7 @@ function RouteComponent() {
         <Frame
           colorScheme={colorScheme}
           loading={frameLoading}
-          mode={mode}
+          mode="full"
           screenKey={String(screen)}
           site={{
             label: 'porto.sh',

@@ -5,13 +5,18 @@ import type { ReactNode } from 'react'
 export function ComponentScreen({
   children,
   title,
+  maxWidth,
 }: {
   children: ReactNode
   title: ReactNode
+  maxWidth?: number
 }) {
   return (
     <Ui>
-      <div className="flex max-w-2xl flex-col gap-4 py-4">
+      <div
+        className="flex flex-col gap-4 py-4"
+        style={{ maxWidth: maxWidth ?? 600 }}
+      >
         <h1 className="mb-4 flex items-center gap-2 text-2xl text-th_base">
           {title}
         </h1>
