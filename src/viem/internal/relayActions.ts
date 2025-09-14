@@ -578,11 +578,13 @@ export async function sendPreparedCalls(
               preCall: context.preCall,
               quote: context.quote,
             },
-            key: {
-              prehash: key.prehash,
-              publicKey: key.publicKey,
-              type: key.type,
-            },
+            key: key
+              ? {
+                  prehash: key.prehash,
+                  publicKey: key.publicKey,
+                  type: key.type,
+                }
+              : undefined,
             signature,
           }),
         ],

@@ -1,4 +1,5 @@
 import { Hex, Value } from 'ox'
+import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { getEip712Domain, readContract, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import * as TestActions from '../../test/src/actions.js'
@@ -70,6 +71,33 @@ describe('signCalls', () => {
     })
 
     const signature = await RelayActions.signCalls(request, { account })
+    expect(signature).toBeDefined()
+  })
+
+  test('behavior: signs with eoa', async () => {
+    const eoa = privateKeyToAccount(generatePrivateKey())
+
+    await TestActions.setBalance(client, {
+      address: eoa.address,
+      value: Value.fromEther('100'),
+    })
+    await RelayActions.upgradeAccount(client, {
+      account: eoa,
+    })
+
+    const request = await RelayActions.prepareCalls(client, {
+      account: eoa,
+      calls: [
+        {
+          abi: contracts.exp2.abi,
+          args: [eoa.address, 100n],
+          functionName: 'mint',
+          to: contracts.exp2.address,
+        },
+      ],
+    })
+
+    const signature = await RelayActions.signCalls(request, { account: eoa })
     expect(signature).toBeDefined()
   })
 
@@ -308,6 +336,45 @@ describe('sendCalls', () => {
       await readContract(client, {
         ...contracts.exp2,
         args: [account.address],
+        functionName: 'balanceOf',
+      }),
+    ).toBe(100n)
+  })
+
+  test('behavior: eoa', async () => {
+    const eoa = privateKeyToAccount(generatePrivateKey())
+
+    await TestActions.setBalance(client, {
+      address: eoa.address,
+      value: Value.fromEther('100'),
+    })
+
+    await RelayActions.upgradeAccount(client, {
+      account: eoa,
+    })
+
+    const { id } = await RelayActions.sendCalls(client, {
+      account: eoa,
+      calls: [
+        {
+          abi: contracts.exp2.abi,
+          args: [eoa.address, 100n],
+          functionName: 'mint',
+          to: contracts.exp2.address,
+        },
+      ],
+    })
+
+    expect(id).toBeDefined()
+
+    await waitForCallsStatus(client, {
+      id,
+    })
+
+    expect(
+      await readContract(client, {
+        ...contracts.exp2,
+        args: [eoa.address],
         functionName: 'balanceOf',
       }),
     ).toBe(100n)

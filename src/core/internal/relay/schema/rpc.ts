@@ -589,11 +589,13 @@ export namespace wallet_sendPreparedCalls {
       quote: z.optional(z.partial(Quotes.Signed)),
     }),
     /** Key that was used to sign the call bundle. */
-    key: z.object({
-      prehash: z.boolean(),
-      publicKey: u.hex(),
-      type: Key.Key.shape.type,
-    }),
+    key: z.optional(
+      z.object({
+        prehash: z.boolean(),
+        publicKey: u.hex(),
+        type: Key.Key.shape.type,
+      }),
+    ),
     /** Signature. */
     signature: u.hex(),
   })

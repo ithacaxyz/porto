@@ -394,14 +394,15 @@ export async function sendCalls<
 ): Promise<sendCalls.ReturnType> {
   const { account = client.account, chain = client.chain } = parameters
 
-  if (!chain) throw new Error('chain is required.')
+  if (!chain) throw new Error('`chain` is required.')
 
   // If no signature is provided, prepare the calls and sign them.
   const account_ = account ? Account.from(account) : undefined
-  if (!account_) throw new Error('account is required.')
+  if (!account_) throw new Error('`account` is required.')
 
   const key = parameters.key ?? Account.getKey(account_, parameters)
-  if (!key) throw new Error('key is required')
+  if (!key && !account_.sign)
+    throw new Error('`key` or `account` with `sign` is required')
 
   // Prepare pre-calls.
   const preCalls = await Promise.all(
@@ -437,11 +438,17 @@ export async function sendCalls<
   } as never)
 
   // Sign over the bundles.
-  const signature = await Key.sign(key, {
-    address: null,
-    payload: digest,
-    wrap: false,
-  })
+  const signature = await (async () => {
+    if (key)
+      return await Key.sign(key, {
+        address: null,
+        payload: digest,
+        wrap: false,
+      })
+    return await account_.sign({
+      hash: digest,
+    })
+  })()
 
   // Broadcast the bundle to the Relay.
   return await sendPreparedCalls(client, {
@@ -544,7 +551,7 @@ export async function sendPreparedCalls(
   return await RelayActions.sendPreparedCalls(client, {
     capabilities,
     context,
-    key: Key.toRelay(key),
+    key: key ? Key.toRelay(key) : undefined,
     signature,
   })
 }
@@ -558,7 +565,7 @@ export declare namespace sendPreparedCalls {
     /** Context. */
     context: prepareCalls.ReturnType['context']
     /** Key. */
-    key: Pick<Key.Key, 'publicKey' | 'prehash' | 'type'>
+    key?: Pick<Key.Key, 'publicKey' | 'prehash' | 'type'> | undefined
     /** Signature. */
     signature: Hex.Hex
   }
