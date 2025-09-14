@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.5
+
+### Patch Changes
+
+- [#853](https://github.com/ithacaxyz/porto/pull/853) [`7ab683a`](https://github.com/ithacaxyz/porto/commit/7ab683ab956a621fe1d62a4e20493f4a16a80c7e) Thanks [@jxom](https://github.com/jxom)! - Made `key` optional on `prepareCalls`, `sendCalls`, and `signCalls` actions.
+
 ## 0.2.4
 
 ### Patch Changes
