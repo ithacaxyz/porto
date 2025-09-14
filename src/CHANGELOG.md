@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.4
+
+### Patch Changes
+
+- [#843](https://github.com/ithacaxyz/porto/pull/843) [`6b04676`](https://github.com/ithacaxyz/porto/commit/6b046766a062beb966c4fd5407ceb18573cc7c62) Thanks [@jxom](https://github.com/jxom)! - Migrated to `zod/mini`. Cut bundle size by 30%.
+
 ## 0.2.3
 
 ### Patch Changes
