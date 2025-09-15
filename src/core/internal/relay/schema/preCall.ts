@@ -22,7 +22,7 @@ export const PreCall = z.object({
    * A nonce of `type(uint256).max` skips the check, incrementing,
    * and the emission of the {IntentExecuted} event.
    */
-  nonce: u.bigint(),
+  nonce: u.hex(),
   /**
    * The wrapped signature.
    *

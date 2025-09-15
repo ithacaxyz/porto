@@ -1,0 +1,15 @@
+{
+  "name": "example-cli",
+  "private": true,
+  "bin": {
+    "example-cli": "./index.mts"
+  },
+  "dependencies": {
+    "porto": "latest",
+    "typescript": "~5.9.2",
+    "viem": "latest"
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
+}

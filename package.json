@@ -131,7 +131,8 @@
     "overrides": {
       "abitype": "latest",
       "ox": "latest",
-      "porto": "workspace:*"
+      "porto": "workspace:*",
+      "viem": "latest"
     },
     "patchedDependencies": {
       "@tanstack/react-router": "patches/@tanstack__react-router.patch",
