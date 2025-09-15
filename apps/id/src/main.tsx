@@ -1,6 +1,5 @@
 import { Env } from '@porto/apps'
 import * as Sentry from '@sentry/react'
-import { TrustedHosts } from 'porto/internal'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
@@ -11,9 +10,6 @@ import './styles.css'
 if (import.meta.env.PROD) {
   Sentry.init({
     dsn: 'https://1b4e28921c688e2b03d1b63f8d018913@o4509056062849024.ingest.us.sentry.io/4509080371724288',
-    enabled: TrustedHosts.hostnames.includes(
-      new URL(document.referrer).hostname,
-    ),
     environment: Env.get(),
     integrations: [
       Sentry.replayIntegration(),
