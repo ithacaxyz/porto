@@ -61,12 +61,12 @@ export function porto<
     let disconnect: Connector['onDisconnect'] | undefined
 
     return {
-      async connect({
-        chainId = chains[0].id,
-        isReconnecting,
-        withCapabilities,
-        ...rest
-      } = {}) {
+      async connect({ chainId = chains[0].id, ...rest } = {}) {
+        const isReconnecting =
+          ('isReconnecting' in rest && rest.isReconnecting) || false
+        const withCapabilities =
+          ('withCapabilities' in rest && rest.withCapabilities) || false
+
         let accounts: readonly (Address | { address: Address })[] = []
         let currentChainId: number | undefined
 
