@@ -1,5 +1,15 @@
 # porto
 
+## 0.2.6
+
+### Patch Changes
+
+- [`1387137`](https://github.com/ithacaxyz/porto/commit/13871375228e18640202e659f073786be09966c3) Thanks [@jxom](https://github.com/jxom)! - Disabled merchant hostname check for testnets.
+
+- [`260e36c`](https://github.com/ithacaxyz/porto/commit/260e36c51ae19b74709057edf5876ba8b80f0998) Thanks [@jxom](https://github.com/jxom)! - Fixed serialization of CLI requests.
+
+- [#862](https://github.com/ithacaxyz/porto/pull/862) [`19190ee`](https://github.com/ithacaxyz/porto/commit/19190eedcff54b9dc5aae7396d08082d003742cd) Thanks [@tmm](https://github.com/tmm)! - Added response capabilities support to Wagmi connector.
+
 ## 0.2.5
 
 ### Patch Changes
