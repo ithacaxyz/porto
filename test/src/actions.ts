@@ -2,11 +2,7 @@ import { setTimeout } from 'node:timers/promises'
 import { type Address, Secp256k1 } from 'ox'
 import { parseEther } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import {
-  setBalance as setBalance_viem,
-  waitForCallsStatus,
-  writeContract,
-} from 'viem/actions'
+import { waitForCallsStatus, writeContract } from 'viem/actions'
 import * as Account from '../../src/viem/Account.js'
 import type * as Key from '../../src/viem/Key.js'
 import * as RelayActions from '../../src/viem/RelayActions.js'
@@ -103,10 +99,6 @@ async function addFaucetFunds_anvil(
 ) {
   const { address, value } = parameters
 
-  await setBalance_viem(client as any, {
-    address,
-    value,
-  })
   await writeContract(client, {
     abi: Contracts.exp1Abi,
     account: privateKeyToAccount(Anvil.accounts[0]!.privateKey),

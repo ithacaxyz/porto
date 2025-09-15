@@ -21,12 +21,12 @@
     "zod": "^4.1.8"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.7.5",
-    "@cloudflare/workers-types": "^4.20250719.0",
+    "@cloudflare/vite-plugin": "^1.13.1",
+    "@cloudflare/workers-types": "^4.20250913.0",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-mkcert": "catalog:",
-    "wrangler": "^4.25.0"
+    "wrangler": "^4.37.0"
   }
 }

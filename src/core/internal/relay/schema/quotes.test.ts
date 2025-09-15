@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import * as Schema from '../../schema/schema.js'
+import * as z from 'zod/mini'
 import * as Quotes from './quotes.js'
 
 describe('Quote', () => {
@@ -42,7 +42,7 @@ describe('Quote', () => {
   }
 
   test('behavior: decodes valid quote with all fields', () => {
-    const result = Schema.decodeUnknownSync(Quotes.Quote)(validQuoteData)
+    const result = z.parse(Quotes.Quote, validQuoteData)
     expect(result).toMatchInlineSnapshot(`
       {
         "authorizationAddress": "0x1234567890123456789012345678901234567890",
@@ -84,8 +84,8 @@ describe('Quote', () => {
   })
 
   test('behavior: encodes valid quote data', () => {
-    const decodedData = Schema.decodeUnknownSync(Quotes.Quote)(validQuoteData)
-    const encodedData = Schema.encodeSync(Quotes.Quote)(decodedData)
+    const decodedData = z.parse(Quotes.Quote, validQuoteData)
+    const encodedData = z.encode(Quotes.Quote, decodedData)
     expect(encodedData).toMatchInlineSnapshot(`
       {
         "authorizationAddress": "0x1234567890123456789012345678901234567890",
@@ -127,11 +127,9 @@ describe('Quote', () => {
   })
 
   test('behavior: round-trip encoding/decoding preserves data', () => {
-    const originalDecoded = Schema.decodeUnknownSync(Quotes.Quote)(
-      validQuoteData,
-    )
-    const encoded = Schema.encodeSync(Quotes.Quote)(originalDecoded)
-    const reDecoded = Schema.decodeUnknownSync(Quotes.Quote)(encoded)
+    const originalDecoded = z.parse(Quotes.Quote, validQuoteData)
+    const encoded = z.encode(Quotes.Quote, originalDecoded)
+    const reDecoded = z.parse(Quotes.Quote, encoded)
 
     expect(reDecoded).toEqual(originalDecoded)
   })
@@ -141,7 +139,7 @@ describe('Quote', () => {
       ...validQuoteData,
       authorizationAddress: null,
     }
-    const result = Schema.decodeUnknownSync(Quotes.Quote)(dataWithNullAuth)
+    const result = z.parse(Quotes.Quote, dataWithNullAuth)
     expect(result.authorizationAddress).toBeNull()
   })
 
@@ -150,7 +148,7 @@ describe('Quote', () => {
       ...validQuoteData,
       authorizationAddress: undefined,
     }
-    const result = Schema.decodeUnknownSync(Quotes.Quote)(dataWithUndefinedAuth)
+    const result = z.parse(Quotes.Quote, dataWithUndefinedAuth)
     expect(result.authorizationAddress).toBeUndefined()
   })
 
@@ -162,7 +160,7 @@ describe('Quote', () => {
       feeTokenDeficit: '0xffffffffffffffffffffffffffffff',
       txGas: '0xffffffffffffffffffffffffffffffff',
     }
-    const result = Schema.decodeUnknownSync(Quotes.Quote)(dataWithLargeBigInts)
+    const result = z.parse(Quotes.Quote, dataWithLargeBigInts)
     expect(result.ethPrice).toBe(BigInt('0xffffffffffffffffffffffffffffffffff'))
     expect(result.extraPayment).toBe(
       BigInt('0xffffffffffffffffffffffffffffffffffff'),
@@ -181,8 +179,8 @@ describe('Quote', () => {
       feeTokenDeficit: '0xfffff',
       txGas: '0xffffff',
     }
-    const decoded = Schema.decodeUnknownSync(Quotes.Quote)(dataWithLargeBigInts)
-    const encoded = Schema.encodeSync(Quotes.Quote)(decoded)
+    const decoded = z.parse(Quotes.Quote, dataWithLargeBigInts)
+    const encoded = z.encode(Quotes.Quote, decoded)
     expect(encoded.ethPrice).toBe('0xff')
     expect(encoded.extraPayment).toBe('0xffff')
     expect(encoded.feeTokenDeficit).toBe('0xfffff')
@@ -197,7 +195,7 @@ describe('Quote', () => {
   ])(
     'behavior: decodes quote with chainId $chainId',
     ({ chainId, expected }) => {
-      const result = Schema.decodeUnknownSync(Quotes.Quote)({
+      const result = z.parse(Quotes.Quote, {
         ...validQuoteData,
         chainId,
       })
@@ -212,7 +210,7 @@ describe('Quote', () => {
   ])(
     'behavior: decodes quote with paymentTokenDecimals $paymentTokenDecimals',
     ({ paymentTokenDecimals, expected }) => {
-      const result = Schema.decodeUnknownSync(Quotes.Quote)({
+      const result = z.parse(Quotes.Quote, {
         ...validQuoteData,
         paymentTokenDecimals,
       })
@@ -222,97 +220,209 @@ describe('Quote', () => {
 
   test('error: rejects invalid address format for authorizationAddress', () => {
     expect(() =>
-      Schema.decodeUnknownSync(Quotes.Quote)({
+      z.parse(Quotes.Quote, {
         ...validQuoteData,
         authorizationAddress: 'invalid-address',
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-address"
-      Path: authorizationAddress
-
-      Details: { readonly authorizationAddress?: \`0x\${string}\` | null | undefined; readonly chainId: (\`0x\${string}\` <-> number); readonly ethPrice: (\`0x\${string}\` <-> bigint); readonly extraPayment: (\`0x\${string}\` <-> bigint); readonly feeTokenDeficit: (\`0x\${string}\` <-> bigint); readonly intent: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentAmount: (\`0x\${string}\` <-> bigint); readonly paymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\` } | { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }; readonly nativeFeeEstimate: { readonly maxFeePerGas: (\`0x\${string}\` <-> bigint); readonly maxPriorityFeePerGas: (\`0x\${string}\` <-> bigint) }; readonly orchestrator: \`0x\${string}\`; readonly paymentTokenDecimals: number; readonly txGas: (\`0x\${string}\` <-> bigint) }
-      └─ ["authorizationAddress"]
-         └─ \`0x\${string}\` | null | undefined
-            ├─ \`0x\${string}\` | null
-            │  ├─ Expected \`0x\${string}\`, actual "invalid-address"
-            │  └─ Expected null, actual "invalid-address"
-            └─ Expected undefined, actual "invalid-address"]
+      [$ZodError: [
+        {
+          "code": "invalid_union",
+          "errors": [
+            [
+              {
+                "code": "invalid_format",
+                "format": "template_literal",
+                "pattern": "^0x[\\\\s\\\\S]{0,}$",
+                "path": [],
+                "message": "Needs string in format ^0x[A-Fa-f0-9]{40}$."
+              }
+            ],
+            [
+              {
+                "expected": "null",
+                "code": "invalid_type",
+                "path": [],
+                "message": "Invalid input"
+              }
+            ]
+          ],
+          "path": [
+            "authorizationAddress"
+          ],
+          "message": "Invalid input"
+        }
+      ]]
     `)
   })
 
   test('error: rejects invalid address format for orchestrator', () => {
     expect(() =>
-      Schema.decodeUnknownSync(Quotes.Quote)({
+      z.parse(Quotes.Quote, {
         ...validQuoteData,
         orchestrator: 'invalid-address',
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-address"
-      Path: orchestrator
-
-      Details: { readonly authorizationAddress?: \`0x\${string}\` | null | undefined; readonly chainId: (\`0x\${string}\` <-> number); readonly ethPrice: (\`0x\${string}\` <-> bigint); readonly extraPayment: (\`0x\${string}\` <-> bigint); readonly feeTokenDeficit: (\`0x\${string}\` <-> bigint); readonly intent: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentAmount: (\`0x\${string}\` <-> bigint); readonly paymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\` } | { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }; readonly nativeFeeEstimate: { readonly maxFeePerGas: (\`0x\${string}\` <-> bigint); readonly maxPriorityFeePerGas: (\`0x\${string}\` <-> bigint) }; readonly orchestrator: \`0x\${string}\`; readonly paymentTokenDecimals: number; readonly txGas: (\`0x\${string}\` <-> bigint) }
-      └─ ["orchestrator"]
-         └─ Expected \`0x\${string}\`, actual "invalid-address"]
+      [$ZodError: [
+        {
+          "code": "invalid_format",
+          "format": "template_literal",
+          "pattern": "^0x[\\\\s\\\\S]{0,}$",
+          "path": [
+            "orchestrator"
+          ],
+          "message": "Needs string in format ^0x[A-Fa-f0-9]{40}$."
+        }
+      ]]
     `)
   })
 
   test('error: rejects invalid hex format for BigInt fields', () => {
     expect(() =>
-      Schema.decodeUnknownSync(Quotes.Quote)({
+      z.parse(Quotes.Quote, {
         ...validQuoteData,
         ethPrice: 'not-hex',
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "not-hex"
-      Path: ethPrice
-
-      Details: { readonly authorizationAddress?: \`0x\${string}\` | null | undefined; readonly chainId: (\`0x\${string}\` <-> number); readonly ethPrice: (\`0x\${string}\` <-> bigint); readonly extraPayment: (\`0x\${string}\` <-> bigint); readonly feeTokenDeficit: (\`0x\${string}\` <-> bigint); readonly intent: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentAmount: (\`0x\${string}\` <-> bigint); readonly paymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\` } | { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }; readonly nativeFeeEstimate: { readonly maxFeePerGas: (\`0x\${string}\` <-> bigint); readonly maxPriorityFeePerGas: (\`0x\${string}\` <-> bigint) }; readonly orchestrator: \`0x\${string}\`; readonly paymentTokenDecimals: number; readonly txGas: (\`0x\${string}\` <-> bigint) }
-      └─ ["ethPrice"]
-         └─ (\`0x\${string}\` <-> bigint)
-            └─ Encoded side transformation failure
-               └─ Expected \`0x\${string}\`, actual "not-hex"]
+      [$ZodError: [
+        {
+          "code": "invalid_format",
+          "format": "template_literal",
+          "pattern": "^0x[\\\\s\\\\S]{0,}$",
+          "path": [
+            "ethPrice"
+          ],
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
+        }
+      ]]
     `)
   })
 
   test('error: rejects invalid number format for chainId', () => {
     expect(() =>
-      Schema.decodeUnknownSync(Quotes.Quote)({
+      z.parse(Quotes.Quote, {
         ...validQuoteData,
         chainId: 'not-a-number',
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "not-a-number"
-      Path: chainId
-
-      Details: { readonly authorizationAddress?: \`0x\${string}\` | null | undefined; readonly chainId: (\`0x\${string}\` <-> number); readonly ethPrice: (\`0x\${string}\` <-> bigint); readonly extraPayment: (\`0x\${string}\` <-> bigint); readonly feeTokenDeficit: (\`0x\${string}\` <-> bigint); readonly intent: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentAmount: (\`0x\${string}\` <-> bigint); readonly paymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\` } | { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }; readonly nativeFeeEstimate: { readonly maxFeePerGas: (\`0x\${string}\` <-> bigint); readonly maxPriorityFeePerGas: (\`0x\${string}\` <-> bigint) }; readonly orchestrator: \`0x\${string}\`; readonly paymentTokenDecimals: number; readonly txGas: (\`0x\${string}\` <-> bigint) }
-      └─ ["chainId"]
-         └─ (\`0x\${string}\` <-> number)
-            └─ Encoded side transformation failure
-               └─ Expected \`0x\${string}\`, actual "not-a-number"]
+      [$ZodError: [
+        {
+          "code": "invalid_format",
+          "format": "template_literal",
+          "pattern": "^0x[\\\\s\\\\S]{0,}$",
+          "path": [
+            "chainId"
+          ],
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
+        }
+      ]]
     `)
   })
 
   test('error: rejects missing required fields', () => {
     expect(() =>
-      Schema.decodeUnknownSync(Quotes.Quote)({
+      z.parse(Quotes.Quote, {
         chainId: 1,
         // Missing other required fields
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual 1
-      Path: chainId
-
-      Details: { readonly authorizationAddress?: \`0x\${string}\` | null | undefined; readonly chainId: (\`0x\${string}\` <-> number); readonly ethPrice: (\`0x\${string}\` <-> bigint); readonly extraPayment: (\`0x\${string}\` <-> bigint); readonly feeTokenDeficit: (\`0x\${string}\` <-> bigint); readonly intent: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentAmount: (\`0x\${string}\` <-> bigint); readonly paymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\` } | { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }; readonly nativeFeeEstimate: { readonly maxFeePerGas: (\`0x\${string}\` <-> bigint); readonly maxPriorityFeePerGas: (\`0x\${string}\` <-> bigint) }; readonly orchestrator: \`0x\${string}\`; readonly paymentTokenDecimals: number; readonly txGas: (\`0x\${string}\` <-> bigint) }
-      └─ ["chainId"]
-         └─ (\`0x\${string}\` <-> number)
-            └─ Encoded side transformation failure
-               └─ Expected \`0x\${string}\`, actual 1]
+      [$ZodError: [
+        {
+          "expected": "template_literal",
+          "code": "invalid_type",
+          "path": [
+            "chainId"
+          ],
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
+        },
+        {
+          "expected": "template_literal",
+          "code": "invalid_type",
+          "path": [
+            "ethPrice"
+          ],
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
+        },
+        {
+          "expected": "template_literal",
+          "code": "invalid_type",
+          "path": [
+            "extraPayment"
+          ],
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
+        },
+        {
+          "expected": "template_literal",
+          "code": "invalid_type",
+          "path": [
+            "feeTokenDeficit"
+          ],
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
+        },
+        {
+          "code": "invalid_union",
+          "errors": [
+            [
+              {
+                "expected": "object",
+                "code": "invalid_type",
+                "path": [],
+                "message": "Invalid input"
+              }
+            ],
+            [
+              {
+                "expected": "object",
+                "code": "invalid_type",
+                "path": [],
+                "message": "Invalid input"
+              }
+            ]
+          ],
+          "path": [
+            "intent"
+          ],
+          "message": "Invalid input"
+        },
+        {
+          "expected": "object",
+          "code": "invalid_type",
+          "path": [
+            "nativeFeeEstimate"
+          ],
+          "message": "Invalid input"
+        },
+        {
+          "expected": "template_literal",
+          "code": "invalid_type",
+          "path": [
+            "orchestrator"
+          ],
+          "message": "Needs string in format ^0x[A-Fa-f0-9]{40}$."
+        },
+        {
+          "expected": "number",
+          "code": "invalid_type",
+          "path": [
+            "paymentTokenDecimals"
+          ],
+          "message": "Invalid input"
+        },
+        {
+          "expected": "template_literal",
+          "code": "invalid_type",
+          "path": [
+            "txGas"
+          ],
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
+        }
+      ]]
     `)
   })
 
   test('error: rejects invalid nativeFeeEstimate structure', () => {
     expect(() =>
-      Schema.decodeUnknownSync(Quotes.Quote)({
+      z.parse(Quotes.Quote, {
         ...validQuoteData,
         nativeFeeEstimate: {
           maxFeePerGas: 'not-hex',
@@ -320,16 +430,18 @@ describe('Quote', () => {
         },
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "not-hex"
-      Path: nativeFeeEstimate.maxFeePerGas
-
-      Details: { readonly authorizationAddress?: \`0x\${string}\` | null | undefined; readonly chainId: (\`0x\${string}\` <-> number); readonly ethPrice: (\`0x\${string}\` <-> bigint); readonly extraPayment: (\`0x\${string}\` <-> bigint); readonly feeTokenDeficit: (\`0x\${string}\` <-> bigint); readonly intent: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentAmount: (\`0x\${string}\` <-> bigint); readonly paymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\` } | { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }; readonly nativeFeeEstimate: { readonly maxFeePerGas: (\`0x\${string}\` <-> bigint); readonly maxPriorityFeePerGas: (\`0x\${string}\` <-> bigint) }; readonly orchestrator: \`0x\${string}\`; readonly paymentTokenDecimals: number; readonly txGas: (\`0x\${string}\` <-> bigint) }
-      └─ ["nativeFeeEstimate"]
-         └─ { readonly maxFeePerGas: (\`0x\${string}\` <-> bigint); readonly maxPriorityFeePerGas: (\`0x\${string}\` <-> bigint) }
-            └─ ["maxFeePerGas"]
-               └─ (\`0x\${string}\` <-> bigint)
-                  └─ Encoded side transformation failure
-                     └─ Expected \`0x\${string}\`, actual "not-hex"]
+      [$ZodError: [
+        {
+          "code": "invalid_format",
+          "format": "template_literal",
+          "pattern": "^0x[\\\\s\\\\S]{0,}$",
+          "path": [
+            "nativeFeeEstimate",
+            "maxFeePerGas"
+          ],
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
+        }
+      ]]
     `)
   })
 })
@@ -380,7 +492,7 @@ describe('Quotes', () => {
   }
 
   test('behavior: decodes valid quotes with all fields', () => {
-    const result = Schema.decodeUnknownSync(Quotes.Quotes)(validQuotesData)
+    const result = z.parse(Quotes.Quotes, validQuotesData)
     expect(result.quotes).toHaveLength(1)
     expect(result.multiChainRoot).toBe('0xabcdef1234567890')
     expect(result.ttl).toBe(300)
@@ -391,17 +503,15 @@ describe('Quotes', () => {
       ...validQuotesData,
       multiChainRoot: undefined,
     }
-    const result = Schema.decodeUnknownSync(Quotes.Quotes)(
-      dataWithoutMultiChain,
-    )
+    const result = z.parse(Quotes.Quotes, dataWithoutMultiChain)
     expect(result.multiChainRoot).toBeUndefined()
     expect(result.quotes).toHaveLength(1)
     expect(result.ttl).toBe(300)
   })
 
   test('behavior: encodes valid quotes data', () => {
-    const decodedData = Schema.decodeUnknownSync(Quotes.Quotes)(validQuotesData)
-    const encodedData = Schema.encodeSync(Quotes.Quotes)(decodedData)
+    const decodedData = z.parse(Quotes.Quotes, validQuotesData)
+    const encodedData = z.encode(Quotes.Quotes, decodedData)
     expect(encodedData.quotes).toHaveLength(1)
     expect(encodedData.multiChainRoot).toBe('0xabcdef1234567890')
     expect(encodedData.ttl).toBe(300)
@@ -409,35 +519,51 @@ describe('Quotes', () => {
 
   test('error: rejects empty quotes array', () => {
     expect(() =>
-      Schema.decodeUnknownSync(Quotes.Quotes)({
+      z.parse(Quotes.Quotes, {
         ...validQuotesData,
         quotes: [],
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected an array of at least 1 item(s), actual []
-      Path: quotes
-
-      Details: { readonly multiChainRoot?: \`0x\${string}\` | null | undefined; readonly quotes: minItems(1); readonly ttl: number }
-      └─ ["quotes"]
-         └─ minItems(1)
-            └─ Predicate refinement failure
-               └─ Expected an array of at least 1 item(s), actual []]
+      [$ZodError: [
+        {
+          "origin": "array",
+          "code": "too_small",
+          "minimum": 1,
+          "inclusive": true,
+          "path": [
+            "quotes"
+          ],
+          "message": "Invalid input"
+        }
+      ]]
     `)
   })
 
   test('error: rejects missing required fields', () => {
     expect(() =>
-      Schema.decodeUnknownSync(Quotes.Quotes)({
+      z.parse(Quotes.Quotes, {
         multiChainRoot: '0xabcdef1234567890',
         // Missing quotes and ttl
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: \`quotes\` is missing
-      Path: quotes
-
-      Details: { readonly multiChainRoot?: \`0x\${string}\` | null | undefined; readonly quotes: minItems(1); readonly ttl: number }
-      └─ ["quotes"]
-         └─ is missing]
+      [$ZodError: [
+        {
+          "expected": "array",
+          "code": "invalid_type",
+          "path": [
+            "quotes"
+          ],
+          "message": "Invalid input"
+        },
+        {
+          "expected": "number",
+          "code": "invalid_type",
+          "path": [
+            "ttl"
+          ],
+          "message": "Invalid input"
+        }
+      ]]
     `)
   })
 })
@@ -493,7 +619,7 @@ describe('Signed', () => {
   }
 
   test('behavior: decodes valid signed quotes with all fields', () => {
-    const result = Schema.decodeUnknownSync(Quotes.Signed)(validSignedData)
+    const result = z.parse(Quotes.Signed, validSignedData)
     expect(result.quotes).toHaveLength(1)
     expect(result.multiChainRoot).toBe('0xabcdef1234567890')
     expect(result.ttl).toBe(300)
@@ -511,8 +637,8 @@ describe('Signed', () => {
   })
 
   test('behavior: encodes valid signed quotes data', () => {
-    const decodedData = Schema.decodeUnknownSync(Quotes.Signed)(validSignedData)
-    const encodedData = Schema.encodeSync(Quotes.Signed)(decodedData)
+    const decodedData = z.parse(Quotes.Signed, validSignedData)
+    const encodedData = z.encode(Quotes.Signed, decodedData)
     expect(encodedData.quotes).toHaveLength(1)
     expect(encodedData.multiChainRoot).toBe('0xabcdef1234567890')
     expect(encodedData.ttl).toBe(300)
@@ -530,11 +656,9 @@ describe('Signed', () => {
   })
 
   test('behavior: round-trip encoding/decoding preserves signed data', () => {
-    const originalDecoded = Schema.decodeUnknownSync(Quotes.Signed)(
-      validSignedData,
-    )
-    const encoded = Schema.encodeSync(Quotes.Signed)(originalDecoded)
-    const reDecoded = Schema.decodeUnknownSync(Quotes.Signed)(encoded)
+    const originalDecoded = z.parse(Quotes.Signed, validSignedData)
+    const encoded = z.encode(Quotes.Signed, originalDecoded)
+    const reDecoded = z.parse(Quotes.Signed, encoded)
 
     expect(reDecoded).toEqual(originalDecoded)
   })
@@ -544,7 +668,7 @@ describe('Signed', () => {
       ...validSignedData,
       v: undefined,
     }
-    const result = Schema.decodeUnknownSync(Quotes.Signed)(dataWithUndefinedV)
+    const result = z.parse(Quotes.Signed, dataWithUndefinedV)
     expect(result.v).toBeUndefined()
     expect(result.yParity).toBe('0x0')
   })
@@ -554,9 +678,7 @@ describe('Signed', () => {
       ...validSignedData,
       yParity: undefined,
     }
-    const result = Schema.decodeUnknownSync(Quotes.Signed)(
-      dataWithUndefinedYParity,
-    )
+    const result = z.parse(Quotes.Signed, dataWithUndefinedYParity)
     expect(result.yParity).toBeUndefined()
     expect(result.v).toBe('0x1b')
   })
@@ -567,9 +689,7 @@ describe('Signed', () => {
       v: undefined,
       yParity: undefined,
     }
-    const result = Schema.decodeUnknownSync(Quotes.Signed)(
-      dataWithBothUndefined,
-    )
+    const result = z.parse(Quotes.Signed, dataWithBothUndefined)
     expect(result.v).toBeUndefined()
     expect(result.yParity).toBeUndefined()
   })
@@ -596,14 +716,14 @@ describe('Signed', () => {
   ])(
     'behavior: decodes signed quotes with v=$expectedV yParity=$expectedYParity',
     ({ data, expectedV, expectedYParity }) => {
-      const result = Schema.decodeUnknownSync(Quotes.Signed)(data)
+      const result = z.parse(Quotes.Signed, data)
       expect(result.v).toBe(expectedV)
       expect(result.yParity).toBe(expectedYParity)
     },
   )
 
   test('behavior: inherits all base Quotes fields', () => {
-    const result = Schema.decodeUnknownSync(Quotes.Signed)(validSignedData)
+    const result = z.parse(Quotes.Signed, validSignedData)
 
     // Verify all Quotes fields are present
     expect(result.quotes).toHaveLength(1)
@@ -620,114 +740,151 @@ describe('Signed', () => {
 
   test('error: rejects invalid hash format', () => {
     expect(() =>
-      Schema.decodeUnknownSync(Quotes.Signed)({
+      z.parse(Quotes.Signed, {
         ...validSignedData,
         hash: 'invalid-hash',
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-hash"
-      Path: hash
-
-      Details: { readonly multiChainRoot?: \`0x\${string}\` | null | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
-      └─ ["hash"]
-         └─ Expected \`0x\${string}\`, actual "invalid-hash"]
+      [$ZodError: [
+        {
+          "code": "invalid_format",
+          "format": "template_literal",
+          "pattern": "^0x[\\\\s\\\\S]{0,}$",
+          "path": [
+            "hash"
+          ],
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
+        }
+      ]]
     `)
   })
 
   test('error: rejects invalid r signature component', () => {
     expect(() =>
-      Schema.decodeUnknownSync(Quotes.Signed)({
+      z.parse(Quotes.Signed, {
         ...validSignedData,
         r: 'invalid-r',
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-r"
-      Path: r
-
-      Details: { readonly multiChainRoot?: \`0x\${string}\` | null | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
-      └─ ["r"]
-         └─ Expected \`0x\${string}\`, actual "invalid-r"]
+      [$ZodError: [
+        {
+          "code": "invalid_format",
+          "format": "template_literal",
+          "pattern": "^0x[\\\\s\\\\S]{0,}$",
+          "path": [
+            "r"
+          ],
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
+        }
+      ]]
     `)
   })
 
   test('error: rejects invalid s signature component', () => {
     expect(() =>
-      Schema.decodeUnknownSync(Quotes.Signed)({
+      z.parse(Quotes.Signed, {
         ...validSignedData,
         s: 'invalid-s',
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-s"
-      Path: s
-
-      Details: { readonly multiChainRoot?: \`0x\${string}\` | null | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
-      └─ ["s"]
-         └─ Expected \`0x\${string}\`, actual "invalid-s"]
+      [$ZodError: [
+        {
+          "code": "invalid_format",
+          "format": "template_literal",
+          "pattern": "^0x[\\\\s\\\\S]{0,}$",
+          "path": [
+            "s"
+          ],
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
+        }
+      ]]
     `)
   })
 
   test('error: rejects invalid v signature component', () => {
     expect(() =>
-      Schema.decodeUnknownSync(Quotes.Signed)({
+      z.parse(Quotes.Signed, {
         ...validSignedData,
         v: 'invalid-v',
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-v"
-      Path: v
-
-      Details: { readonly multiChainRoot?: \`0x\${string}\` | null | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
-      └─ ["v"]
-         └─ \`0x\${string}\` | undefined
-            ├─ Expected \`0x\${string}\`, actual "invalid-v"
-            └─ Expected undefined, actual "invalid-v"]
+      [$ZodError: [
+        {
+          "code": "invalid_format",
+          "format": "template_literal",
+          "pattern": "^0x[\\\\s\\\\S]{0,}$",
+          "path": [
+            "v"
+          ],
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
+        }
+      ]]
     `)
   })
 
   test('error: rejects invalid yParity signature component', () => {
     expect(() =>
-      Schema.decodeUnknownSync(Quotes.Signed)({
+      z.parse(Quotes.Signed, {
         ...validSignedData,
         yParity: 'invalid-yParity',
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-yParity"
-      Path: yParity
-
-      Details: { readonly multiChainRoot?: \`0x\${string}\` | null | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
-      └─ ["yParity"]
-         └─ \`0x\${string}\` | undefined
-            ├─ Expected \`0x\${string}\`, actual "invalid-yParity"
-            └─ Expected undefined, actual "invalid-yParity"]
+      [$ZodError: [
+        {
+          "code": "invalid_format",
+          "format": "template_literal",
+          "pattern": "^0x[\\\\s\\\\S]{0,}$",
+          "path": [
+            "yParity"
+          ],
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
+        }
+      ]]
     `)
   })
 
   test('error: rejects missing required signature fields', () => {
     expect(() =>
-      Schema.decodeUnknownSync(Quotes.Signed)({
+      z.parse(Quotes.Signed, {
         ...validSignedData,
         hash: undefined,
         r: undefined,
         s: undefined,
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual undefined
-      Path: hash
-
-      Details: { readonly multiChainRoot?: \`0x\${string}\` | null | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
-      └─ ["hash"]
-         └─ Expected \`0x\${string}\`, actual undefined]
+      [$ZodError: [
+        {
+          "expected": "template_literal",
+          "code": "invalid_type",
+          "path": [
+            "hash"
+          ],
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
+        },
+        {
+          "expected": "template_literal",
+          "code": "invalid_type",
+          "path": [
+            "r"
+          ],
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
+        },
+        {
+          "expected": "template_literal",
+          "code": "invalid_type",
+          "path": [
+            "s"
+          ],
+          "message": "Needs string in format ^0x[A-Fa-f0-9]+$."
+        }
+      ]]
     `)
   })
 
   test('misc: signed quotes contains all quotes fields plus signature fields', () => {
-    const signedDecoded = Schema.decodeUnknownSync(Quotes.Signed)(
-      validSignedData,
-    )
+    const signedDecoded = z.parse(Quotes.Signed, validSignedData)
     const { hash, r, s, v, yParity, ...quotesOnlyData } = validSignedData
-    const quotesDecoded = Schema.decodeUnknownSync(Quotes.Quotes)(
-      quotesOnlyData,
-    )
+    const quotesDecoded = z.parse(Quotes.Quotes, quotesOnlyData)
 
     // Verify all Quotes fields match
     expect(signedDecoded.quotes).toEqual(quotesDecoded.quotes)

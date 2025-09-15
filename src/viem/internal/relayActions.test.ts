@@ -870,18 +870,13 @@ describe('prepareCalls + sendPreparedCalls', () => {
           type: 'webauthnp256',
         },
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "cheese"
-      Path: key.publicKey
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
 
-      Details: wallet_prepareCalls.Parameters
-      └─ ["key"]
-         └─ { readonly prehash: boolean; readonly publicKey: \`0x\${string}\`; readonly type: "p256" | "secp256k1" | "webauthnp256" } | undefined
-            ├─ { readonly prehash: boolean; readonly publicKey: \`0x\${string}\`; readonly type: "p256" | "secp256k1" | "webauthnp256" }
-            │  └─ ["publicKey"]
-            │     └─ Expected \`0x\${string}\`, actual "cheese"
-            └─ Expected undefined, actual {"prehash":false,"publicKey":"cheese","type":"webauthnp256"}]
-    `)
+      - at \`key.publicKey\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+    `,
+    )
   })
 
   test('error: schema encoding', async () => {
@@ -910,21 +905,16 @@ describe('prepareCalls + sendPreparedCalls', () => {
           type: 'falcon',
         },
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected "p256", actual "falcon"
-      Path: key.type
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
 
-      Details: wallet_prepareCalls.Parameters
-      └─ ["key"]
-         └─ { readonly prehash: boolean; readonly publicKey: \`0x\${string}\`; readonly type: "p256" | "secp256k1" | "webauthnp256" } | undefined
-            ├─ { readonly prehash: boolean; readonly publicKey: \`0x\${string}\`; readonly type: "p256" | "secp256k1" | "webauthnp256" }
-            │  └─ ["type"]
-            │     └─ "p256" | "secp256k1" | "webauthnp256"
-            │        ├─ Expected "p256", actual "falcon"
-            │        ├─ Expected "secp256k1", actual "falcon"
-            │        └─ Expected "webauthnp256", actual "falcon"
-            └─ Expected undefined, actual {"prehash":false,"publicKey":"0x0000000000000000000000000000000000000000000000000000000000000000","type":"falcon"}]
-    `)
+      - at \`key.type\`: Invalid union value.
+        - Expected "p256"
+        - Expected "secp256k1"
+        - Expected "webauthnp256"]
+    `,
+    )
   })
 })
 
@@ -1199,20 +1189,13 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
         ],
         delegation: contracts.accountProxy.address,
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "INVALID!"
-      Path: capabilities.authorizeKeys.0.publicKey
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
 
-      Details: Rpc.wallet_prepareUpgradeAccount.Parameters
-      └─ ["capabilities"]
-         └─ Rpc.wallet_prepareUpgradeAccount.Capabilities
-            └─ ["authorizeKeys"]
-               └─ ReadonlyArray<{ readonly expiry: (\`0x\${string}\` <-> number); readonly prehash?: boolean | undefined; readonly publicKey: \`0x\${string}\`; readonly role: "admin" | "normal"; readonly type: "p256" | "secp256k1" | "webauthnp256"; readonly permissions: ReadonlyArray<{ readonly selector: \`0x\${string}\`; readonly to: \`0x\${string}\`; readonly type: "call" } | { readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | null | undefined; readonly type: "spend" }> }>
-                  └─ [0]
-                     └─ { readonly expiry: (\`0x\${string}\` <-> number); readonly prehash?: boolean | undefined; readonly publicKey: \`0x\${string}\`; readonly role: "admin" | "normal"; readonly type: "p256" | "secp256k1" | "webauthnp256"; readonly permissions: ReadonlyArray<{ readonly selector: \`0x\${string}\`; readonly to: \`0x\${string}\`; readonly type: "call" } | { readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | null | undefined; readonly type: "spend" }> }
-                        └─ ["publicKey"]
-                           └─ Expected \`0x\${string}\`, actual "INVALID!"]
-    `)
+      - at \`capabilities.authorizeKeys[0].publicKey\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+    `,
+    )
 
     await expect(() =>
       prepareUpgradeAccount(client, {
@@ -1230,20 +1213,13 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
         ],
         delegation: contracts.accountProxy.address,
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "INVALID!"
-      Path: capabilities.authorizeKeys.0.publicKey
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
 
-      Details: Rpc.wallet_prepareUpgradeAccount.Parameters
-      └─ ["capabilities"]
-         └─ Rpc.wallet_prepareUpgradeAccount.Capabilities
-            └─ ["authorizeKeys"]
-               └─ ReadonlyArray<{ readonly expiry: (\`0x\${string}\` <-> number); readonly prehash?: boolean | undefined; readonly publicKey: \`0x\${string}\`; readonly role: "admin" | "normal"; readonly type: "p256" | "secp256k1" | "webauthnp256"; readonly permissions: ReadonlyArray<{ readonly selector: \`0x\${string}\`; readonly to: \`0x\${string}\`; readonly type: "call" } | { readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | null | undefined; readonly type: "spend" }> }>
-                  └─ [0]
-                     └─ { readonly expiry: (\`0x\${string}\` <-> number); readonly prehash?: boolean | undefined; readonly publicKey: \`0x\${string}\`; readonly role: "admin" | "normal"; readonly type: "p256" | "secp256k1" | "webauthnp256"; readonly permissions: ReadonlyArray<{ readonly selector: \`0x\${string}\`; readonly to: \`0x\${string}\`; readonly type: "call" } | { readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | null | undefined; readonly type: "spend" }> }
-                        └─ ["publicKey"]
-                           └─ Expected \`0x\${string}\`, actual "INVALID!"]
-    `)
+      - at \`capabilities.authorizeKeys[0].publicKey\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+    `,
+    )
   })
 })
 

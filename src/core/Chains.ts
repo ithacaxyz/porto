@@ -10,10 +10,7 @@ export const all = [
   ...Object.values(chains).filter((c) => c.id !== chains.base.id),
 ] as const satisfies [Chain, ...Chain[]]
 
-export const anvil = /*#__PURE__*/ defineChain({
-  ...viem_anvil,
-  testnet: true,
-})
+export const anvil = viem_anvil
 
 /** Additional Anvil environment, purposed for interop. */
 export const anvil2 = /*#__PURE__*/ defineChain({

@@ -99,11 +99,13 @@ export async function getContracts<
     ...contracts,
     exp1: {
       abi: Contracts.exp1Abi,
-      address: Contracts.exp1Address[chain.id],
+      address:
+        Contracts.exp1Address[chain.id as keyof typeof Contracts.exp1Address],
     },
     exp2: {
       abi: Contracts.exp2Abi,
-      address: Contracts.exp2Address[chain.id],
+      address:
+        Contracts.exp2Address[chain.id as keyof typeof Contracts.exp2Address],
     },
   } as const
 }

@@ -13,29 +13,29 @@ const porto = TestConfig.getPorto()
 const client = TestConfig.getRelayClient(porto)
 const contracts = await TestConfig.getContracts(porto)
 
-let server: Http.Server | undefined
-async function setup(options: ExactPartial<Route.merchant.Options> = {}) {
-  const merchantKey = Key.createSecp256k1()
-  const merchantAccount = await TestActions.createAccount(client, {
-    deploy: true,
-    keys: [merchantKey],
-  })
-
-  const route = Route.merchant({
-    ...porto.config,
-    ...options,
-    address: merchantAccount.address,
-    key: merchantKey.privateKey!(),
-  })
-
-  if (server) await server.closeAsync()
-  server = await Http.createServer(route.listener)
-
-  return { merchantAccount, route, server }
-}
-
 describe('merchant', () => {
-  test('behavior: simple', async () => {
+  let server: Http.Server | undefined
+  async function setup(options: ExactPartial<Route.merchant.Options> = {}) {
+    const merchantKey = Key.createSecp256k1()
+    const merchantAccount = await TestActions.createAccount(client, {
+      deploy: true,
+      keys: [merchantKey],
+    })
+
+    const route = Route.merchant({
+      ...porto.config,
+      ...options,
+      address: merchantAccount.address,
+      key: merchantKey.privateKey!(),
+    })
+
+    if (server) await server.closeAsync()
+    server = await Http.createServer(route.listener)
+
+    return { merchantAccount, route, server }
+  }
+
+  test('behavior: simple sponsor', async () => {
     const { server, merchantAccount } = await setup()
 
     const userKey = Key.createHeadlessWebAuthnP256()
@@ -199,7 +199,7 @@ describe('merchant', () => {
   })
 
   // TODO: unskip when merchant account works with interop
-  test.skip('behavior: required funds', async () => {
+  test.skip('behavior: sponsor w/ required funds', async () => {
     const { server, merchantAccount } = await setup()
 
     const chain_dest = TestConfig.chains[1]
@@ -335,15 +335,9 @@ describe('merchant', () => {
       {
         "error": {
           "code": -32602,
-          "message": "Expected wallet_prepareCalls.Parameters, actual "foo"
-      Path: params.0
+          "message": "Validation failed with 1 error:
 
-      Details: Request.Request
-      └─ { readonly method: "wallet_prepareCalls"; readonly params: readonly [wallet_prepareCalls.Parameters]; readonly _returnType: unknown; readonly id: number; readonly jsonrpc: "2.0" }
-         └─ ["params"]
-            └─ readonly [wallet_prepareCalls.Parameters]
-               └─ [0]
-                  └─ Expected wallet_prepareCalls.Parameters, actual "foo"",
+      - at \`params[0]\`: Expected object. ",
         },
         "id": 1,
         "jsonrpc": "2.0",

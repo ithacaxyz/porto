@@ -1,12 +1,15 @@
-import * as Schema from 'effect/Schema'
+import * as z from 'zod/mini'
+import * as u from '../core/internal/schema/utils.js'
 
-export const ThemeColorScheme = Schema.Union(
-  Schema.Literal('light'),
-  Schema.Literal('dark'),
-  Schema.Literal('light dark'),
-)
-export type ThemeColorScheme = Schema.Schema.Type<typeof ThemeColorScheme>
-export const isThemeColorScheme = Schema.is(ThemeColorScheme)
+export const ThemeColorScheme = z.union([
+  z.literal('light'),
+  z.literal('dark'),
+  z.literal('light dark'),
+])
+export type ThemeColorScheme = z.infer<typeof ThemeColorScheme>
+
+export const isThemeColorScheme = (value: unknown) =>
+  u.is(ThemeColorScheme, value)
 
 /**
  * Porto theme definition.
@@ -113,14 +116,14 @@ export type ThemeFragment =
   | PartialTheme<Theme<'dark'>>
   | PartialTheme<Theme<'light dark'>>
 
-export const Color = Schema.Union(
-  Schema.Literal('transparent'),
-  Schema.String.pipe(
-    Schema.pattern(/^#([0-9A-Fa-f]{8}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/),
-  ),
-)
+export const Color = z.union([
+  z.literal('transparent'),
+  z
+    .string()
+    .check(z.regex(/^#([0-9A-Fa-f]{8}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/)),
+])
 
-export const LightDarkColor = Schema.Tuple(Color, Color)
+export const LightDarkColor = z.readonly(z.tuple([Color, Color]))
 
 /**
  * A color to be used in themes.
@@ -130,8 +133,8 @@ export const LightDarkColor = Schema.Tuple(Color, Color)
  * - Hex color + alpha with 8 digits (RRGGBBAA).
  * - The string "transparent".
  */
-export type Color = Schema.Schema.Type<typeof Color>
-export const isColor = Schema.is(Color)
+export type Color = z.infer<typeof Color>
+export const isColor = (value: unknown) => u.is(Color, value)
 
 /**
  * A light + dark color pair to be used in themes.
@@ -140,5 +143,5 @@ export const isColor = Schema.is(Color)
  *   - `light` is the color used in light mode.
  *   - `dark` is the color used in dark mode.
  */
-export type LightDarkColor = Schema.Schema.Type<typeof LightDarkColor>
-export const isLightDarkColor = Schema.is(LightDarkColor)
+export type LightDarkColor = z.infer<typeof LightDarkColor>
+export const isLightDarkColor = (value: unknown) => u.is(LightDarkColor, value)

@@ -4,7 +4,7 @@ export function getChains(env: string) {
   if (env === 'anvil')
     return [Chains.anvil, Chains.anvil2, Chains.anvil3] as const
   if (env === 'prod' || env === 'stg')
-    return [Chains.baseSepolia, Chains.optimismSepolia] as const
+    return [Chains.baseSepolia, Chains.optimismSepolia, Chains.base] as const
   throw new Error(`env ${env} not supported`)
 }
 

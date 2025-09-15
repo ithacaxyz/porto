@@ -1,20 +1,18 @@
-import * as effect_Schema from 'effect/Schema'
 import { type Env, type ExecutionContext, Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { poweredBy } from 'hono/powered-by'
-import type { BlankEnv, BlankSchema, Schema } from 'hono/types'
+import type { BlankEnv, BlankSchema, Schema as hono_Schema } from 'hono/types'
 import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import * as RpcResponse from 'ox/RpcResponse'
 import * as TypedData from 'ox/TypedData'
 import { createClient, rpcSchema } from 'viem'
+import * as z from 'zod/mini'
 import type * as RpcSchema_relay from '../core/internal/relay/rpcSchema.js'
-import * as Request from '../core/internal/relay/schema/request.js'
-import * as Rpc from '../core/internal/relay/schema/rpc.js'
 import type { MaybePromise, OneOf } from '../core/internal/types.js'
 import * as Porto from '../core/Porto.js'
-import type * as RpcSchema from '../core/RpcSchema.js'
 import * as Key from '../viem/Key.js'
+import * as MerchantSchema from './internal/merchantSchema.js'
 import * as RequestListener from './internal/requestListener.js'
 
 /**
@@ -25,7 +23,7 @@ import * as RequestListener from './internal/requestListener.js'
  */
 export function from<
   env extends Env = BlankEnv,
-  schema extends Schema = BlankSchema,
+  schema extends hono_Schema = BlankSchema,
   basePath extends string = '/',
 >(options: from.Options<basePath> = {}) {
   return new from.Inner<env, schema, basePath>(options)
@@ -37,7 +35,7 @@ export namespace from {
 
   export class Inner<
     env extends Env = BlankEnv,
-    schema extends Schema = BlankSchema,
+    schema extends hono_Schema = BlankSchema,
     basePath extends string = '/',
   > {
     hono: Hono<env, schema, basePath>
@@ -137,9 +135,9 @@ export function merchant(options: merchant.Options) {
   router.hono.get('/', (c) => c.text('ok'))
 
   router.hono.post('/', async (c) => {
-    let request: Request.Request = await c.req.json()
+    let request: MerchantSchema.JsonRpcRequest = await c.req.json()
     try {
-      request = Request.validate(request)
+      request = MerchantSchema.validate(MerchantSchema.JsonRpcRequest, request)
     } catch (e) {
       const error = e as RpcResponse.ErrorObject
       return c.json(
@@ -184,9 +182,10 @@ export function merchant(options: merchant.Options) {
               },
             ],
           })
-          const { typedData } = effect_Schema.decodeSync(
-            Rpc.wallet_prepareCalls.Response,
-          )(result)
+          const { typedData } = z.decode(
+            MerchantSchema.wallet_prepareCalls.Response,
+            result,
+          )
 
           const signature = sponsor
             ? await Key.sign(key, {
@@ -223,6 +222,7 @@ export function merchant(options: merchant.Options) {
           return c.json(RpcResponse.from({ error }, { request }))
         }
       }
+
       default: {
         const error = new RpcResponse.MethodNotSupportedError()
         return c.json(RpcResponse.from({ error }, { request }))
@@ -249,7 +249,7 @@ export declare namespace merchant {
     sponsor?:
       | boolean
       | ((
-          request: RpcSchema.wallet_prepareCalls.Parameters,
+          request: MerchantSchema.wallet_prepareCalls.Parameters,
         ) => MaybePromise<boolean>)
       | undefined
     /** Relay transport override. */

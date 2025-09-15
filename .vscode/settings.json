@@ -32,8 +32,6 @@
     "strings": "on"
   },
   "files.associations": {
-    ".dev.vars": "dotenv",
-    ".dev.vars.example": "dotenv",
     ".env.example": "dotenv",
     ".vscode/*.json": "jsonc",
     "*.css": "tailwindcss",
@@ -68,7 +66,6 @@
     "plaintext": "html"
   },
   "typescript.enablePromptUseWorkspaceTsdk": true,
-  "typescript.experimental.useTsgo": false,
   "typescript.preferences.autoImportFileExcludePatterns": ["**/index.js"],
   "typescript.tsdk": "node_modules/typescript/lib"
 }

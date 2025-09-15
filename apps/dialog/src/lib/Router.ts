@@ -23,7 +23,7 @@ export function parseSearchRequest<
     if ('_decoded' in search && search._decoded) return search as never
     if (search._decoded) return search as never
 
-    const request = RpcRequest.validate(search)
+    const request = RpcRequest.validate(RpcRequest.Request, search)
     if (request.method === method)
       return {
         ...request,

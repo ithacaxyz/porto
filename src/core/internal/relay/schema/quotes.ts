@@ -4,48 +4,46 @@
  * @see https://github.com/ithacaxyz/relay/blob/main/src/types/quote.rs
  */
 
-import * as Schema from 'effect/Schema'
-import * as Primitive from '../../schema/primitive.js'
+import { z } from 'zod/mini'
+import * as u from '../../schema/utils.js'
 import * as Intent from './intent.js'
 
 /** A quote from the RPC for a given `Intent`. */
-export const Quote = Schema.Struct({
+export const Quote = z.object({
   /**
    * An optional unsigned authorization item.
    * The account in `eoa` will be delegated to this address.
    */
-  authorizationAddress: Schema.optional(
-    Schema.Union(Primitive.Address, Schema.Null),
-  ),
+  authorizationAddress: z.optional(z.union([u.address(), z.null()])),
   /** Chain ID the quote is for. */
-  chainId: Primitive.Number,
+  chainId: u.number(),
   /** The price (in wei) of ETH in the payment token. */
-  ethPrice: Primitive.BigInt,
+  ethPrice: u.bigint(),
   /** Extra payment for e.g L1 DA fee that is paid on top of the execution gas. */
-  extraPayment: Primitive.BigInt,
+  extraPayment: u.bigint(),
   /** The deficit of the fee token. */
-  feeTokenDeficit: Primitive.BigInt,
+  feeTokenDeficit: u.bigint(),
   /** The fee estimate for the bundle in the destination chains native token. */
   intent: Intent.Intent,
   /** The `Intent` the quote is for. */
-  nativeFeeEstimate: Schema.Struct({
+  nativeFeeEstimate: z.object({
     /** The maximum fee per gas for the bundle. */
-    maxFeePerGas: Primitive.BigInt,
+    maxFeePerGas: u.bigint(),
     /** The maximum priority fee per gas for the bundle. */
-    maxPriorityFeePerGas: Primitive.BigInt,
+    maxPriorityFeePerGas: u.bigint(),
   }),
   /** The orchestrator for the quote. */
-  orchestrator: Primitive.Address,
+  orchestrator: u.address(),
   /** The decimals of the payment token. */
-  paymentTokenDecimals: Schema.Number,
+  paymentTokenDecimals: z.number(),
   /** The recommended gas limit for the bundle. */
-  txGas: Primitive.BigInt,
+  txGas: u.bigint(),
 })
-export type Quote = typeof Quote.Type
+export type Quote = z.infer<typeof Quote>
 
-export const Quotes = Schema.Struct({
+export const Quotes = z.object({
   /** Merkle root if it's a multichain workflow. */
-  multiChainRoot: Schema.optional(Schema.Union(Primitive.Hex, Schema.Null)),
+  multiChainRoot: z.optional(z.union([u.hex(), z.null()])),
   /**
    * A quote for each intent.
    *
@@ -53,19 +51,17 @@ export const Quotes = Schema.Struct({
    * - For a multi-chain workflow, this will have multiple items, where the last one is the output
    *   intent.
    */
-  quotes: Schema.Array(Quote).pipe(Schema.minItems(1)),
+  quotes: z.readonly(z.array(Quote)).check(z.minLength(1)),
   /** The time-to-live (UNIX timestamp) of the quotes. */
-  ttl: Schema.Number,
+  ttl: z.number(),
 })
 
-export const Signed = Schema.extend(
-  Quotes,
-  Schema.Struct({
-    hash: Primitive.Hex,
-    r: Primitive.Hex,
-    s: Primitive.Hex,
-    v: Schema.optional(Primitive.Hex),
-    yParity: Schema.optional(Primitive.Hex),
-  }),
-)
-export type Signed = typeof Signed.Type
+export const Signed = z.object({
+  ...Quotes.shape,
+  hash: u.hex(),
+  r: u.hex(),
+  s: u.hex(),
+  v: z.optional(u.hex()),
+  yParity: z.optional(u.hex()),
+})
+export type Signed = z.infer<typeof Signed>

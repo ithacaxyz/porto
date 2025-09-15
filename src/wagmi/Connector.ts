@@ -13,8 +13,8 @@ import {
   UserRejectedRequestError,
   withRetry,
 } from 'viem'
+import * as z from 'zod/mini'
 import type * as Chains from '../core/Chains.js'
-import * as Schema from '../core/internal/schema/schema.js'
 import type { ExactPartial } from '../core/internal/types.js'
 import type * as Porto from '../core/Porto.js'
 import * as RpcSchema from '../core/RpcSchema.js'
@@ -83,9 +83,10 @@ export function porto<
               if (!('capabilities' in rest)) return undefined
               return [
                 {
-                  capabilities: Schema.encodeSync(
+                  capabilities: z.encode(
                     RpcSchema.wallet_connect.Capabilities,
-                  )(rest.capabilities ?? {}),
+                    rest.capabilities ?? {},
+                  ),
                   chainIds: [
                     numberToHex(chainId),
                     ...chains

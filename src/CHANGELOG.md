@@ -1,5 +1,23 @@
 # porto
 
+## 0.2.5
+
+### Patch Changes
+
+- [#853](https://github.com/ithacaxyz/porto/pull/853) [`7ab683a`](https://github.com/ithacaxyz/porto/commit/7ab683ab956a621fe1d62a4e20493f4a16a80c7e) Thanks [@jxom](https://github.com/jxom)! - Made `key` optional on `prepareCalls`, `sendCalls`, and `signCalls` actions.
+
+## 0.2.4
+
+### Patch Changes
+
+- [#843](https://github.com/ithacaxyz/porto/pull/843) [`6b04676`](https://github.com/ithacaxyz/porto/commit/6b046766a062beb966c4fd5407ceb18573cc7c62) Thanks [@jxom](https://github.com/jxom)! - Migrated to `zod/mini`. Cut bundle size by 30%.
+
+## 0.2.3
+
+### Patch Changes
+
+- [#848](https://github.com/ithacaxyz/porto/pull/848) [`8ecff2a`](https://github.com/ithacaxyz/porto/commit/8ecff2ab72eada9aa7cdbd5d6ff6c0c58caccafc) Thanks [@jxom](https://github.com/jxom)! - Deferred pre-call management to the Relay instead of the SDK.
+
 ## 0.2.2
 
 ### Patch Changes

@@ -1,6 +1,7 @@
 import * as AbiItem from 'ox/AbiItem'
 import type * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
+import type * as z from 'zod/mini'
 
 import type * as Account from '../../viem/Account.js'
 import type * as Key from '../../viem/Key.js'
@@ -10,7 +11,6 @@ import type * as RpcSchema from '../RpcSchema.js'
 import * as Call from './call.js'
 import type * as PermissionsRequest from './permissionsRequest.js'
 import type * as Porto from './porto.js'
-import type * as PreCalls from './preCalls.js'
 import type * as Capabilities from './schema/capabilities.js'
 import type * as RpcRequest from './schema/request.js'
 import type * as Token from './schema/token.js'
@@ -103,7 +103,7 @@ export type Mode = {
       id: Hex.Hex
       /** Internal properties. */
       internal: ActionsInternal
-    }) => Promise<typeof RpcSchema.wallet_getCallsStatus.Response.Encoded>
+    }) => Promise<z.input<typeof RpcSchema.wallet_getCallsStatus.Response>>
 
     getCapabilities: (parameters: {
       /** Chain IDs to get the capabilities for. */
@@ -112,7 +112,7 @@ export type Mode = {
       internal: Omit<ActionsInternal, 'client'> & {
         getClient: (chainId: Hex.Hex | number) => RelayClient
       }
-    }) => Promise<typeof RpcSchema.wallet_getCapabilities.Response.Encoded>
+    }) => Promise<z.input<typeof RpcSchema.wallet_getCapabilities.Response>>
 
     getKeys: (parameters: {
       /** Account to get the keys for. */
@@ -147,8 +147,6 @@ export type Mode = {
     }) => Promise<{
       /** Key the permissions are granted to. */
       key: Key.Key
-      /** Pre-calls to be executed. */
-      preCalls?: PreCalls.PreCalls | undefined
     }>
 
     loadAccounts: (parameters: {
@@ -179,8 +177,6 @@ export type Mode = {
             }
           | undefined
       })[]
-      /** Pre-calls to be executed (e.g. key authorization). */
-      preCalls?: PreCalls.PreCalls | undefined
     }>
 
     prepareCalls: (parameters: {
@@ -196,8 +192,6 @@ export type Mode = {
       internal: ActionsInternal
       /** Merchant RPC URL. */
       merchantUrl?: string | undefined
-      /** Pre-calls to be executed. */
-      preCalls?: PreCalls.PreCalls | undefined
       /** Required funds to execute the calls. */
       requiredFunds?:
         | RpcSchema.wallet_prepareCalls.Capabilities['requiredFunds']
@@ -281,8 +275,6 @@ export type Mode = {
         | undefined
       /** Permissions ID to use to execute the calls. */
       permissionsId?: Hex.Hex | null | undefined
-      /** Pre-calls to be executed. */
-      preCalls?: PreCalls.PreCalls | undefined
       /** Merchant RPC URL. */
       merchantUrl?: string | undefined
     }) => Promise<{ id: Hex.Hex }>
