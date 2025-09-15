@@ -161,6 +161,10 @@ const permissions = await provider.request({
   method: 'wallet_grantPermissions',
   params: [{
     expiry: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 1 week
+    feeToken: {
+      limit: '1',
+      symbol: 'USDC',
+    },
     permissions: {
       calls: [{ 
         signature: 'transfer(address,uint256)',
@@ -229,6 +233,10 @@ const permissions = await provider.request({
   method: 'wallet_grantPermissions',
   params: [{
     expiry: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 1 week
+    feeToken: {
+      limit: '1',
+      symbol: 'USDC',
+    },
     key: { // [!code focus]
       publicKey: account.address, // [!code focus]
       type: 'secp256k1', // [!code focus]
@@ -257,6 +265,10 @@ const permissions = await provider.request({
       method: 'wallet_grantPermissions',
       params: [{
         expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
+        feeToken: {
+          limit: '1',
+          symbol: 'USDC',
+        },
         key: {
           publicKey: account.address,
           type: 'secp256k1',
