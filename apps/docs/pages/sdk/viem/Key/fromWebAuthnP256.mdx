@@ -13,7 +13,7 @@ import { Bytes, WebAuthnP256 } from 'ox'
 const credential = await WebAuthnP256.createCredential({
   user: {
     displayName: 'My Key',
-    id: Bytes.fromString('user123'),
+    id: new Uint8Array(Bytes.fromString('user123')),
     name: 'My Key',
   },
 })
@@ -36,7 +36,7 @@ import { parseEther } from 'viem'
 const credential = await WebAuthnP256.createCredential({
   user: {
     displayName: 'Payment Key',
-    id: Bytes.fromString('payment-key'),
+    id: new Uint8Array(Bytes.fromString('payment-key')),
     name: 'Payment Key',
   },
 })
