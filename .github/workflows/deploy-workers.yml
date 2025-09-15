@@ -34,14 +34,18 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
+      - name: Set App Version
+        run: echo "APP_VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
       - name: 🔸 Cloudflare Workers - Deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          APP_VERSION: ${{ github.sha }}
+          APP_VERSION: ${{ env.APP_VERSION }}
         working-directory: apps/service
         run: |
           pnpm dlx wrangler@latest deploy \
             --config='wrangler.json' \
             --keep-vars \
-            --var 'APP_VERSION:${{ github.sha }}'
+            --var 'ENVIRONMENT:production' \
+            --var 'APP_VERSION:$APP_VERSION'
