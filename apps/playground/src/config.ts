@@ -111,7 +111,7 @@ export const permissions = ({ chainId }: { chainId: ChainId }) => {
     return undefined
   }
   return {
-    expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
+    expiry: Math.floor(Date.now() / 1_000) + 60 * 60 * 3, // 3 hours
     feeToken: {
       limit: '1',
       symbol: 'EXP',
