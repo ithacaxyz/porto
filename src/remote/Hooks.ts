@@ -186,9 +186,3 @@ export function useWalletClient<
 >(porto: Pick<Remote.Porto<chains>, '_internal' | 'provider'>) {
   return useMemo(() => WalletClient.fromPorto(porto), [porto])
 }
-
-export namespace useWalletClient {
-  export type Parameters = {
-    chainId?: number | undefined
-  }
-}
