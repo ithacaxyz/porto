@@ -1,6 +1,6 @@
 ```sh
 pnpx gitpick ithacaxyz/porto/tree/main/examples/authentication porto-auth && cd porto-auth
 pnpm i
-cp .dev.vars.example .dev.vars
+cp .env.example .env
 pnpm dev
 ```

@@ -14,7 +14,7 @@ Run the following command to onboard a new Porto Merchant (Sponsor) Account.
 pnpx porto onboard --admin-key --testnet
 ```
 
-Place the address and private key of the merchant account into the `.dev.vars` file.
+Place the address and private key of the merchant account into the `.env` file.
 
 ```sh
 MERCHANT_ADDRESS=0x...

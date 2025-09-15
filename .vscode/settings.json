@@ -32,8 +32,6 @@
     "strings": "on"
   },
   "files.associations": {
-    ".dev.vars": "dotenv",
-    ".dev.vars.example": "dotenv",
     ".env.example": "dotenv",
     ".vscode/*.json": "jsonc",
     "*.css": "tailwindcss",
