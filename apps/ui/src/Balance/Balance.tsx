@@ -48,22 +48,24 @@ export function Balance({
           border: '1px solid var(--border-color-th_field)',
         }),
         groupContext
-          ? css({ borderRadius: 0 })
-          : css({ borderRadius: 'var(--radius-th_medium)' }),
-        groupContext &&
-          (groupContext.isFirst
-            ? css({
-                borderTopLeftRadius: 'var(--radius-th_medium)',
-                borderTopRightRadius: 'var(--radius-th_medium)',
-              })
-            : groupContext.isLast
-              ? css({
-                  borderBottomLeftRadius: 'var(--radius-th_medium)',
-                  borderBottomRightRadius: 'var(--radius-th_medium)',
-                })
-              : css({
-                  borderTop: 0,
-                })),
+          ? css({
+              borderTopWidth: 0,
+              borderRadius: 0,
+            })
+          : css({
+              borderRadius: 'var(--radius-th_medium)',
+            }),
+        groupContext?.isFirst &&
+          css({
+            borderTopWidth: 1,
+            borderTopLeftRadius: 'var(--radius-th_medium)',
+            borderTopRightRadius: 'var(--radius-th_medium)',
+          }),
+        groupContext?.isLast &&
+          css({
+            borderBottomLeftRadius: 'var(--radius-th_medium)',
+            borderBottomRightRadius: 'var(--radius-th_medium)',
+          }),
         className,
       )}
     >
