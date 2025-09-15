@@ -8,8 +8,26 @@ import * as Schema from 'effect/Schema'
 import * as Primitive from '../../schema/primitive.js'
 import * as Intent from './intent.js'
 
+export const AssetDeficit = Schema.Struct({
+  /** Asset address. null represents the native token. */
+  address: Schema.Union(Primitive.Address, Schema.Null),
+  /** Token decimals. */
+  decimals: Schema.optional(Schema.Number),
+  /** Deficit for the asset. */
+  deficit: Primitive.BigInt,
+  /** Token name. */
+  name: Schema.optional(Schema.String),
+  /** Required amount for the asset. */
+  required: Primitive.BigInt,
+  /** Token symbol. */
+  symbol: Schema.optional(Schema.String),
+})
+export type AssetDeficit = typeof AssetDeficit.Type
+
 /** A quote from the RPC for a given `Intent`. */
 export const Quote = Schema.Struct({
+  /** Assets missing for the intent to execute. */
+  assetDeficits: Schema.optional(Schema.Array(AssetDeficit)),
   /**
    * An optional unsigned authorization item.
    * The account in `eoa` will be delegated to this address.
