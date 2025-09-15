@@ -283,7 +283,7 @@ export namespace wallet_getAssets {
         u.oneOf([
           z.object({
             address: u.address(),
-            balance: u.hex(),
+            balance: u.bigint(),
             metadata: z.nullable(
               z.object({
                 decimals: z.number(),
@@ -296,7 +296,7 @@ export namespace wallet_getAssets {
           }),
           z.object({
             address: z.nullable(z.literal('native')),
-            balance: u.hex(),
+            balance: u.bigint(),
             metadata: z.nullable(
               z.object({
                 decimals: z.number(),
