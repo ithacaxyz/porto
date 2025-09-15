@@ -13,12 +13,12 @@ function RouteComponent() {
         <Separator label="Small" size="small" />
         <Separator label="Medium" size="medium" />
       </ComponentScreen.Section>
-      
+
       <ComponentScreen.Section surface="base" title="Positions">
         <Separator label="Start position (default)" />
         <Separator label="Center position" position="center" />
       </ComponentScreen.Section>
-      
+
       <ComponentScreen.Section surface="base" title="Custom Spacing">
         <Separator label="No spacing" spacing={0} />
         <Separator label="4px spacing" spacing={4} />

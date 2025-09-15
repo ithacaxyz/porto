@@ -22,9 +22,9 @@ export function Separator({
           color: 'var(--text-color-th_base-secondary)',
           display: 'flex',
           letterSpacing: -0.5,
+          userSelect: 'none',
           whiteSpace: 'nowrap',
           width: '100%',
-          userSelect: 'none',
         }),
         size === 'small' &&
           css({
