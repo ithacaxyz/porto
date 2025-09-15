@@ -33,7 +33,7 @@ export function useResolve(
       })
       const decoded = {
         ...grantPermissions,
-        feeToken: null,
+        feeToken: undefined,
         permissions,
       }
       const _encoded = z.encode(PermissionsRequest.Schema, decoded)

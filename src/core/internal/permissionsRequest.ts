@@ -13,7 +13,7 @@ export function fromKey(key: Key.Key): PermissionsRequest {
   const { expiry, feeToken, permissions, publicKey, type } = key
   return {
     expiry,
-    feeToken: feeToken ?? null,
+    feeToken: feeToken ?? undefined,
     key: {
       publicKey,
       type,
