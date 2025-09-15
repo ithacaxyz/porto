@@ -1,5 +1,6 @@
 import { a, useTransition } from '@react-spring/web'
 import { Chains } from 'porto'
+import { Children, createContext, useContext } from 'react'
 import LucideRefreshCw from '~icons/lucide/refresh-cw'
 import { css, cx } from '../../styled-system/css'
 import { ButtonArea } from '../ButtonArea/ButtonArea.js'
@@ -18,6 +19,7 @@ export function Balance({
   tokenName,
   warn = false,
 }: Balance.Props) {
+  const groupContext = useContext(Balance.Group.Context)
   const chain = Chains.all.find((c) => c.id === chainId)
   const transition = useTransition(fetching, {
     config: { friction: 70, tension: 1300 },
@@ -37,13 +39,31 @@ export function Balance({
         css({
           alignItems: 'center',
           backgroundColor: 'var(--background-color-th_field)',
-          border: '1px solid var(--border-color-th_field)',
-          borderRadius: 'var(--radius-th_medium)',
           display: 'flex',
           gap: 16,
           height: 54,
           paddingLeft: 12,
         }),
+        css({
+          border: '1px solid var(--border-color-th_field)',
+        }),
+        groupContext
+          ? css({ borderRadius: 0 })
+          : css({ borderRadius: 'var(--radius-th_medium)' }),
+        groupContext &&
+          (groupContext.isFirst
+            ? css({
+                borderTopLeftRadius: 'var(--radius-th_medium)',
+                borderTopRightRadius: 'var(--radius-th_medium)',
+              })
+            : groupContext.isLast
+              ? css({
+                  borderBottomLeftRadius: 'var(--radius-th_medium)',
+                  borderBottomRightRadius: 'var(--radius-th_medium)',
+                })
+              : css({
+                  borderTop: 0,
+                })),
         className,
       )}
     >
@@ -212,5 +232,42 @@ export namespace Balance {
     tokenSymbol: string
     tokenName: string
     warn?: boolean
+  }
+
+  export function Group({ children, className }: Group.Props) {
+    const items = Children.count(children)
+    return (
+      <div
+        className={cx(
+          css({
+            display: 'flex',
+            flexDirection: 'column',
+          }),
+          className,
+        )}
+      >
+        {Children.map(children, (child, index) => (
+          <Balance.Group.Context.Provider
+            value={{
+              isFirst: index === 0,
+              isLast: index === items - 1,
+            }}
+          >
+            {child}
+          </Balance.Group.Context.Provider>
+        ))}
+      </div>
+    )
+  }
+
+  export namespace Group {
+    export interface Props {
+      children: React.ReactNode
+      className?: string
+    }
+    export const Context = createContext<{
+      isFirst: boolean
+      isLast: boolean
+    } | null>(null)
   }
 }
