@@ -5,12 +5,15 @@ import { Frame } from '../Frame/Frame.js'
 export function Separator({
   label,
   className,
+  position = 'start',
   size,
+  spacing,
   ...props
 }: Separator.Props) {
   const frame = Frame.useFrame(true)
   const mode = frame?.mode ?? 'dialog'
   size ??= mode === 'dialog' ? 'small' : 'medium'
+
   return (
     <div
       className={cx(
@@ -21,23 +24,34 @@ export function Separator({
           letterSpacing: -0.5,
           whiteSpace: 'nowrap',
           width: '100%',
+          userSelect: 'none',
         }),
         size === 'small' &&
           css({
             fontSize: 12,
             gap: 8,
-            paddingBlock: 8,
           }),
         size === 'medium' &&
           css({
             fontSize: 14,
             gap: 12,
-            paddingBlock: 16,
           }),
         className,
       )}
+      style={{
+        paddingBlock: spacing ?? (size === 'small' ? 8 : 16),
+      }}
       {...props}
     >
+      {position === 'center' && (
+        <div
+          className={css({
+            backgroundColor: 'var(--color-th_separator)',
+            height: 1,
+            width: '100%',
+          })}
+        />
+      )}
       {label}
       <div
         className={css({
@@ -53,6 +67,8 @@ export function Separator({
 export namespace Separator {
   export interface Props extends HTMLAttributes<HTMLDivElement> {
     label?: string
+    position?: 'start' | 'center'
     size?: 'small' | 'medium'
+    spacing?: number
   }
 }
