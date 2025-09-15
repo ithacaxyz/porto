@@ -49,17 +49,17 @@ export function Balance({
         }),
         groupContext
           ? css({
-              borderTopWidth: 0,
               borderRadius: 0,
+              borderTopWidth: 0,
             })
           : css({
               borderRadius: 'var(--radius-th_medium)',
             }),
         groupContext?.isFirst &&
           css({
-            borderTopWidth: 1,
             borderTopLeftRadius: 'var(--radius-th_medium)',
             borderTopRightRadius: 'var(--radius-th_medium)',
+            borderTopWidth: 1,
           }),
         groupContext?.isLast &&
           css({
