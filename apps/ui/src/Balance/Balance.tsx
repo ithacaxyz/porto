@@ -1,5 +1,6 @@
 import { a, useTransition } from '@react-spring/web'
 import { Chains } from 'porto'
+import LucideRefreshCw from '~icons/lucide/refresh-cw'
 import { css, cx } from '../../styled-system/css'
 import { ButtonArea } from '../ButtonArea/ButtonArea.js'
 import { ChainIcon } from '../ChainIcon/ChainIcon.js'
@@ -20,10 +21,15 @@ export function Balance({
   const chain = Chains.all.find((c) => c.id === chainId)
   const transition = useTransition(fetching, {
     config: { friction: 70, tension: 1300 },
-    enter: { opacity: 1, transform: 'scale(1)' },
-    from: { opacity: 0, transform: `scale(${fetching ? 0.3 : 0.9})` },
-    initial: { opacity: 1, transform: 'scale(1)' },
-    leave: { display: 'none', immediate: true },
+    enter: { opacity: 1, transform: 'scale(1) rotate(0deg)' },
+    from: {
+      opacity: 0,
+      transform: fetching
+        ? 'scale(0.7) rotate(0deg)'
+        : 'scale(0.7) rotate(-45deg)',
+    },
+    initial: { opacity: 1, transform: 'scale(1) rotate(0deg)' },
+    leave: { opacity: 0 },
   })
   return (
     <div
@@ -34,7 +40,7 @@ export function Balance({
           border: '1px solid var(--border-color-th_field)',
           borderRadius: 'var(--radius-th_medium)',
           display: 'flex',
-          gap: 8,
+          gap: 16,
           height: 54,
           paddingLeft: 12,
         }),
@@ -44,9 +50,20 @@ export function Balance({
       <div
         className={css({
           flexShrink: 0,
+          position: 'relative',
         })}
       >
-        <TokenIcon border size={24} symbol={tokenSymbol} />
+        <TokenIcon size={20} symbol={tokenSymbol} />
+        <ChainIcon
+          border
+          chainId={chainId}
+          className={css({
+            left: 12,
+            position: 'absolute',
+            top: 12,
+          })}
+          size={14}
+        />
       </div>
       <div
         className={css({
@@ -54,7 +71,7 @@ export function Balance({
           flex: 1,
           flexDirection: 'column',
           height: '100%',
-          justifyContent: 'space-between',
+          justifyContent: 'center',
           minWidth: 0,
           paddingBlock: 8,
         })}
@@ -82,121 +99,103 @@ export function Balance({
         </div>
         <div
           className={css({
-            alignItems: 'center',
             color: 'var(--text-color-th_base-secondary)',
-            display: 'flex',
-            fontSize: 12,
-            gap: 4,
+            fontSize: 11,
+            fontWeight: 400,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
           })}
         >
-          <div
-            className={css({
-              fontWeight: 400,
-            })}
-          >
-            on
-          </div>
-          <ChainIcon border chainId={chainId} size="small" />
-          <div
-            className={css({
-              fontWeight: 500,
-            })}
-          >
-            {chain?.name || `Chain ${chainId}`}
-          </div>
+          on {chain?.name || `Chain ${chainId}`}
         </div>
       </div>
       <ButtonArea
         className={css({
-          alignItems: 'flex-end',
+          alignItems: 'center',
           borderRadius: 'var(--radius-th_medium)',
           display: 'flex',
-          flexDirection: 'column',
           flexShrink: 0,
+          gap: 8,
           height: '100%',
-          justifyContent: 'space-between',
           marginLeft: 'auto',
-          maxWidth: '50%',
-          minWidth: 0,
-          overflow: 'hidden',
-          paddingBlock: 8,
           paddingInline: 12,
         })}
         disabled={!onRefetch || fetching}
         onClick={onRefetch}
         style={{ outlineOffset: -1 }}
       >
-        {transition((style, isLoading) =>
-          isLoading ? (
-            <a.div
-              className={css({
-                alignItems: 'center',
-                color: 'var(--text-color-th_base-secondary)',
-                display: 'flex',
+        <div
+          className={css({
+            alignItems: 'flex-end',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            minWidth: 0,
+            paddingBlock: 8,
+          })}
+        >
+          <div
+            className={cx(
+              css({
                 fontSize: 14,
-                gap: 6,
-                height: '100%',
-                justifyContent: 'center',
-              })}
-              style={style}
-              title="Fetching balance…"
-            >
-              <Spinner
-                baseColor="var(--text-color-th_field-tertiary)"
-                size={22}
-                thickness={3}
-              />
-            </a.div>
-          ) : (
+                fontWeight: 500,
+                overflow: 'hidden',
+                textAlign: 'right',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }),
+              warn
+                ? css({ color: 'var(--text-color-th_base-warning)' })
+                : css({ color: 'var(--text-color-th_base)' }),
+            )}
+            title={`${amountFiat} (${amount})`}
+          >
+            {amountFiat}
+          </div>
+        </div>
+        <div
+          className={css({
+            alignItems: 'center',
+            backgroundColor: 'var(--background-color-th_base-alt)',
+            borderRadius: '50%',
+            display: 'flex',
+            flexShrink: 0,
+            height: 20,
+            justifyContent: 'center',
+            position: 'relative',
+            width: 20,
+          })}
+        >
+          {transition((style, isLoading) => (
             <a.div
               className={css({
-                alignItems: 'flex-end',
-                display: 'flex',
-                flexDirection: 'column',
-                height: '100%',
-                justifyContent: 'space-between',
-                minWidth: 0,
-                width: '100%',
+                display: 'grid',
+                inset: 0,
+                placeItems: 'center',
+                position: 'absolute',
               })}
               style={style}
+              title={isLoading ? 'Fetching balance…' : undefined}
             >
-              <div
-                className={cx(
-                  css({
-                    fontSize: 14,
-                    fontWeight: 500,
-                    overflow: 'hidden',
-                    textAlign: 'right',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    width: '100%',
-                  }),
-                  warn
-                    ? css({ color: 'var(--text-color-th_base-warning)' })
-                    : css({ color: 'var(--text-color-th_base)' }),
-                )}
-                title={amountFiat}
-              >
-                {amountFiat}
-              </div>
-              <div
-                className={css({
-                  color: 'var(--text-color-th_base-secondary)',
-                  fontFamily: 'monospace',
-                  fontSize: 10,
-                  overflow: 'hidden',
-                  textAlign: 'right',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  width: '100%',
-                })}
-                title={amount}
-              >
-                {amount}
-              </div>
+              {isLoading ? (
+                <Spinner
+                  color="var(--text-color-th_base-secondary)"
+                  size={12}
+                  thickness={1}
+                />
+              ) : (
+                <LucideRefreshCw
+                  className={css({
+                    color: 'var(--text-color-th_base-secondary)',
+                    height: 12,
+                    width: 12,
+                  })}
+                />
+              )}
             </a.div>
-          ),
-        )}
+          ))}
+        </div>
       </ButtonArea>
     </div>
   )
