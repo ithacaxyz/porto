@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "account_id": "ba6ee3674b03f08481e57ff9992c601e",
-  "compatibility_date": "2025-06-17",
+  "compatibility_date": "2025-09-06",
   "compatibility_flags": ["nodejs_compat"],
   "dev": {
     "port": 6969
