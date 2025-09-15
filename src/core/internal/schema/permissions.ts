@@ -20,7 +20,7 @@ export const Request = z.object({
   address: z.optional(u.address()),
   chainId: z.optional(u.number()),
   expiry: z.number().check(z.gte(1)),
-  feeToken: z.optional(Key.FeeToken),
+  feeToken: z.nullable(Key.FeeToken),
   key: z.optional(z.pick(Key.Base, { publicKey: true, type: true })),
   permissions: z.object({
     calls: Key.CallPermissions,
