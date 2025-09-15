@@ -8,8 +8,8 @@ const app = express()
 const porto = Router({ basePath: '/porto' }).route(
   '/merchant',
   Route.merchant({
-    address: process.env.MERCHANT_ADDRESS as `0x${string}`,
-    key: process.env.MERCHANT_PRIVATE_KEY as `0x${string}`,
+    address: process.env.MERCHANT_ADDRESS,
+    key: process.env.MERCHANT_PRIVATE_KEY,
   }),
 )
 

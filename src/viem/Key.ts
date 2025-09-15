@@ -264,7 +264,7 @@ export async function createWebAuthnP256(
       : undefined,
     user: {
       displayName: label,
-      id: userId ?? Bytes.fromString(label),
+      id: new Uint8Array(userId ?? Bytes.fromString(label)),
       name: label,
     },
   })
