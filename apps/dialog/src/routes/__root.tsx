@@ -173,7 +173,9 @@ function RouteComponent() {
         <CheckError>
           <CheckUnsupportedBrowser>
             <CheckReferrer>
-              <Outlet />
+              <EnsureVisibility enabled={enableEnsureVisibility}>
+                <Outlet />
+              </EnsureVisibility>
             </CheckReferrer>
           </CheckUnsupportedBrowser>
         </CheckError>
