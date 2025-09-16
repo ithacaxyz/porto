@@ -54,10 +54,8 @@ export function Frame({
   const screenRef = useRef<HTMLDivElement | null>(null)
 
   const wasVisible = useRef(visible)
-  useEffect(() => {
-    if (wasVisible.current && !visible) onClosed?.()
-    wasVisible.current = visible
-  }, [visible, onClosed])
+
+  if (!visible && wasVisible.current) onClosed?.()
 
   useSize(
     screenRef,
@@ -176,6 +174,7 @@ export function Frame({
               mode.name === 'dialog' &&
                 mode.variant === 'floating' &&
                 css({
+                  top: 16,
                   maxWidth: 360,
                 }),
               mode.name === 'full' &&
@@ -189,11 +188,6 @@ export function Frame({
                 mode.variant !== 'content-height' &&
                 css({
                   height: '100%',
-                }),
-              mode.name === 'dialog' &&
-                mode.variant === 'floating' &&
-                css({
-                  top: 16,
                 }),
             )}
           >
