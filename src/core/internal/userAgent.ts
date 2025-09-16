@@ -11,6 +11,14 @@ export function isSafari() {
   return ua.includes('safari') && !ua.includes('chrome')
 }
 
+export function isFirefox() {
+  const ua = navigator.userAgent.toLowerCase()
+  return (
+    (ua.includes('firefox') || ua.includes('fxios')) &&
+    !ua.includes('seamonkey')
+  )
+}
+
 export function isMobile() {
   if (window.navigator?.userAgentData?.mobile) return true
 
