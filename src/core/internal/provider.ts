@@ -3,8 +3,9 @@ import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
 import * as ox_Provider from 'ox/Provider'
 import * as RpcResponse from 'ox/RpcResponse'
-import { type ValueOf, withCache } from 'viem'
+import { createClient, http, rpcSchema, type ValueOf, withCache } from 'viem'
 import * as z from 'zod/mini'
+import type * as MerchantSchema from '../../server/internal/merchantSchema.js'
 import * as Account from '../../viem/Account.js'
 import * as Actions from '../../viem/internal/relayActions.js'
 import type * as Key from '../../viem/Key.js'
@@ -18,6 +19,7 @@ import * as RpcRequest from './schema/request.js'
 import * as Rpc from './schema/rpc.js'
 import * as Store from './store.js'
 import * as UrlString from './urlString.js'
+import type { Mutable } from './types.js'
 
 export type Provider = ox_Provider.Provider<{
   includeEvents: true
@@ -357,8 +359,8 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [{ address, chainId, ...permissions }] = request._decoded
-            .params ?? [{}]
+          const [{ address, chainId, capabilities, ...permissions }] = request
+            ._decoded.params ?? [{}]
 
           const account = address
             ? state.accounts.find((account) =>
@@ -400,11 +402,34 @@ export function from<
             type: 'permissionsChanged',
           })
 
-          return z.encode(Rpc.wallet_grantPermissions.Response, {
-            ...Permissions.fromKey(key, {
+          const response = z.encode(
+            Rpc.wallet_grantPermissions.Response,
+            Permissions.fromKey(key, {
               address: account.address,
             }),
-          })
+          )
+
+          const { merchantContext, merchantUrl } = capabilities ?? {}
+          if (merchantUrl) {
+            const client = createClient({
+              rpcSchema: rpcSchema<MerchantSchema.Viem>(),
+              transport: http(merchantUrl),
+            })
+            await client.request({
+              method: 'merchant_setupSchedule',
+              params: [
+                [
+                  {
+                    context: merchantContext,
+                    payload: response,
+                    type: 'grantPermissions',
+                  },
+                ],
+              ],
+            })
+          }
+
+          return response
         }
 
         case 'wallet_getAdmins': {
@@ -662,6 +687,30 @@ export function from<
             type: 'permissionsChanged',
           })
 
+          const { merchantContext, merchantUrl } = capabilities ?? {}
+          if (merchantUrl) {
+            const client = createClient({
+              rpcSchema: rpcSchema<MerchantSchema.Viem>(),
+              transport: http(merchantUrl),
+            })
+            await client.request({
+              method: 'merchant_setupSchedule',
+              params: [
+                [
+                  {
+                    context: merchantContext,
+                    payload: {
+                      address,
+                      capabilities,
+                      id,
+                    },
+                    type: 'revokePermissions',
+                  },
+                ],
+              ],
+            })
+          }
+
           return
         }
 
@@ -833,21 +882,58 @@ export function from<
             chainId: Hex.fromNumber(chainIds_response[0]),
           })
 
-          return {
-            accounts: accounts.map((account) => ({
+          const accounts_response: Mutable<
+            z.input<typeof Rpc.wallet_connect.Response>['accounts']
+          > = []
+          const schedules: Mutable<
+            z.input<typeof MerchantSchema.merchant_setupSchedule.Parameters>
+          > = []
+
+          for (const account of accounts) {
+            const activePermissions = account.keys
+              ? getActivePermissions(account.keys, {
+                  address: account.address,
+                })
+              : []
+
+            for (const permission of activePermissions)
+              if (
+                !permissions?.key ||
+                permission.key?.publicKey.toLowerCase() ===
+                  permissions?.key?.publicKey?.toLowerCase()
+              )
+                schedules.push({
+                  context: capabilities?.merchantContext,
+                  payload: permission,
+                  type: 'grantPermissions',
+                })
+
+            accounts_response.push({
               address: account.address,
               capabilities: {
                 admins: account.keys ? getAdmins(account.keys) : [],
-                permissions: account.keys
-                  ? getActivePermissions(account.keys, {
-                      address: account.address,
-                    })
-                  : [],
+                permissions: activePermissions,
                 ...(account.signInWithEthereum && {
                   signInWithEthereum: account.signInWithEthereum,
                 }),
               },
-            })),
+            })
+          }
+
+          const { merchantUrl } = capabilities ?? {}
+          if (merchantUrl && schedules.length > 0) {
+            const client = createClient({
+              rpcSchema: rpcSchema<MerchantSchema.Viem>(),
+              transport: http(merchantUrl),
+            })
+            await client.request({
+              method: 'merchant_setupSchedule',
+              params: [schedules],
+            })
+          }
+
+          return {
+            accounts: accounts_response,
             chainIds: chainIds_response.map((chainId) =>
               Hex.fromNumber(chainId),
             ),

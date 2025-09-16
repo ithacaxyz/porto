@@ -1,6 +1,7 @@
 import type * as RpcSchema_ox from 'ox/RpcSchema'
 import * as z from 'zod/mini'
 import * as Rpc_relay from '../../core/internal/relay/schema/rpc.js'
+import * as C from '../../core/internal/schema/capabilities.js'
 import * as Key from '../../core/internal/schema/key.js'
 import * as Permissions from '../../core/internal/schema/permissions.js'
 import * as RpcRequest from '../../core/internal/schema/request.js'
@@ -23,18 +24,22 @@ export namespace merchant_getKeys {
 }
 
 export namespace merchant_setupSchedule {
-  export const Parameters = z.discriminatedUnion('type', [
-    z.object({
-      context: z.optional(z.unknown()),
-      payload: Permissions.Permissions,
-      type: z.literal('grantPermissions'),
-    }),
-    z.object({
-      context: z.optional(z.unknown()),
-      payload: RpcRequest.wallet_revokePermissions.Parameters,
-      type: z.literal('revokePermissions'),
-    }),
-  ])
+  export const Parameters = z.readonly(
+    z.array(
+      z.discriminatedUnion('type', [
+        z.object({
+          context: z.optional(C.merchantContext.Request),
+          payload: Permissions.Permissions,
+          type: z.literal('grantPermissions'),
+        }),
+        z.object({
+          context: z.optional(C.merchantContext.Request),
+          payload: RpcRequest.wallet_revokePermissions.Parameters,
+          type: z.literal('revokePermissions'),
+        }),
+      ]),
+    ),
+  )
   export type Parameters = z.infer<typeof Parameters>
 
   export const Request = z.object({

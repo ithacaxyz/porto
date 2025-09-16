@@ -202,7 +202,7 @@ export namespace wallet_grantPermissions {
     capabilities: z.optional(
       z.object({
         /** Arbitrary context for this request to be passed to the Merchant Route. */
-        merchantContext: z.optional(z.unknown()),
+        merchantContext: z.optional(C.merchantContext.Request),
         /** Merchant Route URL. */
         merchantUrl: z.optional(C.merchantUrl.Request),
       }),
@@ -290,6 +290,8 @@ export namespace wallet_revokeAdmin {
 export namespace wallet_revokePermissions {
   export const Capabilities = z.object({
     feeToken: z.optional(C.feeToken.Request),
+    merchantContext: z.optional(C.merchantContext.Request),
+    merchantUrl: z.optional(C.merchantUrl.Request),
   })
   export type Capabilities = z.infer<typeof Capabilities>
 
@@ -382,6 +384,8 @@ export namespace wallet_connect {
       z.readonly(z.array(z.pick(Key.Base, { publicKey: true, type: true }))),
     ),
     grantPermissions: z.optional(C.grantPermissions.Request),
+    merchantContext: z.optional(C.merchantContext.Request),
+    merchantUrl: z.optional(C.merchantUrl.Request),
     preCalls: z.optional(C.preCalls.Request),
     selectAccount: z.optional(
       z.union([

@@ -758,6 +758,64 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         }),
       ).rejects.matchSnapshot()
     })
+
+    test('behavior: merchantUrl', async () => {
+      const porto = getPorto()
+      const client = TestConfig.getRelayClient(porto)
+
+      const merchantKey = Key.createSecp256k1()
+      const merchantAccount = await createAccount(client, {
+        deploy: true,
+        keys: [merchantKey],
+      })
+
+      const requests: any[] = []
+      const listener = Route.merchant({
+        ...porto.config,
+        address: merchantAccount.address,
+        key: {
+          privateKey: merchantKey.privateKey!(),
+          type: merchantKey.type,
+        },
+        schedule: {
+          setup(request) {
+            requests.push(request)
+          },
+        },
+      }).listener
+      const server = await Http.createServer(listener)
+
+      await porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: { createAccount: true },
+          },
+        ],
+      })
+
+      await porto.provider.request({
+        method: 'wallet_grantPermissions',
+        params: [
+          {
+            capabilities: {
+              merchantContext: 'foo',
+              merchantUrl: server.url,
+            },
+            expiry: 9999999999,
+            feeToken: {
+              limit: '1',
+              symbol: 'EXP',
+            },
+            permissions: {
+              calls: [{ signature: 'mint()' }],
+            },
+          },
+        ],
+      })
+
+      expect(requests).toHaveLength(1)
+    })
   })
 
   describe('wallet_getPermissions', () => {
@@ -1130,6 +1188,53 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         }),
       ).rejects.matchSnapshot()
     })
+
+    test('behavior: merchantUrl', async () => {
+      const porto = getPorto()
+      const client = TestConfig.getRelayClient(porto)
+
+      const merchantKey = Key.createSecp256k1()
+      const merchantAccount = await createAccount(client, {
+        deploy: true,
+        keys: [merchantKey],
+      })
+
+      const requests: any[] = []
+      const listener = Route.merchant({
+        ...porto.config,
+        address: merchantAccount.address,
+        key: {
+          privateKey: merchantKey.privateKey!(),
+          type: merchantKey.type,
+        },
+        schedule: {
+          setup(request) {
+            requests.push(request)
+          },
+        },
+      }).listener
+      const server = await Http.createServer(listener)
+
+      await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
+      })
+
+      await porto.provider.request({
+        method: 'wallet_revokePermissions',
+        params: [
+          {
+            capabilities: {
+              merchantContext: 'foo',
+              merchantUrl: server.url,
+            },
+            id: '0x0000000000000000000000000000000000000000',
+          },
+        ],
+      })
+
+      expect(requests).toHaveLength(1)
+    })
   })
 
   describe('wallet_getAccountVersion', () => {
@@ -1497,6 +1602,58 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       ).matchSnapshot()
 
       expect(messages[0].chainId).toBe(Hex.fromNumber(client.chain.id))
+    })
+
+    test('behavior: `grantPermissions` + `merchantUrl` capability', async () => {
+      const porto = getPorto()
+      const client = TestConfig.getRelayClient(porto)
+
+      const merchantKey = Key.createSecp256k1()
+      const merchantAccount = await createAccount(client, {
+        deploy: true,
+        keys: [merchantKey],
+      })
+
+      const requests: any[] = []
+      const listener = Route.merchant({
+        ...porto.config,
+        address: merchantAccount.address,
+        key: {
+          privateKey: merchantKey.privateKey!(),
+          type: merchantKey.type,
+        },
+        schedule: {
+          setup(request) {
+            requests.push(request)
+          },
+        },
+      }).listener
+      const server = await Http.createServer(listener)
+
+      await porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: {
+              createAccount: true,
+              grantPermissions: {
+                expiry: 9999999999,
+                feeToken: {
+                  limit: '1',
+                  symbol: 'EXP',
+                },
+                permissions: {
+                  calls: [{ signature: 'mint()' }],
+                },
+              },
+              merchantContext: 'foo',
+              merchantUrl: server.url,
+            },
+          },
+        ],
+      })
+
+      expect(requests).toHaveLength(1)
     })
 
     test('behavior: `createAccount` + `grantPermissions` capability (provided key)', async () => {

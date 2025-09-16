@@ -127,6 +127,11 @@ export namespace preCalls {
   export type Response = z.infer<typeof Response>
 }
 
+export namespace merchantContext {
+  export const Request = z.unknown()
+  export type Request = z.infer<typeof Request>
+}
+
 export namespace merchantUrl {
   export const Request = z.string()
   export type Request = z.infer<typeof Request>
