@@ -396,7 +396,7 @@ function Onramp(props: {
     <div>
       {createOrder.isSuccess && createOrder.data?.url && (
         <iframe
-          className="h-40 w-full border-0"
+          className="h-12.5 w-full border-0 bg-transparent"
           referrerPolicy="no-referrer-when-downgrade"
           sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
           src={createOrder.data.url}
