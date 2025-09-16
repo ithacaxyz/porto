@@ -174,8 +174,8 @@ export function Frame({
               mode.name === 'dialog' &&
                 mode.variant === 'floating' &&
                 css({
-                  top: 16,
                   maxWidth: 360,
+                  top: 16,
                 }),
               mode.name === 'full' &&
                 css({
