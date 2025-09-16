@@ -201,6 +201,9 @@ export namespace wallet_grantPermissions {
     ...Permissions.Request.shape,
     capabilities: z.optional(
       z.object({
+        /** Arbitrary context for this request to be passed to the Merchant Route. */
+        merchantContext: z.optional(z.unknown()),
+        /** Merchant Route URL. */
         merchantUrl: z.optional(C.merchantUrl.Request),
       }),
     ),
