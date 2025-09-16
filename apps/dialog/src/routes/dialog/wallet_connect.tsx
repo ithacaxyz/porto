@@ -41,6 +41,9 @@ function RouteComponent() {
 
   const grantPermissionsQuery = PermissionsRequest.useResolve(
     capabilities?.grantPermissions,
+    {
+      merchantUrl: capabilities?.merchantUrl,
+    },
   )
   const grantPermissions = grantPermissionsQuery.data
 

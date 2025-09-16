@@ -3,6 +3,9 @@ import type { PublicRpcSchema } from 'viem'
 import type { Schema as Schema_relay } from '../core/internal/relay/rpcSchema.js'
 import type { UnionToTuple } from '../core/internal/types.js'
 import type { Schema } from '../core/RpcSchema.js'
+import type { Schema as Schema_merchant } from '../server/internal/merchantSchema.js'
+
+export type Merchant = ToViem<Schema_merchant>
 
 export type Relay = ToViem<Schema_relay>
 

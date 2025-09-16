@@ -327,6 +327,7 @@ export namespace wallet_switchEthereumChain {
 
 export namespace wallet_upgradeAccount {
   export const Parameters = z.object({
+    capabilities: z.optional(wallet_prepareUpgradeAccount.Capabilities),
     context: z.unknown(),
     signatures: z.object({
       auth: u.hex(),
@@ -653,6 +654,7 @@ export namespace wallet_prepareUpgradeAccount {
   export type Request = z.infer<typeof Request>
 
   export const Response = z.object({
+    capabilities: z.optional(Capabilities),
     context: z.unknown(),
     digests: z.object({
       auth: u.hex(),

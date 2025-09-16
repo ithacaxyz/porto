@@ -2,14 +2,17 @@ import { Query } from '@porto/apps'
 import { useQuery } from '@tanstack/react-query'
 import * as PermissionsRequest from 'porto/core/internal/permissionsRequest.js'
 import { Hooks } from 'porto/remote'
-import { Key } from 'porto/viem'
+import { Key, MerchantClient } from 'porto/viem'
 import * as z from 'zod/mini'
 import { porto } from './Porto.js'
 import * as Tokens from './Tokens.js'
 
 export function useResolve(
   request: z.input<typeof PermissionsRequest.Schema> | undefined,
+  options: useResolve.Options = {},
 ) {
+  const { merchantUrl } = options
+
   const client = Hooks.useRelayClient(porto)
 
   return useQuery({
@@ -23,16 +26,28 @@ export function useResolve(
     async queryFn() {
       if (!request) throw new Error('no request found.')
 
-      const grantPermissions = z.decode(PermissionsRequest.Schema, request)
+      const [permissionsRequest, feeTokens] = await Promise.all([
+        (async () => {
+          const permissions = z.decode(PermissionsRequest.Schema, request)
+          if (!permissions.key && merchantUrl) {
+            const client = MerchantClient.fromUrl(merchantUrl)
+            const [key] = await client.request({
+              method: 'merchant_getKeys',
+              params: [{ address: permissions.address }],
+            })
+            permissions.key = key
+          }
+          return permissions
+        })(),
+        Query.client.ensureQueryData(Tokens.getTokens.queryOptions(client, {})),
+      ])
 
-      const feeTokens = await Query.client.ensureQueryData(
-        Tokens.getTokens.queryOptions(client, {}),
-      )
-      const permissions = Key.resolvePermissions(grantPermissions, {
+      const permissions = Key.resolvePermissions(permissionsRequest, {
         feeTokens,
       })
+
       const decoded = {
-        ...grantPermissions,
+        ...permissionsRequest,
         feeToken: null,
         permissions,
       }
@@ -46,6 +61,8 @@ export function useResolve(
   })
 }
 
-export declare namespace useFetch {
-  export type Parameters = Tokens.getTokens.queryOptions.Options
+export declare namespace useResolve {
+  export type Options = {
+    merchantUrl?: string | undefined
+  }
 }

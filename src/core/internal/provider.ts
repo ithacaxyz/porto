@@ -3,12 +3,13 @@ import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
 import * as ox_Provider from 'ox/Provider'
 import * as RpcResponse from 'ox/RpcResponse'
-import { createClient, http, rpcSchema, type ValueOf, withCache } from 'viem'
+import { type ValueOf, withCache } from 'viem'
 import * as z from 'zod/mini'
 import type * as MerchantSchema from '../../server/internal/merchantSchema.js'
 import * as Account from '../../viem/Account.js'
 import * as Actions from '../../viem/internal/relayActions.js'
 import type * as Key from '../../viem/Key.js'
+import * as MerchantClient from '../../viem/MerchantClient.js'
 import * as RelayClient from '../../viem/RelayClient.js'
 import type * as Chains from '../Chains.js'
 import type * as Porto from '../Porto.js'
@@ -411,10 +412,7 @@ export function from<
 
           const { merchantContext, merchantUrl } = capabilities ?? {}
           if (merchantUrl) {
-            const client = createClient({
-              rpcSchema: rpcSchema<MerchantSchema.Viem>(),
-              transport: http(merchantUrl),
-            })
+            const client = MerchantClient.fromUrl(merchantUrl)
             await client.request({
               method: 'merchant_setupSchedule',
               params: [
@@ -493,10 +491,11 @@ export function from<
 
           preparedAccounts_internal.push((context as any).account)
 
-          return {
+          return z.encode(Rpc.wallet_prepareUpgradeAccount.Response, {
+            capabilities,
             context,
             digests,
-          } satisfies z.input<typeof Rpc.wallet_prepareUpgradeAccount.Response>
+          })
         }
 
         case 'wallet_getAccountVersion': {
@@ -689,10 +688,7 @@ export function from<
 
           const { merchantContext, merchantUrl } = capabilities ?? {}
           if (merchantUrl) {
-            const client = createClient({
-              rpcSchema: rpcSchema<MerchantSchema.Viem>(),
-              transport: http(merchantUrl),
-            })
+            const client = MerchantClient.fromUrl(merchantUrl)
             await client.request({
               method: 'merchant_setupSchedule',
               params: [
@@ -715,7 +711,8 @@ export function from<
         }
 
         case 'wallet_upgradeAccount': {
-          const [{ context, signatures }] = request._decoded.params ?? [{}]
+          const [{ capabilities, context, signatures }] = request._decoded
+            .params ?? [{}]
 
           const client = getClient()
 
@@ -746,6 +743,25 @@ export function from<
           emitter.emit('connect', {
             chainId: Hex.fromNumber(client.chain.id),
           })
+
+          const { merchantContext, merchantUrl } = capabilities ?? {}
+          const permission = permissions.at(-1)
+          if (merchantUrl && permission) {
+            const client = MerchantClient.fromUrl(merchantUrl)
+            await client.request({
+              method: 'merchant_setupSchedule',
+              params: [
+                [
+                  {
+                    context: merchantContext,
+                    payload: permission,
+                    type: 'grantPermissions',
+                  },
+                ],
+              ],
+            })
+          }
+
           return {
             address: account.address,
             capabilities: {
@@ -922,10 +938,7 @@ export function from<
 
           const { merchantUrl } = capabilities ?? {}
           if (merchantUrl && schedules.length > 0) {
-            const client = createClient({
-              rpcSchema: rpcSchema<MerchantSchema.Viem>(),
-              transport: http(merchantUrl),
-            })
+            const client = MerchantClient.fromUrl(merchantUrl)
             await client.request({
               method: 'merchant_setupSchedule',
               params: [schedules],
