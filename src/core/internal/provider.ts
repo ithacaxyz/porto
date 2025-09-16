@@ -18,8 +18,8 @@ import type * as Porto_internal from './porto.js'
 import * as RpcRequest from './schema/request.js'
 import * as Rpc from './schema/rpc.js'
 import * as Store from './store.js'
-import * as UrlString from './urlString.js'
 import type { Mutable } from './types.js'
+import * as UrlString from './urlString.js'
 
 export type Provider = ox_Provider.Provider<{
   includeEvents: true
