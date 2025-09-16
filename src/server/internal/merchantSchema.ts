@@ -25,6 +25,7 @@ export namespace merchant_getKeys {
 export namespace merchant_schedule {
   export const Parameters = z.discriminatedUnion('type', [
     z.object({
+      context: z.optional(z.unknown()),
       payload: Permissions.Permissions,
       type: z.literal('permissions'),
     }),

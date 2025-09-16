@@ -322,6 +322,7 @@ describe('merchant', () => {
         method: 'merchant_schedule',
         params: [
           {
+            context: 'foo',
             payload: {
               address: '0x0000000000000000000000000000000000000000',
               chainId: '0x0000000000000000000000000000000000000000',
@@ -354,6 +355,7 @@ describe('merchant', () => {
       expect(requests).toHaveLength(1)
       expect(requests[0]).toMatchInlineSnapshot(`
         {
+          "context": "foo",
           "payload": {
             "address": "0x0000000000000000000000000000000000000000",
             "chainId": 0,
