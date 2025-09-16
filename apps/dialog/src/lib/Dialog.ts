@@ -44,10 +44,6 @@ export const store = createStore(
         },
       },
     ),
-    {
-      enabled: import.meta.env.DEV,
-      name: 'porto.dialog.devtools',
-    },
   ),
 )
 
