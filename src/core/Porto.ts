@@ -119,9 +119,6 @@ export function create(
           },
         ),
       ),
-      {
-        name: 'porto.store.devtools',
-      },
     ),
   )
 
