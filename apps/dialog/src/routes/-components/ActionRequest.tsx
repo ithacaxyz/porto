@@ -135,6 +135,7 @@ export function ActionRequest(props: ActionRequest.Props) {
               amount={identified.amount}
               approving={loading}
               chainsPath={chainsPath}
+              checkingDeficit={prepareCallsQuery.isPending}
               deficitToken={deficitToken}
               fees={sponsored ? undefined : feeTotals}
               loading={prepareCallsQuery.isPending}
@@ -146,7 +147,6 @@ export function ActionRequest(props: ActionRequest.Props) {
               onReject={onReject}
               spender={identified.spender}
               tokenAddress={identified.tokenAddress}
-              checkingDeficit={prepareCallsQuery.isPending}
             />
           )
 
@@ -156,6 +156,7 @@ export function ActionRequest(props: ActionRequest.Props) {
               assetIn={addNativeCurrencyName(identified.assetIn)}
               assetOut={addNativeCurrencyName(identified.assetOut)}
               chainsPath={chainsPath}
+              checkingDeficit={prepareCallsQuery.isPending}
               contractAddress={calls[0]?.to}
               deficitToken={deficitToken}
               fees={sponsored ? undefined : feeTotals}
@@ -168,7 +169,6 @@ export function ActionRequest(props: ActionRequest.Props) {
               onReject={onReject}
               swapping={loading}
               swapType={identified.type}
-              checkingDeficit={prepareCallsQuery.isPending}
             />
           )
 
@@ -177,6 +177,7 @@ export function ActionRequest(props: ActionRequest.Props) {
             <Send
               asset={identified.asset}
               chainsPath={chainsPath}
+              checkingDeficit={prepareCallsQuery.isPending}
               deficitToken={deficitToken}
               fees={sponsored ? undefined : feeTotals}
               loading={prepareCallsQuery.isPending}
@@ -188,7 +189,6 @@ export function ActionRequest(props: ActionRequest.Props) {
               onReject={onReject}
               sending={loading}
               to={identified.to}
-              checkingDeficit={prepareCallsQuery.isPending}
             />
           )
 
@@ -788,7 +788,6 @@ export namespace ActionRequest {
       // native
       if (call.value && call.value > 0n && call.data === '0x') {
         return {
-          type: 'send',
           asset: {
             ...nativeCurrency,
             address: null,
@@ -797,6 +796,7 @@ export namespace ActionRequest {
             value: call.value,
           },
           to: call.to,
+          type: 'send',
         }
       }
 
@@ -806,7 +806,6 @@ export namespace ActionRequest {
         if (decoded.functionName === 'transfer') {
           const [recipient, amount] = decoded.args
           return {
-            type: 'send',
             asset: {
               address: call.to,
               direction: 'outgoing',
@@ -816,6 +815,7 @@ export namespace ActionRequest {
               value: amount,
             },
             to: recipient,
+            type: 'send',
           }
         }
       } catch {}
