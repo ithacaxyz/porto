@@ -325,36 +325,6 @@ export namespace wallet_switchEthereumChain {
   export type Request = z.infer<typeof Request>
 }
 
-export namespace wallet_upgradeAccount {
-  export const Parameters = z.object({
-    capabilities: z.optional(wallet_prepareUpgradeAccount.Capabilities),
-    context: z.unknown(),
-    signatures: z.object({
-      auth: u.hex(),
-      exec: u.hex(),
-    }),
-  })
-  export type Parameters = z.infer<typeof Parameters>
-
-  export const Request = z.object({
-    method: z.literal('wallet_upgradeAccount'),
-    params: z.readonly(z.tuple([Parameters])),
-  })
-  export type Request = z.infer<typeof Request>
-
-  export const ResponseCapabilities = z.object({
-    admins: z.optional(z.readonly(z.array(wallet_getAdmins.Key))),
-    permissions: z.optional(C.permissions.Response),
-  })
-  export type ResponseCapabilities = z.infer<typeof ResponseCapabilities>
-
-  export const Response = z.object({
-    address: u.address(),
-    capabilities: z.optional(ResponseCapabilities),
-  })
-  export type Response = z.infer<typeof Response>
-}
-
 export namespace personal_sign {
   export const Request = z.object({
     method: z.literal('personal_sign'),
@@ -660,6 +630,36 @@ export namespace wallet_prepareUpgradeAccount {
       auth: u.hex(),
       exec: u.hex(),
     }),
+  })
+  export type Response = z.infer<typeof Response>
+}
+
+export namespace wallet_upgradeAccount {
+  export const Parameters = z.object({
+    capabilities: z.optional(wallet_prepareUpgradeAccount.Capabilities),
+    context: z.unknown(),
+    signatures: z.object({
+      auth: u.hex(),
+      exec: u.hex(),
+    }),
+  })
+  export type Parameters = z.infer<typeof Parameters>
+
+  export const Request = z.object({
+    method: z.literal('wallet_upgradeAccount'),
+    params: z.readonly(z.tuple([Parameters])),
+  })
+  export type Request = z.infer<typeof Request>
+
+  export const ResponseCapabilities = z.object({
+    admins: z.optional(z.readonly(z.array(wallet_getAdmins.Key))),
+    permissions: z.optional(C.permissions.Response),
+  })
+  export type ResponseCapabilities = z.infer<typeof ResponseCapabilities>
+
+  export const Response = z.object({
+    address: u.address(),
+    capabilities: z.optional(ResponseCapabilities),
   })
   export type Response = z.infer<typeof Response>
 }

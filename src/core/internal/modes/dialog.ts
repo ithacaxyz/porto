@@ -21,6 +21,7 @@ import type * as Token from '../schema/token.js'
 import * as Siwe from '../siwe.js'
 import * as U from '../utils.js'
 import { relay } from './relay.js'
+import * as UrlString from '../urlString.js'
 
 export function dialog(parameters: dialog.Parameters = {}) {
   const {
@@ -158,6 +159,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
               capabilities?.grantPermissions,
               {
                 chainId: client.chain.id,
+                provisionKey: !capabilities?.merchantUrl,
               },
             )
 
@@ -177,6 +179,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
                   capabilities: {
                     ...request.params?.[0]?.capabilities,
                     grantPermissions: permissionsRequest,
+                    merchantUrl: UrlString.toAbsolute(
+                      capabilities?.merchantUrl,
+                    ),
                     signInWithEthereum:
                       authUrl || signInWithEthereum
                         ? {
@@ -412,11 +417,14 @@ export function dialog(parameters: dialog.Parameters = {}) {
             'Cannot grant permissions for method: ' + request.method,
           )
 
-        const [{ address, ...permissions }] = request._decoded.params
+        const [{ address, capabilities, ...permissions }] =
+          request._decoded.params
 
+        const provisionKey = !capabilities?.merchantUrl
         // Parse permissions request into a structured key.
         const key = await PermissionsRequest.toKey(permissions, {
           chainId: client.chain.id,
+          provisionKey,
         })
         if (!key) throw new Error('no key found.')
 
@@ -427,12 +435,25 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         // Send a request off to the dialog to grant the permissions.
         const provider = getProvider(store)
-        await provider.request({
+        const response = await provider.request({
           method: 'wallet_grantPermissions',
-          params: [permissionsRequest],
+          params: [
+            {
+              capabilities: {
+                ...request.params?.[0]?.capabilities,
+                merchantUrl: UrlString.toAbsolute(capabilities?.merchantUrl),
+              },
+              ...permissionsRequest,
+            },
+          ],
         })
 
-        return { key }
+        return {
+          key: {
+            ...key,
+            ...response.key,
+          } as Key.Key,
+        }
       },
 
       async loadAccounts(parameters) {
@@ -471,6 +492,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             capabilities?.grantPermissions,
             {
               chainId: client.chain.id,
+              provisionKey: !capabilities?.merchantUrl,
             },
           )
 
@@ -491,6 +513,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 capabilities: {
                   ...request.params?.[0]?.capabilities,
                   grantPermissions: permissionsRequest,
+                  merchantUrl: UrlString.toAbsolute(capabilities?.merchantUrl),
                   signInWithEthereum:
                     authUrl || signInWithEthereum
                       ? {
@@ -626,6 +649,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
           capabilities?.grantPermissions,
           {
             chainId: client.chain.id,
+            provisionKey: !capabilities?.merchantUrl,
           },
         )
 
@@ -644,6 +668,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
               capabilities: {
                 ...request.params?.[0]?.capabilities,
                 grantPermissions: permissionsRequest,
+                merchantUrl: UrlString.toAbsolute(capabilities?.merchantUrl),
               },
             },
           ],

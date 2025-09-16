@@ -33,6 +33,8 @@ export async function toKey(
   request: PermissionsRequest | undefined,
   options: toKey.Options = {},
 ): Promise<Key.Key | undefined> {
+  const { provisionKey = true } = options
+
   if (!request) return undefined
 
   const chainId = options.chainId ?? request.chainId
@@ -55,15 +57,18 @@ export async function toKey(
   })
   if (request?.key) return key
 
-  return await Key.createWebCryptoP256({
-    ...key,
-    role: 'session',
-  })
+  if (provisionKey)
+    return await Key.createWebCryptoP256({
+      ...key,
+      role: 'session',
+    })
+  return key
 }
 
 export declare namespace toKey {
   export type Options = {
     chainId?: number | undefined
     feeTokens?: Tokens.Tokens | undefined
+    provisionKey?: boolean | undefined
   }
 }

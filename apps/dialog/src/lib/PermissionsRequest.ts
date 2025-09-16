@@ -29,13 +29,21 @@ export function useResolve(
       const [permissionsRequest, feeTokens] = await Promise.all([
         (async () => {
           const permissions = z.decode(PermissionsRequest.Schema, request)
-          if (!permissions.key && merchantUrl) {
+          if (permissions.key?.publicKey === '0x' && merchantUrl) {
             const client = MerchantClient.fromUrl(merchantUrl)
             const [key] = await client.request({
               method: 'merchant_getKeys',
               params: [{ address: permissions.address }],
             })
-            permissions.key = key
+            if (key) {
+              return {
+                ...permissions,
+                key: {
+                  publicKey: key.publicKey,
+                  type: key.type,
+                },
+              }
+            }
           }
           return permissions
         })(),
