@@ -54,8 +54,10 @@ export function Frame({
   const screenRef = useRef<HTMLDivElement | null>(null)
 
   const wasVisible = useRef(visible)
-
-  if (!visible && wasVisible.current) onClosed?.()
+  if (visible !== wasVisible.current) {
+    if (!visible) onClosed?.()
+    wasVisible.current = visible
+  }
 
   useSize(
     screenRef,
