@@ -16,7 +16,7 @@ function RouteComponent() {
     <main className="size-full">
       {/* TOP BOXES */}
 
-      <section className="grid min-h-[50%] grid-flow-col grid-cols-2 justify-items-stretch gap-4 *:rounded-2xl *:bg-white lg:grid-rows-4">
+      <section className="grid min-h-[50%] grid-flow-col grid-cols-2 justify-items-stretch gap-4 *:rounded-2xl *:bg-white lg:grid-rows-4 dark:*:bg-gray1">
         <div
           className={Ui.cx(
             'flex flex-col items-center px-9 pt-6 pb-3.5',
@@ -68,7 +68,7 @@ function RouteComponent() {
             <Ui.Button>Learn more</Ui.Button>
           </div>
           <div className="size-full">
-            <p className="font-medium text-2xl text-white dark:text-black">
+            <p className="font-medium text-2xl text-black dark:text-white">
               Any Ethereum asset
             </p>
             <p className="font-normal text-base text-gray10">
@@ -102,7 +102,7 @@ function RouteComponent() {
             <Ui.Button>Learn more</Ui.Button>
           </div>
           <div className="size-full">
-            <p className="font-medium text-2xl text-white dark:text-black">
+            <p className="font-medium text-2xl text-black dark:text-white">
               Supports major chains
             </p>
             <p className="font-normal text-base text-gray10">

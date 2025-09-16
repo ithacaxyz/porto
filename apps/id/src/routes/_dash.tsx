@@ -52,7 +52,7 @@ function RouteComponent() {
 
   return (
     <div className="mx-auto flex h-full max-w-384 flex-col gap-4 bg-gray2 px-7.5 py-6 pb-7.5 md:flex-row">
-      <div className="flex w-full items-center justify-between md:h-full md:min-w-72.75 md:max-w-72.75 md:flex-col md:items-stretch md:justify-start md:gap-6 md:rounded-2xl md:bg-gray3">
+      <div className="flex w-full items-center justify-between md:fixed md:inset-y-6 md:bottom-6 md:min-w-72.75 md:max-w-72.75 md:flex-col md:items-stretch md:justify-start md:gap-6 md:rounded-2xl md:bg-gray3">
         <header className="flex h-fit justify-between md:px-9 md:pt-8">
           <div>
             <div className="hidden h-7.5 w-fit md:block">
@@ -123,7 +123,10 @@ function RouteComponent() {
           </button>
         </div>
       </div>
-      <Outlet />
+
+      <div className="h-full w-full md:ms-72.75 md:ps-4">
+        <Outlet />
+      </div>
     </div>
   )
 }
