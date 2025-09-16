@@ -106,21 +106,87 @@ export function create(
               }
             },
             migrate: (persistedState, version) => {
-              if (version === 0) {
-                return {
-                  accounts: [],
-                  chainIds: config.chains.map((chain) => chain.id) as [
-                    number,
-                    ...number[],
-                  ],
-                  feeToken: config.feeToken,
-                  requestQueue: [],
-                }
+              const initialState: State = {
+                accounts: [],
+                chainIds: config.chains.map((chain) => chain.id) as [
+                  number,
+                  ...number[],
+                ],
+                feeToken: config.feeToken,
+                requestQueue: [],
               }
 
-              return persistedState as State
+              if (version === 0) return initialState
+
+              if (version >= 5) return persistedState as State
+
+              const state = (persistedState ?? {}) as Partial<State>
+              const currencyToSymbol = {
+                ETH: 'native',
+                USDC: 'USDC',
+                USDT: 'USDT',
+              } as const satisfies Record<string, Token.Symbol | 'native'>
+
+              const accounts = Array.isArray(state.accounts)
+                ? (state.accounts as unknown[]).map((account) => {
+                    if (!account || typeof account !== 'object') return account
+
+                    const accountObject = account as Record<string, unknown>
+                    if (!Array.isArray(accountObject.keys)) return account
+
+                    const keys = accountObject.keys.map((key) => {
+                      if (!key || typeof key !== 'object') return key
+
+                      const { feeLimit, ...rest } = key as {
+                        feeLimit: { currency?: unknown; value?: unknown }
+                        [key: string]: unknown
+                      } & Record<string, unknown>
+                      const nextFeeToken = (() => {
+                        if (!feeLimit || typeof feeLimit !== 'object')
+                          return undefined
+
+                        const { currency, value } = feeLimit
+                        if (typeof value !== 'string') return undefined
+                        if (typeof currency !== 'string') return undefined
+
+                        const normalized =
+                          currency.toUpperCase() as unknown as keyof typeof currencyToSymbol
+                        if (
+                          !Object.values(currencyToSymbol).includes(
+                            normalized as never,
+                          )
+                        )
+                          return undefined
+                        const symbol = currencyToSymbol[normalized]
+                        if (!symbol) return undefined
+
+                        return { limit: value, symbol }
+                      })()
+
+                      if (!nextFeeToken) return rest
+
+                      return { ...rest, feeToken: nextFeeToken }
+                    })
+                    return { keys, ...accountObject }
+                  })
+                : initialState.accounts
+
+              return {
+                ...initialState,
+                ...state,
+                accounts: accounts as State['accounts'],
+                chainIds: (state.chainIds ??
+                  initialState.chainIds) as State['chainIds'],
+              }
             },
             name: config.storageKey,
+            onRehydrateStorage: (state) => {
+              console.info('rehydrating state', state)
+              return (state, error) => {
+                if (!error) return console.info('state rehydrated', state)
+                console.error('failed to rehydrate state', error)
+              }
+            },
             partialize: (state) =>
               ({
                 accounts: state.accounts.map((account) =>

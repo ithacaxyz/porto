@@ -36,23 +36,6 @@ export const store = createStore(
         }
       },
       {
-        migrate: (persistedState, version) => {
-          if (version === 0) {
-            console.info('Migrating from version 0 to version 1')
-            return {
-              accountMetadata: {},
-              customTheme: undefined,
-              display: 'full',
-              error: null,
-              mode: 'popup-standalone',
-              referrer: undefined,
-              visible: undefined,
-            }
-          }
-          console.info('Migrating from version 1 to version 2')
-
-          return persistedState as store.State
-        },
         name: 'porto.dialog',
         partialize(state) {
           return {
