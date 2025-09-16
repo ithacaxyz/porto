@@ -269,9 +269,8 @@ function BalanceGroup(props: {
   })
 
   const deficits = React.useMemo(() => {
-    if (assetDeficits && assetDeficits.length > 0) {
+    if (assetDeficits && assetDeficits.length > 0)
       return assetDeficits
-    }
     if (tokenAddress !== undefined && chainId) {
       return [
         {
