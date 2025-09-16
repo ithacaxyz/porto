@@ -342,7 +342,7 @@ export function from<
           const admins = getAdmins([...(account.keys ?? []), key])
 
           emitter.emit('message', {
-            data: admins,
+            data: null,
             type: 'adminsChanged',
           })
 
@@ -396,9 +396,7 @@ export function from<
           })
 
           emitter.emit('message', {
-            data: getActivePermissions([...(account.keys ?? []), key], {
-              address: account.address,
-            }),
+            data: null,
             type: 'permissionsChanged',
           })
 
@@ -609,7 +607,7 @@ export function from<
           }))
 
           emitter.emit('message', {
-            data: getAdmins(keys ?? []),
+            data: null,
             type: 'adminsChanged',
           })
 
@@ -660,9 +658,7 @@ export function from<
           }))
 
           emitter.emit('message', {
-            data: getActivePermissions(keys ?? [], {
-              address: account.address,
-            }),
+            data: null,
             type: 'permissionsChanged',
           })
 
