@@ -1,3 +1,4 @@
+import * as Ariakit from '@ariakit/react'
 import { LogoLockup, LogoMark } from '@porto/apps/components'
 import {
   createFileRoute,
@@ -62,47 +63,58 @@ function RouteComponent() {
               <LogoMark />
             </div>
           </div>
-          <div className="hidden size-6.5 rounded-full border border-gray6 text-gray10 md:block">
-            <svg
-              fill="none"
-              height="24"
-              viewBox="0 0 24 24"
-              width="24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <title>help</title>
-              <path
-                d="M9.08984 9.00008C9.32495 8.33175 9.789 7.76819 10.3998 7.40921C11.0106 7.05024 11.7287 6.91902 12.427 7.03879C13.1253 7.15857 13.7587 7.52161 14.2149 8.06361C14.6712 8.60561 14.9209 9.2916 14.9198 10.0001C14.9198 12.0001 11.9198 13.0001 11.9198 13.0001"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-              />
-              <path
-                d="M12 17H12.01"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-              />
-            </svg>
-          </div>
+          <Ariakit.Button
+            className="hidden size-6.5 rounded-full border border-gray6 text-gray10 md:block"
+            render={
+              <a
+                href="https://t.me/porto_devs"
+                rel="noreferrer"
+                target="_blank"
+              >
+                <svg
+                  fill="none"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <title>help</title>
+                  <path
+                    d="M9.08984 9.00008C9.32495 8.33175 9.789 7.76819 10.3998 7.40921C11.0106 7.05024 11.7287 6.91902 12.427 7.03879C13.1253 7.15857 13.7587 7.52161 14.2149 8.06361C14.6712 8.60561 14.9209 9.2916 14.9198 10.0001C14.9198 12.0001 11.9198 13.0001 11.9198 13.0001"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                  />
+                  <path
+                    d="M12 17H12.01"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                  />
+                </svg>
+              </a>
+            }
+          />
         </header>
+        <div className="absolute right-0.5 bottom-0 block h-[15%] w-full min-w-full backdrop-blur-[1px] md:bottom-0 md:hidden" />
 
-        <nav className="-translate-x-1/2 fixed inset-x-auto bottom-5 left-1/2 flex h-15.5 flex-row items-center rounded-full border border-gray4 bg-gray1 px-2 md:relative md:inset-x-0 md:bottom-0 md:left-auto md:h-auto md:translate-x-0 md:flex-col md:gap-px md:rounded-none md:border-none md:bg-transparent md:px-5">
+        <nav className="-translate-x-1/2 fixed inset-x-auto bottom-5 left-1/2 flex h-16 w-full max-w-[90%] flex-row items-center rounded-full border border-gray4 bg-gray1 px-2 md:relative md:inset-x-0 md:bottom-0 md:left-auto md:h-auto md:max-w-full md:translate-x-0 md:flex-col md:gap-px md:rounded-none md:border-none md:bg-transparent md:px-5">
           {links.map((link) => (
             <Link
               activeProps={{
-                className: 'bg-gray1 text-gray12',
+                className:
+                  'bg-gray1 text-gray12 md:border-none border-b-2 border-accent',
               }}
-              className="flex h-12 w-full items-center gap-2.25 rounded-full px-4"
+              className="flex h-full w-full items-center justify-center gap-2.25 rounded-none px-4 font-medium text-base hover:bg-accentTint/20 md:h-14 md:justify-stretch md:rounded-full"
               inactiveProps={{
                 className: 'text-gray10 dark:text-gray11',
               }}
               key={link.to}
               to={link.to}
             >
-              <link.Icon className="size-6 in-data-[status=active]:text-accent! text-gray8 dark:text-gray9" />
+              <link.Icon className="size-7 in-data-[status=active]:text-accent! text-gray8 dark:text-gray9" />
               <span className="sr-only font-medium text-[17px] md:not-sr-only">
                 {link.name}
               </span>
