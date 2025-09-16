@@ -74,7 +74,7 @@ export function CheckBalance(props: CheckBalance.Props) {
     if (deficitToken.value === 0n) return undefined
     if (!token) return undefined
     // Add 20% to the deficit to account for fee fluctuations.
-    const value = deficitToken.value * (120n / 100n)
+    const value = deficitToken.value * 120n / 100n
     return Value.format(value, token.decimals)
   }, [deficitToken, token])
 
@@ -85,6 +85,11 @@ export function CheckBalance(props: CheckBalance.Props) {
   return (
     <AddFunds
       address={address}
+      assetDeficits={deficitToken.value ? [{
+        address: deficitToken.address === zeroAddress ? null : deficitToken.address,
+        deficit: deficitToken.value,
+        required: deficitToken.value,
+      }] : undefined}
       chainId={deficitToken.chainId}
       onApprove={() => {
         query.refetch()
@@ -98,6 +103,11 @@ export function CheckBalance(props: CheckBalance.Props) {
 }
 
 export namespace CheckBalance {
+  // Add 20% to the deficit to account for fee fluctuations.
+  export function addFeeBuffer(value: bigint): bigint {
+    return value * 120n / 100n
+  }
+  
   export type Props = {
     address?: Address.Address | undefined
     chainId?: number | undefined

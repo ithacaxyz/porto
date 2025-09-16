@@ -21,8 +21,11 @@ export function Swap(props: Swap.Props) {
     loading,
     onApprove,
     onReject,
+    onAddFunds,
     swapType,
     swapping,
+    deficitToken,
+    checkingDeficit,
   } = props
 
   const [fiatDisplay, setFiatDisplay] = React.useState(swapType !== 'convert')
@@ -89,7 +92,7 @@ export function Swap(props: Swap.Props) {
               </>
             )}
           </div>
-          <Details loading={loading}>
+          <Details loading={loading && !deficitToken}>
             {feeFormatted && (
               <Details.Item
                 label="Fees (est.)"
@@ -107,6 +110,11 @@ export function Swap(props: Swap.Props) {
               />
             )}
           </Details>
+          {deficitToken && (
+            <div className="rounded-th_medium border border-th_warning bg-th_warning px-3 py-[10px] text-center text-sm text-th_warning">
+              You do not have enough funds.
+            </div>
+          )}
         </div>
       </Layout.Content>
 
@@ -120,15 +128,29 @@ export function Swap(props: Swap.Props) {
           >
             Cancel
           </Button>
-          <Button
-            disabled={!onApprove}
-            loading={swapping && 'Swapping…'}
-            onClick={onApprove}
-            variant="positive"
-            width="grow"
-          >
-            Swap
-          </Button>
+          {deficitToken ? (
+            <Button
+              data-testid="add-funds"
+              disabled={!onAddFunds}
+              onClick={onAddFunds}
+              variant="primary"
+              width="grow"
+            >
+              Add funds
+            </Button>
+          ) : (
+            <Button
+              disabled={!onApprove || checkingDeficit}
+              loading={
+                swapping ? 'Swapping…' : checkingDeficit ? 'Loading…' : false
+              }
+              onClick={onApprove}
+              variant="positive"
+              width="grow"
+            >
+              Swap
+            </Button>
+          )}
         </Layout.Footer.Actions>
       </Layout.Footer>
     </Layout>
@@ -145,8 +167,16 @@ export namespace Swap {
     loading: boolean
     onApprove: () => void
     onReject: () => void
+    onAddFunds?: () => void
     swapType: 'swap' | 'convert'
     swapping?: boolean | undefined
+    deficitToken?:
+      | {
+          address: `0x${string}` | null
+          chainId: number | undefined
+        }
+      | undefined
+    checkingDeficit?: boolean | undefined
   }
 
   export function AssetRow(props: AssetRow.Props) {

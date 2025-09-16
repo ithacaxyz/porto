@@ -11,8 +11,19 @@ import type { ActionRequest } from './ActionRequest'
 import { Layout } from './Layout'
 
 export function Send(props: Send.Props) {
-  const { asset, chainsPath, fees, loading, onApprove, onReject, sending, to } =
-    props
+  const {
+    asset,
+    chainsPath,
+    fees,
+    loading,
+    onApprove,
+    onReject,
+    onAddFunds,
+    sending,
+    to,
+    deficitToken,
+    checkingDeficit,
+  } = props
 
   const [currencyType, setCurrencyType] = React.useState<'fiat' | 'token'>(
     asset.fiat ? 'fiat' : 'token',
@@ -74,8 +85,7 @@ export function Send(props: Send.Props) {
               />
             </div>
           </div>
-
-          <Details loading={loading}>
+          <Details loading={loading && !deficitToken}>
             {feeFormatted && (
               <Details.Item
                 label="Fees (est.)"
@@ -93,6 +103,11 @@ export function Send(props: Send.Props) {
               />
             )}
           </Details>
+          {deficitToken && (
+            <div className="rounded-th_medium border border-th_warning bg-th_warning px-3 py-[10px] text-center text-sm text-th_warning">
+              You do not have enough funds.
+            </div>
+          )}
         </div>
       </Layout.Content>
 
@@ -106,15 +121,29 @@ export function Send(props: Send.Props) {
           >
             Cancel
           </Button>
-          <Button
-            disabled={!onApprove}
-            loading={sending && 'Sending…'}
-            onClick={onApprove}
-            variant="positive"
-            width="grow"
-          >
-            Send
-          </Button>
+          {deficitToken ? (
+            <Button
+              data-testid="add-funds"
+              disabled={!onAddFunds}
+              onClick={onAddFunds}
+              variant="primary"
+              width="grow"
+            >
+              Add funds
+            </Button>
+          ) : (
+            <Button
+              disabled={!onApprove || checkingDeficit}
+              loading={
+                sending ? 'Sending…' : checkingDeficit ? 'Loading…' : false
+              }
+              onClick={onApprove}
+              variant="positive"
+              width="grow"
+            >
+              Send
+            </Button>
+          )}
         </Layout.Footer.Actions>
       </Layout.Footer>
     </Layout>
@@ -129,8 +158,16 @@ export namespace Send {
     loading: boolean
     onApprove: () => void
     onReject: () => void
+    onAddFunds?: () => void
     sending?: boolean | undefined
     to: `0x${string}`
+    deficitToken?:
+      | {
+          address: `0x${string}` | null
+          chainId: number | undefined
+        }
+      | undefined
+    checkingDeficit?: boolean | undefined
   }
 
   export function AmountButton(props: AmountButton.Props) {

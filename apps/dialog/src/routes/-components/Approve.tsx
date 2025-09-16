@@ -27,8 +27,11 @@ export function Approve(props: Approve.Props) {
     loading,
     onApprove,
     onReject,
+    onAddFunds,
     spender,
     tokenAddress,
+    deficitToken,
+    checkingDeficit,
   } = props
 
   let { unlimited } = props
@@ -118,7 +121,7 @@ export function Approve(props: Approve.Props) {
               unlimited={unlimited}
             />
           </div>
-          <Details loading={loading}>
+          <Details loading={loading && !deficitToken}>
             <Details.Item
               label="Requested by"
               value={
@@ -145,6 +148,11 @@ export function Approve(props: Approve.Props) {
               />
             )}
           </Details>
+          {deficitToken && (
+            <div className="rounded-th_medium border border-th_warning bg-th_warning px-3 py-[10px] text-center text-sm text-th_warning">
+              You do not have enough funds.
+            </div>
+          )}
         </div>
       </Layout.Content>
 
@@ -158,15 +166,31 @@ export function Approve(props: Approve.Props) {
           >
             Cancel
           </Button>
-          <Button
-            disabled={tokenInfo.isLoading || tokenInfo.isError}
-            loading={approving && 'Approving…'}
-            onClick={onApprove}
-            variant="positive"
-            width="grow"
-          >
-            Approve
-          </Button>
+          {deficitToken ? (
+            <Button
+              data-testid="add-funds"
+              disabled={!onAddFunds}
+              onClick={onAddFunds}
+              variant="primary"
+              width="grow"
+            >
+              Add funds
+            </Button>
+          ) : (
+            <Button
+              disabled={
+                tokenInfo.isLoading || tokenInfo.isError || checkingDeficit
+              }
+              loading={
+                approving ? 'Approving…' : checkingDeficit ? 'Loading…' : false
+              }
+              onClick={onApprove}
+              variant="positive"
+              width="grow"
+            >
+              Approve
+            </Button>
+          )}
         </Layout.Footer.Actions>
       </Layout.Footer>
     </Layout>
@@ -183,9 +207,23 @@ export namespace Approve {
     loading?: boolean | undefined
     onApprove: () => void
     onReject: () => void
+    onAddFunds?: () => void
     spender: `0x${string}`
     tokenAddress: `0x${string}`
     unlimited?: boolean | undefined
+    deficitToken?:
+      | {
+          address: `0x${string}` | null
+          chainId: number | undefined
+        }
+      | undefined
+    token?:
+      | {
+          decimals: number
+        }
+      | undefined
+    address?: `0x${string}` | undefined
+    checkingDeficit?: boolean | undefined
   }
 
   export function AllowanceRow({

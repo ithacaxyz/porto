@@ -1,7 +1,7 @@
 import * as Ariakit from '@ariakit/react'
 import { exp1Address } from '@porto/apps/contracts'
 import { useCopyToClipboard, usePrevious } from '@porto/apps/hooks'
-import { Button, PresetsInput, Spinner } from '@porto/ui'
+import { Balance, Button, PresetsInput, Separator, Spinner } from '@porto/ui'
 import {
   QueryClient,
   QueryClientProvider,
@@ -19,6 +19,7 @@ import {
   createConfig,
   useAccount,
   useAccountEffect,
+  useBalance,
   useConnect,
   useDisconnect,
   useSendCalls,
@@ -26,15 +27,18 @@ import {
   useWatchBlockNumber,
   WagmiProvider,
 } from 'wagmi'
+import { CheckBalance } from '~/components/CheckBalance'
 import { porto } from '~/lib/Porto'
 import * as Tokens from '~/lib/Tokens'
 import { Layout } from '~/routes/-components/Layout'
+import { PriceFormatter, ValueFormatter } from '~/utils'
 import LucideCopy from '~icons/lucide/copy'
 import LucideCopyCheck from '~icons/lucide/copy-check'
 import LucideOctagonAlert from '~icons/lucide/octagon-alert'
 import TriangleAlertIcon from '~icons/lucide/triangle-alert'
+import Star from '~icons/ph/star-four-bold'
 
-const presetAmounts = ['30', '50', '100', '250'] as const
+const PRESET_AMOUNTS = ['30', '50', '100', '250'] as const
 const MAX_AMOUNT = 500
 
 const config = createConfig({
@@ -52,7 +56,8 @@ type View =
   | 'error'
 
 export function AddFunds(props: AddFunds.Props) {
-  const { chainId, onApprove, onReject, tokenAddress, value } = props
+  const { chainId, onApprove, onReject, tokenAddress, value, assetDeficits } =
+    props
 
   const [view, setView] = React.useState<View>('default')
 
@@ -61,7 +66,7 @@ export function AddFunds(props: AddFunds.Props) {
   const chain = RemoteHooks.useChain(porto, { chainId })
   const { data: tokens } = Tokens.getTokens.useQuery()
   const { data: token } = Tokens.getToken.useQuery({
-    addressOrSymbol: tokenAddress,
+    addressOrSymbol: tokenAddress ?? undefined,
   })
 
   const { data: assets, refetch: refetchAssets } = Hooks.useAssets({
@@ -77,9 +82,18 @@ export function AddFunds(props: AddFunds.Props) {
   })
   const balanceMap = React.useMemo(() => {
     const addressBalanceMap = new Map<Address.Address, bigint>()
-    if (!assets || !tokens) return addressBalanceMap
+    if (!assets) return addressBalanceMap
+
     const tokenAddressMap = new Map<Address.Address, boolean>()
-    for (const token of tokens) tokenAddressMap.set(token!.address, true)
+    if (tokens)
+      for (const token of tokens) tokenAddressMap.set(token.address, true)
+
+    if (tokenAddress !== undefined)
+      tokenAddressMap.set(
+        tokenAddress === null ? zeroAddress : tokenAddress,
+        true,
+      )
+
     for (const asset of assets) {
       const address =
         (asset.address === 'native' || asset.type === 'native'
@@ -89,7 +103,7 @@ export function AddFunds(props: AddFunds.Props) {
         addressBalanceMap.set(address, asset.balance)
     }
     return addressBalanceMap
-  }, [assets, tokens])
+  }, [assets, tokens, tokenAddress])
   useWatchBlockNumber({
     enabled: Boolean(account?.address),
     onBlockNumber() {
@@ -169,34 +183,39 @@ export function AddFunds(props: AddFunds.Props) {
           />
         ) : (
           <Layout.Header.Default
-            content={
-              view === 'connected-wallet-transfer'
-                ? 'Select which assets you want to deposit to your Porto wallet.'
-                : 'Deposit via crypto or credit card.'
-            }
+            icon={Star}
             title="Add funds"
+            variant="default"
           />
         )}
       </Layout.Header>
 
       <Layout.Content>
         <div className="flex flex-col gap-3">
+          <BalanceGroup
+            address={address}
+            assetDeficits={assetDeficits}
+            chainId={chainId}
+            tokenAddress={tokenAddress}
+          />
+          <Separator
+            label={
+              view === 'connected-wallet-transfer'
+                ? 'Select which assets you want to deposit to your Porto wallet'
+                : 'Select deposit method'
+            }
+            size="medium"
+            spacing={0}
+          />
           {showFaucet && (
-            <>
-              <Faucet
-                address={address}
-                chainId={chain?.id}
-                decimals={token?.decimals}
-                defaultValue={value}
-                onApprove={onApprove}
-                tokenAddress={tokenAddress}
-              />
-              <div className="my-auto flex w-full flex-row items-center gap-2 *:border-th_separator">
-                <hr className="flex-1 border-th_separator" />
-                <span className="px-3 text-th_base-secondary">or</span>
-                <hr className="flex-1 border-th_separator" />
-              </div>
-            </>
+            <Faucet
+              address={address}
+              chainId={chain?.id}
+              decimals={token?.decimals}
+              defaultValue={value}
+              onApprove={onApprove}
+              tokenAddress={tokenAddress ?? undefined}
+            />
           )}
 
           <WagmiProvider config={config} reconnectOnMount={false}>
@@ -208,7 +227,7 @@ export function AddFunds(props: AddFunds.Props) {
                 nativeTokenName={chain?.nativeCurrency?.symbol}
                 setView={setView}
                 token={token}
-                tokenAddress={tokenAddress}
+                tokenAddress={tokenAddress ?? undefined}
                 view={view}
               />
             </QueryClientProvider>
@@ -225,9 +244,115 @@ export declare namespace AddFunds {
     chainId?: number | undefined
     onApprove: (result: { id: Hex.Hex }) => void
     onReject?: () => void
-    tokenAddress?: Address.Address | undefined
+    tokenAddress?: Address.Address | null | undefined
     value?: string | undefined
+    assetDeficits?: readonly {
+      address: Address.Address | null
+      deficit: bigint
+      required: bigint
+      decimals?: number
+      name?: string
+      symbol?: string
+    }[]
   }
+}
+
+function BalanceGroup(props: {
+  address?: Address.Address
+  assetDeficits?: AddFunds.Props['assetDeficits']
+  chainId?: number
+  tokenAddress?: Address.Address | null
+}) {
+  const { address, assetDeficits, chainId, tokenAddress } = props
+  const { data: token } = Tokens.getToken.useQuery({
+    addressOrSymbol: tokenAddress ?? undefined,
+  })
+
+  const deficits = React.useMemo(() => {
+    if (assetDeficits && assetDeficits.length > 0) {
+      return assetDeficits
+    }
+    if (tokenAddress !== undefined && chainId) {
+      return [
+        {
+          address: tokenAddress,
+          decimals: token?.decimals,
+          deficit: 0n,
+          name: undefined,
+          required: 0n,
+          symbol: token?.symbol,
+        },
+      ]
+    }
+    return []
+  }, [assetDeficits, tokenAddress, chainId, token])
+
+  if (deficits.length === 0) return null
+
+  return (
+    <Balance.Group>
+      {deficits.map((deficit, index) => (
+        <BalanceItem
+          address={address}
+          chainId={chainId}
+          deficit={deficit}
+          key={`${deficit.address}-${index}`}
+        />
+      ))}
+    </Balance.Group>
+  )
+}
+
+function BalanceItem(props: {
+  address?: Address.Address
+  chainId?: number
+  deficit: NonNullable<AddFunds.Props['assetDeficits']>[0]
+}) {
+  const { address, chainId, deficit } = props
+
+  const balance = useBalance({
+    address,
+    chainId: chainId as never,
+    token: deficit.address === null ? undefined : deficit.address,
+  })
+
+  const balanceFormatted = React.useMemo(() => {
+    // required amount = deficit + buffer
+    const requiredAmount =
+      deficit.deficit && deficit.deficit > 0n
+        ? CheckBalance.addFeeBuffer(deficit.deficit)
+        : 0n
+
+    const decimals = deficit.decimals ?? balance.data?.decimals ?? 18
+    const symbol = deficit.symbol ?? balance.data?.symbol ?? 'Unknown'
+
+    const formatted = ValueFormatter.format(requiredAmount, decimals)
+
+    const fiatValue = Number(Value.format(requiredAmount, decimals))
+    const fiatFormatted = PriceFormatter.format(fiatValue)
+
+    return {
+      amount: `${formatted} ${symbol}`,
+      amountFiat: fiatFormatted,
+    }
+  }, [balance.data, deficit])
+
+  if (!chainId) return null
+
+  return (
+    <Balance
+      amount={balanceFormatted?.amount ?? '0'}
+      amountFiat={balanceFormatted?.amountFiat ?? '$0.00'}
+      chainId={chainId}
+      fetching={balance.isFetching || balance.isLoading}
+      onRefetch={() => balance.refetch()}
+      tokenName={
+        deficit.name ?? deficit.symbol ?? balance.data?.symbol ?? 'Unknown'
+      }
+      tokenSymbol={deficit.symbol ?? balance.data?.symbol ?? 'Unknown'}
+      warn
+    />
+  )
 }
 
 function Faucet(props: {
@@ -244,7 +369,7 @@ function Faucet(props: {
   const [amount, setAmount] = React.useState<string>(
     defaultValue
       ? Math.ceil(Number(defaultValue)).toString()
-      : presetAmounts[0]!,
+      : PRESET_AMOUNTS[0]!,
   )
 
   const client = RemoteHooks.useRelayClient(porto)
@@ -294,7 +419,7 @@ function Faucet(props: {
           min={0}
           onChange={setAmount}
           placeholder="Enter amount"
-          presets={presetAmounts.map((value) => ({
+          presets={PRESET_AMOUNTS.map((value) => ({
             label: `$${value}`,
             value,
           }))}

@@ -2,7 +2,7 @@ import { Spinner } from '@porto/apps/components'
 import { Button, ButtonArea, ChainsPath, Details } from '@porto/ui'
 import { a, useTransition } from '@react-spring/web'
 import { cx } from 'cva'
-import { type Address, Base64, type Hex } from 'ox'
+import { type Address, Base64 } from 'ox'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import type * as Quote_schema from 'porto/core/internal/relay/schema/quotes'
 import type * as Rpc from 'porto/core/internal/schema/request'
@@ -12,12 +12,10 @@ import * as React from 'react'
 import {
   type Call,
   type Chain,
-  decodeAbiParameters,
   decodeFunctionData,
   erc20Abi,
   ethAddress,
 } from 'viem'
-import { CheckBalance } from '~/components/CheckBalance'
 import * as Calls from '~/lib/Calls'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
@@ -30,6 +28,7 @@ import LucideSparkles from '~icons/lucide/sparkles'
 import TriangleAlert from '~icons/lucide/triangle-alert'
 import LucideVideo from '~icons/lucide/video'
 import Star from '~icons/ph/star-four-bold'
+import { AddFunds } from '../-components/AddFunds'
 import { Approve } from '../-components/Approve'
 import { Send } from '../-components/Send'
 import { Swap } from '../-components/Swap'
@@ -47,6 +46,8 @@ export function ActionRequest(props: ActionRequest.Props) {
     requiredFunds,
   } = props
 
+  const [showAddFunds, setShowAddFunds] = React.useState(false)
+
   const account = Hooks.useAccount(porto, { address })
 
   const prepareCallsQuery = Calls.prepareCalls.useQuery({
@@ -62,12 +63,23 @@ export function ActionRequest(props: ActionRequest.Props) {
   const capabilities = prepareCallsQuery.data?.capabilities
   const { assetDiffs, feeTotals } = capabilities ?? {}
 
+  const quotes = capabilities?.quote?.quotes ?? []
+
+  const deficitQuote = quotes.find(
+    (quote) => quote.assetDeficits && quote.assetDeficits.length > 0,
+  )
+
+  const deficitToken = deficitQuote?.assetDeficits?.[0] && {
+    address: deficitQuote.assetDeficits[0].address,
+    chainId: deficitQuote.chainId,
+  }
+
+  const deficitValue = deficitQuote?.assetDeficits?.[0]?.deficit
+
   const assetDiff = ActionRequest.AssetDiff.useAssetDiff({
     address: account?.address,
     assetDiff: assetDiffs,
   })
-
-  const quotes = capabilities?.quote?.quotes ?? []
   const quote_destination = quotes.at(-1)
   const sponsored =
     quote_destination?.intent?.payer !==
@@ -75,10 +87,17 @@ export function ActionRequest(props: ActionRequest.Props) {
 
   const chainsPath = ActionRequest.useChainsPath(quotes)
 
-  const identified = ActionRequest.useIdentifyTx(
-    quote_destination?.intent.executionData ?? null,
-    assetDiff,
+  const identifiedFromCalls = React.useMemo(
+    () => ActionRequest.txIdentity.identifyFromCalls(calls, chainId),
+    [calls, chainId],
   )
+
+  const identifiedFromRelay = React.useMemo(
+    () => ActionRequest.txIdentity.identifyFromAssetDiffs(assetDiff),
+    [assetDiff],
+  )
+
+  const identified = identifiedFromRelay || identifiedFromCalls
 
   const addNativeCurrencyName = (asset: ActionRequest.CoinAsset) => {
     if (asset.type !== null) return asset
@@ -89,13 +108,26 @@ export function ActionRequest(props: ActionRequest.Props) {
   }
 
   return (
-    <CheckBalance
-      address={address}
-      feeToken={feeToken}
-      onReject={onReject}
-      query={prepareCallsQuery}
-    >
+    <>
       {(() => {
+        if (showAddFunds && deficitToken)
+          return (
+            <AddFunds
+              address={address}
+              assetDeficits={deficitQuote.assetDeficits}
+              chainId={deficitToken.chainId}
+              onApprove={() => {
+                setShowAddFunds(false)
+                prepareCallsQuery.refetch()
+              }}
+              onReject={() => setShowAddFunds(false)}
+              tokenAddress={deficitToken.address ?? undefined}
+              value={
+                deficitValue === undefined ? undefined : String(deficitValue)
+              }
+            />
+          )
+
         // Route to the appropriate view based on the identified transaction type.
         if (identified?.type === 'approve')
           return (
@@ -103,8 +135,10 @@ export function ActionRequest(props: ActionRequest.Props) {
               amount={identified.amount}
               approving={loading}
               chainsPath={chainsPath}
+              deficitToken={deficitToken}
               fees={sponsored ? undefined : feeTotals}
               loading={prepareCallsQuery.isPending}
+              onAddFunds={() => setShowAddFunds(true)}
               onApprove={() => {
                 if (prepareCallsQuery.isSuccess)
                   onApprove(prepareCallsQuery.data)
@@ -112,6 +146,7 @@ export function ActionRequest(props: ActionRequest.Props) {
               onReject={onReject}
               spender={identified.spender}
               tokenAddress={identified.tokenAddress}
+              checkingDeficit={prepareCallsQuery.isPending}
             />
           )
 
@@ -122,8 +157,10 @@ export function ActionRequest(props: ActionRequest.Props) {
               assetOut={addNativeCurrencyName(identified.assetOut)}
               chainsPath={chainsPath}
               contractAddress={calls[0]?.to}
+              deficitToken={deficitToken}
               fees={sponsored ? undefined : feeTotals}
-              loading={prepareCallsQuery.isPending}
+              loading={false}
+              onAddFunds={() => setShowAddFunds(true)}
               onApprove={() => {
                 if (prepareCallsQuery.isSuccess)
                   onApprove(prepareCallsQuery.data)
@@ -131,6 +168,7 @@ export function ActionRequest(props: ActionRequest.Props) {
               onReject={onReject}
               swapping={loading}
               swapType={identified.type}
+              checkingDeficit={prepareCallsQuery.isPending}
             />
           )
 
@@ -139,8 +177,10 @@ export function ActionRequest(props: ActionRequest.Props) {
             <Send
               asset={identified.asset}
               chainsPath={chainsPath}
+              deficitToken={deficitToken}
               fees={sponsored ? undefined : feeTotals}
               loading={prepareCallsQuery.isPending}
+              onAddFunds={() => setShowAddFunds(true)}
               onApprove={() => {
                 if (prepareCallsQuery.isSuccess)
                   onApprove(prepareCallsQuery.data)
@@ -148,38 +188,55 @@ export function ActionRequest(props: ActionRequest.Props) {
               onReject={onReject}
               sending={loading}
               to={identified.to}
+              checkingDeficit={prepareCallsQuery.isPending}
             />
           )
 
-        // Fall back to generic "Action Request" view.
+        if (!identified && calls.length === 0) return <Layout loading />
+
         return (
           <Layout>
             <Layout.Header>
               <Layout.Header.Default
-                icon={prepareCallsQuery.isError ? TriangleAlert : Star}
+                icon={
+                  prepareCallsQuery.isError && !deficitToken
+                    ? TriangleAlert
+                    : Star
+                }
                 title="Review action"
-                variant={prepareCallsQuery.isError ? 'warning' : 'default'}
+                variant={
+                  prepareCallsQuery.isError && !deficitToken
+                    ? 'warning'
+                    : 'default'
+                }
               />
             </Layout.Header>
 
             <Layout.Content className="pb-2!">
-              <ActionRequest.PaneWithDetails
-                error={prepareCallsQuery.error}
-                errorMessage="An error occurred while simulating the action. Proceed with caution."
-                feeTotals={feeTotals}
-                quotes={quotes}
-                status={
-                  prepareCallsQuery.isPending
-                    ? 'pending'
-                    : prepareCallsQuery.isError
-                      ? 'error'
-                      : 'success'
-                }
-              >
-                {assetDiff.length > 0 ? (
-                  <ActionRequest.AssetDiff assetDiff={assetDiff} />
-                ) : undefined}
-              </ActionRequest.PaneWithDetails>
+              <div className="flex flex-col gap-[8px]">
+                <ActionRequest.PaneWithDetails
+                  error={deficitToken ? null : prepareCallsQuery.error}
+                  errorMessage="An error occurred while simulating the action. Proceed with caution."
+                  feeTotals={feeTotals}
+                  quotes={quotes}
+                  status={
+                    prepareCallsQuery.isPending
+                      ? 'pending'
+                      : prepareCallsQuery.isError && !deficitToken
+                        ? 'error'
+                        : 'success'
+                  }
+                >
+                  {assetDiff.length > 0 ? (
+                    <ActionRequest.AssetDiff assetDiff={assetDiff} />
+                  ) : undefined}
+                </ActionRequest.PaneWithDetails>
+                {deficitToken && (
+                  <div className="rounded-th_medium border border-th_warning bg-th_warning px-3 py-[10px] text-center text-sm text-th_warning">
+                    You do not have enough funds.
+                  </div>
+                )}
+              </div>
             </Layout.Content>
 
             <Layout.Footer>
@@ -191,23 +248,40 @@ export function ActionRequest(props: ActionRequest.Props) {
                 >
                   Cancel
                 </Button>
-                <Button
-                  data-testid="confirm"
-                  disabled={!prepareCallsQuery.isSuccess}
-                  loading={loading && 'Confirming…'}
-                  onClick={() => {
-                    if (prepareCallsQuery.isError) {
-                      prepareCallsQuery.refetch()
-                      return
+                {deficitToken ? (
+                  <Button
+                    data-testid="add-funds"
+                    onClick={() => setShowAddFunds(true)}
+                    variant="primary"
+                    width="grow"
+                  >
+                    Add funds
+                  </Button>
+                ) : (
+                  <Button
+                    data-testid="confirm"
+                    disabled={!prepareCallsQuery.isSuccess}
+                    loading={
+                      loading
+                        ? 'Confirming…'
+                        : prepareCallsQuery.isPending
+                          ? 'Loading…'
+                          : false
                     }
-                    if (prepareCallsQuery.isSuccess)
-                      onApprove(prepareCallsQuery.data)
-                  }}
-                  variant={prepareCallsQuery.isError ? 'primary' : 'positive'}
-                  width="grow"
-                >
-                  {prepareCallsQuery.isError ? 'Retry' : 'Confirm'}
-                </Button>
+                    onClick={() => {
+                      if (prepareCallsQuery.isError) {
+                        prepareCallsQuery.refetch()
+                        return
+                      }
+                      if (prepareCallsQuery.isSuccess)
+                        onApprove(prepareCallsQuery.data)
+                    }}
+                    variant={prepareCallsQuery.isError ? 'primary' : 'positive'}
+                    width="grow"
+                  >
+                    {prepareCallsQuery.isError ? 'Retry' : 'Confirm'}
+                  </Button>
+                )}
               </Layout.Footer.Actions>
 
               {account?.address && (
@@ -217,7 +291,7 @@ export function ActionRequest(props: ActionRequest.Props) {
           </Layout>
         )
       })()}
-    </CheckBalance>
+    </>
   )
 }
 
@@ -283,14 +357,12 @@ export namespace ActionRequest {
               const current = balances.get(address)
 
               const direction = asset.direction === 'incoming' ? 1n : -1n
-              const fiat = asset.fiat
-                ? {
-                    ...asset.fiat,
-                    value:
-                      (current?.fiat?.value ?? 0) +
-                      Number(direction) * asset.fiat.value,
-                  }
-                : undefined
+              const fiat = asset.fiat && {
+                ...asset.fiat,
+                value:
+                  (current?.fiat?.value ?? 0) +
+                  Number(direction) * asset.fiat.value,
+              }
               const value = (current?.value ?? 0n) + direction * asset.value
 
               balances.set(address, {
@@ -510,9 +582,8 @@ export namespace ActionRequest {
       quotes?.at(-1)?.intent?.payer !==
       '0x0000000000000000000000000000000000000000'
     const feeTotal = feeTotals?.['0x0']?.value
-    const feeTotalFormatted = feeTotal
-      ? PriceFormatter.format(Number(feeTotal))
-      : undefined
+    const feeTotalFormatted =
+      feeTotal && PriceFormatter.format(Number(feeTotal))
 
     const chainsPath = useChainsPath(quotes)
 
@@ -607,83 +678,25 @@ export namespace ActionRequest {
     }, [quotes])
   }
 
-  export function useIdentifyTx(
-    data: Hex.Hex | null,
-    assetDiffs: Capabilities.assetDiffs.AssetDiffAsset[],
-  ): useIdentifyTx.IdentifiedTx | null {
-    return React.useMemo(() => {
-      // assets diff based detection
-      const assetDiffTx = useIdentifyTx.identifyTxFromAssetsDiff(assetDiffs)
+  export namespace txIdentity {
+    export function identifyFromCalls(
+      calls: readonly Call[],
+      chainId?: number,
+    ): IdentifiedTx | null {
+      if (calls.length === 0 || chainId === undefined) return null
 
-      // calldata based detection
-      if (data) {
-        try {
-          const [calls] = decodeAbiParameters(useIdentifyTx.CallsAbi, data)
-          if (!calls.length) return assetDiffTx
-
-          const lastCall = calls[calls.length - 1]
-          if (!lastCall) return assetDiffTx
-
-          // only show the approve screen for single-call approvals
-          if (calls.length === 1) {
-            const approve = useIdentifyTx.identifyApprove(lastCall)
-            if (approve) return approve
-          }
-
-          if (assetDiffTx?.type === 'send') {
-            const to = useIdentifyTx.getTransferToAddress(lastCall)
-            if (to) return { ...assetDiffTx, to }
-          }
-        } catch {}
+      // only show the approve screen for single-call approvals
+      if (calls.length === 1) {
+        const approve = identifyApproveCall(calls[0] as Call)
+        if (approve) return approve
       }
 
-      return assetDiffTx
-    }, [data, assetDiffs])
-  }
-
-  export namespace useIdentifyTx {
-    export function identifyApprove(call: {
-      to: Address.Address
-      data: Address.Address
-    }): IdentifiedTx | null {
-      try {
-        const decoded = decodeFunctionData({
-          abi: erc20Abi,
-          data: call.data,
-        })
-
-        if (decoded.functionName === 'approve') {
-          const [spender, amount] = decoded.args
-          return {
-            amount,
-            spender,
-            tokenAddress: call.to,
-            type: 'approve',
-          }
-        }
-      } catch {}
-      return null
+      const chain = porto.config.chains.find((c) => c.id === chainId)
+      if (!chain) return null
+      return identifySendCall(calls.at(-1) as Call, chain.nativeCurrency)
     }
 
-    export function getTransferToAddress(call: {
-      to: Address.Address
-      data: Address.Address
-      value?: bigint
-    }): Address.Address | null {
-      // native
-      if (call.value && call.value > 0n && call.data === '0x') return call.to
-
-      // erc20
-      try {
-        const decoded = decodeFunctionData({ abi: erc20Abi, data: call.data })
-        if (decoded.functionName === 'transfer') return decoded.args[0]
-        if (decoded.functionName === 'transferFrom') return decoded.args[1]
-      } catch {}
-
-      return null
-    }
-
-    export function identifyTxFromAssetsDiff(
+    export function identifyFromAssetDiffs(
       assetDiffs: Capabilities.assetDiffs.AssetDiffAsset[],
     ): IdentifiedTx | null {
       if (!assetDiffs.length) return null
@@ -739,6 +752,91 @@ export namespace ActionRequest {
           asset: assetDiffs[0] as CoinAsset,
           type: 'send',
         }
+
+      return null
+    }
+
+    export function identifyApproveCall(call: Call): TxApprove | null {
+      if (!call.data) return null
+
+      try {
+        const decoded = decodeFunctionData({
+          abi: erc20Abi,
+          data: call.data,
+        })
+
+        if (decoded.functionName === 'approve') {
+          const [spender, amount] = decoded.args
+          return {
+            amount,
+            spender,
+            tokenAddress: call.to,
+            type: 'approve',
+          }
+        }
+      } catch {}
+
+      return null
+    }
+
+    export function identifySendCall(
+      call: Call,
+      nativeCurrency: { name: string; symbol: string },
+    ): TxSend | null {
+      if (!call.data) return null
+
+      // native
+      if (call.value && call.value > 0n && call.data === '0x') {
+        return {
+          type: 'send',
+          asset: {
+            ...nativeCurrency,
+            address: null,
+            direction: 'outgoing',
+            type: null,
+            value: call.value,
+          },
+          to: call.to,
+        }
+      }
+
+      // erc20
+      try {
+        const decoded = decodeFunctionData({ abi: erc20Abi, data: call.data })
+        if (decoded.functionName === 'transfer') {
+          const [recipient, amount] = decoded.args
+          return {
+            type: 'send',
+            asset: {
+              address: call.to,
+              direction: 'outgoing',
+              name: '', // unknown at this point
+              symbol: '', // unknown at this point
+              type: 'erc20',
+              value: amount,
+            },
+            to: recipient,
+          }
+        }
+      } catch {}
+
+      return null
+    }
+
+    export function getTransferToAddress(call: {
+      to: Address.Address
+      data: Address.Address
+      value?: bigint
+    }): Address.Address | null {
+      // native
+      if (call.value && call.value > 0n && call.data === '0x') return call.to
+
+      // erc20
+      try {
+        const decoded = decodeFunctionData({ abi: erc20Abi, data: call.data })
+        if (decoded.functionName === 'transfer') return decoded.args[0]
+        if (decoded.functionName === 'transferFrom') return decoded.args[1]
+      } catch {}
 
       return null
     }
