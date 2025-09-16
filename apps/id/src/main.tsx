@@ -92,6 +92,25 @@ document.addEventListener('keydown', (event) => {
     document.documentElement.toggleAttribute('data-dialog')
   }
 
+  // ⌥ + d: clear all stores, local storage, cookies, sessions, and indexeddb
+  if (event.altKey && event.code === 'KeyD') {
+    console.info(
+      'Clearing all stores, local storage, cookies, sessions, and indexeddb',
+    )
+
+    window.localStorage.clear()
+    window.sessionStorage.clear()
+    window.indexedDB
+      .databases()
+      .then((databases) =>
+        databases.forEach((database) => {
+          if (!database.name) return
+          window.indexedDB.deleteDatabase(database.name)
+        }),
+      )
+      .catch((error) => console.error('Error clearing indexeddb', error))
+  }
+
   // ⌥ + h: hide dev tools
   if (event.altKey && event.code === 'KeyH') {
     const devToolsElement = document.querySelector(
