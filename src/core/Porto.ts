@@ -4,7 +4,7 @@ import type * as Hex from 'ox/Hex'
 import type * as RpcRequest from 'ox/RpcRequest'
 import type * as RpcResponse from 'ox/RpcResponse'
 import { http, type Transport, type ValueOf } from 'viem'
-import { persist, subscribeWithSelector } from 'zustand/middleware'
+import { devtools, persist, subscribeWithSelector } from 'zustand/middleware'
 import { createStore, type Mutate, type StoreApi } from 'zustand/vanilla'
 import type * as Account from '../viem/Account.js'
 import * as Chains from './Chains.js'
@@ -75,47 +75,70 @@ export function create(
 
   const store = createStore(
     subscribeWithSelector(
-      persist<State>(
-        (_) => ({
-          accounts: [],
-          chainIds: config.chains.map((chain) => chain.id) as [
-            number,
-            ...number[],
-          ],
-          feeToken: config.feeToken,
-          requestQueue: [],
-        }),
+      devtools(
+        persist<State>(
+          (_) => ({
+            accounts: [],
+            chainIds: config.chains.map((chain) => chain.id) as [
+              number,
+              ...number[],
+            ],
+            feeToken: config.feeToken,
+            requestQueue: [],
+          }),
+          {
+            merge(p, currentState) {
+              const persistedState = p as State
+              const currentChainId =
+                config.chains.find(
+                  (chain) => chain.id === persistedState.chainIds[0],
+                )?.id ?? config.chains[0].id
+              const chainIds = [
+                currentChainId,
+                ...config.chains
+                  .map((chain) => chain.id)
+                  .filter((id) => id !== currentChainId),
+              ] as const
+              return {
+                ...currentState,
+                ...persistedState,
+                chainIds,
+              }
+            },
+            migrate: (persistedState, version) => {
+              if (version === 0) {
+                console.info('Migrating from version 0 to version 1')
+                return {
+                  accounts: [],
+                  chainIds: config.chains.map((chain) => chain.id) as [
+                    number,
+                    ...number[],
+                  ],
+                  feeToken: config.feeToken,
+                  requestQueue: [],
+                }
+              }
+              console.info('Migrating from version 1 to version 2')
+
+              return persistedState as State
+            },
+            name: config.storageKey,
+            partialize(state) {
+              return {
+                accounts: state.accounts.map((account) =>
+                  // omit non-serializable properties (e.g. functions).
+                  Utils.normalizeValue(account),
+                ),
+                chainIds: state.chainIds,
+              } as unknown as State
+            },
+            storage: config.storage,
+            version: 5,
+          },
+        ),
         {
-          merge(p, currentState) {
-            const persistedState = p as State
-            const currentChainId =
-              config.chains.find(
-                (chain) => chain.id === persistedState.chainIds[0],
-              )?.id ?? config.chains[0].id
-            const chainIds = [
-              currentChainId,
-              ...config.chains
-                .map((chain) => chain.id)
-                .filter((id) => id !== currentChainId),
-            ] as const
-            return {
-              ...currentState,
-              ...persistedState,
-              chainIds,
-            }
-          },
-          name: config.storageKey,
-          partialize(state) {
-            return {
-              accounts: state.accounts.map((account) =>
-                // omit non-serializable properties (e.g. functions).
-                Utils.normalizeValue(account),
-              ),
-              chainIds: state.chainIds,
-            } as unknown as State
-          },
-          storage: config.storage,
-          version: 5,
+          enabled: process.env.NODE_ENV === 'development',
+          name: 'porto.store.devtools',
         },
       ),
     ),

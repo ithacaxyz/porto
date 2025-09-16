@@ -2,45 +2,68 @@ import type { Theme } from '@porto/apps'
 import type { Address } from 'ox'
 import type { Messenger } from 'porto'
 import * as Zustand from 'zustand'
-import { persist } from 'zustand/middleware'
+import { devtools, persist } from 'zustand/middleware'
 import { useShallow } from 'zustand/shallow'
 import { createStore } from 'zustand/vanilla'
 
 export const store = createStore(
-  persist<store.State>(
-    () => {
-      const referrer = (() => {
-        const referrer = new URLSearchParams(window.location.search).get(
-          'referrer',
-        )
-        if (!referrer) return undefined
-        try {
-          const parsed = JSON.parse(referrer)
-          return {
-            ...parsed,
-            url: parsed.url ? new URL(parsed.url) : undefined,
-          }
-        } catch {}
-        return undefined
-      })()
+  devtools(
+    persist<store.State>(
+      () => {
+        const referrer = (() => {
+          const referrer = new URLSearchParams(window.location.search).get(
+            'referrer',
+          )
+          if (!referrer) return undefined
+          try {
+            const parsed = JSON.parse(referrer)
+            return {
+              ...parsed,
+              url: parsed.url ? new URL(parsed.url) : undefined,
+            }
+          } catch {}
+          return undefined
+        })()
 
-      return {
-        accountMetadata: {},
-        customTheme: undefined,
-        display: 'full',
-        error: null,
-        mode: 'popup-standalone',
-        referrer,
-        visible: undefined,
-      }
-    },
-    {
-      name: 'porto.dialog',
-      partialize(state) {
         return {
-          accountMetadata: state.accountMetadata,
-        } as store.State
+          accountMetadata: {},
+          customTheme: undefined,
+          display: 'full',
+          error: null,
+          mode: 'popup-standalone',
+          referrer,
+          visible: undefined,
+        }
       },
+      {
+        migrate: (persistedState, version) => {
+          if (version === 0) {
+            console.info('Migrating from version 0 to version 1')
+            return {
+              accountMetadata: {},
+              customTheme: undefined,
+              display: 'full',
+              error: null,
+              mode: 'popup-standalone',
+              referrer: undefined,
+              visible: undefined,
+            }
+          }
+          console.info('Migrating from version 1 to version 2')
+
+          return persistedState as store.State
+        },
+        name: 'porto.dialog',
+        partialize(state) {
+          return {
+            accountMetadata: state.accountMetadata,
+          } as store.State
+        },
+      },
+    ),
+    {
+      enabled: import.meta.env.DEV,
+      name: 'porto.dialog.devtools',
     },
   ),
 )
