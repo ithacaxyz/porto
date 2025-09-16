@@ -74,8 +74,8 @@ export function create(
   } satisfies Config
 
   const store = createStore(
-    subscribeWithSelector(
-      devtools(
+    devtools(
+      subscribeWithSelector(
         persist<State>(
           (_) => ({
             accounts: [],
@@ -107,7 +107,6 @@ export function create(
             },
             migrate: (persistedState, version) => {
               if (version === 0) {
-                console.info('Migrating from version 0 to version 1')
                 return {
                   accounts: [],
                   chainIds: config.chains.map((chain) => chain.id) as [
@@ -118,29 +117,26 @@ export function create(
                   requestQueue: [],
                 }
               }
-              console.info('Migrating from version 1 to version 2')
 
               return persistedState as State
             },
             name: config.storageKey,
-            partialize(state) {
-              return {
+            partialize: (state) =>
+              ({
                 accounts: state.accounts.map((account) =>
                   // omit non-serializable properties (e.g. functions).
                   Utils.normalizeValue(account),
                 ),
                 chainIds: state.chainIds,
-              } as unknown as State
-            },
+              }) as unknown as State,
             storage: config.storage,
             version: 5,
           },
         ),
-        {
-          enabled: process.env.NODE_ENV === 'development',
-          name: 'porto.store.devtools',
-        },
       ),
+      {
+        name: 'porto.store.devtools',
+      },
     ),
   )
 
