@@ -18,7 +18,7 @@
     "jose": "^6.1.0",
     "porto": "workspace:*",
     "viem": "catalog:",
-    "zod": "^4.1.8"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.13.1",

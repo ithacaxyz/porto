@@ -26,6 +26,7 @@ import {
   useWatchBlockNumber,
   WagmiProvider,
 } from 'wagmi'
+import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import * as Tokens from '~/lib/Tokens'
 import { Layout } from '~/routes/-components/Layout'
@@ -50,6 +51,7 @@ type View =
   | 'connected-wallet-transfer'
   | 'default'
   | 'error'
+  | 'onramp'
 
 export function AddFunds(props: AddFunds.Props) {
   const { chainId, onApprove, onReject, tokenAddress, value } = props
@@ -118,6 +120,15 @@ export function AddFunds(props: AddFunds.Props) {
     return false
   }, [chain, token, tokenAddress, view])
 
+  const referrer = Dialog.useStore((state) => state.referrer)
+  const showApplePay = React.useMemo(() => {
+    return (
+      referrer?.url?.hostname.endsWith('localhost') ||
+      referrer?.url?.hostname === 'playground.porto.sh' ||
+      referrer?.url?.hostname.endsWith('preview.porto.sh')
+    )
+  }, [referrer?.url])
+
   if (view === 'error')
     return (
       <Layout>
@@ -181,9 +192,11 @@ export function AddFunds(props: AddFunds.Props) {
 
       <Layout.Content>
         <div className="flex flex-col gap-3">
-          {address && <Onramp address={address} minAmount={value} />}
+          {showApplePay && address && (
+            <Onramp address={address} minAmount={value} setView={setView} />
+          )}
 
-          {false && showFaucet && (
+          {showFaucet && (
             <>
               <Faucet
                 address={address}
@@ -201,7 +214,7 @@ export function AddFunds(props: AddFunds.Props) {
             </>
           )}
 
-          {false && (
+          {view !== 'onramp' && (
             <WagmiProvider config={config} reconnectOnMount={false}>
               <QueryClientProvider client={queryClient}>
                 <DepositCrypto
@@ -237,12 +250,11 @@ export declare namespace AddFunds {
 function Onramp(props: {
   address: Address.Address
   minAmount?: string | undefined
+  setView: (view: View) => void
 }) {
   const { address } = props
 
-  const [view, setView] = React.useState<'info' | 'verify' | 'amount' | 'pay'>(
-    'info',
-  )
+  const [view, setView] = React.useState<'start' | 'amount' | 'pay'>('start')
 
   const minAmount = React.useMemo(() => {
     const value = props.minAmount
@@ -294,62 +306,20 @@ function Onramp(props: {
     },
   })
 
-  if (view === 'info') {
+  if (view === 'start') {
     return (
-      <form
-        className="grid h-min grid-flow-row auto-rows-min grid-cols-1 space-y-3"
-        onSubmit={(event) => {
-          event.preventDefault()
-          setView('verify')
-        }}
-      >
-        <div className="col-span-1 row-span-1">
-          <input placeholder="email" type="email" />
-        </div>
-        <div className="col-span-1 row-span-1">
-          <input placeholder="phone" type="tel" />
-        </div>
-        <div className="col-span-1 row-span-1 space-y-3.5">
-          <Button
-            className="w-full flex-1"
-            type="submit"
-            variant="primary"
-            width="grow"
-          >
-            Continue
-          </Button>
-        </div>
-        <div>
-          By continuing, I agree to the terms of service, user agreement, and
-          privacy policy.
-        </div>
-      </form>
-    )
-  }
-
-  if (view === 'verify') {
-    return (
-      <form
-        className="grid h-min grid-flow-row auto-rows-min grid-cols-1 space-y-3"
-        onSubmit={(event) => {
-          event.preventDefault()
+      <Button
+        className="w-full flex-1"
+        onClick={() => {
+          props.setView('onramp')
           setView('amount')
         }}
+        type="submit"
+        variant="primary"
+        width="grow"
       >
-        <div className="col-span-1 row-span-1">
-          <input placeholder="code" type="number" />
-        </div>
-        <div className="col-span-1 row-span-1 space-y-3.5">
-          <Button
-            className="w-full flex-1"
-            type="submit"
-            variant="primary"
-            width="grow"
-          >
-            Verify Phone
-          </Button>
-        </div>
-      </form>
+        Apple Pay
+      </Button>
     )
   }
 
