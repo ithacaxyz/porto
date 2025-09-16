@@ -21,7 +21,7 @@ export function Send(props: Send.Props) {
     onAddFunds,
     sending,
     to,
-    deficitToken,
+    hasDeficit,
     checkingDeficit,
   } = props
 
@@ -85,7 +85,7 @@ export function Send(props: Send.Props) {
               />
             </div>
           </div>
-          <Details loading={loading && !deficitToken}>
+          <Details loading={loading && !hasDeficit}>
             {feeFormatted && (
               <Details.Item
                 label="Fees (est.)"
@@ -103,7 +103,7 @@ export function Send(props: Send.Props) {
               />
             )}
           </Details>
-          {deficitToken && (
+          {hasDeficit && (
             <div className="rounded-th_medium border border-th_warning bg-th_warning px-3 py-[10px] text-center text-sm text-th_warning">
               You do not have enough funds.
             </div>
@@ -121,7 +121,7 @@ export function Send(props: Send.Props) {
           >
             Cancel
           </Button>
-          {deficitToken ? (
+          {hasDeficit ? (
             <Button
               data-testid="add-funds"
               disabled={!onAddFunds}
@@ -161,12 +161,7 @@ export namespace Send {
     onAddFunds?: () => void
     sending?: boolean | undefined
     to: `0x${string}`
-    deficitToken?:
-      | {
-          address: `0x${string}` | null
-          chainId: number | undefined
-        }
-      | undefined
+    hasDeficit?: boolean | undefined
     checkingDeficit?: boolean | undefined
   }
 

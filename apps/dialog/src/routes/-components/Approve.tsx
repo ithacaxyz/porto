@@ -30,7 +30,7 @@ export function Approve(props: Approve.Props) {
     onAddFunds,
     spender,
     tokenAddress,
-    deficitToken,
+    hasDeficit,
     checkingDeficit,
   } = props
 
@@ -121,7 +121,7 @@ export function Approve(props: Approve.Props) {
               unlimited={unlimited}
             />
           </div>
-          <Details loading={loading && !deficitToken}>
+          <Details loading={loading && !hasDeficit}>
             <Details.Item
               label="Requested by"
               value={
@@ -148,7 +148,7 @@ export function Approve(props: Approve.Props) {
               />
             )}
           </Details>
-          {deficitToken && (
+          {hasDeficit && (
             <div className="rounded-th_medium border border-th_warning bg-th_warning px-3 py-[10px] text-center text-sm text-th_warning">
               You do not have enough funds.
             </div>
@@ -166,7 +166,7 @@ export function Approve(props: Approve.Props) {
           >
             Cancel
           </Button>
-          {deficitToken ? (
+          {hasDeficit ? (
             <Button
               data-testid="add-funds"
               disabled={!onAddFunds}
@@ -211,18 +211,7 @@ export namespace Approve {
     spender: `0x${string}`
     tokenAddress: `0x${string}`
     unlimited?: boolean | undefined
-    deficitToken?:
-      | {
-          address: `0x${string}` | null
-          chainId: number | undefined
-        }
-      | undefined
-    token?:
-      | {
-          decimals: number
-        }
-      | undefined
-    address?: `0x${string}` | undefined
+    hasDeficit?: boolean | undefined
     checkingDeficit?: boolean | undefined
   }
 

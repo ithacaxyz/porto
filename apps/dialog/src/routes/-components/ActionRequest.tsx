@@ -16,6 +16,7 @@ import {
   erc20Abi,
   ethAddress,
 } from 'viem'
+import { CheckBalance } from '~/components/CheckBalance'
 import * as Calls from '~/lib/Calls'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
@@ -28,7 +29,6 @@ import LucideSparkles from '~icons/lucide/sparkles'
 import TriangleAlert from '~icons/lucide/triangle-alert'
 import LucideVideo from '~icons/lucide/video'
 import Star from '~icons/ph/star-four-bold'
-import { AddFunds } from '../-components/AddFunds'
 import { Approve } from '../-components/Approve'
 import { Send } from '../-components/Send'
 import { Swap } from '../-components/Swap'
@@ -46,8 +46,6 @@ export function ActionRequest(props: ActionRequest.Props) {
     requiredFunds,
   } = props
 
-  const [showAddFunds, setShowAddFunds] = React.useState(false)
-
   const account = Hooks.useAccount(porto, { address })
 
   const prepareCallsQuery = Calls.prepareCalls.useQuery({
@@ -63,23 +61,12 @@ export function ActionRequest(props: ActionRequest.Props) {
   const capabilities = prepareCallsQuery.data?.capabilities
   const { assetDiffs, feeTotals } = capabilities ?? {}
 
-  const quotes = capabilities?.quote?.quotes ?? []
-
-  const deficitQuote = quotes.find(
-    (quote) => quote.assetDeficits && quote.assetDeficits.length > 0,
-  )
-
-  const deficitToken = deficitQuote?.assetDeficits?.[0] && {
-    address: deficitQuote.assetDeficits[0].address,
-    chainId: deficitQuote.chainId,
-  }
-
-  const deficitValue = deficitQuote?.assetDeficits?.[0]?.deficit
-
   const assetDiff = ActionRequest.AssetDiff.useAssetDiff({
     address: account?.address,
     assetDiff: assetDiffs,
   })
+
+  const quotes = capabilities?.quote?.quotes ?? []
   const quote_destination = quotes.at(-1)
   const sponsored =
     quote_destination?.intent?.payer !==
@@ -107,191 +94,186 @@ export function ActionRequest(props: ActionRequest.Props) {
     }
   }
 
+  // Use CheckBalance to automatically handle AddFunds when there's a deficit
   return (
-    <>
-      {(() => {
-        if (showAddFunds && deficitToken)
-          return (
-            <AddFunds
-              address={address}
-              assetDeficits={deficitQuote.assetDeficits}
-              chainId={deficitToken.chainId}
-              onApprove={() => {
-                setShowAddFunds(false)
-                prepareCallsQuery.refetch()
-              }}
-              onReject={() => setShowAddFunds(false)}
-              tokenAddress={deficitToken.address ?? undefined}
-              value={
-                deficitValue === undefined ? undefined : String(deficitValue)
-              }
-            />
-          )
+    <CheckBalance
+      address={address}
+      onReject={onReject}
+      query={prepareCallsQuery}
+    >
+      {(deficit) => (
+        <>
+          {(() => {
+            // Route to the appropriate view based on the identified transaction type.
+            if (identified?.type === 'approve')
+              return (
+                <Approve
+                  amount={identified.amount}
+                  approving={loading}
+                  chainsPath={chainsPath}
+                  checkingDeficit={prepareCallsQuery.isPending}
+                  fees={sponsored ? undefined : feeTotals}
+                  hasDeficit={deficit.hasDeficit}
+                  loading={prepareCallsQuery.isPending}
+                  onAddFunds={deficit.onAddFunds}
+                  onApprove={() => {
+                    if (prepareCallsQuery.isSuccess)
+                      onApprove(prepareCallsQuery.data)
+                  }}
+                  onReject={onReject}
+                  spender={identified.spender}
+                  tokenAddress={identified.tokenAddress}
+                />
+              )
 
-        // Route to the appropriate view based on the identified transaction type.
-        if (identified?.type === 'approve')
-          return (
-            <Approve
-              amount={identified.amount}
-              approving={loading}
-              chainsPath={chainsPath}
-              checkingDeficit={prepareCallsQuery.isPending}
-              deficitToken={deficitToken}
-              fees={sponsored ? undefined : feeTotals}
-              loading={prepareCallsQuery.isPending}
-              onAddFunds={() => setShowAddFunds(true)}
-              onApprove={() => {
-                if (prepareCallsQuery.isSuccess)
-                  onApprove(prepareCallsQuery.data)
-              }}
-              onReject={onReject}
-              spender={identified.spender}
-              tokenAddress={identified.tokenAddress}
-            />
-          )
+            if (identified?.type === 'swap' || identified?.type === 'convert')
+              return (
+                <Swap
+                  assetIn={addNativeCurrencyName(identified.assetIn)}
+                  assetOut={addNativeCurrencyName(identified.assetOut)}
+                  chainsPath={chainsPath}
+                  checkingDeficit={prepareCallsQuery.isPending}
+                  contractAddress={calls[0]?.to}
+                  fees={sponsored ? undefined : feeTotals}
+                  hasDeficit={deficit.hasDeficit}
+                  loading={false}
+                  onAddFunds={deficit.onAddFunds}
+                  onApprove={() => {
+                    if (prepareCallsQuery.isSuccess)
+                      onApprove(prepareCallsQuery.data)
+                  }}
+                  onReject={onReject}
+                  swapping={loading}
+                  swapType={identified.type}
+                />
+              )
 
-        if (identified?.type === 'swap' || identified?.type === 'convert')
-          return (
-            <Swap
-              assetIn={addNativeCurrencyName(identified.assetIn)}
-              assetOut={addNativeCurrencyName(identified.assetOut)}
-              chainsPath={chainsPath}
-              checkingDeficit={prepareCallsQuery.isPending}
-              contractAddress={calls[0]?.to}
-              deficitToken={deficitToken}
-              fees={sponsored ? undefined : feeTotals}
-              loading={false}
-              onAddFunds={() => setShowAddFunds(true)}
-              onApprove={() => {
-                if (prepareCallsQuery.isSuccess)
-                  onApprove(prepareCallsQuery.data)
-              }}
-              onReject={onReject}
-              swapping={loading}
-              swapType={identified.type}
-            />
-          )
+            if (identified?.type === 'send' && identified.to)
+              return (
+                <Send
+                  asset={identified.asset}
+                  chainsPath={chainsPath}
+                  checkingDeficit={prepareCallsQuery.isPending}
+                  fees={sponsored ? undefined : feeTotals}
+                  hasDeficit={deficit.hasDeficit}
+                  loading={prepareCallsQuery.isPending}
+                  onAddFunds={deficit.onAddFunds}
+                  onApprove={() => {
+                    if (prepareCallsQuery.isSuccess)
+                      onApprove(prepareCallsQuery.data)
+                  }}
+                  onReject={onReject}
+                  sending={loading}
+                  to={identified.to}
+                />
+              )
 
-        if (identified?.type === 'send' && identified.to)
-          return (
-            <Send
-              asset={identified.asset}
-              chainsPath={chainsPath}
-              checkingDeficit={prepareCallsQuery.isPending}
-              deficitToken={deficitToken}
-              fees={sponsored ? undefined : feeTotals}
-              loading={prepareCallsQuery.isPending}
-              onAddFunds={() => setShowAddFunds(true)}
-              onApprove={() => {
-                if (prepareCallsQuery.isSuccess)
-                  onApprove(prepareCallsQuery.data)
-              }}
-              onReject={onReject}
-              sending={loading}
-              to={identified.to}
-            />
-          )
+            if (!identified && calls.length === 0) return <Layout loading />
 
-        if (!identified && calls.length === 0) return <Layout loading />
-
-        return (
-          <Layout>
-            <Layout.Header>
-              <Layout.Header.Default
-                icon={
-                  prepareCallsQuery.isError && !deficitToken
-                    ? TriangleAlert
-                    : Star
-                }
-                title="Review action"
-                variant={
-                  prepareCallsQuery.isError && !deficitToken
-                    ? 'warning'
-                    : 'default'
-                }
-              />
-            </Layout.Header>
-
-            <Layout.Content className="pb-2!">
-              <div className="flex flex-col gap-[8px]">
-                <ActionRequest.PaneWithDetails
-                  error={deficitToken ? null : prepareCallsQuery.error}
-                  errorMessage="An error occurred while simulating the action. Proceed with caution."
-                  feeTotals={feeTotals}
-                  quotes={quotes}
-                  status={
-                    prepareCallsQuery.isPending
-                      ? 'pending'
-                      : prepareCallsQuery.isError && !deficitToken
-                        ? 'error'
-                        : 'success'
-                  }
-                >
-                  {assetDiff.length > 0 ? (
-                    <ActionRequest.AssetDiff assetDiff={assetDiff} />
-                  ) : undefined}
-                </ActionRequest.PaneWithDetails>
-                {deficitToken && (
-                  <div className="rounded-th_medium border border-th_warning bg-th_warning px-3 py-[10px] text-center text-sm text-th_warning">
-                    You do not have enough funds.
-                  </div>
-                )}
-              </div>
-            </Layout.Content>
-
-            <Layout.Footer>
-              <Layout.Footer.Actions>
-                <Button
-                  disabled={prepareCallsQuery.isPending || loading}
-                  onClick={onReject}
-                  variant="negative-secondary"
-                >
-                  Cancel
-                </Button>
-                {deficitToken ? (
-                  <Button
-                    data-testid="add-funds"
-                    onClick={() => setShowAddFunds(true)}
-                    variant="primary"
-                    width="grow"
-                  >
-                    Add funds
-                  </Button>
-                ) : (
-                  <Button
-                    data-testid="confirm"
-                    disabled={!prepareCallsQuery.isSuccess}
-                    loading={
-                      loading
-                        ? 'Confirming…'
-                        : prepareCallsQuery.isPending
-                          ? 'Loading…'
-                          : false
+            return (
+              <Layout>
+                <Layout.Header>
+                  <Layout.Header.Default
+                    icon={
+                      prepareCallsQuery.isError && !deficit.hasDeficit
+                        ? TriangleAlert
+                        : Star
                     }
-                    onClick={() => {
-                      if (prepareCallsQuery.isError) {
-                        prepareCallsQuery.refetch()
-                        return
-                      }
-                      if (prepareCallsQuery.isSuccess)
-                        onApprove(prepareCallsQuery.data)
-                    }}
-                    variant={prepareCallsQuery.isError ? 'primary' : 'positive'}
-                    width="grow"
-                  >
-                    {prepareCallsQuery.isError ? 'Retry' : 'Confirm'}
-                  </Button>
-                )}
-              </Layout.Footer.Actions>
+                    title="Review action"
+                    variant={
+                      prepareCallsQuery.isError && !deficit.hasDeficit
+                        ? 'warning'
+                        : 'default'
+                    }
+                  />
+                </Layout.Header>
 
-              {account?.address && (
-                <Layout.Footer.Account address={account.address} />
-              )}
-            </Layout.Footer>
-          </Layout>
-        )
-      })()}
-    </>
+                <Layout.Content className="pb-2!">
+                  <div className="flex flex-col gap-[8px]">
+                    <ActionRequest.PaneWithDetails
+                      error={
+                        deficit.hasDeficit ? null : prepareCallsQuery.error
+                      }
+                      errorMessage="An error occurred while simulating the action. Proceed with caution."
+                      feeTotals={feeTotals}
+                      quotes={quotes}
+                      status={
+                        prepareCallsQuery.isPending
+                          ? 'pending'
+                          : prepareCallsQuery.isError && !deficit.hasDeficit
+                            ? 'error'
+                            : 'success'
+                      }
+                    >
+                      {assetDiff.length > 0 ? (
+                        <ActionRequest.AssetDiff assetDiff={assetDiff} />
+                      ) : undefined}
+                    </ActionRequest.PaneWithDetails>
+                    {deficit.hasDeficit && (
+                      <div className="rounded-th_medium border border-th_warning bg-th_warning px-3 py-[10px] text-center text-sm text-th_warning">
+                        You do not have enough funds.
+                      </div>
+                    )}
+                  </div>
+                </Layout.Content>
+
+                <Layout.Footer>
+                  <Layout.Footer.Actions>
+                    <Button
+                      disabled={prepareCallsQuery.isPending || loading}
+                      onClick={onReject}
+                      variant="negative-secondary"
+                    >
+                      Cancel
+                    </Button>
+                    {deficit.hasDeficit ? (
+                      <Button
+                        data-testid="add-funds"
+                        onClick={deficit.onAddFunds}
+                        variant="primary"
+                        width="grow"
+                      >
+                        Add funds
+                      </Button>
+                    ) : (
+                      <Button
+                        data-testid="confirm"
+                        disabled={!prepareCallsQuery.isSuccess}
+                        loading={
+                          loading
+                            ? 'Confirming…'
+                            : prepareCallsQuery.isPending
+                              ? 'Loading…'
+                              : false
+                        }
+                        onClick={() => {
+                          if (prepareCallsQuery.isError) {
+                            prepareCallsQuery.refetch()
+                            return
+                          }
+                          if (prepareCallsQuery.isSuccess)
+                            onApprove(prepareCallsQuery.data)
+                        }}
+                        variant={
+                          prepareCallsQuery.isError ? 'primary' : 'positive'
+                        }
+                        width="grow"
+                      >
+                        {prepareCallsQuery.isError ? 'Retry' : 'Confirm'}
+                      </Button>
+                    )}
+                  </Layout.Footer.Actions>
+
+                  {account?.address && (
+                    <Layout.Footer.Account address={account.address} />
+                  )}
+                </Layout.Footer>
+              </Layout>
+            )
+          })()}
+        </>
+      )}
+    </CheckBalance>
   )
 }
 

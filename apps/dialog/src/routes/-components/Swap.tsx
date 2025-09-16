@@ -24,7 +24,7 @@ export function Swap(props: Swap.Props) {
     onAddFunds,
     swapType,
     swapping,
-    deficitToken,
+    hasDeficit,
     checkingDeficit,
   } = props
 
@@ -92,7 +92,7 @@ export function Swap(props: Swap.Props) {
               </>
             )}
           </div>
-          <Details loading={loading && !deficitToken}>
+          <Details loading={loading && !hasDeficit}>
             {feeFormatted && (
               <Details.Item
                 label="Fees (est.)"
@@ -110,7 +110,7 @@ export function Swap(props: Swap.Props) {
               />
             )}
           </Details>
-          {deficitToken && (
+          {hasDeficit && (
             <div className="rounded-th_medium border border-th_warning bg-th_warning px-3 py-[10px] text-center text-sm text-th_warning">
               You do not have enough funds.
             </div>
@@ -128,7 +128,7 @@ export function Swap(props: Swap.Props) {
           >
             Cancel
           </Button>
-          {deficitToken ? (
+          {hasDeficit ? (
             <Button
               data-testid="add-funds"
               disabled={!onAddFunds}
@@ -170,12 +170,7 @@ export namespace Swap {
     onAddFunds?: () => void
     swapType: 'swap' | 'convert'
     swapping?: boolean | undefined
-    deficitToken?:
-      | {
-          address: `0x${string}` | null
-          chainId: number | undefined
-        }
-      | undefined
+    hasDeficit?: boolean | undefined
     checkingDeficit?: boolean | undefined
   }
 

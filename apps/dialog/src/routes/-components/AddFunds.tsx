@@ -38,8 +38,8 @@ import LucideOctagonAlert from '~icons/lucide/octagon-alert'
 import TriangleAlertIcon from '~icons/lucide/triangle-alert'
 import Star from '~icons/ph/star-four-bold'
 
-const PRESET_AMOUNTS = ['30', '50', '100', '250'] as const
-const MAX_AMOUNT = 500
+const presetAmounts = ['30', '50', '100', '250'] as const
+const maxAmount = 500
 
 const config = createConfig({
   chains: porto._internal.config.chains,
@@ -270,7 +270,7 @@ function BalanceGroup(props: {
 
   const deficits = React.useMemo(() => {
     if (assetDeficits && assetDeficits.length > 0) return assetDeficits
-    if (tokenAddress !== undefined && chainId) {
+    if (tokenAddress !== undefined && chainId)
       return [
         {
           address: tokenAddress,
@@ -281,7 +281,7 @@ function BalanceGroup(props: {
           symbol: token?.symbol,
         },
       ]
-    }
+
     return []
   }, [assetDeficits, tokenAddress, chainId, token])
 
@@ -367,7 +367,7 @@ function Faucet(props: {
   const [amount, setAmount] = React.useState<string>(
     defaultValue
       ? Math.ceil(Number(defaultValue)).toString()
-      : PRESET_AMOUNTS[0]!,
+      : presetAmounts[0]!,
   )
 
   const client = RemoteHooks.useRelayClient(porto)
@@ -406,18 +406,18 @@ function Faucet(props: {
         <PresetsInput
           adornments={{
             end: {
-              label: `Max. $${MAX_AMOUNT}`,
+              label: `Max. $${maxAmount}`,
               type: 'fill',
-              value: String(MAX_AMOUNT),
+              value: String(maxAmount),
             },
             start: '$',
           }}
           inputMode="decimal"
-          max={MAX_AMOUNT}
+          max={maxAmount}
           min={0}
           onChange={setAmount}
           placeholder="Enter amount"
-          presets={PRESET_AMOUNTS.map((value) => ({
+          presets={presetAmounts.map((value) => ({
             label: `$${value}`,
             value,
           }))}

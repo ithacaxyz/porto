@@ -22,53 +22,65 @@ export function RevokePermissions(props: RevokePermissions.Props) {
 
   return (
     <CheckBalance onReject={onReject} query={prepareCallsQuery}>
-      <Layout>
-        <Layout.Header>
-          <Layout.Header.Default
-            content={
-              <>
-                Remove the ability for{' '}
-                {hostname ? (
-                  <span className="font-medium">{hostname}</span>
-                ) : (
-                  'this website'
-                )}{' '}
-                to spend with the following rule.
-              </>
-            }
-            title="Revoke permissions"
-            variant="warning"
-          />
-        </Layout.Header>
-
-        {permissions && (
-          <Layout.Content className="pl-0">
-            <Permissions
-              calls={permissions.calls ?? []}
-              spend={permissions.spend?.map((x) => ({
-                ...x,
-                limit: x.limit,
-              }))}
+      {(deficit) => (
+        <Layout>
+          <Layout.Header>
+            <Layout.Header.Default
+              content={
+                <>
+                  Remove the ability for{' '}
+                  {hostname ? (
+                    <span className="font-medium">{hostname}</span>
+                  ) : (
+                    'this website'
+                  )}{' '}
+                  to spend with the following rule.
+                </>
+              }
+              title="Revoke permissions"
+              variant="warning"
             />
-          </Layout.Content>
-        )}
+          </Layout.Header>
 
-        <Layout.Footer>
-          <Layout.Footer.Actions>
-            <Button disabled={loading} onClick={onReject} width="grow">
-              Cancel
-            </Button>
-            <Button
-              loading={loading && 'Authorizing…'}
-              onClick={onApprove}
-              variant="negative"
-              width="grow"
-            >
-              Revoke
-            </Button>
-          </Layout.Footer.Actions>
-        </Layout.Footer>
-      </Layout>
+          {permissions && (
+            <Layout.Content className="pl-0">
+              <Permissions
+                calls={permissions.calls ?? []}
+                spend={permissions.spend?.map((x) => ({
+                  ...x,
+                  limit: x.limit,
+                }))}
+              />
+            </Layout.Content>
+          )}
+
+          <Layout.Footer>
+            <Layout.Footer.Actions>
+              <Button disabled={loading} onClick={onReject} width="grow">
+                Cancel
+              </Button>
+              {deficit.hasDeficit && deficit.onAddFunds ? (
+                <Button
+                  onClick={deficit.onAddFunds}
+                  variant="primary"
+                  width="grow"
+                >
+                  Add funds
+                </Button>
+              ) : (
+                <Button
+                  loading={loading && 'Authorizing…'}
+                  onClick={onApprove}
+                  variant="negative"
+                  width="grow"
+                >
+                  Revoke
+                </Button>
+              )}
+            </Layout.Footer.Actions>
+          </Layout.Footer>
+        </Layout>
+      )}
     </CheckBalance>
   )
 }
