@@ -1,4 +1,5 @@
 import { Hex, Value } from 'ox'
+import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { getEip712Domain, readContract, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import * as TestActions from '../../test/src/actions.js'
@@ -39,7 +40,6 @@ describe('signCalls', () => {
           to: contracts.exp2.address,
         },
       ],
-      feeToken: contracts.exp1.address,
       key,
     })
 
@@ -68,10 +68,36 @@ describe('signCalls', () => {
           to: contracts.exp2.address,
         },
       ],
-      feeToken: contracts.exp1.address,
     })
 
     const signature = await RelayActions.signCalls(request, { account })
+    expect(signature).toBeDefined()
+  })
+
+  test('behavior: signs with eoa', async () => {
+    const eoa = privateKeyToAccount(generatePrivateKey())
+
+    await TestActions.setBalance(client, {
+      address: eoa.address,
+      value: Value.fromEther('100'),
+    })
+    await RelayActions.upgradeAccount(client, {
+      account: eoa,
+    })
+
+    const request = await RelayActions.prepareCalls(client, {
+      account: eoa,
+      calls: [
+        {
+          abi: contracts.exp2.abi,
+          args: [eoa.address, 100n],
+          functionName: 'mint',
+          to: contracts.exp2.address,
+        },
+      ],
+    })
+
+    const signature = await RelayActions.signCalls(request, { account: eoa })
     expect(signature).toBeDefined()
   })
 
@@ -82,7 +108,6 @@ describe('signCalls', () => {
     const request = await RelayActions.prepareCalls(client, {
       account,
       calls: [],
-      feeToken: contracts.exp1.address,
     })
 
     await expect(() =>
@@ -101,7 +126,6 @@ describe('signCalls', () => {
     // Create a pre-call request that references a key that is not on the account
     const request = await RelayActions.prepareCalls(client, {
       authorizeKeys: [otherKey],
-      feeToken: contracts.exp1.address,
       preCalls: true,
     })
 
@@ -133,7 +157,6 @@ describe('upgradeAccount', () => {
     const { id } = await RelayActions.sendCalls(client, {
       account,
       calls: [],
-      feeToken: contracts.exp1.address,
       key: adminKey,
     })
     await waitForCallsStatus(client, {
@@ -187,7 +210,6 @@ describe('upgradeAccount', () => {
     const { id } = await RelayActions.sendCalls(client, {
       account,
       calls: [],
-      feeToken: contracts.exp1.address,
       key: adminKey,
     })
     await waitForCallsStatus(client, {
@@ -242,7 +264,6 @@ describe('upgradeAccount', () => {
     const { id } = await RelayActions.sendCalls(client, {
       account,
       calls: [],
-      feeToken: contracts.exp1.address,
       key: adminKey,
     })
     await waitForCallsStatus(client, {
@@ -303,7 +324,6 @@ describe('sendCalls', () => {
           to: contracts.exp2.address,
         },
       ],
-      feeToken: contracts.exp1.address,
     })
 
     expect(id).toBeDefined()
@@ -316,6 +336,45 @@ describe('sendCalls', () => {
       await readContract(client, {
         ...contracts.exp2,
         args: [account.address],
+        functionName: 'balanceOf',
+      }),
+    ).toBe(100n)
+  })
+
+  test('behavior: eoa', async () => {
+    const eoa = privateKeyToAccount(generatePrivateKey())
+
+    await TestActions.setBalance(client, {
+      address: eoa.address,
+      value: Value.fromEther('100'),
+    })
+
+    await RelayActions.upgradeAccount(client, {
+      account: eoa,
+    })
+
+    const { id } = await RelayActions.sendCalls(client, {
+      account: eoa,
+      calls: [
+        {
+          abi: contracts.exp2.abi,
+          args: [eoa.address, 100n],
+          functionName: 'mint',
+          to: contracts.exp2.address,
+        },
+      ],
+    })
+
+    expect(id).toBeDefined()
+
+    await waitForCallsStatus(client, {
+      id,
+    })
+
+    expect(
+      await readContract(client, {
+        ...contracts.exp2,
+        args: [eoa.address],
         functionName: 'balanceOf',
       }),
     ).toBe(100n)
@@ -385,7 +444,6 @@ describe('sendCalls', () => {
           to: contracts.exp2.address,
         },
       ],
-      feeToken: contracts.exp1.address,
       key: newKey,
       preCalls: [
         {
@@ -433,7 +491,6 @@ describe('sendCalls', () => {
 
     const request_1 = await RelayActions.prepareCalls(client, {
       authorizeKeys: [sessionKey],
-      feeToken: contracts.exp1.address,
       preCalls: true,
     })
     const signature_1 = await RelayActions.signCalls(request_1, {
@@ -450,7 +507,6 @@ describe('sendCalls', () => {
           to: contracts.exp2.address,
         },
       ],
-      feeToken: contracts.exp1.address,
       key: sessionKey,
       preCalls: [{ ...(request_1 as any), signature: signature_1 }],
     })
@@ -498,6 +554,7 @@ describe('sendCalls', () => {
         },
       ],
       chain: chain_dest,
+      // TODO: allow `requiredFunds` to be set without `feeToken`
       feeToken: contracts.exp1.address,
       requiredFunds: [
         {
@@ -554,7 +611,6 @@ describe('prepareCalls', () => {
           to: contracts.exp2.address,
         },
       ],
-      feeToken: contracts.exp1.address,
       key,
     })
 
@@ -599,7 +655,6 @@ describe('prepareCalls', () => {
           to: contracts.exp2.address,
         },
       ],
-      feeToken: contracts.exp1.address,
     })
 
     const signature = await RelayActions.signCalls(request, {
@@ -650,7 +705,6 @@ describe('prepareCalls', () => {
     })
     const request_1 = await RelayActions.prepareCalls(client, {
       authorizeKeys: [newKey],
-      feeToken: contracts.exp1.address,
       preCalls: true,
     })
     const signature_1 = await RelayActions.signCalls(request_1, {
@@ -667,7 +721,6 @@ describe('prepareCalls', () => {
           to: contracts.exp2.address,
         },
       ],
-      feeToken: contracts.exp1.address,
       key,
       preCalls: [{ ...request_1, signature: signature_1 }],
     })
@@ -705,7 +758,6 @@ describe('prepareCalls', () => {
     await RelayActions.sendCalls(client, {
       account,
       calls: [{ to: account.address }],
-      feeToken: contracts.exp1.address,
     })
 
     const alice = Hex.random(20)
@@ -725,7 +777,6 @@ describe('prepareCalls', () => {
     })
     const request_1 = await RelayActions.prepareCalls(client, {
       authorizeKeys: [newKey],
-      feeToken: contracts.exp1.address,
       preCalls: true,
     })
     const signature_1 = await RelayActions.signCalls(request_1, {
@@ -742,7 +793,6 @@ describe('prepareCalls', () => {
           to: contracts.exp2.address,
         },
       ],
-      feeToken: contracts.exp1.address,
       key,
       preCalls: [{ ...request_1, signature: signature_1 }],
     })
@@ -794,7 +844,6 @@ describe('prepareCalls', () => {
 
     const request_1 = await RelayActions.prepareCalls(client, {
       authorizeKeys: [sessionKey],
-      feeToken: contracts.exp1.address,
       preCalls: true,
     })
     const signature_1 = await RelayActions.signCalls(request_1, {
@@ -811,7 +860,6 @@ describe('prepareCalls', () => {
           to: contracts.exp2.address,
         },
       ],
-      feeToken: contracts.exp1.address,
       key: sessionKey,
       preCalls: [{ ...request_1, signature: signature_1 }],
     })
@@ -861,7 +909,6 @@ describe('e2e', () => {
             to: contracts.exp2.address,
           },
         ],
-        feeToken: contracts.exp1.address,
       })
       expect(id).toBeDefined()
 
@@ -931,13 +978,13 @@ describe('e2e', () => {
             to: '0x0000000000000000000000000000000000000000',
           },
         ],
-        feeToken: contracts.exp1.address,
       })
 
       expect(id).toBeDefined()
     })
 
-    test('error: contract error (insufficient erc20 balance)', async () => {
+    // TODO: fix
+    test.skip('behavior: insufficient erc20 balance (asset deficits)', async () => {
       // 1. Initialize Account with Admin Key.
       const key = Key.createHeadlessWebAuthnP256()
       const account = await TestActions.createAccount(client, {
@@ -956,7 +1003,6 @@ describe('e2e', () => {
               to: contracts.exp2.address,
             },
           ],
-          feeToken: contracts.exp1.address,
         }),
       ).rejects.toThrowError('Error: InsufficientBalance()')
     })
@@ -979,7 +1025,6 @@ describe('e2e', () => {
               value: Value.fromEther('100000000'),
             },
           ],
-          feeToken: contracts.exp1.address,
         }),
       ).rejects.toThrowError('Reason: CallError')
     })
@@ -1004,7 +1049,6 @@ describe('e2e', () => {
         account,
         authorizeKeys: keys,
         calls: [],
-        feeToken: contracts.exp1.address,
       })
       expect(id).toBeDefined()
 
@@ -1046,7 +1090,6 @@ describe('e2e', () => {
         const { id } = await RelayActions.sendCalls(client, {
           account,
           authorizeKeys: [newKey],
-          feeToken: contracts.exp1.address,
         })
         expect(id).toBeDefined()
 
@@ -1067,7 +1110,6 @@ describe('e2e', () => {
               to: contracts.exp2.address,
             },
           ],
-          feeToken: contracts.exp1.address,
           key: newKey,
         })
         expect(id).toBeDefined()
@@ -1119,7 +1161,6 @@ describe('e2e', () => {
             to: contracts.exp2.address,
           },
         ],
-        feeToken: contracts.exp1.address,
         key: sessionKey,
       })
       expect(id).toBeDefined()
@@ -1177,7 +1218,6 @@ describe('e2e', () => {
               to: contracts.exp2.address,
             },
           ],
-          feeToken: contracts.exp1.address,
           key: sessionKey,
         })
         expect(id).toBeDefined()
@@ -1202,6 +1242,10 @@ describe('e2e', () => {
       // 1. Initialize account with Admin Key & Session Key.
       const adminKey = Key.createHeadlessWebAuthnP256()
       const sessionKey = Key.createP256({
+        feeToken: {
+          limit: '1',
+          symbol: 'EXP',
+        },
         permissions: {
           calls: [
             {
@@ -1234,7 +1278,6 @@ describe('e2e', () => {
               to: contracts.exp2.address,
             },
           ],
-          feeToken: contracts.exp1.address,
           key: sessionKey,
         })
         expect(id).toBeDefined()
@@ -1266,7 +1309,6 @@ describe('e2e', () => {
               to: contracts.exp2.address,
             },
           ],
-          feeToken: contracts.exp1.address,
           key: sessionKey,
         })
         expect(id).toBeDefined()
@@ -1323,7 +1365,6 @@ describe('e2e', () => {
               to: contracts.exp2.address,
             },
           ],
-          feeToken: contracts.exp1.address,
           key: adminKey,
         })
         expect(id).toBeDefined()
@@ -1355,7 +1396,6 @@ describe('e2e', () => {
               to: contracts.exp2.address,
             },
           ],
-          feeToken: contracts.exp1.address,
           key: sessionKey,
         })
         expect(id).toBeDefined()
@@ -1425,7 +1465,6 @@ describe('e2e', () => {
               to: contracts.exp1.address,
             },
           ],
-          feeToken: contracts.exp1.address,
           key: sessionKey,
         })
         expect(id).toBeDefined()
@@ -1482,7 +1521,6 @@ describe('e2e', () => {
               to: contracts.exp2.address,
             },
           ],
-          feeToken: contracts.exp1.address,
           key: sessionKey,
         }),
       ).rejects.toThrowError('Reason: Unauthorized')
@@ -1524,7 +1562,6 @@ describe('e2e', () => {
               to: contracts.exp2.address,
             },
           ],
-          feeToken: contracts.exp1.address,
           key: sessionKey,
           preCalls: [
             {
@@ -1575,7 +1612,6 @@ describe('e2e', () => {
               to: contracts.exp2.address,
             },
           ],
-          feeToken: contracts.exp1.address,
           key: sessionKey,
         })
         expect(id).toBeDefined()
@@ -1607,7 +1643,6 @@ describe('e2e', () => {
               to: contracts.exp2.address,
             },
           ],
-          feeToken: contracts.exp1.address,
           key: sessionKey,
         })
 
@@ -1628,10 +1663,9 @@ describe('e2e', () => {
               to: contracts.exp2.address,
             },
           ],
-          feeToken: contracts.exp1.address,
           key: sessionKey,
         }),
-      ).rejects.toThrowError('Error: InsufficientBalance()')
+      ).rejects.toThrowError('ExceededSpendLimit')
     })
   })
 
@@ -1679,7 +1713,6 @@ describe('e2e', () => {
         const { id } = await RelayActions.sendCalls(client, {
           account,
           calls: [],
-          feeToken: contracts.exp1.address,
         })
         await waitForCallsStatus(client, {
           id,

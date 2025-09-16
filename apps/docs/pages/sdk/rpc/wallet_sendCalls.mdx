@@ -60,9 +60,9 @@ type Request = {
     /** Capabilities. */
     capabilities?: {
       /** Custom fee token to use. */
-      feeToken?: `0x${string}`;
+      feeToken?: 'native' | Token.Symbol | Address.Address;
       /** URL of the merchant endpoint that will front the request. */
-      merchantRpcUrl?: string
+      merchantUrl?: string
       /** Permissions to use for this request. */
       permissions?: {
         /** ID of the permission to use. */

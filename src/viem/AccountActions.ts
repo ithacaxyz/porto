@@ -3,7 +3,7 @@
  */
 
 import type { Client } from 'viem'
-import * as Schema from '../core/internal/schema/schema.js'
+import * as z from 'zod/mini'
 import * as RpcSchema from '../core/RpcSchema.js'
 import type * as RpcSchema_viem from './RpcSchema.js'
 
@@ -17,12 +17,10 @@ export async function verifyEmail(
     Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
   >({
     method,
-    params: [
-      Schema.encodeSync(RpcSchema.account_verifyEmail.Parameters)(parameters),
-    ],
+    params: [z.encode(RpcSchema.account_verifyEmail.Parameters, parameters)],
   })
 
-  return Schema.decodeSync(RpcSchema.account_verifyEmail.Response)(response)
+  return z.decode(RpcSchema.account_verifyEmail.Response, response)
 }
 
 export declare namespace verifyEmail {

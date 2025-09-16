@@ -1,13 +1,14 @@
 import { Query } from '@porto/apps'
 import { useQuery } from '@tanstack/react-query'
-import * as Schema from 'effect/Schema'
 import * as PermissionsRequest from 'porto/core/internal/permissionsRequest.js'
 import { Hooks } from 'porto/remote'
+import { Key } from 'porto/viem'
+import * as z from 'zod/mini'
 import { porto } from './Porto.js'
 import * as Tokens from './Tokens.js'
 
 export function useResolve(
-  request: typeof PermissionsRequest.Schema.Encoded | undefined,
+  request: z.input<typeof PermissionsRequest.Schema> | undefined,
 ) {
   const client = Hooks.useRelayClient(porto)
 
@@ -15,32 +16,27 @@ export function useResolve(
     enabled: !!request,
     initialData: request
       ? {
-          ...Schema.decodeSync(PermissionsRequest.Schema)(request),
+          ...z.decode(PermissionsRequest.Schema, request),
           _encoded: request,
         }
       : undefined,
     async queryFn() {
       if (!request) throw new Error('no request found.')
 
-      const grantPermissions = Schema.decodeSync(PermissionsRequest.Schema)(
-        request,
-      )
+      const grantPermissions = z.decode(PermissionsRequest.Schema, request)
 
       const feeTokens = await Query.client.ensureQueryData(
-        Tokens.resolveFeeTokens.queryOptions(client),
+        Tokens.getTokens.queryOptions(client, {}),
       )
-      const permissions = PermissionsRequest.resolvePermissions(
-        grantPermissions,
-        {
-          feeTokens,
-        },
-      )
+      const permissions = Key.resolvePermissions(grantPermissions, {
+        feeTokens,
+      })
       const decoded = {
         ...grantPermissions,
-        feeLimit: undefined,
+        feeToken: null,
         permissions,
       }
-      const _encoded = Schema.encodeSync(PermissionsRequest.Schema)(decoded)
+      const _encoded = z.encode(PermissionsRequest.Schema, decoded)
       return {
         ...decoded,
         _encoded,
@@ -51,5 +47,5 @@ export function useResolve(
 }
 
 export declare namespace useFetch {
-  export type Parameters = Tokens.resolveFeeTokens.queryOptions.Options
+  export type Parameters = Tokens.getTokens.queryOptions.Options
 }

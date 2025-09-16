@@ -1,0 +1,19 @@
+# Deploying to Production
+
+Below are some things to consider before deploying to production.
+
+## 1. Trusted Hosts
+
+To enable the `iframe` Dialog on all browsers in production, ensure your website hostname is added to
+the [trusted hosts list](https://github.com/ithacaxyz/porto/blob/main/src/trusted-hosts.ts).
+
+Without this, the `iframe` Dialog will fallback to a popup on browsers that do not support the [IntersectionObserver v2 API](https://web.dev/articles/intersectionobserver-v2).
+
+## 2. Content Security Policy
+
+If you've deployed a Content Security Policy, ensure that you have set Porto up with your CSPs.
+
+The full set of directives that Porto requires are:
+
+- `connect-src` `https://rpc.porto.sh`
+- `frame-src` `https://id.porto.sh`

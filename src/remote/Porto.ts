@@ -8,6 +8,7 @@ import * as Mode from '../core/Mode.js'
 import * as Porto_ from '../core/Porto.js'
 import type * as RpcSchema from '../core/RpcSchema.js'
 import * as Storage from '../core/Storage.js'
+import { hostnames } from '../trusted-hosts.js'
 import * as MethodPolicies from './internal/methodPolicies.js'
 
 const messenger = (() => {
@@ -29,6 +30,7 @@ export const defaultConfig = {
   methodPolicies: MethodPolicies.methodPolicies,
   mode: Mode.relay(),
   storage: Storage.localStorage(),
+  trustedHosts: hostnames,
 } as const satisfies Partial<Config>
 
 /**
@@ -55,18 +57,19 @@ export function create(
     mode = defaultConfig.mode,
     messenger = defaultConfig.messenger,
     methodPolicies = defaultConfig.methodPolicies,
-    merchantRpcUrl,
+    merchantUrl,
     relay = defaultConfig.relay,
     storage = defaultConfig.storage,
     storageKey = defaultConfig.storageKey,
     transports,
+    trustedHosts = defaultConfig.trustedHosts,
   } = parameters
 
   const porto = Porto_.create({
     announceProvider: false,
     chains,
     feeToken,
-    merchantRpcUrl,
+    merchantUrl,
     mode,
     relay,
     storage,
@@ -95,6 +98,7 @@ export function create(
       return (messenger as Messenger.WithReady).ready({
         chainIds,
         methodPolicies,
+        trustedHosts,
       })
     },
   } as unknown as Porto
@@ -123,6 +127,7 @@ export type Config<
 > = Porto_.Config<chains> & {
   messenger?: OneOf<Messenger.Bridge | Messenger.Messenger> | undefined
   methodPolicies?: MethodPolicies.MethodPolicies | undefined
+  trustedHosts?: string[] | undefined
 }
 
 export type State<

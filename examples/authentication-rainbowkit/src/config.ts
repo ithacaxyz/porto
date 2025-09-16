@@ -7,7 +7,6 @@ export const config = createConfig({
   connectors: [
     porto({
       authUrl: '/api/siwe',
-      feeToken: 'EXP',
     }),
   ],
   multiInjectedProviderDiscovery: false,

@@ -1,3 +1,4 @@
+import * as Json from 'ox/Json'
 import type * as RpcRequest from 'ox/RpcRequest'
 import type * as RpcResponse from 'ox/RpcResponse'
 import type * as MethodPolicies from '../remote/internal/methodPolicies.js'
@@ -33,6 +34,7 @@ export type WithReady = Messenger & {
 export type ReadyOptions = {
   chainIds: readonly [number, ...number[]]
   methodPolicies?: MethodPolicies.MethodPolicies | undefined
+  trustedHosts?: string[] | undefined
 }
 
 /** Bridge messenger. */
@@ -172,7 +174,7 @@ export function fromWindow(
       return () => w.removeEventListener('message', handler)
     },
     async send(topic, payload, target) {
-      const id = crypto.randomUUID()
+      const id = globalThis.crypto.randomUUID()
       w.postMessage(
         Utils.normalizeValue({ id, payload, topic }),
         target ?? targetOrigin ?? '*',
@@ -326,11 +328,11 @@ export function cliRelay(options: cliRelay.Options): CliRelay {
   connect()
 
   async function request(topic: Topic, payload: any) {
-    const id = crypto.randomUUID()
+    const id = globalThis.crypto.randomUUID()
     const data = { id, payload, topic }
 
     const response = await fetch(relayUrl, {
-      body: JSON.stringify(data),
+      body: Json.stringify(data),
       headers: {
         'Content-Type': 'application/json',
       },

@@ -126,8 +126,7 @@ export async function prepareCalls<
     calls,
     chain = client.chain,
     feePayer,
-    feeToken,
-    merchantRpcUrl,
+    merchantUrl,
     nonce,
     preCalls,
     requiredFunds,
@@ -142,16 +141,27 @@ export async function prepareCalls<
   const hasSessionKey = parameters.authorizeKeys?.some(
     (x) => x.role === 'session',
   )
+  const {
+    contracts,
+    fees: { tokens },
+  } = await RelayActions.getCapabilities(client)
   const orchestrator = hasSessionKey
-    ? (await RelayActions.getCapabilities(client)).contracts.orchestrator
-        .address
+    ? contracts.orchestrator.address
     : undefined
 
-  const authorizeKeys = (parameters.authorizeKeys ?? []).map((key) => {
-    if (key.role === 'admin') return Key.toRelay(key, { orchestrator })
+  const authorizeKeys = (parameters.authorizeKeys ?? []).map((key) =>
+    Key.toRelay(key, { feeTokens: tokens, orchestrator }),
+  )
 
-    return Key.toRelay(key, { orchestrator })
-  })
+  // If a fee token is provided, use it.
+  // Otherwise, if there are spend permissions set, we cannot predictably
+  // infer the fee token (not pass it) as the fee token needs to have
+  // an assigned spend permission set. It is assumed that the first spend
+  // permission is the one that is used for the fee token.
+  const feeToken = (() => {
+    if (parameters.feeToken) return parameters.feeToken
+    return key?.permissions?.spend?.[0]?.token
+  })()
 
   const preCall = typeof preCalls === 'boolean' ? preCalls : false
   const signedPreCalls =
@@ -182,16 +192,19 @@ export async function prepareCalls<
         })),
       },
       chain,
-      key: key ? Key.toRelay(key) : undefined,
+      key: key ? Key.toRelay(key, { feeTokens: tokens }) : undefined,
     })
   }
 
   const { capabilities, context, digest, typedData } = await (async () => {
-    if (merchantRpcUrl) {
+    if (merchantUrl) {
       // TODO: remove this once relay implements `wallet_verifyCalls` for
       // permissionless merchants.
-      const hostname = new URL(merchantRpcUrl).hostname
-      if (!hostnames.includes(hostname))
+      const hostname = new URL(merchantUrl).hostname
+      if (
+        !hostnames.includes(hostname) &&
+        !(chain as { testnet?: boolean | undefined })?.testnet
+      )
         throw new Error(
           'Merchant hostname "' +
             hostname +
@@ -200,7 +213,7 @@ export async function prepareCalls<
 
       const client_ = createClient({
         chain: client.chain,
-        transport: http(merchantRpcUrl),
+        transport: http(merchantUrl),
       })
       // Prepare with Merchant RPC.
       return await prepare(client_).catch((e) => {
@@ -234,7 +247,9 @@ export namespace prepareCalls {
       /** Calls to prepare. */
       calls?: Calls<Narrow<calls>> | undefined
       /** Key that will be used to sign the calls. */
-      key?: Pick<Key.Key, 'publicKey' | 'prehash' | 'type'> | undefined
+      key?:
+        | Pick<Key.Key, 'permissions' | 'publicKey' | 'prehash' | 'type'>
+        | undefined
       /**
        * Indicates if the bundle is "pre-calls", and should be executed before
        * the main bundle.
@@ -251,13 +266,11 @@ export namespace prepareCalls {
           }[]
         | undefined
       /** Required funds to execute the calls. */
-      requiredFunds?:
-        | RelayActions.prepareCalls.Parameters['capabilities']['requiredFunds']
-        | undefined
+      requiredFunds?: Capabilities.requiredFunds.Request | undefined
       /** Additional keys to revoke from the account. */
       revokeKeys?: readonly Key.Key[] | undefined
       /** Merchant RPC URL. */
-      merchantRpcUrl?: string | undefined
+      merchantUrl?: string | undefined
     } & Omit<Capabilities.meta.Request, 'keyHash'>
 
   export type ReturnType = {
@@ -293,7 +306,10 @@ export async function prepareUpgradeAccount<chain extends Chain | undefined>(
 
   if (!chain) throw new Error('chain is required.')
 
-  const { contracts } = await RelayActions.getCapabilities(client)
+  const {
+    contracts,
+    fees: { tokens },
+  } = await RelayActions.getCapabilities(client)
 
   const delegation = parameters.delegation ?? contracts.accountProxy.address
   const hasSessionKey = keys.some((x) => x.role === 'session')
@@ -303,7 +319,10 @@ export async function prepareUpgradeAccount<chain extends Chain | undefined>(
 
   const authorizeKeys = keys.map((key) => {
     const permissions = key.role === 'session' ? key.permissions : {}
-    return Key.toRelay({ ...key, permissions }, { orchestrator })
+    return Key.toRelay(
+      { ...key, permissions },
+      { feeTokens: tokens, orchestrator },
+    )
   })
 
   const { capabilities, chainId, context, digests, typedData } =
@@ -378,14 +397,15 @@ export async function sendCalls<
 ): Promise<sendCalls.ReturnType> {
   const { account = client.account, chain = client.chain } = parameters
 
-  if (!chain) throw new Error('chain is required.')
+  if (!chain) throw new Error('`chain` is required.')
 
   // If no signature is provided, prepare the calls and sign them.
   const account_ = account ? Account.from(account) : undefined
-  if (!account_) throw new Error('account is required.')
+  if (!account_) throw new Error('`account` is required.')
 
   const key = parameters.key ?? Account.getKey(account_, parameters)
-  if (!key) throw new Error('key is required')
+  if (!key && !account_.sign)
+    throw new Error('`key` or `account` with `sign` is required')
 
   // Prepare pre-calls.
   const preCalls = await Promise.all(
@@ -421,11 +441,17 @@ export async function sendCalls<
   } as never)
 
   // Sign over the bundles.
-  const signature = await Key.sign(key, {
-    address: null,
-    payload: digest,
-    wrap: false,
-  })
+  const signature = await (async () => {
+    if (key)
+      return await Key.sign(key, {
+        address: null,
+        payload: digest,
+        wrap: false,
+      })
+    return await account_.sign({
+      hash: digest,
+    })
+  })()
 
   // Broadcast the bundle to the Relay.
   return await sendPreparedCalls(client, {
@@ -471,7 +497,7 @@ export declare namespace sendCalls {
           >[]
         | undefined
       /** Merchant RPC URL. */
-      merchantRpcUrl?: string | undefined
+      merchantUrl?: string | undefined
     }
 
   export type ReturnType = RelayActions.sendPreparedCalls.ReturnType
@@ -528,7 +554,7 @@ export async function sendPreparedCalls(
   return await RelayActions.sendPreparedCalls(client, {
     capabilities,
     context,
-    key: Key.toRelay(key),
+    key: key ? Key.toRelay(key) : undefined,
     signature,
   })
 }
@@ -542,7 +568,7 @@ export declare namespace sendPreparedCalls {
     /** Context. */
     context: prepareCalls.ReturnType['context']
     /** Key. */
-    key: Pick<Key.Key, 'publicKey' | 'prehash' | 'type'>
+    key?: Pick<Key.Key, 'publicKey' | 'prehash' | 'type'> | undefined
     /** Signature. */
     signature: Hex.Hex
   }

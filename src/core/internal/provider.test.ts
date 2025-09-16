@@ -10,13 +10,14 @@ import {
   WebCryptoP256,
 } from 'ox'
 import { Key, Mode } from 'porto'
-import { MerchantRpc } from 'porto/server'
+import { Route } from 'porto/server'
 import { encodeFunctionData, hashMessage, hashTypedData } from 'viem'
 import {
   readContract,
   setCode,
   signTypedData,
   verifyHash,
+  setBalance as viem_setBalance,
   waitForCallsStatus,
   waitForTransactionReceipt,
 } from 'viem/actions'
@@ -36,7 +37,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
 
   const getPorto = (
     config: {
-      merchantRpcUrl?: string | undefined
+      merchantUrl?: string | undefined
       relayRpcUrl?: string | undefined
     } = {},
   ) =>
@@ -550,9 +551,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         params: [
           {
             expiry: 9999999999,
-            feeLimit: {
-              currency: 'USD',
-              value: '1',
+            feeToken: {
+              limit: '1',
+              symbol: 'EXP',
             },
             permissions: {
               calls: [{ signature: 'mint()' }],
@@ -602,9 +603,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         params: [
           {
             expiry: 9999999999,
-            feeLimit: {
-              currency: 'USD',
-              value: '1',
+            feeToken: {
+              limit: '1',
+              symbol: 'EXP',
             },
             key: {
               publicKey:
@@ -639,9 +640,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
           params: [
             {
               expiry: 9999999999,
-              feeLimit: {
-                currency: 'USD',
-                value: '1',
+              feeToken: {
+                limit: '1',
+                symbol: 'EXP',
               },
               key: {
                 publicKey: '0x0000000000000000000000000000000000000000',
@@ -713,9 +714,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
           params: [
             {
               expiry: 9999999999,
-              feeLimit: {
-                currency: 'USD',
-                value: '1',
+              feeToken: {
+                limit: '1',
+                symbol: 'EXP',
               },
               key: {
                 publicKey:
@@ -743,9 +744,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
           params: [
             {
               expiry: 0,
-              feeLimit: {
-                currency: 'USD',
-                value: '1',
+              feeToken: {
+                limit: '1',
+                symbol: 'EXP',
               },
               key: {
                 publicKey:
@@ -774,9 +775,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         params: [
           {
             expiry: 9999999999,
-            feeLimit: {
-              currency: 'USD',
-              value: '1',
+            feeToken: {
+              limit: '1',
+              symbol: 'EXP',
             },
             permissions: {
               calls: [{ signature: 'mint()' }],
@@ -789,9 +790,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         params: [
           {
             expiry: 9999999999,
-            feeLimit: {
-              currency: 'USD',
-              value: '1',
+            feeToken: {
+              limit: '1',
+              symbol: 'EXP',
             },
             permissions: {
               calls: [{ signature: 'mint()' }],
@@ -824,9 +825,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
               createAccount: true,
               grantPermissions: {
                 expiry: 9999999999,
-                feeLimit: {
-                  currency: 'USD',
-                  value: '1',
+                feeToken: {
+                  limit: '1',
+                  symbol: 'EXP',
                 },
                 key: {
                   publicKey: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
@@ -845,9 +846,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         params: [
           {
             expiry: 9999999999,
-            feeLimit: {
-              currency: 'USD',
-              value: '1',
+            feeToken: {
+              limit: '1',
+              symbol: 'EXP',
             },
             key: {
               publicKey:
@@ -1059,9 +1060,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         params: [
           {
             expiry: 9999999999,
-            feeLimit: {
-              currency: 'USD',
-              value: '1',
+            feeToken: {
+              limit: '1',
+              symbol: 'EXP',
             },
             permissions: {
               calls: [{ signature: 'mint()' }],
@@ -1469,9 +1470,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
               createAccount: true,
               grantPermissions: {
                 expiry: 9999999999,
-                feeLimit: {
-                  currency: 'USD',
-                  value: '1',
+                feeToken: {
+                  limit: '1',
+                  symbol: 'EXP',
                 },
                 permissions: {
                   calls: [{ signature: 'mint()' }],
@@ -1527,9 +1528,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
               createAccount: true,
               grantPermissions: {
                 expiry: 9999999999,
-                feeLimit: {
-                  currency: 'USD',
-                  value: '1',
+                feeToken: {
+                  limit: '1',
+                  symbol: 'EXP',
                 },
                 key: {
                   publicKey,
@@ -1578,9 +1579,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
                 createAccount: true,
                 grantPermissions: {
                   expiry: 0,
-                  feeLimit: {
-                    currency: 'USD',
-                    value: '1',
+                  feeToken: {
+                    limit: '1',
+                    symbol: 'EXP',
                   },
                   permissions: {
                     calls: [{ signature: 'mint()' }],
@@ -1604,9 +1605,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
                 createAccount: true,
                 grantPermissions: {
                   expiry: 9999999,
-                  feeLimit: {
-                    currency: 'USD',
-                    value: '1',
+                  feeToken: {
+                    limit: '1',
+                    symbol: 'EXP',
                   },
                   permissions: {
                     calls: [],
@@ -1873,6 +1874,10 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         })
         const address = account!.address
 
+        await viem_setBalance(client, {
+          address,
+          value: Value.fromEther('10000'),
+        })
         await setBalance(client, {
           address,
           value: Value.fromEther('10000'),
@@ -1939,14 +1944,14 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         keys: [merchantKey],
       })
 
-      const listener = MerchantRpc.requestListener({
+      const listener = Route.merchant({
         ...porto.config,
         address: merchantAccount.address,
         key: {
           privateKey: merchantKey.privateKey!(),
           type: merchantKey.type,
         },
-      })
+      }).listener
       const server = await Http.createServer(listener)
 
       const {
@@ -1994,7 +1999,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
               },
             ],
             capabilities: {
-              merchantRpcUrl: server.url,
+              merchantUrl: server.url,
             },
             from: address,
             version: '1',
@@ -2039,17 +2044,17 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         keys: [merchantKey],
       })
 
-      const listener = MerchantRpc.requestListener({
+      const listener = Route.merchant({
         ...p.config,
         address: merchantAccount.address,
         key: {
           privateKey: merchantKey.privateKey!(),
           type: merchantKey.type,
         },
-      })
+      }).listener
       const server = await Http.createServer(listener)
 
-      const porto = getPorto({ merchantRpcUrl: server.url })
+      const porto = getPorto({ merchantUrl: server.url })
 
       const {
         accounts: [account],
@@ -2131,7 +2136,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       const p = getPorto()
       const contracts = await TestConfig.getContracts(p)
 
-      const porto = getPorto({ merchantRpcUrl: 'https://example.com/rpc' })
+      const porto = getPorto({ merchantUrl: 'https://example.com/rpc' })
 
       const {
         accounts: [account],
@@ -2160,6 +2165,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
                   to: contracts.exp1.address,
                 },
               ],
+              chainId: Anvil.enabled ? undefined : '0x2105',
               from: address,
               version: '1',
             },
@@ -2193,9 +2199,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         params: [
           {
             expiry: 9999999999,
-            feeLimit: {
-              currency: 'USD',
-              value: '1',
+            feeToken: {
+              limit: '1',
+              symbol: 'EXP',
             },
             permissions: {
               calls: [{ to: contracts.exp1.address }],
@@ -2272,9 +2278,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         params: [
           {
             expiry: 9999999999,
-            feeLimit: {
-              currency: 'USD',
-              value: '1',
+            feeToken: {
+              limit: '1',
+              symbol: 'EXP',
             },
             permissions: {
               calls: [{ to: contracts.exp1.address }],
@@ -2360,9 +2366,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
           params: [
             {
               expiry: 9999999999,
-              feeLimit: {
-                currency: 'USD',
-                value: '1',
+              feeToken: {
+                limit: '1',
+                symbol: 'EXP',
               },
               permissions: {
                 calls: [{ to: '0x0000000000000000000000000000000000000000' }],
@@ -2436,9 +2442,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
           params: [
             {
               expiry: 9999999999,
-              feeLimit: {
-                currency: 'USD',
-                value: '1',
+              feeToken: {
+                limit: '1',
+                symbol: 'EXP',
               },
               permissions: {
                 calls: [{ to: contracts.exp1.address }],
@@ -2535,9 +2541,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         params: [
           {
             expiry: 9999999999,
-            feeLimit: {
-              currency: 'USD',
-              value: '1',
+            feeToken: {
+              limit: '1',
+              symbol: 'EXP',
             },
             permissions: {
               calls: [{ to: contracts.exp1.address }],
@@ -2645,9 +2651,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         params: [
           {
             expiry: 9999999999,
-            feeLimit: {
-              currency: 'USD',
-              value: '1',
+            feeToken: {
+              limit: '1',
+              symbol: 'EXP',
             },
             key: {
               publicKey:
@@ -2775,6 +2781,8 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
                 },
               ],
               capabilities: {
+                // TODO: allow `requiredFunds` to be set without `feeToken`
+                feeToken: contracts.exp1.address,
                 requiredFunds: [
                   {
                     address: contracts.exp1.address,
@@ -2857,6 +2865,8 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
                 },
               ],
               capabilities: {
+                // TODO: allow `requiredFunds` to be set without `feeToken`
+                feeToken: contracts.exp1.address,
                 requiredFunds: [
                   {
                     symbol: 'EXP',
@@ -3057,9 +3067,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
                 createAccount: true,
                 grantPermissions: {
                   expiry: 9999999999,
-                  feeLimit: {
-                    currency: 'USD',
-                    value: '1',
+                  feeToken: {
+                    limit: '1',
+                    symbol: 'EXP',
                   },
                   key: {
                     publicKey: publicKey,
@@ -3156,9 +3166,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
                 createAccount: true,
                 grantPermissions: {
                   expiry: 9999999999,
-                  feeLimit: {
-                    currency: 'USD',
-                    value: '1',
+                  feeToken: {
+                    limit: '1',
+                    symbol: 'EXP',
                   },
                   key: {
                     publicKey: publicKey,
@@ -3259,9 +3269,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
                 createAccount: true,
                 grantPermissions: {
                   expiry: 9999999999,
-                  feeLimit: {
-                    currency: 'USD',
-                    value: '1',
+                  feeToken: {
+                    limit: '1',
+                    symbol: 'EXP',
                   },
                   key: {
                     publicKey: address,
@@ -3472,7 +3482,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         ],
       })
 
-      const signature = await signTypedData(walletClient, typedData)
+      const signature = await signTypedData(walletClient, typedData as never)
 
       const result = await porto.provider.request({
         method: 'wallet_sendPreparedCalls',
@@ -3517,6 +3527,21 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
     ).rejects.toThrowError(
       'The provider does not support the requested method.',
     )
+  })
+
+  test('behavior: invalid params', async () => {
+    const porto = getPorto()
+    await porto.provider.request({
+      method: 'wallet_connect',
+      params: [{ capabilities: { createAccount: true } }],
+    })
+    await expect(() =>
+      porto.provider.request({
+        method: 'eth_sendTransaction',
+        // @ts-expect-error
+        params: [{ to: 1 }],
+      }),
+    ).rejects.matchSnapshot()
   })
 })
 

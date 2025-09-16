@@ -114,7 +114,7 @@ export default defineConfig({
         text: 'Overview',
       },
       {
-        link: 'https://github.com/ithacaxyz/relay-issues',
+        link: 'https://github.com/ithacaxyz/relay',
         text: 'GitHub',
       },
       {
@@ -171,6 +171,10 @@ export default defineConfig({
       {
         link: 'https://deepwiki.com/ithacaxyz/porto',
         text: 'DeepWiki',
+      },
+      {
+        link: '/sdk/production',
+        text: 'Deploying to Production',
       },
       {
         link: '/sdk/faq',
@@ -237,11 +241,22 @@ export default defineConfig({
             collapsed: false,
             items: [
               {
-                link: '/sdk/api/merchantRpc/requestHandler',
-                text: 'requestHandler',
+                link: '/sdk/api/route/merchant',
+                text: 'Route.merchant',
+              },
+              {
+                disabled: true,
+                link: '/sdk/api/route/auth',
+                text: 'Route.auth 🚧',
+              },
+              {
+                disabled: true,
+                link: '/sdk/api/route/selfRelay',
+                text: 'Route.selfRelay 🚧',
               },
             ],
-            text: 'MerchantRpc',
+            link: '/sdk/api/router',
+            text: 'Router',
           },
           {
             link: '/sdk/api/theme',

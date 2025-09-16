@@ -1,10 +1,11 @@
 import { describe, expect, test } from 'vitest'
+import * as z from 'zod/mini'
 import * as Permissions from './permissions.js'
-import * as Schema from './schema.js'
+import * as u from './utils.js'
 
 describe('Permissions', () => {
   test('behavior: parses valid permissions with all fields', () => {
-    const result = Schema.decodeUnknownSync(Permissions.Permissions)({
+    const result = z.parse(Permissions.Permissions, {
       address: '0x1234567890123456789012345678901234567890',
       chainId: '0x1',
       expiry: 1000,
@@ -67,7 +68,7 @@ describe('Permissions', () => {
   })
 
   test('behavior: parses valid permissions with minimal fields', () => {
-    const result = Schema.decodeUnknownSync(Permissions.Permissions)({
+    const result = z.parse(Permissions.Permissions, {
       address: '0x1234567890123456789012345678901234567890',
       expiry: 1000,
       id: '0xabc123',
@@ -113,7 +114,7 @@ describe('Permissions', () => {
   ])(
     'behavior: parses valid permissions with key type $case',
     ({ keyType }) => {
-      const result = Schema.decodeUnknownSync(Permissions.Permissions)({
+      const result = z.parse(Permissions.Permissions, {
         address: '0x1234567890123456789012345678901234567890',
         expiry: 1000,
         id: '0xabc123',
@@ -135,7 +136,7 @@ describe('Permissions', () => {
   )
 
   test('behavior: parses valid permissions with different call permission types', () => {
-    const result = Schema.decodeUnknownSync(Permissions.Permissions)({
+    const result = z.parse(Permissions.Permissions, {
       address: '0x1234567890123456789012345678901234567890',
       expiry: 1000,
       id: '0xabc123',
@@ -162,7 +163,7 @@ describe('Permissions', () => {
   })
 
   test('behavior: encodes chainId number to hex', () => {
-    const result = Schema.encodeSync(Permissions.Permissions)({
+    const result = z.encode(Permissions.Permissions, {
       address: '0x1234567890123456789012345678901234567890',
       chainId: 1,
       expiry: 1000,
@@ -184,7 +185,7 @@ describe('Permissions', () => {
   })
 
   test('behavior: encodes spend limit bigint to hex', () => {
-    const result = Schema.encodeSync(Permissions.Permissions)({
+    const result = z.encode(Permissions.Permissions, {
       address: '0x1234567890123456789012345678901234567890',
       expiry: 1000,
       id: '0xabc123',
@@ -211,7 +212,7 @@ describe('Permissions', () => {
   })
 
   test('behavior: encodes large spend limit bigint to hex', () => {
-    const result = Schema.encodeSync(Permissions.Permissions)({
+    const result = z.encode(Permissions.Permissions, {
       address: '0x1234567890123456789012345678901234567890',
       expiry: 1000,
       id: '0xabc123',
@@ -238,7 +239,7 @@ describe('Permissions', () => {
   })
 
   test('behavior: encodes zero spend limit to 0x0', () => {
-    const result = Schema.encodeSync(Permissions.Permissions)({
+    const result = z.encode(Permissions.Permissions, {
       address: '0x1234567890123456789012345678901234567890',
       expiry: 1000,
       id: '0xabc123',
@@ -265,7 +266,7 @@ describe('Permissions', () => {
   })
 
   test('behavior: encodes permissions without optional fields', () => {
-    const result = Schema.encodeSync(Permissions.Permissions)({
+    const result = z.encode(Permissions.Permissions, {
       address: '0x1234567890123456789012345678901234567890',
       expiry: 1000,
       id: '0xabc123',
@@ -311,7 +312,7 @@ describe('Permissions', () => {
   ])(
     'behavior: encodes chainId $chainId to $expected',
     ({ chainId, expected }) => {
-      const result = Schema.encodeSync(Permissions.Permissions)({
+      const result = z.encode(Permissions.Permissions, {
         address: '0x1234567890123456789012345678901234567890',
         chainId,
         expiry: 1000,
@@ -334,123 +335,124 @@ describe('Permissions', () => {
   )
 
   test('error: rejects invalid address format', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permissions.Permissions)({
-        address: 'invalid-address',
-        expiry: 1000,
-        id: '0xabc123',
-        key: {
-          publicKey: '0xdeadbeef',
-          type: 'secp256k1',
-        },
-        permissions: {
-          calls: [
-            {
-              signature: 'transfer(address,uint256)',
-              to: '0x1234567890123456789012345678901234567890',
-            },
-          ],
-        },
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-address"
-      Path: address
+    expect(
+      u.toValidationError(
+        z.safeParse(Permissions.Permissions, {
+          address: 'invalid-address',
+          expiry: 1000,
+          id: '0xabc123',
+          key: {
+            publicKey: '0xdeadbeef',
+            type: 'secp256k1',
+          },
+          permissions: {
+            calls: [
+              {
+                signature: 'transfer(address,uint256)',
+                to: '0x1234567890123456789012345678901234567890',
+              },
+            ],
+          },
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
 
-      Details: { readonly address: \`0x\${string}\`; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: number; readonly id: \`0x\${string}\`; readonly key: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" }; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
-      └─ ["address"]
-         └─ Expected \`0x\${string}\`, actual "invalid-address"]
-    `)
+      - at \`address\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+    `,
+    )
   })
 
   test('error: rejects invalid key type', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permissions.Permissions)({
-        address: '0x1234567890123456789012345678901234567890',
-        expiry: 1000,
-        id: '0xabc123',
-        key: {
-          publicKey: '0xdeadbeef',
-          type: 'invalid-key-type',
-        },
-        permissions: {
-          calls: [
-            {
-              signature: 'transfer(address,uint256)',
-              to: '0x1234567890123456789012345678901234567890',
-            },
-          ],
-        },
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected "address", actual "invalid-key-type"
-      Path: key.type
+    expect(
+      u.toValidationError(
+        z.safeParse(Permissions.Permissions, {
+          address: '0x1234567890123456789012345678901234567890',
+          expiry: 1000,
+          id: '0xabc123',
+          key: {
+            publicKey: '0xdeadbeef',
+            type: 'invalid-key-type',
+          },
+          permissions: {
+            calls: [
+              {
+                signature: 'transfer(address,uint256)',
+                to: '0x1234567890123456789012345678901234567890',
+              },
+            ],
+          },
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
 
-      Details: { readonly address: \`0x\${string}\`; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: number; readonly id: \`0x\${string}\`; readonly key: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" }; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
-      └─ ["key"]
-         └─ { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" }
-            └─ ["type"]
-               └─ "address" | "p256" | "secp256k1" | "webauthn-p256"
-                  ├─ Expected "address", actual "invalid-key-type"
-                  ├─ Expected "p256", actual "invalid-key-type"
-                  ├─ Expected "secp256k1", actual "invalid-key-type"
-                  └─ Expected "webauthn-p256", actual "invalid-key-type"]
-    `)
+      - at \`key.type\`: Invalid union value.
+        - Expected "address"
+        - Expected "p256"
+        - Expected "secp256k1"
+        - Expected "webauthn-p256"]
+    `,
+    )
   })
 
   test('error: rejects missing required fields', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permissions.Permissions)({
-        address: '0x1234567890123456789012345678901234567890',
-        // Missing expiry, id, key, permissions
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: \`expiry\` is missing
-      Path: expiry
+    expect(
+      u.toValidationError(
+        z.safeParse(Permissions.Permissions, {
+          address: '0x1234567890123456789012345678901234567890',
+          // Missing expiry, id, key, permissions
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 4 errors:
 
-      Details: { readonly address: \`0x\${string}\`; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: number; readonly id: \`0x\${string}\`; readonly key: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" }; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
-      └─ ["expiry"]
-         └─ is missing]
-    `)
+      - at \`expiry\`: Expected number. 
+      - at \`id\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+      - at \`key\`: Expected object. 
+      - at \`permissions\`: Expected object. ]
+    `,
+    )
   })
 
   test('error: rejects empty calls array', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permissions.Permissions)({
-        address: '0x1234567890123456789012345678901234567890',
-        expiry: 1000,
-        id: '0xabc123',
-        key: {
-          publicKey: '0xdeadbeef',
-          type: 'secp256k1',
-        },
-        permissions: {
-          calls: [],
-        },
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected an array of at least 1 item(s), actual []
-      Path: permissions.calls
+    expect(
+      u.toValidationError(
+        z.safeParse(Permissions.Permissions, {
+          address: '0x1234567890123456789012345678901234567890',
+          expiry: 1000,
+          id: '0xabc123',
+          key: {
+            publicKey: '0xdeadbeef',
+            type: 'secp256k1',
+          },
+          permissions: {
+            calls: [],
+          },
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
 
-      Details: { readonly address: \`0x\${string}\`; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: number; readonly id: \`0x\${string}\`; readonly key: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" }; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
-      └─ ["permissions"]
-         └─ { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined }
-            └─ ["calls"]
-               └─ minItems(1)
-                  └─ Predicate refinement failure
-                     └─ Expected an array of at least 1 item(s), actual []]
-    `)
+      - at \`permissions.calls\`: array must be at least 1]
+    `,
+    )
   })
 })
 
 describe('Request', () => {
   test('behavior: parses valid request with all fields', () => {
-    const result = Schema.decodeUnknownSync(Permissions.Request)({
+    const result = z.parse(Permissions.Request, {
       address: '0x1234567890123456789012345678901234567890',
       chainId: '0x1',
       expiry: 1000,
-      feeLimit: {
-        currency: 'USDC',
-        value: '1',
+      feeToken: {
+        limit: '1',
+        symbol: 'USDC',
       },
       key: {
         publicKey: '0xdeadbeef',
@@ -480,9 +482,9 @@ describe('Request', () => {
         "address": "0x1234567890123456789012345678901234567890",
         "chainId": 1,
         "expiry": 1000,
-        "feeLimit": {
-          "currency": "USDC",
-          "value": "1",
+        "feeToken": {
+          "limit": "1",
+          "symbol": "USDC",
         },
         "key": {
           "publicKey": "0xdeadbeef",
@@ -513,11 +515,11 @@ describe('Request', () => {
   })
 
   test('behavior: parses valid request with minimal fields', () => {
-    const result = Schema.decodeUnknownSync(Permissions.Request)({
+    const result = z.parse(Permissions.Request, {
       expiry: 1000,
-      feeLimit: {
-        currency: 'USDC',
-        value: '1',
+      feeToken: {
+        limit: '1',
+        symbol: 'USDC',
       },
       permissions: {
         calls: [
@@ -531,9 +533,9 @@ describe('Request', () => {
     expect(result).toMatchInlineSnapshot(`
       {
         "expiry": 1000,
-        "feeLimit": {
-          "currency": "USDC",
-          "value": "1",
+        "feeToken": {
+          "limit": "1",
+          "symbol": "USDC",
         },
         "permissions": {
           "calls": [
@@ -551,11 +553,11 @@ describe('Request', () => {
     const periods = ['minute', 'hour', 'day', 'week', 'month', 'year'] as const
 
     for (const period of periods) {
-      const result = Schema.decodeUnknownSync(Permissions.Request)({
+      const result = z.parse(Permissions.Request, {
         expiry: 1000,
-        feeLimit: {
-          currency: 'USDC',
-          value: '1',
+        feeToken: {
+          limit: '1',
+          symbol: 'USDC',
         },
         permissions: {
           calls: [
@@ -577,13 +579,13 @@ describe('Request', () => {
   })
 
   test('behavior: encodes chainId number to hex', () => {
-    const result = Schema.encodeSync(Permissions.Request)({
+    const result = z.encode(Permissions.Request, {
       address: '0x1234567890123456789012345678901234567890',
       chainId: 1,
       expiry: 1000,
-      feeLimit: {
-        currency: 'USDC',
-        value: '1',
+      feeToken: {
+        limit: '1',
+        symbol: 'USDC',
       },
       permissions: {
         calls: [
@@ -598,11 +600,11 @@ describe('Request', () => {
   })
 
   test('behavior: encodes spend limit bigint to hex', () => {
-    const result = Schema.encodeSync(Permissions.Request)({
+    const result = z.encode(Permissions.Request, {
       expiry: 1000,
-      feeLimit: {
-        currency: 'USDC',
-        value: '1',
+      feeToken: {
+        limit: '1',
+        symbol: 'USDC',
       },
       permissions: {
         calls: [
@@ -623,13 +625,13 @@ describe('Request', () => {
   })
 
   test('behavior: encodes request with all optional fields', () => {
-    const result = Schema.encodeSync(Permissions.Request)({
+    const result = z.encode(Permissions.Request, {
       address: '0x1234567890123456789012345678901234567890',
       chainId: 42161,
       expiry: 2000,
-      feeLimit: {
-        currency: 'USDC',
-        value: '1',
+      feeToken: {
+        limit: '1',
+        symbol: 'USDC',
       },
       key: {
         publicKey: '0xabcdef',
@@ -658,9 +660,9 @@ describe('Request', () => {
         "address": "0x1234567890123456789012345678901234567890",
         "chainId": "0xa4b1",
         "expiry": 2000,
-        "feeLimit": {
-          "currency": "USDC",
-          "value": "1",
+        "feeToken": {
+          "limit": "1",
+          "symbol": "USDC",
         },
         "key": {
           "publicKey": "0xabcdef",
@@ -690,11 +692,11 @@ describe('Request', () => {
   })
 
   test('behavior: encodes request with minimal fields', () => {
-    const result = Schema.encodeSync(Permissions.Request)({
+    const result = z.encode(Permissions.Request, {
       expiry: 500,
-      feeLimit: {
-        currency: 'USDC',
-        value: '1',
+      feeToken: {
+        limit: '1',
+        symbol: 'USDC',
       },
       permissions: {
         calls: [
@@ -707,9 +709,9 @@ describe('Request', () => {
     expect(result).toMatchInlineSnapshot(`
       {
         "expiry": 500,
-        "feeLimit": {
-          "currency": "USDC",
-          "value": "1",
+        "feeToken": {
+          "limit": "1",
+          "symbol": "USDC",
         },
         "permissions": {
           "calls": [
@@ -730,11 +732,11 @@ describe('Request', () => {
   ])(
     'behavior: encodes spend limit $limit to $expected',
     ({ limit, expected }) => {
-      const result = Schema.encodeSync(Permissions.Request)({
+      const result = z.encode(Permissions.Request, {
         expiry: 1000,
-        feeLimit: {
-          currency: 'USDC',
-          value: '1',
+        feeToken: {
+          limit: '1',
+          symbol: 'USDC',
         },
         permissions: {
           calls: [
@@ -756,215 +758,191 @@ describe('Request', () => {
   )
 
   test('error: rejects invalid expiry (zero)', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permissions.Request)({
-        expiry: 0,
-        permissions: {
-          calls: [
-            {
-              signature: 'transfer(address,uint256)',
-              to: '0x1234567890123456789012345678901234567890',
-            },
-          ],
-        },
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected a number greater than or equal to 1, actual 0
-      Path: expiry
+    expect(
+      u.toValidationError(
+        z.safeParse(Permissions.Request, {
+          expiry: 0,
+          permissions: {
+            calls: [
+              {
+                signature: 'transfer(address,uint256)',
+                to: '0x1234567890123456789012345678901234567890',
+              },
+            ],
+          },
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 2 errors:
 
-      Details: { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
-      └─ ["expiry"]
-         └─ greaterThanOrEqualTo(1)
-            └─ Predicate refinement failure
-               └─ Expected a number greater than or equal to 1, actual 0]
-    `)
+      - at \`expiry\`: number must be at least 1
+      - at \`feeToken\`: Expected object. ]
+    `,
+    )
   })
 
   test('error: rejects invalid expiry (negative)', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permissions.Request)({
-        expiry: -1,
-        permissions: {
-          calls: [
-            {
-              signature: 'transfer(address,uint256)',
-              to: '0x1234567890123456789012345678901234567890',
-            },
-          ],
-        },
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected a number greater than or equal to 1, actual -1
-      Path: expiry
+    expect(
+      u.toValidationError(
+        z.safeParse(Permissions.Request, {
+          expiry: -1,
+          permissions: {
+            calls: [
+              {
+                signature: 'transfer(address,uint256)',
+                to: '0x1234567890123456789012345678901234567890',
+              },
+            ],
+          },
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 2 errors:
 
-      Details: { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
-      └─ ["expiry"]
-         └─ greaterThanOrEqualTo(1)
-            └─ Predicate refinement failure
-               └─ Expected a number greater than or equal to 1, actual -1]
-    `)
+      - at \`expiry\`: number must be at least 1
+      - at \`feeToken\`: Expected object. ]
+    `,
+    )
   })
 
   test('error: rejects missing required permissions', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permissions.Request)({
-        expiry: 1000,
-        // Missing permissions
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: \`permissions\` is missing
-      Path: permissions
+    expect(
+      u.toValidationError(
+        z.safeParse(Permissions.Request, {
+          expiry: 1000,
+          // Missing permissions
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 2 errors:
 
-      Details: { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
-      └─ ["permissions"]
-         └─ is missing]
-    `)
+      - at \`feeToken\`: Expected object. 
+      - at \`permissions\`: Expected object. ]
+    `,
+    )
   })
 
   test('error: rejects invalid spend period', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permissions.Request)({
-        expiry: 1000,
-        permissions: {
-          calls: [
-            {
-              signature: 'transfer(address,uint256)',
-              to: '0x1234567890123456789012345678901234567890',
-            },
-          ],
-          spend: [
-            {
-              limit: '0x64',
-              period: 'invalid-period',
-            },
-          ],
-        },
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected "minute", actual "invalid-period"
-      Path: permissions.spend.0.period
+    expect(
+      u.toValidationError(
+        z.safeParse(Permissions.Request, {
+          expiry: 1000,
+          permissions: {
+            calls: [
+              {
+                signature: 'transfer(address,uint256)',
+                to: '0x1234567890123456789012345678901234567890',
+              },
+            ],
+            spend: [
+              {
+                limit: '0x64',
+                period: 'invalid-period',
+              },
+            ],
+          },
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 2 errors:
 
-      Details: { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
-      └─ ["permissions"]
-         └─ { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined }
-            └─ ["spend"]
-               └─ ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined
-                  ├─ ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }>
-                  │  └─ [0]
-                  │     └─ { readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }
-                  │        └─ ["period"]
-                  │           └─ "minute" | "hour" | "day" | "week" | "month" | "year"
-                  │              ├─ Expected "minute", actual "invalid-period"
-                  │              ├─ Expected "hour", actual "invalid-period"
-                  │              ├─ Expected "day", actual "invalid-period"
-                  │              ├─ Expected "week", actual "invalid-period"
-                  │              ├─ Expected "month", actual "invalid-period"
-                  │              └─ Expected "year", actual "invalid-period"
-                  └─ Expected undefined, actual [{"limit":"0x64","period":"invalid-period"}]]
-    `)
+      - at \`feeToken\`: Expected object. 
+      - at \`permissions.spend[0].period\`: Invalid union value.
+        - Expected "minute"
+        - Expected "hour"
+        - Expected "day"
+        - Expected "week"
+        - Expected "month"
+        - Expected "year"]
+    `,
+    )
   })
 
   test('error: rejects invalid feeLimit currency', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permissions.Request)({
-        expiry: 1000,
-        feeLimit: {
-          currency: 'BTC',
-          value: '1',
-        },
-        permissions: {
-          calls: [
-            {
-              signature: 'transfer(address,uint256)',
-              to: '0x1234567890123456789012345678901234567890',
-            },
-          ],
-        },
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected "ETH", actual "BTC"
-      Path: feeLimit.currency
+    expect(
+      u.toValidationError(
+        z.safeParse(Permissions.Request, {
+          expiry: 1000,
+          feeLimit: {
+            currency: 'BTC',
+            value: '1',
+          },
+          permissions: {
+            calls: [
+              {
+                signature: 'transfer(address,uint256)',
+                to: '0x1234567890123456789012345678901234567890',
+              },
+            ],
+          },
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
 
-      Details: { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
-      └─ ["feeLimit"]
-         └─ { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined
-            ├─ { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ }
-            │  └─ ["currency"]
-            │     └─ "ETH" | "USDC" | "USDT" | "USD"
-            │        ├─ "ETH" | "USDC" | "USDT"
-            │        │  ├─ Expected "ETH", actual "BTC"
-            │        │  ├─ Expected "USDC", actual "BTC"
-            │        │  └─ Expected "USDT", actual "BTC"
-            │        └─ Expected "USD", actual "BTC"
-            └─ Expected undefined, actual {"currency":"BTC","value":"1"}]
-    `)
+      - at \`feeToken\`: Expected object. ]
+    `,
+    )
   })
 
   test('error: rejects invalid feeLimit value format', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permissions.Request)({
-        expiry: 1000,
-        feeLimit: {
-          currency: 'ETH',
-          value: 'invalid-number',
-        },
-        permissions: {
-          calls: [
-            {
-              signature: 'transfer(address,uint256)',
-              to: '0x1234567890123456789012345678901234567890',
-            },
-          ],
-        },
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`\${number}.\${number}\`, actual "invalid-number"
-      Path: feeLimit.value
+    expect(
+      u.toValidationError(
+        z.safeParse(Permissions.Request, {
+          expiry: 1000,
+          feeLimit: {
+            currency: 'ETH',
+            value: 'invalid-number',
+          },
+          permissions: {
+            calls: [
+              {
+                signature: 'transfer(address,uint256)',
+                to: '0x1234567890123456789012345678901234567890',
+              },
+            ],
+          },
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
 
-      Details: { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
-      └─ ["feeLimit"]
-         └─ { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined
-            ├─ { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ }
-            │  └─ ["value"]
-            │     └─ a string matching the pattern ^\\d+(\\.\\d+)?$
-            │        └─ From side refinement failure
-            │           └─ \`\${number}.\${number}\` | \`\${number}\`
-            │              ├─ Expected \`\${number}.\${number}\`, actual "invalid-number"
-            │              └─ Expected \`\${number}\`, actual "invalid-number"
-            └─ Expected undefined, actual {"currency":"ETH","value":"invalid-number"}]
-    `)
+      - at \`feeToken\`: Expected object. ]
+    `,
+    )
   })
 
   test('error: rejects feeLimit with multiple decimal points', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Permissions.Request)({
-        expiry: 1000,
-        feeLimit: {
-          currency: 'USDC',
-          value: '1.5.0',
-        },
-        permissions: {
-          calls: [
-            {
-              signature: 'transfer(address,uint256)',
-              to: '0x1234567890123456789012345678901234567890',
-            },
-          ],
-        },
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected a string matching the pattern ^\\d+(\\.\\d+)?$, actual "1.5.0"
-      Path: feeLimit.value
+    expect(
+      u.toValidationError(
+        z.safeParse(Permissions.Request, {
+          expiry: 1000,
+          feeLimit: {
+            currency: 'USDC',
+            value: '1.5.0',
+          },
+          permissions: {
+            calls: [
+              {
+                signature: 'transfer(address,uint256)',
+                to: '0x1234567890123456789012345678901234567890',
+              },
+            ],
+          },
+        }).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
 
-      Details: { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
-      └─ ["feeLimit"]
-         └─ { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined
-            ├─ { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ }
-            │  └─ ["value"]
-            │     └─ a string matching the pattern ^\\d+(\\.\\d+)?$
-            │        └─ Predicate refinement failure
-            │           └─ Expected a string matching the pattern ^\\d+(\\.\\d+)?$, actual "1.5.0"
-            └─ Expected undefined, actual {"currency":"USDC","value":"1.5.0"}]
-    `)
+      - at \`feeToken\`: Expected object. ]
+    `,
+    )
   })
 })

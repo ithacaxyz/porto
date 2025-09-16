@@ -195,7 +195,7 @@ const app = new Hono().basePath('/api')
 const porto = Porto.create()
 
 app.post(
-  '/logout', 
+  '/siwe/logout', 
   jwt({ cookie: 'auth' }),
   async (c) => {
     deleteCookie(c, 'auth') // [!code ++]

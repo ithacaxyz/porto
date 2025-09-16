@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
-import * as Schema from '../../schema/schema.js'
+import * as z from 'zod/mini'
+import * as u from '../../schema/utils.js'
 import * as Intent from './intent.js'
 
 describe('Intent', () => {
@@ -28,7 +29,7 @@ describe('Intent', () => {
   }
 
   test('behavior: decodes valid intent with all fields', () => {
-    const result = Schema.decodeUnknownSync(Intent.Intent)(validIntentData)
+    const result = z.decode(Intent.Intent, validIntentData as never)
     expect(result).toMatchInlineSnapshot(`
       {
         "combinedGas": 21000n,
@@ -59,8 +60,8 @@ describe('Intent', () => {
   })
 
   test('behavior: encodes valid intent data', () => {
-    const decodedData = Schema.decodeUnknownSync(Intent.Intent)(validIntentData)
-    const encodedData = Schema.encodeSync(Intent.Intent)(decodedData)
+    const decodedData = z.decode(Intent.Intent, validIntentData as never)
+    const encodedData = z.encode(Intent.Intent, decodedData)
     expect(encodedData).toMatchInlineSnapshot(`
       {
         "combinedGas": "0x5208",
@@ -91,11 +92,9 @@ describe('Intent', () => {
   })
 
   test('behavior: round-trip encoding/decoding preserves data', () => {
-    const originalDecoded = Schema.decodeUnknownSync(Intent.Intent)(
-      validIntentData,
-    )
-    const encoded = Schema.encodeSync(Intent.Intent)(originalDecoded)
-    const reDecoded = Schema.decodeUnknownSync(Intent.Intent)(encoded)
+    const originalDecoded = z.decode(Intent.Intent, validIntentData as never)
+    const encoded = z.encode(Intent.Intent, originalDecoded)
+    const reDecoded = z.decode(Intent.Intent, encoded)
 
     expect(reDecoded).toEqual(originalDecoded)
   })
@@ -105,9 +104,7 @@ describe('Intent', () => {
       ...validIntentData,
       encodedPreCalls: [],
     }
-    const result = Schema.decodeUnknownSync(Intent.Intent)(
-      dataWithEmptyPreCalls,
-    )
+    const result = z.decode(Intent.Intent, dataWithEmptyPreCalls as never)
     expect(result.encodedPreCalls).toEqual([])
   })
 
@@ -119,7 +116,7 @@ describe('Intent', () => {
       paymentAmount: '0xffffffffffffffffffffffffffffffff',
       paymentMaxAmount: '0xffffffffffffffffffffffffffffffffff',
     }
-    const result = Schema.decodeUnknownSync(Intent.Intent)(dataWithLargeBigInts)
+    const result = z.decode(Intent.Intent, dataWithLargeBigInts as never)
     expect(result.combinedGas).toBe(
       BigInt('0xffffffffffffffffffffffffffffffffff'),
     )
@@ -132,100 +129,133 @@ describe('Intent', () => {
       combinedGas: '0xff',
       nonce: '0xffff',
     }
-    const decoded = Schema.decodeUnknownSync(Intent.Intent)(
-      dataWithLargeBigInts,
-    )
-    const encoded = Schema.encodeSync(Intent.Intent)(decoded)
+    const decoded = z.decode(Intent.Intent, dataWithLargeBigInts as never)
+    const encoded = z.encode(Intent.Intent, decoded)
     expect(encoded.combinedGas).toBe('0xff')
     expect(encoded.nonce).toBe('0xffff')
   })
 
   test('error: rejects invalid address format', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Intent.Intent)({
-        ...validIntentData,
-        eoa: 'invalid-address',
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-address"
-      Path: eoa
+    expect(
+      u.toValidationError(
+        z.safeDecode(Intent.Intent, {
+          ...validIntentData,
+          eoa: 'invalid-address',
+        } as never).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
 
-      Details: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentAmount: (\`0x\${string}\` <-> bigint); readonly paymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\` } | { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }
-      ├─ { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentAmount: (\`0x\${string}\` <-> bigint); readonly paymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\` }
-      │  └─ ["eoa"]
-      │     └─ Expected \`0x\${string}\`, actual "invalid-address"
-      └─ { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }
-         └─ ["eoa"]
-            └─ Expected \`0x\${string}\`, actual "invalid-address"]
-    `)
+      - Invalid union value.
+        - at \`eoa\`: Must match pattern: ^0x[\\s\\S]{0,}$
+        - at \`eoa\`: Must match pattern: ^0x[\\s\\S]{0,}$
+        - at \`prePaymentAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`prePaymentMaxAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`totalPaymentAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`totalPaymentMaxAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.]
+    `,
+    )
   })
 
   test('error: rejects invalid hex format for BigInt fields', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Intent.Intent)({
-        ...validIntentData,
-        combinedGas: 'not-hex',
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "not-hex"
-      Path: combinedGas
+    expect(
+      u.toValidationError(
+        z.safeDecode(Intent.Intent, {
+          ...validIntentData,
+          combinedGas: 'not-hex',
+        } as never).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
 
-      Details: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentAmount: (\`0x\${string}\` <-> bigint); readonly paymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\` } | { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }
-      ├─ { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentAmount: (\`0x\${string}\` <-> bigint); readonly paymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\` }
-      │  └─ ["combinedGas"]
-      │     └─ (\`0x\${string}\` <-> bigint)
-      │        └─ Encoded side transformation failure
-      │           └─ Expected \`0x\${string}\`, actual "not-hex"
-      └─ { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }
-         └─ ["combinedGas"]
-            └─ (\`0x\${string}\` <-> bigint)
-               └─ Encoded side transformation failure
-                  └─ Expected \`0x\${string}\`, actual "not-hex"]
-    `)
+      - Invalid union value.
+        - at \`combinedGas\`: Must match pattern: ^0x[\\s\\S]{0,}$
+        - at \`combinedGas\`: Must match pattern: ^0x[\\s\\S]{0,}$
+        - at \`prePaymentAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`prePaymentMaxAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`totalPaymentAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`totalPaymentMaxAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.]
+    `,
+    )
   })
 
   test('error: rejects missing required fields', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Intent.Intent)({
-        eoa: '0x1234567890123456789012345678901234567890',
-        // Missing other required fields
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: \`combinedGas\` is missing
-      Path: combinedGas
+    expect(
+      u.toValidationError(
+        z.safeDecode(Intent.Intent, {
+          eoa: '0x1234567890123456789012345678901234567890',
+          // Missing other required fields
+        } as never).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
 
-      Details: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentAmount: (\`0x\${string}\` <-> bigint); readonly paymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\` } | { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }
-      ├─ { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentAmount: (\`0x\${string}\` <-> bigint); readonly paymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\` }
-      │  └─ ["combinedGas"]
-      │     └─ is missing
-      └─ { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }
-         └─ ["combinedGas"]
-            └─ is missing]
-    `)
+      - Invalid union value.
+        - at \`combinedGas\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`encodedFundTransfers\`: Expected array. 
+        - at \`encodedPreCalls\`: Expected array. 
+        - at \`executionData\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`expiry\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`funder\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`funderSignature\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`isMultichain\`: Expected boolean. 
+        - at \`nonce\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`payer\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`paymentAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`paymentMaxAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`paymentRecipient\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`paymentSignature\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`paymentToken\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`settler\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`settlerContext\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`signature\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`supportedAccountImplementation\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`combinedGas\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`encodedFundTransfers\`: Expected array. 
+        - at \`encodedPreCalls\`: Expected array. 
+        - at \`executionData\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`expiry\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`funder\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`funderSignature\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`isMultichain\`: Expected boolean. 
+        - at \`nonce\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`payer\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`paymentRecipient\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`paymentSignature\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`paymentToken\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`prePaymentAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`prePaymentMaxAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`settler\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`settlerContext\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`signature\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`supportedAccountImplementation\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]{40}$.
+        - at \`totalPaymentAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`totalPaymentMaxAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.]
+    `,
+    )
   })
 
-  test('error: rejects invalid encodedPreCalls array items', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Intent.Intent)({
-        ...validIntentData,
-        encodedPreCalls: ['0xvalid', 'invalid-hex'],
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-hex"
-      Path: encodedPreCalls.1
+  test('error: rejects invalid encodedPreCalls array items', async () => {
+    const { error } = z.safeParse(Intent.Intent, {
+      ...validIntentData,
+      encodedPreCalls: ['0xvalid', 'invalid-hex'],
+    } as never)
+    expect(u.toValidationError(error as never)).toMatchInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
 
-      Details: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentAmount: (\`0x\${string}\` <-> bigint); readonly paymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\` } | { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }
-      ├─ { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentAmount: (\`0x\${string}\` <-> bigint); readonly paymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\` }
-      │  └─ ["encodedPreCalls"]
-      │     └─ ReadonlyArray<\`0x\${string}\`>
-      │        └─ [1]
-      │           └─ Expected \`0x\${string}\`, actual "invalid-hex"
-      └─ { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }
-         └─ ["encodedPreCalls"]
-            └─ ReadonlyArray<\`0x\${string}\`>
-               └─ [1]
-                  └─ Expected \`0x\${string}\`, actual "invalid-hex"]
-    `)
+      - Invalid union value.
+        - at \`encodedPreCalls[1]\`: Must match pattern: ^0x[\\s\\S]{0,}$
+        - at \`encodedPreCalls[1]\`: Must match pattern: ^0x[\\s\\S]{0,}$
+        - at \`prePaymentAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`prePaymentMaxAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`totalPaymentAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+        - at \`totalPaymentMaxAmount\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.]
+    `,
+    )
   })
 })
 
@@ -237,7 +267,7 @@ describe('Partial', () => {
   }
 
   test('behavior: decodes valid partial intent', () => {
-    const result = Schema.decodeUnknownSync(Intent.Partial)(validPartialData)
+    const result = z.decode(Intent.Partial, validPartialData as never)
     expect(result).toMatchInlineSnapshot(`
       {
         "eoa": "0x1234567890123456789012345678901234567890",
@@ -248,10 +278,8 @@ describe('Partial', () => {
   })
 
   test('behavior: encodes valid partial intent data', () => {
-    const decodedData = Schema.decodeUnknownSync(Intent.Partial)(
-      validPartialData,
-    )
-    const encodedData = Schema.encodeSync(Intent.Partial)(decodedData)
+    const decodedData = z.decode(Intent.Partial, validPartialData as never)
+    const encodedData = z.encode(Intent.Partial, decodedData)
     expect(encodedData).toMatchInlineSnapshot(`
       {
         "eoa": "0x1234567890123456789012345678901234567890",
@@ -262,11 +290,9 @@ describe('Partial', () => {
   })
 
   test('behavior: round-trip encoding/decoding preserves partial data', () => {
-    const originalDecoded = Schema.decodeUnknownSync(Intent.Partial)(
-      validPartialData,
-    )
-    const encoded = Schema.encodeSync(Intent.Partial)(originalDecoded)
-    const reDecoded = Schema.decodeUnknownSync(Intent.Partial)(encoded)
+    const originalDecoded = z.decode(Intent.Partial, validPartialData as never)
+    const encoded = z.encode(Intent.Partial, originalDecoded)
+    const reDecoded = z.decode(Intent.Partial, encoded)
 
     expect(reDecoded).toEqual(originalDecoded)
   })
@@ -280,10 +306,10 @@ describe('Partial', () => {
     ]
 
     for (const { nonce, expected } of testCases) {
-      const result = Schema.decodeUnknownSync(Intent.Partial)({
+      const result = z.decode(Intent.Partial, {
         ...validPartialData,
         nonce,
-      })
+      } as never)
       expect(result.nonce).toBe(expected)
     }
   })
@@ -297,86 +323,87 @@ describe('Partial', () => {
     ]
 
     for (const { nonce } of testCases) {
-      const decoded = Schema.decodeUnknownSync(Intent.Partial)({
+      const decoded = z.decode(Intent.Partial, {
         ...validPartialData,
         nonce,
-      })
-      const encoded = Schema.encodeSync(Intent.Partial)(decoded)
+      } as never)
+      const encoded = z.encode(Intent.Partial, decoded)
       expect(encoded.nonce).toBe(nonce)
     }
   })
 
   test('error: rejects invalid address in partial', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Intent.Partial)({
-        ...validPartialData,
-        eoa: 'invalid-address',
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-address"
-      Path: eoa
+    expect(
+      u.toValidationError(
+        z.safeDecode(Intent.Partial, {
+          ...validPartialData,
+          eoa: 'invalid-address',
+        } as never).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
 
-      Details: { readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly nonce: (\`0x\${string}\` <-> bigint) }
-      └─ ["eoa"]
-         └─ Expected \`0x\${string}\`, actual "invalid-address"]
-    `)
+      - at \`eoa\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+    `,
+    )
   })
 
   test('error: rejects invalid hex for executionData', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Intent.Partial)({
-        ...validPartialData,
-        executionData: 'not-hex',
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "not-hex"
-      Path: executionData
+    expect(
+      u.toValidationError(
+        z.safeDecode(Intent.Partial, {
+          ...validPartialData,
+          executionData: 'not-hex',
+        } as never).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
 
-      Details: { readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly nonce: (\`0x\${string}\` <-> bigint) }
-      └─ ["executionData"]
-         └─ Expected \`0x\${string}\`, actual "not-hex"]
-    `)
+      - at \`executionData\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+    `,
+    )
   })
 
   test('error: rejects invalid hex for nonce', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Intent.Partial)({
-        ...validPartialData,
-        nonce: 'not-hex',
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected \`0x\${string}\`, actual "not-hex"
-      Path: nonce
+    expect(
+      u.toValidationError(
+        z.safeDecode(Intent.Partial, {
+          ...validPartialData,
+          nonce: 'not-hex',
+        } as never).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 1 error:
 
-      Details: { readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly nonce: (\`0x\${string}\` <-> bigint) }
-      └─ ["nonce"]
-         └─ (\`0x\${string}\` <-> bigint)
-            └─ Encoded side transformation failure
-               └─ Expected \`0x\${string}\`, actual "not-hex"]
-    `)
+      - at \`nonce\`: Must match pattern: ^0x[\\s\\S]{0,}$]
+    `,
+    )
   })
 
   test('error: rejects missing required fields in partial', () => {
-    expect(() =>
-      Schema.decodeUnknownSync(Intent.Partial)({
-        eoa: '0x1234567890123456789012345678901234567890',
-        // Missing executionData and nonce
-      }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: \`executionData\` is missing
-      Path: executionData
+    expect(
+      u.toValidationError(
+        z.safeDecode(Intent.Partial, {
+          eoa: '0x1234567890123456789012345678901234567890',
+          // Missing executionData and nonce
+        } as never).error,
+      ),
+    ).toMatchInlineSnapshot(
+      `
+      [Schema.ValidationError: Validation failed with 2 errors:
 
-      Details: { readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly nonce: (\`0x\${string}\` <-> bigint) }
-      └─ ["executionData"]
-         └─ is missing]
-    `)
+      - at \`executionData\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.
+      - at \`nonce\`: Expected template_literal. Needs string in format ^0x[A-Fa-f0-9]+$.]
+    `,
+    )
   })
 
   test('misc: partial intent contains subset of full intent fields', () => {
-    const partialDecoded = Schema.decodeUnknownSync(Intent.Partial)(
-      validPartialData,
-    )
-    const fullDecoded = Schema.decodeUnknownSync(Intent.Intent)({
+    const partialDecoded = z.decode(Intent.Partial, validPartialData as never)
+    const fullDecoded = z.decode(Intent.Intent, {
       combinedGas: '0x5208',
       encodedFundTransfers: [],
       encodedPreCalls: [],
@@ -396,7 +423,7 @@ describe('Partial', () => {
       signature: '0xsignature123',
       supportedAccountImplementation:
         '0x0000000000000000000000000000000000000000',
-    })
+    } as never)
 
     // Verify that partial fields match the full intent
     expect(partialDecoded.eoa).toBe(fullDecoded.eoa)

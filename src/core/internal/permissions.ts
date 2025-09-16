@@ -1,11 +1,12 @@
 import type * as Address from 'ox/Address'
+import type * as z from 'zod/mini'
 
 import * as Key from '../../viem/Key.js'
 import * as Permissions_ from './schema/permissions.js'
 
 export const Schema = Permissions_.Permissions
 
-export type Permissions = typeof Schema.Type
+export type Permissions = z.infer<typeof Schema>
 
 export function fromKey(key: Key.Key, options: fromKey.Options): Permissions {
   const { chainId, expiry, permissions, id, publicKey, type } = key

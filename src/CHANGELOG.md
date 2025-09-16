@@ -1,5 +1,144 @@
 # porto
 
+## 0.2.6
+
+### Patch Changes
+
+- [`1387137`](https://github.com/ithacaxyz/porto/commit/13871375228e18640202e659f073786be09966c3) Thanks [@jxom](https://github.com/jxom)! - Disabled merchant hostname check for testnets.
+
+- [`260e36c`](https://github.com/ithacaxyz/porto/commit/260e36c51ae19b74709057edf5876ba8b80f0998) Thanks [@jxom](https://github.com/jxom)! - Fixed serialization of CLI requests.
+
+- [#862](https://github.com/ithacaxyz/porto/pull/862) [`19190ee`](https://github.com/ithacaxyz/porto/commit/19190eedcff54b9dc5aae7396d08082d003742cd) Thanks [@tmm](https://github.com/tmm)! - Added response capabilities support to Wagmi connector.
+
+## 0.2.5
+
+### Patch Changes
+
+- [#853](https://github.com/ithacaxyz/porto/pull/853) [`7ab683a`](https://github.com/ithacaxyz/porto/commit/7ab683ab956a621fe1d62a4e20493f4a16a80c7e) Thanks [@jxom](https://github.com/jxom)! - Made `key` optional on `prepareCalls`, `sendCalls`, and `signCalls` actions.
+
+## 0.2.4
+
+### Patch Changes
+
+- [#843](https://github.com/ithacaxyz/porto/pull/843) [`6b04676`](https://github.com/ithacaxyz/porto/commit/6b046766a062beb966c4fd5407ceb18573cc7c62) Thanks [@jxom](https://github.com/jxom)! - Migrated to `zod/mini`. Cut bundle size by 30%.
+
+## 0.2.3
+
+### Patch Changes
+
+- [#848](https://github.com/ithacaxyz/porto/pull/848) [`8ecff2a`](https://github.com/ithacaxyz/porto/commit/8ecff2ab72eada9aa7cdbd5d6ff6c0c58caccafc) Thanks [@jxom](https://github.com/jxom)! - Deferred pre-call management to the Relay instead of the SDK.
+
+## 0.2.2
+
+### Patch Changes
+
+- [`0853d71`](https://github.com/ithacaxyz/porto/commit/0853d71c67dc905ee2d543ec4e274adb1beb2551) Thanks [@jxom](https://github.com/jxom)! - Removed console log.
+
+## 0.2.1
+
+### Patch Changes
+
+- [`1f7e601`](https://github.com/ithacaxyz/porto/commit/1f7e601c738940242c0c71cb3f0ff867d4f13987) Thanks [@jxom](https://github.com/jxom)! - Fixed `wagmi` Connector module imports.
+
+## 0.2.0
+
+### Minor Changes
+
+- [#844](https://github.com/ithacaxyz/porto/pull/844) [`df2bdd8`](https://github.com/ithacaxyz/porto/commit/df2bdd84a37d3a8b03b99679108b902c2ca64bbc) Thanks [@jxom](https://github.com/jxom)! - **Breaking:**
+
+  - Renamed `merchantRpcUrl` to `merchantUrl`.
+  - Removed automatic `merchantUrl` inference to enhance clarity and avoid astonishment. If you have set up a Merchant API route via `Route.merchant`, you will need to explicitly pass the URL to `Porto.create(){:js}` or the `porto` Connector.
+
+  See `config.ts` below (that uses the `api/worker.ts` server):
+
+  ### `config.ts`
+
+  ```diff
+  const porto = Porto.create({
+  + merchantUrl: '/porto/merchant'
+  })
+  ```
+
+  ### `api/worker.ts`
+
+  ```ts
+  import { env } from "cloudflare:workers";
+  import { Router, Route } from "porto/server";
+
+  export default Router({ basePath: "/porto" }).route(
+    "/merchant",
+    Route.merchant({
+      address: env.MERCHANT_ADDRESS,
+      key: env.MERCHANT_PRIVATE_KEY,
+    }),
+  ) satisfies ExportedHandler<Env>;
+  ```
+
+## 0.1.0
+
+### Minor Changes
+
+- [#817](https://github.com/ithacaxyz/porto/pull/817) [`68cd125`](https://github.com/ithacaxyz/porto/commit/68cd125638dddc88a1fd39ee79daedfbd3d6d054) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renamed `MerchantRpc.requestListener` to `Route.merchant`. [See docs](https://porto.sh/sdk/api/route/merchant).
+
+- [#817](https://github.com/ithacaxyz/porto/pull/817) [`68cd125`](https://github.com/ithacaxyz/porto/commit/68cd125638dddc88a1fd39ee79daedfbd3d6d054) Thanks [@jxom](https://github.com/jxom)! - Added `Router` + `Route` modules to `porto/server`. [See docs](https://porto.sh/sdk/api/router)
+
+  <img width="500px" alt="ray-so-export (15)" src="https://github.com/user-attachments/assets/4fc5bc98-8922-4a03-afe0-158a23697b0c" />
+
+- [#817](https://github.com/ithacaxyz/porto/pull/817) [`68cd125`](https://github.com/ithacaxyz/porto/commit/68cd125638dddc88a1fd39ee79daedfbd3d6d054) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** The `feeLimit` property on the `wallet_grantPermissions` request has been repurposed to `feeToken`, and is now required.
+
+  Instead of `feeLimit`'s currency automatically being matched with a fee token, you must now manually specify the fee token. This fee token will be used for calls that use this permission. In the future, we may have automatic inference of fee tokens for permissioned calls.
+
+  ```diff
+  provider.request({
+    method: 'wallet_grantPermissions',
+    params: [{
+      expiry: 1715328000,
+  -   feeLimit: {
+  -     currency: 'USD',
+  -     value: '1',
+  -   },
+  +   feeToken: {
+  +     limit: '1',
+  +     symbol: 'USDC',
+  +   },
+      permissions: { ... }
+    }],
+  })
+  ```
+
+## 0.0.93
+
+### Patch Changes
+
+- [#837](https://github.com/ithacaxyz/porto/pull/837) [`fdcd88b`](https://github.com/ithacaxyz/porto/commit/fdcd88b19e92a8cd9804a092f6f0984a1c61e88e) Thanks [@jxom](https://github.com/jxom)! - Added dynamic imports for Porto modules in `porto` Connector. Reduces static `porto` bundle size by 13x.
+
+## 0.0.92
+
+### Patch Changes
+
+- [`3fbafa7`](https://github.com/ithacaxyz/porto/commit/3fbafa7e006c0203079a899e28d522b77ee4c3aa) Thanks [@jxom](https://github.com/jxom)! - Asserted that `key.id` is an address.
+
+## 0.0.91
+
+### Patch Changes
+
+- [#831](https://github.com/ithacaxyz/porto/pull/831) [`5df2f5d`](https://github.com/ithacaxyz/porto/commit/5df2f5d8cf6d61a0c00bd546778047b96082f6f6) Thanks [@o-az](https://github.com/o-az)! - Prefixed `crypto.randomUUID()` with `globalThis` to make React Native friendly
+
+## 0.0.90
+
+### Patch Changes
+
+- [`418bcaf`](https://github.com/ithacaxyz/porto/commit/418bcafd28b6e887690ebf57e440b82dd220e8a9) Thanks [@jxom](https://github.com/jxom)! - Fixed hostname check.
+
+## 0.0.89
+
+### Patch Changes
+
+- [#825](https://github.com/ithacaxyz/porto/pull/825) [`4453819`](https://github.com/ithacaxyz/porto/commit/44538195ee25c4c87473246d44753e4e8f139526) Thanks [@o-az](https://github.com/o-az)! - Forwarded `webAuthn` adapters into signing paths for `Mode.Relay`.
+  This prevents WebAuthn signing on React Native from defaulting to `window.navigator.credentials` when platform is `android` or `ios`.
+
+- [#827](https://github.com/ithacaxyz/porto/pull/827) [`55cb72a`](https://github.com/ithacaxyz/porto/commit/55cb72a1b45d1907d7fd8e30147853768200b7eb) Thanks [@jxom](https://github.com/jxom)! - Added IntersectionObserver v2.
+
 ## 0.0.88
 
 ### Patch Changes

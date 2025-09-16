@@ -5,7 +5,7 @@ The Relay uses JSON-RPC 2.0 to facilitate communication between the Porto SDK an
 Execution is paid for in one of the fee tokens accepted by the RPC on a given network. You can get the supported fee tokens for a chain by querying [`wallet_getCapabilities`].
 
 :::note
-We'd love to hear your feedback. Report any issues or feature suggestions [on the issue tracker](https://github.com/ithacaxyz/relay-issues).
+We'd love to hear your feedback. Report any issues or feature suggestions [on the issue tracker](https://github.com/ithacaxyz/relay/issues).
 :::
 
 ## Endpoints

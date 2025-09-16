@@ -25,9 +25,6 @@ Next-gen Account for Ethereum.
   </a>
 </p>
 
-> [!NOTE]
-> This is a developer preview. Non-major version bumps may contain breaking changes.
-
 ## Documentation
 
 For documentation and guides, visit [porto.sh](https://porto.sh).

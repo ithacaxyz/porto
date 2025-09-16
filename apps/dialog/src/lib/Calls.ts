@@ -2,7 +2,6 @@ import { Env, Query as Query_porto } from '@porto/apps'
 import * as Query from '@tanstack/react-query'
 import type { Address } from 'ox'
 import { type Account, RelayActions } from 'porto'
-import * as PreCalls from 'porto/core/internal/preCalls'
 import * as RequiredFunds from 'porto/core/internal/requiredFunds'
 import type * as Capabilities_schema from 'porto/core/internal/schema/capabilities'
 import type * as Token from 'porto/core/internal/schema/token'
@@ -25,7 +24,7 @@ export namespace prepareCalls {
       calls,
       feePayer,
       feeToken,
-      merchantRpcUrl,
+      merchantUrl,
       nonce,
       requiredFunds,
       refetchInterval,
@@ -37,27 +36,21 @@ export namespace prepareCalls {
       // TODO: use EIP-1193 Provider + `wallet_prepareCalls` in the future
       // to dedupe.
       async queryFn({ queryKey }) {
-        const [, { account, feeToken, ...parameters }] = queryKey
+        const [, { account, feeToken: feeTokenOverride, ...parameters }] =
+          queryKey
 
         if (!account) throw new Error('account is required.')
 
-        const [tokens, feeTokens] = await Promise.all([
+        const [tokens, feeToken] = await Promise.all([
           Query_porto.client.ensureQueryData(
             Tokens.getTokens.queryOptions(client, {}),
           ),
           Query_porto.client.ensureQueryData(
-            Tokens.resolveFeeTokens.queryOptions(client, {
-              addressOrSymbol: feeToken,
+            Tokens.resolveFeeToken.queryOptions(client, {
+              addressOrSymbol: feeTokenOverride,
             }),
           ),
         ])
-        const [{ address: feeTokenAddress }] = feeTokens
-
-        // Get pre-authorized keys to assign to the call bundle.
-        const preCalls = await PreCalls.get({
-          address: account.address,
-          storage: porto.config.storage,
-        })
 
         const requiredFunds = RequiredFunds.toRelay(
           parameters.requiredFunds ?? [],
@@ -69,8 +62,7 @@ export namespace prepareCalls {
         return await RelayActions.prepareCalls(client, {
           ...parameters,
           account,
-          feeToken: feeTokenAddress,
-          preCalls,
+          feeToken: feeToken?.address,
           requiredFunds: multichain ? requiredFunds : undefined,
         })
       },
@@ -80,7 +72,7 @@ export namespace prepareCalls {
         calls,
         feePayer,
         feeToken,
-        merchantRpcUrl,
+        merchantUrl,
         nonce,
         requiredFunds,
         revokeKeys,
@@ -117,7 +109,7 @@ export namespace prepareCalls {
       > & {
         account?: Account.Account | undefined
         feeToken?: Token.Symbol | Address.Address | undefined
-        merchantRpcUrl?: string | undefined
+        merchantUrl?: string | undefined
         requiredFunds?: Capabilities_schema.requiredFunds.Request | undefined
       }
     }

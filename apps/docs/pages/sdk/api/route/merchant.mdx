@@ -1,0 +1,104 @@
+# `Route.merchant`
+
+Creates a framework-agnostic server route for merchant RPC operations. This allows merchants to sponsor transaction fees for users and handle Porto RPC requests in various server environments.
+
+## Imports
+
+:::code-group
+
+```ts [Named]
+import { Route } from 'porto/server'
+```
+
+```ts [Entrypoint]
+import * as Route from 'porto/server/Route'
+```
+
+:::
+
+## Usage
+
+```ts twoslash
+// @noErrors
+import { Route } from 'porto/server'
+
+const route = Route.merchant({
+  address: process.env.MERCHANT_ADDRESS,
+  key: process.env.MERCHANT_PRIVATE_KEY,
+})
+```
+
+### Frameworks
+
+`Route.merchant` is compatible with any server framework that supports the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
+or [Node.js Request Listener](https://nodejs.org/api/http.html#httpcreateserveroptions-requestlistener).
+
+Examples:
+
+- [Next.js](/sdk/api/router#nextjs)
+- [Cloudflare Workers](/sdk/api/router#cloudflare-workers)
+- [Hono](/sdk/api/router#hono)
+- [Bun](/sdk/api/router#bun)
+- [Deno](/sdk/api/router#deno)
+- [Express](/sdk/api/router#express)
+
+### Conditional Sponsoring
+
+The `sponsor` option can be used to conditionally sponsor calls.
+When a function is provided to `sponsor`, the first parameter is a `request` object and the return value is a boolean indicating whether to sponsor the call.
+
+In the following example, the call will only be sponsored if the `to` address is the same as the `target` address.
+
+```ts
+import { Route } from 'porto/server'
+
+const target = '0x...'
+
+const route = Route.merchant({
+  address: process.env.MERCHANT_ADDRESS,
+  key: process.env.MERCHANT_PRIVATE_KEY,
+  sponsor(request) {
+    return request.calls.every((call) => call.to === target)
+  },
+})
+```
+
+:::tip
+You can also pass an `async` function to `sponsor` if you wish to call out to an external service to determine whether to sponsor the call.
+
+```ts
+import { Route } from 'porto/server'
+import { myAsyncFunction } from './myAsyncFunction'
+
+const route = Route.merchant({
+  address: process.env.MERCHANT_ADDRESS,
+  key: process.env.MERCHANT_PRIVATE_KEY,
+  async sponsor(request) { // [!code focus]
+    return await myAsyncFunction(request) // [!code focus]
+  }, // [!code focus]
+})
+```
+
+:::
+
+## Parameters
+
+```ts
+type Parameters = {
+  /** Address of the Merchant Account. */
+  address: Address.Address
+  /** An Admin Key of the Merchant Account to use for signing. */
+  key:
+    | Hex.Hex
+    | (Pick<OneOf<Key.Secp256k1Key | Key.P256Key>, 'type'> & {
+        privateKey: Hex.Hex
+      })
+  /** Whether to sponsor calls or not, and the condition to do so. */
+  sponsor?:
+    | boolean
+    | ((
+        request: RpcSchema.wallet_prepareCalls.Parameters,
+      ) => Promise<boolean>)
+      | undefined
+}
+```

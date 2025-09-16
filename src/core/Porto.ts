@@ -65,7 +65,7 @@ export function create(
     authUrl: parameters.authUrl,
     chains,
     feeToken: parameters.feeToken,
-    merchantRpcUrl: parameters.merchantRpcUrl,
+    merchantUrl: parameters.merchantUrl,
     mode: parameters.mode ?? defaultConfig.mode,
     relay: parameters.relay ?? defaultConfig.relay,
     storage: parameters.storage ?? defaultConfig.storage,
@@ -115,7 +115,7 @@ export function create(
             } as unknown as State
           },
           storage: config.storage,
-          version: 4,
+          version: 5,
         },
       ),
     ),
@@ -128,7 +128,7 @@ export function create(
     getMode() {
       return mode
     },
-    id: crypto.randomUUID(),
+    id: globalThis.crypto.randomUUID(),
     setMode(i) {
       destroy?.()
       mode = i
@@ -191,9 +191,9 @@ export type Config<
    */
   mode: Mode.Mode | null
   /**
-   * URL to use for merchant functionality.
+   * URL to use for merchant server.
    */
-  merchantRpcUrl?: string | undefined
+  merchantUrl?: string | undefined
   /**
    * Relay RPC Transport override.
    */

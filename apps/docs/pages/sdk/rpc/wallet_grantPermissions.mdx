@@ -58,15 +58,13 @@ type Request = {
     expiry: number
 
     /** 
-     * Limit that the key can spend on fees. When provided,
-     * Porto will assign a spend permission on the user's
-     * selected fee token that is equal to the limit provided.
+     * Fee token that will be used with these permissions.
      */
-    feeLimit?: {
-      /** Currency of the limit. */
-      currency: 'ETH' | 'USD' | 'USDC' | 'USDT'
-      /** Value of the limit in the currency's unit (e.g. '1' = 1 USDC). */
-      value: string
+    feeToken: {
+      /** Value of the limit in the symbols's unit (e.g. '1' = 1 USDC). */
+      limit: string
+      /** Symbol of the fee token. `undefined` for native token. */
+      symbol?: Token.Symbol | undefined
     } | undefined,
 
     /** Key to grant permissions to. Defaults to a wallet-managed key. */
@@ -91,7 +89,7 @@ type Request = {
       }[],
 
       /** Fee limit permission. */
-      feeLimit?: {
+      feeToken?: {
         /** Currency of the fee limit. */
         currency: 'ETH' | 'USDC' | 'USDT'
         /** Value of the fee limit. */
@@ -163,6 +161,10 @@ const permissions = await provider.request({
   method: 'wallet_grantPermissions',
   params: [{
     expiry: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 1 week
+    feeToken: {
+      limit: '1',
+      symbol: 'USDC',
+    },
     permissions: {
       calls: [{ 
         signature: 'transfer(address,uint256)',
@@ -231,6 +233,10 @@ const permissions = await provider.request({
   method: 'wallet_grantPermissions',
   params: [{
     expiry: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 1 week
+    feeToken: {
+      limit: '1',
+      symbol: 'USDC',
+    },
     key: { // [!code focus]
       publicKey: account.address, // [!code focus]
       type: 'secp256k1', // [!code focus]
@@ -259,6 +265,10 @@ const permissions = await provider.request({
       method: 'wallet_grantPermissions',
       params: [{
         expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
+        feeToken: {
+          limit: '1',
+          symbol: 'USDC',
+        },
         key: {
           publicKey: account.address,
           type: 'secp256k1',

@@ -1,4 +1,5 @@
 import type * as RpcSchema from 'ox/RpcSchema'
+import type * as z from 'zod/mini'
 import type * as RpcSchema_viem from '../viem/RpcSchema.js'
 import type * as Rpc from './internal/schema/request.js'
 import type { DeepReadonly } from './internal/types.js'
@@ -27,96 +28,96 @@ export type Schema =
     >
   | RpcSchema.From<
       | {
-          Request: typeof Rpc.account_verifyEmail.Request.Encoded
-          ReturnType: typeof Rpc.account_verifyEmail.Response.Encoded
+          Request: z.input<typeof Rpc.account_verifyEmail.Request>
+          ReturnType: z.input<typeof Rpc.account_verifyEmail.Response>
         }
       | {
-          Request: typeof Rpc.wallet_addFunds.Request.Encoded
-          ReturnType: typeof Rpc.wallet_addFunds.Response.Encoded
+          Request: z.input<typeof Rpc.wallet_addFunds.Request>
+          ReturnType: z.input<typeof Rpc.wallet_addFunds.Response>
         }
       | {
-          Request: typeof Rpc.porto_ping.Request.Encoded
-          ReturnType: typeof Rpc.porto_ping.Response.Encoded
+          Request: z.input<typeof Rpc.porto_ping.Request>
+          ReturnType: z.input<typeof Rpc.porto_ping.Response>
         }
       | {
-          Request: typeof Rpc.wallet_grantAdmin.Request.Encoded
-          ReturnType: typeof Rpc.wallet_grantAdmin.Response.Encoded
+          Request: z.input<typeof Rpc.wallet_grantAdmin.Request>
+          ReturnType: z.input<typeof Rpc.wallet_grantAdmin.Response>
         }
       | {
-          Request: typeof Rpc.wallet_grantPermissions.Request.Encoded
-          ReturnType: typeof Rpc.wallet_grantPermissions.Response.Encoded
+          Request: z.input<typeof Rpc.wallet_grantPermissions.Request>
+          ReturnType: z.input<typeof Rpc.wallet_grantPermissions.Response>
         }
       | {
-          Request: typeof Rpc.wallet_prepareUpgradeAccount.Request.Encoded
-          ReturnType: typeof Rpc.wallet_prepareUpgradeAccount.Response.Encoded
+          Request: z.input<typeof Rpc.wallet_prepareUpgradeAccount.Request>
+          ReturnType: z.input<typeof Rpc.wallet_prepareUpgradeAccount.Response>
         }
       | {
-          Request: typeof Rpc.wallet_upgradeAccount.Request.Encoded
-          ReturnType: typeof Rpc.wallet_upgradeAccount.Response.Encoded
+          Request: z.input<typeof Rpc.wallet_upgradeAccount.Request>
+          ReturnType: z.input<typeof Rpc.wallet_upgradeAccount.Response>
         }
       | {
-          Request: typeof Rpc.wallet_getAdmins.Request.Encoded
-          ReturnType: typeof Rpc.wallet_getAdmins.Response.Encoded
+          Request: z.input<typeof Rpc.wallet_getAdmins.Request>
+          ReturnType: z.input<typeof Rpc.wallet_getAdmins.Response>
         }
       | {
-          Request: typeof Rpc.wallet_getAccountVersion.Request.Encoded
-          ReturnType: typeof Rpc.wallet_getAccountVersion.Response.Encoded
+          Request: z.input<typeof Rpc.wallet_getAccountVersion.Request>
+          ReturnType: z.input<typeof Rpc.wallet_getAccountVersion.Response>
         }
       | {
-          Request: typeof Rpc.wallet_getPermissions.Request.Encoded
-          ReturnType: typeof Rpc.wallet_getPermissions.Response.Encoded
+          Request: z.input<typeof Rpc.wallet_getPermissions.Request>
+          ReturnType: z.input<typeof Rpc.wallet_getPermissions.Response>
         }
       | {
-          Request: typeof Rpc.wallet_revokeAdmin.Request.Encoded
+          Request: z.input<typeof Rpc.wallet_revokeAdmin.Request>
           ReturnType: undefined
         }
       | {
-          Request: typeof Rpc.wallet_revokePermissions.Request.Encoded
+          Request: z.input<typeof Rpc.wallet_revokePermissions.Request>
           ReturnType: undefined
         }
       | {
-          Request: typeof Rpc.wallet_connect.Request.Encoded
-          ReturnType: typeof Rpc.wallet_connect.Response.Encoded
+          Request: z.input<typeof Rpc.wallet_connect.Request>
+          ReturnType: z.input<typeof Rpc.wallet_connect.Response>
         }
       | {
-          Request: typeof Rpc.wallet_disconnect.Request.Encoded
+          Request: z.input<typeof Rpc.wallet_disconnect.Request>
           ReturnType: undefined
         }
       | {
-          Request: typeof Rpc.wallet_getCapabilities.Request.Encoded
-          ReturnType: typeof Rpc.wallet_getCapabilities.Response.Encoded
+          Request: z.input<typeof Rpc.wallet_getCapabilities.Request>
+          ReturnType: z.input<typeof Rpc.wallet_getCapabilities.Response>
         }
       | {
-          Request: typeof Rpc.wallet_getKeys.Request.Encoded
-          ReturnType: typeof Rpc.wallet_getKeys.Response.Encoded
+          Request: z.input<typeof Rpc.wallet_getKeys.Request>
+          ReturnType: z.input<typeof Rpc.wallet_getKeys.Response>
         }
       | {
-          Request: typeof Rpc.wallet_getAssets.Request.Encoded
-          ReturnType: typeof Rpc.wallet_getAssets.Response.Encoded
+          Request: z.input<typeof Rpc.wallet_getAssets.Request>
+          ReturnType: z.input<typeof Rpc.wallet_getAssets.Response>
         }
       | {
-          Request: typeof Rpc.wallet_getCallsStatus.Request.Encoded
-          ReturnType: typeof Rpc.wallet_getCallsStatus.Response.Encoded
+          Request: z.input<typeof Rpc.wallet_getCallsStatus.Request>
+          ReturnType: z.input<typeof Rpc.wallet_getCallsStatus.Response>
         }
       | {
-          Request: typeof Rpc.wallet_prepareCalls.Request.Encoded
-          ReturnType: typeof Rpc.wallet_prepareCalls.Response.Encoded
+          Request: z.input<typeof Rpc.wallet_prepareCalls.Request>
+          ReturnType: z.input<typeof Rpc.wallet_prepareCalls.Response>
         }
       | {
-          Request: typeof Rpc.wallet_sendPreparedCalls.Request.Encoded
-          ReturnType: typeof Rpc.wallet_sendPreparedCalls.Response.Encoded
+          Request: z.input<typeof Rpc.wallet_sendPreparedCalls.Request>
+          ReturnType: z.input<typeof Rpc.wallet_sendPreparedCalls.Response>
         }
       | {
-          Request: typeof Rpc.wallet_sendCalls.Request.Encoded
-          ReturnType: typeof Rpc.wallet_sendCalls.Response.Encoded
+          Request: z.input<typeof Rpc.wallet_sendCalls.Request>
+          ReturnType: z.input<typeof Rpc.wallet_sendCalls.Response>
         }
       | {
-          Request: typeof Rpc.wallet_switchEthereumChain.Request.Encoded
+          Request: z.input<typeof Rpc.wallet_switchEthereumChain.Request>
           ReturnType: undefined
         }
       | {
-          Request: typeof Rpc.wallet_verifySignature.Request.Encoded
-          ReturnType: typeof Rpc.wallet_verifySignature.Response.Encoded
+          Request: z.input<typeof Rpc.wallet_verifySignature.Request>
+          ReturnType: z.input<typeof Rpc.wallet_verifySignature.Response>
         }
     >
 

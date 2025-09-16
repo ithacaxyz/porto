@@ -1,14 +1,14 @@
 import { env } from 'cloudflare:workers'
-import { MerchantRpc } from 'porto/server'
+import { Route, Router } from 'porto/server'
 import * as Contracts from '../src/contracts.ts'
 
-export default {
-  fetch: MerchantRpc.requestHandler({
-    address: env.MERCHANT_ADDRESS as `0x${string}`,
-    base: '/rpc',
-    key: env.MERCHANT_PRIVATE_KEY as `0x${string}`,
+export default Router({ basePath: '/porto' }).route(
+  '/merchant',
+  Route.merchant({
+    address: env.MERCHANT_ADDRESS,
+    key: env.MERCHANT_PRIVATE_KEY,
     sponsor(request) {
       return request.calls.every((call) => call.to === Contracts.exp1Address)
     },
   }),
-} satisfies ExportedHandler<Env>
+) satisfies ExportedHandler<Env>

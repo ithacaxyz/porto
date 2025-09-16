@@ -1,6 +1,6 @@
 import { AbiFunction, Secp256k1, Value } from 'ox'
 import { privateKeyToAccount } from 'viem/accounts'
-import { getBalance, readContract } from 'viem/actions'
+import { getBalance, readContract, setBalance } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
 import { getAccount } from '../../test/src/actions.js'
@@ -17,6 +17,11 @@ describe('execute', () => {
       const contracts = await TestConfig.getContracts(porto)
 
       const { account } = await getAccount(client)
+
+      await setBalance(client as any, {
+        address: account.address,
+        value: Value.fromEther('10000'),
+      })
 
       const key = Key.createHeadlessWebAuthnP256()
 
@@ -53,6 +58,11 @@ describe('execute', () => {
       const client = TestConfig.getRelayClient(porto)
 
       const { account } = await getAccount(client)
+
+      await setBalance(client as any, {
+        address: account.address,
+        value: Value.fromEther('10000'),
+      })
 
       await AccountContract.execute(client, {
         account,
@@ -95,6 +105,11 @@ describe('execute', () => {
 
       const { account, privateKey } = await getAccount(client)
 
+      await setBalance(client as any, {
+        address: account.address,
+        value: Value.fromEther('10000'),
+      })
+
       const key = Key.createHeadlessWebAuthnP256()
 
       await AccountContract.execute(client, {
@@ -131,6 +146,11 @@ describe('execute', () => {
       const client = TestConfig.getRelayClient(porto)
 
       const { account, privateKey } = await getAccount(client)
+
+      await setBalance(client as any, {
+        address: account.address,
+        value: Value.fromEther('10000'),
+      })
 
       await AccountContract.execute(client, {
         account,
@@ -173,6 +193,11 @@ describe('execute', () => {
       const client = TestConfig.getRelayClient(porto)
 
       const { account } = await getAccount(client)
+
+      await setBalance(client as any, {
+        address: account.address,
+        value: Value.fromEther('10000'),
+      })
 
       const key = Key.createHeadlessWebAuthnP256()
 
@@ -221,6 +246,11 @@ describe('execute', () => {
       const client = TestConfig.getRelayClient(porto)
 
       const { account } = await getAccount(client)
+
+      await setBalance(client as any, {
+        address: account.address,
+        value: Value.fromEther('10000'),
+      })
 
       const key = Key.createHeadlessWebAuthnP256()
 
@@ -285,6 +315,11 @@ describe('execute', () => {
 
       const { account } = await getAccount(client, { keys: [key] })
 
+      await setBalance(client as any, {
+        address: account.address,
+        value: Value.fromEther('10000'),
+      })
+
       await AccountContract.execute(client, {
         account,
         calls: [Call.authorize({ key })],
@@ -334,6 +369,11 @@ describe('execute', () => {
 
       const { account } = await getAccount(client, { keys: [key] })
 
+      await setBalance(client as any, {
+        address: account.address,
+        value: Value.fromEther('10000'),
+      })
+
       await AccountContract.execute(client, {
         account,
         calls: [Call.authorize({ key })],
@@ -368,6 +408,11 @@ describe('execute', () => {
       const key = Key.createSecp256k1()
 
       const { account } = await getAccount(client, { keys: [key] })
+
+      await setBalance(client as any, {
+        address: account.address,
+        value: Value.fromEther('10000'),
+      })
 
       await AccountContract.execute(client, {
         account,
@@ -419,6 +464,11 @@ describe('execute', () => {
       })
 
       const { account } = await getAccount(client, { keys: [key] })
+
+      await setBalance(client as any, {
+        address: account.address,
+        value: Value.fromEther('10000'),
+      })
 
       await AccountContract.execute(client, {
         account,
@@ -478,6 +528,11 @@ describe('execute', () => {
 
       const { account } = await getAccount(client)
 
+      await setBalance(client as any, {
+        address: account.address,
+        value: Value.fromEther('10000'),
+      })
+
       await AccountContract.execute(client, {
         account,
         calls: [],
@@ -523,6 +578,11 @@ describe('execute', () => {
       const client = TestConfig.getRelayClient(porto)
 
       const { account, privateKey } = await getAccount(client)
+
+      await setBalance(client as any, {
+        address: account.address,
+        value: Value.fromEther('10000'),
+      })
 
       await AccountContract.execute(client, {
         account,
@@ -577,6 +637,11 @@ describe('execute', () => {
       })
 
       const { account } = await getAccount(client, { keys: [key] })
+
+      await setBalance(client as any, {
+        address: account.address,
+        value: Value.fromEther('10000'),
+      })
 
       await AccountContract.execute(client, {
         account,
@@ -649,6 +714,11 @@ describe('execute', () => {
 
     const { account } = await getAccount(client)
 
+    await setBalance(client as any, {
+      address: account.address,
+      value: Value.fromEther('10000'),
+    })
+
     await expect(() =>
       AccountContract.execute(client, {
         account,
@@ -674,6 +744,11 @@ describe('execute', () => {
     const client = TestConfig.getRelayClient(porto)
 
     const { account } = await getAccount(client)
+
+    await setBalance(client as any, {
+      address: account.address,
+      value: Value.fromEther('10000'),
+    })
 
     await AccountContract.execute(client, {
       account,
@@ -703,6 +778,11 @@ describe('execute', () => {
 
     const { account } = await getAccount(client)
 
+    await setBalance(client as any, {
+      address: account.address,
+      value: Value.fromEther('10000'),
+    })
+
     const key = Key.createHeadlessWebAuthnP256()
 
     await AccountContract.execute(client, {
@@ -729,6 +809,11 @@ describe('prepareExecute', () => {
       const client = TestConfig.getRelayClient(porto)
 
       const { account } = await getAccount(client)
+
+      await setBalance(client as any, {
+        address: account.address,
+        value: Value.fromEther('10000'),
+      })
 
       const keyToAuthorize = Key.createHeadlessWebAuthnP256()
 
@@ -780,6 +865,11 @@ describe('prepareExecute', () => {
       const client = TestConfig.getRelayClient(porto)
 
       const { account } = await getAccount(client)
+
+      await setBalance(client as any, {
+        address: account.address,
+        value: Value.fromEther('10000'),
+      })
 
       await AccountContract.execute(client, {
         account,
@@ -836,6 +926,11 @@ describe('prepareExecute', () => {
       const client = TestConfig.getRelayClient(porto)
 
       const { account, privateKey } = await getAccount(client)
+
+      await setBalance(client as any, {
+        address: account.address,
+        value: Value.fromEther('10000'),
+      })
 
       const keyToAuthorize = Key.createHeadlessWebAuthnP256()
 

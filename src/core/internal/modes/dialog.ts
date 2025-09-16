@@ -5,6 +5,7 @@ import * as RpcRequest from 'ox/RpcRequest'
 import * as RpcResponse from 'ox/RpcResponse'
 import * as RpcSchema from 'ox/RpcSchema'
 import { waitForCallsStatus } from 'viem/actions'
+import * as z from 'zod/mini'
 import type { ThemeFragment } from '../../../theme/Theme.js'
 import * as Account from '../../../viem/Account.js'
 import * as Key from '../../../viem/Key.js'
@@ -16,8 +17,6 @@ import * as Mode from '../mode.js'
 import * as Permissions from '../permissions.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import type * as Porto from '../porto.js'
-import * as PreCalls from '../preCalls.js'
-import * as Schema from '../schema/schema.js'
 import type * as Token from '../schema/token.js'
 import * as Siwe from '../siwe.js'
 import * as U from '../utils.js'
@@ -164,7 +163,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
             // Convert the key into a permission.
             const permissionsRequest = key
-              ? Schema.encodeSync(PermissionsRequest.Schema)(
+              ? z.encode(
+                  PermissionsRequest.Schema,
                   PermissionsRequest.fromKey(key),
                 )
               : undefined
@@ -202,23 +202,20 @@ export function dialog(parameters: dialog.Parameters = {}) {
               ?.map((permission) => {
                 try {
                   const key_permission = Permissions.toKey(
-                    Schema.decodeSync(Permissions.Schema)(permission),
+                    z.decode(Permissions.Schema, permission),
                   )
                   if (key_permission.id === key?.id)
-                    return { ...key_permission, ...key }
+                    return {
+                      ...key_permission,
+                      ...key,
+                      permissions: key_permission.permissions,
+                    }
                   return key_permission
                 } catch {
                   return undefined
                 }
               })
               .filter(Boolean) as readonly Key.Key[]
-
-            const { preCalls } = account.capabilities ?? {}
-            if (preCalls)
-              await PreCalls.add(preCalls as PreCalls.PreCalls, {
-                address: account.address,
-                storage,
-              })
 
             const signInWithEthereum_response = await (async () => {
               if (!account.capabilities?.signInWithEthereum) return
@@ -309,9 +306,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const provider = getProvider(store)
         const result = await provider.request(request)
-        return Schema.decodeSync(RpcSchema_porto.wallet_getAssets.Response)(
-          result,
-        )
+        return z.decode(RpcSchema_porto.wallet_getAssets.Response, result)
       },
 
       async getCallsStatus(parameters) {
@@ -358,16 +353,14 @@ export function dialog(parameters: dialog.Parameters = {}) {
           const result = await provider.request({
             method: 'wallet_getKeys',
             params: [
-              Schema.encodeSync(RpcSchema_porto.wallet_getKeys.Parameters)({
+              z.encode(RpcSchema_porto.wallet_getKeys.Parameters, {
                 address: account.address,
                 chainIds,
               }),
             ],
           })
 
-          return Schema.decodeSync(RpcSchema_porto.wallet_getKeys.Response)(
-            result,
-          )
+          return z.decode(RpcSchema_porto.wallet_getKeys.Response, result)
         })()
 
         return U.uniqBy(
@@ -411,13 +404,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
       },
 
       async grantPermissions(parameters) {
-        const { account, internal } = parameters
-        const {
-          client,
-          config: { storage },
-          request,
-          store,
-        } = internal
+        const { internal } = parameters
+        const { client, request, store } = internal
 
         if (request.method !== 'wallet_grantPermissions')
           throw new Error(
@@ -432,34 +420,19 @@ export function dialog(parameters: dialog.Parameters = {}) {
         })
         if (!key) throw new Error('no key found.')
 
-        const permissionsRequest = Schema.encodeSync(PermissionsRequest.Schema)(
+        const permissionsRequest = z.encode(
+          PermissionsRequest.Schema,
           PermissionsRequest.fromKey(key),
         )
 
         // Send a request off to the dialog to grant the permissions.
         const provider = getProvider(store)
-        const response = await provider.request({
+        await provider.request({
           method: 'wallet_grantPermissions',
           params: [permissionsRequest],
         })
 
-        const { preCalls } = response.capabilities ?? {}
-        if (preCalls)
-          await PreCalls.add(preCalls as PreCalls.PreCalls, {
-            address: account.address,
-            storage,
-          })
-
-        const key_response = await PermissionsRequest.toKey(
-          Schema.decodeSync(PermissionsRequest.Schema)(response),
-          {
-            chainId: client.chain.id,
-          },
-        )
-
-        return {
-          key: { ...key_response, ...key } as Key.Key,
-        }
+        return { key }
       },
 
       async loadAccounts(parameters) {
@@ -469,10 +442,11 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const provider = getProvider(store)
 
-        const request =
-          internal.request as typeof RpcSchema_porto.wallet_connect.Request.Encoded & {
-            _decoded: RpcSchema_porto.wallet_connect.Request
-          }
+        const request = internal.request as z.input<
+          typeof RpcSchema_porto.wallet_connect.Request
+        > & {
+          _decoded: RpcSchema_porto.wallet_connect.Request
+        }
 
         if (
           request.method !== 'wallet_connect' &&
@@ -502,7 +476,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
           // Convert the key into a permissions request.
           const permissionsRequest = key
-            ? Schema.encodeSync(PermissionsRequest.Schema)(
+            ? z.encode(
+                PermissionsRequest.Schema,
                 PermissionsRequest.fromKey(key),
               )
             : undefined
@@ -528,17 +503,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
             ],
           })
 
-          await Promise.all(
-            accounts.map(async (account) => {
-              const { preCalls } = account.capabilities ?? {}
-              if (!preCalls) return
-              await PreCalls.add(preCalls as PreCalls.PreCalls, {
-                address: account.address,
-                storage,
-              })
-            }),
-          )
-
           return Promise.all(
             accounts.map(async (account) => {
               const adminKeys = account.capabilities?.admins
@@ -548,10 +512,14 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 ?.map((permission) => {
                   try {
                     const key_permission = Permissions.toKey(
-                      Schema.decodeSync(Permissions.Schema)(permission),
+                      z.decode(Permissions.Schema, permission),
                     )
                     if (key_permission.id === key?.id)
-                      return { ...key_permission, ...key }
+                      return {
+                        ...key_permission,
+                        ...key,
+                        permissions: key_permission.permissions,
+                      }
                     return key_permission
                   } catch {
                     return undefined
@@ -601,11 +569,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
       async prepareCalls(parameters) {
         const { account, internal } = parameters
-        const {
-          config: { storage },
-          store,
-          request,
-        } = internal
+        const { store, request } = internal
 
         if (request.method !== 'wallet_prepareCalls')
           throw new Error('Cannot prepare calls for method: ' + request.method)
@@ -615,15 +579,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const feeToken = await resolveFeeToken(internal, parameters)
 
-        const preCalls = await PreCalls.get({
-          address: account.address,
-          storage,
-        })
-
         const provider = getProvider(store)
-        const result = Schema.decodeSync(
+        const result = z.decode(
           RpcSchema_porto.wallet_prepareCalls.Response,
-        )(
           await provider.request({
             ...request,
             params: [
@@ -632,7 +590,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 capabilities: {
                   ...request.params?.[0]?.capabilities,
                   feeToken,
-                  preCalls,
                 },
               },
             ],
@@ -674,9 +631,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         // Convert the key into a permission.
         const permissionsRequest = key
-          ? Schema.encodeSync(PermissionsRequest.Schema)(
-              PermissionsRequest.fromKey(key),
-            )
+          ? z.encode(PermissionsRequest.Schema, PermissionsRequest.fromKey(key))
           : undefined
 
         // Send a request off to the dialog to prepare the upgrade.
@@ -769,24 +724,14 @@ export function dialog(parameters: dialog.Parameters = {}) {
           asTxHash,
           calls,
           internal,
-          merchantRpcUrl,
+          merchantUrl,
           requiredFunds,
         } = parameters
-        const {
-          config: { storage },
-          client,
-          store,
-          request,
-        } = internal
+        const { client, store, request } = internal
 
         const provider = getProvider(store)
 
         const feeToken = await resolveFeeToken(internal, parameters)
-
-        const preCalls = await PreCalls.get({
-          address: account.address,
-          storage,
-        })
 
         // Try and extract an authorized key to sign the calls with.
         const key = await Mode.getAuthorizedExecuteKey({
@@ -805,7 +750,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
           try {
             // TODO: use eventual Viem Action.
             const req = await provider.request(
-              Schema.encodeSync(RpcSchema_porto.wallet_prepareCalls.Request)({
+              z.encode(RpcSchema_porto.wallet_prepareCalls.Request, {
                 method: 'wallet_prepareCalls',
                 params: [
                   {
@@ -815,8 +760,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                         ? request._decoded.params?.[0]?.capabilities
                         : undefined),
                       feeToken,
-                      merchantRpcUrl,
-                      preCalls,
+                      merchantUrl,
                       requiredFunds,
                     },
                     chainId: client.chain.id,
@@ -851,11 +795,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
                   signature,
                 },
               ],
-            })
-
-            await PreCalls.clear({
-              address: account.address,
-              storage,
             })
 
             const response = result[0]
@@ -898,16 +837,10 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 // @ts-expect-error
                 capabilities: {
                   feeToken,
-                  merchantRpcUrl,
-                  preCalls,
+                  merchantUrl,
                 },
               },
             ],
-          })
-
-          await PreCalls.clear({
-            address: account.address,
-            storage,
           })
 
           return { id }
@@ -923,16 +856,10 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 capabilities: {
                   ...request.params?.[0]?.capabilities,
                   feeToken,
-                  merchantRpcUrl,
-                  preCalls,
+                  merchantUrl,
                 },
               },
             ],
-          })
-
-          await PreCalls.clear({
-            address: account.address,
-            storage,
           })
 
           return result
@@ -942,12 +869,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
       },
 
       async sendPreparedCalls(parameters) {
-        const { account, internal } = parameters
-        const {
-          config: { storage },
-          store,
-          request,
-        } = internal
+        const { internal } = parameters
+        const { store, request } = internal
 
         if (request.method !== 'wallet_sendPreparedCalls')
           throw new Error(
@@ -959,12 +882,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const provider = getProvider(store)
         const result = await provider.request(request)
-
-        if (account.address)
-          await PreCalls.clear({
-            address: account.address,
-            storage,
-          })
 
         const id = result[0]?.id
         if (!id) throw new Error('id not found')

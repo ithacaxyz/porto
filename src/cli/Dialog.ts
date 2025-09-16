@@ -43,6 +43,13 @@ export async function cli() {
 
           isOpen = true
         },
+        async secure() {
+          return {
+            frame: true,
+            host: true,
+            protocol: true,
+          }
+        },
         async syncRequests(requests) {
           if (requests.length > 1)
             throw new Error(
