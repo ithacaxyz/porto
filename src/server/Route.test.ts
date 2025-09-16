@@ -306,23 +306,23 @@ describe('merchant', () => {
     })
   })
 
-  describe('merchant_schedulePermissions', () => {
+  describe('merchant_schedule', () => {
     test('default', async () => {
       const requests: any[] = []
 
       const { merchantClient } = await setup({
-        permissions: {
-          schedule(request) {
+        schedule: {
+          setup(request) {
             requests.push(request)
           },
         },
       })
 
       await merchantClient.request({
-        method: 'merchant_schedulePermissions',
+        method: 'merchant_schedule',
         params: [
           {
-            permissions: {
+            payload: {
               address: '0x0000000000000000000000000000000000000000',
               chainId: '0x0000000000000000000000000000000000000000',
               expiry: 1000000000,
@@ -346,6 +346,7 @@ describe('merchant', () => {
                 ],
               },
             },
+            type: 'permissions',
           },
         ],
       })
@@ -353,7 +354,7 @@ describe('merchant', () => {
       expect(requests).toHaveLength(1)
       expect(requests[0]).toMatchInlineSnapshot(`
         {
-          "permissions": {
+          "payload": {
             "address": "0x0000000000000000000000000000000000000000",
             "chainId": 0,
             "expiry": 1000000000,
@@ -377,23 +378,24 @@ describe('merchant', () => {
               ],
             },
           },
+          "type": "permissions",
         }
       `)
     })
   })
 
-  describe('POST /permissions/scheduled', () => {
+  describe('POST /schedule/invoke', () => {
     test('default', async () => {
       let count = 0
       const { server } = await setup({
-        permissions: {
-          scheduled() {
+        schedule: {
+          invoke() {
             count++
           },
         },
       })
 
-      await fetch(server.url + '/permissions/scheduled')
+      await fetch(server.url + '/schedule/invoke')
 
       expect(count).toBe(1)
     })

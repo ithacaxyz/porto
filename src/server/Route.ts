@@ -164,10 +164,10 @@ export function merchant(options: merchant.Options) {
         return c.json(RpcResponse.from({ result: [key] }, { request }))
       }
 
-      case 'merchant_schedulePermissions': {
+      case 'merchant_schedule': {
         const [parameters] = request._decoded.params
-        if (typeof options.permissions?.schedule === 'function')
-          await options.permissions.schedule(parameters)
+        if (typeof options.schedule?.setup === 'function')
+          await options.schedule.setup(parameters)
         return c.json(RpcResponse.from({ result: undefined }, { request }))
       }
 
@@ -248,9 +248,9 @@ export function merchant(options: merchant.Options) {
   })
 
   if (router.runtime !== 'worker')
-    router.hono.get('/permissions/scheduled', async (c) => {
-      if (typeof options.permissions?.scheduled === 'function')
-        await options.permissions.scheduled()
+    router.hono.get('/schedule/invoke', async (c) => {
+      if (typeof options.schedule?.invoke === 'function')
+        await options.schedule.invoke()
       return c.json({ success: true })
     })
 
@@ -258,8 +258,8 @@ export function merchant(options: merchant.Options) {
     ...(router.runtime === 'worker'
       ? {
           scheduled: async () => {
-            if (typeof options.permissions?.scheduled === 'function')
-              await options.permissions.scheduled()
+            if (typeof options.schedule?.invoke === 'function')
+              await options.schedule.invoke()
           },
         }
       : {}),
@@ -278,26 +278,25 @@ export declare namespace merchant {
       | (Pick<OneOf<Key.Secp256k1Key | Key.P256Key>, 'type'> & {
           privateKey: Hex.Hex
         })
-    /** Permissions configuration. */
-    permissions?:
+    /** Schedule configuration. */
+    schedule?:
       | {
           /**
-           * Callback function that is invoked after permissions have been granted
-           * by the user, and set up a schedule to process the permissions.
-           * Typically used to set up a subscription, DCA schedule, etc.
-           */
-          schedule?:
-            | ((
-                request: MerchantSchema.merchant_schedulePermissions.Parameters,
-              ) => MaybePromise<void>)
-            | undefined
-          /**
-           * Arbitrary callback function to process permissions that are intented to be
-           * invoked on a schedule.
+           * Callback function intended to be invoked on a schedule.
            * Can be called by a recurring job (ie. cron).
            * Typically used to take payments for a subscription, perform a DCA action, etc.
            */
-          scheduled?: (() => MaybePromise<void>) | undefined
+          invoke?: (() => MaybePromise<void>) | undefined
+          /**
+           * Callback function that is invoked when an action is performed that may
+           * require a schedule to be set up (e.g. grant permissions).
+           * Typically used to set up a subscription, DCA schedule, etc.
+           */
+          setup?:
+            | ((
+                request: MerchantSchema.merchant_schedule.Parameters,
+              ) => MaybePromise<void>)
+            | undefined
         }
       | undefined
     /** Whether to sponsor calls or not, and the condition to do so. */
