@@ -306,7 +306,7 @@ describe('merchant', () => {
     })
   })
 
-  describe('merchant_schedule', () => {
+  describe('merchant_setupSchedule', () => {
     test('default', async () => {
       const requests: any[] = []
 
@@ -319,7 +319,7 @@ describe('merchant', () => {
       })
 
       await merchantClient.request({
-        method: 'merchant_schedule',
+        method: 'merchant_setupSchedule',
         params: [
           {
             context: 'foo',
@@ -347,41 +347,63 @@ describe('merchant', () => {
                 ],
               },
             },
-            type: 'permissions',
+            type: 'grantPermissions',
           },
         ],
       })
 
-      expect(requests).toHaveLength(1)
-      expect(requests[0]).toMatchInlineSnapshot(`
-        {
-          "context": "foo",
-          "payload": {
-            "address": "0x0000000000000000000000000000000000000000",
-            "chainId": 0,
-            "expiry": 1000000000,
-            "id": "0x0000000000000000000000000000000000000000",
-            "key": {
-              "publicKey": "0x0000000000000000000000000000000000000000",
-              "type": "address",
+      await merchantClient.request({
+        method: 'merchant_setupSchedule',
+        params: [
+          {
+            context: 'foo',
+            payload: {
+              id: '0x0000000000000000000000000000000000000000',
             },
-            "permissions": {
-              "calls": [
-                {
-                  "to": "0x0000000000000000000000000000000000000000",
-                },
-              ],
-              "spend": [
-                {
-                  "limit": 0n,
-                  "period": "hour",
-                  "token": "0x0000000000000000000000000000000000000000",
-                },
-              ],
-            },
+            type: 'revokePermissions',
           },
-          "type": "permissions",
-        }
+        ],
+      })
+
+      expect(requests).toHaveLength(2)
+      expect(requests).toMatchInlineSnapshot(`
+        [
+          {
+            "context": "foo",
+            "payload": {
+              "address": "0x0000000000000000000000000000000000000000",
+              "chainId": 0,
+              "expiry": 1000000000,
+              "id": "0x0000000000000000000000000000000000000000",
+              "key": {
+                "publicKey": "0x0000000000000000000000000000000000000000",
+                "type": "address",
+              },
+              "permissions": {
+                "calls": [
+                  {
+                    "to": "0x0000000000000000000000000000000000000000",
+                  },
+                ],
+                "spend": [
+                  {
+                    "limit": 0n,
+                    "period": "hour",
+                    "token": "0x0000000000000000000000000000000000000000",
+                  },
+                ],
+              },
+            },
+            "type": "grantPermissions",
+          },
+          {
+            "context": "foo",
+            "payload": {
+              "id": "0x0000000000000000000000000000000000000000",
+            },
+            "type": "revokePermissions",
+          },
+        ]
       `)
     })
   })

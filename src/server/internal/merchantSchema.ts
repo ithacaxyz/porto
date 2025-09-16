@@ -22,18 +22,23 @@ export namespace merchant_getKeys {
   export type Response = z.infer<typeof Response>
 }
 
-export namespace merchant_schedule {
+export namespace merchant_setupSchedule {
   export const Parameters = z.discriminatedUnion('type', [
     z.object({
       context: z.optional(z.unknown()),
       payload: Permissions.Permissions,
-      type: z.literal('permissions'),
+      type: z.literal('grantPermissions'),
+    }),
+    z.object({
+      context: z.optional(z.unknown()),
+      payload: RpcRequest.wallet_revokePermissions.Parameters,
+      type: z.literal('revokePermissions'),
     }),
   ])
   export type Parameters = z.infer<typeof Parameters>
 
   export const Request = z.object({
-    method: z.literal('merchant_schedule'),
+    method: z.literal('merchant_setupSchedule'),
     params: z.readonly(z.tuple([Parameters])),
   })
   export type Request = z.infer<typeof Request>
@@ -45,7 +50,7 @@ export namespace merchant_schedule {
 export const JsonRpcRequest = RpcRequest.schemaWithJsonRpc(
   z.discriminatedUnion('method', [
     merchant_getKeys.Request,
-    merchant_schedule.Request,
+    merchant_setupSchedule.Request,
     Rpc_relay.wallet_prepareCalls.Request,
   ]),
 )
@@ -61,8 +66,8 @@ export type Schema = RpcSchema_ox.From<
       ReturnType: z.input<typeof merchant_getKeys.Response>
     }
   | {
-      Request: z.input<typeof merchant_schedule.Request>
-      ReturnType: z.input<typeof merchant_schedule.Response>
+      Request: z.input<typeof merchant_setupSchedule.Request>
+      ReturnType: z.input<typeof merchant_setupSchedule.Response>
     }
 >
 

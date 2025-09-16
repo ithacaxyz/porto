@@ -164,7 +164,7 @@ export function merchant(options: merchant.Options) {
         return c.json(RpcResponse.from({ result: [key] }, { request }))
       }
 
-      case 'merchant_schedule': {
+      case 'merchant_setupSchedule': {
         const [parameters] = request._decoded.params
         if (typeof options.schedule?.setup === 'function')
           await options.schedule.setup(parameters)
@@ -294,7 +294,7 @@ export declare namespace merchant {
            */
           setup?:
             | ((
-                request: MerchantSchema.merchant_schedule.Parameters,
+                request: MerchantSchema.merchant_setupSchedule.Parameters,
               ) => MaybePromise<void>)
             | undefined
         }
