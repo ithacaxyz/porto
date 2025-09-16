@@ -52,19 +52,14 @@ const offInitialized = Events.onInitialized(porto, (payload, event) => {
       }))
   }
 
+  const referrerUri = document.referrer || event.origin
+
   Dialog.store.setState((state) => ({
     mode,
     referrer: {
       ...referrer,
       origin: event.origin,
-      // If there is no referrer, it is likely the user is using Porto in
-      // an incognito window.
-      //
-      // Note: It could be tempting to pass `window.location.href` from the
-      // parent window via `postMessage` as a workaround, but that could easily
-      // be tampered with (ie. malicious websites could pass a different URL to
-      // the dialog).
-      url: document.referrer ? new URL(document.referrer) : undefined,
+      url: referrerUri ? new URL(referrerUri) : undefined,
     },
 
     // Only update `customTheme` if a theme is passed. This prevents overwriting
