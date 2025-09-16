@@ -113,13 +113,18 @@ document.addEventListener('keydown', (event) => {
 
   // ⌥ + h: hide dev tools
   if (event.altKey && event.code === 'KeyH') {
-    const devToolsElement = document.querySelector(
-      'button[aria-label="Open TanStack Router Devtools"]',
-    )
-    if (devToolsElement) devToolsElement.hidden = !devToolsElement.hidden
-
-    const devTools = document.querySelector('div[data-item="dev-tools"]')
-    if (devTools) devTools.hidden = !devTools.hidden
+    try {
+      const tsqDevToolsContainer = document.querySelector(
+        'div.tsqd-parent-container',
+      )
+      if (tsqDevToolsContainer)
+        tsqDevToolsContainer.hidden = !tsqDevToolsContainer.hidden
+      const tsrDevToolsContainer = document.querySelector(
+        'footer.TanStackRouterDevtools',
+      )
+      if (tsrDevToolsContainer)
+        tsrDevToolsContainer.hidden = !tsrDevToolsContainer.hidden
+    } catch {}
   }
 })
 
