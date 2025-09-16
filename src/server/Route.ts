@@ -39,6 +39,7 @@ export namespace from {
     basePath extends string = '/',
   > {
     hono: Hono<env, schema, basePath>
+    runtime: 'worker' | undefined
 
     /**
      * Creates a new Handler instance.
@@ -53,6 +54,7 @@ export namespace from {
       hono.use('*', poweredBy({ serverName: 'Porto' }))
 
       this.hono = hono
+      this.runtime = options.runtime
     }
 
     /**
@@ -97,6 +99,10 @@ export namespace from {
        * CORS configuration.
        */
       cors?: Parameters<typeof cors>[0] | undefined
+      /**
+       * Runtime type.
+       */
+      runtime?: 'worker' | undefined
     }
   }
 }
@@ -154,6 +160,17 @@ export function merchant(options: merchant.Options) {
     }
 
     switch (request.method) {
+      case 'merchant_getKeys': {
+        return c.json(RpcResponse.from({ result: [key] }, { request }))
+      }
+
+      case 'merchant_schedulePermissions': {
+        const [parameters] = request._decoded.params
+        if (typeof options.permissions?.schedule === 'function')
+          await options.permissions.schedule(parameters)
+        return c.json(RpcResponse.from({ result: undefined }, { request }))
+      }
+
       case 'wallet_prepareCalls': {
         const sponsor = (() => {
           if (typeof options.sponsor === 'function')
@@ -225,12 +242,28 @@ export function merchant(options: merchant.Options) {
 
       default: {
         const error = new RpcResponse.MethodNotSupportedError()
-        return c.json(RpcResponse.from({ error }, { request }))
+        return c.json(RpcResponse.from({ error } as never, { request }))
       }
     }
   })
 
-  return router
+  if (router.runtime !== 'worker')
+    router.hono.get('/permissions/scheduled', async (c) => {
+      if (typeof options.permissions?.scheduled === 'function')
+        await options.permissions.scheduled()
+      return c.json({ success: true })
+    })
+
+  return Object.assign(router, {
+    ...(router.runtime === 'worker'
+      ? {
+          scheduled: async () => {
+            if (typeof options.permissions?.scheduled === 'function')
+              await options.permissions.scheduled()
+          },
+        }
+      : {}),
+  })
 }
 
 export declare namespace merchant {
@@ -245,6 +278,28 @@ export declare namespace merchant {
       | (Pick<OneOf<Key.Secp256k1Key | Key.P256Key>, 'type'> & {
           privateKey: Hex.Hex
         })
+    /** Permissions configuration. */
+    permissions?:
+      | {
+          /**
+           * Callback function that is invoked after permissions have been granted
+           * by the user, and set up a schedule to process the permissions.
+           * Typically used to set up a subscription, DCA schedule, etc.
+           */
+          schedule?:
+            | ((
+                request: MerchantSchema.merchant_schedulePermissions.Parameters,
+              ) => MaybePromise<void>)
+            | undefined
+          /**
+           * Arbitrary callback function to process permissions that are intented to be
+           * invoked on a schedule.
+           * Can be called by a recurring job (ie. cron).
+           * Typically used to take payments for a subscription, perform a DCA action, etc.
+           */
+          scheduled?: (() => MaybePromise<void>) | undefined
+        }
+      | undefined
     /** Whether to sponsor calls or not, and the condition to do so. */
     sponsor?:
       | boolean

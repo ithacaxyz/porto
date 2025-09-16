@@ -197,7 +197,14 @@ export namespace wallet_grantAdmin {
 }
 
 export namespace wallet_grantPermissions {
-  export const Parameters = Permissions.Request
+  export const Parameters = z.object({
+    ...Permissions.Request.shape,
+    capabilities: z.optional(
+      z.object({
+        merchantUrl: z.optional(C.merchantUrl.Request),
+      }),
+    ),
+  })
   export type Parameters = z.infer<typeof Parameters>
 
   export const Request = z.object({
