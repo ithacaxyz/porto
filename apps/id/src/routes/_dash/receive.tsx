@@ -1,3 +1,4 @@
+import * as Ariakit from '@ariakit/react'
 import { ChainIcon } from '@porto/apps/components'
 import { useCopyToClipboard } from '@porto/apps/hooks'
 import * as Ui from '@porto/ui'
@@ -14,8 +15,6 @@ function RouteComponent() {
   const [, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
   return (
     <main className="size-full">
-      {/* TOP BOXES */}
-
       <section className="grid min-h-[50%] grid-flow-col grid-cols-2 justify-items-stretch gap-4 *:rounded-2xl *:bg-white lg:grid-rows-4 dark:*:bg-gray1">
         <div
           className={Ui.cx(
@@ -25,8 +24,11 @@ function RouteComponent() {
           )}
         >
           <div className="flex w-full justify-between">
-            <p className="my-auto text-gray10">Your address</p>
-            <Ui.Button
+            <p className="my-auto font-normal text-base text-gray10">
+              Your address
+            </p>
+            <Ariakit.Button
+              className="h-min rounded-4xl bg-gray2 px-3.5 py-2.5 font-medium text-base outline-1 outline-gray3 outline-offset-[-1px]"
               onClick={() =>
                 copyToClipboard(account.address ?? '')
                   .then(() => toast.success('Copied address to clipboard'))
@@ -36,9 +38,9 @@ function RouteComponent() {
               }
             >
               Copy
-            </Ui.Button>
+            </Ariakit.Button>
           </div>
-          <div className="my-auto mt-5 flex h-auto max-w-[200px] items-center justify-center gap-3 rounded-2xl border border-surface bg-white p-2.5 pt-3 lg:mt-auto lg:max-w-[230px] dark:bg-secondary">
+          <div className="my-auto mt-5 flex h-auto max-w-[200px] items-center justify-center gap-3 rounded-2xl bg-white p-2.5 pt-3 shadow-[0px_4px_44px_0px_rgba(0,0,0,0.02)] outline-1 outline-gray3 outline-offset-[-1px] lg:mt-auto lg:max-w-[230px] dark:bg-secondary">
             <Cuer.Root
               className="h-auto rounded-lg p-2.5"
               value={account.address ?? ''}
@@ -46,7 +48,7 @@ function RouteComponent() {
               <Cuer.Finder radius={1} />
               <Cuer.Cells />
             </Cuer.Root>
-            <p className="min-w-[6ch] max-w-[6ch] text-pretty break-all font-mono font-normal text-[11px] text-gray10">
+            <p className="min-w-[7ch] max-w-[7ch] text-pretty break-all font-mono font-normal text-[11px] text-gray10">
               {account.address}
             </p>
           </div>
@@ -59,13 +61,24 @@ function RouteComponent() {
           )}
         >
           <div className="flex size-full justify-between">
-            <div className="*:-mr-6 flex gap-2 *:size-9.5 *:rounded-full *:border-3 *:border-white">
-              <img alt="eth icon" src="/token-icons/eth.svg" />
-              <img alt="usdt icon" src="/token-icons/usdt.svg" />
-              <img alt="optimism icon" src="/token-icons/op.svg" />
-              <img alt="usdc icon" src="/token-icons/usdc.svg" />
+            <div className="*:-mr-5 flex gap-2 *:size-9.5 *:rounded-full *:outline-[3.5px] *:outline-gray1 dark:*:outline-gray">
+              <img alt="ETH icon" src="/token-icons/eth.svg" />
+              <img alt="HYPE icon" src="/token-icons/hype.svg" />
+              <img alt="UNI icon" src="/token-icons/uni.svg" />
+              <img alt="USDC icon" src="/token-icons/usdc.svg" />
             </div>
-            <Ui.Button>Learn more</Ui.Button>
+            <Ariakit.Button
+              className="h-min rounded-4xl bg-gray2 px-3.5 py-2.5 font-medium text-base outline-1 outline-gray3 outline-offset-[-1px]"
+              render={
+                <a
+                  href="https://porto.sh/sdk/api/chains#supported-chains"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  Learn more
+                </a>
+              }
+            />
           </div>
           <div className="size-full">
             <p className="font-medium text-2xl text-black dark:text-white">
@@ -85,21 +98,32 @@ function RouteComponent() {
           )}
         >
           <div className="flex size-full justify-between">
-            <div className="*:-mr-6 flex gap-2 *:size-9.5 *:rounded-full *:border-3 *:border-white">
+            <div className="*:-mr-5 flex gap-2 *:size-9.5 *:rounded-full *:outline-[3.5px] *:outline-gray1 dark:*:outline-gray">
               <div>
-                <ChainIcon chainId={42161} className="size-9.5" />
+                <ChainIcon chainId={56} className="size-9.5" />
               </div>
               <div>
-                <ChainIcon chainId={10} className="size-9.5" />
+                <ChainIcon chainId={42_161} className="size-9.5" />
               </div>
               <div>
                 <ChainIcon chainId={137} className="size-9.5" />
               </div>
               <div>
-                <ChainIcon chainId={1} className="size-9.5" />
+                <ChainIcon chainId={10} className="size-9.5" />
               </div>
             </div>
-            <Ui.Button>Learn more</Ui.Button>
+            <Ariakit.Button
+              className="h-min rounded-4xl bg-gray2 px-3.5 py-2.5 font-medium text-base outline-1 outline-gray3 outline-offset-[-1px]"
+              render={
+                <a
+                  href="https://porto.sh/sdk/api/chains#supported-chains"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  Learn more
+                </a>
+              }
+            />
           </div>
           <div className="size-full">
             <p className="font-medium text-2xl text-black dark:text-white">
