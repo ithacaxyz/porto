@@ -2,26 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
-      "destination": "/.well-known/m/apple-staging.txt",
-      "has": [
-        {
-          "type": "host",
-          "value": "stg.id.porto.sh"
-        }
-      ],
-      "source": "/.well-known/apple-developer-merchantid-domain-association.txt"
-    },
-    {
-      "destination": "/.well-known/m/apple-staging2.txt",
-      "has": [
-        {
-          "type": "host",
-          "value": "id.porto.sh"
-        }
-      ],
-      "source": "/.well-known/apple-developer-merchantid-domain-association.txt"
-    },
-    {
       "destination": "https://:env.dialog.porto.sh/dialog/",
       "has": [
         {

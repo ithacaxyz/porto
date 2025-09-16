@@ -12,6 +12,7 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 defaults:
   run:
@@ -25,10 +26,6 @@ jobs:
     name: 'Deploy'
     timeout-minutes: 3
     runs-on: ['ubuntu-latest']
-    strategy:
-      matrix:
-        worker:
-          - service
     steps:
       - name: Clone repository
         uses: actions/checkout@v5
@@ -38,8 +35,18 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
-      - name: 🔸 Cloudflare Workers - Deploy ${{ matrix.worker }}
+      - name: Set App Version
+        run: echo "APP_VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: 🔸 Cloudflare Workers - Deploy
         env:
+          APP_VERSION: ${{ env.APP_VERSION }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: pnpm --filter ${{ matrix.worker }} run deploy
+        working-directory: apps/service
+        run: |
+          pnpm dlx wrangler@latest deploy \
+            --config='wrangler.json' \
+            --keep-vars \
+            --var 'ENVIRONMENT:production' \
+            --var 'APP_VERSION:${{ env.APP_VERSION }}'

@@ -25,4 +25,5 @@ export const hostnames = [
   'stg.localhost',
   'www.bungee.exchange',
   'sponsor-porto.vercel.app',
+  'swap.defillama.com',
 ]

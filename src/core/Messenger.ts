@@ -1,3 +1,4 @@
+import * as Json from 'ox/Json'
 import type * as RpcRequest from 'ox/RpcRequest'
 import type * as RpcResponse from 'ox/RpcResponse'
 import type * as MethodPolicies from '../remote/internal/methodPolicies.js'
@@ -331,7 +332,7 @@ export function cliRelay(options: cliRelay.Options): CliRelay {
     const data = { id, payload, topic }
 
     const response = await fetch(relayUrl, {
-      body: JSON.stringify(data),
+      body: Json.stringify(data),
       headers: {
         'Content-Type': 'application/json',
       },

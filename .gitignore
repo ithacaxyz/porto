@@ -64,3 +64,4 @@ CLAUDE.local.md
 !.env.example
 .zed
 bunfig.toml
+mise.toml

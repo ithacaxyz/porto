@@ -24,16 +24,22 @@ export function porto<
 >(config: ExactPartial<Porto.Config<chains>> = {}) {
   type Provider = ReturnType<typeof Porto.create>['provider']
   type Properties = {
-    connect(parameters?: {
+    connect<withCapabilities extends boolean = false>(parameters?: {
       chainId?: number | undefined
-      isReconnecting?: boolean | undefined
       capabilities?:
         | (RpcSchema.wallet_connect.Capabilities & {
             force?: boolean | undefined
           })
         | undefined
+      isReconnecting?: boolean | undefined
+      withCapabilities?: withCapabilities | boolean | undefined
     }): Promise<{
-      accounts: readonly Address[]
+      accounts: withCapabilities extends true
+        ? readonly {
+            address: Address
+            capabilities: RpcSchema.wallet_connect.ResponseCapabilities
+          }[]
+        : readonly Address[]
       chainId: number
     }>
     onConnect(connectInfo: ProviderConnectInfo): void
@@ -55,8 +61,13 @@ export function porto<
     let disconnect: Connector['onDisconnect'] | undefined
 
     return {
-      async connect({ chainId = chains[0].id, isReconnecting, ...rest } = {}) {
-        let accounts: readonly Address[] = []
+      async connect({ chainId = chains[0].id, ...rest } = {}) {
+        const isReconnecting =
+          ('isReconnecting' in rest && rest.isReconnecting) || false
+        const withCapabilities =
+          ('withCapabilities' in rest && rest.withCapabilities) || false
+
+        let accounts: readonly (Address | { address: Address })[] = []
         let currentChainId: number | undefined
 
         if (isReconnecting) {
@@ -100,9 +111,11 @@ export function porto<
               method: 'wallet_connect',
               ...(params ? { params } : {}),
             })
-            accounts = res.accounts.map((x) => getAddress(x.address))
+            accounts = res.accounts
             currentChainId = Number(res.chainIds[0])
           }
+
+          if (!currentChainId) throw new ChainNotConfiguredError()
 
           // Manage EIP-1193 event listeners
           // https://eips.ethereum.org/EIPS/eip-1193#events
@@ -125,9 +138,16 @@ export function porto<
             provider.on('disconnect', disconnect)
           }
 
-          if (!currentChainId) throw new ChainNotConfiguredError()
-
-          return { accounts, chainId: currentChainId }
+          return {
+            accounts: accounts.map((account) => {
+              if (typeof account === 'object')
+                return withCapabilities ? account : account.address
+              return withCapabilities
+                ? { address: account, capabilities: {} }
+                : account
+            }) as never,
+            chainId: currentChainId,
+          }
         } catch (err) {
           const error = err as RpcError
           if (error.code === UserRejectedRequestError.code)
