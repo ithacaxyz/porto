@@ -180,13 +180,6 @@ export function create(
               }
             },
             name: config.storageKey,
-            onRehydrateStorage: (state) => {
-              console.info('rehydrating state', state)
-              return (state, error) => {
-                if (!error) return console.info('state rehydrated', state)
-                console.error('failed to rehydrate state', error)
-              }
-            },
             partialize: (state) =>
               ({
                 accounts: state.accounts.map((account) =>
