@@ -306,6 +306,17 @@ function Onramp(props: {
     },
   })
 
+  React.useEffect(() => {
+    function handlePostMessage(event: MessageEvent) {
+      console.log('handlePostMessage', event)
+      if (event.origin !== 'https://pay.coinbase.com') return
+    }
+    window.addEventListener('message', handlePostMessage)
+    return () => {
+      window.removeEventListener('message', handlePostMessage)
+    }
+  }, [])
+
   if (view === 'start') {
     return (
       <Button
@@ -384,15 +395,13 @@ function Onramp(props: {
   return (
     <div>
       {createOrder.isSuccess && createOrder.data?.url && (
-        <div className="overflow-hidden rounded-lg border">
-          <iframe
-            className="h-40 w-full border-0"
-            referrerPolicy="no-referrer-when-downgrade"
-            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
-            src={createOrder.data.url}
-            title="Payment Link"
-          />
-        </div>
+        <iframe
+          className="h-40 w-full border-0"
+          referrerPolicy="no-referrer-when-downgrade"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
+          src={createOrder.data.url}
+          title="Payment Link"
+        />
       )}
     </div>
   )
