@@ -24,7 +24,7 @@ function RouteComponent() {
   return (
     <main className="size-full">
       <section className="flex w-full flex-col justify-between gap-6 md:flex-row">
-        <div className="flex w-full justify-between divide-x-2 divide-gray2 rounded-2xl bg-white px-4 md:px-9">
+        <div className="flex w-full justify-between divide-x-2 divide-gray2 rounded-2xl bg-white px-4 md:px-9 dark:bg-gray1">
           <div className="transparent w-[55%] text-center">
             <p className="text-base text-gray10 dark:text-gray50">
               Your assets
