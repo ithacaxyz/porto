@@ -96,8 +96,6 @@ export function Frame({
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [onClose])
 
-  if (!visible) return null
-
   return (
     <FrameContext.Provider value={contextValue}>
       <div
@@ -118,7 +116,10 @@ export function Frame({
         )}
         data-dialog={mode.name === 'dialog' ? true : undefined}
         ref={frameRef}
-        style={{ colorScheme }}
+        style={{
+          colorScheme,
+          display: visible ? undefined : 'none',
+        }}
       >
         <div
           className={cx(
