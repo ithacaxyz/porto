@@ -19,7 +19,7 @@ export function ChainIcon({
       title={chain?.name || `Unknown Chain (${chainId})`}
       {...props}
     >
-      {Icon && <Icon width="100%" height="100%" />}
+      {Icon && <Icon height="100%" width="100%" />}
     </DiscIcon>
   )
 }

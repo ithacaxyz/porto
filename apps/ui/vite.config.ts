@@ -33,12 +33,12 @@ export default defineConfig({
   plugins: [
     Icons({
       compiler: 'jsx',
-      jsx: 'react',
       customCollections: {
         chains: FileSystemIconLoader(
           path.resolve(__dirname, './src/ChainIcon/icons'),
         ),
       },
+      jsx: 'react',
     }),
     React(),
     TsconfigPaths(),

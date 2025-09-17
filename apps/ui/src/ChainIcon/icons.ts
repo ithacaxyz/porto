@@ -27,4 +27,3 @@ export const chainIcons: Record<
   11155111: IconSepolia,
   11155420: IconOptimismSepolia,
 }
-
