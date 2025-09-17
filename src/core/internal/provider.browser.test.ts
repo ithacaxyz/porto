@@ -241,14 +241,7 @@ describe('wallet_getPermissions', () => {
           },
         ],
       }),
-      async (iframe) => {
-        try {
-          await iframe.getByTestId('add-funds').click()
-          await iframe.getByTestId('buy').click()
-        } finally {
-          await iframe.getByTestId('grant').click()
-        }
-      },
+      (iframe) => iframe.getByTestId('grant').click(),
     )
 
     {
@@ -282,12 +275,11 @@ describe('wallet_getPermissions', () => {
         params: [{ calls: [] }],
       }),
       async (iframe) => {
-        try {
+        if (iframe.getByTestId('add-funds').query()) {
           await iframe.getByTestId('add-funds').click()
           await iframe.getByTestId('buy').click()
-        } finally {
-          await iframe.getByTestId('confirm').click()
         }
+        await iframe.getByTestId('confirm').click()
       },
     )
     await waitForCallsStatus(WalletClient.fromPorto(porto), {
