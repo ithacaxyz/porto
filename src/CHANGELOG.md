@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.10
+
+### Patch Changes
+
+- [`cfcc90f`](https://github.com/ithacaxyz/porto/commit/cfcc90fed9f8dbdb56d8da1d7ecc3a90a9fd0066) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where `chain` parameter was not being propagated in `RelayActions.{upgradeAccount}`
+
 ## 0.2.9
 
 ### Patch Changes
