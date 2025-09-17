@@ -54,7 +54,7 @@ const offInitialized = Events.onInitialized(porto, (payload, event) => {
 
   const referrerUri = document.referrer || event.origin
 
-  Dialog.store.setState((state) => ({
+  Dialog.store.setState({
     mode,
     referrer: {
       ...referrer,
@@ -68,7 +68,7 @@ const offInitialized = Events.onInitialized(porto, (payload, event) => {
     ...(theme
       ? { customTheme: Theme.parseJsonTheme(JSON.stringify(theme)) }
       : {}),
-  }))
+  })
 })
 
 const offDialogRequest = Events.onDialogRequest(
