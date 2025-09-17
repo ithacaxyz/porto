@@ -308,8 +308,9 @@ function Onramp(props: {
 
   React.useEffect(() => {
     function handlePostMessage(event: MessageEvent) {
-      console.log('handlePostMessage', event)
       if (event.origin !== 'https://pay.coinbase.com') return
+      const data = JSON.parse(event.data)
+      console.log(data)
     }
     window.addEventListener('message', handlePostMessage)
     return () => {

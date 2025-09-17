@@ -6,7 +6,7 @@
 
 import * as AbiError from 'ox/AbiError'
 import * as AbiFunction from 'ox/AbiFunction'
-import * as Address from 'ox/Address'
+import type * as Address from 'ox/Address'
 import * as Errors from 'ox/Errors'
 import * as Hex from 'ox/Hex'
 import {
@@ -397,33 +397,6 @@ export async function prepareCalls<
     }
   })
 
-  const feeToken = capabilities?.meta?.feeToken
-
-  // In order to avoid a fee token deficit on the destination chain when a fee
-  // balance exists on the source chains, we must include the fee token in
-  // the required funds.
-  // TODO: remove once relay does auto-requiredfunds.
-  const feeRequiredFunds = (() => {
-    if (!capabilities?.requiredFunds) return undefined
-    if (!feeToken) return undefined
-    const requiredFunds = capabilities.requiredFunds.find((fund) =>
-      Address.isEqual(fund.address, feeToken),
-    )
-    return {
-      address: feeToken,
-      value: requiredFunds?.value ?? 0n,
-    }
-  })()
-
-  const requiredFunds = [
-    ...(feeRequiredFunds ? [feeRequiredFunds] : []),
-    ...(capabilities?.requiredFunds ?? []).filter(
-      (fund) =>
-        !feeRequiredFunds ||
-        !Address.isEqual(fund.address, feeRequiredFunds.address),
-    ),
-  ]
-
   try {
     const method = 'wallet_prepareCalls' as const
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
@@ -438,7 +411,6 @@ export async function prepareCalls<
               meta: {
                 ...capabilities?.meta,
               },
-              requiredFunds,
             },
             chainId: chain?.id!,
             from: address,

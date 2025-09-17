@@ -99,10 +99,14 @@ export function iframe(options: iframe.Options = {}) {
 
       const iframe = document.createElement('iframe')
       iframe.setAttribute('data-testid', 'porto')
-      iframe.setAttribute(
-        'allow',
-        `publickey-credentials-get ${hostUrl.origin}; publickey-credentials-create ${hostUrl.origin}; clipboard-write`,
-      )
+      const iframeAllow = [
+        `publickey-credentials-get ${hostUrl.origin}`,
+        `publickey-credentials-create ${hostUrl.origin}`,
+      ]
+
+      if (!UserAgent.isFirefox()) iframeAllow.push('clipboard-write')
+
+      iframe.setAttribute('allow', iframeAllow.join('; '))
       iframe.setAttribute('tabindex', '0')
       iframe.setAttribute(
         'sandbox',
