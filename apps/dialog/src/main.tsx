@@ -54,7 +54,7 @@ const offInitialized = Events.onInitialized(porto, (payload, event) => {
 
   const referrerUri = document.referrer || event.origin
 
-  Dialog.store.setState((state) => ({
+  Dialog.store.setState((_state) => ({
     mode,
     referrer: {
       ...referrer,
