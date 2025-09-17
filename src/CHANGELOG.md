@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.9
+
+### Patch Changes
+
+- [`698ab27`](https://github.com/ithacaxyz/porto/commit/698ab27f749c4fe80694d23c820a8a14d3d15641) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where `chain` parameter was not being propagated in `RelayActions.{prepareCalls,sendCalls}`
+
 ## 0.2.8
 
 ### Patch Changes
