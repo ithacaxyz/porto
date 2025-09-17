@@ -1,5 +1,4 @@
 import { Button, ButtonArea, ChainsPath, Details, TokenIcon } from '@porto/ui'
-import { a, useTransition } from '@react-spring/web'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import * as React from 'react'
 import type { Chain } from 'viem'
@@ -188,14 +187,6 @@ export namespace Swap {
       decimals,
     )} ${asset.symbol}`
 
-    const transition = useTransition(asset.fiat ? fiatDisplay : true, {
-      config: { friction: 70, tension: 1300 },
-      enter: { opacity: 1, transform: 'scale(1)' },
-      from: { opacity: 0, transform: 'scale(0.7)' },
-      initial: { opacity: 1, transform: 'scale(1)' },
-      leave: { immediate: true, opacity: 0 },
-    })
-
     const assetName = asset.name || asset.symbol || 'Unknown'
 
     return (
@@ -221,16 +212,14 @@ export namespace Swap {
             onClick={() => onFiatDisplayChange(!fiatDisplay)}
             style={{ flex: '1 1 auto' }}
           >
-            {transition((style, fiatDisplay) => {
-              const value = fiatDisplay && fiatValue ? fiatValue : tokenValue
-              return (
-                <div className="absolute inset-0 flex items-center justify-end">
-                  <a.span className="truncate" style={style} title={value}>
-                    {value}
-                  </a.span>
-                </div>
-              )
-            })}
+            <div className="absolute inset-0 flex items-center justify-end">
+              <span
+                className="truncate"
+                title={fiatDisplay && fiatValue ? fiatValue : tokenValue}
+              >
+                {fiatDisplay && fiatValue ? fiatValue : tokenValue}
+              </span>
+            </div>
           </ButtonArea>
         </div>
       </div>
