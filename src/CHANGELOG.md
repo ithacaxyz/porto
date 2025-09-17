@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.7
+
+### Patch Changes
+
+- [#871](https://github.com/ithacaxyz/porto/pull/871) [`c84f63d`](https://github.com/ithacaxyz/porto/commit/c84f63d1f733ede09570fa4151ea479ef64e055f) Thanks [@o-az](https://github.com/o-az)! - Excluded `clipboard-write` permission from `allow` in `iframe` when browser is Firefox
+
 ## 0.2.6
 
 ### Patch Changes
