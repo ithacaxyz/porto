@@ -115,7 +115,7 @@ export type Schema = [
         }
       | {
           type: 'dialog-lifecycle'
-          action: 'request:close' | 'done:close' // backward compatibility from 0.2.7 (to be removed in future)
+          action: 'request:close' | 'done:close' // backward compatibility from 0.2.7 (to be removed in a future version)
         }
     response: undefined
   },
