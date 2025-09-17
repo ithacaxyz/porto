@@ -114,8 +114,9 @@ export type Schema = [
           theme: Theme.ThemeFragment
         }
       | {
+          // backward compatibility from 0.2.7 (to be removed in a future version)
           type: 'dialog-lifecycle'
-          action: 'request:close' | 'done:close' // backward compatibility from 0.2.7 (to be removed in a future version)
+          action: 'request:close' | 'done:close'
         }
     response: undefined
   },
