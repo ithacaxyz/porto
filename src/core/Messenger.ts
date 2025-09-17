@@ -113,6 +113,10 @@ export type Schema = [
           type: 'set-theme'
           theme: Theme.ThemeFragment
         }
+      | {
+          type: 'dialog-lifecycle'
+          action: 'request:close' | 'done:close' // backward compatibility from 0.2.7 (to be removed in future)
+        }
     response: undefined
   },
 ]

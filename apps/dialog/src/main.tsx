@@ -143,6 +143,16 @@ porto.messenger.on('__internal', (payload) => {
     Dialog.store.setState({
       customTheme: Theme.parseJsonTheme(JSON.stringify(payload.theme)),
     })
+
+  if (
+    payload.type === 'dialog-lifecycle' &&
+    payload.action === 'request:close'
+  ) {
+    porto.messenger.send('__internal', {
+      type: 'dialog-lifecycle',
+      action: 'done:close',
+    })
+  }
 })
 
 porto.ready()
