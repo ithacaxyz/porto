@@ -52,19 +52,14 @@ const offInitialized = Events.onInitialized(porto, (payload, event) => {
       }))
   }
 
-  Dialog.store.setState((state) => ({
+  const referrerUri = document.referrer || event.origin
+
+  Dialog.store.setState({
     mode,
     referrer: {
       ...referrer,
       origin: event.origin,
-      // If there is no referrer, it is likely the user is using Porto in
-      // an incognito window.
-      //
-      // Note: It could be tempting to pass `window.location.href` from the
-      // parent window via `postMessage` as a workaround, but that could easily
-      // be tampered with (ie. malicious websites could pass a different URL to
-      // the dialog).
-      url: document.referrer ? new URL(document.referrer) : undefined,
+      url: referrerUri ? new URL(referrerUri) : undefined,
     },
 
     // Only update `customTheme` if a theme is passed. This prevents overwriting
@@ -73,13 +68,7 @@ const offInitialized = Events.onInitialized(porto, (payload, event) => {
     ...(theme
       ? { customTheme: Theme.parseJsonTheme(JSON.stringify(theme)) }
       : {}),
-
-    // Only the iframe mode starts hidden until request:open is sent
-    visible:
-      mode !== 'iframe' ||
-      // only set visible:false on the first iframe init call
-      (state.mode !== 'iframe' ? false : state.visible),
-  }))
+  })
 })
 
 const offDialogRequest = Events.onDialogRequest(
@@ -154,13 +143,6 @@ porto.messenger.on('__internal', (payload) => {
     Dialog.store.setState({
       customTheme: Theme.parseJsonTheme(JSON.stringify(payload.theme)),
     })
-
-  if (payload.type === 'dialog-lifecycle') {
-    if (payload.action === 'request:open')
-      Dialog.store.setState({ visible: true })
-    if (payload.action === 'request:close')
-      Dialog.store.setState({ visible: false })
-  }
 })
 
 porto.ready()

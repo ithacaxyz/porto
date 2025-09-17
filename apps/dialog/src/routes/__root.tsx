@@ -48,7 +48,6 @@ function RouteComponent() {
   const referrer = Dialog.useStore((state) => state.referrer)
   const customTheme = Dialog.useStore((state) => state.customTheme)
   const display = Dialog.useStore((state) => state.display)
-  const visible = Dialog.useStore((state) => state.visible)
   const verifyStatus = Referrer.useVerify()
 
   const trusted = React.useMemo(() => {
@@ -81,9 +80,7 @@ function RouteComponent() {
     setControlledSize(mode === 'popup')
   }, [mode])
 
-  const enableEnsureVisibility = Boolean(
-    mode.includes('iframe') && visible && !trusted,
-  )
+  const enableEnsureVisibility = mode.includes('iframe') && !trusted
 
   return (
     <>
@@ -116,12 +113,6 @@ function RouteComponent() {
             ? undefined
             : () => Actions.rejectAll(porto)
         }
-        onClosed={() => {
-          porto.messenger.send('__internal', {
-            action: 'done:close',
-            type: 'dialog-lifecycle',
-          })
-        }}
         onHeight={(height) => {
           if (controlledSize) {
             clearTimeout(heightUpdateCheckTimer.current)
@@ -177,7 +168,7 @@ function RouteComponent() {
           tag: env,
           verified: verifyStatus.data?.status === 'whitelisted',
         }}
-        visible={visible ?? true}
+        visible
       >
         <CheckError>
           <CheckUnsupportedBrowser>

@@ -2,46 +2,46 @@ import type { Theme } from '@porto/apps'
 import type { Address } from 'ox'
 import type { Messenger } from 'porto'
 import * as Zustand from 'zustand'
-import { persist } from 'zustand/middleware'
+import { devtools, persist } from 'zustand/middleware'
 import { useShallow } from 'zustand/shallow'
 import { createStore } from 'zustand/vanilla'
 
 export const store = createStore(
-  persist<store.State>(
-    () => {
-      const referrer = (() => {
-        const referrer = new URLSearchParams(window.location.search).get(
-          'referrer',
-        )
-        if (!referrer) return undefined
-        try {
-          const parsed = JSON.parse(referrer)
-          return {
-            ...parsed,
-            url: parsed.url ? new URL(parsed.url) : undefined,
-          }
-        } catch {}
-        return undefined
-      })()
-
-      return {
-        accountMetadata: {},
-        customTheme: undefined,
-        display: 'full',
-        error: null,
-        mode: 'popup-standalone',
-        referrer,
-        visible: undefined,
-      }
-    },
-    {
-      name: 'porto.dialog',
-      partialize(state) {
+  devtools(
+    persist<store.State>(
+      () => {
+        const referrer = (() => {
+          const referrer = new URLSearchParams(window.location.search).get(
+            'referrer',
+          )
+          if (!referrer) return undefined
+          try {
+            const parsed = JSON.parse(referrer)
+            return {
+              ...parsed,
+              url: parsed.url ? new URL(parsed.url) : undefined,
+            }
+          } catch {}
+          return undefined
+        })()
         return {
-          accountMetadata: state.accountMetadata,
-        } as store.State
+          accountMetadata: {},
+          customTheme: undefined,
+          display: 'full',
+          error: null,
+          mode: 'popup-standalone',
+          referrer,
+        }
       },
-    },
+      {
+        name: 'porto.dialog',
+        partialize(state) {
+          return {
+            accountMetadata: state.accountMetadata,
+          } as store.State
+        },
+      },
+    ),
   ),
 )
 
@@ -73,7 +73,6 @@ export declare namespace store {
           url?: URL | undefined
         })
       | undefined
-    visible: boolean | undefined
   }
 }
 type Payload = Extract<Messenger.Payload<'__internal'>, { type: 'init' }>

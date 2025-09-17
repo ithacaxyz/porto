@@ -287,7 +287,6 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       expect(accounts[0]!.keys?.length).toBe(2)
 
       expect(messages[0].type).toBe('adminsChanged')
-      expect(messages[0].data.length).toBe(2)
     })
   })
 
@@ -584,7 +583,6 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       ).matchSnapshot()
 
       expect(messages[0].type).toBe('permissionsChanged')
-      expect(messages[0].data.length).toBe(1)
     })
 
     test('behavior: provided key', async () => {
@@ -699,7 +697,6 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       ).matchSnapshot()
 
       expect(messages[0].type).toBe('permissionsChanged')
-      expect(messages[0].data.length).toBe(1)
     })
 
     test('behavior: no permissions', async () => {
@@ -1007,7 +1004,6 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       ).matchSnapshot()
 
       expect(messages[0].type).toBe('adminsChanged')
-      expect(messages[0].data.length).toBe(2)
 
       await porto.provider.request({
         method: 'wallet_revokeAdmin',
@@ -1028,7 +1024,6 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       ).matchSnapshot()
 
       expect(messages[1].type).toBe('adminsChanged')
-      expect(messages[1].data.length).toBe(1)
     })
   })
 
@@ -1092,7 +1087,6 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       ).matchSnapshot()
 
       expect(messages[0].type).toBe('permissionsChanged')
-      expect(messages[0].data.length).toBe(1)
 
       await porto.provider.request({
         method: 'wallet_revokePermissions',
@@ -1113,7 +1107,6 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       ).matchSnapshot()
 
       expect(messages[1].type).toBe('permissionsChanged')
-      expect(messages[1].data.length).toBe(0)
     })
 
     test('behavior: revoke last admin key', async () => {

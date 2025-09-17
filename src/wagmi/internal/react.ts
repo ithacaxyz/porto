@@ -21,9 +21,7 @@ import type {
   UseQueryParameters,
   UseQueryReturnType,
 } from 'wagmi/query'
-import * as z from 'zod/mini'
 
-import * as RpcSchema from '../../core/RpcSchema.js'
 import {
   addFunds,
   connect,
@@ -128,13 +126,7 @@ export function useAdmins<
         (await activeConnector.getProvider?.()) as EIP1193Provider
       provider.current?.on('message', (event) => {
         if (event.type !== 'adminsChanged') return
-        queryClient.setQueryData(queryKey, (data: any) => ({
-          ...data,
-          keys: z.parse(
-            RpcSchema.wallet_getAdmins.Response.shape.keys,
-            event.data,
-          ),
-        }))
+        queryClient.invalidateQueries({ queryKey })
       })
     })()
   }, [address, activeConnector, queryClient])
@@ -488,10 +480,7 @@ export function usePermissions<
         (await activeConnector.getProvider?.()) as EIP1193Provider
       provider.current?.on('message', (event) => {
         if (event.type !== 'permissionsChanged') return
-        queryClient.setQueryData(
-          queryKey,
-          z.parse(RpcSchema.wallet_getPermissions.Response, event.data),
-        )
+        queryClient.invalidateQueries({ queryKey })
       })
     })()
   }, [address, activeConnector, queryClient])

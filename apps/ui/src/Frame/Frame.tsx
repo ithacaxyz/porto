@@ -1,4 +1,3 @@
-import { a, useTransition } from '@react-spring/web'
 import type { ReactNode } from 'react'
 import {
   createContext,
@@ -13,45 +12,20 @@ import { useSize } from '~/hooks/useSize.js'
 import { LightDarkImage } from '~/LightDarkImage/LightDarkImage.js'
 import LucideBadgeCheck from '~icons/lucide/badge-check'
 import LucideX from '~icons/lucide/x'
-import { Ui } from '../Ui/Ui.js'
 import iconDefaultDark from './icon-default-dark.svg'
 import iconDefaultLight from './icon-default-light.svg'
 
 const FrameContext = createContext<Frame.Context | null>(null)
-
-const springStyles = {
-  enter: {
-    dialogOpacity: 1,
-    dialogTransform: 'translate3d(0, 16px, 0) scale3d(1, 1, 1)',
-    drawerTransform: 'translate3d(0, 0%, 0)',
-    overlayOpacity: 1,
-  },
-  from: {
-    dialogOpacity: 0,
-    dialogTransform: 'translate3d(0, 0px, 0) scale3d(0.92, 0.92, 1)',
-    drawerTransform: 'translate3d(0, 100%, 0)',
-    overlayOpacity: 0,
-  },
-  leave: {
-    dialogOpacity: 0,
-    dialogTransform: 'translate3d(0, 32px, 0) scale3d(1, 1, 1)',
-    drawerTransform: 'translate3d(0, 100%, 0)',
-    overlayOpacity: 0,
-  },
-} as const
 
 export function Frame({
   children,
   colorScheme = 'light dark',
   mode: mode_,
   onClose,
-  onClosed,
   onHeight,
   site,
   visible = true,
 }: Frame.Props) {
-  const ui = Ui.useUi()
-
   const frameRef = useRef<HTMLDivElement>(null)
 
   const [large, setLarge] = useState(false)
@@ -77,38 +51,6 @@ export function Frame({
 
   const containerRef = useRef<HTMLDivElement | null>(null)
   const screenRef = useRef<HTMLDivElement | null>(null)
-
-  const animateLeave =
-    !ui.reducedMotion && mode.name === 'dialog' && mode.variant === 'drawer'
-
-  const openTransition = useTransition(visible, {
-    config:
-      mode.name === 'dialog' && mode.variant === 'drawer'
-        ? { clamp: true, friction: 100, mass: 1, tension: 2000 }
-        : { friction: 120, mass: 1, tension: 3000 },
-    enter: () => async (next) => {
-      await next({ ...springStyles.from, immediate: true })
-      await next({ ...springStyles.enter, immediate: ui.reducedMotion })
-    },
-    initial: springStyles.enter,
-    leave: () => async (next) => {
-      await next({
-        ...springStyles.leave,
-        immediate: !animateLeave,
-      })
-    },
-    onRest() {
-      if (!visible && animateLeave) onClosed?.()
-    },
-  })
-
-  // make sure onClosed gets called when visible = false,
-  // even when there is no leaving animation
-  const wasVisible = useRef(visible)
-  if (wasVisible.current !== visible) {
-    wasVisible.current = visible
-    if (!visible && !animateLeave) onClosed?.()
-  }
 
   useSize(
     screenRef,
@@ -147,180 +89,166 @@ export function Frame({
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [onClose])
 
-  return openTransition(
-    (styles, visible) =>
-      visible && (
-        <FrameContext.Provider value={contextValue}>
+  return (
+    <FrameContext.Provider value={contextValue}>
+      <div
+        className={cx(
+          css({
+            containerType: 'inline-size',
+            display: 'grid',
+            height: '100%',
+            placeItems: 'center',
+            position: 'relative',
+            width: '100%',
+          }),
+          mode.name === 'dialog' &&
+            mode.variant === 'drawer' &&
+            css({
+              alignItems: 'flex-end',
+            }),
+        )}
+        data-dialog={mode.name === 'dialog' ? true : undefined}
+        ref={frameRef}
+        style={{
+          colorScheme,
+          display: visible ? undefined : 'none',
+        }}
+      >
+        <div
+          className={cx(
+            css({
+              display: 'grid',
+              height: '100%',
+              overflowX: 'auto',
+              overflowY:
+                mode.name === 'dialog' ||
+                (mode.name === 'full' && mode.variant !== 'content-height')
+                  ? 'auto'
+                  : 'hidden',
+              width: '100%',
+            }),
+            mode.name === 'dialog' && mode.variant === 'drawer'
+              ? css({ placeItems: 'end center' })
+              : css({ placeItems: 'start center' }),
+          )}
+        >
+          {mode.name === 'dialog' && (
+            // biome-ignore lint/a11y/noStaticElementInteractions: this is an optional way to close the dialog with a pointer
+            <div
+              className={css({
+                background: 'rgba(0, 0, 0, 0.5)',
+                inset: 0,
+                position: 'fixed',
+              })}
+              onClick={onClose}
+            />
+          )}
           <div
             className={cx(
               css({
-                containerType: 'inline-size',
-                display: 'grid',
-                height: '100%',
-                placeItems: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                minWidth: 360,
                 position: 'relative',
                 width: '100%',
               }),
               mode.name === 'dialog' &&
+                css({
+                  backgroundColor: 'var(--background-color-th_base)',
+                  border: '1px solid var(--border-color-th_frame)',
+                  borderRadius: 'var(--radius-th_frame)',
+                  flex: 1,
+                  overflow: 'hidden',
+                }),
+              mode.name === 'dialog' &&
                 mode.variant === 'drawer' &&
                 css({
-                  alignItems: 'flex-end',
+                  borderBottom: 0,
+                  borderBottomRadius: 0,
+                  maxWidth: 460,
+                }),
+              mode.name === 'dialog' &&
+                mode.variant === 'floating' &&
+                css({
+                  maxWidth: 360,
+                  top: 16,
+                }),
+              mode.name === 'full' &&
+                css({
+                  '@container (min-width: 480px)': {
+                    backgroundColor: 'var(--background-color-th_base-plane)',
+                  },
+                  backgroundColor: 'var(--background-color-th_base)',
+                }),
+              mode.name === 'full' &&
+                mode.variant !== 'content-height' &&
+                css({
+                  height: '100%',
                 }),
             )}
-            data-dialog={mode.name === 'dialog' ? true : undefined}
-            ref={frameRef}
-            style={{ colorScheme }}
           >
+            <FrameBar mode={mode} onClose={onClose} site={site} />
             <div
               className={cx(
                 css({
-                  display: 'grid',
-                  height: '100%',
-                  overflowX: 'auto',
-                  overflowY:
-                    mode.name === 'dialog' ||
-                    (mode.name === 'full' && mode.variant !== 'content-height')
-                      ? 'auto'
-                      : 'hidden',
+                  display: 'flex',
+                  flex: '1 0 auto',
+                  justifyContent: 'center',
                   width: '100%',
                 }),
-                mode.name === 'dialog' && mode.variant === 'drawer'
-                  ? css({ placeItems: 'end center' })
-                  : css({ placeItems: 'start center' }),
+                mode.name === 'full' &&
+                  css({
+                    '@container (min-width: 480px)': {
+                      alignItems: 'center',
+                      paddingBottom: 60,
+                    },
+                  }),
               )}
             >
-              {mode.name === 'dialog' && (
-                <a.div
-                  className={css({
-                    background: 'rgba(0, 0, 0, 0.5)',
-                    inset: 0,
-                    position: 'fixed',
-                  })}
-                  onClick={onClose}
-                  style={{
-                    opacity: styles.overlayOpacity,
-                  }}
-                />
-              )}
-              <a.div
+              <div
                 className={cx(
                   css({
                     display: 'flex',
                     flexDirection: 'column',
-                    minWidth: 360,
                     position: 'relative',
                     width: '100%',
                   }),
-                  mode.name === 'dialog' &&
-                    css({
-                      backgroundColor: 'var(--background-color-th_base)',
-                      border: '1px solid var(--border-color-th_frame)',
-                      borderRadius: 'var(--radius-th_frame)',
-                      flex: 1,
-                      overflow: 'hidden',
-                    }),
-                  mode.name === 'dialog' &&
-                    mode.variant === 'drawer' &&
-                    css({
-                      borderBottom: 0,
-                      borderBottomRadius: 0,
-                      maxWidth: 460,
-                    }),
-                  mode.name === 'dialog' &&
-                    mode.variant === 'floating' &&
-                    css({
-                      maxWidth: 360,
-                    }),
                   mode.name === 'full' &&
                     css({
                       '@container (min-width: 480px)': {
-                        backgroundColor:
-                          'var(--background-color-th_base-plane)',
+                        backgroundColor: 'var(--background-color-th_base)',
+                        border: '1px solid var(--border-color-th_frame)',
+                        borderRadius: 'var(--radius-th_large)',
+                        maxWidth: 400,
                       },
-                      backgroundColor: 'var(--background-color-th_base)',
-                    }),
-                  mode.name === 'full' &&
-                    mode.variant !== 'content-height' &&
-                    css({
-                      height: '100%',
+                      overflow: 'hidden',
                     }),
                 )}
-                style={
-                  mode.name === 'dialog' && mode.variant === 'drawer'
-                    ? {
-                        transform: styles.drawerTransform,
-                      }
-                    : mode.name === 'dialog' && mode.variant === 'floating'
-                      ? {
-                          opacity: styles.dialogOpacity,
-                          transform: styles.dialogTransform,
-                        }
-                      : {}
-                }
+                ref={containerRef}
               >
-                <FrameBar mode={mode} onClose={onClose} site={site} />
                 <div
                   className={cx(
                     css({
                       display: 'flex',
-                      flex: '1 0 auto',
-                      justifyContent: 'center',
+                      flexDirection: 'column',
                       width: '100%',
                     }),
                     mode.name === 'full' &&
+                      mode.variant !== 'content-height' &&
                       css({
-                        '@container (min-width: 480px)': {
-                          alignItems: 'center',
-                          paddingBottom: 60,
-                        },
+                        height: '100%',
                       }),
                   )}
+                  ref={screenRef}
                 >
-                  <div
-                    className={cx(
-                      css({
-                        display: 'flex',
-                        flexDirection: 'column',
-                        position: 'relative',
-                        width: '100%',
-                      }),
-                      mode.name === 'full' &&
-                        css({
-                          '@container (min-width: 480px)': {
-                            backgroundColor: 'var(--background-color-th_base)',
-                            border: '1px solid var(--border-color-th_frame)',
-                            borderRadius: 'var(--radius-th_large)',
-                            maxWidth: 400,
-                          },
-                          overflow: 'hidden',
-                        }),
-                    )}
-                    ref={containerRef}
-                  >
-                    <div
-                      className={cx(
-                        css({
-                          display: 'flex',
-                          flexDirection: 'column',
-                          width: '100%',
-                        }),
-                        mode.name === 'full' &&
-                          mode.variant !== 'content-height' &&
-                          css({
-                            height: '100%',
-                          }),
-                      )}
-                      ref={screenRef}
-                    >
-                      {children}
-                    </div>
-                  </div>
+                  {children}
                 </div>
-              </a.div>
+              </div>
             </div>
           </div>
-        </FrameContext.Provider>
-      ),
+        </div>
+      </div>
+    </FrameContext.Provider>
   )
 }
 
@@ -525,7 +453,6 @@ export namespace Frame {
     loadingText?: string | undefined
     mode: Mode | ModeName
     onClose?: (() => void) | undefined
-    onClosed?: (() => void) | undefined
     onHeight?: ((height: number) => void) | undefined
     site: Site
     screenKey?: string | undefined

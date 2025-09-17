@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite dev",
+    "dev": "vite dev --port 5176",
     "build": "vite build",
     "prepreview": "pnpm build",
     "preview": "vite preview",
@@ -12,10 +12,13 @@
     "deploy": "pnpm dlx wrangler@latest --config='wrangler.json' deploy --keep-vars"
   },
   "dependencies": {
+    "@hono/zod-validator": "^0.7.2",
     "@porto/apps": "workspace:*",
     "hono": "^4.8.5",
+    "jose": "^6.1.0",
     "porto": "workspace:*",
-    "viem": "catalog:"
+    "viem": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.13.1",
@@ -23,6 +26,7 @@
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
+    "vite-plugin-mkcert": "catalog:",
     "wrangler": "^4.37.0"
   }
 }
