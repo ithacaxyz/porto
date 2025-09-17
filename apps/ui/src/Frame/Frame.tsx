@@ -22,7 +22,6 @@ export function Frame({
   colorScheme = 'light dark',
   mode: mode_,
   onClose,
-  onClosed,
   onHeight,
   site,
   visible = true,
@@ -52,12 +51,6 @@ export function Frame({
 
   const containerRef = useRef<HTMLDivElement | null>(null)
   const screenRef = useRef<HTMLDivElement | null>(null)
-
-  const wasVisible = useRef(visible)
-  if (visible !== wasVisible.current) {
-    if (!visible) onClosed?.()
-    wasVisible.current = visible
-  }
 
   useSize(
     screenRef,
@@ -460,7 +453,6 @@ export namespace Frame {
     loadingText?: string | undefined
     mode: Mode | ModeName
     onClose?: (() => void) | undefined
-    onClosed?: (() => void) | undefined
     onHeight?: ((height: number) => void) | undefined
     site: Site
     screenKey?: string | undefined
