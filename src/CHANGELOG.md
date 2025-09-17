@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.8
+
+### Patch Changes
+
+- [`f102bf8`](https://github.com/ithacaxyz/porto/commit/f102bf8c87471a0e7ee3d60e7acb2a3233a33471) Thanks [@jxom](https://github.com/jxom)! - Removed dialog open/close animations.
+
 ## 0.2.7
 
 ### Patch Changes
