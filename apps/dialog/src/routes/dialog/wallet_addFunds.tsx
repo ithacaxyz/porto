@@ -20,10 +20,18 @@ function RouteComponent() {
   return (
     <AddFunds
       address={address}
+      assetDeficits={
+        token && [
+          {
+            address: token,
+            deficit: 0n,
+            required: 0n,
+          },
+        ]
+      }
       chainId={chainId}
       onApprove={(result) => Actions.respond(porto, request!, { result })}
       onReject={() => Actions.reject(porto, request)}
-      tokenAddress={token}
       value={value}
     />
   )

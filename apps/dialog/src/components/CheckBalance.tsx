@@ -18,23 +18,60 @@ export function CheckBalance(props: CheckBalance.Props) {
         isPending: true,
       }
 
+    // Check quotes for asset deficits
     const deficitQuote = quotes.find(
       (quote) => quote.assetDeficits && quote.assetDeficits.length > 0,
     )
-
-    if (!deficitQuote)
+    if (deficitQuote)
       return {
-        hasDeficit: false,
+        assetDeficits: deficitQuote.assetDeficits,
+        chainId: deficitQuote.chainId,
+        hasDeficit: true,
         isPending: false,
       }
 
+    // Check if error indicates insufficient funds
+    if (query.error) {
+      const errorMessage = (query.error?.cause as Error)?.message ?? ''
+      const pattern =
+        /required (\d+) of asset (0x[a-fA-F0-9]{40}) on chain (\d+)/
+      const match = errorMessage.match(pattern) as [
+        string,
+        string,
+        Address.Address,
+        string,
+      ]
+
+      if (match) {
+        const [, value, address, chainId] = match
+        return {
+          assetDeficits: [
+            {
+              address,
+              deficit: BigInt(value!),
+              required: BigInt(value!),
+            },
+          ],
+          chainId: Number(chainId!),
+          hasDeficit: true,
+          isPending: false,
+        }
+      }
+
+      // Check for generic InsufficientBalance error
+      if (/InsufficientBalance/i.test(errorMessage)) {
+        return {
+          hasDeficit: true,
+          isPending: false,
+        }
+      }
+    }
+
     return {
-      assetDeficits: deficitQuote.assetDeficits,
-      chainId: deficitQuote.chainId,
-      hasDeficit: true,
+      hasDeficit: false,
       isPending: false,
     }
-  }, [query.isPending, quotes])
+  }, [query.isPending, quotes, query.error])
 
   const [showAddFunds, setShowAddFunds] = React.useState(false)
 
@@ -45,8 +82,8 @@ export function CheckBalance(props: CheckBalance.Props) {
         assetDeficits={deficit.assetDeficits}
         chainId={deficit.chainId}
         onApprove={() => {
-          query.refetch()
           setShowAddFunds(false)
+          query.refetch()
         }}
         onReject={() => {
           setShowAddFunds(false)
