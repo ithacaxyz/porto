@@ -7,11 +7,11 @@ import {
   redirect,
   useNavigate,
 } from '@tanstack/react-router'
+import { cx } from 'cva'
 import * as React from 'react'
 import { useAccount, useAccountEffect, useDisconnect } from 'wagmi'
 import { StringFormatter } from '~/utils'
 import LucideChevronUp from '~icons/lucide/chevron-up'
-import LucideCircleDollarSign from '~icons/lucide/circle-dollar-sign'
 import LucideClock from '~icons/lucide/clock'
 import LucideCog from '~icons/lucide/cog'
 import LucideCoins from '~icons/lucide/coins'
@@ -45,7 +45,7 @@ function RouteComponent() {
       { Icon: LucideSendHorizontal, name: 'Send', to: '/' },
       { Icon: LucideQrCode, name: 'Receive', to: '/receive' },
       { Icon: LucideCoins, name: 'Assets', to: '/assets' },
-      { Icon: LucideCircleDollarSign, name: 'Savings', to: '/savings' },
+      // { Icon: LucideCircleDollarSign, name: 'Savings', to: '/savings' },
       { Icon: LucideClock, name: 'Activity', to: '/activity' },
       { Icon: LucideCog, name: 'Settings', to: '/settings' },
     ]
@@ -100,14 +100,17 @@ function RouteComponent() {
         </header>
         <div className="absolute right-0.5 bottom-0 block h-[15%] w-full min-w-full backdrop-blur-[1px] md:bottom-0 md:hidden" />
 
-        <nav className="-translate-x-1/2 fixed inset-x-auto bottom-5 left-1/2 flex h-16 w-full max-w-[90%] flex-row items-center rounded-full border border-gray4 bg-gray1 px-2 md:relative md:inset-x-0 md:bottom-0 md:left-auto md:h-auto md:max-w-full md:translate-x-0 md:flex-col md:gap-px md:rounded-none md:border-none md:bg-transparent md:px-5">
+        <nav
+          className={cx(
+            '-translate-x-1/2 fixed inset-x-auto bottom-5 left-1/2 flex h-16 w-full max-w-[90%] flex-row items-center rounded-full border border-gray4 bg-gray1 px-2 md:relative md:inset-x-0 md:bottom-0 md:left-auto md:h-auto md:max-w-full md:translate-x-0 md:flex-col md:gap-px md:rounded-none md:border-none md:bg-transparent md:px-5',
+          )}
+        >
           {links.map((link) => (
             <Link
               activeProps={{
-                className:
-                  'bg-gray1 text-gray12 md:border-none border-b-2 border-accent',
+                className: 'bg-gray1 text-gray12 md:border-none',
               }}
-              className="flex h-full w-full items-center justify-center gap-2.25 rounded-none px-4 font-medium text-base hover:bg-accentTint/20 md:h-14 md:justify-stretch md:rounded-full"
+              className="flex h-full w-full items-center justify-center gap-2.25 rounded-none px-4 font-medium text-base first:rounded-l-full last:rounded-r-full last:border-r-0 last:border-l-full hover:bg-accentTint/20 md:h-14 md:justify-stretch md:rounded-full"
               inactiveProps={{
                 className: 'text-gray10 dark:text-gray11',
               }}
