@@ -1,7 +1,7 @@
 import { Chains } from 'porto'
 import type { Chain } from 'viem'
 import { DiscIcon } from '../DiscIcon/DiscIcon.js'
-import { Ui } from '../Ui/Ui.js'
+import { chainIcons } from './icons.js'
 
 export function ChainIcon({
   chainId,
@@ -9,52 +9,34 @@ export function ChainIcon({
   className,
   ...props
 }: ChainIcon.Props) {
-  const { assetsBaseUrl } = Ui.useUi()
-  const chainInfo = getChainInfo(chainId)
+  const chain = getChain(chainId)
+  const Icon = chainIcons[chainId]
   return (
     <DiscIcon
       className={className}
       fallback={<Fallback />}
       size={size}
-      src={
-        chainInfo?.key
-          ? `${assetsBaseUrl}/chain-icons/${chainInfo.key}.svg`
-          : undefined
-      }
-      title={chainInfo?.chain?.name || `Unknown Chain (${chainId})`}
+      title={chain?.name || `Unknown Chain (${chainId})`}
       {...props}
-    />
+    >
+      {Icon && <Icon width="100%" height="100%" />}
+    </DiscIcon>
   )
 }
 
 export namespace ChainIcon {
-  export interface Props extends Omit<DiscIcon.Props, 'src' | 'fallback'> {
+  export interface Props
+    extends Omit<DiscIcon.Props, 'src' | 'fallback' | 'children'> {
     chainId: number
   }
   export const Stack = DiscIcon.Stack
 }
 
-const chainInfoCache = new Map<
-  number,
-  { chain: Chain | null; key: string | null }
->()
-
-function getChainInfo(chainId: number) {
-  if (chainInfoCache.has(chainId)) return chainInfoCache.get(chainId)!
-
-  for (const [key, chain] of Object.entries(Chains) as Array<
-    [keyof typeof Chains, Chain]
-  >) {
-    if (chain.id === chainId) {
-      const info = { chain, key }
-      chainInfoCache.set(chainId, info)
-      return info
-    }
-  }
-
-  const missing = { chain: null, key: null }
-  chainInfoCache.set(chainId, missing)
-  return missing
+const chainsCache = new Map<number, Chain | null>()
+const getChain = (chainId: number) => {
+  if (!chainsCache.has(chainId))
+    chainsCache.set(chainId, Chains.all.find((c) => c.id === chainId) ?? null)
+  return chainsCache.get(chainId)
 }
 
 function Fallback() {

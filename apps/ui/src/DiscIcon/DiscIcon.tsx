@@ -18,6 +18,7 @@ export function DiscIcon({
   alt,
   title,
   className,
+  children,
   ...props
 }: DiscIcon.Props) {
   const context = useContext(DiscIconContext)
@@ -50,7 +51,20 @@ export function DiscIcon({
       }}
       title={title}
     >
-      {(error || !src) && fallback && typeof fallback !== 'string' ? (
+      {children ? (
+        <div
+          className={css({
+            display: 'grid',
+            placeItems: 'center',
+          })}
+          style={{
+            height: size - border * 2,
+            width: size - border * 2,
+          }}
+        >
+          {children}
+        </div>
+      ) : (error || !src) && fallback && typeof fallback !== 'string' ? (
         <div
           className={css({
             display: 'grid',
@@ -88,6 +102,7 @@ export namespace DiscIcon {
     border?: boolean | number
     alt?: string
     title?: string
+    children?: ReactNode
   }
 
   export type Size = 'small' | 'medium' | 'large' | number
