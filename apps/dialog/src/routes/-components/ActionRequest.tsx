@@ -1,6 +1,5 @@
 import { Spinner } from '@porto/apps/components'
 import { Button, ButtonArea, ChainsPath, Details } from '@porto/ui'
-import { a, useTransition } from '@react-spring/web'
 import { cx } from 'cva'
 import { type Address, Base64 } from 'ox'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
@@ -462,14 +461,6 @@ export namespace ActionRequest {
         decimals ?? 0,
       )} ${symbol}`
 
-      const transition = useTransition(currencyType, {
-        config: { friction: 50, tension: 1400 },
-        enter: { opacity: 1, transform: 'scale(1)' },
-        from: { opacity: 0, transform: 'scale(0.8)' },
-        initial: { opacity: 1, transform: 'scale(1)' },
-        leave: { immediate: true, opacity: 0 },
-      })
-
       return (
         <div
           className="relative flex w-full items-center justify-between gap-2 font-medium"
@@ -512,19 +503,16 @@ export namespace ActionRequest {
                 ? tokenValue
                 : fiatValue || tokenValue}
             </div>
-            {transition((style, item) => {
-              const value =
-                item === 'fiat' && fiatValue ? fiatValue : tokenValue
-              return (
-                <a.div
-                  className="absolute inset-0 flex origin-[100%_50%] items-center justify-end"
-                  style={style}
-                  title={value}
-                >
-                  <span className="truncate">{value}</span>
-                </a.div>
-              )
-            })}
+            <div
+              className="absolute inset-0 flex origin-[100%_50%] items-center justify-end"
+              title={
+                currencyType === 'fiat' && fiatValue ? fiatValue : tokenValue
+              }
+            >
+              <span className="truncate">
+                {currencyType === 'fiat' && fiatValue ? fiatValue : tokenValue}
+              </span>
+            </div>
           </ButtonArea>
         </div>
       )
