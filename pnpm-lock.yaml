@@ -262,6 +262,9 @@ importers:
       '@porto/ui':
         specifier: workspace:*
         version: link:../ui
+      '@react-spring/web':
+        specifier: 'catalog:'
+        version: 10.0.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@sentry/react':
         specifier: 'catalog:'
         version: 9.22.0(react@19.1.0)
