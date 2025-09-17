@@ -28,7 +28,7 @@ const account = await RelayActions.upgradeAccount(client, { // [!code focus]
 ### Prepared Usage
 
 The example below demonstrates "prepared" usage, where the EOA explicitly
-signs over the `digests` provded from `RelayActions.prepareUpgradeAccount`,
+signs over the `digests` provided from `RelayActions.prepareUpgradeAccount`,
 and then passes the `signatures` to `RelayActions.upgradeAccount`.
 
 :::code-group
