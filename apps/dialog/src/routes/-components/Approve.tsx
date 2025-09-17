@@ -180,9 +180,7 @@ export function Approve(props: Approve.Props) {
               disabled={
                 tokenInfo.isLoading || tokenInfo.isError || checkingDeficit
               }
-              loading={
-                approving ? 'Approving…' : checkingDeficit ? 'Loading…' : false
-              }
+              loading={approving && 'Approving…'}
               onClick={onApprove}
               variant="positive"
               width="grow"

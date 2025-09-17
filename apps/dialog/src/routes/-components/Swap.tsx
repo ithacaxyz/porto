@@ -140,9 +140,7 @@ export function Swap(props: Swap.Props) {
           ) : (
             <Button
               disabled={!onApprove || checkingDeficit}
-              loading={
-                swapping ? 'Swapping…' : checkingDeficit ? 'Loading…' : false
-              }
+              loading={swapping && 'Swapping…'}
               onClick={onApprove}
               variant="positive"
               width="grow"

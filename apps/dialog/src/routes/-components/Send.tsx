@@ -133,9 +133,7 @@ export function Send(props: Send.Props) {
           ) : (
             <Button
               disabled={!onApprove || checkingDeficit}
-              loading={
-                sending ? 'Sending…' : checkingDeficit ? 'Loading…' : false
-              }
+              loading={sending && 'Sending…'}
               onClick={onApprove}
               variant="positive"
               width="grow"

@@ -238,13 +238,7 @@ export function ActionRequest(props: ActionRequest.Props) {
                       <Button
                         data-testid="confirm"
                         disabled={!prepareCallsQuery.isSuccess}
-                        loading={
-                          loading
-                            ? 'Confirming…'
-                            : prepareCallsQuery.isPending
-                              ? 'Loading…'
-                              : false
-                        }
+                        loading={loading && 'Confirming…'}
                         onClick={() => {
                           if (prepareCallsQuery.isError) {
                             prepareCallsQuery.refetch()
@@ -592,11 +586,7 @@ export namespace ActionRequest {
                   </div>
                 )
 
-              return (
-                <div className="fade-in animate-in space-y-3 duration-150">
-                  {children}
-                </div>
-              )
+              return <div className="space-y-3">{children}</div>
             })()}
           </div>
         )}
