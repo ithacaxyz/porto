@@ -68,6 +68,7 @@
   },
   "linter": {
     "enabled": true,
+    "includes": ["!worker-configuration.d.ts"],
     "rules": {
       "a11y": {
         "useKeyWithClickEvents": "off"

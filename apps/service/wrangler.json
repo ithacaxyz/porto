@@ -24,6 +24,13 @@
     "mode": "smart"
   },
   "preview_urls": true,
+  "r2_buckets": [
+    {
+      "binding": "R2_PORTO",
+      "bucket_name": "porto-dev-assets",
+      "remote": false
+    }
+  ],
   "unsafe": {
     "bindings": [
       {

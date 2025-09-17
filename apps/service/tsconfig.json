@@ -16,9 +16,15 @@
     "resolveJsonModule": true,
     "moduleResolution": "Bundler",
     "allowImportingTsExtensions": true,
-    "types": ["node", "@cloudflare/workers-types"]
+    "types": ["node"]
   },
   "include": ["./src/**/*"],
-  "files": ["env.d.ts", "vite.config.ts", "wrangler.json", "package.json"],
+  "files": [
+    "env.d.ts",
+    "package.json",
+    "wrangler.json",
+    "vite.config.ts",
+    "worker-configuration.d.ts"
+  ],
   "exclude": ["**/_/**", "dist", "node_modules"]
 }
