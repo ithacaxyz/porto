@@ -194,19 +194,6 @@ export function iframe(options: iframe.Options = {}) {
           fallback.open()
           fallback.syncRequests(store.getState().requestQueue)
         }
-
-        if (
-          payload.type === 'dialog-lifecycle' &&
-          payload.action === 'done:close' &&
-          !open
-        ) {
-          hideDialog()
-          messenger.send('__internal', {
-            mode: 'iframe',
-            referrer: getReferrer(),
-            type: 'init',
-          })
-        }
       })
 
       let bodyStyle: CSSStyleDeclaration | null = null
@@ -270,7 +257,6 @@ export function iframe(options: iframe.Options = {}) {
       const showDialog = () => {
         if (visible) return
         visible = true
-        cancelForceHideDelay()
 
         if (document.activeElement instanceof HTMLElement)
           opener = document.activeElement
@@ -282,7 +268,6 @@ export function iframe(options: iframe.Options = {}) {
       const hideDialog = () => {
         if (!visible) return
         visible = false
-        cancelForceHideDelay()
         root.setAttribute('hidden', 'true')
         root.setAttribute('aria-closed', 'true')
         root.close()
@@ -299,36 +284,19 @@ export function iframe(options: iframe.Options = {}) {
         }
       }
 
-      // let the iframe a second to send the done:close
-      // event, otherwise we force close the dialog.
-      let forceHideTimer: ReturnType<typeof setTimeout>
-      const startForceHideDelay = () => {
-        clearTimeout(forceHideTimer)
-        forceHideTimer = setTimeout(() => {
-          hideDialog()
-          messenger.send('__internal', {
-            mode: 'iframe',
-            referrer: getReferrer(),
-            type: 'init',
-          })
-        }, 1000)
-      }
-      const cancelForceHideDelay = () => {
-        clearTimeout(forceHideTimer)
-      }
-
       return {
         close() {
           fallback.close()
           open = false
 
           messenger.send('__internal', {
-            action: 'request:close',
-            type: 'dialog-lifecycle',
+            mode: 'iframe',
+            referrer: getReferrer(),
+            type: 'init',
           })
 
+          hideDialog()
           activatePage()
-          startForceHideDelay()
         },
         destroy() {
           fallback.close()
@@ -355,10 +323,6 @@ export function iframe(options: iframe.Options = {}) {
             mode: 'iframe',
             referrer: getReferrer(),
             type: 'init',
-          })
-          messenger.send('__internal', {
-            action: 'request:open',
-            type: 'dialog-lifecycle',
           })
         },
         async secure() {

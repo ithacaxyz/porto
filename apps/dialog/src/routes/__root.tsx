@@ -116,12 +116,6 @@ function RouteComponent() {
             ? undefined
             : () => Actions.rejectAll(porto)
         }
-        onClosed={() => {
-          porto.messenger.send('__internal', {
-            action: 'done:close',
-            type: 'dialog-lifecycle',
-          })
-        }}
         onHeight={(height) => {
           if (controlledSize) {
             clearTimeout(heightUpdateCheckTimer.current)
