@@ -18,10 +18,13 @@ export function CheckBalance(props: CheckBalance.Props) {
         isPending: true,
       }
 
-    // Check quotes for asset deficits
-    const deficitQuote = quotes.find(
-      (quote) => quote.assetDeficits && quote.assetDeficits.length > 0,
-    )
+    // Check quotes for asset deficits (source quotes).
+    const deficitQuote = quotes.find((quote, index) => {
+      return index === 0 && quotes.length > 1
+        ? false // multichain + destination: ignore
+        : (quote.assetDeficits ?? []).length > 0
+    })
+
     if (deficitQuote)
       return {
         assetDeficits: deficitQuote.assetDeficits,
@@ -30,7 +33,7 @@ export function CheckBalance(props: CheckBalance.Props) {
         isPending: false,
       }
 
-    // Check if error indicates insufficient funds
+    // Check if error indicates insufficient funds.
     if (query.error) {
       const errorMessage = (query.error?.cause as Error)?.message ?? ''
       const pattern =
@@ -58,7 +61,7 @@ export function CheckBalance(props: CheckBalance.Props) {
         }
       }
 
-      // Check for generic InsufficientBalance error
+      // Check for generic InsufficientBalance error.
       if (/InsufficientBalance/i.test(errorMessage)) {
         return {
           hasDeficit: true,
