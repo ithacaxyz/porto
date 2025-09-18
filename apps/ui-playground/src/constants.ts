@@ -5,6 +5,7 @@ export const sections = [
   },
   {
     screens: [
+      'Balance',
       'Button',
       'ButtonArea',
       'ChainIcon',

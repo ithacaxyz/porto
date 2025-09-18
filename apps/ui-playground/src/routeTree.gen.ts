@@ -27,6 +27,7 @@ import { Route as ColorsImport } from './routes/Colors'
 import { Route as ChainIconImport } from './routes/ChainIcon'
 import { Route as ButtonAreaImport } from './routes/ButtonArea'
 import { Route as ButtonImport } from './routes/Button'
+import { Route as BalanceImport } from './routes/Balance'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
@@ -127,6 +128,12 @@ const ButtonRoute = ButtonImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const BalanceRoute = BalanceImport.update({
+  id: '/Balance',
+  path: '/Balance',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
@@ -142,6 +149,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/Balance': {
+      id: '/Balance'
+      path: '/Balance'
+      fullPath: '/Balance'
+      preLoaderRoute: typeof BalanceImport
       parentRoute: typeof rootRoute
     }
     '/Button': {
@@ -263,6 +277,7 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/Balance': typeof BalanceRoute
   '/Button': typeof ButtonRoute
   '/ButtonArea': typeof ButtonAreaRoute
   '/ChainIcon': typeof ChainIconRoute
@@ -283,6 +298,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/Balance': typeof BalanceRoute
   '/Button': typeof ButtonRoute
   '/ButtonArea': typeof ButtonAreaRoute
   '/ChainIcon': typeof ChainIconRoute
@@ -304,6 +320,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/Balance': typeof BalanceRoute
   '/Button': typeof ButtonRoute
   '/ButtonArea': typeof ButtonAreaRoute
   '/ChainIcon': typeof ChainIconRoute
@@ -326,6 +343,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/Balance'
     | '/Button'
     | '/ButtonArea'
     | '/ChainIcon'
@@ -345,6 +363,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/Balance'
     | '/Button'
     | '/ButtonArea'
     | '/ChainIcon'
@@ -364,6 +383,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/Balance'
     | '/Button'
     | '/ButtonArea'
     | '/ChainIcon'
@@ -385,6 +405,7 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BalanceRoute: typeof BalanceRoute
   ButtonRoute: typeof ButtonRoute
   ButtonAreaRoute: typeof ButtonAreaRoute
   ChainIconRoute: typeof ChainIconRoute
@@ -405,6 +426,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BalanceRoute: BalanceRoute,
   ButtonRoute: ButtonRoute,
   ButtonAreaRoute: ButtonAreaRoute,
   ChainIconRoute: ChainIconRoute,
@@ -434,6 +456,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/Balance",
         "/Button",
         "/ButtonArea",
         "/ChainIcon",
@@ -454,6 +477,9 @@ export const routeTree = rootRoute
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/Balance": {
+      "filePath": "Balance.tsx"
     },
     "/Button": {
       "filePath": "Button.tsx"

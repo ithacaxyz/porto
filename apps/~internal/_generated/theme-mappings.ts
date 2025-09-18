@@ -23,6 +23,7 @@ export const tailwindThemeMappings: TailwindThemeMapping[] = [
   ['baseContentTertiary', '--text-color-th_base-tertiary', 'color'],
   ['baseContentPositive', '--text-color-th_base-positive', 'color'],
   ['baseContentNegative', '--text-color-th_base-negative', 'color'],
+  ['baseContentWarning', '--text-color-th_base-warning', 'color'],
   ['baseHoveredBackground', '--background-color-th_base-hovered', 'color'],
   ['frameBackground', '--background-color-th_frame', 'color'],
   ['frameContent', '--text-color-th_frame', 'color'],
