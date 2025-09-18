@@ -1,0 +1,71 @@
+name: Update Relay
+
+on:
+  repository_dispatch:
+    types: [relay-release]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  update-relay:
+    name: Update Relay Version
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          submodules: 'recursive'
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Get latest relay version
+        id: latest-version
+        run: |
+          LATEST_VERSION=$(curl -s https://api.github.com/repos/ithacaxyz/relay/releases/latest | jq -r '.tag_name' | sed 's/^v//')
+          echo "latest=$LATEST_VERSION" >> $GITHUB_OUTPUT
+          echo "Latest relay version: $LATEST_VERSION"
+
+      - name: Run relay:up
+        run: |
+          echo "Updating relay from to ${{ steps.latest-version.outputs.latest }}"
+          pnpm relay:up ${{ steps.latest-version.outputs.latest }}
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes detected after running relay:up"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected after running relay:up"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Changed files:"
+            git diff --name-only
+          fi
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          draft: true
+          commit-message: 'chore: relay@v${{ steps.latest-version.outputs.latest }}'
+          body: |
+            Updates Relay to v${{ steps.latest-version.outputs.latest }}.
+            
+            This PR was automatically created by the [`relay-update.yml`](.github/workflows/relay-update.yml) workflow.
+          title: 'chore: update relay to v${{ steps.latest-version.outputs.latest }}'
+          branch: chore/relay-v${{ steps.latest-version.outputs.latest }}
+          delete-branch: true

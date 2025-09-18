@@ -1,5 +1,29 @@
 # porto
 
+## 0.2.10
+
+### Patch Changes
+
+- [`cfcc90f`](https://github.com/ithacaxyz/porto/commit/cfcc90fed9f8dbdb56d8da1d7ecc3a90a9fd0066) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where `chain` parameter was not being propagated in `RelayActions.{upgradeAccount}`
+
+## 0.2.9
+
+### Patch Changes
+
+- [`698ab27`](https://github.com/ithacaxyz/porto/commit/698ab27f749c4fe80694d23c820a8a14d3d15641) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where `chain` parameter was not being propagated in `RelayActions.{prepareCalls,sendCalls}`
+
+## 0.2.8
+
+### Patch Changes
+
+- [`f102bf8`](https://github.com/ithacaxyz/porto/commit/f102bf8c87471a0e7ee3d60e7acb2a3233a33471) Thanks [@jxom](https://github.com/jxom)! - Removed dialog open/close animations.
+
+## 0.2.7
+
+### Patch Changes
+
+- [#871](https://github.com/ithacaxyz/porto/pull/871) [`c84f63d`](https://github.com/ithacaxyz/porto/commit/c84f63d1f733ede09570fa4151ea479ef64e055f) Thanks [@o-az](https://github.com/o-az)! - Excluded `clipboard-write` permission from `allow` in `iframe` when browser is Firefox
+
 ## 0.2.6
 
 ### Patch Changes

@@ -446,7 +446,9 @@ function AddFunds() {
       >
         Add Funds
       </button>
-      {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
+      {result && typeof result === 'object' && 'id' in result ? (
+        <pre>{JSON.stringify(result, null, 2)}</pre>
+      ) : null}
     </div>
   )
 }

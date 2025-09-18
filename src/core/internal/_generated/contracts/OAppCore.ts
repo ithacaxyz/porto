@@ -48,7 +48,7 @@ export const abi = [
     "name": "peers",
     "inputs": [
       {
-        "name": "eid",
+        "name": "_eid",
         "type": "uint32",
         "internalType": "uint32"
       }
@@ -75,6 +75,19 @@ export const abi = [
     "inputs": [
       {
         "name": "_delegate",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setEndpoint",
+    "inputs": [
+      {
+        "name": "_endpoint",
         "type": "address",
         "internalType": "address"
       }

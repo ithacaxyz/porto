@@ -16,15 +16,6 @@ describe.runIf(!Anvil.enabled)('getTokens', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "address": "0x2d49a0e75c86779c391418214ec7e1b18e58bb34",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "EXP",
-          "uid": "exp1",
-        },
-        {
           "address": "0x7c61733e8a9c6dac20afeb46e9c4ba96c5a9f7cf",
           "decimals": 18,
           "feeToken": true,
@@ -41,6 +32,15 @@ describe.runIf(!Anvil.enabled)('getTokens', () => {
           "nativeRate": null,
           "symbol": "ETH",
           "uid": "teth",
+        },
+        {
+          "address": "0x2d49a0e75c86779c391418214ec7e1b18e58bb34",
+          "decimals": 18,
+          "feeToken": true,
+          "interop": true,
+          "nativeRate": null,
+          "symbol": "EXP",
+          "uid": "exp1",
         },
       ]
     `)

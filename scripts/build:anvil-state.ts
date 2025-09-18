@@ -50,7 +50,6 @@ let orchestratorAddress: Address.Address | null | undefined
     abi: Orchestrator.abi,
     bytecode: Orchestrator.code,
     chain: null,
-    args: ['0x0000000000000000000000000000000000000000'],
   })
   const { contractAddress } = await waitForTransactionReceipt(client, {
     hash,
