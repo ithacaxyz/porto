@@ -1,10 +1,7 @@
-import { a, useSpring } from '@react-spring/web'
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
-import { useRef } from 'react'
 import { css, cva, cx } from '../../styled-system/css'
 import { Frame } from '../Frame/Frame.js'
 import { Spinner } from '../Spinner/Spinner.js'
-import { Ui } from '../Ui/Ui.js'
 
 type ButtonSize = 'small' | 'medium' | 'large'
 
@@ -22,48 +19,10 @@ export function Button({
   ...props
 }: Button.Props) {
   const frame = Frame.useFrame(true)
-  const ui = Ui.useUi(true)
 
   size ??= { dialog: 'medium', full: 'large' }
 
   if (loading === true) loading = 'Loading…'
-
-  const loadingRef = useRef<HTMLDivElement>(null)
-  const labelRef = useRef<HTMLDivElement>(null)
-
-  const firstAnimDone = useRef(false)
-
-  const loadingSpring = useSpring({
-    config: {
-      friction: 80,
-      mass: 1,
-      tension: 1200,
-    },
-    from: {
-      containerWidth: 0,
-      labelOpacity: 1,
-      loadingOpacity: 1,
-    },
-    to: async (next) => {
-      const targetRef = loading ? loadingRef : labelRef
-      const width = targetRef.current?.clientWidth ?? 0
-      if (width === 0) return
-      await Promise.all([
-        next({
-          immediate: ui?.reducedMotion,
-          labelOpacity: 0,
-          loadingOpacity: 0,
-        }),
-        next({
-          containerWidth: width,
-          immediate: ui?.reducedMotion || !firstAnimDone.current,
-          labelOpacity: loading ? 0 : 1,
-          loadingOpacity: loading ? 1 : 0,
-        }),
-      ])
-      firstAnimDone.current = true
-    },
-  })
 
   return (
     <button
@@ -189,54 +148,26 @@ export function Button({
         width: typeof width === 'number' ? width : undefined,
       }}
     >
-      <a.div
+      <div
         className={css({
+          alignItems: 'center',
           display: 'flex',
+          gap: size === 'small' ? 6 : 8,
           height: '100%',
-          overflow: 'hidden',
-          position: 'relative',
         })}
-        style={{
-          width: loadingSpring.containerWidth.to((v) =>
-            v === 0 ? 'auto' : `${v}px`,
-          ),
-        }}
       >
         {loading ? (
-          <a.div
-            className={css({
-              alignItems: 'center',
-              display: 'flex',
-              inset: '0 auto 0 0',
-            })}
-            ref={loadingRef}
-            style={{
-              gap: size === 'small' ? 6 : 8,
-              opacity: loadingSpring.loadingOpacity,
-            }}
-          >
+          <>
             <Spinner size={size === 'small' ? 'small' : 'medium'} />
             {loading}
-          </a.div>
+          </>
         ) : (
-          <a.div
-            className={css({
-              alignItems: 'center',
-              display: 'flex',
-              inset: '0 auto 0 0',
-            })}
-            ref={labelRef}
-            style={{
-              gap: size === 'small' ? 6 : 8,
-              opacity: loadingSpring.labelOpacity,
-              visibility: loading ? 'hidden' : 'visible',
-            }}
-          >
+          <>
             {icon}
             {children}
-          </a.div>
+          </>
         )}
-      </a.div>
+      </div>
     </button>
   )
 }

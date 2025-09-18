@@ -17,7 +17,6 @@ export default defineConfig({
     outDir: './dist',
     rollupOptions: {
       external: [
-        '@react-spring/web',
         'porto',
         'react',
         'react-dom',

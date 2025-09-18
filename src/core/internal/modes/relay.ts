@@ -289,6 +289,7 @@ export function relay(parameters: relay.Parameters = {}) {
           account,
           authorizeKeys: [authorizeKey],
           feeToken: feeToken?.address,
+          webAuthn,
         })
         await waitForCallsStatus(client, {
           id,
@@ -429,6 +430,7 @@ export function relay(parameters: relay.Parameters = {}) {
                       publicKey: PublicKey.fromHex(key.publicKey),
                     },
                     id: address,
+                    rpId: keystoreHost,
                   })
               }
               return key
@@ -651,6 +653,7 @@ export function relay(parameters: relay.Parameters = {}) {
             account,
             feeToken: feeToken?.address,
             revokeKeys: [key],
+            webAuthn,
           })
           await waitForCallsStatus(client, {
             id,
@@ -685,6 +688,7 @@ export function relay(parameters: relay.Parameters = {}) {
             account,
             feeToken: feeToken?.address,
             revokeKeys: [key],
+            webAuthn,
           })
           await waitForCallsStatus(client, {
             id,
@@ -736,6 +740,7 @@ export function relay(parameters: relay.Parameters = {}) {
           key,
           merchantUrl,
           requiredFunds: multichain ? requiredFunds : undefined,
+          webAuthn,
         })
 
         if (asTxHash) {

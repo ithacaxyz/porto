@@ -1,29 +1,30 @@
-import { a, useSpring } from '@react-spring/web'
-import { Ui } from '../Ui/Ui.js'
+import { useEffect, useState } from 'react'
 
-export function ShowAfter({ children, delay = 0 }: ShowAfter.Props) {
-  const show = ShowAfter.useShowAfter(delay)
-  return <a.div style={show}>{children}</a.div>
+export function ShowAfter({
+  children,
+  delay = 0,
+  renderWhenHidden = true,
+}: ShowAfter.Props) {
+  const [show, setShow] = useState(delay === 0)
+
+  useEffect(() => {
+    if (delay === 0) {
+      setShow(true)
+      return
+    }
+    const timer = setTimeout(() => setShow(true), delay)
+    return () => clearTimeout(timer)
+  }, [delay])
+
+  return !renderWhenHidden && !show ? null : (
+    <div style={{ opacity: Number(show) }}>{children}</div>
+  )
 }
 
 export namespace ShowAfter {
   export interface Props {
     children: React.ReactNode
     delay?: number
-  }
-
-  export function useShowAfter(delay: number) {
-    const ui = Ui.useUi(true)
-    return useSpring({
-      config: {
-        friction: 80,
-        mass: 2,
-        tension: 2000,
-      },
-      delay,
-      from: { opacity: 0, transform: 'scale(0.97)' },
-      immediate: ui?.reducedMotion,
-      to: { opacity: 1, transform: 'scale(1)' },
-    })
+    renderWhenHidden?: boolean
   }
 }

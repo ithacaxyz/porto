@@ -1,9 +1,7 @@
-import { Button, ButtonArea, Details } from '@porto/ui'
-import { a, useTransition } from '@react-spring/web'
+import { Button, ButtonArea, CopyButton, Details } from '@porto/ui'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import * as React from 'react'
 import type { Chain } from 'viem'
-import { CopyButton } from '~/components/CopyButton'
 import { PriceFormatter, StringFormatter, ValueFormatter } from '~/utils'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideSendHorizontal from '~icons/lucide/send-horizontal'
@@ -139,14 +137,6 @@ export namespace Send {
       decimals,
     )} ${asset.symbol}`
 
-    const transition = useTransition(currencyType, {
-      config: { friction: 50, tension: 1400 },
-      enter: { opacity: 1, transform: 'scale(1)' },
-      from: { opacity: 0, transform: 'scale(0.8)' },
-      initial: { opacity: 1, transform: 'scale(1)' },
-      leave: { immediate: true, opacity: 0 },
-    })
-
     return (
       <ButtonArea
         className="relative min-w-0 rounded-[4px] font-medium text-[14px] text-th_base-secondary"
@@ -154,23 +144,9 @@ export namespace Send {
         onClick={onToggleCurrency}
         style={{ flex: '1 1 auto' }}
       >
-        <div className="invisible truncate whitespace-nowrap">
-          {fiatValue && tokenValue.length > fiatValue.length
-            ? tokenValue
-            : fiatValue || tokenValue}
-        </div>
-        {transition((style, item) => {
-          const value = item === 'fiat' && fiatValue ? fiatValue : tokenValue
-          return (
-            <a.div
-              className="absolute inset-0 flex origin-[100%_50%] items-center justify-end"
-              style={style}
-              title={value}
-            >
-              <span className="truncate">{value}</span>
-            </a.div>
-          )
-        })}
+        <span className="truncate">
+          {currencyType === 'fiat' && fiatValue ? fiatValue : tokenValue}
+        </span>
       </ButtonArea>
     )
   }
