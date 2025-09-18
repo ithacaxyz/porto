@@ -18,12 +18,10 @@ export function CheckBalance(props: CheckBalance.Props) {
         isPending: true,
       }
 
-    // Check quotes for asset deficits (source quotes).
-    const deficitQuote = quotes.find((quote, index) => {
-      return index === 0 && quotes.length > 1
-        ? false // multichain + destination: ignore
-        : (quote.assetDeficits ?? []).length > 0
-    })
+    // find first quote with asset deficits
+    const deficitQuote = quotes.find(
+      (quote) => (quote.assetDeficits ?? []).length > 0,
+    )
 
     if (deficitQuote)
       return {
