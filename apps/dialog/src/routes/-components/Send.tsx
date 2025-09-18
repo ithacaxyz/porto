@@ -9,8 +9,16 @@ import { ActionRequest } from './ActionRequest'
 import { Layout } from './Layout'
 
 export function Send(props: Send.Props) {
-  const { asset, chainsPath, fees, loading, onApprove, onReject, sending, to } =
-    props
+  const {
+    asset,
+    chainsPath,
+    fees,
+    fetchingQuote,
+    onApprove,
+    onReject,
+    sending,
+    to,
+  } = props
 
   const [currencyType, setCurrencyType] = React.useState<'fiat' | 'token'>(
     asset.fiat ? 'fiat' : 'token',
@@ -73,7 +81,7 @@ export function Send(props: Send.Props) {
             </div>
           </div>
 
-          <Details loading={loading}>
+          <Details loading={fetchingQuote}>
             {feeFormatted && (
               <div className="flex h-[18px] items-center justify-between text-[14px]">
                 <div className="text-th_base-secondary">Fees (est.)</div>
@@ -90,7 +98,7 @@ export function Send(props: Send.Props) {
       <Layout.Footer>
         <Layout.Footer.Actions>
           <Button
-            disabled={loading || sending}
+            disabled={sending}
             onClick={onReject}
             variant="negative-secondary"
             width="grow"
@@ -98,8 +106,14 @@ export function Send(props: Send.Props) {
             Cancel
           </Button>
           <Button
-            disabled={!onApprove}
-            loading={sending && 'Sending…'}
+            disabled={fetchingQuote || !onApprove}
+            loading={
+              fetchingQuote
+                ? 'Refreshing quote…'
+                : sending
+                  ? 'Sending…'
+                  : undefined
+            }
             onClick={onApprove}
             variant="positive"
             width="grow"
@@ -117,7 +131,7 @@ export namespace Send {
     asset: ActionRequest.CoinAsset
     chainsPath: readonly Chain[]
     fees?: Capabilities.feeTotals.Response | undefined
-    loading: boolean
+    fetchingQuote: boolean
     onApprove: () => void
     onReject: () => void
     sending?: boolean | undefined

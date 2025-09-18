@@ -23,7 +23,7 @@ export function Approve(props: Approve.Props) {
     chainsPath,
     expiresAt,
     fees,
-    loading,
+    fetchingQuote,
     onApprove,
     onReject,
     spender,
@@ -117,7 +117,7 @@ export function Approve(props: Approve.Props) {
               unlimited={unlimited}
             />
           </div>
-          <Details loading={loading}>
+          <Details loading={fetchingQuote}>
             <div className="flex h-[18px] items-center justify-between text-[14px]">
               <span className="text-th_base-secondary">Requested by</span>
               <div
@@ -152,8 +152,14 @@ export function Approve(props: Approve.Props) {
             Cancel
           </Button>
           <Button
-            disabled={tokenInfo.isLoading || tokenInfo.isError}
-            loading={approving && 'Approving…'}
+            disabled={fetchingQuote || tokenInfo.isLoading || tokenInfo.isError}
+            loading={
+              fetchingQuote
+                ? 'Refreshing quote…'
+                : approving
+                  ? 'Approving…'
+                  : undefined
+            }
             onClick={onApprove}
             variant="positive"
             width="grow"
@@ -173,7 +179,7 @@ export namespace Approve {
     chainsPath: readonly Chain[]
     expiresAt?: Date
     fees?: Capabilities.feeTotals.Response | undefined
-    loading?: boolean | undefined
+    fetchingQuote?: boolean | undefined
     onApprove: () => void
     onReject: () => void
     spender: `0x${string}`

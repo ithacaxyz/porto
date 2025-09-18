@@ -16,7 +16,7 @@ export function Swap(props: Swap.Props) {
     chainsPath,
     contractAddress,
     fees,
-    loading,
+    fetchingQuote,
     onApprove,
     onReject,
     swapType,
@@ -87,7 +87,7 @@ export function Swap(props: Swap.Props) {
               </>
             )}
           </div>
-          <Details loading={loading}>
+          <Details loading={fetchingQuote}>
             {feeFormatted && (
               <div className="flex h-[18px] items-center justify-between text-[14px]">
                 <div className="text-th_base-secondary">Fees (est.)</div>
@@ -112,8 +112,14 @@ export function Swap(props: Swap.Props) {
             Cancel
           </Button>
           <Button
-            disabled={!onApprove}
-            loading={swapping && 'Swapping…'}
+            disabled={fetchingQuote || !onApprove}
+            loading={
+              fetchingQuote
+                ? 'Refreshing quote…'
+                : swapping
+                  ? 'Swapping…'
+                  : undefined
+            }
             onClick={onApprove}
             variant="positive"
             width="grow"
@@ -133,7 +139,7 @@ export namespace Swap {
     chainsPath: readonly Chain[]
     contractAddress?: `0x${string}` | undefined
     fees?: Capabilities.feeTotals.Response | undefined
-    loading: boolean
+    fetchingQuote?: boolean | undefined
     onApprove: () => void
     onReject: () => void
     swapType: 'swap' | 'convert'

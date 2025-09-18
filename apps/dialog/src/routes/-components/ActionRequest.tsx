@@ -88,6 +88,8 @@ export function ActionRequest(props: ActionRequest.Props) {
     }
   }
 
+  const fetchingQuote = prepareCallsQuery.isFetching
+
   return (
     <CheckBalance
       address={address}
@@ -104,7 +106,7 @@ export function ActionRequest(props: ActionRequest.Props) {
               approving={loading}
               chainsPath={chainsPath}
               fees={sponsored ? undefined : feeTotals}
-              loading={prepareCallsQuery.isPending}
+              fetchingQuote={fetchingQuote}
               onApprove={() => {
                 if (prepareCallsQuery.isSuccess)
                   onApprove(prepareCallsQuery.data)
@@ -123,7 +125,7 @@ export function ActionRequest(props: ActionRequest.Props) {
               chainsPath={chainsPath}
               contractAddress={calls[0]?.to}
               fees={sponsored ? undefined : feeTotals}
-              loading={prepareCallsQuery.isPending}
+              fetchingQuote={fetchingQuote}
               onApprove={() => {
                 if (prepareCallsQuery.isSuccess)
                   onApprove(prepareCallsQuery.data)
@@ -140,7 +142,7 @@ export function ActionRequest(props: ActionRequest.Props) {
               asset={identified.asset}
               chainsPath={chainsPath}
               fees={sponsored ? undefined : feeTotals}
-              loading={prepareCallsQuery.isPending}
+              fetchingQuote={fetchingQuote}
               onApprove={() => {
                 if (prepareCallsQuery.isSuccess)
                   onApprove(prepareCallsQuery.data)
@@ -194,7 +196,13 @@ export function ActionRequest(props: ActionRequest.Props) {
                 <Button
                   data-testid="confirm"
                   disabled={!prepareCallsQuery.isSuccess}
-                  loading={loading && 'Confirming…'}
+                  loading={
+                    fetchingQuote
+                      ? 'Refreshing quote…'
+                      : loading
+                        ? 'Confirming…'
+                        : undefined
+                  }
                   onClick={() => {
                     if (prepareCallsQuery.isError) {
                       prepareCallsQuery.refetch()
