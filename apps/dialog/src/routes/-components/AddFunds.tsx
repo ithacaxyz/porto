@@ -298,23 +298,21 @@ function BalanceItem(props: {
   })
 
   const balanceFormatted = React.useMemo(() => {
-    // required amount = deficit + buffer
-    const requiredAmount =
-      deficit.deficit && deficit.deficit > 0n
-        ? CheckBalance.addFeeBuffer(deficit.deficit)
-        : 0n
+    const currentBalance = balance.data?.value ?? 0n
+    const requiredAmount = deficit.required ?? 0n
+
+    const actualDeficit =
+      requiredAmount > currentBalance ? requiredAmount - currentBalance : 0n
+    const deficitWithBuffer = CheckBalance.addFeeBuffer(actualDeficit)
 
     const decimals = deficit.decimals ?? balance.data?.decimals ?? 18
     const symbol = deficit.symbol ?? balance.data?.symbol ?? 'Unknown'
 
-    const formatted = ValueFormatter.format(requiredAmount, decimals)
-
-    const fiatValue = Number(Value.format(requiredAmount, decimals))
-    const fiatFormatted = PriceFormatter.format(fiatValue)
-
     return {
-      amount: `${formatted} ${symbol}`,
-      amountFiat: fiatFormatted,
+      amount: `${ValueFormatter.format(deficitWithBuffer, decimals)} ${symbol}`,
+      amountFiat: PriceFormatter.format(
+        Number(Value.format(deficitWithBuffer, decimals)),
+      ),
     }
   }, [balance.data, deficit])
 
