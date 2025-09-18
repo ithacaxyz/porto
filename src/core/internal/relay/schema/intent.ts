@@ -141,8 +141,10 @@ export const Intent = z.union([
      */
     settlerContext: u.hex(),
     /**
-     * The actual total payment amount, requested by the filler.
-     * MUST be less than or equal to `totalPaymentMaxAmount`
+     * The wrapped signature.
+     *
+     * The format is `abi.encodePacked(innerSignature, keyHash, prehash)` for most signatures,
+     * except if it is signed by the EOA root key, in which case `abi.encodePacked(r, s, v)` is valid as well.
      */
     signature: u.hex(),
     /**
@@ -152,10 +154,8 @@ export const Intent = z.union([
      */
     supportedAccountImplementation: u.address(),
     /**
-     * The wrapped signature.
-     *
-     * The format is `abi.encodePacked(innerSignature, keyHash, prehash)` for most signatures,
-     * except if it is signed by the EOA root key, in which case `abi.encodePacked(r, s, v)` is valid as well.
+     * The actual total payment amount, requested by the filler.
+     * MUST be less than or equal to `totalPaymentMaxAmount`
      */
     totalPaymentAmount: u.bigint(),
     /**
