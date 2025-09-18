@@ -17,6 +17,7 @@ export const Fiat = z.optional(
     }),
   }),
 )
+
 export type Fiat = z.infer<typeof Fiat>
 
 export namespace assetDiffs {

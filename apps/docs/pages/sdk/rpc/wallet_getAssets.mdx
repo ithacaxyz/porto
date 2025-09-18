@@ -40,16 +40,18 @@ type Request = {
 ## Response
 
 ```ts
+type Fiat = {
+  currency: string
+  value: string
+}
+
 type Response = {
   [chainId: Hex]: {
     address: Address | null
     balance: Hex
     metadata: {
       decimals: number
-      fiat: {
-        currency: string;
-        value: string;
-      }
+      fiat: Fiat | null
       name: string
       symbol: string
     } | null

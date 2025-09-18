@@ -280,7 +280,7 @@ export namespace wallet_getAssets {
             metadata: z.nullable(
               z.object({
                 decimals: z.number(),
-                fiat: z.optional(c.Fiat),
+                fiat: z.nullable(c.Fiat),
                 name: z.string(),
                 symbol: z.string(),
               }),
@@ -293,7 +293,7 @@ export namespace wallet_getAssets {
             metadata: z.nullable(
               z.object({
                 decimals: z.number(),
-                fiat: z.optional(c.Fiat),
+                fiat: z.nullable(c.Fiat),
                 name: z.optional(z.string()),
                 symbol: z.optional(z.string()),
               }),
