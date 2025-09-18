@@ -1,8 +1,8 @@
 import {
-  CopyButton,
   Button,
   ButtonArea,
   ChainsPath,
+  CopyButton,
   Details,
   TokenIcon,
 } from '@porto/ui'

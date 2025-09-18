@@ -1,4 +1,4 @@
-import { CopyButton, Button, ButtonArea, ChainsPath, Details } from '@porto/ui'
+import { Button, ButtonArea, ChainsPath, CopyButton, Details } from '@porto/ui'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import * as React from 'react'
 import type { Chain } from 'viem'
