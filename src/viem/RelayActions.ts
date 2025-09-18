@@ -14,6 +14,7 @@ import type { Chain } from '../core/Chains.js'
 import type * as Capabilities from '../core/internal/relay/schema/capabilities.js'
 import type * as Quotes from '../core/internal/relay/schema/quotes.js'
 import type { OneOf, PartialBy, RequiredBy } from '../core/internal/types.js'
+import type { relay } from '../core/Mode.js'
 import { hostnames } from '../trusted-hosts.js'
 import * as Account from './Account.js'
 import * as RelayActions from './internal/relayActions.js'
@@ -22,7 +23,6 @@ import type {
   GetChainParameter,
 } from './internal/utils.js'
 import * as Key from './Key.js'
-import type { relay } from '../core/Mode.js'
 
 export {
   addFaucetFunds,
@@ -396,7 +396,11 @@ export async function sendCalls<
   client: Client<Transport, chain, account>,
   parameters: sendCalls.Parameters<calls, chain, account>,
 ): Promise<sendCalls.ReturnType> {
-  const { account = client.account, chain = client.chain, webAuthn } = parameters
+  const {
+    account = client.account,
+    chain = client.chain,
+    webAuthn,
+  } = parameters
 
   if (!chain) throw new Error('`chain` is required.')
 
@@ -427,7 +431,7 @@ export async function sendCalls<
       const signature = await Key.sign(key, {
         address: null,
         payload: digest,
-        webAuthn
+        webAuthn,
       })
       return { context, signature }
     }),

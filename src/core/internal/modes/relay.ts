@@ -428,8 +428,8 @@ export function relay(parameters: relay.Parameters = {}) {
                       id: credentialId!,
                       publicKey: PublicKey.fromHex(key.publicKey),
                     },
-                    rpId: keystoreHost,
                     id: address,
+                    rpId: keystoreHost,
                   })
               }
               return key
@@ -737,7 +737,7 @@ export function relay(parameters: relay.Parameters = {}) {
           key,
           merchantUrl,
           requiredFunds: multichain ? requiredFunds : undefined,
-          webAuthn
+          webAuthn,
         })
 
         if (asTxHash) {
