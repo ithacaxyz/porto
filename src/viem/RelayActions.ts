@@ -452,6 +452,7 @@ export async function sendCalls<
       return await Key.sign(key, {
         address: null,
         payload: digest,
+        webAuthn,
         wrap: false,
       })
     return await account_.sign({
