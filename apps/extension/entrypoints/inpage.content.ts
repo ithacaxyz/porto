@@ -11,14 +11,32 @@ export default defineContentScript({
     ;(window as any).ethereum = porto.provider
 
     window.addEventListener('message', (event) => {
-      if (event.data.event !== 'trigger-reload') return
+      // Accept only same-window, same-origin messages
+      if (event.source !== window) return
+      if (event.origin !== window.location.origin) return
+
+      const data = event.data
+      if (!data) return
+
+      // Backward compatibility for legacy format { event: 'trigger-reload' }
+      const isLegacy = data && data.event === 'trigger-reload'
+      const isNamespaced = data && data.type === 'porto:trigger-reload'
+
+      if (!isLegacy && !isNamespaced) return
+
+      // Optional lightweight CSRF: verify a nonce if present
+      try {
+        const expected = sessionStorage.getItem('porto:reload:nonce')
+        if (data.nonce && expected && data.nonce !== expected) return
+      } catch {}
+
       window.location.reload()
     })
 
     document.addEventListener('securitypolicyviolation', (event) => {
       if (
-        !event.blockedURI.includes('id.porto.sh') &&
-        !event.blockedURI.includes('preview.porto.sh')
+        event.blockedURI.indexOf('id.porto.sh') === -1 &&
+        event.blockedURI.indexOf('preview.porto.sh') === -1
       )
         return
 
