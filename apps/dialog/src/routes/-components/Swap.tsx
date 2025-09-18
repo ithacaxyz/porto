@@ -201,10 +201,10 @@ export namespace Swap {
 
     return (
       <div className="flex w-full flex-row items-center gap-[4px]">
-        <div className="shrink-0">
-          <TokenIcon size={24} symbol={asset.symbol} />
+        <div className="flex size-[24px] shrink-0 items-center justify-center rounded-full bg-th_badge">
+          <TokenIcon size={18} symbol={asset.symbol} />
         </div>
-        <div className="flex h-[24px] min-w-0 flex-grow items-center gap-[8px]">
+        <div className="flex h-[24px] min-w-0 flex-grow items-center justify-between gap-[8px]">
           <div className="flex min-w-[120px] items-center gap-[4px]">
             <div
               className="max-w-[120px] truncate font-medium text-[14px] text-th_base"
@@ -222,7 +222,7 @@ export namespace Swap {
             onClick={() => onFiatDisplayChange(!fiatDisplay)}
             style={{ flex: '1 1 auto' }}
           >
-            <div className="flex items-center justify-end">
+            <div className="flex w-full items-center justify-end">
               <span
                 className="truncate"
                 title={fiatDisplay && fiatValue ? fiatValue : tokenValue}
