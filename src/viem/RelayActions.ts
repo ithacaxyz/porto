@@ -14,6 +14,7 @@ import type { Chain } from '../core/Chains.js'
 import type * as Capabilities from '../core/internal/relay/schema/capabilities.js'
 import type * as Quotes from '../core/internal/relay/schema/quotes.js'
 import type { OneOf, PartialBy, RequiredBy } from '../core/internal/types.js'
+import type { relay } from '../core/Mode.js'
 import { hostnames } from '../trusted-hosts.js'
 import * as Account from './Account.js'
 import * as RelayActions from './internal/relayActions.js'
@@ -395,7 +396,11 @@ export async function sendCalls<
   client: Client<Transport, chain, account>,
   parameters: sendCalls.Parameters<calls, chain, account>,
 ): Promise<sendCalls.ReturnType> {
-  const { account = client.account, chain = client.chain } = parameters
+  const {
+    account = client.account,
+    chain = client.chain,
+    webAuthn,
+  } = parameters
 
   if (!chain) throw new Error('`chain` is required.')
 
@@ -426,6 +431,7 @@ export async function sendCalls<
       const signature = await Key.sign(key, {
         address: null,
         payload: digest,
+        webAuthn,
       })
       return { context, signature }
     }),
@@ -446,6 +452,7 @@ export async function sendCalls<
       return await Key.sign(key, {
         address: null,
         payload: digest,
+        webAuthn,
         wrap: false,
       })
     return await account_.sign({
@@ -498,6 +505,7 @@ export declare namespace sendCalls {
         | undefined
       /** Merchant RPC URL. */
       merchantUrl?: string | undefined
+      webAuthn?: relay.Parameters['webAuthn']
     }
 
   export type ReturnType = RelayActions.sendPreparedCalls.ReturnType

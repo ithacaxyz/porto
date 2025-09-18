@@ -12,7 +12,6 @@ function DiscIconComponent() {
       <ComponentScreen.Section surface="base-alt" title="Default">
         <div className="flex items-center gap-2">
           <DiscIcon src="/ui/token-icons/eth.svg" />
-          <DiscIcon src="/ui/chain-icons/base.svg" />
         </div>
       </ComponentScreen.Section>
 

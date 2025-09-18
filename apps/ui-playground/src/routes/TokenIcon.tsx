@@ -34,6 +34,13 @@ function TokenIconComponent() {
         </div>
       </ComponentScreen.Section>
 
+      <ComponentScreen.Section surface="base-alt" title="Border">
+        <div className="flex items-center gap-2">
+          <TokenIcon border size="large" symbol="ETH" />
+          <TokenIcon size="large" symbol="ETH" />
+        </div>
+      </ComponentScreen.Section>
+
       <ComponentScreen.Section surface="base-alt" title="Fallback">
         <div className="flex items-center gap-2">
           <TokenIcon border symbol="MISSING" />
@@ -61,6 +68,29 @@ function TokenIconComponent() {
             <TokenIcon symbol="OP" />
           </TokenIcon.Stack>
           <TokenIcon.Stack border={false} gap={8} size="large">
+            <TokenIcon symbol="ETH" />
+            <TokenIcon symbol="USDC" />
+            <TokenIcon symbol="WBTC" />
+            <TokenIcon symbol="OP" />
+          </TokenIcon.Stack>
+        </div>
+      </ComponentScreen.Section>
+
+      <ComponentScreen.Section surface="base-alt" title="Stack">
+        <div className="flex flex-col gap-4">
+          <TokenIcon.Stack size="small">
+            <TokenIcon symbol="ETH" />
+            <TokenIcon symbol="USDC" />
+            <TokenIcon symbol="WBTC" />
+            <TokenIcon symbol="OP" />
+          </TokenIcon.Stack>
+          <TokenIcon.Stack size="medium">
+            <TokenIcon symbol="ETH" />
+            <TokenIcon symbol="USDC" />
+            <TokenIcon symbol="WBTC" />
+            <TokenIcon symbol="OP" />
+          </TokenIcon.Stack>
+          <TokenIcon.Stack size="large">
             <TokenIcon symbol="ETH" />
             <TokenIcon symbol="USDC" />
             <TokenIcon symbol="WBTC" />

@@ -1,8 +1,14 @@
-import { Button, ButtonArea, ChainsPath, Details, TokenIcon } from '@porto/ui'
+import {
+  Button,
+  ButtonArea,
+  ChainsPath,
+  CopyButton,
+  Details,
+  TokenIcon,
+} from '@porto/ui'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import * as React from 'react'
 import type { Chain } from 'viem'
-import { CopyButton } from '~/components/CopyButton'
 import { PriceFormatter, StringFormatter, ValueFormatter } from '~/utils'
 import ArrowDown from '~icons/lucide/arrow-down'
 import LucideSendToBack from '~icons/lucide/send-to-back'

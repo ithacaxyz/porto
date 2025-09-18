@@ -1,6 +1,7 @@
 import {
   Button,
   ChainsPath,
+  CopyButton,
   Details,
   Spinner,
   TextButton,
@@ -11,7 +12,6 @@ import type * as Capabilities from 'porto/core/internal/relay/schema/capabilitie
 import * as React from 'react'
 import { type Address, type Chain, erc20Abi, maxUint256 } from 'viem'
 import { useReadContracts } from 'wagmi'
-import { CopyButton } from '~/components/CopyButton'
 import { PriceFormatter, StringFormatter } from '~/utils'
 import LucideLockKeyholeOpen from '~icons/lucide/lock-keyhole-open'
 import { Layout } from './Layout'

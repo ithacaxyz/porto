@@ -14,12 +14,7 @@ export function App() {
         client={Query.client}
         persistOptions={{ persister: Query.persister }}
       >
-        <Ui
-          assetsBaseUrl="/dialog/ui"
-          reducedMotion={
-            import.meta.env.FORCE_REDUCED_MOTION === true ? true : undefined
-          }
-        >
+        <Ui assetsBaseUrl="/dialog/ui">
           <RouterProvider router={Router.router} />
         </Ui>
       </PersistQueryClientProvider>

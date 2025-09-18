@@ -1,8 +1,7 @@
-import { Button, ButtonArea, ChainsPath, Details } from '@porto/ui'
+import { Button, ButtonArea, ChainsPath, CopyButton, Details } from '@porto/ui'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import * as React from 'react'
 import type { Chain } from 'viem'
-import { CopyButton } from '~/components/CopyButton'
 import { PriceFormatter, StringFormatter, ValueFormatter } from '~/utils'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideSendHorizontal from '~icons/lucide/send-horizontal'
@@ -182,11 +181,6 @@ export namespace Send {
         onClick={onToggleCurrency}
         style={{ flex: '1 1 auto' }}
       >
-        <div className="invisible truncate whitespace-nowrap">
-          {fiatValue && tokenValue.length > fiatValue.length
-            ? tokenValue
-            : fiatValue || tokenValue}
-        </div>
         <div
           className="absolute inset-0 flex origin-[100%_50%] items-center justify-end"
           title={currencyType === 'fiat' && fiatValue ? fiatValue : tokenValue}

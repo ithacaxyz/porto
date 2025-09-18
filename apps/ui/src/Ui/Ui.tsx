@@ -1,20 +1,13 @@
 import type { ReactNode } from 'react'
 import { createContext, useContext } from 'react'
-import { useReducedMotion } from '../hooks/useReducedMotion.js'
 
 const UiContext = createContext<null | Ui.Context>(null)
 
-export function Ui({
-  assetsBaseUrl = '/ui',
-  children,
-  reducedMotion,
-}: Ui.Props) {
-  const autoReducedMotion = useReducedMotion()
+export function Ui({ assetsBaseUrl = '/ui', children }: Ui.Props) {
   return (
     <UiContext.Provider
       value={{
         assetsBaseUrl,
-        reducedMotion: reducedMotion ?? autoReducedMotion,
       }}
     >
       {children}
@@ -26,12 +19,10 @@ export namespace Ui {
   export interface Props {
     assetsBaseUrl?: string
     children: ReactNode
-    reducedMotion?: boolean
   }
 
   export type Context = {
     assetsBaseUrl: string
-    reducedMotion: boolean
   }
 
   export function useUi(optional: true): Ui.Context | null

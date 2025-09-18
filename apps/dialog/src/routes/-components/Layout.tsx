@@ -18,7 +18,7 @@ export function Layout(props: Layout.Props) {
           </div>
         ) : (
           <div className="flex h-40 items-center justify-center text-th_base-secondary">
-            <Spinner animateMount size="large" />
+            <Spinner size="large" />
           </div>
         )
       ) : (

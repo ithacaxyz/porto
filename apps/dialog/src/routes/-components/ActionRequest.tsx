@@ -482,11 +482,6 @@ export namespace ActionRequest {
               setCurrencyType(currencyType === 'fiat' ? 'crypto' : 'fiat')
             }}
           >
-            <div className="invisible truncate whitespace-nowrap">
-              {fiatValue && tokenValue.length > fiatValue.length
-                ? tokenValue
-                : fiatValue || tokenValue}
-            </div>
             <div
               className="absolute inset-0 flex origin-[100%_50%] items-center justify-end"
               title={
