@@ -1,8 +1,8 @@
 import {
+  CopyButton,
   Button,
   ButtonArea,
   ChainsPath,
-  CopyButton,
   Details,
   TokenIcon,
 } from '@porto/ui'
@@ -211,7 +211,7 @@ export namespace Swap {
             </div>
           </div>
           <ButtonArea
-            className="relative h-full min-w-0 rounded-[4px] font-medium text-[14px] text-th_base-secondary"
+            className="h-full min-w-0 rounded-[4px] font-medium text-[14px] text-th_base-secondary"
             disabled={!asset.fiat}
             onClick={() => onFiatDisplayChange(!fiatDisplay)}
             style={{ flex: '1 1 auto' }}

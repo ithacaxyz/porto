@@ -1,4 +1,4 @@
-import { Button, ButtonArea, ChainsPath, CopyButton, Details } from '@porto/ui'
+import { CopyButton, Button, ButtonArea, ChainsPath, Details } from '@porto/ui'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import * as React from 'react'
 import type { Chain } from 'viem'
@@ -176,11 +176,16 @@ export namespace Send {
 
     return (
       <ButtonArea
-        className="relative min-w-0 rounded-[4px] font-medium text-[14px] text-th_base-secondary"
+        className="min-w-0 rounded-[4px] font-medium text-[14px] text-th_base-secondary"
         disabled={!asset.fiat}
         onClick={onToggleCurrency}
         style={{ flex: '1 1 auto' }}
       >
+        <div className="invisible truncate whitespace-nowrap">
+          {fiatValue && tokenValue.length > fiatValue.length
+            ? tokenValue
+            : fiatValue || tokenValue}
+        </div>
         <div
           className="flex items-center justify-end"
           title={currencyType === 'fiat' && fiatValue ? fiatValue : tokenValue}

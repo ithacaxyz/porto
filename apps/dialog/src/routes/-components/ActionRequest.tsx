@@ -473,7 +473,7 @@ export namespace ActionRequest {
           </div>
           <ButtonArea
             className={cx(
-              'relative max-w-[200px] rounded-[4px] font-medium text-[14px]',
+              'max-w-[200px] rounded-[4px] font-medium text-[14px]',
               receiving ? 'text-th_base-positive' : 'text-th_base-secondary',
             )}
             disabled={!fiat}

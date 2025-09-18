@@ -1,11 +1,11 @@
 import {
   Button,
   ChainsPath,
-  CopyButton,
   Details,
   Spinner,
   TextButton,
   TokenIcon,
+  CopyButton,
 } from '@porto/ui'
 import { Value } from 'ox'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
