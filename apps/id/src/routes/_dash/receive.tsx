@@ -4,7 +4,9 @@ import { useCopyToClipboard } from '@porto/apps/hooks'
 import * as Ui from '@porto/ui'
 import { createFileRoute } from '@tanstack/react-router'
 import { Cuer } from 'cuer'
+import { cx } from 'cva'
 import { toast } from 'sonner'
+import ExternalLinkIcon from '~icons/lucide/external-link'
 
 export const Route = createFileRoute('/_dash/receive')({
   component: RouteComponent,
@@ -14,7 +16,7 @@ function RouteComponent() {
   const { account } = Route.useRouteContext()
   const [, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
   return (
-    <main className="size-full">
+    <main className="size-full space-y-6 md:ml-2">
       <section className="grid min-h-[50%] grid-flow-col grid-cols-2 justify-items-stretch gap-4 *:rounded-2xl *:bg-white lg:grid-rows-4 dark:*:bg-gray1">
         <div
           className={Ui.cx(
@@ -138,7 +140,61 @@ function RouteComponent() {
 
       {/* BOTTOM TABLE */}
 
-      <section>{/* table */}</section>
+      <section className="size-full gap-6">
+        {/* <div className="w-full"> */}
+        <p className="mb-6 font-medium text-gray9 text-xl">History</p>
+        <ul
+          className={cx(
+            'flex flex-col gap-6',
+            '*:*:my-auto *:flex *:flex-row *:gap-2',
+          )}
+        >
+          <li className="flex w-full flex-row gap-2">
+            <img
+              alt="USDC icon"
+              className="size-7 rounded-full"
+              src="/token-icons/usdc.svg"
+            />
+            <span className="font-normal text-base text-gray10">Deposited</span>
+            <span className="font-medium text-base">USDC Coin</span>
+
+            <span className="ml-auto font-medium text-base">$6,642.15</span>
+
+            <span className="font-medium text-base">8/30 at 8:05pm</span>
+            <Ariakit.Button
+              className="flex size-10 items-center justify-center rounded-full bg-white text-center outline-1 outline-gray7"
+              render={
+                <a
+                  href="https://etherscan.io/tx/0x1234567890"
+                  rel="noreferrer"
+                  sr-only="View on Etherscan"
+                  target="_blank"
+                >
+                  <ExternalLinkIcon className="size-6 text-gray7" />
+                </a>
+              }
+            />
+          </li>
+          <li>
+            <img
+              alt="UNI icon"
+              className="size-7 rounded-full"
+              src="/token-icons/uni.svg"
+            />
+            <span className="font-normal text-base text-gray10">Deposited</span>
+            <span className="font-medium text-base">Uniswap Coin</span>
+          </li>
+          <li>
+            <img
+              alt="HYPE icon"
+              className="size-7 rounded-full"
+              src="/token-icons/hype.svg"
+            />
+            <span className="font-normal text-base text-gray10">Deposited</span>
+            <span className="font-medium text-base">HYPE Coin</span>
+          </li>
+        </ul>
+      </section>
     </main>
   )
 }
