@@ -13,6 +13,10 @@ html,
   background-color: var(--background-color-primary);
 }
 
+body {
+  @apply ak-layer-white dark:ak-layer-gray-950;
+}
+
 @layer base {
   html {
     color-scheme: light dark;
