@@ -202,7 +202,7 @@ export namespace Swap {
     return (
       <div className="flex w-full flex-row items-center gap-[4px]">
         <div className="shrink-0">
-          <TokenIcon size={20} symbol={asset.symbol} />
+          <TokenIcon border={3} size={24} symbol={asset.symbol} />
         </div>
         <div className="flex h-[24px] min-w-0 flex-grow items-center justify-between gap-[8px]">
           <div className="flex min-w-[120px] items-center gap-[4px]">
