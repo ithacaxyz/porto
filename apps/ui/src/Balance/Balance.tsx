@@ -1,4 +1,3 @@
-import { a, useTransition } from '@react-spring/web'
 import { Chains } from 'porto'
 import { Children, createContext, useContext } from 'react'
 import LucideRefreshCw from '~icons/lucide/refresh-cw'
@@ -21,18 +20,6 @@ export function Balance({
 }: Balance.Props) {
   const groupContext = useContext(Balance.Group.Context)
   const chain = Chains.all.find((c) => c.id === chainId)
-  const transition = useTransition(fetching, {
-    config: { friction: 70, tension: 1300 },
-    enter: { opacity: 1, transform: 'scale(1) rotate(0deg)' },
-    from: {
-      opacity: 0,
-      transform: fetching
-        ? 'scale(0.7) rotate(0deg)'
-        : 'scale(0.7) rotate(-45deg)',
-    },
-    initial: { opacity: 1, transform: 'scale(1) rotate(0deg)' },
-    leave: { opacity: 0 },
-  })
   return (
     <div
       className={cx(
@@ -189,34 +176,31 @@ export function Balance({
             width: 20,
           })}
         >
-          {transition((style, isLoading) => (
-            <a.div
-              className={css({
-                display: 'grid',
-                inset: 0,
-                placeItems: 'center',
-                position: 'absolute',
-              })}
-              style={style}
-              title={isLoading ? 'Fetching balance…' : undefined}
-            >
-              {isLoading ? (
-                <Spinner
-                  color="var(--text-color-th_base-secondary)"
-                  size={12}
-                  thickness={1}
-                />
-              ) : (
-                <LucideRefreshCw
-                  className={css({
-                    color: 'var(--text-color-th_base-secondary)',
-                    height: 12,
-                    width: 12,
-                  })}
-                />
-              )}
-            </a.div>
-          ))}
+          <div
+            className={css({
+              display: 'grid',
+              inset: 0,
+              placeItems: 'center',
+              position: 'absolute',
+            })}
+            title={fetching ? 'Fetching balance…' : undefined}
+          >
+            {fetching ? (
+              <Spinner
+                color="var(--text-color-th_base-secondary)"
+                size={12}
+                thickness={1}
+              />
+            ) : (
+              <LucideRefreshCw
+                className={css({
+                  color: 'var(--text-color-th_base-secondary)',
+                  height: 12,
+                  width: 12,
+                })}
+              />
+            )}
+          </div>
         </div>
       </ButtonArea>
     </div>
