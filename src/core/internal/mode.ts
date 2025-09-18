@@ -480,8 +480,8 @@ export async function getAuthorizedExecuteKey(parameters: {
         if (scope.signature) {
           if (!call.data) return false
           const selector = Hex.slice(call.data, 0, 4)
-          if (Hex.validate(scope.signature) && scope.signature !== selector)
-            return false
+          if (Hex.validate(scope.signature))
+            return scope.signature === selector
           if (AbiItem.getSelector(scope.signature) !== selector) return false
         }
         return true
