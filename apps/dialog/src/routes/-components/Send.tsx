@@ -182,7 +182,7 @@ export namespace Send {
         style={{ flex: '1 1 auto' }}
       >
         <div
-          className="absolute inset-0 flex origin-[100%_50%] items-center justify-end"
+          className="flex items-center justify-end"
           title={currencyType === 'fiat' && fiatValue ? fiatValue : tokenValue}
         >
           <span className="truncate">

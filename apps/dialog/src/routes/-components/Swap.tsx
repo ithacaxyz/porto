@@ -216,7 +216,7 @@ export namespace Swap {
             onClick={() => onFiatDisplayChange(!fiatDisplay)}
             style={{ flex: '1 1 auto' }}
           >
-            <div className="absolute inset-0 flex items-center justify-end">
+            <div className="flex items-center justify-end">
               <span
                 className="truncate"
                 title={fiatDisplay && fiatValue ? fiatValue : tokenValue}
