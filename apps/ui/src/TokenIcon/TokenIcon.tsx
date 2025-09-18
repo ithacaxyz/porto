@@ -1,67 +1,33 @@
-import type { ImgHTMLAttributes } from 'react'
-import { useState } from 'react'
-import { css, cx } from '../../styled-system/css'
+import { DiscIcon } from '../DiscIcon/DiscIcon.js'
 import { Ui } from '../Ui/Ui.js'
 
 export function TokenIcon({
   symbol,
-  size = 'medium',
+  size,
   className,
   ...props
 }: TokenIcon.Props) {
-  const ui = Ui.useUi()
-
-  const iconsUrl = `${ui.assetsBaseUrl}/token-icons`
-  const fallback = `${iconsUrl}/fallback.svg`
-
-  const [iconSrc, setIconSrc] = useState(
-    symbol ? `${iconsUrl}/${symbol.toLowerCase()}.svg` : fallback,
-  )
-
-  if (typeof size === 'string') size = { large: 32, medium: 24 }[size]
-
+  const { assetsBaseUrl } = Ui.useUi()
+  const fallback = `${assetsBaseUrl}/token-icons/fallback.svg`
+  const src = symbol
+    ? `${assetsBaseUrl}/token-icons/${symbol.toLowerCase()}.svg`
+    : fallback
   return (
-    <div
-      className={cx(
-        css({
-          background: 'var(--background-color-th_badge)',
-          border: '3px solid var(--background-color-th_badge)',
-          borderRadius: '50%',
-          display: 'grid',
-          overflow: 'hidden',
-          placeItems: 'center',
-        }),
-        className,
-      )}
-      style={{
-        height: size,
-        width: size,
-      }}
-    >
-      <img
-        alt={symbol}
-        className={cx(
-          css({
-            display: 'block',
-          }),
-          className,
-        )}
-        height={size - 3 * 2}
-        onError={() => setIconSrc(fallback)}
-        src={iconSrc}
-        title={symbol}
-        width={size - 3 * 2}
-        {...props}
-      />
-    </div>
+    <DiscIcon
+      alt={symbol}
+      className={className}
+      fallback={fallback}
+      size={size}
+      src={src}
+      title={symbol}
+      {...props}
+    />
   )
 }
 
 export namespace TokenIcon {
-  export interface Props extends ImgHTMLAttributes<HTMLImageElement> {
+  export interface Props extends Omit<DiscIcon.Props, 'src' | 'fallback'> {
     symbol?: string | undefined
-    size?: Size | undefined
   }
-
-  export type Size = 'medium' | 'large' | number
+  export const Stack = DiscIcon.Stack
 }

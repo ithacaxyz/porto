@@ -1,5 +1,7 @@
+import * as path from 'node:path'
 import React from '@vitejs/plugin-react-swc'
 import Dts from 'unplugin-dts/vite'
+import { FileSystemIconLoader } from 'unplugin-icons/loaders'
 import Icons from 'unplugin-icons/vite'
 import { defineConfig } from 'vite'
 import TsconfigPaths from 'vite-tsconfig-paths'
@@ -16,6 +18,7 @@ export default defineConfig({
     rollupOptions: {
       external: [
         '@react-spring/web',
+        'porto',
         'react',
         'react-dom',
         'react/jsx-runtime',
@@ -31,6 +34,11 @@ export default defineConfig({
   plugins: [
     Icons({
       compiler: 'jsx',
+      customCollections: {
+        chains: FileSystemIconLoader(
+          path.resolve(__dirname, './src/ChainIcon/icons'),
+        ),
+      },
       jsx: 'react',
     }),
     React(),
