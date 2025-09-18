@@ -1,8 +1,6 @@
-import { a, useTransition } from '@react-spring/web'
+import { CopyButton } from '@porto/ui'
 import { createFileRoute } from '@tanstack/react-router'
 import { cx } from 'cva'
-import type { ForwardedRef } from 'react'
-import { useImperativeHandle, useRef, useState } from 'react'
 import { ComponentScreen } from '~/components/ComponentScreen/ComponentScreen'
 import { portoTheme } from '../../../theme/porto-theme'
 import * as radixDark from '../radix-dark'
@@ -70,8 +68,8 @@ function ColorButton({
   side: 'left' | 'right'
 }) {
   const radixMatch = findRadixColor(color, mode)
-  const copyRef = useRef<{ show: () => void }>(null)
-  const [mountCopy, setMountCopy] = useState(false)
+  const { copy, notifying } = CopyButton.useCopy()
+
   return (
     <button
       className={cx(
@@ -81,11 +79,7 @@ function ColorButton({
           : 'rounded-r-th_medium border-l-0',
       )}
       key={mode}
-      onClick={() => {
-        navigator.clipboard.writeText(color)
-        if (copyRef.current) copyRef.current.show()
-        else setMountCopy(true)
-      }}
+      onClick={() => copy(color)}
       style={{
         backgroundColor: color.slice(0, 7), // remove alpha if present
         color: colorIntensity(color) === 'high' ? '#000' : '#fff',
@@ -96,7 +90,9 @@ function ColorButton({
       <div className="mt-1 flex flex-col items-end">
         <div className="relative">
           <div className="absolute right-[calc(100%+8px)] flex h-full items-center">
-            {mountCopy && <CopyIndicator ref={copyRef} />}
+            {notifying && (
+              <div className="flex items-center text-sm">copied</div>
+            )}
           </div>
           {color}
         </div>
@@ -107,46 +103,6 @@ function ColorButton({
         </div>
       </div>
     </button>
-  )
-}
-
-function CopyIndicator({
-  ref,
-}: {
-  ref?: ForwardedRef<{
-    show: () => void
-  }>
-}) {
-  const [show, setShow] = useState(true)
-
-  const copyTransition = useTransition(show, {
-    config: {
-      friction: 85,
-      mass: 2,
-      tension: 2000,
-    },
-    enter: () => async (next) => {
-      await next({ opacity: 1, transform: 'scale3d(1, 1, 1)' })
-      setShow(false)
-    },
-    from: { opacity: 0, transform: 'scale3d(0.4, 0.4, 1)' },
-    leave: () => async (next) => {
-      await new Promise((resolve) => setTimeout(resolve, 500))
-      await next({ opacity: 0, transform: 'scale3d(1, 1, 1)' })
-    },
-  })
-
-  useImperativeHandle(ref, () => ({
-    show: () => setShow(true),
-  }))
-
-  return copyTransition(
-    (style, item) =>
-      item && (
-        <a.div className="flex items-center text-sm" style={style}>
-          copied
-        </a.div>
-      ),
   )
 }
 

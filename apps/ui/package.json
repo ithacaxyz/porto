@@ -27,7 +27,6 @@
   },
   "peerDependencies": {
     "@ariakit/react": "*",
-    "@react-spring/web": ">=10",
     "react": ">=19",
     "react-dom": ">=19"
   },
@@ -37,7 +36,6 @@
     "@microsoft/api-extractor": "^7.52.9",
     "@pandacss/dev": "^0.54.0",
     "@porto/apps": "workspace:*",
-    "@react-spring/web": "catalog:",
     "@size-limit/preset-small-lib": "^11.1.6",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",

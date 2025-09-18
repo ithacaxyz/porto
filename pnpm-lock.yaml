@@ -15,9 +15,6 @@ catalogs:
     '@iconify/json':
       specifier: ^2.2.384
       version: 2.2.384
-    '@react-spring/web':
-      specifier: ^10.0.1
-      version: 10.0.1
     '@sentry/react':
       specifier: ^9
       version: 9.22.0
@@ -262,9 +259,6 @@ importers:
       '@porto/ui':
         specifier: workspace:*
         version: link:../ui
-      '@react-spring/web':
-        specifier: 'catalog:'
-        version: 10.0.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@sentry/react':
         specifier: 'catalog:'
         version: 9.22.0(react@19.1.0)
@@ -783,9 +777,6 @@ importers:
       '@porto/apps':
         specifier: workspace:*
         version: link:../~internal
-      '@react-spring/web':
-        specifier: 'catalog:'
-        version: 10.0.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@size-limit/preset-small-lib':
         specifier: ^11.1.6
         version: 11.2.0(size-limit@11.2.0)
@@ -837,9 +828,6 @@ importers:
       '@porto/ui':
         specifier: workspace:*
         version: link:../ui
-      '@react-spring/web':
-        specifier: 'catalog:'
-        version: 10.0.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@tanstack/react-router':
         specifier: 'catalog:'
         version: 1.120.10(patch_hash=d040a32b2882bb1304fb0c2ba45e98919dec02b25c255882a212122728960907)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -4015,33 +4003,6 @@ packages:
       react-dom: '>=18'
       viem: 2.x
       wagmi: ^2.9.0
-
-  '@react-spring/animated@10.0.1':
-    resolution: {integrity: sha512-BGL3hA66Y8Qm3KmRZUlfG/mFbDPYajgil2/jOP0VXf2+o2WPVmcDps/eEgdDqgf5Pv9eBbyj7LschLMuSjlW3Q==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-
-  '@react-spring/core@10.0.1':
-    resolution: {integrity: sha512-KaMMsN1qHuVTsFpg/5ajAVye7OEqhYbCq0g4aKM9bnSZlDBBYpO7Uf+9eixyXN8YEbF+YXaYj9eoWDs+npZ+sA==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-
-  '@react-spring/rafz@10.0.1':
-    resolution: {integrity: sha512-UrzG/d6Is+9i0aCAjsjWRqIlFFiC4lFqFHrH63zK935z2YDU95TOFio4VKGISJ5SG0xq4ULy7c1V3KU+XvL+Yg==}
-
-  '@react-spring/shared@10.0.1':
-    resolution: {integrity: sha512-KR2tmjDShPruI/GGPfAZOOLvDgkhFseabjvxzZFFggJMPkyICLjO0J6mCIoGtdJSuHywZyc4Mmlgi+C88lS00g==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-
-  '@react-spring/types@10.0.1':
-    resolution: {integrity: sha512-Fk1wYVAKL+ZTYK+4YFDpHf3Slsy59pfFFvnnTfRjQQFGlyIo4VejPtDs3CbDiuBjM135YztRyZjIH2VbycB+ZQ==}
-
-  '@react-spring/web@10.0.1':
-    resolution: {integrity: sha512-FgQk02OqFrYyJBTTnBTWAU0WPzkHkKXauc6aeexcvATvLapUxwnfGuLlsLYF8BYjEVfkivPT04ziAue6zyRBtQ==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   '@remix-run/node-fetch-server@0.8.1':
     resolution: {integrity: sha512-J1dev372wtJqmqn9U/qbpbZxbJSQrogNN2+Qv1lKlpATpe/WQ9aCZfl/xSb9d2Rgh1IyLSvNxZAXPZxruO6Xig==}
@@ -14313,38 +14274,6 @@ snapshots:
       - '@types/react'
       - babel-plugin-macros
       - typescript
-
-  '@react-spring/animated@10.0.1(react@19.1.0)':
-    dependencies:
-      '@react-spring/shared': 10.0.1(react@19.1.0)
-      '@react-spring/types': 10.0.1
-      react: 19.1.0
-
-  '@react-spring/core@10.0.1(react@19.1.0)':
-    dependencies:
-      '@react-spring/animated': 10.0.1(react@19.1.0)
-      '@react-spring/shared': 10.0.1(react@19.1.0)
-      '@react-spring/types': 10.0.1
-      react: 19.1.0
-
-  '@react-spring/rafz@10.0.1': {}
-
-  '@react-spring/shared@10.0.1(react@19.1.0)':
-    dependencies:
-      '@react-spring/rafz': 10.0.1
-      '@react-spring/types': 10.0.1
-      react: 19.1.0
-
-  '@react-spring/types@10.0.1': {}
-
-  '@react-spring/web@10.0.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
-    dependencies:
-      '@react-spring/animated': 10.0.1(react@19.1.0)
-      '@react-spring/core': 10.0.1(react@19.1.0)
-      '@react-spring/shared': 10.0.1(react@19.1.0)
-      '@react-spring/types': 10.0.1
-      react: 19.1.0
-      react-dom: 19.1.0(react@19.1.0)
 
   '@remix-run/node-fetch-server@0.8.1': {}
 

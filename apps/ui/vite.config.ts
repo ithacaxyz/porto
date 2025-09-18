@@ -14,12 +14,7 @@ export default defineConfig({
     },
     outDir: './dist',
     rollupOptions: {
-      external: [
-        '@react-spring/web',
-        'react',
-        'react-dom',
-        'react/jsx-runtime',
-      ],
+      external: ['react', 'react-dom', 'react/jsx-runtime'],
       output: {
         dir: 'dist',
         preserveModules: true,
