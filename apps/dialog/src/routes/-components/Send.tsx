@@ -13,14 +13,14 @@ export function Send(props: Send.Props) {
     asset,
     chainsPath,
     fees,
-    loading,
+    fetchingQuote,
     onApprove,
     onReject,
     onAddFunds,
+    refreshingQuote,
     sending,
     to,
     hasDeficit,
-    checkingDeficit,
   } = props
 
   const [currencyType, setCurrencyType] = React.useState<'fiat' | 'token'>(
@@ -83,7 +83,7 @@ export function Send(props: Send.Props) {
               />
             </div>
           </div>
-          <Details loading={loading && !hasDeficit}>
+          <Details loading={fetchingQuote && !hasDeficit}>
             {feeFormatted && (
               <Details.Item
                 label="Fees (est.)"
@@ -112,7 +112,7 @@ export function Send(props: Send.Props) {
       <Layout.Footer>
         <Layout.Footer.Actions>
           <Button
-            disabled={loading || sending}
+            disabled={sending}
             onClick={onReject}
             variant="negative-secondary"
             width="grow"
@@ -131,8 +131,14 @@ export function Send(props: Send.Props) {
             </Button>
           ) : (
             <Button
-              disabled={!onApprove || checkingDeficit}
-              loading={sending && 'Sending…'}
+              disabled={!onApprove || fetchingQuote}
+              loading={
+                refreshingQuote
+                  ? 'Refreshing quote…'
+                  : sending
+                    ? 'Sending…'
+                    : undefined
+              }
               onClick={onApprove}
               variant="positive"
               width="grow"
@@ -151,14 +157,14 @@ export namespace Send {
     asset: ActionRequest.CoinAsset
     chainsPath: readonly Chain[]
     fees?: Capabilities.feeTotals.Response | undefined
-    loading: boolean
+    fetchingQuote: boolean
     onApprove: () => void
     onReject: () => void
     onAddFunds?: () => void
+    refreshingQuote?: boolean | undefined
     sending?: boolean | undefined
     to: `0x${string}`
     hasDeficit?: boolean | undefined
-    checkingDeficit?: boolean | undefined
   }
 
   export function AmountButton(props: AmountButton.Props) {

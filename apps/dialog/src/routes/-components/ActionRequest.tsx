@@ -93,6 +93,9 @@ export function ActionRequest(props: ActionRequest.Props) {
     }
   }
 
+  const fetchingQuote = prepareCallsQuery.isPending
+  const refreshingQuote = prepareCallsQuery.isRefetching
+
   return (
     <CheckBalance
       address={address}
@@ -106,16 +109,16 @@ export function ActionRequest(props: ActionRequest.Props) {
               amount={identified.amount}
               approving={loading}
               chainsPath={chainsPath}
-              checkingDeficit={prepareCallsQuery.isPending}
               fees={sponsored ? undefined : feeTotals}
+              fetchingQuote={fetchingQuote}
               hasDeficit={deficit.hasDeficit}
-              loading={prepareCallsQuery.isPending}
               onAddFunds={deficit.onAddFunds}
               onApprove={() => {
                 if (prepareCallsQuery.isSuccess)
                   onApprove(prepareCallsQuery.data)
               }}
               onReject={onReject}
+              refreshingQuote={refreshingQuote}
               spender={identified.spender}
               tokenAddress={identified.tokenAddress}
             />
@@ -127,17 +130,17 @@ export function ActionRequest(props: ActionRequest.Props) {
               assetIn={addNativeCurrencyName(identified.assetIn)}
               assetOut={addNativeCurrencyName(identified.assetOut)}
               chainsPath={chainsPath}
-              checkingDeficit={prepareCallsQuery.isPending}
               contractAddress={calls[0]?.to}
               fees={sponsored ? undefined : feeTotals}
+              fetchingQuote={fetchingQuote}
               hasDeficit={deficit.hasDeficit}
-              loading={false}
               onAddFunds={deficit.onAddFunds}
               onApprove={() => {
                 if (prepareCallsQuery.isSuccess)
                   onApprove(prepareCallsQuery.data)
               }}
               onReject={onReject}
+              refreshingQuote={refreshingQuote}
               swapping={loading}
               swapType={identified.type}
             />
@@ -148,16 +151,16 @@ export function ActionRequest(props: ActionRequest.Props) {
             <Send
               asset={identified.asset}
               chainsPath={chainsPath}
-              checkingDeficit={prepareCallsQuery.isPending}
               fees={sponsored ? undefined : feeTotals}
+              fetchingQuote={fetchingQuote}
               hasDeficit={deficit.hasDeficit}
-              loading={prepareCallsQuery.isPending}
               onAddFunds={deficit.onAddFunds}
               onApprove={() => {
                 if (prepareCallsQuery.isSuccess)
                   onApprove(prepareCallsQuery.data)
               }}
               onReject={onReject}
+              refreshingQuote={refreshingQuote}
               sending={loading}
               to={identified.to}
             />
@@ -232,7 +235,13 @@ export function ActionRequest(props: ActionRequest.Props) {
                   <Button
                     data-testid="confirm"
                     disabled={!prepareCallsQuery.isSuccess}
-                    loading={loading && 'Confirming…'}
+                    loading={
+                      refreshingQuote
+                        ? 'Refreshing quote…'
+                        : loading
+                          ? 'Confirming…'
+                          : undefined
+                    }
                     onClick={() => {
                       if (prepareCallsQuery.isError) {
                         prepareCallsQuery.refetch()

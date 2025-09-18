@@ -23,14 +23,14 @@ export function Approve(props: Approve.Props) {
     chainsPath,
     expiresAt,
     fees,
-    loading,
+    fetchingQuote,
     onApprove,
     onReject,
     onAddFunds,
     spender,
+    refreshingQuote,
     tokenAddress,
     hasDeficit,
-    checkingDeficit,
   } = props
 
   let { unlimited } = props
@@ -120,7 +120,7 @@ export function Approve(props: Approve.Props) {
               unlimited={unlimited}
             />
           </div>
-          <Details loading={loading && !hasDeficit}>
+          <Details loading={fetchingQuote && !hasDeficit}>
             <Details.Item
               label="Requested by"
               value={
@@ -178,9 +178,15 @@ export function Approve(props: Approve.Props) {
           ) : (
             <Button
               disabled={
-                tokenInfo.isLoading || tokenInfo.isError || checkingDeficit
+                tokenInfo.isLoading || tokenInfo.isError || fetchingQuote
               }
-              loading={approving && 'Approving…'}
+              loading={
+                refreshingQuote
+                  ? 'Refreshing quote…'
+                  : approving
+                    ? 'Approving…'
+                    : undefined
+              }
               onClick={onApprove}
               variant="positive"
               width="grow"
@@ -201,15 +207,15 @@ export namespace Approve {
     chainsPath: readonly Chain[]
     expiresAt?: Date
     fees?: Capabilities.feeTotals.Response | undefined
-    loading?: boolean | undefined
+    fetchingQuote?: boolean | undefined
     onApprove: () => void
     onReject: () => void
     onAddFunds?: () => void
+    refreshingQuote?: boolean | undefined
     spender: `0x${string}`
     tokenAddress: `0x${string}`
     unlimited?: boolean | undefined
     hasDeficit?: boolean | undefined
-    checkingDeficit?: boolean | undefined
   }
 
   export function AllowanceRow({

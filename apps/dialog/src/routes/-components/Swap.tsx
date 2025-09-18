@@ -23,14 +23,14 @@ export function Swap(props: Swap.Props) {
     chainsPath,
     contractAddress,
     fees,
-    loading,
+    fetchingQuote,
     onApprove,
     onReject,
     onAddFunds,
+    refreshingQuote,
     swapType,
     swapping,
     hasDeficit,
-    checkingDeficit,
   } = props
 
   const [fiatDisplay, setFiatDisplay] = React.useState(swapType !== 'convert')
@@ -97,7 +97,7 @@ export function Swap(props: Swap.Props) {
               </>
             )}
           </div>
-          <Details loading={loading && !hasDeficit}>
+          <Details loading={fetchingQuote && !hasDeficit}>
             {feeFormatted && (
               <Details.Item
                 label="Fees (est.)"
@@ -145,8 +145,14 @@ export function Swap(props: Swap.Props) {
             </Button>
           ) : (
             <Button
-              disabled={!onApprove || checkingDeficit}
-              loading={swapping && 'Swapping…'}
+              disabled={!onApprove || fetchingQuote}
+              loading={
+                refreshingQuote
+                  ? 'Refreshing quote…'
+                  : swapping
+                    ? 'Swapping…'
+                    : undefined
+              }
               onClick={onApprove}
               variant="positive"
               width="grow"
@@ -167,14 +173,14 @@ export namespace Swap {
     chainsPath: readonly Chain[]
     contractAddress?: `0x${string}` | undefined
     fees?: Capabilities.feeTotals.Response | undefined
-    loading: boolean
+    fetchingQuote: boolean
+    hasDeficit?: boolean | undefined
     onApprove: () => void
     onReject: () => void
     onAddFunds?: () => void
+    refreshingQuote?: boolean | undefined
     swapType: 'swap' | 'convert'
     swapping?: boolean | undefined
-    hasDeficit?: boolean | undefined
-    checkingDeficit?: boolean | undefined
   }
 
   export function AssetRow(props: AssetRow.Props) {
