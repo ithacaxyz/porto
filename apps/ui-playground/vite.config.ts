@@ -18,6 +18,6 @@ export default defineConfig({
     TanStackRouterVite(),
   ],
   resolve: {
-    dedupe: ['react', 'react-dom', '@react-spring/web'],
+    dedupe: ['react', 'react-dom'],
   },
 })

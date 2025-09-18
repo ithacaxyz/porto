@@ -1,18 +1,10 @@
 import { Radio, RadioGroup, RadioProvider } from '@ariakit/react'
-import { a, useTransition } from '@react-spring/web'
 import type { ReactNode } from 'react'
 import { useRef, useState } from 'react'
 import LucidePencil from '~icons/lucide/pencil'
 import LucideX from '~icons/lucide/x'
 import { css, cx } from '../../styled-system/css'
 import { Input } from '../Input/Input.js'
-import { Ui } from '../Ui/Ui.js'
-
-const SPRING_CONFIG = {
-  friction: 120,
-  mass: 1,
-  tension: 3000,
-}
 
 export function PresetsInput({
   adornments,
@@ -50,61 +42,6 @@ export function PresetsInput({
     }
   }
 
-  const ui = Ui.useUi(true)
-
-  const presetsTransition = useTransition(customMode ? [] : presets, {
-    config: SPRING_CONFIG,
-    enter: {
-      labelBlur: 'blur(0px)',
-      opacity: 1,
-      transform: 'scale3d(1, 1, 1)',
-    },
-    from: {
-      labelBlur: 'blur(2px)',
-      opacity: 0,
-      transform: 'scale3d(1.15, 1.3, 1)',
-    },
-    immediate: ui?.reducedMotion,
-    initial: {
-      labelBlur: 'blur(0px)',
-      opacity: 1,
-      transform: 'scale3d(1, 1, 1)',
-    },
-    keys: (item) => item.value,
-    leave: {
-      immediate: true,
-      labelBlur: 'blur(2px)',
-      opacity: 0,
-      transform: 'scale3d(1.15, 1.3, 1)',
-    },
-  })
-
-  const customInputTransition = useTransition(customMode, {
-    config: SPRING_CONFIG,
-    enter: {
-      buttonTransform: 'scale(1)',
-      inputTransform: 'scale(1, 1)',
-      opacity: 1,
-    },
-    from: {
-      buttonTransform: 'scale(0.5)',
-      inputTransform: 'scale(0.96, 0.92)',
-      opacity: 0,
-    },
-    immediate: ui?.reducedMotion,
-    initial: {
-      buttonTransform: 'scale(1)',
-      inputTransform: 'scale(1, 1)',
-      opacity: 1,
-    },
-    leave: {
-      buttonTransform: 'scale(0)',
-      immediate: true,
-      inputTransform: 'scale(0.96, 0.92)',
-      opacity: 0,
-    },
-  })
-
   return (
     <div
       className={cx(
@@ -127,49 +64,40 @@ export function PresetsInput({
         })}
       >
         {customMode ? (
-          customInputTransition(
-            (styles, item) =>
-              item && (
-                <a.div
-                  className={css({
-                    inset: 0,
-                    position: 'absolute',
-                  })}
-                  style={{
-                    opacity: styles.opacity,
-                    transform: styles.inputTransform,
-                  }}
-                >
-                  <Input
-                    adornments={adornments}
-                    autoFocus
-                    className={css({
-                      borderRadius: 16,
-                      flex: 1,
-                    })}
-                    onChange={handleInputChange}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Escape') {
-                        // prevent closing the modal
-                        event.stopPropagation()
+          <div
+            className={css({
+              inset: 0,
+              position: 'absolute',
+            })}
+          >
+            <Input
+              adornments={adornments}
+              autoFocus
+              className={css({
+                borderRadius: 16,
+                flex: 1,
+              })}
+              onChange={handleInputChange}
+              onKeyDown={(event) => {
+                if (event.key === 'Escape') {
+                  // prevent closing the modal
+                  event.stopPropagation()
 
-                        handleModeChange('preset')
+                  handleModeChange('preset')
 
-                        // wait for RadioGroup to get rendered
-                        queueMicrotask(() => {
-                          radioGroupRef.current
-                            ?.querySelector('input:checked')
-                            ?.focus()
-                        })
-                      }
-                    }}
-                    size="medium"
-                    value={value}
-                    {...inputProps}
-                  />
-                </a.div>
-              ),
-          )
+                  // wait for RadioGroup to get rendered
+                  queueMicrotask(() => {
+                    radioGroupRef.current
+                      ?.querySelector('input:checked')
+                      ?.focus()
+                  })
+                }
+              }}
+              size="medium"
+              value={value}
+              {...inputProps}
+            />
+          </div>
         ) : (
           <RadioProvider
             setValue={(value) => handlePresetChange(value as string)}
@@ -188,24 +116,20 @@ export function PresetsInput({
                   gridTemplateColumns: 'repeat(auto-fit, minmax(40px, 1fr))',
                 }}
               >
-                {presetsTransition((styles, item) => (
+                {presets.map((item) => (
                   // biome-ignore lint/a11y/noLabelWithoutControl: Radio contains a control
-                  <a.label
+                  <label
                     className={css({
                       display: 'block',
                       position: 'relative',
                     })}
                     key={item.value}
-                    style={{
-                      opacity: styles.opacity,
-                      transform: styles.transform,
-                    }}
                   >
                     <Radio
                       className={cx(
                         'peer',
                         css({
-                          // We can’t use Ariakit’s VisuallyHidden here, as
+                          // We can't use Ariakit's VisuallyHidden here, as
                           // it would add an element and prevent using peer
                           // selectors to style the buttons states. Instead
                           // we juste place it behind the button-like.
@@ -247,15 +171,9 @@ export function PresetsInput({
                         userSelect: 'none',
                       })}
                     >
-                      <a.span
-                        style={{
-                          filter: styles.labelBlur,
-                        }}
-                      >
-                        {item.label}
-                      </a.span>
+                      <span>{item.label}</span>
                     </div>
-                  </a.label>
+                  </label>
                 ))}
               </div>
             </RadioGroup>
@@ -288,22 +206,7 @@ export function PresetsInput({
         title={customMode ? 'Back to presets' : 'Custom value'}
         type="button"
       >
-        {customInputTransition((styles, customMode) => (
-          <a.div
-            className={css({
-              display: 'grid',
-              inset: 0,
-              placeItems: 'center',
-              position: 'absolute',
-            })}
-            style={{
-              opacity: styles.opacity,
-              transform: styles.buttonTransform,
-            }}
-          >
-            {customMode ? <LucideX /> : <LucidePencil />}
-          </a.div>
-        ))}
+        {customMode ? <LucideX /> : <LucidePencil />}
       </button>
     </div>
   )
