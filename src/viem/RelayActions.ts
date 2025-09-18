@@ -22,6 +22,7 @@ import type {
   GetChainParameter,
 } from './internal/utils.js'
 import * as Key from './Key.js'
+import type { relay } from '../core/Mode.js'
 
 export {
   addFaucetFunds,
@@ -395,7 +396,7 @@ export async function sendCalls<
   client: Client<Transport, chain, account>,
   parameters: sendCalls.Parameters<calls, chain, account>,
 ): Promise<sendCalls.ReturnType> {
-  const { account = client.account, chain = client.chain } = parameters
+  const { account = client.account, chain = client.chain, webAuthn } = parameters
 
   if (!chain) throw new Error('`chain` is required.')
 
@@ -426,6 +427,7 @@ export async function sendCalls<
       const signature = await Key.sign(key, {
         address: null,
         payload: digest,
+        webAuthn
       })
       return { context, signature }
     }),
@@ -498,6 +500,7 @@ export declare namespace sendCalls {
         | undefined
       /** Merchant RPC URL. */
       merchantUrl?: string | undefined
+      webAuthn?: relay.Parameters['webAuthn']
     }
 
   export type ReturnType = RelayActions.sendPreparedCalls.ReturnType
