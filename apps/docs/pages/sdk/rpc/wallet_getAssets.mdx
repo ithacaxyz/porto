@@ -46,6 +46,10 @@ type Response = {
     balance: Hex
     metadata: {
       decimals: number
+      fiat: {
+        currency: string;
+        value: string;
+      }
       name: string
       symbol: string
     } | null
