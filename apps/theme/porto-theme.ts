@@ -373,6 +373,26 @@ export const portoTheme: PortoTheme = {
     '#eb8e90',
     '#b54548',
   ],
+  fieldNegativeBorder: [
+    'Field negative border color. Used around field surfaces in negative states, as an alternative to the field error border color.',
+    '#f4a9aa',
+    '#8c333a',
+  ],
+  fieldNegativeBackground: [
+    'Field negative background color. Used for input fields and other form elements in negative states, as an alternative to the field error border color.',
+    '#fff7f7',
+    '#201314',
+  ],
+  fieldPositiveBorder: [
+    'Field positive border color. Used around field surfaces in positive/success states.',
+    '#30a46c',
+    '#30a46c',
+  ],
+  fieldPositiveBackground: [
+    'Field positive background color. Used for input fields and other form elements in positive/success states.',
+    '#f4fbf6',
+    '#121b17',
+  ],
   fieldFocusedBackground: [
     'Field background color when focused. Used for input fields and other form elements when they are focused or active.',
     '#e0e0e0',

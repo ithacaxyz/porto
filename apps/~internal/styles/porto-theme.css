@@ -69,6 +69,10 @@
   --text-color-th_field-secondary: light-dark(#8d8d8d, #6e6e6e);
   --text-color-th_field-tertiary: light-dark(#bbbbbb, #606060);
   --border-color-th_field-error: light-dark(#eb8e90, #b54548);
+  --border-color-th_field-negative: light-dark(#f4a9aa, #8c333a);
+  --background-color-th_field-negative: light-dark(#fff7f7, #201314);
+  --border-color-th_field-positive: light-dark(#30a46c, #30a46c);
+  --background-color-th_field-positive: light-dark(#f4fbf6, #121b17);
   --background-color-th_field-focused: light-dark(#e0e0e0, #313131);
   --text-color-th_field-focused: light-dark(#202020, #eeeeee);
 }

@@ -14,6 +14,7 @@ export const sections = [
       'DiscIcon',
       // 'Frame',
       'Input',
+      'OtpInput',
       'PresetsInput',
       'Separator',
       'ShowAfter',

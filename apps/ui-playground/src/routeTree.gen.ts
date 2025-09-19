@@ -19,6 +19,7 @@ import { Route as ShowAfterImport } from './routes/ShowAfter'
 import { Route as SeparatorImport } from './routes/Separator'
 import { Route as ScreenImport } from './routes/Screen'
 import { Route as PresetsInputImport } from './routes/PresetsInput'
+import { Route as OtpInputImport } from './routes/OtpInput'
 import { Route as InputImport } from './routes/Input'
 import { Route as FrameImport } from './routes/Frame'
 import { Route as DiscIconImport } from './routes/DiscIcon'
@@ -78,6 +79,12 @@ const ScreenRoute = ScreenImport.update({
 const PresetsInputRoute = PresetsInputImport.update({
   id: '/PresetsInput',
   path: '/PresetsInput',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const OtpInputRoute = OtpInputImport.update({
+  id: '/OtpInput',
+  path: '/OtpInput',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -228,6 +235,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InputImport
       parentRoute: typeof rootRoute
     }
+    '/OtpInput': {
+      id: '/OtpInput'
+      path: '/OtpInput'
+      fullPath: '/OtpInput'
+      preLoaderRoute: typeof OtpInputImport
+      parentRoute: typeof rootRoute
+    }
     '/PresetsInput': {
       id: '/PresetsInput'
       path: '/PresetsInput'
@@ -301,6 +315,7 @@ export interface FileRoutesByFullPath {
   '/DiscIcon': typeof DiscIconRoute
   '/Frame': typeof FrameRoute
   '/Input': typeof InputRoute
+  '/OtpInput': typeof OtpInputRoute
   '/PresetsInput': typeof PresetsInputRoute
   '/Screen': typeof ScreenRoute
   '/Separator': typeof SeparatorRoute
@@ -323,6 +338,7 @@ export interface FileRoutesByTo {
   '/DiscIcon': typeof DiscIconRoute
   '/Frame': typeof FrameRoute
   '/Input': typeof InputRoute
+  '/OtpInput': typeof OtpInputRoute
   '/PresetsInput': typeof PresetsInputRoute
   '/Screen': typeof ScreenRoute
   '/Separator': typeof SeparatorRoute
@@ -346,6 +362,7 @@ export interface FileRoutesById {
   '/DiscIcon': typeof DiscIconRoute
   '/Frame': typeof FrameRoute
   '/Input': typeof InputRoute
+  '/OtpInput': typeof OtpInputRoute
   '/PresetsInput': typeof PresetsInputRoute
   '/Screen': typeof ScreenRoute
   '/Separator': typeof SeparatorRoute
@@ -370,6 +387,7 @@ export interface FileRouteTypes {
     | '/DiscIcon'
     | '/Frame'
     | '/Input'
+    | '/OtpInput'
     | '/PresetsInput'
     | '/Screen'
     | '/Separator'
@@ -391,6 +409,7 @@ export interface FileRouteTypes {
     | '/DiscIcon'
     | '/Frame'
     | '/Input'
+    | '/OtpInput'
     | '/PresetsInput'
     | '/Screen'
     | '/Separator'
@@ -412,6 +431,7 @@ export interface FileRouteTypes {
     | '/DiscIcon'
     | '/Frame'
     | '/Input'
+    | '/OtpInput'
     | '/PresetsInput'
     | '/Screen'
     | '/Separator'
@@ -435,6 +455,7 @@ export interface RootRouteChildren {
   DiscIconRoute: typeof DiscIconRoute
   FrameRoute: typeof FrameRoute
   InputRoute: typeof InputRoute
+  OtpInputRoute: typeof OtpInputRoute
   PresetsInputRoute: typeof PresetsInputRoute
   ScreenRoute: typeof ScreenRoute
   SeparatorRoute: typeof SeparatorRoute
@@ -457,6 +478,7 @@ const rootRouteChildren: RootRouteChildren = {
   DiscIconRoute: DiscIconRoute,
   FrameRoute: FrameRoute,
   InputRoute: InputRoute,
+  OtpInputRoute: OtpInputRoute,
   PresetsInputRoute: PresetsInputRoute,
   ScreenRoute: ScreenRoute,
   SeparatorRoute: SeparatorRoute,
@@ -488,6 +510,7 @@ export const routeTree = rootRoute
         "/DiscIcon",
         "/Frame",
         "/Input",
+        "/OtpInput",
         "/PresetsInput",
         "/Screen",
         "/Separator",
@@ -530,6 +553,9 @@ export const routeTree = rootRoute
     },
     "/Input": {
       "filePath": "Input.tsx"
+    },
+    "/OtpInput": {
+      "filePath": "OtpInput.tsx"
     },
     "/PresetsInput": {
       "filePath": "PresetsInput.tsx"
