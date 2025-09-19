@@ -27,8 +27,8 @@ function OtpInputComponent() {
                 -
               </Button>
               <Button
-                disabled={length >= 10}
-                onClick={() => setLength((l) => Math.min(10, l + 1))}
+                disabled={length >= 7}
+                onClick={() => setLength((l) => Math.min(7, l + 1))}
                 size="small"
               >
                 +
