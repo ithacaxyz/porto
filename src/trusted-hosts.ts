@@ -28,9 +28,11 @@ export const hosts = [
   ['relay.link', ['allow-blind-sign', 'allow-merchant-rpc', 'allow-iframe']],
   ['sponsor-porto.vercel.app', ['allow-iframe']],
   ['stg.localhost', ['allow-blind-sign', 'allow-merchant-rpc', 'allow-iframe']],
+  ['sushi.com', ['allow-blind-sign', 'allow-iframe']],
   ['swap.defillama.com', ['allow-blind-sign', 'allow-iframe']],
   ['uniswap.org', ['allow-blind-sign', 'allow-iframe']],
   ['www.bungee.exchange', ['allow-blind-sign', 'allow-iframe']],
+  ['www.sushi.com', ['allow-blind-sign', 'allow-iframe']]
 ] satisfies Hostnames
 
 export const hostnames = hosts.map(([host]) => host)
