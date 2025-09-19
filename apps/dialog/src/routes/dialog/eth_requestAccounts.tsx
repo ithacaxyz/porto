@@ -4,6 +4,7 @@ import type { RpcSchema } from 'ox'
 import type { RpcSchema as porto_RpcSchema } from 'porto'
 import { Actions, Hooks } from 'porto/remote'
 import { porto } from '~/lib/Porto'
+import * as Referrer from '~/lib/Referrer'
 import * as Router from '~/lib/Router'
 import { SignIn } from '../-components/SignIn'
 import { SignUp } from '../-components/SignUp'
@@ -24,15 +25,23 @@ function RouteComponent() {
     (state) => state.accounts[0]?.address,
   )
 
+  const trusted = Referrer.useTrusted(['allow-blind-sign'])
+
   const respond = useMutation({
     mutationFn({
+      enableBlindSigning,
       signIn,
       selectAccount,
     }: {
+      enableBlindSigning?: boolean
       signIn?: boolean
       selectAccount?: boolean
     }) {
       if (!request) throw new Error('no request found.')
+
+      const params = (request.params as any)?.[0] ?? {}
+      const capabilities = params.capabilities ?? {}
+
       return Actions.respond<
         RpcSchema.ExtractReturnType<porto_RpcSchema.Schema, 'wallet_connect'>
       >(
@@ -43,6 +52,10 @@ function RouteComponent() {
           params: [
             {
               capabilities: {
+                blindSignKey:
+                  enableBlindSigning && trusted
+                    ? capabilities?.blindSignKey
+                    : undefined,
                 createAccount: !signIn,
                 selectAccount,
               },
@@ -61,17 +74,19 @@ function RouteComponent() {
   if (address)
     return (
       <SignIn
-        onApprove={({ selectAccount }) =>
-          respond.mutate({ selectAccount, signIn: true })
+        allowBlindSigning={trusted}
+        onApprove={({ selectAccount, enableBlindSigning }) =>
+          respond.mutate({ enableBlindSigning, selectAccount, signIn: true })
         }
         status={respond.isPending ? 'responding' : undefined}
       />
     )
   return (
     <SignUp
+      allowBlindSigning={trusted}
       enableSignIn={true}
-      onApprove={({ signIn, selectAccount }) =>
-        respond.mutate({ selectAccount, signIn })
+      onApprove={({ signIn, selectAccount, enableBlindSigning }) =>
+        respond.mutate({ enableBlindSigning, selectAccount, signIn })
       }
       onReject={() => Actions.reject(porto, request)}
       status={respond.isPending ? 'responding' : undefined}

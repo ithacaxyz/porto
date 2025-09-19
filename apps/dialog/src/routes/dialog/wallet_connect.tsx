@@ -7,6 +7,7 @@ import * as React from 'react'
 import * as Dialog from '~/lib/Dialog'
 import * as PermissionsRequest from '~/lib/PermissionsRequest'
 import { porto } from '~/lib/Porto'
+import * as Referrer from '~/lib/Referrer'
 import * as Router from '~/lib/Router'
 import { Email } from '../-components/Email'
 import { SignIn } from '../-components/SignIn'
@@ -44,15 +45,19 @@ function RouteComponent() {
   )
   const grantPermissions = grantPermissionsQuery.data
 
+  const trusted = Referrer.useTrusted(['allow-blind-sign'])
+
   const respond = useMutation({
     async mutationFn({
+      enableBlindSigning,
       email,
-      signIn,
       selectAccount,
+      signIn,
     }: {
+      enableBlindSigning?: boolean
       email?: string
-      signIn?: boolean
       selectAccount?: boolean
+      signIn?: boolean
     }) {
       if (!request) throw new Error('no request found.')
       if (request.method !== 'wallet_connect')
@@ -94,6 +99,10 @@ function RouteComponent() {
               ...params[0],
               capabilities: {
                 ...capabilities,
+                blindSignKey:
+                  enableBlindSigning && trusted
+                    ? capabilities?.blindSignKey
+                    : undefined,
                 createAccount: email
                   ? {
                       ...(typeof capabilities?.createAccount === 'object'
@@ -180,6 +189,7 @@ function RouteComponent() {
     return (
       <Email
         actions={actions}
+        allowBlindSigning={trusted}
         defaultValue={
           typeof capabilities?.createAccount === 'object'
             ? capabilities?.createAccount?.label || ''
@@ -194,6 +204,7 @@ function RouteComponent() {
   if (actions.includes('sign-up'))
     return (
       <SignUp
+        allowBlindSigning={trusted}
         enableSignIn={actions.includes('sign-in')}
         onApprove={(options) => respond.mutate(options)}
         onReject={() => Actions.reject(porto, request)}
@@ -204,6 +215,7 @@ function RouteComponent() {
 
   return (
     <SignIn
+      allowBlindSigning={trusted}
       onApprove={(options) => respond.mutate(options)}
       permissions={grantPermissions?.permissions}
       status={status}

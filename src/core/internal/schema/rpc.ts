@@ -366,6 +366,12 @@ export namespace porto_ping {
 
 export namespace wallet_connect {
   export const Capabilities = z.object({
+    blindSignKey: z.optional(
+      z.pick(Key.Base, {
+        publicKey: true,
+        type: true,
+      }),
+    ),
     createAccount: z.optional(C.createAccount.Request),
     email: z.optional(z.boolean()),
     grantAdmins: z.optional(

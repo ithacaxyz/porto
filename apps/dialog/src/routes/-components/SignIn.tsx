@@ -7,9 +7,12 @@ import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import { Permissions } from '~/routes/-components/Permissions'
 import LucideLogIn from '~icons/lucide/log-in'
+import { SkipPreviews } from './SkipPreviews'
 
 export function SignIn(props: SignIn.Props) {
-  const { onApprove, permissions, status } = props
+  const { allowBlindSigning, onApprove, permissions, status } = props
+
+  const enableBlindSigningRef = React.useRef<HTMLInputElement>(null)
 
   const account = Hooks.useAccount(porto)
   const hostname = Dialog.useStore((state) => state.referrer?.url?.hostname)
@@ -38,7 +41,16 @@ export function SignIn(props: SignIn.Props) {
         />
       </Layout.Header>
 
-      <Permissions title="Permissions requested" {...permissions} />
+      {permissions ? (
+        <Permissions title="Permissions requested" {...permissions} />
+      ) : allowBlindSigning ? (
+        <>
+          <div className="px-3">
+            <SkipPreviews ref={enableBlindSigningRef} />
+          </div>
+          <div className="h-4" />
+        </>
+      ) : null}
 
       <Layout.Footer>
         <Layout.Footer.Actions>
@@ -47,8 +59,9 @@ export function SignIn(props: SignIn.Props) {
             disabled={status === 'loading' || signingIn}
             loading={signingUp && 'Signing up…'}
             onClick={() => {
+              const enableBlindSigning = enableBlindSigningRef.current?.checked
               setMode('sign-up')
-              onApprove({ signIn: false })
+              onApprove({ enableBlindSigning, signIn: false })
             }}
             width="grow"
           >
@@ -59,8 +72,9 @@ export function SignIn(props: SignIn.Props) {
             disabled={status === 'loading' || signingUp}
             loading={signingIn && 'Signing in…'}
             onClick={() => {
+              const enableBlindSigning = enableBlindSigningRef.current?.checked
               setMode('sign-in')
-              onApprove({ signIn: true })
+              onApprove({ enableBlindSigning, signIn: true })
             }}
             variant="primary"
             width="grow"
@@ -82,7 +96,12 @@ export function SignIn(props: SignIn.Props) {
 
 declare namespace SignIn {
   type Props = {
-    onApprove: (p: { signIn?: boolean; selectAccount?: boolean }) => void
+    allowBlindSigning?: boolean
+    onApprove: (p: {
+      enableBlindSigning?: boolean
+      signIn?: boolean
+      selectAccount?: boolean
+    }) => void
     permissions?: Permissions.Props
     status?: 'loading' | 'responding' | undefined
   }
