@@ -1,4 +1,3 @@
-import { Checkbox } from '@ariakit/react'
 import { Input } from '@porto/apps/components'
 import { Button, TextButton } from '@porto/ui'
 import { cx } from 'cva'
@@ -11,6 +10,7 @@ import { Permissions } from '~/routes/-components/Permissions'
 import { StringFormatter } from '~/utils'
 import LucideHaze from '~icons/lucide/haze'
 import IconScanFace from '~icons/porto/scan-face'
+import { SkipPreviews } from './SkipPreviews'
 
 export function Email(props: Email.Props) {
   const {
@@ -89,15 +89,16 @@ export function Email(props: Email.Props) {
         />
       </Layout.Header>
 
-      {allowBlindSigning && (
-        // biome-ignore lint/a11y/noLabelWithoutControl: _
-        <label>
-          <Checkbox ref={enableBlindSigningRef} />
-          Skip previews
-        </label>
-      )}
-
-      <Permissions title="Permissions requested" {...permissions} />
+      {permissions ? (
+        <Permissions title="Permissions requested" {...permissions} />
+      ) : allowBlindSigning ? (
+        <>
+          <div className="px-3">
+            <SkipPreviews ref={enableBlindSigningRef} />
+          </div>
+          <div className="h-4" />
+        </>
+      ) : null}
 
       <div className="group flex min-h-[48px] w-full flex-col items-center justify-center space-y-3 px-3 pb-3">
         {actions.includes('sign-in') && (

@@ -1,4 +1,3 @@
-import { Checkbox } from '@ariakit/react'
 import { Button } from '@porto/ui'
 import { Hooks } from 'porto/remote'
 
@@ -8,6 +7,7 @@ import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import { Permissions } from '~/routes/-components/Permissions'
 import LucideLogIn from '~icons/lucide/log-in'
+import { SkipPreviews } from './SkipPreviews'
 
 export function SignIn(props: SignIn.Props) {
   const { allowBlindSigning, onApprove, permissions, status } = props
@@ -41,15 +41,16 @@ export function SignIn(props: SignIn.Props) {
         />
       </Layout.Header>
 
-      {allowBlindSigning && (
-        // biome-ignore lint/a11y/noLabelWithoutControl: _
-        <label>
-          <Checkbox ref={enableBlindSigningRef} />
-          Skip previews
-        </label>
-      )}
-
-      <Permissions title="Permissions requested" {...permissions} />
+      {permissions ? (
+        <Permissions title="Permissions requested" {...permissions} />
+      ) : allowBlindSigning ? (
+        <>
+          <div className="px-3">
+            <SkipPreviews ref={enableBlindSigningRef} />
+          </div>
+          <div className="h-4" />
+        </>
+      ) : null}
 
       <Layout.Footer>
         <Layout.Footer.Actions>

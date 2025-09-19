@@ -1,4 +1,3 @@
-import { Checkbox } from '@ariakit/react'
 import { Button, LightDarkImage, Screen } from '@porto/ui'
 import * as React from 'react'
 import { useState } from 'react'
@@ -7,6 +6,7 @@ import { Layout } from '~/routes/-components/Layout'
 import { Permissions } from '~/routes/-components/Permissions'
 import LucideLogIn from '~icons/lucide/log-in'
 import Question from '~icons/mingcute/question-line'
+import { SkipPreviews } from './SkipPreviews'
 
 export function SignUp(props: SignUp.Props) {
   const {
@@ -56,15 +56,16 @@ export function SignUp(props: SignUp.Props) {
         />
       </Layout.Header>
 
-      {allowBlindSigning && (
-        // biome-ignore lint/a11y/noLabelWithoutControl: _
-        <label>
-          <Checkbox ref={enableBlindSigningRef} />
-          Skip previews
-        </label>
-      )}
-
-      <Permissions title="Permissions requested" {...permissions} />
+      {permissions ? (
+        <Permissions title="Permissions requested" {...permissions} />
+      ) : allowBlindSigning ? (
+        <>
+          <div className="px-3">
+            <SkipPreviews ref={enableBlindSigningRef} />
+          </div>
+          <div className="h-4" />
+        </>
+      ) : null}
 
       <Layout.Footer>
         <Layout.Footer.Actions>
