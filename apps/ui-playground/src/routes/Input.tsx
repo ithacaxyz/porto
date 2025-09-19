@@ -52,6 +52,28 @@ function InputComponent() {
               start: '$',
             }}
           />
+          <DemoInput
+            adornments={{
+              end: { type: 'valid' },
+            }}
+            type="email"
+            value="example@example.org"
+          />
+          <DemoInput
+            adornments={{
+              end: { type: 'required' },
+            }}
+            placeholder="example@ithaca.xyz"
+            type="email"
+          />
+          <DemoInput
+            adornments={{
+              end: { type: 'required' },
+              start: { label: '+1', type: 'solid' },
+            }}
+            placeholder="(650) 555-1234"
+            type="tel"
+          />
         </div>
       </ComponentScreen.Section>
     </ComponentScreen>
