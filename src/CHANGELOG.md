@@ -1,5 +1,13 @@
 # porto
 
+## 0.2.11
+
+### Patch Changes
+
+- [#887](https://github.com/ithacaxyz/porto/pull/887) [`47ef88a`](https://github.com/ithacaxyz/porto/commit/47ef88a4cc88736cec87da58177bedea2b4d0341) Thanks [@hazelnutcloud](https://github.com/hazelnutcloud)! - Added `webAuthn` usage downstream to `Mode.relay`.
+
+- [#889](https://github.com/ithacaxyz/porto/pull/889) [`6f6c3a1`](https://github.com/ithacaxyz/porto/commit/6f6c3a134880b867e398338f3d67b441cc2aaa85) Thanks [@hazelnutcloud](https://github.com/hazelnutcloud)! - Fixed selector check on call permissions.
+
 ## 0.2.10
 
 ### Patch Changes
