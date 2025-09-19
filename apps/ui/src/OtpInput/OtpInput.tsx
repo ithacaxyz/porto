@@ -11,6 +11,7 @@ export function OtpInput({
   disabled = false,
   status = 'default',
   length = 4,
+  mode = 'auto',
   onChange,
   onFill,
   value = '',
@@ -81,10 +82,21 @@ export function OtpInput({
 
   return (
     <div
-      className={css({
-        display: 'flex',
-        gap: 8,
-      })}
+      className={cx(
+        css({
+          display: 'flex',
+          gap: 6,
+        }),
+        mode === 'wide' &&
+          css({
+            justifyContent: 'space-between',
+            width: '100%',
+          }),
+        mode === 'fill' &&
+          css({
+            width: '100%',
+          }),
+      )}
     >
       {Array.from({ length }).map((_, index) => (
         <div
@@ -94,8 +106,15 @@ export function OtpInput({
               borderRadius: 'var(--radius-th_medium)',
               height: 38,
               position: 'relative',
-              width: 38,
             }),
+            (mode === 'auto' || mode === 'wide') &&
+              css({
+                width: 38,
+              }),
+            mode === 'fill' &&
+              css({
+                flex: 1,
+              }),
             status === 'invalid' &&
               css({
                 backgroundColor: 'var(--background-color-th_field-negative)',
@@ -150,11 +169,9 @@ export function OtpInput({
                 borderRadius: 'var(--radius-th_medium)',
                 fontSize: 15,
                 fontWeight: 500,
-                height: 38,
                 inset: 0,
                 position: 'absolute',
                 textAlign: 'center',
-                width: 38,
               }),
               status === 'valid' &&
                 css({
@@ -196,6 +213,7 @@ export namespace OtpInput {
   export interface Props {
     disabled?: boolean
     length?: number
+    mode?: 'auto' | 'wide' | 'fill'
     onChange?: (value: string) => void
     onFill?: (value: string) => void
     status?: 'default' | 'valid' | 'invalid'

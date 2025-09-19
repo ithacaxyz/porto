@@ -12,7 +12,7 @@ function OtpInputComponent() {
   const [length, setLength] = useState(4)
 
   return (
-    <ComponentScreen title="OtpInput">
+    <ComponentScreen maxWidth={360} title="OtpInput">
       <ComponentScreen.Section
         surface="base"
         title={
@@ -50,8 +50,24 @@ function OtpInputComponent() {
       <ComponentScreen.Section surface="base" title="States">
         <div className="flex flex-col items-center gap-4">
           <DemoOtpInput disabled value="1234" />
-          <DemoOtpInput status="invalid" value="000" />
-          <DemoOtpInput status="valid" value="000" />
+          <DemoOtpInput status="invalid" value="0000" />
+          <DemoOtpInput status="valid" value="0000" />
+        </div>
+      </ComponentScreen.Section>
+      <ComponentScreen.Section surface="base" title="Modes">
+        <div className="flex flex-col items-center gap-4 text-th_base-tertiary">
+          <div className="flex flex-col items-center gap-1">
+            <DemoOtpInput length={6} />
+            <div>mode="auto" (default)</div>
+          </div>
+          <div className="flex w-full flex-col items-center gap-1">
+            <DemoOtpInput length={6} mode="wide" />
+            <div>mode="wide"</div>
+          </div>
+          <div className="flex w-full flex-col items-center gap-1">
+            <DemoOtpInput length={6} mode="fill" />
+            <div>mode="fill"</div>
+          </div>
         </div>
       </ComponentScreen.Section>
     </ComponentScreen>
