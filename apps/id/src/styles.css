@@ -1,7 +1,6 @@
+@import "@porto/ui/styles.css";
 @import "@porto/apps/styles.css";
 @import "@ariakit/tailwind";
-
-@custom-variant dark (&:is(.scheme-light-dark *));
 
 @custom-variant hocus (&:hover, &:focus);
 
@@ -14,10 +13,30 @@ html,
   background-color: var(--background-color-primary);
 }
 
+body {
+  @apply ak-layer-white dark:ak-layer-gray-950;
+}
+
 @layer base {
   html {
     color-scheme: light dark;
   }
+}
+
+@utility scrollbar-gutter-auto {
+  scrollbar-gutter: auto;
+}
+
+@utility scrollbar-gutter-stable {
+  scrollbar-gutter: stable;
+}
+
+@utility scrollbar-width-thin {
+  scrollbar-width: thin;
+}
+
+@utility scrollbar-* {
+  scrollbar-color: --value(--color-\*) transparent;
 }
 
 .popover {

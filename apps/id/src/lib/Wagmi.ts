@@ -1,3 +1,4 @@
+import { Chains } from 'porto'
 import { porto as portoConnector } from 'porto/wagmi'
 import { createConfig, createStorage } from 'wagmi'
 import * as Porto from './Porto'
@@ -11,13 +12,15 @@ export const config = createConfig({
 })
 
 export const mipdConfig = createConfig({
-  chains: Porto.config.chains,
+  chains: [Chains.base, Chains.baseSepolia],
   multiInjectedProviderDiscovery: true,
   storage: null,
-  transports: config._internal.transports,
+  transports: {
+    [Chains.base.id]: config._internal.transports[Chains.base.id],
+    [Chains.baseSepolia.id]: config._internal.transports[Chains.baseSepolia.id],
+  },
 })
 
-// export const client = getWalletClient(config)
 export const getChainConfig = (chainId: number) =>
   config.chains.find((c) => c.id === chainId)
 

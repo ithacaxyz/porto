@@ -97,7 +97,7 @@ catalogs:
       specifier: ~5.9.2
       version: 5.9.2
     unplugin-icons:
-      specifier: ^22.3.0
+      specifier: ^22.1.0
       version: 22.3.0
     vite:
       specifier: ^6.0.7
@@ -469,6 +469,9 @@ importers:
       '@porto/apps':
         specifier: workspace:*
         version: link:../~internal
+      '@porto/ui':
+        specifier: workspace:*
+        version: link:../ui
       '@sentry/react':
         specifier: 'catalog:'
         version: 9.22.0(react@19.1.0)

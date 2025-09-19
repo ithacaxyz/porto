@@ -25,7 +25,7 @@ export namespace ValueFormatter {
   })
 
   export function format(num: bigint | number | undefined, units = 18) {
-    if (!num) return '0'
+    if (!num) return numberIntl.format(0)
     return numberIntl.format(
       typeof num === 'bigint' ? Number(Value.format(num, units)) : num,
     )
@@ -40,7 +40,7 @@ export namespace ValueFormatter {
     num: string | bigint | number | undefined,
     units = 18,
   ) {
-    if (!num) return '0'
+    if (!num) return priceIntl.format(0)
     return priceIntl.format(
       typeof num === 'bigint' ? Number(Value.format(num, units)) : Number(num),
     )
