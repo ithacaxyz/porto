@@ -8,25 +8,21 @@ import * as z from 'zod/mini'
 import * as u from '../../schema/utils.js'
 import * as Key from './key.js'
 
-export const Fiat = z.optional(
-  z.object({
-    currency: z.string(),
-    value: z.codec(z.string(), z.number(), {
-      decode: (value) => Number(value),
-      encode: (value) => String(value),
-    }),
-  }),
-)
-
-export type Fiat = z.infer<typeof Fiat>
-
 export namespace assetDiffs {
   export const AssetDiffAsset = z.union([
     z.object({
       address: z.optional(z.union([u.address(), z.null()])),
       decimals: z.optional(z.union([z.number(), z.null()])),
       direction: z.union([z.literal('incoming'), z.literal('outgoing')]),
-      fiat: z.optional(Fiat),
+      fiat: z.optional(
+        z.object({
+          currency: z.string(),
+          value: z.codec(z.string(), z.number(), {
+            decode: (value) => Number(value),
+            encode: (value) => String(value),
+          }),
+        }),
+      ),
       name: z.optional(z.union([z.string(), z.null()])),
       symbol: z.string(),
       type: z.literal('erc20'),
@@ -35,7 +31,15 @@ export namespace assetDiffs {
     z.object({
       address: z.optional(z.union([u.address(), z.null()])),
       direction: z.union([z.literal('incoming'), z.literal('outgoing')]),
-      fiat: z.optional(Fiat),
+      fiat: z.optional(
+        z.object({
+          currency: z.string(),
+          value: z.codec(z.string(), z.number(), {
+            decode: (value) => Number(value),
+            encode: (value) => String(value),
+          }),
+        }),
+      ),
       name: z.optional(z.union([z.string(), z.null()])),
       symbol: z.string(),
       type: z.literal('erc721'),
@@ -46,8 +50,15 @@ export namespace assetDiffs {
       address: z.null(),
       decimals: z.optional(z.union([z.number(), z.null()])),
       direction: z.union([z.literal('incoming'), z.literal('outgoing')]),
-      fiat: z.optional(Fiat),
-      name: z.optional(z.union([z.string(), z.null()])),
+      fiat: z.optional(
+        z.object({
+          currency: z.string(),
+          value: z.codec(z.string(), z.number(), {
+            decode: (value) => Number(value),
+            encode: (value) => String(value),
+          }),
+        }),
+      ),
       symbol: z.string(),
       type: z.null(),
       value: u.bigint(),

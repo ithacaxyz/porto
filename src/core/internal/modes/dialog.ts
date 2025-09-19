@@ -17,15 +17,6 @@ import * as Mode from '../mode.js'
 import * as Permissions from '../permissions.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import type * as Porto from '../porto.js'
-<<<<<<< HEAD
-||||||| parent of bc3f8c7c (refactor: `Tokens` module)
-import * as PreCalls from '../preCalls.js'
-import type * as FeeToken from '../schema/feeToken.js'
-import * as Schema from '../schema/schema.js'
-=======
-import * as PreCalls from '../preCalls.js'
-import * as Schema from '../schema/schema.js'
->>>>>>> bc3f8c7c (refactor: `Tokens` module)
 import type * as Token from '../schema/token.js'
 import * as Siwe from '../siwe.js'
 import * as U from '../utils.js'
@@ -371,7 +362,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
           return z.decode(RpcSchema_porto.wallet_getKeys.Response, result)
         })()
-
         // deduplicate keys while preserving per-chain session keys
         return U.uniqBy([...keys, ...(account.keys ?? [])], (key) =>
           key.role === 'session'

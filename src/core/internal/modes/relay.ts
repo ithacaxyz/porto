@@ -67,17 +67,7 @@ export function relay(parameters: relay.Parameters = {}) {
 
         const eoa = Account.fromPrivateKey(Secp256k1.randomPrivateKey())
 
-<<<<<<< HEAD
         const feeTokens = await Tokens.getTokens(client)
-||||||| parent of bc3f8c7c (refactor: `Tokens` module)
-        const feeTokens = await FeeTokens.fetch(client, {
-          store: internal.store,
-        })
-=======
-        const feeTokens = await Tokens.resolveFeeTokens(client, {
-          store: internal.store,
-        })
->>>>>>> bc3f8c7c (refactor: `Tokens` module)
 
         const adminKey = !mock
           ? await Key.createWebAuthnP256({
@@ -281,13 +271,7 @@ export function relay(parameters: relay.Parameters = {}) {
           chainId: client.chain.id,
         })
 
-<<<<<<< HEAD
         const feeToken = await Tokens.resolveFeeToken(client, {
-||||||| parent of bc3f8c7c (refactor: `Tokens` module)
-        const [feeToken] = await FeeTokens.fetch(client, {
-=======
-        const [feeToken] = await Tokens.resolveFeeTokens(client, {
->>>>>>> bc3f8c7c (refactor: `Tokens` module)
           addressOrSymbol: parameters.feeToken,
           store: internal.store,
         })
@@ -310,17 +294,7 @@ export function relay(parameters: relay.Parameters = {}) {
         const { account, internal, permissions } = parameters
         const { client } = internal
 
-<<<<<<< HEAD
         const feeTokens = await Tokens.getTokens(client)
-||||||| parent of bc3f8c7c (refactor: `Tokens` module)
-        const feeTokens = await FeeTokens.fetch(client, {
-          store: internal.store,
-        })
-=======
-        const feeTokens = await Tokens.resolveFeeTokens(client, {
-          store: internal.store,
-        })
->>>>>>> bc3f8c7c (refactor: `Tokens` module)
 
         // Parse permissions request into a structured key.
         const authorizeKey = await PermissionsRequest.toKey(permissions, {
@@ -359,16 +333,6 @@ export function relay(parameters: relay.Parameters = {}) {
 
         const feeTokens = await Tokens.getTokens(client)
 
-<<<<<<< HEAD
-||||||| parent of bc3f8c7c (refactor: `Tokens` module)
-        const feeTokens = await FeeTokens.fetch(client, {
-          store: internal.store,
-        })
-=======
-        const feeTokens = await Tokens.resolveFeeTokens(client, {
-          store: internal.store,
-        })
->>>>>>> bc3f8c7c (refactor: `Tokens` module)
         const authorizeKey = await PermissionsRequest.toKey(permissions, {
           chainId: client.chain.id,
           feeTokens,
@@ -567,7 +531,6 @@ export function relay(parameters: relay.Parameters = {}) {
           }))
         if (!key) throw new Error('cannot find authorized key to sign with.')
 
-<<<<<<< HEAD
         const [tokens, feeToken] = await Promise.all([
           Tokens.getTokens(client),
           Tokens.resolveFeeToken(client, {
@@ -575,35 +538,6 @@ export function relay(parameters: relay.Parameters = {}) {
             store: internal.store,
           }),
         ])
-||||||| parent of bc3f8c7c (refactor: `Tokens` module)
-        // Get pre-authorized keys to assign to the call bundle.
-        const preCalls =
-          parameters.preCalls ??
-          (await PreCalls.get({
-            address: account.address,
-            storage,
-          }))
-
-        const feeTokens = await FeeTokens.fetch(client, {
-          addressOrSymbol: parameters.feeToken,
-          store: internal.store,
-        })
-        const [feeToken] = feeTokens
-=======
-        // Get pre-authorized keys to assign to the call bundle.
-        const preCalls =
-          parameters.preCalls ??
-          (await PreCalls.get({
-            address: account.address,
-            storage,
-          }))
-
-        const feeTokens = await Tokens.resolveFeeTokens(client, {
-          addressOrSymbol: parameters.feeToken,
-          store: internal.store,
-        })
-        const [feeToken] = feeTokens
->>>>>>> bc3f8c7c (refactor: `Tokens` module)
 
         const requiredFunds = RequiredFunds.toRelay(
           parameters.requiredFunds ?? [],
@@ -648,22 +582,12 @@ export function relay(parameters: relay.Parameters = {}) {
         const { address, email, label, internal, permissions } = parameters
         const { client } = internal
 
-<<<<<<< HEAD
         const [tokens, feeToken] = await Promise.all([
           Tokens.getTokens(client),
           Tokens.resolveFeeToken(client, {
             store: internal.store,
           }),
         ])
-||||||| parent of bc3f8c7c (refactor: `Tokens` module)
-        const feeTokens = await FeeTokens.fetch(client, {
-          store: internal.store,
-        })
-=======
-        const feeTokens = await Tokens.resolveFeeTokens(client, {
-          store: internal.store,
-        })
->>>>>>> bc3f8c7c (refactor: `Tokens` module)
 
         const adminKey = !mock
           ? await Key.createWebAuthnP256({
@@ -712,13 +636,7 @@ export function relay(parameters: relay.Parameters = {}) {
           throw new Error('revoke the only WebAuthn key left.')
 
         try {
-<<<<<<< HEAD
           const feeToken = await Tokens.resolveFeeToken(client, {
-||||||| parent of bc3f8c7c (refactor: `Tokens` module)
-          const [feeToken] = await FeeTokens.fetch(client, {
-=======
-          const [feeToken] = await Tokens.resolveFeeTokens(client, {
->>>>>>> bc3f8c7c (refactor: `Tokens` module)
             addressOrSymbol: parameters.feeToken,
             store: internal.store,
           })
@@ -753,13 +671,7 @@ export function relay(parameters: relay.Parameters = {}) {
         if (key.role === 'admin') throw new Error('cannot revoke admins.')
 
         try {
-<<<<<<< HEAD
           const feeToken = await Tokens.resolveFeeToken(client, {
-||||||| parent of bc3f8c7c (refactor: `Tokens` module)
-          const [feeToken] = await FeeTokens.fetch(client, {
-=======
-          const [feeToken] = await Tokens.resolveFeeTokens(client, {
->>>>>>> bc3f8c7c (refactor: `Tokens` module)
             addressOrSymbol: parameters.feeToken,
             store: internal.store,
           })
@@ -795,7 +707,6 @@ export function relay(parameters: relay.Parameters = {}) {
         })
 
         // Resolve fee token to use.
-<<<<<<< HEAD
         const [tokens, feeToken] = await Promise.all([
           Tokens.getTokens(client),
           Tokens.resolveFeeToken(client, {
@@ -803,19 +714,6 @@ export function relay(parameters: relay.Parameters = {}) {
             store: internal.store,
           }),
         ])
-||||||| parent of bc3f8c7c (refactor: `Tokens` module)
-        const feeTokens = await FeeTokens.fetch(client, {
-          addressOrSymbol: parameters.feeToken,
-          store: internal.store,
-        })
-        const [feeToken] = feeTokens
-=======
-        const feeTokens = await Tokens.resolveFeeTokens(client, {
-          addressOrSymbol: parameters.feeToken,
-          store: internal.store,
-        })
-        const [feeToken] = feeTokens
->>>>>>> bc3f8c7c (refactor: `Tokens` module)
 
         const requiredFunds = RequiredFunds.toRelay(
           parameters.requiredFunds ?? [],
