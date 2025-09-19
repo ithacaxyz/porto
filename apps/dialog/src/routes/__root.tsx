@@ -48,7 +48,7 @@ function RouteComponent() {
   const customTheme = Dialog.useStore((state) => state.customTheme)
   const display = Dialog.useStore((state) => state.display)
   const verifyStatus = Referrer.useVerify()
-  const trusted = Referrer.useTrusted(['allow-iframe'])
+  const trusted = Referrer.useTrusted(['allow-safari-iframe'])
 
   const { domain, subdomain, icon, url } = React.useMemo(() => {
     const hostnameParts = referrer?.url?.hostname.split('.').slice(-3)
