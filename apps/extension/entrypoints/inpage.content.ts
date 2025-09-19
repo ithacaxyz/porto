@@ -9,7 +9,7 @@ export default defineContentScript({
       },
       mode: Mode.dialog({
         // TODO: rm
-        host: 'https://dialogporto-git-jxom-auto-perms.preview.porto.sh/dialog/',
+        host: 'https://dialogporto-git-jxom-auto-perms.preview.porto.sh/dialog/?relayEnv=stg',
       }),
     })
     ;(window as any).ethereum = porto.provider
