@@ -744,6 +744,7 @@ export function from<
           const chainId = client.chain.id
 
           const {
+            blindSignKey,
             createAccount,
             email,
             grantAdmins: admins,
@@ -765,6 +766,7 @@ export function from<
                 typeof createAccount === 'object' ? createAccount : {}
               const { account } = await getMode().actions.createAccount({
                 admins,
+                blindSignKey,
                 email,
                 internal,
                 label,
@@ -800,6 +802,7 @@ export function from<
               }
             })()
             const loadAccountsParams = {
+              blindSignKey,
               internal,
               permissions,
               signInWithEthereum,

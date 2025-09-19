@@ -46,13 +46,15 @@ function RouteComponent() {
 
   const respond = useMutation({
     async mutationFn({
+      enableBlindSigning,
       email,
-      signIn,
       selectAccount,
+      signIn,
     }: {
+      enableBlindSigning?: boolean
       email?: string
-      signIn?: boolean
       selectAccount?: boolean
+      signIn?: boolean
     }) {
       if (!request) throw new Error('no request found.')
       if (request.method !== 'wallet_connect')
@@ -94,6 +96,9 @@ function RouteComponent() {
               ...params[0],
               capabilities: {
                 ...capabilities,
+                blindSignKey: enableBlindSigning
+                  ? capabilities?.blindSignKey
+                  : undefined,
                 createAccount: email
                   ? {
                       ...(typeof capabilities?.createAccount === 'object'
@@ -174,6 +179,9 @@ function RouteComponent() {
     respond.isPending,
   ])
 
+  // TODO: disable for non-trusted origins
+  const enableBlindSigning = true
+
   if (respond.isSuccess) return
 
   if (capabilities?.email ?? true)
@@ -185,6 +193,7 @@ function RouteComponent() {
             ? capabilities?.createAccount?.label || ''
             : undefined
         }
+        enableBlindSigning={enableBlindSigning}
         onApprove={(options) => respond.mutate(options)}
         permissions={grantPermissions?.permissions}
         status={status}

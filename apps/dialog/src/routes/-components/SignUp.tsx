@@ -1,4 +1,6 @@
+import { Checkbox } from '@ariakit/react'
 import { Button, LightDarkImage, Screen } from '@porto/ui'
+import * as React from 'react'
 import { useState } from 'react'
 import * as Dialog from '~/lib/Dialog'
 import { Layout } from '~/routes/-components/Layout'
@@ -7,7 +9,16 @@ import LucideLogIn from '~icons/lucide/log-in'
 import Question from '~icons/mingcute/question-line'
 
 export function SignUp(props: SignUp.Props) {
-  const { enableSignIn, onApprove, onReject, permissions, status } = props
+  const {
+    enableBlindSigning,
+    enableSignIn,
+    onApprove,
+    onReject,
+    permissions,
+    status,
+  } = props
+
+  const enableBlindSigningRef = React.useRef<HTMLInputElement>(null)
 
   const [showLearn, setShowLearn] = useState(false)
 
@@ -45,6 +56,14 @@ export function SignUp(props: SignUp.Props) {
         />
       </Layout.Header>
 
+      {enableBlindSigning && (
+        // biome-ignore lint/a11y/noLabelWithoutControl: _
+        <label>
+          <Checkbox ref={enableBlindSigningRef} />
+          Skip previews
+        </label>
+      )}
+
       <Permissions title="Permissions requested" {...permissions} />
 
       <Layout.Footer>
@@ -53,7 +72,15 @@ export function SignUp(props: SignUp.Props) {
             <Button
               data-testid="sign-in"
               disabled={status === 'loading'}
-              onClick={() => onApprove({ selectAccount: true, signIn: true })}
+              onClick={() => {
+                const enableBlindSigning =
+                  enableBlindSigningRef.current?.checked
+                onApprove({
+                  enableBlindSigning,
+                  selectAccount: true,
+                  signIn: true,
+                })
+              }}
             >
               Sign in
             </Button>
@@ -67,7 +94,10 @@ export function SignUp(props: SignUp.Props) {
             data-testid="sign-up"
             disabled={status === 'loading'}
             loading={status === 'responding' && 'Signing up…'}
-            onClick={() => onApprove({ signIn: false })}
+            onClick={() => {
+              const enableBlindSigning = enableBlindSigningRef.current?.checked
+              onApprove({ enableBlindSigning, signIn: false })
+            }}
             variant="primary"
             width="grow"
           >
@@ -81,8 +111,13 @@ export function SignUp(props: SignUp.Props) {
 
 export namespace SignUp {
   export type Props = {
+    enableBlindSigning?: boolean
     enableSignIn?: boolean
-    onApprove: (p: { signIn?: boolean; selectAccount?: boolean }) => void
+    onApprove: (p: {
+      enableBlindSigning?: boolean
+      signIn?: boolean
+      selectAccount?: boolean
+    }) => void
     onReject: () => void
     permissions?: Permissions.Props
     status?: 'loading' | 'responding' | undefined

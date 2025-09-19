@@ -1,3 +1,4 @@
+import { Checkbox } from '@ariakit/react'
 import { Button } from '@porto/ui'
 import { Hooks } from 'porto/remote'
 
@@ -9,7 +10,9 @@ import { Permissions } from '~/routes/-components/Permissions'
 import LucideLogIn from '~icons/lucide/log-in'
 
 export function SignIn(props: SignIn.Props) {
-  const { onApprove, permissions, status } = props
+  const { enableBlindSigning, onApprove, permissions, status } = props
+
+  const enableBlindSigningRef = React.useRef<HTMLInputElement>(null)
 
   const account = Hooks.useAccount(porto)
   const hostname = Dialog.useStore((state) => state.referrer?.url?.hostname)
@@ -38,6 +41,14 @@ export function SignIn(props: SignIn.Props) {
         />
       </Layout.Header>
 
+      {enableBlindSigning && (
+        // biome-ignore lint/a11y/noLabelWithoutControl: _
+        <label>
+          <Checkbox ref={enableBlindSigningRef} />
+          Skip previews
+        </label>
+      )}
+
       <Permissions title="Permissions requested" {...permissions} />
 
       <Layout.Footer>
@@ -47,8 +58,9 @@ export function SignIn(props: SignIn.Props) {
             disabled={status === 'loading' || signingIn}
             loading={signingUp && 'Signing up…'}
             onClick={() => {
+              const enableBlindSigning = enableBlindSigningRef.current?.checked
               setMode('sign-up')
-              onApprove({ signIn: false })
+              onApprove({ enableBlindSigning, signIn: false })
             }}
             width="grow"
           >
@@ -59,8 +71,9 @@ export function SignIn(props: SignIn.Props) {
             disabled={status === 'loading' || signingUp}
             loading={signingIn && 'Signing in…'}
             onClick={() => {
+              const enableBlindSigning = enableBlindSigningRef.current?.checked
               setMode('sign-in')
-              onApprove({ signIn: true })
+              onApprove({ enableBlindSigning, signIn: true })
             }}
             variant="primary"
             width="grow"
@@ -82,7 +95,12 @@ export function SignIn(props: SignIn.Props) {
 
 declare namespace SignIn {
   type Props = {
-    onApprove: (p: { signIn?: boolean; selectAccount?: boolean }) => void
+    enableBlindSigning?: boolean
+    onApprove: (p: {
+      enableBlindSigning?: boolean
+      signIn?: boolean
+      selectAccount?: boolean
+    }) => void
     permissions?: Permissions.Props
     status?: 'loading' | 'responding' | undefined
   }

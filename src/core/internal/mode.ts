@@ -50,6 +50,8 @@ export type Mode = {
     createAccount: (parameters: {
       /** Admins to grant. */
       admins?: readonly Pick<Key.Key, 'publicKey' | 'type'>[] | undefined
+      /** Key to use for blind signing (if enabled). */
+      blindSignKey?: Pick<Key.Key, 'publicKey' | 'type'> | undefined
       /** Whether to link `label` to account address as email. */
       email?: boolean | undefined
       /** Internal properties. */
@@ -152,6 +154,8 @@ export type Mode = {
     loadAccounts: (parameters: {
       /** Address of the account to load. */
       address?: Hex.Hex | undefined
+      /** Key to use for blind signing (if enabled). */
+      blindSignKey?: Pick<Key.Key, 'publicKey' | 'type'> | undefined
       /** Key to use to load an existing account. */
       key?:
         | {
@@ -218,6 +222,8 @@ export type Mode = {
     prepareUpgradeAccount: (parameters: {
       /** Address of the account to import. */
       address: Address.Address
+      /** Key to use for blind signing (if enabled). */
+      blindSignKey?: Pick<Key.Key, 'publicKey' | 'type'> | undefined
       /** Whether to link `label` to account address as email. */
       email?: boolean | undefined
       /** Label to associate with the account. */
@@ -491,10 +497,18 @@ export async function getAuthorizedExecuteKey(parameters: {
     return false
   })
 
-  // Fall back to an admin key.
-  const adminKey = account.keys?.find(
-    (key) => key.role === 'admin' && key.privateKey,
-  )
+  console.log('test', account.keys)
+
+  // Fall back to a valid admin key.
+  const adminKey = account.keys?.toReversed().find((key) => {
+    if (key.role !== 'admin') return false
+    if (!key.privateKey) return false
+    if (key.expiry > 0 && key.expiry < BigInt(Math.floor(Date.now() / 1000)))
+      return false
+    return true
+  })
+
+  console.log('test', adminKey)
 
   return sessionKey ?? adminKey
 }

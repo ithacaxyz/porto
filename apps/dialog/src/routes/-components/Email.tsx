@@ -1,3 +1,4 @@
+import { Checkbox } from '@ariakit/react'
 import { Input } from '@porto/apps/components'
 import { Button, TextButton } from '@porto/ui'
 import { cx } from 'cva'
@@ -15,10 +16,13 @@ export function Email(props: Email.Props) {
   const {
     actions = ['sign-in', 'sign-up'],
     defaultValue = '',
+    enableBlindSigning,
     onApprove,
     permissions,
     status,
   } = props
+
+  const enableBlindSigningRef = React.useRef<HTMLInputElement>(null)
 
   const account = Hooks.useAccount(porto)
   const email = Dialog.useStore((state) =>
@@ -48,8 +52,9 @@ export function Email(props: Email.Props) {
       event.preventDefault()
       const formData = new FormData(event.target as HTMLFormElement)
       const email = formData.get('email')?.toString()
+      const enableBlindSigning = enableBlindSigningRef.current?.checked
       setMode('sign-up')
-      onApprove({ email, signIn: false })
+      onApprove({ email, enableBlindSigning, signIn: false })
     },
     [onApprove],
   )
@@ -84,6 +89,14 @@ export function Email(props: Email.Props) {
         />
       </Layout.Header>
 
+      {enableBlindSigning && (
+        // biome-ignore lint/a11y/noLabelWithoutControl: _
+        <label>
+          <Checkbox ref={enableBlindSigningRef} />
+          Skip previews
+        </label>
+      )}
+
       <Permissions title="Permissions requested" {...permissions} />
 
       <div className="group flex min-h-[48px] w-full flex-col items-center justify-center space-y-3 px-3 pb-3">
@@ -94,8 +107,9 @@ export function Email(props: Email.Props) {
             icon={<IconScanFace className="size-5.25" />}
             loading={signingIn && 'Signing in…'}
             onClick={() => {
+              const enableBlindSigning = enableBlindSigningRef.current?.checked
               setMode('sign-in')
-              onApprove({ signIn: true })
+              onApprove({ enableBlindSigning, signIn: true })
             }}
             type="button"
             variant="primary"
@@ -174,7 +188,13 @@ export function Email(props: Email.Props) {
             <TextButton
               color="link"
               onClick={() => {
-                onApprove({ selectAccount: true, signIn: true })
+                const enableBlindSigning =
+                  enableBlindSigningRef.current?.checked
+                onApprove({
+                  enableBlindSigning,
+                  selectAccount: true,
+                  signIn: true,
+                })
               }}
             >
               Switch
@@ -190,9 +210,11 @@ export namespace Email {
   export type Props = {
     actions?: readonly ('sign-in' | 'sign-up')[]
     defaultValue?: string | undefined
+    enableBlindSigning?: boolean
     onApprove: (p: {
       email?: string
       selectAccount?: boolean
+      enableBlindSigning?: boolean
       signIn?: boolean
     }) => void
     permissions?: Permissions.Props

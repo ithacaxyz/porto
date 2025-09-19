@@ -26,13 +26,19 @@ function RouteComponent() {
 
   const respond = useMutation({
     mutationFn({
+      enableBlindSigning,
       signIn,
       selectAccount,
     }: {
+      enableBlindSigning?: boolean
       signIn?: boolean
       selectAccount?: boolean
     }) {
       if (!request) throw new Error('no request found.')
+
+      const params = (request.params as any)?.[0] ?? {}
+      const capabilities = params.capabilities ?? {}
+
       return Actions.respond<
         RpcSchema.ExtractReturnType<porto_RpcSchema.Schema, 'wallet_connect'>
       >(
@@ -43,6 +49,9 @@ function RouteComponent() {
           params: [
             {
               capabilities: {
+                blindSignKey: enableBlindSigning
+                  ? capabilities?.blindSignKey
+                  : undefined,
                 createAccount: !signIn,
                 selectAccount,
               },
@@ -58,20 +67,25 @@ function RouteComponent() {
     },
   })
 
+  // TODO: disable for non-trusted origins
+  const enableBlindSigning = true
+
   if (address)
     return (
       <SignIn
-        onApprove={({ selectAccount }) =>
-          respond.mutate({ selectAccount, signIn: true })
+        enableBlindSigning={enableBlindSigning}
+        onApprove={({ selectAccount, enableBlindSigning }) =>
+          respond.mutate({ enableBlindSigning, selectAccount, signIn: true })
         }
         status={respond.isPending ? 'responding' : undefined}
       />
     )
   return (
     <SignUp
+      enableBlindSigning={enableBlindSigning}
       enableSignIn={true}
-      onApprove={({ signIn, selectAccount }) =>
-        respond.mutate({ selectAccount, signIn })
+      onApprove={({ signIn, selectAccount, enableBlindSigning }) =>
+        respond.mutate({ enableBlindSigning, selectAccount, signIn })
       }
       onReject={() => Actions.reject(porto, request)}
       status={respond.isPending ? 'responding' : undefined}
