@@ -1,5 +1,5 @@
 export type Hostname = string
-export type Hostnames = readonly [Hostname, Scope[]][]
+export type Hosts = readonly [Hostname, Scope[]][]
 // TODO: remove 'allow-merchant-rpc' once we verify `wallet_prepareCalls` response.
 export type Scope = 'allow-blind-sign' | 'allow-merchant-rpc' | 'allow-safari-iframe'
 
@@ -34,7 +34,7 @@ export const hosts = [
   ['uniswap.org', ['allow-blind-sign', 'allow-safari-iframe']],
   ['www.bungee.exchange', ['allow-blind-sign', 'allow-safari-iframe']],
   ['www.sushi.com', ['allow-blind-sign', 'allow-safari-iframe']]
-] satisfies Hostnames
+] satisfies Hosts
 
 export const hostnames = hosts.map(([host]) => host)
 
