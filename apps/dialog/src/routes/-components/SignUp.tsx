@@ -10,7 +10,7 @@ import Question from '~icons/mingcute/question-line'
 
 export function SignUp(props: SignUp.Props) {
   const {
-    enableBlindSigning,
+    allowBlindSigning,
     enableSignIn,
     onApprove,
     onReject,
@@ -56,7 +56,7 @@ export function SignUp(props: SignUp.Props) {
         />
       </Layout.Header>
 
-      {enableBlindSigning && (
+      {allowBlindSigning && (
         // biome-ignore lint/a11y/noLabelWithoutControl: _
         <label>
           <Checkbox ref={enableBlindSigningRef} />
@@ -111,7 +111,7 @@ export function SignUp(props: SignUp.Props) {
 
 export namespace SignUp {
   export type Props = {
-    enableBlindSigning?: boolean
+    allowBlindSigning?: boolean
     enableSignIn?: boolean
     onApprove: (p: {
       enableBlindSigning?: boolean

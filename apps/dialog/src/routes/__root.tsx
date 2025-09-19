@@ -8,7 +8,6 @@ import {
   useLocation,
 } from '@tanstack/react-router'
 import { Actions, Hooks } from 'porto/remote'
-import { hostnames } from 'porto/trusted-hosts'
 import * as React from 'react'
 import * as Dialog from '~/lib/Dialog'
 import { EnsureVisibility } from '~/lib/IntersectionObserver'
@@ -49,12 +48,7 @@ function RouteComponent() {
   const customTheme = Dialog.useStore((state) => state.customTheme)
   const display = Dialog.useStore((state) => state.display)
   const verifyStatus = Referrer.useVerify()
-
-  const trusted = React.useMemo(() => {
-    if (!referrer?.url?.hostname) return false
-    if (verifyStatus.data?.status === 'whitelisted') return true
-    return hostnames.includes(referrer?.url?.hostname)
-  }, [referrer, verifyStatus.data?.status])
+  const trusted = Referrer.useTrusted(['allow-iframe'])
 
   const { domain, subdomain, icon, url } = React.useMemo(() => {
     const hostnameParts = referrer?.url?.hostname.split('.').slice(-3)

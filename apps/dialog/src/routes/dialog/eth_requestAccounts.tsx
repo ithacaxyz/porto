@@ -4,6 +4,7 @@ import type { RpcSchema } from 'ox'
 import type { RpcSchema as porto_RpcSchema } from 'porto'
 import { Actions, Hooks } from 'porto/remote'
 import { porto } from '~/lib/Porto'
+import * as Referrer from '~/lib/Referrer'
 import * as Router from '~/lib/Router'
 import { SignIn } from '../-components/SignIn'
 import { SignUp } from '../-components/SignUp'
@@ -23,6 +24,8 @@ function RouteComponent() {
     porto,
     (state) => state.accounts[0]?.address,
   )
+
+  const trusted = Referrer.useTrusted(['allow-blind-sign'])
 
   const respond = useMutation({
     mutationFn({
@@ -49,9 +52,10 @@ function RouteComponent() {
           params: [
             {
               capabilities: {
-                blindSignKey: enableBlindSigning
-                  ? capabilities?.blindSignKey
-                  : undefined,
+                blindSignKey:
+                  enableBlindSigning && trusted
+                    ? capabilities?.blindSignKey
+                    : undefined,
                 createAccount: !signIn,
                 selectAccount,
               },
@@ -67,13 +71,10 @@ function RouteComponent() {
     },
   })
 
-  // TODO: disable for non-trusted origins
-  const enableBlindSigning = true
-
   if (address)
     return (
       <SignIn
-        enableBlindSigning={enableBlindSigning}
+        allowBlindSigning={trusted}
         onApprove={({ selectAccount, enableBlindSigning }) =>
           respond.mutate({ enableBlindSigning, selectAccount, signIn: true })
         }
@@ -82,7 +83,7 @@ function RouteComponent() {
     )
   return (
     <SignUp
-      enableBlindSigning={enableBlindSigning}
+      allowBlindSigning={trusted}
       enableSignIn={true}
       onApprove={({ signIn, selectAccount, enableBlindSigning }) =>
         respond.mutate({ enableBlindSigning, selectAccount, signIn })

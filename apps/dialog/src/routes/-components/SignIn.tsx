@@ -10,7 +10,7 @@ import { Permissions } from '~/routes/-components/Permissions'
 import LucideLogIn from '~icons/lucide/log-in'
 
 export function SignIn(props: SignIn.Props) {
-  const { enableBlindSigning, onApprove, permissions, status } = props
+  const { allowBlindSigning, onApprove, permissions, status } = props
 
   const enableBlindSigningRef = React.useRef<HTMLInputElement>(null)
 
@@ -41,7 +41,7 @@ export function SignIn(props: SignIn.Props) {
         />
       </Layout.Header>
 
-      {enableBlindSigning && (
+      {allowBlindSigning && (
         // biome-ignore lint/a11y/noLabelWithoutControl: _
         <label>
           <Checkbox ref={enableBlindSigningRef} />
@@ -95,7 +95,7 @@ export function SignIn(props: SignIn.Props) {
 
 declare namespace SignIn {
   type Props = {
-    enableBlindSigning?: boolean
+    allowBlindSigning?: boolean
     onApprove: (p: {
       enableBlindSigning?: boolean
       signIn?: boolean

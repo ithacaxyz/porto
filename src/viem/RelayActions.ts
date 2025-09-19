@@ -15,7 +15,7 @@ import type * as Capabilities from '../core/internal/relay/schema/capabilities.j
 import type * as Quotes from '../core/internal/relay/schema/quotes.js'
 import type { OneOf, PartialBy, RequiredBy } from '../core/internal/types.js'
 import type { relay } from '../core/Mode.js'
-import { hostnames } from '../trusted-hosts.js'
+import * as TrustedHosts from '../trusted-hosts.js'
 import * as Account from './Account.js'
 import * as RelayActions from './internal/relayActions.js'
 import type {
@@ -203,7 +203,7 @@ export async function prepareCalls<
       // permissionless merchants.
       const hostname = new URL(merchantUrl).hostname
       if (
-        !hostnames.includes(hostname) &&
+        !TrustedHosts.includes(hostname, ['allow-merchant-rpc']) &&
         !(chain as { testnet?: boolean | undefined })?.testnet
       )
         throw new Error(

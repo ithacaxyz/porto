@@ -7,6 +7,7 @@ import * as React from 'react'
 import * as Dialog from '~/lib/Dialog'
 import * as PermissionsRequest from '~/lib/PermissionsRequest'
 import { porto } from '~/lib/Porto'
+import * as Referrer from '~/lib/Referrer'
 import * as Router from '~/lib/Router'
 import { Email } from '../-components/Email'
 import { SignIn } from '../-components/SignIn'
@@ -43,6 +44,8 @@ function RouteComponent() {
     capabilities?.grantPermissions,
   )
   const grantPermissions = grantPermissionsQuery.data
+
+  const trusted = Referrer.useTrusted(['allow-blind-sign'])
 
   const respond = useMutation({
     async mutationFn({
@@ -96,9 +99,10 @@ function RouteComponent() {
               ...params[0],
               capabilities: {
                 ...capabilities,
-                blindSignKey: enableBlindSigning
-                  ? capabilities?.blindSignKey
-                  : undefined,
+                blindSignKey:
+                  enableBlindSigning && trusted
+                    ? capabilities?.blindSignKey
+                    : undefined,
                 createAccount: email
                   ? {
                       ...(typeof capabilities?.createAccount === 'object'
@@ -179,21 +183,18 @@ function RouteComponent() {
     respond.isPending,
   ])
 
-  // TODO: disable for non-trusted origins
-  const enableBlindSigning = true
-
   if (respond.isSuccess) return
 
   if (capabilities?.email ?? true)
     return (
       <Email
         actions={actions}
+        allowBlindSigning={trusted}
         defaultValue={
           typeof capabilities?.createAccount === 'object'
             ? capabilities?.createAccount?.label || ''
             : undefined
         }
-        enableBlindSigning={enableBlindSigning}
         onApprove={(options) => respond.mutate(options)}
         permissions={grantPermissions?.permissions}
         status={status}
@@ -203,6 +204,7 @@ function RouteComponent() {
   if (actions.includes('sign-up'))
     return (
       <SignUp
+        allowBlindSigning={trusted}
         enableSignIn={actions.includes('sign-in')}
         onApprove={(options) => respond.mutate(options)}
         onReject={() => Actions.reject(porto, request)}
@@ -213,6 +215,7 @@ function RouteComponent() {
 
   return (
     <SignIn
+      allowBlindSigning={trusted}
       onApprove={(options) => respond.mutate(options)}
       permissions={grantPermissions?.permissions}
       status={status}

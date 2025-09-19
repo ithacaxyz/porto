@@ -15,8 +15,8 @@ import IconScanFace from '~icons/porto/scan-face'
 export function Email(props: Email.Props) {
   const {
     actions = ['sign-in', 'sign-up'],
+    allowBlindSigning,
     defaultValue = '',
-    enableBlindSigning,
     onApprove,
     permissions,
     status,
@@ -89,7 +89,7 @@ export function Email(props: Email.Props) {
         />
       </Layout.Header>
 
-      {enableBlindSigning && (
+      {allowBlindSigning && (
         // biome-ignore lint/a11y/noLabelWithoutControl: _
         <label>
           <Checkbox ref={enableBlindSigningRef} />
@@ -209,8 +209,8 @@ export function Email(props: Email.Props) {
 export namespace Email {
   export type Props = {
     actions?: readonly ('sign-in' | 'sign-up')[]
+    allowBlindSigning?: boolean
     defaultValue?: string | undefined
-    enableBlindSigning?: boolean
     onApprove: (p: {
       email?: string
       selectAccount?: boolean
