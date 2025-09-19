@@ -12,7 +12,7 @@ export function useTrusted(scopes?: readonly TrustedHosts.Scope[] | undefined) {
     if (!referrer?.url?.hostname) return false
     if (verifyStatus.data?.status === 'whitelisted') return true
     return TrustedHosts.includes(referrer?.url?.hostname, scopes)
-  }, [referrer, verifyStatus.data?.status])
+  }, [referrer, verifyStatus.data?.status, scopes])
 }
 
 export function useVerify() {
