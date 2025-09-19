@@ -7,6 +7,10 @@ export default defineContentScript({
         name: 'Porto (Extension)',
         rdns: 'xyz.ithaca.porto.ext',
       },
+      mode: Mode.dialog({
+        // TODO: rm
+        host: 'https://dialogporto-git-jxom-auto-perms.preview.porto.sh/dialog/',
+      }),
     })
     ;(window as any).ethereum = porto.provider
 
