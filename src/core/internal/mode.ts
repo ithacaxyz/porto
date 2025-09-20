@@ -107,11 +107,9 @@ export type Mode = {
 
     getCapabilities: (parameters: {
       /** Chain IDs to get the capabilities for. */
-      chainIds: readonly Hex.Hex[]
+      chainIds?: readonly Hex.Hex[] | undefined
       /** Internal properties. */
-      internal: Omit<ActionsInternal, 'client'> & {
-        getClient: (chainId: Hex.Hex | number) => RelayClient
-      }
+      internal: ActionsInternal
     }) => Promise<z.input<typeof RpcSchema.wallet_getCapabilities.Response>>
 
     getKeys: (parameters: {

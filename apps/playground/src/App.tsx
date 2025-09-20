@@ -522,7 +522,23 @@ function GetCapabilities() {
         }
         type="button"
       >
-        Get Capabilities
+        Get Capabilities (all)
+      </button>
+      <button
+        onClick={async () => {
+          const chainId = await porto.provider.request({
+            method: 'eth_chainId',
+          })
+          porto.provider
+            .request({
+              method: 'wallet_getCapabilities',
+              params: [undefined, [chainId]],
+            })
+            .then(setResult)
+        }}
+        type="button"
+      >
+        Get Capabilities (current chain)
       </button>
       {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
     </div>

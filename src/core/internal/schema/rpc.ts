@@ -503,7 +503,7 @@ export namespace wallet_getCapabilities {
     method: z.literal('wallet_getCapabilities'),
     params: z.optional(
       z.union([
-        z.readonly(z.tuple([u.hex()])),
+        z.readonly(z.tuple([z.union([u.hex(), z.undefined()])])),
         z.readonly(
           z.tuple([
             z.union([u.hex(), z.undefined()]),
