@@ -87,6 +87,10 @@ export const tailwindThemeMappings: TailwindThemeMapping[] = [
   ['fieldContentSecondary', '--text-color-th_field-secondary', 'color'],
   ['fieldContentTertiary', '--text-color-th_field-tertiary', 'color'],
   ['fieldErrorBorder', '--border-color-th_field-error', 'color'],
+  ['fieldNegativeBorder', '--border-color-th_field-negative', 'color'],
+  ['fieldNegativeBackground', '--background-color-th_field-negative', 'color'],
+  ['fieldPositiveBorder', '--border-color-th_field-positive', 'color'],
+  ['fieldPositiveBackground', '--background-color-th_field-positive', 'color'],
   ['fieldFocusedBackground', '--background-color-th_field-focused', 'color'],
   ['fieldFocusedContent', '--text-color-th_field-focused', 'color'],
 ]

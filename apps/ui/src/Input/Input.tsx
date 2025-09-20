@@ -1,5 +1,6 @@
 import type { InputHTMLAttributes, ReactNode, RefObject } from 'react'
 import { useRef, useState } from 'react'
+import LucideCheck from '~icons/lucide/check'
 import { css, cva, cx } from '../../styled-system/css'
 import { Frame } from '../Frame/Frame.js'
 import { TextButton } from '../TextButton/TextButton.js'
@@ -31,8 +32,7 @@ export function Input({
             outlineOffset: -1,
           },
           '&:is(div):has(input:invalid, input[aria-invalid="true"])': {
-            outline: '2px solid var(--border-color-th_field-error)',
-            outlineOffset: -1,
+            borderColor: 'var(--border-color-th_field-error)',
           },
           backgroundColor: 'var(--background-color-th_field)',
           border: '1px solid var(--border-color-th_field)',
@@ -165,6 +165,11 @@ function Adornment({
             color: 'var(--text-color-th_field-secondary)',
             paddingLeft: 4,
           }),
+        position === 'end' &&
+          Input.isAdornmentValid(adornment) &&
+          css({
+            paddingRight: 14,
+          }),
       )}
     >
       {Input.isAdornmentFill(adornment) ? (
@@ -176,6 +181,49 @@ function Adornment({
         >
           {adornment.label}
         </TextButton>
+      ) : Input.isAdornmentRequired(adornment) ? (
+        <div
+          className={css({
+            color: 'var(--text-color-th_field-tertiary)',
+            fontSize: 12,
+          })}
+        >
+          {adornment.label ?? 'Required'}
+        </div>
+      ) : Input.isAdornmentSolid(adornment) ? (
+        <div
+          className={css({
+            alignItems: 'center',
+            borderRight: '1px solid var(--border-color-th_field)',
+            color: 'var(--text-color-th_field-secondary)',
+            display: 'flex',
+            fontWeight: 500,
+            height: '100%',
+            marginInlineEnd: 12,
+            marginInlineStart: 'calc(var(--input-padding-inline) * -1)',
+            paddingInline: 12,
+          })}
+        >
+          {adornment.label}
+        </div>
+      ) : Input.isAdornmentValid(adornment) ? (
+        <div
+          className={css({
+            alignItems: 'center',
+            color: 'var(--text-color-th_base-positive)',
+            display: 'flex',
+            fontSize: 12,
+          })}
+        >
+          {adornment.label ?? (
+            <LucideCheck
+              className={css({
+                height: 16,
+                width: 16,
+              })}
+            />
+          )}
+        </div>
       ) : (
         adornment
       )}
@@ -204,16 +252,42 @@ export namespace Input {
     label: ReactNode
   }
 
-  export function isAdornmentFill(
-    adornment: ReactNode | AdornmentFill,
-  ): adornment is AdornmentFill {
+  export type AdornmentRequired = {
+    type: 'required'
+    label?: ReactNode
+  }
+
+  export type AdornmentSolid = {
+    type: 'solid'
+    label: ReactNode
+  }
+
+  export type AdornmentValid = {
+    type: 'valid'
+    label?: ReactNode
+  }
+
+  export type Adornment =
+    | ReactNode
+    | AdornmentFill
+    | AdornmentRequired
+    | AdornmentSolid
+    | AdornmentValid
+
+  function adornmentCheck<T extends string>(
+    type: T,
+  ): (adornment: Adornment) => adornment is Extract<Adornment, { type: T }> {
     return (
+      adornment: Adornment,
+    ): adornment is Extract<Adornment, { type: T }> =>
       typeof adornment === 'object' &&
       adornment !== null &&
       'type' in adornment &&
-      adornment.type === 'fill'
-    )
+      adornment.type === type
   }
 
-  export type Adornment = ReactNode | AdornmentFill
+  export const isAdornmentFill = adornmentCheck('fill')
+  export const isAdornmentRequired = adornmentCheck('required')
+  export const isAdornmentSolid = adornmentCheck('solid')
+  export const isAdornmentValid = adornmentCheck('valid')
 }
