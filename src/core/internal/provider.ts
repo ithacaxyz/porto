@@ -1109,6 +1109,7 @@ export function from<
     let unsubscribe_chain: () => void = () => {}
 
     Store.waitForHydration(store).then(() => {
+      // Pre-fetch the capabilities to hit cache.
       getCapabilities().catch(() => {})
 
       unsubscribe_accounts()
