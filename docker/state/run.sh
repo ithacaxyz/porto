@@ -8,7 +8,7 @@ if [ -f /app/shared/anvil.json ]; then
   exit 0
 fi
 
-anvil --odyssey --host 0.0.0.0 --port 8545 --accounts 20 --dump-state /app/shared/anvil.json &
+anvil --hardfork osaka --host 0.0.0.0 --port 8545 --accounts 20 --dump-state /app/shared/anvil.json &
 
 # Wait until anvil is healthy.
 while ! cast block-number --rpc-url $RPC_URL > /dev/null; do

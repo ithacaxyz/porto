@@ -18,7 +18,7 @@ services:
         condition: service_completed_successfully
     image: ghcr.io/foundry-rs/foundry:latest
     entrypoint: ["anvil"]
-    command: --odyssey --host 0.0.0.0 --port 8545 --accounts 20 --load-state /app/anvil.json
+    command: --hardfork osaka --host 0.0.0.0 --port 8545 --accounts 20 --load-state /app/anvil.json
     labels:
       - dev.orbstack.domains=anvil.local
     ports:

@@ -1154,16 +1154,6 @@ function SendCalls() {
         <>
           <pre>{id}</pre>
 
-          <div>
-            <a
-              href={`https://odyssey-explorer.ithaca.xyz/tx/${id}`}
-              rel="noreferrer"
-              target="_blank"
-            >
-              Explorer
-            </a>
-          </div>
-
           <br />
 
           <button
@@ -1281,18 +1271,7 @@ function SendTransaction() {
         <option value="noop">Noop</option>
       </select>
       <button type="submit">Send</button>
-      {hash && (
-        <>
-          <pre>{hash}</pre>
-          <a
-            href={`https://odyssey-explorer.ithaca.xyz/tx/${hash}`}
-            rel="noreferrer"
-            target="_blank"
-          >
-            Explorer
-          </a>
-        </>
-      )}
+      {hash && <pre>{hash}</pre>}
     </form>
   )
 }
@@ -1962,18 +1941,7 @@ function PrepareCalls() {
         </select>
         <button type="submit">Sign & Send</button>
       </div>
-      {hash && (
-        <>
-          <pre>{hash}</pre>
-          <a
-            href={`https://odyssey-explorer.ithaca.xyz/tx/${hash}`}
-            rel="noreferrer"
-            target="_blank"
-          >
-            Explorer
-          </a>
-        </>
-      )}
+      {hash && <pre>{hash}</pre>}
     </form>
   )
 }
