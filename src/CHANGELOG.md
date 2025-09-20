@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.12
+
+### Patch Changes
+
+- [#902](https://github.com/ithacaxyz/porto/pull/902) [`cf8eeba`](https://github.com/ithacaxyz/porto/commit/cf8eebae7295fe28b730fbbe96bc71c5d4928168) Thanks [@jxom](https://github.com/jxom)! - Returned capabilities for all chains by default.
+
 ## 0.2.11
 
 ### Patch Changes
