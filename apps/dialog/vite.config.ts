@@ -49,15 +49,16 @@ export default defineConfig(({ mode }) => {
       Tailwindcss(),
       React(),
       Plugins.Icons(),
-      process.env.VERCEL_ENV === 'production'
-        ? SentryVitePlugin({
-            authToken: process.env.SENTRY_AUTH_TOKEN,
-            org: 'ithaca',
-            project: 'porto-dialog',
-          })
-        : null,
       TsconfigPaths(),
       TanStackRouterVite(),
+      // must come last
+      // @see https://docs.sentry.io/platforms/javascript/guides/tanstackstart-react/sourcemaps/uploading/vite/#configuration
+      SentryVitePlugin({
+        authToken: process.env.SENTRY_AUTH_TOKEN,
+        disable: process.env.VERCEL_ENV !== 'production',
+        org: 'ithaca',
+        project: 'porto-dialog',
+      }),
     ],
     server: {
       allowedHosts,
