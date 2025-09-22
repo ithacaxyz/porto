@@ -31,7 +31,7 @@ jobs:
       - name: Set preview env vars
         if: github.ref_name != 'main'
         run: |
-          BRANCH=$(echo "${{ github.ref_name }}" | sed 's/[_/]/-/g' | tr '[:upper:]' '[:lower:]')
+          BRANCH=$(echo "${{ github.head_ref }}" | sed 's/[_/]/-/g' | tr '[:upper:]' '[:lower:]')
           echo "VITE_DIALOG_HOST=https://dialogporto-git-${BRANCH}.preview.porto.sh/dialog/" >> $GITHUB_ENV
 
       - name: Zip extension
