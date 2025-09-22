@@ -23,7 +23,7 @@
     "@tanstack/react-query-persist-client": "catalog:",
     "@tanstack/react-router": "catalog:",
     "@wagmi/core": "catalog:",
-    "cuer": "^0.0.2",
+    "cuer": "^0.0.3",
     "cva": "catalog:",
     "ox": "catalog:",
     "porto": "workspace:*",
