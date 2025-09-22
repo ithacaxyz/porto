@@ -16,15 +16,6 @@ describe.runIf(!Anvil.enabled)('getTokens', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "address": "0x7c61733e8a9c6dac20afeb46e9c4ba96c5a9f7cf",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "EXP2",
-          "uid": "exp2",
-        },
-        {
           "address": "0x2d49a0e75c86779c391418214ec7e1b18e58bb34",
           "decimals": 18,
           "feeToken": true,
@@ -32,6 +23,15 @@ describe.runIf(!Anvil.enabled)('getTokens', () => {
           "nativeRate": null,
           "symbol": "EXP",
           "uid": "exp1",
+        },
+        {
+          "address": "0x7c61733e8a9c6dac20afeb46e9c4ba96c5a9f7cf",
+          "decimals": 18,
+          "feeToken": true,
+          "interop": true,
+          "nativeRate": null,
+          "symbol": "EXP2",
+          "uid": "exp2",
         },
         {
           "address": "0x0000000000000000000000000000000000000000",
@@ -57,13 +57,13 @@ describe.runIf(!Anvil.enabled)('getTokens', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "address": "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
+          "address": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
           "decimals": 6,
           "feeToken": true,
           "interop": true,
           "nativeRate": null,
-          "symbol": "USDC",
-          "uid": "usd-coin",
+          "symbol": "USDT0",
+          "uid": "tether",
         },
         {
           "address": "0x0000000000000000000000000000000000000000",
@@ -75,13 +75,13 @@ describe.runIf(!Anvil.enabled)('getTokens', () => {
           "uid": "matic-network",
         },
         {
-          "address": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+          "address": "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
           "decimals": 6,
           "feeToken": true,
           "interop": true,
           "nativeRate": null,
-          "symbol": "USDT0",
-          "uid": "tether",
+          "symbol": "USDC",
+          "uid": "usd-coin",
         },
       ]
     `)

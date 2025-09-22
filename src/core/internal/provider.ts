@@ -41,29 +41,33 @@ export function from<
   const { config, getMode, id, store } = parameters
   const { announceProvider } = config
 
-  function getCapabilities(parameters: {
-    chainIds: readonly Hex.Hex[]
-    request?: RpcRequest.Request | undefined
-  }) {
-    const { chainIds } = parameters
+  function getCapabilities(
+    parameters: {
+      chainIds?: readonly Hex.Hex[] | undefined
+      request?: RpcRequest.Request | undefined
+    } = {},
+  ) {
+    const client = getClient()
     const request =
       parameters.request ??
       RpcRequest.validate(RpcRequest.Request, {
         method: 'wallet_getCapabilities',
-        params: [undefined, chainIds],
+        params: parameters.chainIds
+          ? [undefined, parameters.chainIds]
+          : undefined,
       })
     return withCache(
       () =>
         getMode().actions.getCapabilities({
-          chainIds,
+          chainIds: parameters.chainIds,
           internal: {
+            client,
             config,
-            getClient,
             request,
             store,
           },
         }),
-      { cacheKey: `getCapabilities.${id}.${chainIds.join(',')}` },
+      { cacheKey: `getCapabilities.${id}.${parameters.chainIds?.join(',')}` },
     )
   }
 
@@ -929,7 +933,7 @@ export function from<
           const [_, chainIds] = request.params ?? []
 
           const capabilities = await getCapabilities({
-            chainIds: chainIds ?? [Hex.fromNumber(state.chainIds[0])],
+            chainIds,
             request,
           })
 
@@ -1108,8 +1112,8 @@ export function from<
     let unsubscribe_chain: () => void = () => {}
 
     Store.waitForHydration(store).then(() => {
-      const chainId = store.getState().chainIds[0]
-      getCapabilities({ chainIds: [Hex.fromNumber(chainId)] }).catch(() => {})
+      // Pre-fetch the capabilities to hit cache.
+      getCapabilities().catch(() => {})
 
       unsubscribe_accounts()
       unsubscribe_accounts = store.subscribe(
@@ -1131,10 +1135,6 @@ export function from<
         (state) => state.chainIds[0],
         (chainId, previousChainId) => {
           if (chainId === previousChainId) return
-          // Pre-fetch the capabilities to hit cache.
-          getCapabilities({ chainIds: [Hex.fromNumber(chainId)] }).catch(
-            () => {},
-          )
           emitter.emit('chainChanged', Hex.fromNumber(chainId))
         },
       )

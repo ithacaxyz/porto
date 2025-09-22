@@ -24,16 +24,7 @@ export async function cli() {
           messenger.destroy()
         },
         open() {
-          const search = new URLSearchParams([
-            [
-              'referrer',
-              JSON.stringify({
-                title: 'Porto CLI',
-                url: 'cli://porto',
-              }),
-            ],
-            ['relayUrl', messenger.relayUrl],
-          ])
+          const search = new URLSearchParams([['relayUrl', messenger.relayUrl]])
 
           const host = parameters.host.replace(/\/$/, '')
           const url = host + '/?' + search.toString()

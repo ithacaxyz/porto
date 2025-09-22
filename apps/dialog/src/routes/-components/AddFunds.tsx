@@ -607,12 +607,13 @@ function Onramp(props: {
     <div>
       {createOrder.isSuccess && createOrder.data?.url && (
         <iframe
+          allow="payment *"
           // TODO: tweak iframe styles
           className={cx(
             'h-12.5 w-full overflow-hidden border-0 bg-transparent',
             onrampState.eventName === 'onramp_api.apple_pay_button_pressed'
               ? 'overflow-visible! fixed inset-0 z-100 h-full!'
-              : 'w-full border-0bg-transparent',
+              : 'w-full border-0 bg-transparent',
           )}
           onError={() =>
             setOnrampState({
@@ -623,10 +624,8 @@ function Onramp(props: {
               eventName: 'onramp_api.load_error',
             })
           }
-          referrerPolicy="no-referrer-when-downgrade"
-          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
           src={createOrder.data.url}
-          title="Payment Link"
+          title="Onramp"
         />
       )}
       <Button
