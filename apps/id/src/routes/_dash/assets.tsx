@@ -3,16 +3,30 @@ import { useCopyToClipboard } from '@porto/apps/hooks'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Cuer } from 'cuer'
 import { cx } from 'cva'
-import { Json } from 'ox'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
 import { formatUnits } from 'viem'
+import * as Wagmi from '~/lib/Wagmi.ts'
 import LucideSendHorizontal from '~icons/lucide/send-horizontal'
 
 export const Route = createFileRoute('/_dash/assets')({
   component: RouteComponent,
 })
+
+function Sum<T extends ReadonlyArray<{ value: number }>>(
+  assets: T | undefined,
+) {
+  return (
+    <React.Fragment>
+      {Number.parseFloat(
+        assets
+          ?.reduce((accumulator, asset) => accumulator + asset.value, 0)
+          .toString() ?? '0',
+      ).toFixed(2)}
+    </React.Fragment>
+  )
+}
 
 function RouteComponent() {
   const { account } = Route.useRouteContext()
@@ -23,7 +37,6 @@ function RouteComponent() {
     account: account.address!,
     query: {
       enabled: !!account.address,
-
       select: (data) =>
         Object.entries(data).flatMap(([chainId, assets]) =>
           assets
@@ -31,6 +44,8 @@ function RouteComponent() {
             .map((asset) => ({
               ...asset,
               chainId: Number.parseInt(chainId, 10),
+              chainName: Wagmi.getChainConfig(Number.parseInt(chainId, 10))
+                ?.name,
               value:
                 Number(
                   formatUnits(asset.balance, asset.metadata?.decimals ?? 18),
@@ -42,9 +57,11 @@ function RouteComponent() {
 
   const assetsGroupedBySymbol = React.useMemo(
     () =>
-      Object.groupBy(
-        assetsQuery.data ?? [],
-        (asset) => asset.metadata?.symbol ?? '',
+      Object.entries(
+        Object.groupBy(
+          assetsQuery.data ?? [],
+          (asset) => asset.metadata?.symbol ?? '',
+        ),
       ),
     [assetsQuery.data],
   )
@@ -132,55 +149,67 @@ function RouteComponent() {
           <p className="font-medium text-base text-gray9">Amount</p>
         </div>
         <ul className="space-y-4">
-          {assetsQuery.data?.map((asset) => (
-            <li
-              className="flex items-center gap-2"
-              key={`${asset.chainId}:${asset.address}`}
-            >
+          {assetsGroupedBySymbol?.map(([symbol, assets]) => (
+            <li className="flex items-center gap-2" key={symbol}>
               <img
-                alt={asset.metadata?.name ?? 'Token icon'}
+                alt={assets?.at(0)?.metadata?.name ?? 'Token icon'}
                 className="size-8"
-                src={`/token-icons/${asset.metadata?.symbol?.toLowerCase() ?? 'fallback'}.svg`}
+                src={`/token-icons/${assets?.at(0)?.metadata?.symbol?.toLowerCase() ?? 'fallback'}.svg`}
               />
               <span className="mx-3 font-medium text-blackA1 text-lg">
-                {asset.metadata?.name}
+                {assets?.at(0)?.metadata?.name}
               </span>
               <div className="wrapper ml-auto">
                 <Ariakit.HovercardProvider>
-                  <Ariakit.HovercardAnchor>x</Ariakit.HovercardAnchor>
+                  <Ariakit.HovercardAnchor>
+                    <div className="flex size-7 items-center justify-center rounded-full bg-gray4">
+                      <div className="size-[70%] rounded-full border-4 border-red8" />
+                    </div>
+                  </Ariakit.HovercardAnchor>
                   <Ariakit.Hovercard
-                    className="relative z-50 flex w-[250px] flex-col gap-2 rounded-lg bg-[white] px-4 py-3 text-[black] outline-1 outline-gray6"
+                    className="relative z-50 flex w-[275px] flex-col gap-2 rounded-lg bg-[white] px-4 py-3 text-[black] outline-1 outline-gray4"
                     gutter={16}
                   >
                     <Ariakit.HovercardHeading className="flex justify-between font-medium text-base text-gray9">
                       <span>Network</span>
-                      <span>{asset.metadata?.symbol}</span>
+                      <span>{assets?.at(0)?.metadata?.symbol}</span>
                     </Ariakit.HovercardHeading>
                     <Ariakit.HovercardDescription className="flex w-full items-center gap-3 font-medium text-base">
-                      <img
-                        alt={asset.metadata?.name ?? 'Token icon'}
-                        className="size-7"
-                        src={`/token-icons/${asset.metadata?.symbol?.toLowerCase() ?? 'fallback'}.svg`}
-                      />
-                      <span className="font-medium text-gray9 text-lg">
-                        {asset.metadata?.symbol}
-                      </span>
-                      <span className="ml-auto font-medium text-blackA1 text-lg">
-                        ${Number(asset.value).toFixed(2)}
-                      </span>
+                      <ul className="flex w-full flex-col gap-2">
+                        {assets?.map((asset) => (
+                          <li
+                            className="flex w-full items-stretch justify-between gap-2"
+                            key={asset.chainId}
+                          >
+                            <img
+                              alt={asset.metadata?.name ?? 'Token icon'}
+                              className="size-7"
+                              src={
+                                'https://tokenlist.up.railway.app/icon/42161'
+                              }
+                            />
+                            <span className="font-medium text-gray9 text-lg">
+                              {asset.chainName}
+                            </span>
+                            <span className="ml-auto text-right font-medium text-blackA1 text-lg">
+                              ${Number(asset.value).toFixed(2)}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
                     </Ariakit.HovercardDescription>
                   </Ariakit.Hovercard>
                 </Ariakit.HovercardProvider>
               </div>
               <span className="mx-4 font-medium text-blackA1 text-lg">
-                ${asset.value.toFixed(2)}
+                ${Sum(assets)}
               </span>
               <Ariakit.Button
                 render={
                   <Link
                     className="flex size-9 items-center justify-center rounded-full bg-gray1 outline-1 outline-gray5"
                     search={{
-                      address: `${asset.chainId}:${asset.address}`,
+                      address: `${assets?.at(0)?.chainId}:${assets?.at(0)?.address}`,
                     }}
                     to=".."
                   >
@@ -193,9 +222,9 @@ function RouteComponent() {
         </ul>
       </section>
 
-      <div>
+      {/* <div>
         <pre>{Json.stringify(assetsQuery.data ?? [], null, 2)}</pre>
-      </div>
+      </div> */}
     </main>
   )
 }

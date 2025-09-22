@@ -93,7 +93,7 @@ function RouteComponent() {
       await disconnectAll()
     } catch (error) {
       await disconnectAll()
-      console.info(error)
+      console.error(error)
       let message = 'Encountered an error while granting admin permissions.'
       if (
         error instanceof Error &&
