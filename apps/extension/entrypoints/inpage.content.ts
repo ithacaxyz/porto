@@ -7,6 +7,9 @@ export default defineContentScript({
         name: 'Porto (Extension)',
         rdns: 'xyz.ithaca.porto.ext',
       },
+      mode: Mode.dialog({
+        host: import.meta.env.VITE_DIALOG_HOST,
+      }),
     })
     ;(window as any).ethereum = porto.provider
 

@@ -28,6 +28,12 @@ jobs:
           cd ../apps/extension
           pnpm pkg set version=$PORTO_VERSION
 
+      - name: Set preview env vars
+        if: github.ref_name != 'main'
+        run: |
+          BRANCH=$(echo "${{ github.ref_name }}" | sed 's/[_/]/-/g' | tr '[:upper:]' '[:lower:]')
+          echo "VITE_DIALOG_HOST=https://dialogporto-git-${BRANCH}.preview.porto.sh/dialog/" >> $GITHUB_ENV
+
       - name: Zip extension
         run: |
           pnpm --filter extension zip
