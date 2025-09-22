@@ -140,8 +140,7 @@ function RouteComponent() {
 
       {/* BOTTOM TABLE */}
 
-      <section className="size-full gap-6">
-        {/* <div className="w-full"> */}
+      <section className="size-full gap-6" hidden>
         <p className="mb-6 font-medium text-gray9 text-xl">History</p>
         <ul
           className={cx(
