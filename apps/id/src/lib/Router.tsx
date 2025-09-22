@@ -1,5 +1,5 @@
-import { Query } from '@porto/apps'
 import { createRouter, ErrorComponent } from '@tanstack/react-router'
+import * as Query from '~/lib/Query.ts'
 import { routeTree } from '~/routeTree.gen.ts'
 
 export const router = createRouter({

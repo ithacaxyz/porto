@@ -707,7 +707,7 @@ function useAssets(props: { address: Address.Address | undefined }) {
               interop,
               name: token.metadata?.name,
               nativeRate,
-              price: token.metadata?.price?.price ?? 0,
+              price: token.metadata?.fiat?.value ?? 0,
               symbol: token.metadata?.symbol ?? 'UNKNOWN',
               testnet: chain?.testnet ?? false,
             },
