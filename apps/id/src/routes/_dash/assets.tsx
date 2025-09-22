@@ -3,11 +3,9 @@ import { useCopyToClipboard } from '@porto/apps/hooks'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Cuer } from 'cuer'
 import { cx } from 'cva'
-import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
-import { formatUnits } from 'viem'
-import * as Wagmi from '~/lib/Wagmi.ts'
+import { useFormattedAssets } from '~/hooks/useAssets'
 import LucideSendHorizontal from '~icons/lucide/send-horizontal'
 
 export const Route = createFileRoute('/_dash/assets')({
@@ -19,26 +17,8 @@ function RouteComponent() {
 
   const [, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
 
-  const assetsQuery = Hooks.useAssets({
-    account: account.address!,
-    query: {
-      enabled: !!account.address,
-      select: (data) =>
-        Object.entries(data).flatMap(([chainId, assets]) =>
-          assets
-            .filter((asset) => asset.balance > 0n && chainId !== '0')
-            .map((asset) => ({
-              ...asset,
-              chainId: Number.parseInt(chainId, 10),
-              chainName: Wagmi.getChainConfig(Number.parseInt(chainId, 10))
-                ?.name,
-              value:
-                Number(
-                  formatUnits(asset.balance, asset.metadata?.decimals ?? 18),
-                ) * (asset.metadata?.fiat?.value ?? 0),
-            })),
-        ),
-    },
+  const assetsQuery = useFormattedAssets({
+    account: account.address,
   })
 
   const assetsGroupedBySymbol = React.useMemo(

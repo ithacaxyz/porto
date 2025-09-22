@@ -4,11 +4,16 @@ import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { cx } from 'cva'
 import { type Address, Hex, Value } from 'ox'
-import { Porto } from 'porto'
-import { RelayActions, RelayClient, WalletActions } from 'porto/viem'
+import { RelayActions, WalletActions } from 'porto/viem'
 import * as React from 'react'
 import { toast } from 'sonner'
-import { encodeFunctionData, erc20Abi, zeroAddress } from 'viem'
+import {
+  createClient,
+  encodeFunctionData,
+  erc20Abi,
+  http,
+  zeroAddress,
+} from 'viem'
 import { useAccount, useSendCalls } from 'wagmi'
 import { waitForCallsStatus } from 'wagmi/actions'
 import { TokenIcon } from '~/components/TokenIcon.tsx'
@@ -18,7 +23,6 @@ import LucideArrowLeftRight from '~icons/lucide/arrow-left-right'
 import LucideChevronDown from '~icons/lucide/chevron-down'
 import LucideClipboardPaste from '~icons/lucide/clipboard-paste'
 import LucideSendHorizontal from '~icons/lucide/send-horizontal'
-import { config as portoConfig } from '../../lib/Porto.ts'
 
 export const Route = createFileRoute('/_dash/')({
   component: RouteComponent,
@@ -662,8 +666,6 @@ function RouteComponent() {
   )
 }
 
-const porto = Porto.create({ ...portoConfig, announceProvider: false })
-
 function useAssets(props: { address: Address.Address | undefined }) {
   return useQuery({
     enabled: Boolean(props.address),
@@ -671,7 +673,10 @@ function useAssets(props: { address: Address.Address | undefined }) {
     async queryFn(ctx) {
       const account = ctx.queryKey[1]
       if (!account) throw new Error('account not connected')
-      const client = RelayClient.fromPorto(porto)
+      const client = createClient({
+        transport: http('https://rpc.porto.sh'),
+      })
+
       const assets = await WalletActions.getAssets(client, { account })
       const capabilities = await RelayActions.getCapabilities(client, {
         chainIds: Object.keys(assets).map((chainId) =>
