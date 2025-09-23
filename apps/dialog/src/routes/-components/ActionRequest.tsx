@@ -79,8 +79,8 @@ export function ActionRequest(props: ActionRequest.Props) {
   )
 
   const identifiedFromRelay = React.useMemo(
-    () => ActionRequest.txIdentity.identifyFromAssetDiffs(assetDiff),
-    [assetDiff],
+    () => ActionRequest.txIdentity.identifyFromAssetDiffs(assetDiff, calls),
+    [assetDiff, calls],
   )
 
   const identified = identifiedFromRelay || identifiedFromCalls
@@ -650,8 +650,11 @@ export namespace ActionRequest {
 
     export function identifyFromAssetDiffs(
       assetDiffs: Capabilities.assetDiffs.AssetDiffAsset[],
+      calls?: readonly Call[],
     ): IdentifiedTx | null {
       if (!assetDiffs.length) return null
+
+      const lastCall = calls?.at(-1)
 
       const outgoing = assetDiffs.filter(
         (diff) => diff.direction === 'outgoing',
@@ -694,16 +697,25 @@ export namespace ActionRequest {
           type: 'swap',
         }
 
-      // send: 1 outgoing
+      // send: 1 out + 0 in (only if we can extract recipient address)
       if (
         assetDiffs.length === 1 &&
         assetDiffs[0]?.direction === 'outgoing' &&
-        assetDiffs[0].type !== 'erc721'
-      )
-        return {
-          asset: assetDiffs[0] as CoinAsset,
-          type: 'send',
-        }
+        assetDiffs[0].type !== 'erc721' &&
+        lastCall?.data
+      ) {
+        const transferToAddress = getTransferToAddress({
+          data: lastCall.data,
+          to: lastCall.to,
+          value: lastCall.value,
+        })
+        if (transferToAddress)
+          return {
+            asset: assetDiffs[0] as CoinAsset,
+            to: transferToAddress,
+            type: 'send',
+          }
+      }
 
       return null
     }
