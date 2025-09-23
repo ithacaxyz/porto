@@ -18,11 +18,13 @@ import { Route as SpacerImport } from './routes/Spacer'
 import { Route as ShowAfterImport } from './routes/ShowAfter'
 import { Route as SeparatorImport } from './routes/Separator'
 import { Route as ScreenImport } from './routes/Screen'
+import { Route as ReceiveImport } from './routes/Receive'
 import { Route as PresetsInputImport } from './routes/PresetsInput'
 import { Route as InputImport } from './routes/Input'
 import { Route as FrameImport } from './routes/Frame'
 import { Route as DiscIconImport } from './routes/DiscIcon'
 import { Route as DetailsImport } from './routes/Details'
+import { Route as CopyButtonImport } from './routes/CopyButton'
 import { Route as ColorsImport } from './routes/Colors'
 import { Route as ChainsPathImport } from './routes/ChainsPath'
 import { Route as ChainIconImport } from './routes/ChainIcon'
@@ -75,6 +77,12 @@ const ScreenRoute = ScreenImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const ReceiveRoute = ReceiveImport.update({
+  id: '/Receive',
+  path: '/Receive',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const PresetsInputRoute = PresetsInputImport.update({
   id: '/PresetsInput',
   path: '/PresetsInput',
@@ -102,6 +110,12 @@ const DiscIconRoute = DiscIconImport.update({
 const DetailsRoute = DetailsImport.update({
   id: '/Details',
   path: '/Details',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const CopyButtonRoute = CopyButtonImport.update({
+  id: '/CopyButton',
+  path: '/CopyButton',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -200,6 +214,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ColorsImport
       parentRoute: typeof rootRoute
     }
+    '/CopyButton': {
+      id: '/CopyButton'
+      path: '/CopyButton'
+      fullPath: '/CopyButton'
+      preLoaderRoute: typeof CopyButtonImport
+      parentRoute: typeof rootRoute
+    }
     '/Details': {
       id: '/Details'
       path: '/Details'
@@ -233,6 +254,13 @@ declare module '@tanstack/react-router' {
       path: '/PresetsInput'
       fullPath: '/PresetsInput'
       preLoaderRoute: typeof PresetsInputImport
+      parentRoute: typeof rootRoute
+    }
+    '/Receive': {
+      id: '/Receive'
+      path: '/Receive'
+      fullPath: '/Receive'
+      preLoaderRoute: typeof ReceiveImport
       parentRoute: typeof rootRoute
     }
     '/Screen': {
@@ -297,11 +325,13 @@ export interface FileRoutesByFullPath {
   '/ChainIcon': typeof ChainIconRoute
   '/ChainsPath': typeof ChainsPathRoute
   '/Colors': typeof ColorsRoute
+  '/CopyButton': typeof CopyButtonRoute
   '/Details': typeof DetailsRoute
   '/DiscIcon': typeof DiscIconRoute
   '/Frame': typeof FrameRoute
   '/Input': typeof InputRoute
   '/PresetsInput': typeof PresetsInputRoute
+  '/Receive': typeof ReceiveRoute
   '/Screen': typeof ScreenRoute
   '/Separator': typeof SeparatorRoute
   '/ShowAfter': typeof ShowAfterRoute
@@ -319,11 +349,13 @@ export interface FileRoutesByTo {
   '/ChainIcon': typeof ChainIconRoute
   '/ChainsPath': typeof ChainsPathRoute
   '/Colors': typeof ColorsRoute
+  '/CopyButton': typeof CopyButtonRoute
   '/Details': typeof DetailsRoute
   '/DiscIcon': typeof DiscIconRoute
   '/Frame': typeof FrameRoute
   '/Input': typeof InputRoute
   '/PresetsInput': typeof PresetsInputRoute
+  '/Receive': typeof ReceiveRoute
   '/Screen': typeof ScreenRoute
   '/Separator': typeof SeparatorRoute
   '/ShowAfter': typeof ShowAfterRoute
@@ -342,11 +374,13 @@ export interface FileRoutesById {
   '/ChainIcon': typeof ChainIconRoute
   '/ChainsPath': typeof ChainsPathRoute
   '/Colors': typeof ColorsRoute
+  '/CopyButton': typeof CopyButtonRoute
   '/Details': typeof DetailsRoute
   '/DiscIcon': typeof DiscIconRoute
   '/Frame': typeof FrameRoute
   '/Input': typeof InputRoute
   '/PresetsInput': typeof PresetsInputRoute
+  '/Receive': typeof ReceiveRoute
   '/Screen': typeof ScreenRoute
   '/Separator': typeof SeparatorRoute
   '/ShowAfter': typeof ShowAfterRoute
@@ -366,11 +400,13 @@ export interface FileRouteTypes {
     | '/ChainIcon'
     | '/ChainsPath'
     | '/Colors'
+    | '/CopyButton'
     | '/Details'
     | '/DiscIcon'
     | '/Frame'
     | '/Input'
     | '/PresetsInput'
+    | '/Receive'
     | '/Screen'
     | '/Separator'
     | '/ShowAfter'
@@ -387,11 +423,13 @@ export interface FileRouteTypes {
     | '/ChainIcon'
     | '/ChainsPath'
     | '/Colors'
+    | '/CopyButton'
     | '/Details'
     | '/DiscIcon'
     | '/Frame'
     | '/Input'
     | '/PresetsInput'
+    | '/Receive'
     | '/Screen'
     | '/Separator'
     | '/ShowAfter'
@@ -408,11 +446,13 @@ export interface FileRouteTypes {
     | '/ChainIcon'
     | '/ChainsPath'
     | '/Colors'
+    | '/CopyButton'
     | '/Details'
     | '/DiscIcon'
     | '/Frame'
     | '/Input'
     | '/PresetsInput'
+    | '/Receive'
     | '/Screen'
     | '/Separator'
     | '/ShowAfter'
@@ -431,11 +471,13 @@ export interface RootRouteChildren {
   ChainIconRoute: typeof ChainIconRoute
   ChainsPathRoute: typeof ChainsPathRoute
   ColorsRoute: typeof ColorsRoute
+  CopyButtonRoute: typeof CopyButtonRoute
   DetailsRoute: typeof DetailsRoute
   DiscIconRoute: typeof DiscIconRoute
   FrameRoute: typeof FrameRoute
   InputRoute: typeof InputRoute
   PresetsInputRoute: typeof PresetsInputRoute
+  ReceiveRoute: typeof ReceiveRoute
   ScreenRoute: typeof ScreenRoute
   SeparatorRoute: typeof SeparatorRoute
   ShowAfterRoute: typeof ShowAfterRoute
@@ -453,11 +495,13 @@ const rootRouteChildren: RootRouteChildren = {
   ChainIconRoute: ChainIconRoute,
   ChainsPathRoute: ChainsPathRoute,
   ColorsRoute: ColorsRoute,
+  CopyButtonRoute: CopyButtonRoute,
   DetailsRoute: DetailsRoute,
   DiscIconRoute: DiscIconRoute,
   FrameRoute: FrameRoute,
   InputRoute: InputRoute,
   PresetsInputRoute: PresetsInputRoute,
+  ReceiveRoute: ReceiveRoute,
   ScreenRoute: ScreenRoute,
   SeparatorRoute: SeparatorRoute,
   ShowAfterRoute: ShowAfterRoute,
@@ -484,11 +528,13 @@ export const routeTree = rootRoute
         "/ChainIcon",
         "/ChainsPath",
         "/Colors",
+        "/CopyButton",
         "/Details",
         "/DiscIcon",
         "/Frame",
         "/Input",
         "/PresetsInput",
+        "/Receive",
         "/Screen",
         "/Separator",
         "/ShowAfter",
@@ -519,6 +565,9 @@ export const routeTree = rootRoute
     "/Colors": {
       "filePath": "Colors.tsx"
     },
+    "/CopyButton": {
+      "filePath": "CopyButton.tsx"
+    },
     "/Details": {
       "filePath": "Details.tsx"
     },
@@ -533,6 +582,9 @@ export const routeTree = rootRoute
     },
     "/PresetsInput": {
       "filePath": "PresetsInput.tsx"
+    },
+    "/Receive": {
+      "filePath": "Receive.tsx"
     },
     "/Screen": {
       "filePath": "Screen.tsx"

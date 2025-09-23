@@ -761,6 +761,10 @@ importers:
         version: 5.9.2
 
   apps/ui:
+    dependencies:
+      cuer:
+        specifier: ^0.0.2
+        version: 0.0.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.9.2)
     devDependencies:
       '@ariakit/react':
         specifier: 'catalog:'
