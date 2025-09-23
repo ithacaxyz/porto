@@ -7,7 +7,7 @@ export const Route = createFileRoute('/CopyButton')({
 })
 
 const demoAddress = '0x95223290dd7278aa1ddd389cc1e1d165cc1bafe5'
-const demoAddressShort = '0x9522...bafe5'
+const demoAddressShort = '0x9522…bafe5'
 const demoText = 'Copy this text'
 
 function CopyButtonComponent() {
