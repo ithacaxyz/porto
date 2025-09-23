@@ -704,15 +704,15 @@ export namespace ActionRequest {
         assetDiffs[0].type !== 'erc721' &&
         lastCall?.data
       ) {
-        const transferToAddress = getTransferToAddress({
+        const recipient = getTransferToAddress({
           data: lastCall.data,
           to: lastCall.to,
           value: lastCall.value,
         })
-        if (transferToAddress)
+        if (recipient)
           return {
             asset: assetDiffs[0] as CoinAsset,
-            to: transferToAddress,
+            to: recipient,
             type: 'send',
           }
       }
