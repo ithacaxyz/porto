@@ -1,12 +1,13 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import { Json } from 'ox'
 import * as Provider from 'ox/Provider'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
-
 import * as Dialog from '~/lib/Dialog'
 import * as PermissionsRequest from '~/lib/PermissionsRequest'
 import { porto } from '~/lib/Porto'
+import * as ReactNative from '~/lib/ReactNative'
 import * as Router from '~/lib/Router'
 import { Email } from '../-components/Email'
 import { SignIn } from '../-components/SignIn'
@@ -175,7 +176,16 @@ function RouteComponent() {
     respond.isPending,
   ])
 
-  if (respond.isSuccess) return
+  if (respond.isSuccess) {
+    if (!request.redirectUri) return
+    ReactNative.performReactNativeRedirectURL({
+      os: request.os,
+      payload: Json.stringify(respond.data || {}),
+      redirectUri: request.redirectUri,
+      status: 'success',
+    })
+    return
+  }
 
   if (capabilities?.email ?? true)
     return (
@@ -197,7 +207,17 @@ function RouteComponent() {
       <SignUp
         enableSignIn={actions.includes('sign-in')}
         onApprove={(options) => respond.mutate(options)}
-        onReject={() => Actions.reject(porto, request)}
+        onReject={() => {
+          if (request.redirectUri) {
+            ReactNative.performReactNativeRedirectURL({
+              message: 'User rejected request',
+              os: request.os,
+              redirectUri: request.redirectUri,
+              status: 'cancel',
+            })
+          }
+          Actions.reject(porto, request)
+        }}
         permissions={grantPermissions?.permissions}
         status={status}
       />
