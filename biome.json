@@ -26,6 +26,7 @@
   "files": {
     "includes": [
       "**",
+      "!src/trusted-hosts.ts",
       "!**/contracts",
       "!**/coverage",
       "!**/dist",

@@ -153,8 +153,15 @@ export function dialog(parameters: dialog.Parameters = {}) {
             const signInWithEthereum =
               request.params?.[0]?.capabilities?.signInWithEthereum
 
+            // TODO: option with default disabled?
+            const blindSignKey =
+              parameters.blindSignKey ??
+              (await Key.createWebCryptoP256({
+                expiry: Date.now() + 1000 * 60 * 60 * 24,
+              }))
+
             // Parse the authorize key into a structured key.
-            const key = await PermissionsRequest.toKey(
+            const permissionsKey = await PermissionsRequest.toKey(
               capabilities?.grantPermissions,
               {
                 chainId: client.chain.id,
@@ -162,10 +169,10 @@ export function dialog(parameters: dialog.Parameters = {}) {
             )
 
             // Convert the key into a permission.
-            const permissionsRequest = key
+            const permissionsRequest = permissionsKey
               ? z.encode(
                   PermissionsRequest.Schema,
-                  PermissionsRequest.fromKey(key),
+                  PermissionsRequest.fromKey(permissionsKey),
                 )
               : undefined
 
@@ -176,6 +183,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 {
                   capabilities: {
                     ...request.params?.[0]?.capabilities,
+                    blindSignKey,
                     grantPermissions: permissionsRequest,
                     signInWithEthereum:
                       authUrl || signInWithEthereum
@@ -195,7 +203,15 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
             // Build keys to assign onto the account.
             const adminKeys = account.capabilities?.admins
-              ?.map((admin) => Key.from(admin, { chainId: client.chain.id }))
+              ?.map((admin) => {
+                const key = Key.from(admin)
+                if (key.publicKey === blindSignKey.publicKey)
+                  return {
+                    ...key,
+                    ...blindSignKey,
+                  }
+                return key
+              })
               .filter(Boolean) as readonly Key.Key[]
 
             const sessionKeys = account.capabilities?.permissions
@@ -204,10 +220,10 @@ export function dialog(parameters: dialog.Parameters = {}) {
                   const key_permission = Permissions.toKey(
                     z.decode(Permissions.Schema, permission),
                   )
-                  if (key_permission.id === key?.id)
+                  if (key_permission.id === permissionsKey?.id)
                     return {
                       ...key_permission,
-                      ...key,
+                      ...permissionsKey,
                       permissions: key_permission.permissions,
                     }
                   return key_permission
@@ -448,6 +464,13 @@ export function dialog(parameters: dialog.Parameters = {}) {
           _decoded: RpcSchema_porto.wallet_connect.Request
         }
 
+        // TODO: option with default disabled?
+        const blindSignKey =
+          parameters.blindSignKey ??
+          (await Key.createWebCryptoP256({
+            expiry: Date.now() + 1000 * 60 * 60 * 24,
+          }))
+
         if (
           request.method !== 'wallet_connect' &&
           request.method !== 'eth_requestAccounts'
@@ -490,6 +513,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 ...request.params?.[0],
                 capabilities: {
                   ...request.params?.[0]?.capabilities,
+                  blindSignKey,
                   grantPermissions: permissionsRequest,
                   signInWithEthereum:
                     authUrl || signInWithEthereum
@@ -506,8 +530,17 @@ export function dialog(parameters: dialog.Parameters = {}) {
           return Promise.all(
             accounts.map(async (account) => {
               const adminKeys = account.capabilities?.admins
-                ?.map((key) => Key.from(key))
+                ?.map((k) => {
+                  const key = Key.from(k)
+                  if (key.publicKey === blindSignKey.publicKey)
+                    return {
+                      ...key,
+                      ...blindSignKey,
+                    }
+                  return key
+                })
                 .filter(Boolean) as readonly Key.Key[]
+
               const sessionKeys = account.capabilities?.permissions
                 ?.map((permission) => {
                   try {
@@ -743,7 +776,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         // If a session key is found, try execute the calls with it
         // without sending a request to the dialog. If the key does not
         // have permission to execute the calls, fall back to the dialog.
-        if (key && key.role === 'session') {
+        if (key && key.type !== 'webauthn-p256') {
           if (!renderer.supportsHeadless)
             return fallback.actions.sendCalls(parameters)
 

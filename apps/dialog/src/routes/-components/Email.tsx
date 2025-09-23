@@ -10,15 +10,19 @@ import { Permissions } from '~/routes/-components/Permissions'
 import { StringFormatter } from '~/utils'
 import LucideHaze from '~icons/lucide/haze'
 import IconScanFace from '~icons/porto/scan-face'
+import { SkipPreviews } from './SkipPreviews'
 
 export function Email(props: Email.Props) {
   const {
     actions = ['sign-in', 'sign-up'],
+    allowBlindSigning,
     defaultValue = '',
     onApprove,
     permissions,
     status,
   } = props
+
+  const enableBlindSigningRef = React.useRef<HTMLInputElement>(null)
 
   const account = Hooks.useAccount(porto)
   const email = Dialog.useStore((state) =>
@@ -48,8 +52,9 @@ export function Email(props: Email.Props) {
       event.preventDefault()
       const formData = new FormData(event.target as HTMLFormElement)
       const email = formData.get('email')?.toString()
+      const enableBlindSigning = enableBlindSigningRef.current?.checked
       setMode('sign-up')
-      onApprove({ email, signIn: false })
+      onApprove({ email, enableBlindSigning, signIn: false })
     },
     [onApprove],
   )
@@ -84,7 +89,16 @@ export function Email(props: Email.Props) {
         />
       </Layout.Header>
 
-      <Permissions title="Permissions requested" {...permissions} />
+      {permissions ? (
+        <Permissions title="Permissions requested" {...permissions} />
+      ) : allowBlindSigning ? (
+        <>
+          <div className="px-3">
+            <SkipPreviews ref={enableBlindSigningRef} />
+          </div>
+          <div className="h-4" />
+        </>
+      ) : null}
 
       <div className="group flex min-h-[48px] w-full flex-col items-center justify-center space-y-3 px-3 pb-3">
         {actions.includes('sign-in') && (
@@ -94,8 +108,9 @@ export function Email(props: Email.Props) {
             icon={<IconScanFace className="size-5.25" />}
             loading={signingIn && 'Signing in…'}
             onClick={() => {
+              const enableBlindSigning = enableBlindSigningRef.current?.checked
               setMode('sign-in')
-              onApprove({ signIn: true })
+              onApprove({ enableBlindSigning, signIn: true })
             }}
             type="button"
             variant="primary"
@@ -174,7 +189,13 @@ export function Email(props: Email.Props) {
             <TextButton
               color="link"
               onClick={() => {
-                onApprove({ selectAccount: true, signIn: true })
+                const enableBlindSigning =
+                  enableBlindSigningRef.current?.checked
+                onApprove({
+                  enableBlindSigning,
+                  selectAccount: true,
+                  signIn: true,
+                })
               }}
             >
               Switch
@@ -189,10 +210,12 @@ export function Email(props: Email.Props) {
 export namespace Email {
   export type Props = {
     actions?: readonly ('sign-in' | 'sign-up')[]
+    allowBlindSigning?: boolean
     defaultValue?: string | undefined
     onApprove: (p: {
       email?: string
       selectAccount?: boolean
+      enableBlindSigning?: boolean
       signIn?: boolean
     }) => void
     permissions?: Permissions.Props

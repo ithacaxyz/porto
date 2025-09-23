@@ -57,10 +57,11 @@ export function relay(parameters: relay.Parameters = {}) {
       async createAccount(parameters) {
         const {
           admins,
+          blindSignKey,
           email,
           label,
-          permissions,
           internal,
+          permissions,
           signInWithEthereum,
         } = parameters
         const { client } = internal
@@ -79,7 +80,7 @@ export function relay(parameters: relay.Parameters = {}) {
               userId: Bytes.from(eoa.address),
             })
           : Key.createHeadlessWebAuthnP256()
-        const sessionKey = await PermissionsRequest.toKey(permissions, {
+        const permissionsKey = await PermissionsRequest.toKey(permissions, {
           chainId: client.chain.id,
           feeTokens,
         })
@@ -91,7 +92,8 @@ export function relay(parameters: relay.Parameters = {}) {
           authorizeKeys: [
             adminKey,
             ...(adminKeys ?? []),
-            ...(sessionKey ? [sessionKey] : []),
+            ...(blindSignKey ? [Key.from(blindSignKey)] : []),
+            ...(permissionsKey ? [permissionsKey] : []),
           ],
         })
 
@@ -326,7 +328,8 @@ export function relay(parameters: relay.Parameters = {}) {
       },
 
       async loadAccounts(parameters) {
-        const { internal, permissions, signInWithEthereum } = parameters
+        const { blindSignKey, internal, permissions, signInWithEthereum } =
+          parameters
         const { client } = internal
 
         const feeTokens = await Tokens.getTokens(client)
@@ -407,24 +410,26 @@ export function relay(parameters: relay.Parameters = {}) {
         // Instantiate the account based off the extracted address and keys.
         const account = Account.from({
           address,
-          keys: [...keys, ...(authorizeKey ? [authorizeKey] : [])].map(
-            (key, i) => {
-              // Assume that the first key is the admin WebAuthn key.
-              if (i === 0) {
-                if (key.type === 'webauthn-p256')
-                  return Key.fromWebAuthnP256({
-                    ...key,
-                    credential: {
-                      id: credentialId!,
-                      publicKey: PublicKey.fromHex(key.publicKey),
-                    },
-                    id: address,
-                    rpId: keystoreHost,
-                  })
-              }
-              return key
-            },
-          ),
+          keys: [
+            ...keys,
+            ...(blindSignKey ? [Key.from(blindSignKey)] : []),
+            ...(authorizeKey ? [authorizeKey] : []),
+          ].map((key, i) => {
+            // Assume that the first key is the admin WebAuthn key.
+            if (i === 0) {
+              if (key.type === 'webauthn-p256')
+                return Key.fromWebAuthnP256({
+                  ...key,
+                  credential: {
+                    id: credentialId!,
+                    publicKey: PublicKey.fromHex(key.publicKey),
+                  },
+                  id: address,
+                  rpId: keystoreHost,
+                })
+            }
+            return key
+          }),
         })
 
         const adminKey = Account.getKey(account, { role: 'admin' })!
@@ -455,10 +460,13 @@ export function relay(parameters: relay.Parameters = {}) {
         })()
 
         // Prepare and send the authorize key pre-call.
-        if (authorizeKey) {
+        if (authorizeKey || blindSignKey) {
           const { context, digest } = await RelayActions.prepareCalls(client, {
             account,
-            authorizeKeys: [authorizeKey],
+            authorizeKeys: [
+              ...(authorizeKey ? [authorizeKey] : []),
+              ...(blindSignKey ? [Key.from(blindSignKey)] : []),
+            ],
             preCalls: true,
           })
           const signature = await Key.sign(adminKey, {
@@ -577,7 +585,8 @@ export function relay(parameters: relay.Parameters = {}) {
       },
 
       async prepareUpgradeAccount(parameters) {
-        const { address, email, label, internal, permissions } = parameters
+        const { address, blindSignKey, email, label, internal, permissions } =
+          parameters
         const { client } = internal
 
         const [tokens, feeToken] = await Promise.all([
@@ -605,7 +614,11 @@ export function relay(parameters: relay.Parameters = {}) {
           client,
           {
             address,
-            authorizeKeys: [adminKey, ...(sessionKey ? [sessionKey] : [])],
+            authorizeKeys: [
+              adminKey,
+              ...(blindSignKey ? [Key.from(blindSignKey)] : []),
+              ...(sessionKey ? [sessionKey] : []),
+            ],
             feeToken: feeToken?.address,
           },
         )
