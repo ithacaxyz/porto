@@ -34,6 +34,8 @@ export function from<const account extends from.Parameters>(
   const account = (
     typeof parameters === 'string' ? { address: parameters } : parameters
   ) as from.AccountParameter
+  const source = account.sign ? 'privateKey' : 'porto'
+
   const {
     address,
     sign: sign_,
@@ -44,7 +46,7 @@ export function from<const account extends from.Parameters>(
   } = toAccount({
     address: account.address,
     sign({ hash }) {
-      if (account.source === 'privateKey') return account.sign!({ hash })
+      if (source === 'privateKey') return account.sign!({ hash })
       throw new Error('`sign` not supported on porto accounts.')
     },
     signMessage({ message }) {
@@ -68,15 +70,15 @@ export function from<const account extends from.Parameters>(
     signMessage,
     signTransaction,
     signTypedData,
-    source: account.source ?? 'porto',
+    source,
     type,
   } as never
 }
 
 export declare namespace from {
   type AccountParameter = PartialBy<
-    Pick<Account, 'address' | 'keys' | 'sign' | 'source'>,
-    'sign' | 'source'
+    Pick<Account, 'address' | 'keys' | 'sign'>,
+    'sign'
   >
 
   type Parameters<
