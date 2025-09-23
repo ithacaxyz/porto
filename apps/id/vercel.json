@@ -1,4 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "fluid": true,
   "rewrites": [{ "destination": "/", "source": "/(.*)", "statusCode": 200 }]
 }

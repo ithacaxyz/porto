@@ -1,6 +1,6 @@
 {
   "extends": "../tsconfig.base.json",
-  "include": ["src"],
+  "include": ["src", "api"],
   "files": ["./vite-env.d.ts"],
   "compilerOptions": {
     "paths": {
