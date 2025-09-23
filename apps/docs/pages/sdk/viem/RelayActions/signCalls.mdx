@@ -55,15 +55,15 @@ The prepared request returned from [`RelayActions.prepareCalls`](/sdk/viem/Relay
 
 #### options.account
 
-- **Type:** `Account.Account`
+- **Type:** `Account.Account | undefined` *(optional)*
 
-Sign using an [`Account`](/sdk/viem/Account).
+Sign using an [`Account`](/sdk/viem/Account). Optional when using EOA accounts with built-in signing capability.
 
 #### options.key
 
-- **Type:** `Key.Key`
+- **Type:** `Key.Key | undefined` *(optional)*
 
-- `key`: Sign using a [`Key`](/sdk/viem/Key).
+- `key`: Sign using a [`Key`](/sdk/viem/Key). Optional when using EOA accounts with built-in signing capability.
 
 ## Return Value
 
