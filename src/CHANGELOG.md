@@ -1,5 +1,15 @@
 # porto
 
+## 0.2.13
+
+### Patch Changes
+
+- [`21000cb`](https://github.com/ithacaxyz/porto/commit/21000cbb208abd1eb9810eec136bfa9283510ea7) Thanks [@jxom](https://github.com/jxom)! - Added listener for `ready` on CLI Dialog.
+
+- [#909](https://github.com/ithacaxyz/porto/pull/909) [`6f79c12`](https://github.com/ithacaxyz/porto/commit/6f79c12a5cac3d078ada5a29f75b94a4f388ccc6) Thanks [@jxom](https://github.com/jxom)! - Inferred `Account#source` based on the `sign` parameter.
+
+- [#905](https://github.com/ithacaxyz/porto/pull/905) [`bd9dce2`](https://github.com/ithacaxyz/porto/commit/bd9dce23a18f780aabca10f588f64de3e1d258a6) Thanks [@jxom](https://github.com/jxom)! - Removed trusted origin check for merchant RPCs in favor of verifying `wallet_prepareCalls` responses.
+
 ## 0.2.12
 
 ### Patch Changes
