@@ -15,7 +15,6 @@ import type * as Capabilities from '../core/internal/relay/schema/capabilities.j
 import type * as Quotes from '../core/internal/relay/schema/quotes.js'
 import type { OneOf, PartialBy, RequiredBy } from '../core/internal/types.js'
 import type { relay } from '../core/Mode.js'
-import { hostnames } from '../trusted-hosts.js'
 import * as Account from './Account.js'
 import * as RelayActions from './internal/relayActions.js'
 import type {
@@ -173,59 +172,55 @@ export async function prepareCalls<
         }))
       : undefined
 
-  async function prepare(client: Client) {
-    if (!chain) throw new Error('chain is required.')
-    return await RelayActions.prepareCalls(client, {
-      address: account_?.address,
-      calls: (calls ?? []) as any,
-      capabilities: {
-        authorizeKeys,
-        meta: {
-          feePayer,
-          feeToken,
-          nonce,
-        },
-        preCall,
-        preCalls: signedPreCalls,
-        requiredFunds,
-        revokeKeys: revokeKeys?.map((key) => ({
-          hash: key.hash,
-        })),
+  const args = {
+    address: account_?.address,
+    calls: (calls ?? []) as never,
+    capabilities: {
+      authorizeKeys,
+      meta: {
+        feePayer,
+        feeToken,
+        nonce,
       },
-      chain,
-      key: key ? Key.toRelay(key, { feeTokens: tokens }) : undefined,
-    })
-  }
+      preCall,
+      preCalls: signedPreCalls,
+      requiredFunds,
+      revokeKeys: revokeKeys?.map((key) => ({
+        hash: key.hash,
+      })),
+    },
+    chain: chain as never,
+    key: key ? Key.toRelay(key, { feeTokens: tokens }) : undefined,
+  } as const
 
-  const { capabilities, context, digest, typedData } = await (async () => {
+  const result = await (async () => {
     if (merchantUrl) {
-      // TODO: remove this once relay implements `wallet_verifyCalls` for
-      // permissionless merchants.
-      const hostname = new URL(merchantUrl).hostname
-      if (
-        !hostnames.includes(hostname) &&
-        !(chain as { testnet?: boolean | undefined })?.testnet
-      )
-        throw new Error(
-          'Merchant hostname "' +
-            hostname +
-            '" is not trusted.\nOpen a PR to add your hostname: https://github.com/ithacaxyz/porto/edit/main/src/trusted-hosts.ts',
-        )
-
       const client_ = createClient({
         chain: client.chain,
         transport: http(merchantUrl),
       })
       // Prepare with Merchant RPC.
-      return await prepare(client_).catch((e) => {
+      return await RelayActions.prepareCalls(client_, args).catch((e) => {
         console.error(e)
         // Fall back to default client.
-        return prepare(client)
+        return RelayActions.prepareCalls(client, args)
       })
     }
-
-    return await prepare(client)
+    return await RelayActions.prepareCalls(client, args)
   })()
+
+  const { capabilities, context, digest, signature, typedData } = result
+
+  if (merchantUrl) {
+    const isValid = await RelayActions.verifyPrepareCallsResponse(client, {
+      response: result._raw,
+      signature,
+    })
+    if (!isValid)
+      throw new Error(
+        `cannot verify integrity of \`wallet_prepareCalls\` response from ${merchantUrl}`,
+      )
+  }
 
   return {
     capabilities: { ...capabilities, quote: context.quote as any },

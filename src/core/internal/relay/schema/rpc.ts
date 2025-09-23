@@ -85,6 +85,7 @@ export namespace health {
   export type Request = z.infer<typeof Request>
 
   export const Response = z.object({
+    quoteSigner: u.address(),
     status: z.string(),
     version: z.string(),
   })
@@ -465,6 +466,8 @@ export namespace wallet_prepareCalls {
         type: Key.Key.shape.type,
       }),
     ),
+    /** Signature of the response for verifying the integrity of Relay response. */
+    signature: u.hex(),
     /** EIP-712 typed data digest. */
     typedData: z.object({
       domain: z.union([

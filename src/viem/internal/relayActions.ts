@@ -9,6 +9,9 @@ import * as AbiFunction from 'ox/AbiFunction'
 import type * as Address from 'ox/Address'
 import * as Errors from 'ox/Errors'
 import * as Hex from 'ox/Hex'
+import * as Hash from 'ox/Hash'
+import * as Secp256k1 from 'ox/Secp256k1'
+import * as Signature from 'ox/Signature'
 import {
   BaseError,
   type Calls,
@@ -428,7 +431,10 @@ export async function prepareCalls<
         retryCount: 0,
       },
     )
-    return z.decode(RpcSchema.wallet_prepareCalls.Response, result)
+    return Object.assign(
+      z.decode(RpcSchema.wallet_prepareCalls.Response, result),
+      { _raw: result },
+    )
   } catch (error) {
     parseSchemaError(error)
     parseExecutionError(error, { calls: parameters.calls })
@@ -447,7 +453,9 @@ export namespace prepareCalls {
     key: RpcSchema.wallet_prepareCalls.Parameters['key']
   } & GetChainParameter<chain>
 
-  export type ReturnType = RpcSchema.wallet_prepareCalls.Response
+  export type ReturnType = RpcSchema.wallet_prepareCalls.Response & {
+    _raw: z.input<typeof RpcSchema.wallet_prepareCalls.Response>
+  }
 
   export type ErrorType =
     | parseSchemaError.ErrorType
@@ -743,6 +751,42 @@ export namespace verifyEmail {
 }
 
 /**
+ * Verifies a prepare calls response.
+ *
+ * @param client - Client to use.
+ * @param parameters - Parameters.
+ * @returns Whether or not the response is valid.
+ */
+export async function verifyPrepareCallsResponse(
+  client: Client,
+  parameters: verifyPrepareCallsResponse.Parameters,
+) {
+  const { signature } = parameters
+  const {
+    signature: _,
+    capabilities: { feeSignature: __, ...capabilities },
+    ...response
+  } = parameters.response
+
+  const sorted = sortKeys({ capabilities, ...response })
+
+  const payload = Hash.keccak256(Hex.fromString(JSON.stringify(sorted)))
+  const address = Secp256k1.recoverAddress({
+    payload,
+    signature: Signature.fromHex(signature),
+  })
+  const { quoteSigner } = await health(client)
+  return address === quoteSigner
+}
+
+export namespace verifyPrepareCallsResponse {
+  export type Parameters = {
+    response: z.input<typeof RpcSchema.wallet_prepareCalls.Response>
+    signature: Hex.Hex
+  }
+}
+
+/**
  * Verifies a signature.
  *
  * @example
@@ -860,6 +904,17 @@ export function parseExecutionError<const calls extends readonly unknown[]>(
   const abiError = getAbiError(error)
   if (error === e && !abiError) return
   throw new ExecutionError(Object.assign(error, { abiError }))
+}
+
+export function sortKeys<value>(value: value): value {
+  if (typeof value === 'object' && value !== null) {
+    if (Array.isArray(value)) return value.map(sortKeys) as value
+    const result = {} as Record<string, unknown>
+    for (const key of Object.keys(value).sort())
+      result[key] = sortKeys(value[key as keyof typeof value])
+    return result as value
+  }
+  return value
 }
 
 export declare namespace parseExecutionError {
