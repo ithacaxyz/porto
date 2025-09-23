@@ -66,7 +66,7 @@ export function Send(props: Send.Props) {
                   <LucideArrowUpRight className="size-4 text-th_badge" />
                 </div>
               </div>
-              <div className="flex flex-grow flex-col justify-center">
+              <div className="flex flex-grow flex-col justify-center whitespace-nowrap">
                 <div className="font-medium text-[14px] text-th_base">
                   Send {asset.symbol}
                 </div>
