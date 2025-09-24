@@ -19,7 +19,12 @@ export function CopyButton({
       className={className}
       onClick={() => copy(value)}
       shape={label ? 'normal' : 'square'}
-      size={size}
+      size={size === 'mini' ? 'small' : size}
+      style={
+        size === 'mini'
+          ? { width: 22, height: 22, outlineOffset: 0 }
+          : undefined
+      }
       title={notifying ? 'Copied' : 'Copy to clipboard'}
       variant={variant}
     >
@@ -33,7 +38,7 @@ export namespace CopyButton {
   export type Props = {
     className?: string
     label?: ReactNode
-    size?: 'small' | 'medium' | 'large'
+    size?: 'mini' | 'small' | 'medium' | 'large'
     value: string
     variant?: Button.Props['variant']
   }
