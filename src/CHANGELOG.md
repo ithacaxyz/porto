@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.17
+
+### Patch Changes
+
+- [`122c653`](https://github.com/ithacaxyz/porto/commit/122c6530758080229e3c594d1bcaba2bc4e5ddca) Thanks [@jxom](https://github.com/jxom)! - Added assertion for `indexedDB`.
+
 ## 0.2.16
 
 ### Patch Changes
