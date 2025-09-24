@@ -15,7 +15,6 @@ import {
   erc20Abi,
   ethAddress,
 } from 'viem'
-import { CheckBalance } from '~/components/CheckBalance'
 import * as Calls from '~/lib/Calls'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
@@ -28,6 +27,7 @@ import LucideSparkles from '~icons/lucide/sparkles'
 import TriangleAlert from '~icons/lucide/triangle-alert'
 import LucideVideo from '~icons/lucide/video'
 import Star from '~icons/ph/star-four-bold'
+import { ActionPreview } from '../-components/ActionPreview'
 import { Approve } from '../-components/Approve'
 import { Send } from '../-components/Send'
 import { Swap } from '../-components/Swap'
@@ -66,10 +66,6 @@ export function ActionRequest(props: ActionRequest.Props) {
   })
 
   const quotes = capabilities?.quote?.quotes ?? []
-  const quote_destination = quotes.at(-1)
-  const sponsored =
-    quote_destination?.intent?.payer !==
-    '0x0000000000000000000000000000000000000000'
 
   const chainsPath = ActionRequest.useChainsPath(quotes)
 
@@ -93,177 +89,124 @@ export function ActionRequest(props: ActionRequest.Props) {
     }
   }
 
-  const fetchingQuote = prepareCallsQuery.isPending
-  const refreshingQuote = prepareCallsQuery.isRefetching
+  if (identified?.type === 'approve')
+    return (
+      <Approve
+        address={address}
+        amount={identified.amount}
+        approving={loading}
+        capabilities={prepareCallsQuery.isPending ? undefined : capabilities}
+        chainsPath={chainsPath}
+        onApprove={() => {
+          if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
+        }}
+        onReject={onReject}
+        spender={identified.spender}
+        tokenAddress={identified.tokenAddress}
+      />
+    )
+
+  if (identified?.type === 'swap' || identified?.type === 'convert')
+    return (
+      <Swap
+        address={address}
+        assetIn={addNativeCurrencyName(identified.assetIn)}
+        assetOut={addNativeCurrencyName(identified.assetOut)}
+        capabilities={prepareCallsQuery.isPending ? undefined : capabilities}
+        chainsPath={chainsPath}
+        contractAddress={calls[0]?.to}
+        onApprove={() => {
+          if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
+        }}
+        onReject={onReject}
+        swapping={loading}
+        swapType={identified.type}
+      />
+    )
+
+  if (identified?.type === 'send' && identified.to)
+    return (
+      <Send
+        address={address}
+        asset={identified.asset}
+        capabilities={prepareCallsQuery.isPending ? undefined : capabilities}
+        chainsPath={chainsPath}
+        onApprove={() => {
+          if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
+        }}
+        onReject={onReject}
+        sending={loading}
+        to={identified.to}
+      />
+    )
 
   return (
-    <CheckBalance
-      address={address}
-      onReject={onReject}
-      query={prepareCallsQuery}
+    <ActionPreview
+      account={account?.address}
+      actions={
+        <Layout.Footer.Actions>
+          <Button
+            disabled={prepareCallsQuery.isPending || loading}
+            onClick={onReject}
+            variant="negative-secondary"
+          >
+            Cancel
+          </Button>
+          <Button
+            data-testid="confirm"
+            disabled={!prepareCallsQuery.isSuccess}
+            loading={loading && 'Confirming…'}
+            onClick={() => {
+              if (prepareCallsQuery.isError) {
+                prepareCallsQuery.refetch()
+                return
+              }
+              if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
+            }}
+            variant={prepareCallsQuery.isError ? 'primary' : 'positive'}
+            width="grow"
+          >
+            {prepareCallsQuery.isError ? 'Retry' : 'Confirm'}
+          </Button>
+        </Layout.Footer.Actions>
+      }
+      capabilities={prepareCallsQuery.isPending ? undefined : capabilities}
+      error={prepareCallsQuery.error}
+      queryParams={{ address, chainId }}
     >
-      {(deficit) => {
-        if (identified?.type === 'approve')
-          return (
-            <Approve
-              amount={identified.amount}
-              approving={loading}
-              chainsPath={chainsPath}
-              fees={sponsored ? undefined : feeTotals}
-              fetchingQuote={fetchingQuote}
-              hasDeficit={deficit.hasDeficit}
-              onAddFunds={deficit.onAddFunds}
-              onApprove={() => {
-                if (prepareCallsQuery.isSuccess)
-                  onApprove(prepareCallsQuery.data)
-              }}
-              onReject={onReject}
-              refreshingQuote={refreshingQuote}
-              spender={identified.spender}
-              tokenAddress={identified.tokenAddress}
-            />
-          )
+      <Layout>
+        <Layout.Header>
+          <Layout.Header.Default
+            icon={prepareCallsQuery.isError ? TriangleAlert : Star}
+            title="Review action"
+            variant={prepareCallsQuery.isError ? 'warning' : 'default'}
+          />
+        </Layout.Header>
 
-        if (identified?.type === 'swap' || identified?.type === 'convert')
-          return (
-            <Swap
-              assetIn={addNativeCurrencyName(identified.assetIn)}
-              assetOut={addNativeCurrencyName(identified.assetOut)}
-              chainsPath={chainsPath}
-              contractAddress={calls[0]?.to}
-              fees={sponsored ? undefined : feeTotals}
-              fetchingQuote={fetchingQuote}
-              hasDeficit={deficit.hasDeficit}
-              onAddFunds={deficit.onAddFunds}
-              onApprove={() => {
-                if (prepareCallsQuery.isSuccess)
-                  onApprove(prepareCallsQuery.data)
-              }}
-              onReject={onReject}
-              refreshingQuote={refreshingQuote}
-              swapping={loading}
-              swapType={identified.type}
-            />
-          )
-
-        if (identified?.type === 'send' && identified.to)
-          return (
-            <Send
-              asset={identified.asset}
-              chainsPath={chainsPath}
-              fees={sponsored ? undefined : feeTotals}
-              fetchingQuote={fetchingQuote}
-              hasDeficit={deficit.hasDeficit}
-              onAddFunds={deficit.onAddFunds}
-              onApprove={() => {
-                if (prepareCallsQuery.isSuccess)
-                  onApprove(prepareCallsQuery.data)
-              }}
-              onReject={onReject}
-              refreshingQuote={refreshingQuote}
-              sending={loading}
-              to={identified.to}
-            />
-          )
-
-        return (
-          <Layout>
-            <Layout.Header>
-              <Layout.Header.Default
-                icon={
-                  prepareCallsQuery.isError && !deficit.hasDeficit
-                    ? TriangleAlert
-                    : Star
-                }
-                title="Review action"
-                variant={
-                  prepareCallsQuery.isError && !deficit.hasDeficit
-                    ? 'warning'
-                    : 'default'
-                }
-              />
-            </Layout.Header>
-
-            <Layout.Content className="pb-2!">
-              <div className="flex flex-col gap-[8px]">
-                <ActionRequest.PaneWithDetails
-                  error={deficit.hasDeficit ? null : prepareCallsQuery.error}
-                  errorMessage="An error occurred while simulating the action. Proceed with caution."
-                  feeTotals={feeTotals}
-                  quotes={quotes}
-                  status={
-                    prepareCallsQuery.isPending
-                      ? 'pending'
-                      : prepareCallsQuery.isError && !deficit.hasDeficit
-                        ? 'error'
-                        : 'success'
-                  }
-                >
-                  {assetDiff.length > 0 ? (
-                    <ActionRequest.AssetDiff assetDiff={assetDiff} />
-                  ) : undefined}
-                </ActionRequest.PaneWithDetails>
-                {deficit.hasDeficit && (
-                  <div className="rounded-th_medium border border-th_warning bg-th_warning px-3 py-[10px] text-center text-sm text-th_warning">
-                    You do not have enough funds.
-                  </div>
-                )}
-              </div>
-            </Layout.Content>
-
-            <Layout.Footer>
-              <Layout.Footer.Actions>
-                <Button
-                  disabled={prepareCallsQuery.isPending || loading}
-                  onClick={onReject}
-                  variant="negative-secondary"
-                >
-                  Cancel
-                </Button>
-                {deficit.hasDeficit ? (
-                  <Button
-                    data-testid="add-funds"
-                    onClick={deficit.onAddFunds}
-                    variant="primary"
-                    width="grow"
-                  >
-                    Add funds
-                  </Button>
-                ) : (
-                  <Button
-                    data-testid="confirm"
-                    disabled={!prepareCallsQuery.isSuccess}
-                    loading={
-                      refreshingQuote
-                        ? 'Refreshing quote…'
-                        : loading
-                          ? 'Confirming…'
-                          : undefined
-                    }
-                    onClick={() => {
-                      if (prepareCallsQuery.isError) {
-                        prepareCallsQuery.refetch()
-                        return
-                      }
-                      if (prepareCallsQuery.isSuccess)
-                        onApprove(prepareCallsQuery.data)
-                    }}
-                    variant={prepareCallsQuery.isError ? 'primary' : 'positive'}
-                    width="grow"
-                  >
-                    {prepareCallsQuery.isError ? 'Retry' : 'Confirm'}
-                  </Button>
-                )}
-              </Layout.Footer.Actions>
-
-              {account?.address && (
-                <Layout.Footer.Account address={account.address} />
-              )}
-            </Layout.Footer>
-          </Layout>
-        )
-      }}
-    </CheckBalance>
+        <Layout.Content className="pb-2!">
+          <div className="flex flex-col gap-[8px]">
+            <ActionRequest.PaneWithDetails
+              error={prepareCallsQuery.error}
+              errorMessage="An error occurred while simulating the action. Proceed with caution."
+              feeTotals={feeTotals}
+              hideDetails={false}
+              quotes={quotes}
+              status={
+                prepareCallsQuery.isPending
+                  ? 'pending'
+                  : prepareCallsQuery.isError
+                    ? 'error'
+                    : 'success'
+              }
+            >
+              {assetDiff.length > 0 ? (
+                <ActionRequest.AssetDiff assetDiff={assetDiff} />
+              ) : undefined}
+            </ActionRequest.PaneWithDetails>
+          </div>
+        </Layout.Content>
+      </Layout>
+    </ActionPreview>
   )
 }
 
@@ -523,6 +466,7 @@ export namespace ActionRequest {
       feeTotals,
       quotes,
       status,
+      hideDetails,
     } = props
 
     const hasChildren = React.useMemo(
@@ -557,17 +501,27 @@ export namespace ActionRequest {
             })}
           >
             {(() => {
-              if (error)
+              if (error) {
+                const isInsufficientFunds = /InsufficientBalance/i.test(
+                  (error as any)?.cause?.message ?? error.message ?? '',
+                )
                 return (
                   <div className="space-y-2 text-[14px] text-th_base">
                     <p className="font-medium text-th_badge-warning">Error</p>
                     <p>{errorMessage}</p>
-                    <p className="text-[11px]">
-                      Details: {(error as any).shortMessage ?? error.message}{' '}
-                      {(error as any).details}
-                    </p>
+                    {isInsufficientFunds ? (
+                      <p className="text-[11px]">
+                        You need more funds to proceed with this action.
+                      </p>
+                    ) : (
+                      <p className="text-[11px]">
+                        Details: {(error as any).shortMessage ?? error.message}{' '}
+                        {(error as any).details}
+                      </p>
+                    )}
                   </div>
                 )
+              }
 
               if (status === 'pending')
                 return (
@@ -583,21 +537,27 @@ export namespace ActionRequest {
           </div>
         )}
 
-        {status === 'success' && feeTotals && quotes && hasDetails && (
-          <Details opened={!showOverview ? true : undefined}>
-            {!sponsored && feeTotalFormatted && (
-              <Details.Item label="Fees (est.)" value={feeTotalFormatted} />
-            )}
-            {chainsPath.length > 0 && (
-              <Details.Item
-                label={`Network${chainsPath.length > 1 ? 's' : ''}`}
-                value={
-                  <ChainsPath chainIds={chainsPath.map((chain) => chain.id)} />
-                }
-              />
-            )}
-          </Details>
-        )}
+        {status === 'success' &&
+          feeTotals &&
+          quotes &&
+          hasDetails &&
+          !hideDetails && (
+            <Details opened={!showOverview ? true : undefined}>
+              {!sponsored && feeTotalFormatted && (
+                <Details.Item label="Fees (est.)" value={feeTotalFormatted} />
+              )}
+              {chainsPath.length > 0 && (
+                <Details.Item
+                  label={`Network${chainsPath.length > 1 ? 's' : ''}`}
+                  value={
+                    <ChainsPath
+                      chainIds={chainsPath.map((chain) => chain.id)}
+                    />
+                  }
+                />
+              )}
+            </Details>
+          )}
       </div>
     )
   }
@@ -610,6 +570,7 @@ export namespace ActionRequest {
       errorMessage?: string | undefined
       quotes?: readonly Quote_schema.Quote[] | undefined
       status: 'pending' | 'error' | 'success'
+      hideDetails?: boolean | undefined
     }
   }
 
