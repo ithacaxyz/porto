@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.15
+
+### Patch Changes
+
+- [`11b0845`](https://github.com/ithacaxyz/porto/commit/11b084547496e3144cff56a7e056d39a8c1a179f) Thanks [@jxom](https://github.com/jxom)! - Added export to fix inference.
+
 ## 0.2.14
 
 ### Patch Changes
