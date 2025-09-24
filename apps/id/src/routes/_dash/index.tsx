@@ -38,7 +38,7 @@ function RouteComponent() {
   const { address } = useAccount()
 
   const {
-    address: assetAddress,
+    address: _assetAddress,
     chainId: assetChainId,
     symbol: assetSymbol,
   } = Route.useSearch()
