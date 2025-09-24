@@ -1,4 +1,4 @@
-import { createRouter, ErrorComponent } from '@tanstack/react-router'
+import { createRouter } from '@tanstack/react-router'
 import * as Query from '~/lib/Query.ts'
 import { routeTree } from '~/routeTree.gen.ts'
 
@@ -7,13 +7,6 @@ export const router = createRouter({
     account: undefined as never,
     queryClient: Query.client,
   },
-  // TODO: add custom 404 and error pages once design is ready
-  defaultErrorComponent: (props) => {
-    if (props.error instanceof Error) return <div>{props.error.message}</div>
-
-    return <ErrorComponent error={props.error} />
-  },
-  defaultNotFoundComponent: (_props) => <div>Not found</div>,
   /**
    * Since we're using React Query, we don't want loader calls to ever be stale
    * This will ensure that the loader is always called when the route is preloaded or visited

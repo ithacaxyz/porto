@@ -42,7 +42,6 @@ function RouteComponent() {
     chainId: assetChainId,
     symbol: assetSymbol,
   } = Route.useSearch()
-  console.info(assetAddress, assetChainId, assetSymbol)
 
   const { data: assets, refetch: refetchAssets } = useAssets({ address })
   const assetsMap = React.useMemo(() => {

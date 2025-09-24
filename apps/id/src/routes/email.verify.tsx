@@ -5,11 +5,11 @@ import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { useAccount, useConnect, useConnectors } from 'wagmi'
 import * as z from 'zod'
+import { Layout } from '~/components/Layout.tsx'
 import LucideCheck from '~icons/lucide/check'
 import LucideOctagonAlert from '~icons/lucide/octagon-alert'
 import LucidePictureInPicture2 from '~icons/lucide/picture-in-picture-2'
 import IconFingerprint from '~icons/porto/finger-print'
-import { Layout } from './-components/Layout.tsx'
 
 export const Route = createFileRoute('/email/verify')({
   component: RouteComponent,

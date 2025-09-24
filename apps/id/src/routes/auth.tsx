@@ -3,10 +3,10 @@ import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import * as React from 'react'
 import { toast } from 'sonner'
 import { useAccountEffect, useConnect, useConnectors } from 'wagmi'
+import { Layout } from '~/components/Layout.tsx'
 import LucideCircleCheck from '~icons/lucide/circle-check'
 import LucideCircleX from '~icons/lucide/circle-x'
 import IconScanFace from '~icons/porto/scan-face'
-import { Layout } from './-components/Layout'
 
 export const Route = createFileRoute('/auth')({
   beforeLoad(opts) {

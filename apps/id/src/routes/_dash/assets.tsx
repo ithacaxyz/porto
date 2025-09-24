@@ -129,7 +129,7 @@ function RouteComponent() {
               <img
                 alt={assets?.at(0)?.metadata?.name ?? 'Token icon'}
                 className="size-8"
-                src={`/token-icons/${assets?.at(0)?.metadata?.symbol?.toLowerCase() ?? 'fallback'}.svg`}
+                src={assets?.at(0)?.icon}
               />
               <span className="flex-1 font-medium text-blackA1 text-lg">
                 {assets?.at(0)?.metadata?.name}
@@ -210,9 +210,7 @@ function RouteComponent() {
   )
 }
 
-function Sum<T extends ReadonlyArray<{ value: number }>>(
-  assets: T | undefined,
-) {
+function Sum<T extends Sum.T>(assets: T | undefined) {
   const sum = Number.parseFloat(
     assets
       ?.reduce((accumulator, asset) => accumulator + asset.value, 0)
@@ -220,6 +218,13 @@ function Sum<T extends ReadonlyArray<{ value: number }>>(
   ).toFixed(2)
 
   return <FormatPrice value={sum} />
+}
+
+declare namespace Sum {
+  type T = ReadonlyArray<{ value: number }>
+  type Props = {
+    assets: T
+  }
 }
 
 function FormatPrice(props: FormatPrice.Props) {
@@ -238,19 +243,23 @@ declare namespace FormatPrice {
   }
 }
 
-const ChainIcon = ({
-  chainId,
-  className,
-}: {
-  chainId: number
-  className?: string
-}) => (
-  <img
-    alt="Mainnet"
-    className={cx(className, 'size-7')}
-    src={`https://tokenlist.up.railway.app/icon/${chainId}`}
-  />
-)
+const ChainIcon = (props: ChainIcon.Props) => {
+  const { chainId, className } = props
+  return (
+    <img
+      alt="Mainnet"
+      className={cx(className, 'size-7')}
+      src={`https://tokenlist.up.railway.app/icon/${chainId}`}
+    />
+  )
+}
+
+declare namespace ChainIcon {
+  type Props = {
+    chainId: number
+    className?: string
+  }
+}
 
 const chainMap: Record<
   ChainId,
