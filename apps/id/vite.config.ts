@@ -43,10 +43,11 @@ export default defineConfig(({ mode }) => {
             hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
           }),
       Tailwindcss(),
-      React(),
       Plugins.Icons(),
       TsconfigPaths(),
       TanStackRouterVite(),
+      // must come after TanStackRouterVite
+      React(),
       // must come last
       // @see https://docs.sentry.io/platforms/javascript/guides/tanstackstart-react/sourcemaps/uploading/vite/#configuration
       SentryVitePlugin({

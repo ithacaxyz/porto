@@ -52,6 +52,7 @@
   "javascript.preferences.autoImportFileExcludePatterns": ["**/index.js"],
   "search.exclude": {
     "**/_/**": true,
+    "**/_dist/**": true,
     "**/.tanstack/**": true,
     "**/dist/**": true,
     "**/routeTree.gen.ts": true,
