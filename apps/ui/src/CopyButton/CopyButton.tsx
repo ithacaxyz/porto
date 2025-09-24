@@ -22,7 +22,7 @@ export function CopyButton({
       size={size === 'mini' ? 'small' : size}
       style={
         size === 'mini'
-          ? { width: 22, height: 22, outlineOffset: 0 }
+          ? { height: 22, outlineOffset: 0, width: 22 }
           : undefined
       }
       title={notifying ? 'Copied' : 'Copy to clipboard'}
