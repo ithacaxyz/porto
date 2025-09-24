@@ -470,13 +470,10 @@ function Faucet(props: {
 
       const data = await RelayActions.addFaucetFunds(client, {
         address,
-        chainId: chainId,
+        chain: { id: chainId },
         tokenAddress: exp1Address[chainId as never],
         value,
       })
-      // relay state can be behind node state. wait to ensure sync.
-      // TODO: figure out how to resolve.
-      await new Promise((resolve) => setTimeout(resolve, 2_000))
       return data
     },
     onSuccess(data) {

@@ -1,5 +1,39 @@
 # porto
 
+## 0.2.17
+
+### Patch Changes
+
+- [`122c653`](https://github.com/ithacaxyz/porto/commit/122c6530758080229e3c594d1bcaba2bc4e5ddca) Thanks [@jxom](https://github.com/jxom)! - Added assertion for `indexedDB`.
+
+## 0.2.16
+
+### Patch Changes
+
+- [`3a45b15`](https://github.com/ithacaxyz/porto/commit/3a45b15d2c2f69b48660913b44a776d4d82774b4) Thanks [@jxom](https://github.com/jxom)! - Removed implicit module declarations in favor of `porto/register` module.
+
+## 0.2.15
+
+### Patch Changes
+
+- [`11b0845`](https://github.com/ithacaxyz/porto/commit/11b084547496e3144cff56a7e056d39a8c1a179f) Thanks [@jxom](https://github.com/jxom)! - Added export to fix inference.
+
+## 0.2.14
+
+### Patch Changes
+
+- [`cb6cc99`](https://github.com/ithacaxyz/porto/commit/cb6cc995f0e56885b4f962a7f02f4824cedb3116) Thanks [@jxom](https://github.com/jxom)! - Added Zod export to `porto/internal`.
+
+## 0.2.13
+
+### Patch Changes
+
+- [`21000cb`](https://github.com/ithacaxyz/porto/commit/21000cbb208abd1eb9810eec136bfa9283510ea7) Thanks [@jxom](https://github.com/jxom)! - Added listener for `ready` on CLI Dialog.
+
+- [#909](https://github.com/ithacaxyz/porto/pull/909) [`6f79c12`](https://github.com/ithacaxyz/porto/commit/6f79c12a5cac3d078ada5a29f75b94a4f388ccc6) Thanks [@jxom](https://github.com/jxom)! - Inferred `Account#source` based on the `sign` parameter.
+
+- [#905](https://github.com/ithacaxyz/porto/pull/905) [`bd9dce2`](https://github.com/ithacaxyz/porto/commit/bd9dce23a18f780aabca10f588f64de3e1d258a6) Thanks [@jxom](https://github.com/jxom)! - Removed trusted origin check for merchant RPCs in favor of verifying `wallet_prepareCalls` responses.
+
 ## 0.2.12
 
 ### Patch Changes

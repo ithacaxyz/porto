@@ -32,7 +32,6 @@ describe('addFaucetFunds', () => {
 
     const result = await addFaucetFunds(client, {
       address: alice,
-      chainId: client.chain.id,
       tokenAddress: contracts.exp1.address,
       value: Value.fromEther('10'),
     })
@@ -56,7 +55,7 @@ describe('addFaucetFunds', () => {
     await expect(() =>
       addFaucetFunds(client, {
         address: Hex.random(20),
-        chainId: 999999,
+        chain: { id: 999999 },
         tokenAddress: contracts.exp1.address,
         value: Value.fromEther('1'),
       }),

@@ -85,7 +85,7 @@
   },
   "knip": {
     "entry": [
-      "src/{index,remote/index,server/index,theme/index,viem/index,wagmi/index}.ts!"
+      "src/{index,remote/index,server/index,register/index,theme/index,viem/index,wagmi/index}.ts!"
     ],
     "ignore": [
       "**/_generated/**",

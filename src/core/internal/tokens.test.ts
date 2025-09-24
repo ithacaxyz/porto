@@ -16,15 +16,6 @@ describe.runIf(!Anvil.enabled)('getTokens', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "address": "0x2d49a0e75c86779c391418214ec7e1b18e58bb34",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "EXP",
-          "uid": "exp1",
-        },
-        {
           "address": "0x7c61733e8a9c6dac20afeb46e9c4ba96c5a9f7cf",
           "decimals": 18,
           "feeToken": true,
@@ -41,6 +32,15 @@ describe.runIf(!Anvil.enabled)('getTokens', () => {
           "nativeRate": null,
           "symbol": "ETH",
           "uid": "teth",
+        },
+        {
+          "address": "0x2d49a0e75c86779c391418214ec7e1b18e58bb34",
+          "decimals": 18,
+          "feeToken": true,
+          "interop": true,
+          "nativeRate": null,
+          "symbol": "EXP",
+          "uid": "exp1",
         },
       ]
     `)
@@ -66,15 +66,6 @@ describe.runIf(!Anvil.enabled)('getTokens', () => {
           "uid": "tether",
         },
         {
-          "address": "0x0000000000000000000000000000000000000000",
-          "decimals": 18,
-          "feeToken": true,
-          "interop": false,
-          "nativeRate": null,
-          "symbol": "POL",
-          "uid": "matic-network",
-        },
-        {
           "address": "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
           "decimals": 6,
           "feeToken": true,
@@ -82,6 +73,15 @@ describe.runIf(!Anvil.enabled)('getTokens', () => {
           "nativeRate": null,
           "symbol": "USDC",
           "uid": "usd-coin",
+        },
+        {
+          "address": "0x0000000000000000000000000000000000000000",
+          "decimals": 18,
+          "feeToken": true,
+          "interop": false,
+          "nativeRate": null,
+          "symbol": "POL",
+          "uid": "matic-network",
         },
       ]
     `)

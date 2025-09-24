@@ -3,7 +3,7 @@ import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import type * as RpcRequest from 'ox/RpcRequest'
 import type * as RpcResponse from 'ox/RpcResponse'
-import { http, type Transport, type ValueOf } from 'viem'
+import { http, type Transport } from 'viem'
 import { devtools, persist, subscribeWithSelector } from 'zustand/middleware'
 import { createStore, type Mutate, type StoreApi } from 'zustand/vanilla'
 import type * as Account from '../viem/Account.js'
@@ -14,7 +14,6 @@ import { dialog } from './internal/modes/dialog.js'
 import { relay } from './internal/modes/relay.js'
 import type * as internal from './internal/porto.js'
 import * as Provider from './internal/provider.js'
-import type * as Rpc from './internal/schema/rpc.js'
 import type * as Token from './internal/schema/token.js'
 import type * as Siwe from './internal/siwe.js'
 import type { ExactPartial, OneOf } from './internal/types.js'
@@ -29,7 +28,10 @@ export const defaultConfig = {
   chains: Chains.all,
   mode: browser ? dialog({ host: hostUrls.prod }) : relay(),
   relay: http(relayUrls.prod.http),
-  storage: browser ? Storage.idb() : Storage.memory(),
+  storage:
+    browser && typeof indexedDB !== 'undefined'
+      ? Storage.idb()
+      : Storage.memory(),
   storageKey: 'porto.store',
 } as const satisfies ExactPartial<Config>
 
@@ -283,16 +285,3 @@ export type QueuedRequest<result = unknown> = {
       status: 'error'
     }
 >
-
-declare module 'viem' {
-  interface Register {
-    CapabilitiesSchema: {
-      getCapabilities: {
-        ReturnType: ValueOf<Rpc.wallet_getCapabilities.Response_encoded>
-      }
-      sendCalls: {
-        Request: Rpc.wallet_sendCalls.Capabilities_encoded
-      }
-    }
-  }
-}
