@@ -20,6 +20,7 @@ export const Route = createFileRoute('/dialog/wallet_grantAdmin')({
 function RouteComponent() {
   const request = Route.useSearch()
   const parameters = request.params[0]
+  const decoded = request._decoded.params[0]
 
   const respond = useMutation({
     async mutationFn({ reject }: { reject?: boolean } = {}) {
@@ -37,6 +38,7 @@ function RouteComponent() {
     <div>
       <GrantAdmin
         authorizeKey={parameters.key}
+        chainId={decoded.chainId}
         feeToken={parameters.capabilities?.feeToken}
         loading={respond.isPending}
         onApprove={() => respond.mutate({})}

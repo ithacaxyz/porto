@@ -3,7 +3,7 @@ import type { Hex } from 'ox'
 import type * as Address from 'ox/Address'
 import { Key } from 'porto'
 import type * as Token from 'porto/core/internal/schema/token.js'
-import { Hooks } from 'porto/remote'
+import { Hooks as RemoteHooks } from 'porto/remote'
 
 import * as Calls from '~/lib/Calls'
 import { porto } from '~/lib/Porto'
@@ -15,12 +15,16 @@ import { ActionPreview } from './ActionPreview'
 import { ActionRequest } from './ActionRequest'
 
 export function GrantAdmin(props: GrantAdmin.Props) {
-  const { authorizeKey, feeToken, loading, onApprove, onReject } = props
+  const { authorizeKey, feeToken, loading, onApprove, onReject, chainId } =
+    props
 
-  const account = Hooks.useAccount(porto)
+  const account = RemoteHooks.useAccount(porto)
+
+  const chain = RemoteHooks.useChain(porto, { chainId })
 
   const prepareCallsQuery = Calls.prepareCalls.useQuery({
     authorizeKeys: [Key.from(authorizeKey)],
+    chainId: chain?.id,
     feeToken,
   })
   const { capabilities } = prepareCallsQuery.data ?? {}
@@ -89,6 +93,7 @@ export declare namespace GrantAdmin {
       publicKey: Hex.Hex
       type: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256'
     }
+    chainId?: number | undefined
     feeToken?: Token.Symbol | Address.Address | undefined
     loading: boolean
     onApprove: () => void
