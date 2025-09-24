@@ -3,7 +3,11 @@ import type { ReactNode } from 'react'
 import { css, cx } from '../../styled-system/css'
 import { CopyButton } from '../CopyButton/CopyButton.js'
 
-export function Receive({ address, className, label }: Receive.Props) {
+export function Deposit({
+  address,
+  className,
+  label = 'Deposit crypto',
+}: Deposit.Props) {
   return (
     <div
       className={cx(
@@ -75,10 +79,10 @@ export function Receive({ address, className, label }: Receive.Props) {
   )
 }
 
-export namespace Receive {
+export namespace Deposit {
   export interface Props {
     address: string
     className?: string
-    label: ReactNode
+    label?: ReactNode
   }
 }
