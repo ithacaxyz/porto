@@ -49,17 +49,17 @@ function RouteComponent() {
       className={cx(
         'size-full',
         'grid grid-cols-1 grid-rows-auto content-start gap-x-8 gap-y-4',
-        'md:grid-cols-2',
+        'lg:grid-cols-2',
       )}
     >
       <div
         className={cx(
           'flex max-h-[160px] w-full justify-between divide-x divide-gray3 rounded-2xl bg-white dark:divide-gray dark:bg-gray1',
           '*:h-full *:w-[50%] *:p-4',
-          'md:flex-row',
+          'lg:flex-row',
         )}
       >
-        <div className="transparent my-auto flex w-[55%] flex-col items-start justify-center space-y-2.5 text-center md:items-center">
+        <div className="transparent my-auto flex w-[55%] flex-col items-start justify-center space-y-2.5 text-center lg:items-center">
           <p className="text-left font-normal text-base text-gray10 dark:text-gray50">
             Your assets
           </p>
@@ -85,7 +85,7 @@ function RouteComponent() {
               <Cuer.Finder radius={1} />
               <Cuer.Cells />
             </Cuer.Root>
-            <p className="hidden min-w-[6ch] max-w-[6ch] text-pretty break-all font-mono font-normal text-[11px] text-gray10 md:block">
+            <p className="hidden min-w-[6ch] max-w-[6ch] text-pretty break-all font-mono font-normal text-[11px] text-gray10 lg:block">
               {account.address}
             </p>
           </Ariakit.Button>
@@ -119,7 +119,7 @@ function RouteComponent() {
       <section className={cx('col-span-full flex size-full flex-col p-2')}>
         <div className="mb-4 flex justify-between">
           <p className="font-medium text-gray8 text-lg">Tokens</p>
-          <p className="hidden font-medium text-gray8 text-md md:block">
+          <p className="hidden font-medium text-gray8 text-md lg:block">
             Amount
           </p>
         </div>

@@ -11,6 +11,7 @@ import { cx } from 'cva'
 import * as React from 'react'
 import { useAccount, useAccountEffect, useDisconnect } from 'wagmi'
 import { StringFormatter } from '~/utils'
+import QuestionMarkIcon from '~icons/ic/baseline-question-mark'
 import LucideChevronUp from '~icons/lucide/chevron-up'
 import LucideClock from '~icons/lucide/clock'
 import LucideCog from '~icons/lucide/cog'
@@ -54,46 +55,25 @@ function RouteComponent() {
   return (
     <div className="mx-auto flex h-full max-w-384 flex-col gap-4 bg-gray2 px-7.5 py-6 pb-7.5 md:flex-row">
       <div className="flex w-full items-center justify-between md:fixed md:inset-y-6 md:bottom-6 md:min-w-72.75 md:max-w-72.75 md:flex-col md:items-stretch md:justify-start md:gap-6 md:rounded-2xl md:bg-gray3">
-        <header className="flex h-fit justify-between md:px-9 md:pt-8">
+        <header className="flex h-fit w-full justify-between md:px-9 md:pt-8">
           <div>
             <div className="hidden h-7.5 w-fit md:block">
               <LogoLockup />
             </div>
-            <div className="block h-7.5 w-9 md:hidden">
+            <div className="ml-2 block h-7.5 w-9 md:hidden">
               <LogoMark />
             </div>
           </div>
           <Ariakit.Button
-            className="hidden size-6.5 rounded-full border border-gray6 text-gray10 md:block"
+            className="hidden size-7 rounded-full md:block"
             render={
               <a
+                className=""
                 href="https://t.me/porto_devs"
                 rel="noreferrer"
                 target="_blank"
               >
-                <svg
-                  fill="none"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  width="24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <title>help</title>
-                  <path
-                    d="M9.08984 9.00008C9.32495 8.33175 9.789 7.76819 10.3998 7.40921C11.0106 7.05024 11.7287 6.91902 12.427 7.03879C13.1253 7.15857 13.7587 7.52161 14.2149 8.06361C14.6712 8.60561 14.9209 9.2916 14.9198 10.0001C14.9198 12.0001 11.9198 13.0001 11.9198 13.0001"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                  />
-                  <path
-                    d="M12 17H12.01"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                  />
-                </svg>
+                <QuestionMarkIcon className="mx-auto inline-block size-6 rounded-full p-1 align-middle text-gray10 outline outline-gray6" />
               </a>
             }
           />
@@ -110,7 +90,7 @@ function RouteComponent() {
               activeProps={{
                 className: 'bg-gray1 text-gray12 md:border-none',
               }}
-              className="flex h-full max-h-[55px]! w-full items-center justify-center gap-2.25 rounded-none px-4 font-medium text-base first:rounded-l-full last:rounded-r-full last:border-r-0 last:border-l-full hover:bg-accentTint/20 md:h-14 md:justify-stretch md:rounded-full"
+              className="flex h-full max-h-[55px]! w-full items-center justify-start gap-2.25 rounded-none px-4 font-medium text-base first:rounded-l-full last:rounded-r-full last:border-r-0 last:border-l-full hover:bg-accentTint/20 md:h-14 md:justify-stretch md:rounded-full"
               inactiveProps={{
                 className: 'text-gray10 dark:text-gray11',
               }}
@@ -125,9 +105,9 @@ function RouteComponent() {
           ))}
         </nav>
 
-        <div className="md:mt-auto md:px-5 md:pb-5">
+        <div className="w-full md:mt-auto md:px-5 md:pb-5">
           <button
-            className="flex h-11 items-center justify-between gap-2.25 rounded-full bg-gray1 px-4 text-gray12 md:w-full"
+            className="ml-auto flex h-11 items-center justify-between gap-2.25 rounded-full bg-gray1 px-4 text-gray12 md:w-full"
             onClick={() => disconnect.disconnect()}
             type="button"
           >
