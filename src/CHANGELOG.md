@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.16
+
+### Patch Changes
+
+- [`3a45b15`](https://github.com/ithacaxyz/porto/commit/3a45b15d2c2f69b48660913b44a776d4d82774b4) Thanks [@jxom](https://github.com/jxom)! - Removed implicit module declarations in favor of `porto/register` module.
+
 ## 0.2.15
 
 ### Patch Changes
