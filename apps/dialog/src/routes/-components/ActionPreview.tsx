@@ -13,7 +13,7 @@ import { porto } from '~/lib/Porto'
 import { ValueFormatter } from '~/utils'
 import LucideInfo from '~icons/lucide/info'
 import { AddFunds } from './AddFunds'
-import { DepositButtons } from './DepositButtons'
+import { DepositButtons } from '~/components/DepositButtons'
 import { Layout } from './Layout'
 
 export function ActionPreview(props: ActionPreview.Props) {
