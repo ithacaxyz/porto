@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.18
+
+### Patch Changes
+
+- [`02bf0a8`](https://github.com/ithacaxyz/porto/commit/02bf0a8c88d1fa698490a1d1f96a5967eb026e02) Thanks [@jxom](https://github.com/jxom)! - Tweaked `porto` connector.
+
 ## 0.2.17
 
 ### Patch Changes
