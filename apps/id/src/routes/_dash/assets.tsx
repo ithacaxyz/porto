@@ -3,9 +3,11 @@ import { useCopyToClipboard } from '@porto/apps/hooks'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Cuer } from 'cuer'
 import { cx } from 'cva'
+import { Chains } from 'porto'
 import * as React from 'react'
 import { toast } from 'sonner'
 import { useFormattedAssets } from '~/hooks/useAssets'
+import type { ChainId } from '~/lib/Constants'
 import LucideSendHorizontal from '~icons/lucide/send-horizontal'
 
 export const Route = createFileRoute('/_dash/assets')({
@@ -123,51 +125,49 @@ function RouteComponent() {
         </div>
         <ul className="space-y-4">
           {assetsGroupedBySymbol?.map(([symbol, assets]) => (
-            <li className="flex items-center gap-2" key={symbol}>
+            <li className="flex w-full items-center gap-4" key={symbol}>
               <img
                 alt={assets?.at(0)?.metadata?.name ?? 'Token icon'}
                 className="size-8"
                 src={`/token-icons/${assets?.at(0)?.metadata?.symbol?.toLowerCase() ?? 'fallback'}.svg`}
               />
-              <span className="mx-3 font-medium text-blackA1 text-lg">
+              <span className="flex-1 font-medium text-blackA1 text-lg">
                 {assets?.at(0)?.metadata?.name}
               </span>
-              <div className="wrapper ml-auto">
+              <div
+                className="wrapper flex w-12 justify-center"
+                data-name="chain-distribution-ring"
+              >
                 <Ariakit.HovercardProvider>
                   <Ariakit.HovercardAnchor>
                     <div className="flex size-7 items-center justify-center rounded-full bg-gray4 p-1">
-                      <ChainDistributionRing
-                        assets={assets ?? []}
-                        className=""
-                      />
+                      <ChainDistributionRing assets={assets ?? []} />
                     </div>
                   </Ariakit.HovercardAnchor>
                   <Ariakit.Hovercard
-                    className="relative z-50 flex w-[275px] flex-col gap-2 rounded-lg bg-[white] px-4 py-3 text-[black] shadow-[0px_4px_39px_0px_rgba(0,0,0,0.05)]"
-                    gutter={16}
+                    className="relative z-50 flex w-[320px] flex-col gap-2 rounded-lg bg-[white] px-4 py-3 text-[black] shadow-[0px_4px_39px_0px_rgba(0,0,0,0.05)]"
+                    gutter={-50}
+                    shift={-200}
+                    {...{}}
                   >
-                    <Ariakit.HovercardHeading className="flex justify-between font-medium text-base text-gray9">
+                    <Ariakit.HovercardHeading className="flex justify-between font-medium text-gray9 text-sm">
                       <span>Network</span>
                       <span>{assets?.at(0)?.metadata?.symbol}</span>
                     </Ariakit.HovercardHeading>
-                    <div className="flex w-full items-center gap-3 font-medium text-base">
+                    <div className="flex w-full items-center gap-3 font-medium text-sm">
                       <ul className="flex w-full flex-col gap-2">
                         {assets?.map((asset) => (
                           <li
                             className="flex w-full items-stretch justify-between gap-2"
                             key={asset.chainId}
                           >
-                            <img
-                              alt={asset.metadata?.name ?? 'Token icon'}
-                              className="size-7"
-                              src={
-                                'https://tokenlist.up.railway.app/icon/42161'
-                              }
-                            />
-                            <span className="flex items-center gap-2 font-medium text-gray9 text-lg">
+                            {chainMap[asset.chainId]?.Icon({
+                              className: 'size-7 rounded-full',
+                            })}
+                            <span className="flex items-center gap-2 font-medium text-gray9 text-md">
                               {asset.chainName}
                             </span>
-                            <span className="ml-auto text-right font-medium text-blackA1 text-lg">
+                            <span className="ml-auto text-right font-medium text-blackA1 text-md">
                               ${Number(asset.value).toFixed(2)}
                             </span>
                           </li>
@@ -177,21 +177,26 @@ function RouteComponent() {
                   </Ariakit.Hovercard>
                 </Ariakit.HovercardProvider>
               </div>
-              <span className="mx-4 font-medium text-blackA1 text-lg">
-                ${Sum(assets)}
+              <span className="w-22 text-right font-medium text-blackA1 text-lg tabular-nums">
+                {Sum(assets)}
               </span>
               <Ariakit.Button
-                render={
-                  <Link
-                    className="flex size-9 items-center justify-center rounded-full bg-gray1 outline-1 outline-gray5"
-                    search={{
-                      address: `${assets?.at(0)?.chainId}:${assets?.at(0)?.address}`,
-                    }}
-                    to=".."
-                  >
-                    <LucideSendHorizontal className="size-5 text-gray8" />
-                  </Link>
-                }
+                className="shrink-0"
+                render={(_attrs) => {
+                  const address = assets?.at(0)?.address
+                  const chainId = assets?.at(0)?.chainId
+                  const symbol = assets?.at(0)?.metadata?.symbol
+                  if (!address || !chainId || !symbol) return null
+                  return (
+                    <Link
+                      className="flex size-9 items-center justify-center rounded-full bg-gray1 outline-1 outline-gray5"
+                      search={{ address, chainId, symbol }}
+                      to=".."
+                    >
+                      <LucideSendHorizontal className="size-5 text-gray8" />
+                    </Link>
+                  )
+                }}
               />
             </li>
           ))}
@@ -233,16 +238,102 @@ declare namespace FormatPrice {
   }
 }
 
-const chainColorPalette = [
-  '#6366F1',
-  '#22D3EE',
-  '#F97316',
-  '#10B981',
-  '#A855F7',
-  '#F43F5E',
-  '#0EA5E9',
-  '#FBBF24',
-] as const
+const ChainIcon = ({
+  chainId,
+  className,
+}: {
+  chainId: number
+  className?: string
+}) => (
+  <img
+    alt="Mainnet"
+    className={cx(className, 'size-7')}
+    src={`https://tokenlist.up.railway.app/icon/${chainId}`}
+  />
+)
+
+const chainMap: Record<
+  ChainId,
+  {
+    color: string
+    Icon: ({ className }: { className: string }) => React.ReactNode
+  }
+> = {
+  [Chains.mainnet.id]: {
+    color: '#627EEA',
+    Icon: ({ className }: { className: string }) => (
+      <ChainIcon chainId={Chains.mainnet.id} className={className} />
+    ),
+  },
+  [Chains.sepolia.id]: {
+    color: '#627EEA',
+    Icon: ({ className }: { className: string }) => (
+      <ChainIcon chainId={Chains.sepolia.id} className={className} />
+    ),
+  },
+  [Chains.base.id]: {
+    color: '#00F',
+    Icon: ({ className }: { className: string }) => (
+      <ChainIcon
+        chainId={Chains.base.id}
+        className={cx('rounded-sm', className)}
+      />
+    ),
+  },
+  [Chains.baseSepolia.id]: {
+    color: '#00F',
+    Icon: ({ className }: { className: string }) => (
+      <ChainIcon
+        chainId={Chains.baseSepolia.id}
+        className={cx('rounded-sm', className)}
+      />
+    ),
+  },
+  [Chains.arbitrum.id]: {
+    color: '#1B4ADD',
+    Icon: ({ className }: { className: string }) => (
+      <ChainIcon chainId={Chains.arbitrum.id} className={className} />
+    ),
+  },
+  [Chains.arbitrumSepolia.id]: {
+    color: '#1B4ADD',
+    Icon: ({ className }: { className: string }) => (
+      <ChainIcon chainId={Chains.arbitrumSepolia.id} className={className} />
+    ),
+  },
+  [Chains.optimism.id]: {
+    color: '#FF0420',
+    Icon: ({ className }: { className: string }) => (
+      <ChainIcon chainId={Chains.optimism.id} className={className} />
+    ),
+  },
+  [Chains.optimismSepolia.id]: {
+    color: '#FF0420',
+    Icon: ({ className }: { className: string }) => (
+      <ChainIcon chainId={Chains.optimismSepolia.id} className={className} />
+    ),
+  },
+  [Chains.polygon.id]: {
+    color: '#8247E5',
+    Icon: ({ className }: { className: string }) => (
+      <ChainIcon chainId={Chains.polygon.id} className={className} />
+    ),
+  },
+  [Chains.celo.id]: {
+    color: '#FCFF52',
+    Icon: ({ className }: { className: string }) => (
+      <ChainIcon chainId={Chains.celo.id} className={className} />
+    ),
+  },
+  [Chains.bsc.id]: {
+    color: '#F0B90B',
+    Icon: ({ className }: { className: string }) => (
+      <ChainIcon chainId={Chains.bsc.id} className={className} />
+    ),
+  },
+} as const
+
+const fallbackColor = '#FBCDA5'
 
 const MIN_SEGMENT_PERCENTAGE = 0.03
 const MAX_SEGMENT_COUNT = 5
@@ -256,17 +347,15 @@ function ChainDistributionRing(props: ChainDistributionRing.Props) {
 
   const chainColorCache = React.useRef(new Map<number, string>())
 
-  const getChainColor = React.useCallback((chainId: number) => {
-    if (!Number.isFinite(chainId)) return '#94A3B8'
+  const getChainColor = React.useCallback((chainId: ChainId) => {
+    if (!Number.isFinite(chainId)) return fallbackColor
 
     const cache = chainColorCache.current
-    if (cache.has(chainId)) return cache.get(chainId)! ?? '#94A3B8'
+    if (cache.has(chainId)) return cache.get(chainId)! ?? fallbackColor
 
-    const nextColor =
-      chainColorPalette[cache.size % chainColorPalette.length] ??
-      chainColorPalette[chainColorPalette.length - 1]
-    cache.set(chainId, nextColor ?? '#94A3B8')
-    return nextColor ?? '#94A3B8'
+    const nextColor = chainMap[chainId].color ?? fallbackColor
+    cache.set(chainId, nextColor ?? fallbackColor)
+    return nextColor ?? fallbackColor
   }, [])
 
   const segments = React.useMemo(() => {
@@ -295,7 +384,7 @@ function ChainDistributionRing(props: ChainDistributionRing.Props) {
 
     const aggregated = Array.from(totalsByChain.entries())
       .map(([chainId, value]) => ({
-        chainId,
+        chainId: chainId as ChainId,
         percentage: Math.min(1, Math.max(0, value / total)),
         value,
       }))

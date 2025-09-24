@@ -3,8 +3,8 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { Address } from 'ox'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
-import * as v from 'valibot'
 import { useAccount, useConnect, useConnectors } from 'wagmi'
+import * as z from 'zod'
 import LucideCheck from '~icons/lucide/check'
 import LucideOctagonAlert from '~icons/lucide/octagon-alert'
 import LucidePictureInPicture2 from '~icons/lucide/picture-in-picture-2'
@@ -18,10 +18,10 @@ export const Route = createFileRoute('/email/verify')({
       meta: [{ title: 'Verify Email' }],
     }
   },
-  validateSearch: v.object({
-    address: v.pipe(v.string(), v.check(Address.validate, 'Invalid address')),
-    email: v.pipe(v.string(), v.email()),
-    token: v.string(),
+  validateSearch: z.object({
+    address: z.string().refine(Address.validate, 'Invalid address'),
+    email: z.email(),
+    token: z.string(),
   }),
 })
 

@@ -1,6 +1,7 @@
 import type { Hex } from 'ox'
 import { Hooks } from 'porto/wagmi'
 import { formatUnits } from 'viem'
+import type { ChainId } from '~/lib/Constants.ts'
 import * as Wagmi from '~/lib/Wagmi.ts'
 
 export function useFormattedAssets(props: useFormattedAssets.Props) {
@@ -14,7 +15,7 @@ export function useFormattedAssets(props: useFormattedAssets.Props) {
             .filter((asset) => asset.balance > 0n && chainId !== '0')
             .map((asset) => ({
               ...asset,
-              chainId: Number.parseInt(chainId, 10),
+              chainId: Number.parseInt(chainId, 10) as ChainId,
               chainName: Wagmi.getChainConfig(Number.parseInt(chainId, 10))
                 ?.name,
               value:

@@ -7,6 +7,10 @@
   --spacing-hero: 45vw;
 }
 
+html {
+  overscroll-behavior: none;
+}
+
 html,
 :host {
   background-color: var(--background-color-primary);

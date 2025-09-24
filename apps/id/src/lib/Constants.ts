@@ -17,7 +17,7 @@ export const ethAsset = {
   symbol: 'ETH',
 } as const
 
-export type ChainId = PortoConfig.ChainId
+export type ChainId = Exclude<PortoConfig.ChainId, 31337 | 31338 | 31339>
 
 // TODO: extract from `wallet_getCapabilities` instead of hardcoding.
 export const defaultAssets: Record<

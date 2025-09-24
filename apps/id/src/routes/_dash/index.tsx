@@ -3,7 +3,7 @@ import { ChainIcon, Toast } from '@porto/apps/components'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { cx } from 'cva'
-import { type Address, Hex, Value } from 'ox'
+import { Address, Hex, Value } from 'ox'
 import { RelayActions, WalletActions } from 'porto/viem'
 import * as React from 'react'
 import { toast } from 'sonner'
@@ -16,6 +16,7 @@ import {
 } from 'viem'
 import { useAccount, useSendCalls } from 'wagmi'
 import { waitForCallsStatus } from 'wagmi/actions'
+import * as z from 'zod'
 import { TokenIcon } from '~/components/TokenIcon.tsx'
 import * as Wagmi from '~/lib/Wagmi.ts'
 import { StringFormatter, ValueFormatter } from '~/utils.ts'
@@ -26,10 +27,22 @@ import LucideSendHorizontal from '~icons/lucide/send-horizontal'
 
 export const Route = createFileRoute('/_dash/')({
   component: RouteComponent,
+  validateSearch: z.object({
+    address: z.string().refine(Address.validate, 'Invalid address').optional(),
+    chainId: z.number().optional(),
+    symbol: z.string().optional(),
+  }),
 })
 
 function RouteComponent() {
   const { address } = useAccount()
+
+  const {
+    address: assetAddress,
+    chainId: assetChainId,
+    symbol: assetSymbol,
+  } = Route.useSearch()
+  console.info(assetAddress, assetChainId, assetSymbol)
 
   const { data: assets, refetch: refetchAssets } = useAssets({ address })
   const assetsMap = React.useMemo(() => {
@@ -70,8 +83,8 @@ function RouteComponent() {
   const form = Ariakit.useFormStore({
     defaultValues: {
       recipient: '',
-      sourceChainId: '0',
-      symbol: 'ETH',
+      sourceChainId: assetChainId?.toString() ?? '0',
+      symbol: assetSymbol ?? 'ETH',
       targetChainId: '1',
       value: '',
     },

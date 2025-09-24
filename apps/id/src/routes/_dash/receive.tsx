@@ -17,7 +17,7 @@ function RouteComponent() {
   const [, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
   return (
     <main className="size-full space-y-6 md:ml-2">
-      <section className="grid min-h-[50%] grid-flow-col grid-cols-2 justify-items-stretch gap-4 *:rounded-2xl *:bg-white lg:grid-rows-4 dark:*:bg-gray1">
+      <section className="grid h-[50%] grid-flow-col grid-cols-2 justify-items-stretch gap-4 *:rounded-2xl *:bg-white lg:max-h-[350px] lg:grid-rows-4 dark:*:bg-gray1">
         <div
           className={Ui.cx(
             'flex flex-col items-center px-9 pt-6 pb-3.5',

@@ -110,7 +110,7 @@ function RouteComponent() {
               activeProps={{
                 className: 'bg-gray1 text-gray12 md:border-none',
               }}
-              className="flex h-full w-full items-center justify-center gap-2.25 rounded-none px-4 font-medium text-base first:rounded-l-full last:rounded-r-full last:border-r-0 last:border-l-full hover:bg-accentTint/20 md:h-14 md:justify-stretch md:rounded-full"
+              className="flex h-full max-h-[55px]! w-full items-center justify-center gap-2.25 rounded-none px-4 font-medium text-base first:rounded-l-full last:rounded-r-full last:border-r-0 last:border-l-full hover:bg-accentTint/20 md:h-14 md:justify-stretch md:rounded-full"
               inactiveProps={{
                 className: 'text-gray10 dark:text-gray11',
               }}

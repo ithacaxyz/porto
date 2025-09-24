@@ -18,7 +18,6 @@
     "@porto/ui": "workspace:*",
     "@sentry/react": "catalog:",
     "@sentry/vite-plugin": "catalog:",
-    "@tanstack/query-sync-storage-persister": "catalog:",
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-query-persist-client": "catalog:",
     "@tanstack/react-router": "catalog:",
@@ -27,10 +26,11 @@
     "cva": "catalog:",
     "ox": "catalog:",
     "porto": "workspace:*",
+    "@tanstack/query-async-storage-persister": "catalog:",
     "react": "catalog:",
+    "zod": "catalog:",
     "react-dom": "catalog:",
     "sonner": "catalog:",
-    "valibot": "^1.1.0",
     "wagmi": "catalog:"
   },
   "devDependencies": {
