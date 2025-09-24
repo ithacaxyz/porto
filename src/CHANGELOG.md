@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.14
+
+### Patch Changes
+
+- [`cb6cc99`](https://github.com/ithacaxyz/porto/commit/cb6cc995f0e56885b4f962a7f02f4824cedb3116) Thanks [@jxom](https://github.com/jxom)! - Added Zod export to `porto/internal`.
+
 ## 0.2.13
 
 ### Patch Changes
