@@ -12,11 +12,18 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as PlaygroundImport } from './routes/playground'
-import { Route as LayoutImport } from './routes/_layout'
-import { Route as LayoutIndexImport } from './routes/_layout.index'
-import { Route as LayoutRecoveryImport } from './routes/_layout.recovery'
-import { Route as LayoutAboutImport } from './routes/_layout.about'
-import { Route as LayoutEmailVerifyImport } from './routes/_layout.email.verify'
+import { Route as AuthImport } from './routes/auth'
+import { Route as AboutImport } from './routes/about'
+import { Route as DashImport } from './routes/_dash'
+import { Route as DashIndexImport } from './routes/_dash/index'
+import { Route as EmailVerifyImport } from './routes/email.verify'
+import { Route as DashSavingsImport } from './routes/_dash/savings'
+import { Route as DashReceiveImport } from './routes/_dash/receive'
+import { Route as DashAssetsImport } from './routes/_dash/assets'
+import { Route as DashActivityImport } from './routes/_dash/activity'
+import { Route as DashSettingsIndexImport } from './routes/_dash/settings/index'
+import { Route as DashSettingsRecoveryImport } from './routes/_dash/settings/recovery'
+import { Route as DashSettingsPermissionsImport } from './routes/_dash/settings/permissions'
 
 // Create/Update Routes
 
@@ -26,44 +33,100 @@ const PlaygroundRoute = PlaygroundImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const LayoutRoute = LayoutImport.update({
-  id: '/_layout',
+const AuthRoute = AuthImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRoute,
 } as any)
 
-const LayoutIndexRoute = LayoutIndexImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => LayoutRoute,
-} as any)
-
-const LayoutRecoveryRoute = LayoutRecoveryImport.update({
-  id: '/recovery',
-  path: '/recovery',
-  getParentRoute: () => LayoutRoute,
-} as any)
-
-const LayoutAboutRoute = LayoutAboutImport.update({
+const AboutRoute = AboutImport.update({
   id: '/about',
   path: '/about',
-  getParentRoute: () => LayoutRoute,
+  getParentRoute: () => rootRoute,
 } as any)
 
-const LayoutEmailVerifyRoute = LayoutEmailVerifyImport.update({
+const DashRoute = DashImport.update({
+  id: '/_dash',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DashIndexRoute = DashIndexImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashRoute,
+} as any)
+
+const EmailVerifyRoute = EmailVerifyImport.update({
   id: '/email/verify',
   path: '/email/verify',
-  getParentRoute: () => LayoutRoute,
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DashSavingsRoute = DashSavingsImport.update({
+  id: '/savings',
+  path: '/savings',
+  getParentRoute: () => DashRoute,
+} as any)
+
+const DashReceiveRoute = DashReceiveImport.update({
+  id: '/receive',
+  path: '/receive',
+  getParentRoute: () => DashRoute,
+} as any)
+
+const DashAssetsRoute = DashAssetsImport.update({
+  id: '/assets',
+  path: '/assets',
+  getParentRoute: () => DashRoute,
+} as any)
+
+const DashActivityRoute = DashActivityImport.update({
+  id: '/activity',
+  path: '/activity',
+  getParentRoute: () => DashRoute,
+} as any)
+
+const DashSettingsIndexRoute = DashSettingsIndexImport.update({
+  id: '/settings/',
+  path: '/settings/',
+  getParentRoute: () => DashRoute,
+} as any)
+
+const DashSettingsRecoveryRoute = DashSettingsRecoveryImport.update({
+  id: '/settings/recovery',
+  path: '/settings/recovery',
+  getParentRoute: () => DashRoute,
+} as any)
+
+const DashSettingsPermissionsRoute = DashSettingsPermissionsImport.update({
+  id: '/settings/permissions',
+  path: '/settings/permissions',
+  getParentRoute: () => DashRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_layout': {
-      id: '/_layout'
+    '/_dash': {
+      id: '/_dash'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof LayoutImport
+      preLoaderRoute: typeof DashImport
+      parentRoute: typeof rootRoute
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutImport
+      parentRoute: typeof rootRoute
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthImport
       parentRoute: typeof rootRoute
     }
     '/playground': {
@@ -73,107 +136,208 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlaygroundImport
       parentRoute: typeof rootRoute
     }
-    '/_layout/about': {
-      id: '/_layout/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof LayoutAboutImport
-      parentRoute: typeof LayoutImport
+    '/_dash/activity': {
+      id: '/_dash/activity'
+      path: '/activity'
+      fullPath: '/activity'
+      preLoaderRoute: typeof DashActivityImport
+      parentRoute: typeof DashImport
     }
-    '/_layout/recovery': {
-      id: '/_layout/recovery'
-      path: '/recovery'
-      fullPath: '/recovery'
-      preLoaderRoute: typeof LayoutRecoveryImport
-      parentRoute: typeof LayoutImport
+    '/_dash/assets': {
+      id: '/_dash/assets'
+      path: '/assets'
+      fullPath: '/assets'
+      preLoaderRoute: typeof DashAssetsImport
+      parentRoute: typeof DashImport
     }
-    '/_layout/': {
-      id: '/_layout/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof LayoutIndexImport
-      parentRoute: typeof LayoutImport
+    '/_dash/receive': {
+      id: '/_dash/receive'
+      path: '/receive'
+      fullPath: '/receive'
+      preLoaderRoute: typeof DashReceiveImport
+      parentRoute: typeof DashImport
     }
-    '/_layout/email/verify': {
-      id: '/_layout/email/verify'
+    '/_dash/savings': {
+      id: '/_dash/savings'
+      path: '/savings'
+      fullPath: '/savings'
+      preLoaderRoute: typeof DashSavingsImport
+      parentRoute: typeof DashImport
+    }
+    '/email/verify': {
+      id: '/email/verify'
       path: '/email/verify'
       fullPath: '/email/verify'
-      preLoaderRoute: typeof LayoutEmailVerifyImport
-      parentRoute: typeof LayoutImport
+      preLoaderRoute: typeof EmailVerifyImport
+      parentRoute: typeof rootRoute
+    }
+    '/_dash/': {
+      id: '/_dash/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof DashIndexImport
+      parentRoute: typeof DashImport
+    }
+    '/_dash/settings/permissions': {
+      id: '/_dash/settings/permissions'
+      path: '/settings/permissions'
+      fullPath: '/settings/permissions'
+      preLoaderRoute: typeof DashSettingsPermissionsImport
+      parentRoute: typeof DashImport
+    }
+    '/_dash/settings/recovery': {
+      id: '/_dash/settings/recovery'
+      path: '/settings/recovery'
+      fullPath: '/settings/recovery'
+      preLoaderRoute: typeof DashSettingsRecoveryImport
+      parentRoute: typeof DashImport
+    }
+    '/_dash/settings/': {
+      id: '/_dash/settings/'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof DashSettingsIndexImport
+      parentRoute: typeof DashImport
     }
   }
 }
 
 // Create and export the route tree
 
-interface LayoutRouteChildren {
-  LayoutAboutRoute: typeof LayoutAboutRoute
-  LayoutRecoveryRoute: typeof LayoutRecoveryRoute
-  LayoutIndexRoute: typeof LayoutIndexRoute
-  LayoutEmailVerifyRoute: typeof LayoutEmailVerifyRoute
+interface DashRouteChildren {
+  DashActivityRoute: typeof DashActivityRoute
+  DashAssetsRoute: typeof DashAssetsRoute
+  DashReceiveRoute: typeof DashReceiveRoute
+  DashSavingsRoute: typeof DashSavingsRoute
+  DashIndexRoute: typeof DashIndexRoute
+  DashSettingsPermissionsRoute: typeof DashSettingsPermissionsRoute
+  DashSettingsRecoveryRoute: typeof DashSettingsRecoveryRoute
+  DashSettingsIndexRoute: typeof DashSettingsIndexRoute
 }
 
-const LayoutRouteChildren: LayoutRouteChildren = {
-  LayoutAboutRoute: LayoutAboutRoute,
-  LayoutRecoveryRoute: LayoutRecoveryRoute,
-  LayoutIndexRoute: LayoutIndexRoute,
-  LayoutEmailVerifyRoute: LayoutEmailVerifyRoute,
+const DashRouteChildren: DashRouteChildren = {
+  DashActivityRoute: DashActivityRoute,
+  DashAssetsRoute: DashAssetsRoute,
+  DashReceiveRoute: DashReceiveRoute,
+  DashSavingsRoute: DashSavingsRoute,
+  DashIndexRoute: DashIndexRoute,
+  DashSettingsPermissionsRoute: DashSettingsPermissionsRoute,
+  DashSettingsRecoveryRoute: DashSettingsRecoveryRoute,
+  DashSettingsIndexRoute: DashSettingsIndexRoute,
 }
 
-const LayoutRouteWithChildren =
-  LayoutRoute._addFileChildren(LayoutRouteChildren)
+const DashRouteWithChildren = DashRoute._addFileChildren(DashRouteChildren)
 
 export interface FileRoutesByFullPath {
-  '': typeof LayoutRouteWithChildren
+  '': typeof DashRouteWithChildren
+  '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
   '/playground': typeof PlaygroundRoute
-  '/about': typeof LayoutAboutRoute
-  '/recovery': typeof LayoutRecoveryRoute
-  '/': typeof LayoutIndexRoute
-  '/email/verify': typeof LayoutEmailVerifyRoute
+  '/activity': typeof DashActivityRoute
+  '/assets': typeof DashAssetsRoute
+  '/receive': typeof DashReceiveRoute
+  '/savings': typeof DashSavingsRoute
+  '/email/verify': typeof EmailVerifyRoute
+  '/': typeof DashIndexRoute
+  '/settings/permissions': typeof DashSettingsPermissionsRoute
+  '/settings/recovery': typeof DashSettingsRecoveryRoute
+  '/settings': typeof DashSettingsIndexRoute
 }
 
 export interface FileRoutesByTo {
+  '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
   '/playground': typeof PlaygroundRoute
-  '/about': typeof LayoutAboutRoute
-  '/recovery': typeof LayoutRecoveryRoute
-  '/': typeof LayoutIndexRoute
-  '/email/verify': typeof LayoutEmailVerifyRoute
+  '/activity': typeof DashActivityRoute
+  '/assets': typeof DashAssetsRoute
+  '/receive': typeof DashReceiveRoute
+  '/savings': typeof DashSavingsRoute
+  '/email/verify': typeof EmailVerifyRoute
+  '/': typeof DashIndexRoute
+  '/settings/permissions': typeof DashSettingsPermissionsRoute
+  '/settings/recovery': typeof DashSettingsRecoveryRoute
+  '/settings': typeof DashSettingsIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/_layout': typeof LayoutRouteWithChildren
+  '/_dash': typeof DashRouteWithChildren
+  '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
   '/playground': typeof PlaygroundRoute
-  '/_layout/about': typeof LayoutAboutRoute
-  '/_layout/recovery': typeof LayoutRecoveryRoute
-  '/_layout/': typeof LayoutIndexRoute
-  '/_layout/email/verify': typeof LayoutEmailVerifyRoute
+  '/_dash/activity': typeof DashActivityRoute
+  '/_dash/assets': typeof DashAssetsRoute
+  '/_dash/receive': typeof DashReceiveRoute
+  '/_dash/savings': typeof DashSavingsRoute
+  '/email/verify': typeof EmailVerifyRoute
+  '/_dash/': typeof DashIndexRoute
+  '/_dash/settings/permissions': typeof DashSettingsPermissionsRoute
+  '/_dash/settings/recovery': typeof DashSettingsRecoveryRoute
+  '/_dash/settings/': typeof DashSettingsIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/playground' | '/about' | '/recovery' | '/' | '/email/verify'
+  fullPaths:
+    | ''
+    | '/about'
+    | '/auth'
+    | '/playground'
+    | '/activity'
+    | '/assets'
+    | '/receive'
+    | '/savings'
+    | '/email/verify'
+    | '/'
+    | '/settings/permissions'
+    | '/settings/recovery'
+    | '/settings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/playground' | '/about' | '/recovery' | '/' | '/email/verify'
+  to:
+    | '/about'
+    | '/auth'
+    | '/playground'
+    | '/activity'
+    | '/assets'
+    | '/receive'
+    | '/savings'
+    | '/email/verify'
+    | '/'
+    | '/settings/permissions'
+    | '/settings/recovery'
+    | '/settings'
   id:
     | '__root__'
-    | '/_layout'
+    | '/_dash'
+    | '/about'
+    | '/auth'
     | '/playground'
-    | '/_layout/about'
-    | '/_layout/recovery'
-    | '/_layout/'
-    | '/_layout/email/verify'
+    | '/_dash/activity'
+    | '/_dash/assets'
+    | '/_dash/receive'
+    | '/_dash/savings'
+    | '/email/verify'
+    | '/_dash/'
+    | '/_dash/settings/permissions'
+    | '/_dash/settings/recovery'
+    | '/_dash/settings/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-  LayoutRoute: typeof LayoutRouteWithChildren
+  DashRoute: typeof DashRouteWithChildren
+  AboutRoute: typeof AboutRoute
+  AuthRoute: typeof AuthRoute
   PlaygroundRoute: typeof PlaygroundRoute
+  EmailVerifyRoute: typeof EmailVerifyRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  LayoutRoute: LayoutRouteWithChildren,
+  DashRoute: DashRouteWithChildren,
+  AboutRoute: AboutRoute,
+  AuthRoute: AuthRoute,
   PlaygroundRoute: PlaygroundRoute,
+  EmailVerifyRoute: EmailVerifyRoute,
 }
 
 export const routeTree = rootRoute
@@ -186,37 +350,69 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/_layout",
-        "/playground"
+        "/_dash",
+        "/about",
+        "/auth",
+        "/playground",
+        "/email/verify"
       ]
     },
-    "/_layout": {
-      "filePath": "_layout.tsx",
+    "/_dash": {
+      "filePath": "_dash.tsx",
       "children": [
-        "/_layout/about",
-        "/_layout/recovery",
-        "/_layout/",
-        "/_layout/email/verify"
+        "/_dash/activity",
+        "/_dash/assets",
+        "/_dash/receive",
+        "/_dash/savings",
+        "/_dash/",
+        "/_dash/settings/permissions",
+        "/_dash/settings/recovery",
+        "/_dash/settings/"
       ]
+    },
+    "/about": {
+      "filePath": "about.tsx"
+    },
+    "/auth": {
+      "filePath": "auth.tsx"
     },
     "/playground": {
       "filePath": "playground.tsx"
     },
-    "/_layout/about": {
-      "filePath": "_layout.about.tsx",
-      "parent": "/_layout"
+    "/_dash/activity": {
+      "filePath": "_dash/activity.tsx",
+      "parent": "/_dash"
     },
-    "/_layout/recovery": {
-      "filePath": "_layout.recovery.tsx",
-      "parent": "/_layout"
+    "/_dash/assets": {
+      "filePath": "_dash/assets.tsx",
+      "parent": "/_dash"
     },
-    "/_layout/": {
-      "filePath": "_layout.index.tsx",
-      "parent": "/_layout"
+    "/_dash/receive": {
+      "filePath": "_dash/receive.tsx",
+      "parent": "/_dash"
     },
-    "/_layout/email/verify": {
-      "filePath": "_layout.email.verify.tsx",
-      "parent": "/_layout"
+    "/_dash/savings": {
+      "filePath": "_dash/savings.tsx",
+      "parent": "/_dash"
+    },
+    "/email/verify": {
+      "filePath": "email.verify.tsx"
+    },
+    "/_dash/": {
+      "filePath": "_dash/index.tsx",
+      "parent": "/_dash"
+    },
+    "/_dash/settings/permissions": {
+      "filePath": "_dash/settings/permissions.tsx",
+      "parent": "/_dash"
+    },
+    "/_dash/settings/recovery": {
+      "filePath": "_dash/settings/recovery.tsx",
+      "parent": "/_dash"
+    },
+    "/_dash/settings/": {
+      "filePath": "_dash/settings/index.tsx",
+      "parent": "/_dash"
     }
   }
 }

@@ -225,9 +225,9 @@ export declare namespace getAssets {
 
 export async function getPermissions<config extends Config>(
   config: config,
-  parameters: getPermissions.Parameters<config> = {},
+  parameters: getPermissions.Parameters = {},
 ): Promise<getPermissions.ReturnType> {
-  const { address, chainId, connector } = parameters
+  const { address, connector } = parameters
 
   const client = await getConnectorClient(config, {
     account: address,
@@ -240,9 +240,7 @@ export async function getPermissions<config extends Config>(
 }
 
 export declare namespace getPermissions {
-  type Parameters<config extends Config = Config> = ChainIdParameter<config> &
-    ConnectorParameter &
-    WalletActions.getPermissions.Parameters
+  type Parameters = ConnectorParameter & WalletActions.getPermissions.Parameters
 
   type ReturnType = WalletActions.getPermissions.ReturnType
 
