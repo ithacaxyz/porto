@@ -236,7 +236,7 @@ function FundsNeededSection(props: {
 
       return RelayActions.addFaucetFunds(client, {
         address: depositAddress,
-        chainId: deficit.chainId,
+        chainId: deficit.chainId as never,
         tokenAddress: exp1Address[deficit.chainId as never],
         value: deficitAmount.needed,
       })
