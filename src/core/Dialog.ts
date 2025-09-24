@@ -200,7 +200,7 @@ export function iframe(options: iframe.Options = {}) {
         }
       })
 
-      let bodyStyle: CSSStyleDeclaration | null = null
+      let originalBodyStyle: string | null = null
 
       // store the opening element to restore the focus
       let opener: HTMLElement | null = null
@@ -239,9 +239,11 @@ export function iframe(options: iframe.Options = {}) {
         opener?.focus()
         opener = null
 
-        Object.assign(document.body.style, bodyStyle ?? '')
-        // firefox: explicitly restore/clear `overflow` directly
-        document.body.style.overflow = bodyStyle?.overflow ?? ''
+        if (originalBodyStyle) {
+          document.body.style.cssText = originalBodyStyle
+        } else {
+          document.body.removeAttribute('style')
+        }
       }
       const activateDialog = () => {
         if (dialogActive) return
@@ -252,7 +254,7 @@ export function iframe(options: iframe.Options = {}) {
         iframe.focus()
         root.style.pointerEvents = 'auto'
 
-        bodyStyle = Object.assign({}, document.body.style)
+        originalBodyStyle = document.body.style.cssText
         document.body.style.overflow = 'hidden'
       }
 
