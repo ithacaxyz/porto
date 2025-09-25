@@ -116,6 +116,7 @@ export function Approve(props: Approve.Props) {
         </Layout.Footer.Actions>
       }
       capabilities={capabilities}
+      onReject={onReject}
       header={
         <Layout.Header.Default
           icon={LucideLockKeyholeOpen}

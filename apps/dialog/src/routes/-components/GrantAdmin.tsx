@@ -47,6 +47,7 @@ export function GrantAdmin(props: GrantAdmin.Props) {
       }
       capabilities={prepareCallsQuery.isPending ? undefined : capabilities}
       error={prepareCallsQuery.error}
+      onReject={onReject}
       header={
         <Layout.Header.Default
           content={

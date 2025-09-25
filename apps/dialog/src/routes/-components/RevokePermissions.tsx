@@ -42,6 +42,7 @@ export function RevokePermissions(props: RevokePermissions.Props) {
         prepareCallsQuery.isPending ? undefined : prepareCallsCapabilities
       }
       error={prepareCallsQuery.error}
+      onReject={onReject}
       header={
         <Layout.Header.Default
           content={

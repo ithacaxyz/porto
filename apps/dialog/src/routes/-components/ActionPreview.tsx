@@ -85,7 +85,7 @@ export namespace ActionPreview {
     }
     actions?: React.ReactNode
     account?: Address.Address
-    onReject?: () => void
+    onReject: () => void
   }
 
   export type DeficitAmount = {
@@ -224,8 +224,8 @@ function useDeficit(
 function FundsNeededSection(props: {
   deficit: ActionPreview.Deficit
   account?: Address.Address
-  onReject?: () => void
-  onAddFunds?: () => void
+  onReject: () => void
+  onAddFunds: () => void
 }) {
   const { deficit, account, onReject, onAddFunds } = props
 

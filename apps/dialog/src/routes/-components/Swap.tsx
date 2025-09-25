@@ -76,6 +76,7 @@ export function Swap(props: Swap.Props) {
         </Layout.Footer.Actions>
       }
       capabilities={capabilities}
+      onReject={onReject}
       header={
         <Layout.Header.Default
           icon={swapType === 'convert' ? Star : LucideSendToBack}

@@ -172,6 +172,7 @@ export function ActionRequest(props: ActionRequest.Props) {
       }
       capabilities={prepareCallsQuery.isPending ? undefined : capabilities}
       error={prepareCallsQuery.error}
+      onReject={onReject}
       header={
         <Layout.Header.Default
           icon={prepareCallsQuery.isError ? TriangleAlert : Star}
