@@ -1,5 +1,5 @@
 import { UserAgent } from '@porto/apps'
-import { exp1Address } from '@porto/apps/contracts'
+import { exp1Address, exp2Address } from '@porto/apps/contracts'
 import { Button, Separator } from '@porto/ui'
 import { useMutation } from '@tanstack/react-query'
 import { type Address, Value } from 'ox'
@@ -269,14 +269,21 @@ function FundsNeededSection(props: {
     if (
       !deficit.assetDeficits?.length ||
       !deficit.chainId ||
-      !(deficit.chainId in exp1Address) ||
       !deficit.assetDeficits[0]?.address
     )
       return false
 
-    const chainId = deficit.chainId as keyof typeof exp1Address
-    const deficitAsset = deficit.assetDeficits[0].address
-    return deficitAsset.toLowerCase() === exp1Address[chainId].toLowerCase()
+    const tokenAddr = deficit.assetDeficits[0].address.toLowerCase()
+
+    const isExp1 =
+      tokenAddr ===
+      exp1Address[deficit.chainId as keyof typeof exp1Address]?.toLowerCase()
+
+    const isExp2 =
+      tokenAddr ===
+      exp2Address[deficit.chainId as keyof typeof exp2Address]?.toLowerCase()
+
+    return isExp1 || isExp2
   }, [deficit, chain])
 
   const faucet = useMutation({
@@ -284,11 +291,13 @@ function FundsNeededSection(props: {
       if (!depositAddress) throw new Error('address is required')
       if (!deficit.chainId) throw new Error('chainId is required')
       if (!deficit.amount) throw new Error('deficit amount is required')
+      if (!deficit.assetDeficits?.[0]?.address)
+        throw new Error('deficit asset is required')
 
       return RelayActions.addFaucetFunds(client, {
         address: depositAddress,
         chain: { id: deficit.chainId },
-        tokenAddress: exp1Address[deficit.chainId as never],
+        tokenAddress: deficit.assetDeficits[0].address,
         value: deficit.amount.needed,
       })
     },
