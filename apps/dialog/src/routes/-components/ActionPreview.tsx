@@ -63,11 +63,9 @@ export function ActionPreview(props: ActionPreview.Props) {
             onReject={onReject}
           />
         ) : (
-          <>
-            {actions}
-            {account && <Layout.Footer.Account address={account} />}
-          </>
+          actions
         )}
+        {account && <Layout.Footer.Account address={account} />}
       </Layout.Footer>
     </Layout>
   )
