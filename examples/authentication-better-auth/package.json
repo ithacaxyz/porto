@@ -15,7 +15,7 @@
     "@tanstack/react-query": "^5",
     "better-auth": "^1.3.4",
     "better-sqlite3": "^12.2.0",
-    "hono": "^4",
+    "hono": "^4.9.8",
     "kysely": "^0.28.3",
     "kysely-d1": "^0.4.0",
     "porto": "latest",
@@ -33,7 +33,7 @@
     "@vitejs/plugin-react": "^4.4.1",
     "globals": "^16.0.0",
     "typescript": "~5.9.2",
-    "vite": "^6.3.5",
+    "vite": "^6.3.6",
     "vite-plugin-mkcert": "^1",
     "wrangler": "^4.37.0"
   }

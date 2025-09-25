@@ -18,7 +18,7 @@
     "!jsr.json"
   ],
   "dependencies": {
-    "hono": "^4.9.6",
+    "hono": "^4.9.8",
     "idb-keyval": "^6.2.1",
     "mipd": "^0.0.7",
     "ox": "^0.9.6",

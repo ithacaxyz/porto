@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5",
-    "hono": "^4",
+    "hono": "^4.9.8",
     "porto": "latest",
     "react": "^19",
     "react-dom": "^19",
@@ -27,7 +27,7 @@
     "@vitejs/plugin-react": "^4.4.1",
     "globals": "^16.0.0",
     "typescript": "~5.9.2",
-    "vite": "^6.3.5",
+    "vite": "^6.3.6",
     "vite-plugin-mkcert": "^1",
     "wrangler": "^4.37.0"
   }
