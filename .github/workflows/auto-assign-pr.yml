@@ -9,4 +9,4 @@ jobs:
     permissions:
       issues: write
       pull-requests: write
-    uses: ithacaxyz/ci/.github/workflows/auto-assign-pr.yml@main
+    uses: ithacaxyz/ci/.github/workflows/auto-assign-pr.yml@d326eafa6b9790b974ce1396bd4634c3cf0953b3 # main

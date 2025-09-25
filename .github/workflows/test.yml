@@ -110,7 +110,7 @@ jobs:
           exit 0
       - name: Clone repository
         if: matrix.enabled == true
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           ref: ${{ inputs.porto-ref }}
 
@@ -135,7 +135,7 @@ jobs:
 
       - name: Set up Docker
         if: matrix.enabled == true && matrix.env == 'anvil'
-        uses: docker/setup-docker-action@v4
+        uses: docker/setup-docker-action@b60f85385d03ac8acfca6d9996982511d8620a19 # v4
 
       - name: Install Playwright
         if: matrix.enabled == true && matrix.browser == 'true'
@@ -143,7 +143,7 @@ jobs:
 
       - name: Test
         if: matrix.enabled == true
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
           max_attempts: 3
           timeout_minutes: 30
