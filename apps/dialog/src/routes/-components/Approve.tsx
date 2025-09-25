@@ -156,18 +156,14 @@ export function Approve(props: Approve.Props) {
           {feeFormatted && (
             <Details.Item
               label="Fees (est.)"
-              value={
-                <div title={feeFormatted.full}>{feeFormatted.short}</div>
-              }
+              value={<div title={feeFormatted.full}>{feeFormatted.short}</div>}
             />
           )}
           {chainsPath.length > 0 && (
             <Details.Item
               label={`Network${chainsPath.length > 1 ? 's' : ''}`}
               value={
-                <ChainsPath
-                  chainIds={chainsPath.map((chain) => chain.id)}
-                />
+                <ChainsPath chainIds={chainsPath.map((chain) => chain.id)} />
               }
             />
           )}

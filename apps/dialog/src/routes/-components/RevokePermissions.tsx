@@ -42,7 +42,6 @@ export function RevokePermissions(props: RevokePermissions.Props) {
         prepareCallsQuery.isPending ? undefined : prepareCallsCapabilities
       }
       error={prepareCallsQuery.error}
-      queryParams={{}}
       header={
         <Layout.Header.Default
           content={
@@ -60,6 +59,7 @@ export function RevokePermissions(props: RevokePermissions.Props) {
           variant="warning"
         />
       }
+      queryParams={{}}
     >
       {permissions && (
         <div className="pl-0">

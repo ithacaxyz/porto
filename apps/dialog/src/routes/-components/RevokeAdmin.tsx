@@ -48,18 +48,18 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
       }
       capabilities={prepareCallsQuery.isPending ? undefined : capabilities}
       error={prepareCallsQuery.error}
-      queryParams={{ address: admins.data?.address }}
       header={
         <Layout.Header.Default
           content={
             <div>
-              Remove the ability of the following wallet to recover this
-              passkey if it is lost.
+              Remove the ability of the following wallet to recover this passkey
+              if it is lost.
             </div>
           }
           title="Remove recovery method"
         />
       }
+      queryParams={{ address: admins.data?.address }}
     >
       <ActionRequest.PaneWithDetails
         error={prepareCallsQuery.error}

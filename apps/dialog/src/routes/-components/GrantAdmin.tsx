@@ -47,13 +47,12 @@ export function GrantAdmin(props: GrantAdmin.Props) {
       }
       capabilities={prepareCallsQuery.isPending ? undefined : capabilities}
       error={prepareCallsQuery.error}
-      queryParams={{ address: account?.address }}
       header={
         <Layout.Header.Default
           content={
             <div>
-              You will allow this account to recover your passkey if it is
-              ever lost.
+              You will allow this account to recover your passkey if it is ever
+              lost.
             </div>
           }
           icon={prepareCallsQuery.isError ? TriangleAlert : undefined}
@@ -61,6 +60,7 @@ export function GrantAdmin(props: GrantAdmin.Props) {
           variant={prepareCallsQuery.isError ? 'warning' : 'default'}
         />
       }
+      queryParams={{ address: account?.address }}
     >
       <ActionRequest.PaneWithDetails
         error={prepareCallsQuery.error}
