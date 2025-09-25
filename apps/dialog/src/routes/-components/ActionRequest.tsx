@@ -172,7 +172,6 @@ export function ActionRequest(props: ActionRequest.Props) {
       }
       capabilities={prepareCallsQuery.isPending ? undefined : capabilities}
       error={prepareCallsQuery.error}
-      onReject={onReject}
       header={
         <Layout.Header.Default
           icon={prepareCallsQuery.isError ? TriangleAlert : Star}
@@ -180,6 +179,7 @@ export function ActionRequest(props: ActionRequest.Props) {
           variant={prepareCallsQuery.isError ? 'warning' : 'default'}
         />
       }
+      onReject={onReject}
       queryParams={{ address, chainId }}
     >
       <div className="flex flex-col gap-[8px]">

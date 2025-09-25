@@ -47,7 +47,6 @@ export function GrantAdmin(props: GrantAdmin.Props) {
       }
       capabilities={prepareCallsQuery.isPending ? undefined : capabilities}
       error={prepareCallsQuery.error}
-      onReject={onReject}
       header={
         <Layout.Header.Default
           content={
@@ -61,6 +60,7 @@ export function GrantAdmin(props: GrantAdmin.Props) {
           variant={prepareCallsQuery.isError ? 'warning' : 'default'}
         />
       }
+      onReject={onReject}
       queryParams={{ address: account?.address }}
     >
       <ActionRequest.PaneWithDetails

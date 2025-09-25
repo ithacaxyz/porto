@@ -42,7 +42,6 @@ export function RevokePermissions(props: RevokePermissions.Props) {
         prepareCallsQuery.isPending ? undefined : prepareCallsCapabilities
       }
       error={prepareCallsQuery.error}
-      onReject={onReject}
       header={
         <Layout.Header.Default
           content={
@@ -60,6 +59,7 @@ export function RevokePermissions(props: RevokePermissions.Props) {
           variant="warning"
         />
       }
+      onReject={onReject}
     >
       {permissions && (
         <div className="pl-0">

@@ -74,7 +74,6 @@ export function Send(props: Send.Props) {
         </Layout.Footer.Actions>
       }
       capabilities={capabilities}
-      onReject={onReject}
       header={
         <Layout.Header.Default
           icon={LucideSendHorizontal}
@@ -82,6 +81,7 @@ export function Send(props: Send.Props) {
           variant="default"
         />
       }
+      onReject={onReject}
     >
       <div className="flex flex-col gap-[8px]">
         <div className="flex flex-col gap-[10px] rounded-th_medium bg-th_base-alt px-[10px] py-[10px]">
