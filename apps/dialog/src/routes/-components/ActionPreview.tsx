@@ -18,6 +18,7 @@ import { Layout } from './Layout'
 
 export function ActionPreview(props: ActionPreview.Props) {
   const {
+    header,
     children,
     capabilities,
     error,
@@ -27,7 +28,7 @@ export function ActionPreview(props: ActionPreview.Props) {
     onReject,
   } = props
 
-  const deficit = ActionPreview.useDeficit(capabilities, error, queryParams)
+  const deficit = useDeficit(capabilities, error, queryParams)
   const [showAddFunds, setShowAddFunds] = React.useState(false)
 
   const depositAddress = deficit?.address || account
@@ -47,8 +48,12 @@ export function ActionPreview(props: ActionPreview.Props) {
     )
 
   return (
-    <>
-      {children}
+    <Layout>
+      {header && <Layout.Header>{header}</Layout.Header>}
+      <Layout.Content>
+        {children}
+        {deficit?.amount && <DeficitWarning amount={deficit.amount} />}
+      </Layout.Content>
       <Layout.Footer>
         {deficit ? (
           <FundsNeededSection
@@ -64,12 +69,13 @@ export function ActionPreview(props: ActionPreview.Props) {
           </>
         )}
       </Layout.Footer>
-    </>
+    </Layout>
   )
 }
 
 export namespace ActionPreview {
   export type Props = {
+    header?: React.ReactNode
     children: React.ReactNode
     capabilities?: Rpc.wallet_prepareCalls.Response['capabilities']
     error?: Error | null
@@ -82,72 +88,137 @@ export namespace ActionPreview {
     onReject?: () => void
   }
 
+  export type DeficitAmount = {
+    exact: string
+    fiat?: string
+    needed: bigint
+    rounded: string
+  }
+
   export type Deficit = {
     address?: Address.Address
     assetDeficits?: Array<Quote_schema.AssetDeficit>
     chainId?: number
     feeTokenDeficit?: bigint
+    amount?: DeficitAmount
   }
+}
 
-  export function useDeficit(
-    capabilities: Rpc.wallet_prepareCalls.Response['capabilities'] | undefined,
-    error: Error | null | undefined,
-    params?: {
-      address?: Address.Address
-      chainId?: number
-    },
-  ): ActionPreview.Deficit | null {
-    return React.useMemo(() => {
-      if (!capabilities && !error) return null
+function DeficitWarning(props: DeficitWarning.Props) {
+  const { amount } = props
+  return (
+    <div className="mt-[8px] flex w-full items-center justify-between rounded-th_medium border border-th_warning bg-th_warning px-3 py-[10px]">
+      <span className="text-[11.5px] text-th_base-secondary">You need</span>
+      <div className="flex items-center gap-2 text-[14px]">
+        <span className="font-medium text-th_warning" title={amount.exact}>
+          {amount.rounded}
+        </span>
+        {amount.fiat && (
+          <span className="text-th_base-secondary">{amount.fiat}</span>
+        )}
+        <LucideInfo className="size-3.5 text-th_base-secondary" />
+      </div>
+    </div>
+  )
+}
 
-      const quotes = capabilities?.quote?.quotes ?? []
+namespace DeficitWarning {
+  export type Props = {
+    amount: ActionPreview.DeficitAmount
+  }
+}
 
-      const firstDeficitQuote = quotes.find((quote) =>
-        (quote.assetDeficits ?? []).some((d) => d.deficit > 0n),
+function useDeficit(
+  capabilities: Rpc.wallet_prepareCalls.Response['capabilities'] | undefined,
+  error: Error | null | undefined,
+  params?: {
+    address?: Address.Address
+    chainId?: number
+  },
+): ActionPreview.Deficit | null {
+  const deficit = React.useMemo(() => {
+    if (!capabilities && !error) return null
+
+    const quotes = capabilities?.quote?.quotes ?? []
+
+    const firstDeficitQuote = quotes.find((quote) =>
+      (quote.assetDeficits ?? []).some((d) => d.deficit > 0n),
+    )
+
+    if (firstDeficitQuote) {
+      const assetDeficits = firstDeficitQuote.assetDeficits?.filter(
+        (d) => d.deficit > 0n,
       )
 
-      if (firstDeficitQuote) {
-        const assetDeficits = firstDeficitQuote.assetDeficits?.filter(
-          (d) => d.deficit > 0n,
-        )
+      return {
+        address: params?.address,
+        assetDeficits,
+        chainId: firstDeficitQuote.chainId,
+        feeTokenDeficit: firstDeficitQuote.feeTokenDeficit,
+      }
+    }
 
+    if (error) {
+      const errorMessage =
+        (error?.cause as Error)?.message ?? error?.message ?? ''
+
+      const match = errorMessage.match(
+        /required (\d+) of asset (0x[a-fA-F0-9]{40}) on chain (\d+)/,
+      ) as [string, string, Address.Address, string] | null
+
+      if (match) {
+        const [, value, address, chainId] = match
+        const deficit = BigInt(value)
+        const assetDeficit: Quote_schema.AssetDeficit = {
+          address,
+          deficit,
+          required: deficit,
+        }
         return {
           address: params?.address,
-          assetDeficits,
-          chainId: firstDeficitQuote.chainId,
-          feeTokenDeficit: firstDeficitQuote.feeTokenDeficit,
+          assetDeficits: [assetDeficit],
+          chainId: Number(chainId),
         }
       }
 
-      if (error) {
-        const errorMessage =
-          (error?.cause as Error)?.message ?? error?.message ?? ''
-
-        const match = errorMessage.match(
-          /required (\d+) of asset (0x[a-fA-F0-9]{40}) on chain (\d+)/,
-        ) as [string, string, Address.Address, string] | null
-
-        if (match) {
-          const [, value, address, chainId] = match
-          return {
-            address: params?.address,
-            assetDeficits: [
-              { address, deficit: BigInt(value), required: BigInt(value) },
-            ],
-            chainId: Number(chainId),
-          }
+      if (/InsufficientBalance/i.test(errorMessage))
+        return {
+          address: params?.address,
+          chainId: params?.chainId,
         }
+    }
 
-        if (/InsufficientBalance/i.test(errorMessage))
-          return {
-            address: params?.address,
-            chainId: params?.chainId,
-          }
-      }
+    return null
+  }, [capabilities, error, params])
 
-      return null
-    }, [capabilities, error, params])
-  }
+  const amount = React.useMemo(() => {
+    if (!deficit?.assetDeficits?.length) return undefined
+
+    const chain = deficit.chainId
+      ? porto.config.chains.find((c) => c.id === deficit.chainId)
+      : null
+
+    const [firstDeficit] = deficit.assetDeficits
+    if (!firstDeficit) return undefined
+
+    const nativeCurrency = chain?.nativeCurrency
+    const decimals = firstDeficit.decimals ?? nativeCurrency?.decimals ?? 18
+    const symbol = firstDeficit.symbol ?? nativeCurrency?.symbol ?? 'ETH'
+
+    const feeWithBuffer = ((deficit.feeTokenDeficit ?? 0n) * 5n) / 100n // +5% buffer
+    const needed = firstDeficit.deficit + feeWithBuffer
+
+    const exact = `${Value.format(needed, decimals)} ${symbol}`
+    const rounded = `${ValueFormatter.format(needed, decimals)} ${symbol}`
+    const fiat =
+      firstDeficit.fiat &&
+      `${firstDeficit.fiat.currency}${(Number.parseFloat(firstDeficit.fiat.value) * 1.05).toFixed(2)}`
+
+    return { exact, fiat, needed, rounded }
+  }, [deficit])
+
+  if (!deficit) return null
+  return { ...deficit, amount }
 }
 
 function FundsNeededSection(props: {
@@ -164,26 +235,6 @@ function FundsNeededSection(props: {
     if (!deficit.chainId) return null
     return porto.config.chains.find((c) => c.id === deficit.chainId)
   }, [deficit.chainId])
-
-  const deficitAmount = React.useMemo(() => {
-    const [firstDeficit] = deficit.assetDeficits ?? []
-    if (!firstDeficit) return null
-
-    const nativeCurrency = chain?.nativeCurrency
-    const decimals = firstDeficit.decimals ?? nativeCurrency?.decimals ?? 18
-    const symbol = firstDeficit.symbol ?? nativeCurrency?.symbol ?? 'ETH'
-
-    const feeWithBuffer = ((deficit.feeTokenDeficit ?? 0n) * 5n) / 100n // +5% buffer
-    const needed = firstDeficit.deficit + feeWithBuffer
-
-    const exact = `${Value.format(needed, decimals)} ${symbol}`
-    const rounded = `${ValueFormatter.format(needed, decimals)} ${symbol}`
-    const fiat =
-      firstDeficit.fiat &&
-      `${firstDeficit.fiat.currency}${(Number.parseFloat(firstDeficit.fiat.value) * 1.05).toFixed(2)}`
-
-    return { exact, fiat, needed, rounded }
-  }, [deficit, chain])
 
   if (!deficit.assetDeficits)
     return (
@@ -232,38 +283,19 @@ function FundsNeededSection(props: {
     async mutationFn() {
       if (!depositAddress) throw new Error('address is required')
       if (!deficit.chainId) throw new Error('chainId is required')
-      if (!deficitAmount) throw new Error('deficit amount is required')
+      if (!deficit.amount) throw new Error('deficit amount is required')
 
       return RelayActions.addFaucetFunds(client, {
         address: depositAddress,
         chain: { id: deficit.chainId },
         tokenAddress: exp1Address[deficit.chainId as never],
-        value: deficitAmount.needed,
+        value: deficit.amount.needed,
       })
     },
   })
 
   return (
     <div className="flex w-full flex-col gap-[10px] px-3">
-      {deficitAmount && (
-        <div className="flex w-full items-center justify-between rounded-th_medium border border-th_warning bg-th_warning px-3 py-[10px]">
-          <span className="text-[11.5px] text-th_base-secondary">You need</span>
-          <div className="flex items-center gap-2 text-[14px]">
-            <span
-              className="font-medium text-th_warning"
-              title={deficitAmount.exact}
-            >
-              {deficitAmount.rounded}
-            </span>
-            {deficitAmount.fiat && (
-              <span className="text-th_base-secondary">
-                {deficitAmount.fiat}
-              </span>
-            )}
-            <LucideInfo className="size-3.5 text-th_base-secondary" />
-          </div>
-        </div>
-      )}
       {(showApplePay || showFaucet) && (
         <div className="flex w-full gap-[8px]">
           {showApplePay && (
@@ -279,7 +311,7 @@ function FundsNeededSection(props: {
               </div>
             </Button>
           )}
-          {showFaucet && deficitAmount && (
+          {showFaucet && deficit.amount && (
             <Button
               loading={faucet.isPending && 'Adding funds…'}
               onClick={() => faucet.mutate()}

@@ -74,69 +74,64 @@ export function Send(props: Send.Props) {
         </Layout.Footer.Actions>
       }
       capabilities={capabilities}
+      header={
+        <Layout.Header.Default
+          icon={LucideSendHorizontal}
+          title="Review send"
+          variant="default"
+        />
+      }
     >
-      <Layout>
-        <Layout.Header>
-          <Layout.Header.Default
-            icon={LucideSendHorizontal}
-            title="Review send"
-            variant="default"
-          />
-        </Layout.Header>
-
-        <Layout.Content>
-          <div className="-mb-[4px] flex flex-col gap-[8px]">
-            <div className="flex flex-col gap-[10px] rounded-th_medium bg-th_base-alt px-[10px] py-[10px]">
-              <div className="flex w-full flex-row items-stretch gap-[8px]">
-                <div className="flex shrink-0 items-center">
-                  <div className="flex size-6 items-center justify-center rounded-full bg-th_badge">
-                    <LucideArrowUpRight className="size-4 text-th_badge" />
-                  </div>
-                </div>
-                <div className="flex flex-grow flex-col justify-center whitespace-nowrap">
-                  <div className="font-medium text-[14px] text-th_base">
-                    Send {asset.symbol}
-                  </div>
-                  <div className="flex items-center gap-[4px] text-[12px] text-th_base-secondary">
-                    <span>to</span>
-                    <span title={to}>{AddressFormatter.shorten(to)}</span>
-                    <CopyButton
-                      className="-my-[2px] -ml-[1px]"
-                      size="mini"
-                      value={to}
-                    />
-                  </div>
-                </div>
-                <Send.AmountButton
-                  asset={asset}
-                  currencyType={currencyType}
-                  onToggleCurrency={toggle}
+      <div className="flex flex-col gap-[8px]">
+        <div className="flex flex-col gap-[10px] rounded-th_medium bg-th_base-alt px-[10px] py-[10px]">
+          <div className="flex w-full flex-row items-stretch gap-[8px]">
+            <div className="flex shrink-0 items-center">
+              <div className="flex size-6 items-center justify-center rounded-full bg-th_badge">
+                <LucideArrowUpRight className="size-4 text-th_badge" />
+              </div>
+            </div>
+            <div className="flex flex-grow flex-col justify-center whitespace-nowrap">
+              <div className="font-medium text-[14px] text-th_base">
+                Send {asset.symbol}
+              </div>
+              <div className="flex items-center gap-[4px] text-[12px] text-th_base-secondary">
+                <span>to</span>
+                <span title={to}>{AddressFormatter.shorten(to)}</span>
+                <CopyButton
+                  className="-my-[2px] -ml-[1px]"
+                  size="mini"
+                  value={to}
                 />
               </div>
             </div>
-            <Details loading={loading}>
-              {feeFormatted && (
-                <Details.Item
-                  label="Fees (est.)"
-                  value={
-                    <div title={feeFormatted.full}>{feeFormatted.short}</div>
-                  }
-                />
-              )}
-              {chainsPath.length > 0 && (
-                <Details.Item
-                  label={`Network${chainsPath.length > 1 ? 's' : ''}`}
-                  value={
-                    <ChainsPath
-                      chainIds={chainsPath.map((chain) => chain.id)}
-                    />
-                  }
-                />
-              )}
-            </Details>
+            <Send.AmountButton
+              asset={asset}
+              currencyType={currencyType}
+              onToggleCurrency={toggle}
+            />
           </div>
-        </Layout.Content>
-      </Layout>
+        </div>
+        <Details loading={loading}>
+          {feeFormatted && (
+            <Details.Item
+              label="Fees (est.)"
+              value={
+                <div title={feeFormatted.full}>{feeFormatted.short}</div>
+              }
+            />
+          )}
+          {chainsPath.length > 0 && (
+            <Details.Item
+              label={`Network${chainsPath.length > 1 ? 's' : ''}`}
+              value={
+                <ChainsPath
+                  chainIds={chainsPath.map((chain) => chain.id)}
+                />
+              }
+            />
+          )}
+        </Details>
+      </div>
     </ActionPreview>
   )
 }

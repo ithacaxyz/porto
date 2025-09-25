@@ -116,68 +116,63 @@ export function Approve(props: Approve.Props) {
         </Layout.Footer.Actions>
       }
       capabilities={capabilities}
+      header={
+        <Layout.Header.Default
+          icon={LucideLockKeyholeOpen}
+          title="Allow spend"
+          variant="default"
+        />
+      }
     >
-      <Layout>
-        <Layout.Header>
-          <Layout.Header.Default
-            icon={LucideLockKeyholeOpen}
-            title="Allow spend"
-            variant="default"
+      <div className="flex flex-col gap-[8px]">
+        <div className="flex flex-col gap-[10px] rounded-th_medium bg-th_base-alt p-[10px]">
+          <Approve.AllowanceRow
+            amount={
+              unlimited
+                ? 'Any amount'
+                : tokenInfo.data &&
+                  Value.format(amount, tokenInfo.data.decimals)
+            }
+            error={tokenInfo.error}
+            expiresAt={expiresAt}
+            loading={tokenInfo.isLoading}
+            name={tokenInfo.data?.name}
+            onRefetch={() => tokenInfo.refetch()}
+            symbol={tokenInfo.data?.symbol}
+            tokenAddress={tokenAddress}
+            unlimited={unlimited}
           />
-        </Layout.Header>
-
-        <Layout.Content>
-          <div className="-mb-[4px] flex flex-col gap-[8px]">
-            <div className="flex flex-col gap-[10px] rounded-th_medium bg-th_base-alt p-[10px]">
-              <Approve.AllowanceRow
-                amount={
-                  unlimited
-                    ? 'Any amount'
-                    : tokenInfo.data &&
-                      Value.format(amount, tokenInfo.data.decimals)
-                }
-                error={tokenInfo.error}
-                expiresAt={expiresAt}
-                loading={tokenInfo.isLoading}
-                name={tokenInfo.data?.name}
-                onRefetch={() => tokenInfo.refetch()}
-                symbol={tokenInfo.data?.symbol}
-                tokenAddress={tokenAddress}
-                unlimited={unlimited}
-              />
-            </div>
-            <Details loading={loading}>
-              <Details.Item
-                label="Requested by"
-                value={
-                  <div className="flex items-center gap-[8px]" title={spender}>
-                    {StringFormatter.truncate(spender)}
-                    <CopyButton value={spender} />
-                  </div>
-                }
-              />
-              {feeFormatted && (
-                <Details.Item
-                  label="Fees (est.)"
-                  value={
-                    <div title={feeFormatted.full}>{feeFormatted.short}</div>
-                  }
+        </div>
+        <Details loading={loading}>
+          <Details.Item
+            label="Requested by"
+            value={
+              <div className="flex items-center gap-[8px]" title={spender}>
+                {StringFormatter.truncate(spender)}
+                <CopyButton value={spender} />
+              </div>
+            }
+          />
+          {feeFormatted && (
+            <Details.Item
+              label="Fees (est.)"
+              value={
+                <div title={feeFormatted.full}>{feeFormatted.short}</div>
+              }
+            />
+          )}
+          {chainsPath.length > 0 && (
+            <Details.Item
+              label={`Network${chainsPath.length > 1 ? 's' : ''}`}
+              value={
+                <ChainsPath
+                  chainIds={chainsPath.map((chain) => chain.id)}
                 />
-              )}
-              {chainsPath.length > 0 && (
-                <Details.Item
-                  label={`Network${chainsPath.length > 1 ? 's' : ''}`}
-                  value={
-                    <ChainsPath
-                      chainIds={chainsPath.map((chain) => chain.id)}
-                    />
-                  }
-                />
-              )}
-            </Details>
-          </div>
-        </Layout.Content>
-      </Layout>
+              }
+            />
+          )}
+        </Details>
+      </div>
     </ActionPreview>
   )
 }

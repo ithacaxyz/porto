@@ -173,39 +173,34 @@ export function ActionRequest(props: ActionRequest.Props) {
       capabilities={prepareCallsQuery.isPending ? undefined : capabilities}
       error={prepareCallsQuery.error}
       queryParams={{ address, chainId }}
+      header={
+        <Layout.Header.Default
+          icon={prepareCallsQuery.isError ? TriangleAlert : Star}
+          title="Review action"
+          variant={prepareCallsQuery.isError ? 'warning' : 'default'}
+        />
+      }
     >
-      <Layout>
-        <Layout.Header>
-          <Layout.Header.Default
-            icon={prepareCallsQuery.isError ? TriangleAlert : Star}
-            title="Review action"
-            variant={prepareCallsQuery.isError ? 'warning' : 'default'}
-          />
-        </Layout.Header>
-
-        <Layout.Content className="pb-2!">
-          <div className="flex flex-col gap-[8px]">
-            <ActionRequest.PaneWithDetails
-              error={prepareCallsQuery.error}
-              errorMessage="An error occurred while simulating the action. Proceed with caution."
-              feeTotals={feeTotals}
-              hideDetails={false}
-              quotes={quotes}
-              status={
-                prepareCallsQuery.isPending
-                  ? 'pending'
-                  : prepareCallsQuery.isError
-                    ? 'error'
-                    : 'success'
-              }
-            >
-              {assetDiff.length > 0 ? (
-                <ActionRequest.AssetDiff assetDiff={assetDiff} />
-              ) : undefined}
-            </ActionRequest.PaneWithDetails>
-          </div>
-        </Layout.Content>
-      </Layout>
+      <div className="flex flex-col gap-[8px]">
+        <ActionRequest.PaneWithDetails
+          error={prepareCallsQuery.error}
+          errorMessage="An error occurred while simulating the action. Proceed with caution."
+          feeTotals={feeTotals}
+          hideDetails={false}
+          quotes={quotes}
+          status={
+            prepareCallsQuery.isPending
+              ? 'pending'
+              : prepareCallsQuery.isError
+                ? 'error'
+                : 'success'
+          }
+        >
+          {assetDiff.length > 0 ? (
+            <ActionRequest.AssetDiff assetDiff={assetDiff} />
+          ) : undefined}
+        </ActionRequest.PaneWithDetails>
+      </div>
     </ActionPreview>
   )
 }

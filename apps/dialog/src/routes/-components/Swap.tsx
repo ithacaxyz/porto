@@ -76,76 +76,71 @@ export function Swap(props: Swap.Props) {
         </Layout.Footer.Actions>
       }
       capabilities={capabilities}
+      header={
+        <Layout.Header.Default
+          icon={swapType === 'convert' ? Star : LucideSendToBack}
+          title={swapType === 'convert' ? 'Convert' : 'Review swap'}
+          variant="default"
+        />
+      }
     >
-      <Layout>
-        <Layout.Header>
-          <Layout.Header.Default
-            icon={swapType === 'convert' ? Star : LucideSendToBack}
-            title={swapType === 'convert' ? 'Convert' : 'Review swap'}
-            variant="default"
+      <div className="flex flex-col gap-[8px]">
+        <div className="flex flex-col gap-[12px] rounded-th_medium bg-th_base-alt px-[10px] py-[12px]">
+          <Swap.AssetRow
+            asset={assetOut}
+            fiatDisplay={fiatDisplay}
+            onFiatDisplayChange={setFiatDisplay}
           />
-        </Layout.Header>
-
-        <Layout.Content>
-          <div className="-mb-[4px] flex flex-col gap-[8px]">
-            <div className="flex flex-col gap-[12px] rounded-th_medium bg-th_base-alt px-[10px] py-[12px]">
-              <Swap.AssetRow
-                asset={assetOut}
-                fiatDisplay={fiatDisplay}
-                onFiatDisplayChange={setFiatDisplay}
-              />
-              <div className="-mx-[10px] relative flex justify-center">
-                <hr className="absolute top-1/2 w-full border-th_separator border-dashed" />
-                <div className="relative flex size-[24px] items-center justify-center rounded-full bg-th_badge">
-                  <ArrowDown className="size-[16px] text-th_badge" />
+          <div className="-mx-[10px] relative flex justify-center">
+            <hr className="absolute top-1/2 w-full border-th_separator border-dashed" />
+            <div className="relative flex size-[24px] items-center justify-center rounded-full bg-th_badge">
+              <ArrowDown className="size-[16px] text-th_badge" />
+            </div>
+          </div>
+          <Swap.AssetRow
+            asset={assetIn}
+            fiatDisplay={fiatDisplay}
+            onFiatDisplayChange={setFiatDisplay}
+          />
+          {swapType === 'swap' && contractAddress && (
+            <>
+              <hr className="-mx-[10px] border-th_separator" />
+              <div className="flex flex-row items-center gap-[16px]">
+                <div className="whitespace-nowrap font-medium text-[14px] text-th_base-secondary">
+                  Requested by
+                </div>
+                <div
+                  className="-mr-[4px] flex flex-grow items-center justify-end gap-[2px] text-[14px] text-th_base"
+                  title={contractAddress}
+                >
+                  {AddressFormatter.shorten(contractAddress)}
+                  <CopyButton value={contractAddress} />
                 </div>
               </div>
-              <Swap.AssetRow
-                asset={assetIn}
-                fiatDisplay={fiatDisplay}
-                onFiatDisplayChange={setFiatDisplay}
-              />
-              {swapType === 'swap' && contractAddress && (
-                <>
-                  <hr className="-mx-[10px] border-th_separator" />
-                  <div className="flex flex-row items-center gap-[16px]">
-                    <div className="whitespace-nowrap font-medium text-[14px] text-th_base-secondary">
-                      Requested by
-                    </div>
-                    <div
-                      className="-mr-[4px] flex flex-grow items-center justify-end gap-[2px] text-[14px] text-th_base"
-                      title={contractAddress}
-                    >
-                      {AddressFormatter.shorten(contractAddress)}
-                      <CopyButton value={contractAddress} />
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-            <Details loading={loading}>
-              {feeFormatted && (
-                <Details.Item
-                  label="Fees (est.)"
-                  value={
-                    <div title={feeFormatted.full}>{feeFormatted.short}</div>
-                  }
+            </>
+          )}
+        </div>
+        <Details loading={loading}>
+          {feeFormatted && (
+            <Details.Item
+              label="Fees (est.)"
+              value={
+                <div title={feeFormatted.full}>{feeFormatted.short}</div>
+              }
+            />
+          )}
+          {chainsPath.length > 0 && (
+            <Details.Item
+              label={`Network${chainsPath.length > 1 ? 's' : ''}`}
+              value={
+                <ChainsPath
+                  chainIds={chainsPath.map((chain) => chain.id)}
                 />
-              )}
-              {chainsPath.length > 0 && (
-                <Details.Item
-                  label={`Network${chainsPath.length > 1 ? 's' : ''}`}
-                  value={
-                    <ChainsPath
-                      chainIds={chainsPath.map((chain) => chain.id)}
-                    />
-                  }
-                />
-              )}
-            </Details>
-          </div>
-        </Layout.Content>
-      </Layout>
+              }
+            />
+          )}
+        </Details>
+      </div>
     </ActionPreview>
   )
 }

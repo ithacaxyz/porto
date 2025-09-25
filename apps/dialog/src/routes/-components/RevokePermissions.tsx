@@ -43,38 +43,35 @@ export function RevokePermissions(props: RevokePermissions.Props) {
       }
       error={prepareCallsQuery.error}
       queryParams={{}}
+      header={
+        <Layout.Header.Default
+          content={
+            <>
+              Remove the ability for{' '}
+              {hostname ? (
+                <span className="font-medium">{hostname}</span>
+              ) : (
+                'this website'
+              )}{' '}
+              to spend with the following rule.
+            </>
+          }
+          title="Revoke permissions"
+          variant="warning"
+        />
+      }
     >
-      <Layout>
-        <Layout.Header>
-          <Layout.Header.Default
-            content={
-              <>
-                Remove the ability for{' '}
-                {hostname ? (
-                  <span className="font-medium">{hostname}</span>
-                ) : (
-                  'this website'
-                )}{' '}
-                to spend with the following rule.
-              </>
-            }
-            title="Revoke permissions"
-            variant="warning"
+      {permissions && (
+        <div className="pl-0">
+          <Permissions
+            calls={permissions.calls ?? []}
+            spend={permissions.spend?.map((x) => ({
+              ...x,
+              limit: x.limit,
+            }))}
           />
-        </Layout.Header>
-
-        {permissions && (
-          <Layout.Content className="pl-0">
-            <Permissions
-              calls={permissions.calls ?? []}
-              spend={permissions.spend?.map((x) => ({
-                ...x,
-                limit: x.limit,
-              }))}
-            />
-          </Layout.Content>
-        )}
-      </Layout>
+        </div>
+      )}
     </ActionPreview>
   )
 }

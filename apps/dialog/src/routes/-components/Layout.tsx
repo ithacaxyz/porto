@@ -128,7 +128,7 @@ export namespace Layout {
     className?: string
   }) {
     return (
-      <div className={cx('flex-grow px-3 pb-3', props.className)}>
+      <div className={cx('flex-grow px-3 pb-[12px]', props.className)}>
         {props.children}
       </div>
     )
