@@ -59,7 +59,6 @@ export function RevokePermissions(props: RevokePermissions.Props) {
           variant="warning"
         />
       }
-      queryParams={{}}
     >
       {permissions && (
         <div className="pl-0">
