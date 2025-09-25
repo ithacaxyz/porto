@@ -230,15 +230,16 @@ export namespace ActionRequest {
 
   export function AssetDiff(props: AssetDiff.Props) {
     const { assetDiff } = props
-    if (assetDiff.length === 0) return null
     return (
-      <div className="space-y-2">
-        {assetDiff.map((balance) => {
-          if (balance.type === 'erc721')
-            return <AssetDiff.Erc721Row key={balance.symbol} {...balance} />
-          return <AssetDiff.CoinRow key={balance.symbol} {...balance} />
-        })}
-      </div>
+      assetDiff.length > 0 && (
+        <div className="space-y-2">
+          {assetDiff.map((balance) => {
+            if (balance.type === 'erc721')
+              return <AssetDiff.Erc721Row key={balance.symbol} {...balance} />
+            return <AssetDiff.CoinRow key={balance.symbol} {...balance} />
+          })}
+        </div>
+      )
     )
   }
 
@@ -592,7 +593,7 @@ export namespace ActionRequest {
       calls: readonly Call[],
       chainId?: number,
     ): IdentifiedTx | null {
-      if (calls.length === 0 || chainId === undefined) return null
+      if (calls.length === 0) return null
 
       // only show the approve screen for single-call approvals
       if (calls.length === 1) {
@@ -600,6 +601,8 @@ export namespace ActionRequest {
         if (approve) return approve
       }
 
+      // from this point we need a chainId
+      if (chainId === undefined) return null
       const chain = porto.config.chains.find((c) => c.id === chainId)
       if (!chain) return null
       return identifySendCall(calls.at(-1) as Call, chain.nativeCurrency)
