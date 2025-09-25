@@ -157,16 +157,12 @@ export function ActionRequest(props: ActionRequest.Props) {
             disabled={!prepareCallsQuery.isSuccess}
             loading={loading && 'Confirming…'}
             onClick={() => {
-              if (prepareCallsQuery.isError) {
-                prepareCallsQuery.refetch()
-                return
-              }
               if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
             }}
-            variant={prepareCallsQuery.isError ? 'primary' : 'positive'}
+            variant="positive"
             width="grow"
           >
-            {prepareCallsQuery.isError ? 'Retry' : 'Confirm'}
+            Confirm
           </Button>
         </Layout.Footer.Actions>
       }
