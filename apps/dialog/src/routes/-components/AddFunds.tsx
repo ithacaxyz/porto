@@ -115,18 +115,22 @@ export function AddFunds(props: AddFunds.Props) {
       <Layout.Content>
         <div className="flex flex-col gap-3">
           <Separator label="Select deposit method" size="medium" spacing={0} />
-          {showApplePay && address && (
-            <Onramp address={address} onApprove={onApprove} setView={setView} />
-          )}
-
-          {showFaucet && (
+          {showFaucet ? (
             <Faucet
               address={address}
               chainId={chain?.id}
               onApprove={onApprove}
             />
+          ) : (
+            showApplePay &&
+            address && (
+              <Onramp
+                address={address}
+                onApprove={onApprove}
+                setView={setView}
+              />
+            )
           )}
-
           {view !== 'onramp' && (
             <WagmiProvider config={config} reconnectOnMount={false}>
               <QueryClientProvider client={queryClient}>

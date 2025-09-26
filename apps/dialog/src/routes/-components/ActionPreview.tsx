@@ -315,7 +315,7 @@ function FundsNeededSection(props: {
       tokenAddr ===
       exp2Address[deficit.chainId as keyof typeof exp2Address]?.toLowerCase()
 
-    return isExp1 || isExp2
+    return (isExp1 || isExp2) && deficit.amount !== undefined
   }, [deficit, chain])
 
   const faucet = useMutation({
@@ -343,9 +343,20 @@ function FundsNeededSection(props: {
 
   return (
     <div className="flex w-full flex-col gap-[10px] px-3">
-      {(showApplePay || showFaucet) && (
+      {showFaucet ? (
         <div className="flex w-full gap-[8px]">
-          {showApplePay && (
+          <Button
+            loading={faucet.isPending && 'Adding funds…'}
+            onClick={() => faucet.mutate()}
+            variant="primary"
+            width="grow"
+          >
+            Faucet
+          </Button>
+        </div>
+      ) : (
+        showApplePay && (
+          <div className="flex w-full gap-[8px]">
             <Button
               disabled={faucet.isPending}
               onClick={onAddFunds}
@@ -357,18 +368,8 @@ function FundsNeededSection(props: {
                 <ApplePayIcon />
               </div>
             </Button>
-          )}
-          {showFaucet && deficit.amount && (
-            <Button
-              loading={faucet.isPending && 'Adding funds…'}
-              onClick={() => faucet.mutate()}
-              variant="primary"
-              width="grow"
-            >
-              Faucet
-            </Button>
-          )}
-        </div>
+          </div>
+        )
       )}
 
       {(showApplePay || showFaucet) && depositAddress && (
