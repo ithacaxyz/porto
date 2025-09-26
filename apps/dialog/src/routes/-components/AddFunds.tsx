@@ -35,6 +35,7 @@ import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import * as Tokens from '~/lib/Tokens'
 import { Layout } from '~/routes/-components/Layout'
+import { PayWithCard } from '~/routes/-components/PayWithCard'
 import { PriceFormatter, ValueFormatter } from '~/utils'
 import LucideCopy from '~icons/lucide/copy'
 import LucideCopyCheck from '~icons/lucide/copy-check'
@@ -59,6 +60,7 @@ type View =
   | 'default'
   | 'error'
   | 'onramp'
+  | 'pay-with-card'
 
 export function AddFunds(props: AddFunds.Props) {
   const { assetDeficits, chainId, onApprove, onReject, value } = props
@@ -139,6 +141,14 @@ export function AddFunds(props: AddFunds.Props) {
     )
   }, [referrer?.url])
 
+  if (view === 'pay-with-card')
+    return (
+      <PayWithCard
+        onBack={() => setView('default')}
+        onComplete={() => setView('default')}
+      />
+    )
+
   if (view === 'error')
     return (
       <Layout>
@@ -214,12 +224,23 @@ export function AddFunds(props: AddFunds.Props) {
             spacing={0}
           />
           {showApplePay && address && (
-            <Onramp
-              address={address}
-              minAmount={value}
-              onApprove={onApprove}
-              setView={setView}
-            />
+            <div className="flex gap-2">
+              {view !== 'onramp' && (
+                <Button
+                  onClick={() => setView('pay-with-card')}
+                  variant="primary"
+                  width="grow"
+                >
+                  Pay with card
+                </Button>
+              )}
+              <Onramp
+                address={address}
+                minAmount={value}
+                onApprove={onApprove}
+                setView={setView}
+              />
+            </div>
           )}
 
           {showFaucet && (
@@ -510,7 +531,6 @@ function Onramp(props: {
   if (view === 'start') {
     return (
       <Button
-        className="w-full flex-1"
         onClick={() => {
           props.setView('onramp')
           setView('amount')
@@ -528,7 +548,7 @@ function Onramp(props: {
   if (view === 'amount') {
     return (
       <form
-        className="grid h-min grid-flow-row auto-rows-min grid-cols-1 space-y-3"
+        className="grid h-min w-full grid-flow-row auto-rows-min grid-cols-1 space-y-3"
         onSubmit={(event) => {
           event.preventDefault()
           event.stopPropagation()
@@ -606,7 +626,7 @@ function Onramp(props: {
   }
 
   return (
-    <div>
+    <div className="w-full">
       {createOrder.isSuccess && createOrder.data?.url && (
         <iframe
           // TODO: tweak iframe styles

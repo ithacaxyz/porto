@@ -101,6 +101,10 @@ export type Theme<
   fieldContentTertiary: SchemeColor
   fieldBorder: SchemeColor
   fieldErrorBorder: SchemeColor
+  fieldNegativeBorder: SchemeColor
+  fieldNegativeBackground: SchemeColor
+  fieldPositiveBorder: SchemeColor
+  fieldPositiveBackground: SchemeColor
   fieldFocusedBackground: SchemeColor
   fieldFocusedContent: SchemeColor
 }
