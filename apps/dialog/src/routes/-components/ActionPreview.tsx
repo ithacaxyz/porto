@@ -1,4 +1,4 @@
-import { UserAgent } from '@porto/apps'
+import { Query, UserAgent } from '@porto/apps'
 import { exp1Address, exp2Address } from '@porto/apps/contracts'
 import { Button, Separator } from '@porto/ui'
 import { useMutation } from '@tanstack/react-query'
@@ -322,12 +322,18 @@ function FundsNeededSection(props: {
       if (!deficit.assetDeficits?.[0]?.address)
         throw new Error('deficit asset is required')
 
-      return RelayActions.addFaucetFunds(client, {
+      const response = await RelayActions.addFaucetFunds(client, {
         address: depositAddress,
         chain: { id: deficit.chainId },
         tokenAddress: deficit.assetDeficits[0].address,
         value: deficit.amount.needed,
       })
+
+      await Query.client.invalidateQueries({
+        queryKey: ['prepareCalls'], // see Calls.prepareCalls.queryOptions.queryKey()
+      })
+
+      return response
     },
   })
 
