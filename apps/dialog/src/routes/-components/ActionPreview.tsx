@@ -2,9 +2,9 @@ import { Query, UserAgent } from '@porto/apps'
 import { exp1Address, exp2Address } from '@porto/apps/contracts'
 import { Button, Separator } from '@porto/ui'
 import { useMutation } from '@tanstack/react-query'
-import { type Address, Value } from 'ox'
+import { Value } from 'ox'
+import type * as Address from 'ox/Address'
 import type * as Quote_schema from 'porto/core/internal/relay/schema/quotes'
-import type * as Rpc from 'porto/core/internal/schema/request'
 import { Hooks as RemoteHooks } from 'porto/remote'
 import { RelayActions } from 'porto/viem'
 import * as React from 'react'
@@ -20,7 +20,7 @@ export function ActionPreview(props: ActionPreview.Props) {
   const {
     header,
     children,
-    capabilities,
+    quotes,
     delayedRender,
     error,
     queryParams,
@@ -43,7 +43,7 @@ export function ActionPreview(props: ActionPreview.Props) {
     return () => clearTimeout(timeout)
   }, [delayedRender])
 
-  const deficit = useDeficit(capabilities, error, queryParams)
+  const deficit = useDeficit(quotes, error, queryParams)
   const [showAddFunds, setShowAddFunds] = React.useState(false)
 
   const depositAddress = deficit?.address || account
@@ -102,7 +102,7 @@ export namespace ActionPreview {
   export type Props = {
     header?: React.ReactNode
     children: React.ReactNode
-    capabilities?: Rpc.wallet_prepareCalls.Response['capabilities']
+    quotes?: readonly Quote[]
     delayedRender?: boolean
     error?: Error | null
     queryParams?: {
@@ -114,7 +114,11 @@ export namespace ActionPreview {
     onReject: () => void
   }
 
-  export const delayedRenderDuration = 1000
+  export type Quote = {
+    assetDeficits?: Quote_schema.AssetDeficit[]
+    chainId: number
+    feeTokenDeficit?: bigint
+  }
 
   export type DeficitAmount = {
     exact: string
@@ -125,11 +129,13 @@ export namespace ActionPreview {
 
   export type Deficit = {
     address?: Address.Address
-    assetDeficits?: Array<Quote_schema.AssetDeficit>
+    assetDeficits?: Quote_schema.AssetDeficit[]
     chainId?: number
     feeTokenDeficit?: bigint
     amount?: DeficitAmount
   }
+
+  export const delayedRenderDuration = 1000
 }
 
 function DeficitWarning(props: DeficitWarning.Props) {
@@ -157,7 +163,7 @@ namespace DeficitWarning {
 }
 
 function useDeficit(
-  capabilities: Rpc.wallet_prepareCalls.Response['capabilities'] | undefined,
+  quotes: readonly ActionPreview.Quote[] | undefined,
   error: Error | null | undefined,
   params?: {
     address?: Address.Address
@@ -165,24 +171,22 @@ function useDeficit(
   },
 ): ActionPreview.Deficit | null {
   const deficit = React.useMemo(() => {
-    if (!capabilities && !error) return null
-
-    const quotes = capabilities?.quote?.quotes ?? []
-
-    const firstDeficitQuote = quotes.find((quote) =>
+    const deficitQuote = quotes?.find((quote) =>
       (quote.assetDeficits ?? []).some((d) => d.deficit > 0n),
     )
 
-    if (firstDeficitQuote) {
-      const assetDeficits = firstDeficitQuote.assetDeficits?.filter(
+    if (!deficitQuote && !error) return null
+
+    if (deficitQuote) {
+      const assetDeficits = deficitQuote.assetDeficits?.filter(
         (d) => d.deficit > 0n,
       )
 
       return {
         address: params?.address,
         assetDeficits,
-        chainId: firstDeficitQuote.chainId,
-        feeTokenDeficit: firstDeficitQuote.feeTokenDeficit,
+        chainId: deficitQuote.chainId,
+        feeTokenDeficit: deficitQuote.feeTokenDeficit,
       }
     }
 
@@ -217,7 +221,7 @@ function useDeficit(
     }
 
     return null
-  }, [capabilities, error, params])
+  }, [quotes, error, params])
 
   const amount = React.useMemo(() => {
     if (!deficit?.assetDeficits?.length) return undefined

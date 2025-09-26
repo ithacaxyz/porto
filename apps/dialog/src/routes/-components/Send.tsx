@@ -73,7 +73,7 @@ export function Send(props: Send.Props) {
           </Button>
         </Layout.Footer.Actions>
       }
-      capabilities={capabilities}
+      quotes={capabilities?.quote?.quotes}
       header={
         <Layout.Header.Default
           icon={LucideSendHorizontal}

@@ -46,7 +46,7 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
           </Button>
         </Layout.Footer.Actions>
       }
-      capabilities={prepareCallsQuery.isPending ? undefined : capabilities}
+      quotes={prepareCallsQuery.isPending ? undefined : capabilities?.quote?.quotes}
       error={prepareCallsQuery.error}
       header={
         <Layout.Header.Default

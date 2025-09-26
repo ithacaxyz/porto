@@ -1,4 +1,5 @@
 import { Button, ButtonArea, ChainsPath, Details } from '@porto/ui'
+import { useQuery } from '@tanstack/react-query'
 import { cx } from 'cva'
 import { type Address, Base64 } from 'ox'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
@@ -16,6 +17,7 @@ import {
 } from 'viem'
 import * as Calls from '~/lib/Calls'
 import { porto } from '~/lib/Porto'
+import * as Tokens from '~/lib/Tokens'
 import { Layout } from '~/routes/-components/Layout'
 import { PriceFormatter, ValueFormatter } from '~/utils'
 import ArrowDownLeft from '~icons/lucide/arrow-down-left'
@@ -27,7 +29,9 @@ import TriangleAlert from '~icons/lucide/triangle-alert'
 import LucideVideo from '~icons/lucide/video'
 import Star from '~icons/ph/star-four-bold'
 import { ActionPreview } from '../-components/ActionPreview'
+import { AddFunds } from '../-components/AddFunds'
 import { Approve } from '../-components/Approve'
+import { InsufficientFunds } from '../-components/InsufficientFunds'
 import { Send } from '../-components/Send'
 import { Swap } from '../-components/Swap'
 
@@ -80,6 +84,43 @@ export function ActionRequest(props: ActionRequest.Props) {
 
   const identified = identifiedFromRelay || identifiedFromCalls
 
+  const relayClient = Hooks.useRelayClient(porto, { chainId })
+  const tokensQuery = useQuery(Tokens.getTokens.queryOptions(relayClient, {}))
+
+  const requiredFundsData = React.useMemo(() => {
+    if (!requiredFunds?.[0] || !tokensQuery.data) return null
+
+    const [firstRequiredFunds] = requiredFunds
+
+    const token = tokensQuery.data.find(
+      (t) => t.symbol === firstRequiredFunds.symbol,
+    )
+
+    if (!token) return null
+
+    const value =
+      typeof firstRequiredFunds.value === 'bigint'
+        ? firstRequiredFunds.value
+        : BigInt(firstRequiredFunds.value) * 10n ** BigInt(token.decimals)
+
+    return {
+      address: token.address,
+      decimals: token.decimals,
+      deficit: value,
+      required: value,
+      symbol: token.symbol,
+    }
+  }, [requiredFunds, tokensQuery.data])
+
+  const insufficientFundsError = Boolean(
+    prepareCallsQuery.error &&
+      requiredFunds &&
+      requiredFunds.length > 0 &&
+      /insufficient/i.test(prepareCallsQuery.error.message ?? ''),
+  )
+
+  const [showAddFunds, setShowAddFunds] = React.useState(false)
+
   const addNativeCurrencyName = (asset: ActionRequest.CoinAsset) => {
     if (asset.type !== null) return asset
     return {
@@ -87,6 +128,30 @@ export function ActionRequest(props: ActionRequest.Props) {
       name: chainsPath[0]?.nativeCurrency.name,
     }
   }
+
+  if (insufficientFundsError)
+    return requiredFundsData ? (
+      <InsufficientFunds
+        account={account?.address}
+        assetDeficit={requiredFundsData}
+        chainId={chainId ?? relayClient.chain.id}
+        onReject={onReject}
+      />
+    ) : showAddFunds ? (
+      <AddFunds
+        address={address}
+        chainId={chainId ?? relayClient.chain.id}
+        onApprove={() => setShowAddFunds(false)}
+        onReject={() => setShowAddFunds(false)}
+      />
+    ) : (
+      <InsufficientFunds
+        account={account?.address}
+        chainId={chainId ?? relayClient.chain.id}
+        onAddFunds={() => setShowAddFunds(true)}
+        onReject={onReject}
+      />
+    )
 
   if (identified?.type === 'approve')
     return (
@@ -165,7 +230,9 @@ export function ActionRequest(props: ActionRequest.Props) {
           </Button>
         </Layout.Footer.Actions>
       }
-      capabilities={prepareCallsQuery.isPending ? undefined : capabilities}
+      quotes={
+        prepareCallsQuery.isPending ? undefined : capabilities?.quote?.quotes
+      }
       delayedRender={prepareCallsQuery.isPending}
       error={prepareCallsQuery.error}
       header={
@@ -495,7 +562,7 @@ export namespace ActionRequest {
           >
             {(() => {
               if (error) {
-                const isInsufficientFunds = /InsufficientBalance/i.test(
+                const isInsufficientFunds = /insufficient/i.test(
                   (error as any)?.cause?.message ?? error.message ?? '',
                 )
                 return (

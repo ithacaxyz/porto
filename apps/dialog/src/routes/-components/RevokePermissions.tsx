@@ -38,9 +38,7 @@ export function RevokePermissions(props: RevokePermissions.Props) {
           </Button>
         </Layout.Footer.Actions>
       }
-      capabilities={
-        prepareCallsQuery.isPending ? undefined : prepareCallsCapabilities
-      }
+      quotes={prepareCallsQuery.isPending ? undefined : prepareCallsCapabilities?.quote?.quotes}
       error={prepareCallsQuery.error}
       header={
         <Layout.Header.Default
