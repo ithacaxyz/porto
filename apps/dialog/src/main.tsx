@@ -30,8 +30,12 @@ if (import.meta.env.PROD) {
   })
 }
 
-const offInitialized = Events.onInitialized(porto, (payload, event) => {
+const offInitialized = Events.onInitialized(porto, async (payload, event) => {
   const { chainIds, mode, referrer, theme } = payload
+
+  // Prevent showing stale route from a previous action.
+  const pathname = Router.router.state.location.pathname.replace(/\/+$/, '')
+  if (pathname !== '/dialog') await Router.router.navigate({ to: '/dialog' })
 
   // Ensure we are synced with the Application's active chain.
   const chainId = chainIds?.[0]

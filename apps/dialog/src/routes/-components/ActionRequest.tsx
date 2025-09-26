@@ -1,4 +1,3 @@
-import { Spinner } from '@porto/apps/components'
 import { Button, ButtonArea, ChainsPath, Details } from '@porto/ui'
 import { cx } from 'cva'
 import { type Address, Base64 } from 'ox'
@@ -167,6 +166,7 @@ export function ActionRequest(props: ActionRequest.Props) {
         </Layout.Footer.Actions>
       }
       capabilities={prepareCallsQuery.isPending ? undefined : capabilities}
+      delayedRender={prepareCallsQuery.isPending}
       error={prepareCallsQuery.error}
       header={
         <Layout.Header.Default
@@ -517,13 +517,7 @@ export namespace ActionRequest {
               }
 
               if (status === 'pending')
-                return (
-                  <div className="flex h-full w-full items-center justify-center">
-                    <div className="flex size-[24px] w-full items-center justify-center">
-                      <Spinner className="text-th_base-secondary" />
-                    </div>
-                  </div>
-                )
+                return <div className="h-[24px] w-full" />
 
               return <div className="space-y-3">{children}</div>
             })()}

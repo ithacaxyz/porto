@@ -21,6 +21,7 @@ export function ActionPreview(props: ActionPreview.Props) {
     header,
     children,
     capabilities,
+    delayedRender,
     error,
     queryParams,
     actions,
@@ -28,10 +29,36 @@ export function ActionPreview(props: ActionPreview.Props) {
     onReject,
   } = props
 
+  const [ready, setReady] = React.useState(!delayedRender)
+
+  React.useEffect(() => {
+    if (!delayedRender) {
+      setReady(true)
+      return
+    }
+    const timeout = setTimeout(
+      () => setReady(true),
+      ActionPreview.delayedRenderDuration,
+    )
+    return () => clearTimeout(timeout)
+  }, [delayedRender])
+
   const deficit = useDeficit(capabilities, error, queryParams)
   const [showAddFunds, setShowAddFunds] = React.useState(false)
 
   const depositAddress = deficit?.address || account
+
+  if (!ready)
+    return (
+      <Layout>
+        <Layout.Content>
+          <div className="h-[96px]" />
+        </Layout.Content>
+        <Layout.Footer>
+          {account && <Layout.Footer.Account address={account} />}
+        </Layout.Footer>
+      </Layout>
+    )
 
   if (showAddFunds && deficit)
     return (
@@ -76,6 +103,7 @@ export namespace ActionPreview {
     header?: React.ReactNode
     children: React.ReactNode
     capabilities?: Rpc.wallet_prepareCalls.Response['capabilities']
+    delayedRender?: boolean
     error?: Error | null
     queryParams?: {
       address?: Address.Address
@@ -85,6 +113,8 @@ export namespace ActionPreview {
     account?: Address.Address
     onReject: () => void
   }
+
+  export const delayedRenderDuration = 1000
 
   export type DeficitAmount = {
     exact: string

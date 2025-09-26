@@ -82,6 +82,8 @@ function RouteComponent() {
 
   const enableEnsureVisibility = mode.includes('iframe') && !trusted
 
+  if (!request) return null
+
   return (
     <>
       <HeadContent />
@@ -96,7 +98,6 @@ function RouteComponent() {
         // [1] https://fvsch.com/transparent-iframes#toc-3
         // [2] https://github.com/w3c/csswg-drafts/issues/4772
         colorScheme={customTheme?.colorScheme}
-        loading={!request}
         mode={
           display === 'full'
             ? {
