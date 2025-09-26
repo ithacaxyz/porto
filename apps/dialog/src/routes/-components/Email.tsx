@@ -12,13 +12,11 @@ import LucideHaze from '~icons/lucide/haze'
 import IconScanFace from '~icons/porto/scan-face'
 
 export function Email(props: Email.Props) {
-  const {
-    actions = ['sign-in', 'sign-up'],
-    defaultValue = '',
-    onApprove,
-    permissions,
-    status,
-  } = props
+  const { defaultValue = '', onApprove, permissions, status } = props
+
+  const [actions, setActions] = React.useState<
+    readonly ('sign-in' | 'sign-up')[]
+  >(props.actions ?? ['sign-in', 'sign-up'])
 
   const account = Hooks.useAccount(porto)
   const email = Dialog.useStore((state) =>
@@ -171,14 +169,25 @@ export function Email(props: Email.Props) {
               <span className="text-th_base-secondary">Using</span>{' '}
               {displayName}
             </div>
-            <TextButton
-              color="link"
-              onClick={() => {
-                onApprove({ selectAccount: true, signIn: true })
-              }}
-            >
-              Switch
-            </TextButton>
+            <div className="flex items-center gap-0.5">
+              <TextButton
+                color="link"
+                onClick={() => {
+                  onApprove({ selectAccount: true, signIn: true })
+                }}
+              >
+                Switch
+              </TextButton>
+              <div className="text-th_base-secondary">⋅</div>
+              <TextButton
+                color="link"
+                onClick={() => {
+                  setActions(['sign-up'])
+                }}
+              >
+                Sign up
+              </TextButton>
+            </div>
           </div>
         )}
       </div>
