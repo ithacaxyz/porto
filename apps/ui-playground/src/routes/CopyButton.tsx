@@ -24,6 +24,7 @@ function CopyButtonComponent() {
         <div className="flex items-center gap-4">
           <CopyButton value={demoText} variant="strong" />
           <CopyButton value={demoText} variant="primary" />
+          <CopyButton value={demoText} variant="distinct" />
           <CopyButton value={demoText} variant="secondary" />
         </div>
       </ComponentScreen.Section>

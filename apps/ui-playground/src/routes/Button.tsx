@@ -25,7 +25,7 @@ function ButtonComponent() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="strong">Strong</Button>
-            <Button variant="strong-inverted">Strong Inverted</Button>
+            <Button variant="distinct">Distinct</Button>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="negative">Negative</Button>

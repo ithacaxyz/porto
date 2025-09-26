@@ -96,6 +96,11 @@ export function Button({
                 '--button-bg': 'var(--background-color-th_disabled)',
                 color: 'var(--text-color-th_disabled)',
               },
+              distinct: {
+                '--button-bd': 'var(--border-color-th_distinct)',
+                '--button-bg': 'var(--background-color-th_distinct)',
+                color: 'var(--text-color-th_distinct)',
+              },
               negative: {
                 '--button-bd': 'var(--border-color-th_negative)',
                 '--button-bg': 'var(--background-color-th_negative)',
@@ -125,12 +130,6 @@ export function Button({
                 '--button-bd': 'var(--border-color-th_strong)',
                 '--button-bg': 'var(--background-color-th_strong)',
                 color: 'var(--text-color-th_strong)',
-                fontWeight: 600,
-              },
-              'strong-inverted': {
-                '--button-bd': 'var(--text-color-th_strong)',
-                '--button-bg': 'var(--text-color-th_strong)',
-                color: 'var(--background-color-th_strong)',
                 fontWeight: 600,
               },
             },
@@ -217,14 +216,14 @@ export namespace Button {
     size?: ButtonSize | Record<Frame.ModeName, ButtonSize>
     shape?: 'normal' | 'square'
     variant?:
+      | 'content'
+      | 'distinct'
       | 'negative'
       | 'negative-secondary'
       | 'positive'
       | 'primary'
       | 'secondary'
       | 'strong'
-      | 'strong-inverted'
-      | 'content'
     width?: 'auto' | 'full' | 'grow' | number | undefined
   }
 }

@@ -74,7 +74,7 @@ export function Deposit({
           </div>
         </div>
       </div>
-      <CopyButton size="medium" value={address} variant="strong-inverted" />
+      <CopyButton size="medium" value={address} variant="distinct" />
     </div>
   )
 }
