@@ -1,5 +1,17 @@
 # porto
 
+## 0.2.19
+
+### Patch Changes
+
+- [`e349533`](https://github.com/ithacaxyz/porto/commit/e349533172d27d4786eb598f08f7c1597da77040) Thanks [@jxom](https://github.com/jxom)! - Added `crypto.randomUUID` fallbacks.
+
+## 0.2.18
+
+### Patch Changes
+
+- [`02bf0a8`](https://github.com/ithacaxyz/porto/commit/02bf0a8c88d1fa698490a1d1f96a5967eb026e02) Thanks [@jxom](https://github.com/jxom)! - Tweaked `porto` connector.
+
 ## 0.2.17
 
 ### Patch Changes

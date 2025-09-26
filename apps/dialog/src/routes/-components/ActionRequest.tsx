@@ -374,8 +374,12 @@ export namespace ActionRequest {
           const base64Data = uri.split(',')[1]
           if (!base64Data) return
           const json = JSON.parse(Base64.toString(base64Data))
-          if ('image' in json && typeof json.image === 'string')
-            return { type: 'image', url: json.image as string }
+          if ('image' in json && typeof json.image === 'string') {
+            const url = json.image.startsWith('ipfs://')
+              ? `https://ipfs.io/ipfs/${json.image.replace('ipfs://', '')}`
+              : json.image
+            return { type: 'image', url }
+          }
         } catch {
           return
         }

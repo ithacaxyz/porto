@@ -11,9 +11,9 @@ Porto only supports the React version of Wagmi at the moment. If you are interes
 Import the `porto` connector from the `'porto/wagmi'` entrypoint and add to your Wagmi Config.
 
 ```ts
-import { porto } from 'porto/wagmi' // [!code focus]
 import { createConfig, http } from 'wagmi'
 import { baseSepolia } from 'wagmi/chains'
+import { porto } from 'wagmi/connectors' // [!code focus]
 
 export const config = createConfig({
   chains: [baseSepolia],

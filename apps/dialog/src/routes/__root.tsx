@@ -175,7 +175,9 @@ function RouteComponent() {
           <CheckUnsupportedBrowser>
             <CheckReferrer>
               <EnsureVisibility enabled={enableEnsureVisibility}>
-                <Outlet />
+                <div className="flex h-full w-full flex-col" key={request?.id}>
+                  <Outlet />
+                </div>
               </EnsureVisibility>
             </CheckReferrer>
           </CheckUnsupportedBrowser>

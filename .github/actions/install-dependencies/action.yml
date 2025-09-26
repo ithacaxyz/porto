@@ -5,11 +5,11 @@ runs:
   using: "composite"
   steps:
     - name: Set up foundry
-      uses: foundry-rs/foundry-toolchain@v1
+      uses: foundry-rs/foundry-toolchain@82dee4ba654bd2146511f85f0d013af94670c4de # v1
       with:
         version: nightly
 
     - name: Set up pnpm
-      uses: wevm/actions/.github/actions/pnpm@main
+      uses: wevm/actions/.github/actions/pnpm@f7ad7f00e16e73322562922c241f21f0c7ffbbec # main
       with:
         node-version: 23.9.0

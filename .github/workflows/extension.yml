@@ -14,12 +14,12 @@ jobs:
       artifact-url: ${{ steps.artifact-upload-step.outputs.artifact-url }}
     steps:
       - name: Clone repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           submodules: 'recursive'
 
       - name: Set up pnpm
-        uses: wevm/actions/.github/actions/pnpm@main
+        uses: wevm/actions/.github/actions/pnpm@f7ad7f00e16e73322562922c241f21f0c7ffbbec # main
 
       - name: Set extension version
         run: |
@@ -41,7 +41,7 @@ jobs:
 
       - name: Upload artifacts
         id: artifact-upload-step
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: extension
           path: ./apps/extension/.output/*.zip

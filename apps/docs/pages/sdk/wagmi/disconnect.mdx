@@ -7,7 +7,8 @@ VanillaJS action for disconnecting an account. Uses Viem's [`disconnect`](/sdk/v
 :::code-group
 
 ```ts twoslash [example.ts]
-import { Actions, porto } from 'porto/wagmi'
+import { Actions } from 'porto/wagmi'
+import { porto } from 'wagmi/connectors'
 import { config } from './config'
 
 // Disconnect from the current account

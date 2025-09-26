@@ -34,8 +34,8 @@ Chains can be directly used with [Wagmi's Config](https://wagmi.sh/react/api/cre
 
 ```ts twoslash
 import { Chains } from 'porto'
-import { porto } from 'porto/wagmi'
 import { createConfig, http } from 'wagmi'
+import { porto } from 'wagmi/connectors'
 
 export const config = createConfig({
   chains: [Chains.baseSepolia], // [!code hl]

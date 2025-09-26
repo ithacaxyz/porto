@@ -11,6 +11,7 @@
     "changeset:publish": "pnpm changeset:prepublish && changeset publish",
     "changeset:version": "changeset version && pnpm format",
     "check": "biome check . --fix --unsafe",
+    "check:pin-ci": "pnpx pin-github-action .github/workflows/",
     "check:markdown": "markdownlint-cli2 --config .github/.markdownlint-cli2.jsonc '**/*.md' '**/*.mdx'",
     "check:build": "tsx ./scripts/prepublish.ts && publint --strict ./src && attw --pack ./src --profile esm-only",
     "check:knip": "knip --production",
@@ -130,14 +131,30 @@
   "pnpm": {
     "overrides": {
       "abitype": "latest",
-      "ox": "latest",
+      "ox": "catalog:",
       "porto": "workspace:*",
-      "viem": "latest"
+      "viem": "catalog:",
+      "ws@>=8.0.0 <8.17.1": "8.17.1",
+      "nanoid@>=4.0.0 <5.0.9": "5.0.9",
+      "tar-fs@>=3.0.0 <3.0.7": "3.0.7",
+      "brace-expansion@>=1.0.0 <=1.1.11": "1.1.12",
+      "brace-expansion@>=2.0.0 <=2.0.1": "2.0.2",
+      "form-data@>=4.0.0 <4.0.4": "4.0.4",
+      "on-headers@<1.1.0": "1.1.0",
+      "tmp@<=0.2.3": "0.2.4",
+      "tar-fs@>=3.0.0 <3.0.9": "3.0.9",
+      "mermaid@>=11.1.0 <11.10.0": "11.10.0",
+      "mermaid@>=11.0.0-alpha.1 <11.10.0": "11.10.0",
+      "hono@>=4.8.0 <4.9.6": "4.9.6",
+      "vite@>=6.0.0 <=6.3.5": "6.3.6",
+      "hono@<4.9.7": "4.9.7",
+      "@metamask/sdk-communication-layer@>=0.16.0 <=0.33.0": "0.33.1",
+      "@metamask/sdk@>=0.16.0 <=0.33.0": "0.33.1",
+      "axios@<1.12.0": "1.12.0"
     },
     "patchedDependencies": {
       "@tanstack/react-router": "patches/@tanstack__react-router.patch",
-      "@wagmi/cli": "patches/@wagmi__cli.patch",
-      "@wagmi/core": "patches/@wagmi__core.patch"
+      "@wagmi/cli": "patches/@wagmi__cli.patch"
     }
   }
 }

@@ -18,6 +18,7 @@ import * as RpcRequest from './schema/request.js'
 import * as Rpc from './schema/rpc.js'
 import * as Store from './store.js'
 import * as UrlString from './urlString.js'
+import { uuidv4 } from './utils.js'
 
 export type Provider = ox_Provider.Provider<{
   includeEvents: true
@@ -1179,7 +1180,7 @@ function announce(
       icon,
       name,
       rdns,
-      uuid: globalThis.crypto.randomUUID(),
+      uuid: uuidv4(),
     },
     provider: provider as any,
   })

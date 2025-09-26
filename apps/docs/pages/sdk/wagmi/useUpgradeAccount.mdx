@@ -9,8 +9,9 @@ Internally uses [`wallet_prepareUpgradeAccount`](/sdk/rpc/wallet_prepareUpgradeA
 :::code-group
 
 ```tsx twoslash [example.ts]
-import { Hooks, porto } from 'porto/wagmi'
+import { Hooks } from 'porto/wagmi'
 import { privateKeyToAccount } from 'viem/accounts'
+import { porto } from 'wagmi/connectors'
 import { config } from './config'
 
 const eoa = privateKeyToAccount('0x...')
@@ -39,9 +40,10 @@ You can grant permissions for an application to perform actions on behalf of the
 
 ```tsx twoslash
 // @noErrors
-import { Hooks, porto } from 'porto/wagmi'
+import { Hooks } from 'porto/wagmi'
 import { parseEther } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
+import { porto } from 'wagmi/connectors'
 
 const eoa = privateKeyToAccount('0x...')
 const token = '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa'

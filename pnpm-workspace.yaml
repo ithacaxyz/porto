@@ -5,6 +5,10 @@ packages:
   - "src"
 
 minimumReleaseAge: 2880 # 48 hours
+minimumReleaseAgeExclude:
+  - "@wagmi/connectors"
+  - "@wagmi/core"
+  - wagmi
 
 catalog:
   "@ariakit/react": "^0.4.18"
@@ -24,7 +28,7 @@ catalog:
   "@types/node": "^22.15.32"
   "@types/react": "^19"
   "@types/react-dom": "^19"
-  "@wagmi/core": "^2.17.2"
+  "@wagmi/core": "^2.21.2"
   cva: "npm:class-variance-authority@^0.7.1"
   globals: "^16.4.0"
   ox: "^0.9.6"
@@ -37,11 +41,11 @@ catalog:
   tw-animate-css: "^1.3.8"
   typescript: "~5.9.2"
   unplugin-icons: "^22.3.0"
-  viem: "^2.37.0"
-  vite: "^6.0.7"
+  viem: "^2.37.8"
+  vite: "^6.3.6"
   vitest: "4.0.0-beta.10"
   vite-plugin-mkcert: "^1.17.8"
-  wagmi: "^2.15.4"
+  wagmi: "^2.17.5"
   zod: "4.1.5"
   zustand: "^5.0.3"
   "@vitejs/plugin-react": "^4.6.0"
