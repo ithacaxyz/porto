@@ -230,9 +230,6 @@ export function ActionRequest(props: ActionRequest.Props) {
           </Button>
         </Layout.Footer.Actions>
       }
-      quotes={
-        prepareCallsQuery.isPending ? undefined : capabilities?.quote?.quotes
-      }
       delayedRender={prepareCallsQuery.isPending}
       error={prepareCallsQuery.error}
       header={
@@ -244,6 +241,9 @@ export function ActionRequest(props: ActionRequest.Props) {
       }
       onReject={onReject}
       queryParams={{ address, chainId }}
+      quotes={
+        prepareCallsQuery.isPending ? undefined : capabilities?.quote?.quotes
+      }
     >
       <div className="flex flex-col gap-[8px]">
         <ActionRequest.PaneWithDetails

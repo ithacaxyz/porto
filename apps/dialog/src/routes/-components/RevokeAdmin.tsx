@@ -46,7 +46,6 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
           </Button>
         </Layout.Footer.Actions>
       }
-      quotes={prepareCallsQuery.isPending ? undefined : capabilities?.quote?.quotes}
       error={prepareCallsQuery.error}
       header={
         <Layout.Header.Default
@@ -61,6 +60,9 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
       }
       onReject={onReject}
       queryParams={{ address: admins.data?.address }}
+      quotes={
+        prepareCallsQuery.isPending ? undefined : capabilities?.quote?.quotes
+      }
     >
       <ActionRequest.PaneWithDetails
         error={prepareCallsQuery.error}

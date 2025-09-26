@@ -115,7 +115,6 @@ export function Approve(props: Approve.Props) {
           </Button>
         </Layout.Footer.Actions>
       }
-      quotes={capabilities?.quote?.quotes}
       header={
         <Layout.Header.Default
           icon={LucideLockKeyholeOpen}
@@ -124,6 +123,7 @@ export function Approve(props: Approve.Props) {
         />
       }
       onReject={onReject}
+      quotes={capabilities?.quote?.quotes}
     >
       <div className="flex flex-col gap-[8px]">
         <div className="flex flex-col gap-[10px] rounded-th_medium bg-th_base-alt p-[10px]">

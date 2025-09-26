@@ -75,7 +75,6 @@ export function Swap(props: Swap.Props) {
           </Button>
         </Layout.Footer.Actions>
       }
-      quotes={capabilities?.quote?.quotes}
       header={
         <Layout.Header.Default
           icon={swapType === 'convert' ? Star : LucideSendToBack}
@@ -84,6 +83,7 @@ export function Swap(props: Swap.Props) {
         />
       }
       onReject={onReject}
+      quotes={capabilities?.quote?.quotes}
     >
       <div className="flex flex-col gap-[8px]">
         <div className="flex flex-col gap-[12px] rounded-th_medium bg-th_base-alt px-[10px] py-[12px]">

@@ -73,7 +73,6 @@ export function Send(props: Send.Props) {
           </Button>
         </Layout.Footer.Actions>
       }
-      quotes={capabilities?.quote?.quotes}
       header={
         <Layout.Header.Default
           icon={LucideSendHorizontal}
@@ -82,6 +81,7 @@ export function Send(props: Send.Props) {
         />
       }
       onReject={onReject}
+      quotes={capabilities?.quote?.quotes}
     >
       <div className="flex flex-col gap-[8px]">
         <div className="flex flex-col gap-[10px] rounded-th_medium bg-th_base-alt px-[10px] py-[10px]">

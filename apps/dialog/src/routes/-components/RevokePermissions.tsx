@@ -38,7 +38,6 @@ export function RevokePermissions(props: RevokePermissions.Props) {
           </Button>
         </Layout.Footer.Actions>
       }
-      quotes={prepareCallsQuery.isPending ? undefined : prepareCallsCapabilities?.quote?.quotes}
       error={prepareCallsQuery.error}
       header={
         <Layout.Header.Default
@@ -58,6 +57,11 @@ export function RevokePermissions(props: RevokePermissions.Props) {
         />
       }
       onReject={onReject}
+      quotes={
+        prepareCallsQuery.isPending
+          ? undefined
+          : prepareCallsCapabilities?.quote?.quotes
+      }
     >
       {permissions && (
         <div className="pl-0">

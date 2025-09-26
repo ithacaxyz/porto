@@ -10,11 +10,14 @@ export function InsufficientFunds(props: InsufficientFunds.Props) {
   return (
     <ActionPreview
       account={account}
-      quotes={assetDeficit ? [{ assetDeficits: [assetDeficit], chainId }] : undefined}
       actions={
         onAddFunds ? (
           <Layout.Footer.Actions>
-            <Button onClick={onReject} variant="negative-secondary" width="grow">
+            <Button
+              onClick={onReject}
+              variant="negative-secondary"
+              width="grow"
+            >
               Cancel
             </Button>
             <Button onClick={onAddFunds} variant="primary" width="grow">
@@ -26,6 +29,9 @@ export function InsufficientFunds(props: InsufficientFunds.Props) {
       header={<Layout.Header.Default icon={Star} title="Insufficient funds" />}
       onReject={onReject}
       queryParams={{ address: account, chainId }}
+      quotes={
+        assetDeficit ? [{ assetDeficits: [assetDeficit], chainId }] : undefined
+      }
     >
       <div className="flex flex-col gap-[8px]">
         <div className="space-y-3 overflow-hidden rounded-lg bg-th_base-alt px-3 py-3 text-[12px] text-th_base-secondary">
@@ -58,4 +64,3 @@ export declare namespace InsufficientFunds {
     onReject: () => void
   }
 }
-
