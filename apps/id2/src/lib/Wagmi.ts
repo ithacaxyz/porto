@@ -1,16 +1,28 @@
+import type { PortoConfig } from '@porto/apps'
 import { Chains } from 'porto'
 import { porto as portoConnector } from 'porto/wagmi'
-import { cookieStorage, createConfig, createStorage } from 'wagmi'
-import * as Porto from './Porto'
+import {
+  cookieStorage,
+  createConfig,
+  createStorage,
+  deserialize,
+  serialize,
+} from 'wagmi'
+import * as Porto from './Porto.ts'
+
+export type ChainId = PortoConfig.ChainId
 
 export const config = createConfig({
   chains: Porto.config.chains,
-  connectors: [portoConnector(Porto.config)],
+  connectors: [portoConnector()],
   multiInjectedProviderDiscovery: false,
   ssr: true,
-  storage: createStorage({ storage: cookieStorage }),
+  storage: createStorage({ deserialize, serialize, storage: cookieStorage }),
   transports: Porto.config.transports,
 })
+
+export const getChainConfig = (chainId: number) =>
+  Porto.config.chains.find((chain) => chain.id === chainId)
 
 export const mipdConfig = createConfig({
   chains: [Chains.base, Chains.baseSepolia],
@@ -21,9 +33,6 @@ export const mipdConfig = createConfig({
     [Chains.baseSepolia.id]: config._internal.transports[Chains.baseSepolia.id],
   },
 })
-
-export const getChainConfig = (chainId: number) =>
-  config.chains.find((c) => c.id === chainId)
 
 declare module 'wagmi' {
   interface Register {

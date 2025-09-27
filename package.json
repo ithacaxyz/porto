@@ -155,7 +155,6 @@
       "bigint-buffer@<=1.1.5": "npm:bigint-buffer-fixed"
     },
     "patchedDependencies": {
-      "@tanstack/react-router": "patches/@tanstack__react-router.patch",
       "@wagmi/cli": "patches/@wagmi__cli.patch"
     }
   }

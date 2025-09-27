@@ -17,6 +17,8 @@ import {
 import { useAccount, useSendCalls } from 'wagmi'
 import { waitForCallsStatus } from 'wagmi/actions'
 import { TokenIcon } from '~/components/TokenIcon.tsx'
+import type { ChainId } from '~/lib/Constants'
+import * as Porto from '~/lib/Porto.ts'
 import * as Wagmi from '~/lib/Wagmi.ts'
 import { StringFormatter, ValueFormatter } from '~/utils.ts'
 import LucideArrowLeftRight from '~icons/lucide/arrow-left-right'
@@ -30,7 +32,6 @@ export const Route = createFileRoute('/_dash/')({
 
 function RouteComponent() {
   const { address } = useAccount()
-  console.info(address)
 
   const { data: assets, refetch: refetchAssets } = useAssets({ address })
   const assetsMap = React.useMemo(() => {
@@ -87,7 +88,6 @@ function RouteComponent() {
       state.values.targetChainId,
       10,
     ) as ChainId
-    type ChainId = (typeof Wagmi.config)['chains'][number]['id']
 
     const token = assetsMap
       .get(state.values.symbol)
@@ -145,8 +145,9 @@ function RouteComponent() {
         async onSuccess(data) {
           const toastProps = { id: data.id }
           const targetChainName =
-            Wagmi.getChainConfig(
-              Number.parseInt(state.values.targetChainId, 10),
+            Porto.config.chains.find(
+              (chain) =>
+                chain.id === Number.parseInt(state.values.targetChainId, 10),
             )?.name ?? `Chain ${state.values.targetChainId}`
           try {
             toast.custom(
@@ -168,7 +169,9 @@ function RouteComponent() {
               ),
               { ...toastProps, duration: Number.POSITIVE_INFINITY },
             )
-            await waitForCallsStatus(Wagmi.config as never, { id: data.id })
+            await waitForCallsStatus(Wagmi.config as never, {
+              id: data.id,
+            })
             toast.custom(
               (t) => (
                 <Toast
@@ -545,11 +548,13 @@ function RouteComponent() {
                                   className="size-6"
                                 />
                                 <div className="whitespace-nowrap">
-                                  {Wagmi.getChainConfig(
-                                    Number.parseInt(
-                                      formState.values.targetChainId,
-                                      10,
-                                    ),
+                                  {Porto.config.chains.find(
+                                    (chain) =>
+                                      chain.id ===
+                                      Number.parseInt(
+                                        formState.values.targetChainId,
+                                        10,
+                                      ),
                                   )?.name ??
                                     `Chain ${formState.values.targetChainId}`}
                                 </div>
@@ -702,7 +707,10 @@ function useAssets(props: { address: Address.Address | undefined }) {
               feeToken.symbol === symbol || feeToken.address === token.address,
           )
           const { interop, nativeRate } = feeToken ?? {}
-          const chain = Wagmi.getChainConfig(chainId)
+          // const chain = Wagmi.getChainConfig(chainId)
+          const chain = Porto.config.chains.find(
+            (chain) => chain.id === chainId,
+          )
           assetsMap.set(symbol, [
             ...(assetsMap.get(symbol) ?? []),
             {

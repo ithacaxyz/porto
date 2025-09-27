@@ -161,14 +161,12 @@ function RouteComponent() {
                             <img
                               alt={asset.metadata?.name ?? 'Token icon'}
                               className="size-7"
-                              src={
-                                'https://tokenlist.up.railway.app/icon/42161'
-                              }
+                              src={`https://tokenlist.up.railway.app/icon/${asset.chainId}`}
                             />
-                            <span className="flex items-center gap-2 font-medium text-gray9 text-lg">
+                            <span className="my-auto flex items-center gap-2 align-middle font-medium text-gray9 text-md">
                               {asset.chainName}
                             </span>
-                            <span className="ml-auto text-right font-medium text-blackA1 text-lg">
+                            <span className="ml-auto text-right font-medium text-blackA1 text-md">
                               ${Number(asset.value).toFixed(2)}
                             </span>
                           </li>

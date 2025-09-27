@@ -22,6 +22,7 @@ import { mipdConfig } from '~/lib/Wagmi'
 
 export const Route = createFileRoute('/_dash/settings/recovery')({
   component: RouteComponent,
+  ssr: false,
 })
 
 function RouteComponent() {
