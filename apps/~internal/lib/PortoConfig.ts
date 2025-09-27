@@ -150,6 +150,7 @@ export function getDialogHost(env = Env.get()): string {
       )
     return dialogHosts[env]
   })()
+  console.info('url', url + '?relayEnv=' + env)
   return url + '?relayEnv=' + env
 }
 

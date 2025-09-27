@@ -55,3 +55,4 @@ packages:
   - "apps/*"
   - "docker/*"
   - "examples/*"
+  - "src"
