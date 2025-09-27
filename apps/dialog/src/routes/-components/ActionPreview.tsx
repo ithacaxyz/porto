@@ -21,7 +21,6 @@ export function ActionPreview(props: ActionPreview.Props) {
     header,
     children,
     quotes,
-    delayedRender,
     error,
     queryParams,
     actions,
@@ -29,36 +28,10 @@ export function ActionPreview(props: ActionPreview.Props) {
     onReject,
   } = props
 
-  const [ready, setReady] = React.useState(!delayedRender)
-
-  React.useEffect(() => {
-    if (!delayedRender) {
-      setReady(true)
-      return
-    }
-    const timeout = setTimeout(
-      () => setReady(true),
-      ActionPreview.delayedRenderDuration,
-    )
-    return () => clearTimeout(timeout)
-  }, [delayedRender])
-
   const deficit = useDeficit(quotes, error, queryParams)
   const [showAddFunds, setShowAddFunds] = React.useState(false)
 
   const depositAddress = deficit?.address || account
-
-  if (!ready)
-    return (
-      <Layout>
-        <Layout.Content>
-          <div className="h-[96px]" />
-        </Layout.Content>
-        <Layout.Footer>
-          {account && <Layout.Footer.Account address={account} />}
-        </Layout.Footer>
-      </Layout>
-    )
 
   if (showAddFunds && deficit)
     return (
@@ -346,6 +319,7 @@ function FundsNeededSection(props: {
       {showFaucet ? (
         <div className="flex w-full gap-[8px]">
           <Button
+            data-testid="buy"
             loading={faucet.isPending && 'Adding funds…'}
             onClick={() => faucet.mutate()}
             variant="primary"

@@ -129,6 +129,9 @@ export function ActionRequest(props: ActionRequest.Props) {
     }
   }
 
+  const fetchingQuote = prepareCallsQuery.isPending
+  const refreshingQuote = prepareCallsQuery.isRefetching
+
   if (insufficientFundsError)
     return requiredFundsData ? (
       <InsufficientFunds
@@ -159,14 +162,14 @@ export function ActionRequest(props: ActionRequest.Props) {
         address={address}
         amount={identified.amount}
         approving={loading}
-        capabilities={prepareCallsQuery.isPending ? undefined : capabilities}
+        capabilities={fetchingQuote ? undefined : capabilities}
         chainsPath={chainsPath}
-        fetchingQuote={prepareCallsQuery.isPending}
+        fetchingQuote={fetchingQuote}
         onApprove={() => {
           if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
         }}
         onReject={onReject}
-        refreshingQuote={prepareCallsQuery.isRefetching}
+        refreshingQuote={refreshingQuote}
         spender={identified.spender}
         tokenAddress={identified.tokenAddress}
       />
@@ -178,15 +181,15 @@ export function ActionRequest(props: ActionRequest.Props) {
         address={address}
         assetIn={addNativeCurrencyName(identified.assetIn)}
         assetOut={addNativeCurrencyName(identified.assetOut)}
-        capabilities={prepareCallsQuery.isPending ? undefined : capabilities}
+        capabilities={fetchingQuote ? undefined : capabilities}
         chainsPath={chainsPath}
         contractAddress={calls[0]?.to}
-        fetchingQuote={prepareCallsQuery.isPending}
+        fetchingQuote={fetchingQuote}
         onApprove={() => {
           if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
         }}
         onReject={onReject}
-        refreshingQuote={prepareCallsQuery.isRefetching}
+        refreshingQuote={refreshingQuote}
         swapping={loading}
         swapType={identified.type}
       />
@@ -197,14 +200,14 @@ export function ActionRequest(props: ActionRequest.Props) {
       <Send
         address={address}
         asset={identified.asset}
-        capabilities={prepareCallsQuery.isPending ? undefined : capabilities}
+        capabilities={fetchingQuote ? undefined : capabilities}
         chainsPath={chainsPath}
-        fetchingQuote={prepareCallsQuery.isPending}
+        fetchingQuote={fetchingQuote}
         onApprove={() => {
           if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
         }}
         onReject={onReject}
-        refreshingQuote={prepareCallsQuery.isRefetching}
+        refreshingQuote={refreshingQuote}
         sending={loading}
         to={identified.to}
       />
@@ -216,7 +219,7 @@ export function ActionRequest(props: ActionRequest.Props) {
       actions={
         <Layout.Footer.Actions>
           <Button
-            disabled={prepareCallsQuery.isPending || loading}
+            disabled={fetchingQuote || loading}
             onClick={onReject}
             variant="negative-secondary"
           >
@@ -224,8 +227,14 @@ export function ActionRequest(props: ActionRequest.Props) {
           </Button>
           <Button
             data-testid="confirm"
-            disabled={!prepareCallsQuery.isSuccess}
-            loading={loading && 'Confirming…'}
+            disabled={!prepareCallsQuery.isSuccess || refreshingQuote}
+            loading={
+              refreshingQuote
+                ? 'Refreshing quote…'
+                : loading
+                  ? 'Confirming…'
+                  : undefined
+            }
             onClick={() => {
               if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
             }}
@@ -236,7 +245,6 @@ export function ActionRequest(props: ActionRequest.Props) {
           </Button>
         </Layout.Footer.Actions>
       }
-      delayedRender={prepareCallsQuery.isPending}
       error={prepareCallsQuery.error}
       header={
         <Layout.Header.Default
