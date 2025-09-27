@@ -107,7 +107,12 @@ export function Approve(props: Approve.Props) {
             Cancel
           </Button>
           <Button
-            disabled={tokenInfo.isLoading || tokenInfo.isError || fetchingQuote || loading}
+            disabled={
+              tokenInfo.isLoading ||
+              tokenInfo.isError ||
+              fetchingQuote ||
+              loading
+            }
             loading={
               refreshingQuote
                 ? 'Refreshing quote…'
