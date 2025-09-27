@@ -1,7 +1,7 @@
 import { Button, ButtonArea, ChainsPath, Details } from '@porto/ui'
 import { useQuery } from '@tanstack/react-query'
 import { cx } from 'cva'
-import { type Address, Base64 } from 'ox'
+import { type Address, Base64, Value } from 'ox'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import type * as Quote_schema from 'porto/core/internal/relay/schema/quotes'
 import type * as Rpc from 'porto/core/internal/schema/request'
@@ -101,7 +101,7 @@ export function ActionRequest(props: ActionRequest.Props) {
     const value =
       typeof firstRequiredFunds.value === 'bigint'
         ? firstRequiredFunds.value
-        : BigInt(firstRequiredFunds.value) * 10n ** BigInt(token.decimals)
+        : Value.from(firstRequiredFunds.value, token.decimals)
 
     return {
       address: token.address,
@@ -161,10 +161,12 @@ export function ActionRequest(props: ActionRequest.Props) {
         approving={loading}
         capabilities={prepareCallsQuery.isPending ? undefined : capabilities}
         chainsPath={chainsPath}
+        fetchingQuote={prepareCallsQuery.isPending}
         onApprove={() => {
           if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
         }}
         onReject={onReject}
+        refreshingQuote={prepareCallsQuery.isRefetching}
         spender={identified.spender}
         tokenAddress={identified.tokenAddress}
       />
@@ -179,10 +181,12 @@ export function ActionRequest(props: ActionRequest.Props) {
         capabilities={prepareCallsQuery.isPending ? undefined : capabilities}
         chainsPath={chainsPath}
         contractAddress={calls[0]?.to}
+        fetchingQuote={prepareCallsQuery.isPending}
         onApprove={() => {
           if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
         }}
         onReject={onReject}
+        refreshingQuote={prepareCallsQuery.isRefetching}
         swapping={loading}
         swapType={identified.type}
       />
@@ -195,10 +199,12 @@ export function ActionRequest(props: ActionRequest.Props) {
         asset={identified.asset}
         capabilities={prepareCallsQuery.isPending ? undefined : capabilities}
         chainsPath={chainsPath}
+        fetchingQuote={prepareCallsQuery.isPending}
         onApprove={() => {
           if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
         }}
         onReject={onReject}
+        refreshingQuote={prepareCallsQuery.isRefetching}
         sending={loading}
         to={identified.to}
       />

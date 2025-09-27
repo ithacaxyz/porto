@@ -16,8 +16,10 @@ export function Send(props: Send.Props) {
     asset,
     capabilities,
     chainsPath,
+    fetchingQuote,
     onApprove,
     onReject,
+    refreshingQuote,
     sending,
     to,
   } = props
@@ -63,8 +65,14 @@ export function Send(props: Send.Props) {
             Cancel
           </Button>
           <Button
-            disabled={!onApprove || loading}
-            loading={sending && 'Sending…'}
+            disabled={!onApprove || fetchingQuote || loading}
+            loading={
+              refreshingQuote
+                ? 'Refreshing quote…'
+                : sending
+                  ? 'Sending…'
+                  : undefined
+            }
             onClick={onApprove}
             variant="positive"
             width="grow"
@@ -112,7 +120,7 @@ export function Send(props: Send.Props) {
             />
           </div>
         </div>
-        <Details loading={loading}>
+        <Details loading={fetchingQuote || loading}>
           {feeFormatted && (
             <Details.Item
               label="Fees (est.)"
@@ -139,8 +147,10 @@ export namespace Send {
     asset: ActionRequest.CoinAsset
     capabilities?: Rpc.wallet_prepareCalls.Response['capabilities']
     chainsPath: readonly Chain[]
+    fetchingQuote?: boolean | undefined
     onApprove: () => void
     onReject: () => void
+    refreshingQuote?: boolean | undefined
     sending?: boolean | undefined
     to: Address.Address
   }

@@ -25,8 +25,10 @@ export function Approve(props: Approve.Props) {
     capabilities,
     chainsPath,
     expiresAt,
+    fetchingQuote,
     onApprove,
     onReject,
+    refreshingQuote,
     spender,
     tokenAddress,
   } = props
@@ -105,8 +107,14 @@ export function Approve(props: Approve.Props) {
             Cancel
           </Button>
           <Button
-            disabled={tokenInfo.isLoading || tokenInfo.isError || loading}
-            loading={approving && 'Approving…'}
+            disabled={tokenInfo.isLoading || tokenInfo.isError || fetchingQuote || loading}
+            loading={
+              refreshingQuote
+                ? 'Refreshing quote…'
+                : approving
+                  ? 'Approving…'
+                  : undefined
+            }
             onClick={onApprove}
             variant="positive"
             width="grow"
@@ -144,7 +152,7 @@ export function Approve(props: Approve.Props) {
             unlimited={unlimited}
           />
         </div>
-        <Details loading={loading}>
+        <Details loading={fetchingQuote || loading}>
           <Details.Item
             label="Requested by"
             value={
@@ -182,8 +190,10 @@ export namespace Approve {
     capabilities?: Rpc.wallet_prepareCalls.Response['capabilities']
     chainsPath: readonly Chain[]
     expiresAt?: Date
+    fetchingQuote?: boolean | undefined
     onApprove: () => void
     onReject: () => void
+    refreshingQuote?: boolean | undefined
     spender: Address.Address
     tokenAddress: Address.Address
     unlimited?: boolean | undefined

@@ -26,8 +26,10 @@ export function Swap(props: Swap.Props) {
     capabilities,
     chainsPath,
     contractAddress,
+    fetchingQuote,
     onApprove,
     onReject,
+    refreshingQuote,
     swapType,
     swapping,
   } = props
@@ -65,8 +67,14 @@ export function Swap(props: Swap.Props) {
             Cancel
           </Button>
           <Button
-            disabled={!onApprove || loading}
-            loading={swapping && 'Swapping…'}
+            disabled={!onApprove || fetchingQuote || loading}
+            loading={
+              refreshingQuote
+                ? 'Refreshing quote…'
+                : swapping
+                  ? 'Swapping…'
+                  : undefined
+            }
             onClick={onApprove}
             variant="positive"
             width="grow"
@@ -121,7 +129,7 @@ export function Swap(props: Swap.Props) {
             </>
           )}
         </div>
-        <Details loading={loading}>
+        <Details loading={fetchingQuote || loading}>
           {feeFormatted && (
             <Details.Item
               label="Fees (est.)"
@@ -150,8 +158,10 @@ export namespace Swap {
     capabilities?: Rpc.wallet_prepareCalls.Response['capabilities']
     chainsPath: readonly Chain[]
     contractAddress?: Address.Address | undefined
+    fetchingQuote?: boolean | undefined
     onApprove: () => void
     onReject: () => void
+    refreshingQuote?: boolean | undefined
     swapType: 'swap' | 'convert'
     swapping?: boolean | undefined
   }
