@@ -4,6 +4,12 @@ packages:
   - "examples/*"
   - "src"
 
+minimumReleaseAge: 2880 # 48 hours
+minimumReleaseAgeExclude:
+  - "@wagmi/connectors"
+  - "@wagmi/core"
+  - wagmi
+
 catalog:
   "@ariakit/react": "^0.4.18"
   "@ariakit/tailwind": "^0.1.8"

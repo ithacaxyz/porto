@@ -67,7 +67,7 @@
     "sherif": "^1.6.1",
     "simple-git-hooks": "^2.13.1",
     "size-limit": "^11.2.0",
-    "tsdown": "^0.15.1",
+    "tsdown": "0.15.5",
     "tsx": "^4.20.6",
     "typed-query-selector": "^2.12.0",
     "typescript": "catalog:",
