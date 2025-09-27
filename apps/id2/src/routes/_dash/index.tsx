@@ -1,5 +1,5 @@
 import * as Ariakit from '@ariakit/react'
-import { ChainIcon, Toast } from '@porto/apps/components'
+import { Toast } from '@porto/apps/components'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { cx } from 'cva'
@@ -16,8 +16,7 @@ import {
 } from 'viem'
 import { useAccount, useSendCalls } from 'wagmi'
 import { waitForCallsStatus } from 'wagmi/actions'
-import { TokenIcon } from '~/components/TokenIcon.tsx'
-import type { ChainId } from '~/lib/Constants'
+import { ChainIcon } from '~/components/ChainIcon.tsx'
 import * as Porto from '~/lib/Porto.ts'
 import * as Wagmi from '~/lib/Wagmi.ts'
 import { StringFormatter, ValueFormatter } from '~/utils.ts'
@@ -81,13 +80,13 @@ function RouteComponent() {
   const formState = Ariakit.useStoreState(form)
   form.useSubmit(async (state) => {
     const sourceChainId = Number.parseInt(state.values.sourceChainId, 10) as
-      | ChainId
+      | Wagmi.ChainId
       | 0
       | -1
     const targetChainId = Number.parseInt(
       state.values.targetChainId,
       10,
-    ) as ChainId
+    ) as Wagmi.ChainId
 
     const token = assetsMap
       .get(state.values.symbol)
@@ -395,9 +394,13 @@ function RouteComponent() {
                               {sourceAsset ? (
                                 <div className="flex gap-2.5">
                                   <div className="relative">
-                                    <TokenIcon
+                                    {/* <TokenIcon
                                       size={24}
                                       symbol={sourceAsset.symbol}
+                                    /> */}
+                                    <img
+                                      alt={sourceAsset.symbol}
+                                      src={`https://tokenlist.up.railway.app/icon/${formState.values.sourceChainId}/${sourceAsset.symbol.toLowerCase()}`}
                                     />
                                     <div className="-end-1.25 -bottom-1 absolute size-4">
                                       {sourceAsset.chainId <= 0 ? (
@@ -429,13 +432,18 @@ function RouteComponent() {
                             }}
                           >
                             <Ariakit.TabList className="scrollbar-width-thin scrollbar-gray6 h-full max-h-57 min-w-36.5 space-y-px overflow-y-auto p-2.5">
-                              {assets?.map(([symbol]) => (
+                              {assets?.map(([symbol, values]) => (
                                 <Ariakit.Tab
                                   className="flex h-11.5 w-full items-center gap-2 rounded-[10px] px-3 font-medium text-[16px] hover:bg-gray3 aria-selected:bg-gray4 data-focus-visible:bg-gray4"
                                   id={symbol}
                                   key={symbol}
                                 >
-                                  <TokenIcon size={24} symbol={symbol} />
+                                  {/* <TokenIcon size={24} symbol={symbol} /> */}
+                                  <img
+                                    alt={symbol}
+                                    className="size-6"
+                                    src={`https://tokenlist.up.railway.app/icon/${values.at(-1)?.chainId}/${symbol.toLowerCase()}`}
+                                  />
                                   <div>{symbol}</div>
                                 </Ariakit.Tab>
                               ))}

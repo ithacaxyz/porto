@@ -1,5 +1,4 @@
 import * as Ariakit from '@ariakit/react'
-import { ChainIcon } from '@porto/apps/components'
 import { useCopyToClipboard } from '@porto/apps/hooks'
 import * as Ui from '@porto/ui'
 import { createFileRoute } from '@tanstack/react-router'
@@ -7,6 +6,7 @@ import { Cuer } from 'cuer'
 import { cx } from 'cva'
 import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
+import { ChainIcon } from '~/components/ChainIcon.tsx'
 import ExternalLinkIcon from '~icons/lucide/external-link'
 
 export const Route = createFileRoute('/_dash/receive')({
