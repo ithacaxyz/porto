@@ -10,11 +10,7 @@ import { Hooks } from 'porto/wagmi'
 import type { getPermissions } from 'porto/wagmi/Actions'
 import * as React from 'react'
 import { useAccount } from 'wagmi'
-import {
-  DateFormatter,
-  StringFormatter,
-  ValueFormatter,
-} from '~/utils.ts'
+import { DateFormatter, StringFormatter, ValueFormatter } from '~/utils.ts'
 
 export const Route = createFileRoute('/_dash/settings/permissions')({
   component: RouteComponent,

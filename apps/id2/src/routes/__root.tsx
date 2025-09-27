@@ -1,36 +1,39 @@
 /// <reference types="vite/client" />
 
 import * as UI from '@porto/ui'
-import { type QueryClient, useQueryClient } from '@tanstack/react-query'
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
+import type { QueryClient } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import {
   createRootRouteWithContext,
-  ErrorComponent,
   HeadContent,
   Outlet,
   Scripts,
+  useAwaited,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-import type * as React from 'react'
-import { WagmiProvider } from 'wagmi'
-
+import { createServerFn } from '@tanstack/react-start'
+import { getCookie } from '@tanstack/react-start/server'
+import * as React from 'react'
+import { cookieToInitialState, type State, WagmiProvider } from 'wagmi'
 import appCss from '~/app.css?url'
-import { NotFound } from '~/components/NotFound'
-import * as Query from '~/lib/Query.ts'
+import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary.tsx'
+import { NotFound } from '~/components/NotFound.tsx'
 import * as Wagmi from '~/lib/Wagmi.ts'
+
+const getCookieServerFn = createServerFn().handler(async () =>
+  getCookie('wagmi.store'),
+)
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
 }>()({
   component: RootComponent,
-  errorComponent: (props) => {
-    return (
-      <RootDocument>
-        <ErrorComponent error={props.error} />
-      </RootDocument>
-    )
-  },
+  errorComponent: (props) => (
+    <RootDocument>
+      <DefaultCatchBoundary {...props} />
+    </RootDocument>
+  ),
   head: () => ({
     links: [
       { href: appCss, rel: 'stylesheet' },
@@ -66,24 +69,32 @@ export const Route = createRootRouteWithContext<{
       { content: 'Porto Wallet ID App', name: 'description' },
     ],
   }),
+  loader: async () => {
+    const deferredPromise = getCookieServerFn()
+    return { deferredPromise }
+  },
   notFoundComponent: () => <NotFound />,
 })
 
-function Providers(props: React.PropsWithChildren) {
-  const queryClient = useQueryClient()
+export const persister = createAsyncStoragePersister({
+  key: 'porto.id',
+  storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+})
 
+function Providers(
+  props: React.PropsWithChildren & {
+    initialState?: State | undefined
+  },
+) {
   return (
-    <WagmiProvider config={Wagmi.config}>
-      <PersistQueryClientProvider
-        client={queryClient}
-        persistOptions={{ persister: Query.persister }}
-      >
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <WagmiProvider config={Wagmi.config} initialState={props.initialState}>
         <UI.Ui>
           {/* @ts-expect-error Vite version mismatch */}
           {props.children}
         </UI.Ui>
-      </PersistQueryClientProvider>
-    </WagmiProvider>
+      </WagmiProvider>
+    </React.Suspense>
   )
 }
 
@@ -96,18 +107,22 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const { deferredPromise } = Route.useLoaderData()
+
+  const [awaitedCookie] = useAwaited({ promise: deferredPromise })
+  const initialState = cookieToInitialState(Wagmi.config, awaitedCookie)
   return (
     <html className="scheme-light-dark" lang="en">
       <head>
         <HeadContent />
       </head>
       <body className="antialiased">
-        <Providers>
+        <Providers initialState={initialState}>
           {children}
           <TanStackRouterDevtools position="bottom-right" />
           <ReactQueryDevtools buttonPosition="bottom-left" />
+          <Scripts />
         </Providers>
-        <Scripts />
       </body>
     </html>
   )
