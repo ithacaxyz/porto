@@ -26,7 +26,7 @@
     "postinstall": "panda codegen && pnpm build"
   },
   "dependencies": {
-    "cuer": "^0.0.2"
+    "cuer": "0.0.3"
   },
   "peerDependencies": {
     "@ariakit/react": "*",
@@ -46,12 +46,12 @@
     "@vitejs/plugin-react-swc": "catalog:",
     "porto": "workspace:*",
     "postcss": "^8.5.6",
-    "rolldown-plugin-dts": "^0.14.2",
+    "rolldown-plugin-dts": "0.16.8",
     "size-limit": "^11.2.0",
     "typescript": "catalog:",
-    "unplugin-dts": "1.0.0-beta.4",
+    "unplugin-dts": "1.0.0-beta.6",
     "unplugin-icons": "catalog:",
-    "unplugin-isolated-decl": "^0.14.6",
+    "unplugin-isolated-decl": "0.15.2",
     "vite": "catalog:",
     "vite-tsconfig-paths": "^5.1.4"
   }
