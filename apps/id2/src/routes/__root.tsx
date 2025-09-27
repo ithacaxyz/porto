@@ -82,16 +82,17 @@ export const persister = createAsyncStoragePersister({
 })
 
 function Providers(
-  props: React.PropsWithChildren & {
+  props: React.PropsWithChildren<{
     initialState?: State | undefined
-  },
+    children: React.ReactNode
+  }>,
 ) {
   return (
     <React.Suspense fallback={<div>Loading...</div>}>
       <WagmiProvider config={Wagmi.config} initialState={props.initialState}>
         <UI.Ui>
-          {/* @ts-expect-error Vite version mismatch */}
-          {props.children}
+          {/** biome-ignore lint/complexity/noUselessFragments: _ */}
+          <React.Fragment>{props.children}</React.Fragment>
         </UI.Ui>
       </WagmiProvider>
     </React.Suspense>

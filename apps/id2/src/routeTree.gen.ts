@@ -20,7 +20,6 @@ import { Route as DashActivityRouteImport } from './routes/_dash/activity'
 import { Route as DashSettingsIndexRouteImport } from './routes/_dash/settings/index'
 import { Route as DashSettingsRecoveryRouteImport } from './routes/_dash/settings/recovery'
 import { Route as DashSettingsPermissionsRouteImport } from './routes/_dash/settings/permissions'
-import { Route as DashApiUsersRouteImport } from './routes/_dash/api/users'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -76,11 +75,6 @@ const DashSettingsPermissionsRoute = DashSettingsPermissionsRouteImport.update({
   path: '/settings/permissions',
   getParentRoute: () => DashRoute,
 } as any)
-const DashApiUsersRoute = DashApiUsersRouteImport.update({
-  id: '/api/users',
-  path: '/api/users',
-  getParentRoute: () => DashRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
@@ -90,7 +84,6 @@ export interface FileRoutesByFullPath {
   '/receive': typeof DashReceiveRoute
   '/savings': typeof DashSavingsRoute
   '/': typeof DashIndexRoute
-  '/api/users': typeof DashApiUsersRoute
   '/settings/permissions': typeof DashSettingsPermissionsRoute
   '/settings/recovery': typeof DashSettingsRecoveryRoute
   '/settings': typeof DashSettingsIndexRoute
@@ -103,7 +96,6 @@ export interface FileRoutesByTo {
   '/receive': typeof DashReceiveRoute
   '/savings': typeof DashSavingsRoute
   '/': typeof DashIndexRoute
-  '/api/users': typeof DashApiUsersRoute
   '/settings/permissions': typeof DashSettingsPermissionsRoute
   '/settings/recovery': typeof DashSettingsRecoveryRoute
   '/settings': typeof DashSettingsIndexRoute
@@ -118,7 +110,6 @@ export interface FileRoutesById {
   '/_dash/receive': typeof DashReceiveRoute
   '/_dash/savings': typeof DashSavingsRoute
   '/_dash/': typeof DashIndexRoute
-  '/_dash/api/users': typeof DashApiUsersRoute
   '/_dash/settings/permissions': typeof DashSettingsPermissionsRoute
   '/_dash/settings/recovery': typeof DashSettingsRecoveryRoute
   '/_dash/settings/': typeof DashSettingsIndexRoute
@@ -133,7 +124,6 @@ export interface FileRouteTypes {
     | '/receive'
     | '/savings'
     | '/'
-    | '/api/users'
     | '/settings/permissions'
     | '/settings/recovery'
     | '/settings'
@@ -146,7 +136,6 @@ export interface FileRouteTypes {
     | '/receive'
     | '/savings'
     | '/'
-    | '/api/users'
     | '/settings/permissions'
     | '/settings/recovery'
     | '/settings'
@@ -160,7 +149,6 @@ export interface FileRouteTypes {
     | '/_dash/receive'
     | '/_dash/savings'
     | '/_dash/'
-    | '/_dash/api/users'
     | '/_dash/settings/permissions'
     | '/_dash/settings/recovery'
     | '/_dash/settings/'
@@ -251,13 +239,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashSettingsPermissionsRouteImport
       parentRoute: typeof DashRoute
     }
-    '/_dash/api/users': {
-      id: '/_dash/api/users'
-      path: '/api/users'
-      fullPath: '/api/users'
-      preLoaderRoute: typeof DashApiUsersRouteImport
-      parentRoute: typeof DashRoute
-    }
   }
 }
 
@@ -267,7 +248,6 @@ interface DashRouteChildren {
   DashReceiveRoute: typeof DashReceiveRoute
   DashSavingsRoute: typeof DashSavingsRoute
   DashIndexRoute: typeof DashIndexRoute
-  DashApiUsersRoute: typeof DashApiUsersRoute
   DashSettingsPermissionsRoute: typeof DashSettingsPermissionsRoute
   DashSettingsRecoveryRoute: typeof DashSettingsRecoveryRoute
   DashSettingsIndexRoute: typeof DashSettingsIndexRoute
@@ -279,7 +259,6 @@ const DashRouteChildren: DashRouteChildren = {
   DashReceiveRoute: DashReceiveRoute,
   DashSavingsRoute: DashSavingsRoute,
   DashIndexRoute: DashIndexRoute,
-  DashApiUsersRoute: DashApiUsersRoute,
   DashSettingsPermissionsRoute: DashSettingsPermissionsRoute,
   DashSettingsRecoveryRoute: DashSettingsRecoveryRoute,
   DashSettingsIndexRoute: DashSettingsIndexRoute,
