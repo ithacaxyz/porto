@@ -175,7 +175,12 @@ function RouteComponent() {
           <CheckUnsupportedBrowser>
             <CheckReferrer>
               <EnsureVisibility enabled={enableEnsureVisibility}>
-                <div className="flex h-full w-full flex-col" key={request?.id}>
+                <div
+                  className="flex h-full w-full flex-col"
+                  key={
+                    import.meta.env.MODE !== 'test' ? request?.id : undefined
+                  }
+                >
                   <Outlet />
                 </div>
               </EnsureVisibility>
