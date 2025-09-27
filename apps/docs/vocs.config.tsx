@@ -638,9 +638,11 @@ export default defineConfig({
   ],
   vite: {
     plugins: [
+      // @ts-expect-error - vocs.vite.plugins pulls from vite v6
       Mkcert({
         hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
       }),
+      // @ts-expect-error - vocs.vite.plugins pulls from vite v6
       Plugins.Icons(),
     ],
     server: {

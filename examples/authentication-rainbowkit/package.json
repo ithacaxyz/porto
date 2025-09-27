@@ -28,7 +28,7 @@
     "@vitejs/plugin-react": "^4.4.1",
     "globals": "^16.0.0",
     "typescript": "~5.9.2",
-    "vite": "^6.3.6",
+    "vite": "^7.1.7",
     "vite-plugin-mkcert": "^1",
     "wrangler": "^4.37.0"
   }
