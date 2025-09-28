@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.20
+
+### Patch Changes
+
+- [`124f1cc`](https://github.com/ithacaxyz/porto/commit/124f1ccccb50daceb740132bb528629e80470cd2) Thanks [@jxom](https://github.com/jxom)! - Fixed chain assertions on Wagmi Actions.
+
 ## 0.2.19
 
 ### Patch Changes
