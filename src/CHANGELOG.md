@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.21
+
+### Patch Changes
+
+- [`6e91585`](https://github.com/ithacaxyz/porto/commit/6e91585147eea2d94d2c1a14e23499ec3ab1241a) Thanks [@jxom](https://github.com/jxom)! - Added support for Berachain, Hoodi, Katana.
+
 ## 0.2.20
 
 ### Patch Changes
