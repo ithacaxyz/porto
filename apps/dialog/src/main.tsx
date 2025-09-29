@@ -18,7 +18,7 @@ if (import.meta.env.PROD) {
   Sentry.init({
     dsn: 'https://457697aad11614a3f667c8e61f6b9e20@o4509056062849024.ingest.us.sentry.io/4509080285741056',
     enabled: document.referrer
-      ? TrustedHosts.hostnames.includes(new URL(document.referrer).hostname)
+      ? TrustedHosts.includes(new URL(document.referrer).hostname)
       : true,
     environment: Env.get(),
     integrations: [
