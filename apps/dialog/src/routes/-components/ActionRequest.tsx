@@ -162,7 +162,7 @@ export function ActionRequest(props: ActionRequest.Props) {
         address={address}
         amount={identified.amount}
         approving={loading}
-        capabilities={fetchingQuote ? undefined : capabilities}
+        capabilities={capabilities}
         chainsPath={chainsPath}
         fetchingQuote={fetchingQuote}
         onApprove={() => {
@@ -181,7 +181,7 @@ export function ActionRequest(props: ActionRequest.Props) {
         address={address}
         assetIn={addNativeCurrencyName(identified.assetIn)}
         assetOut={addNativeCurrencyName(identified.assetOut)}
-        capabilities={fetchingQuote ? undefined : capabilities}
+        capabilities={capabilities}
         chainsPath={chainsPath}
         contractAddress={calls[0]?.to}
         fetchingQuote={fetchingQuote}
@@ -200,7 +200,7 @@ export function ActionRequest(props: ActionRequest.Props) {
       <Send
         address={address}
         asset={identified.asset}
-        capabilities={fetchingQuote ? undefined : capabilities}
+        capabilities={capabilities}
         chainsPath={chainsPath}
         fetchingQuote={fetchingQuote}
         onApprove={() => {

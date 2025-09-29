@@ -34,7 +34,6 @@ export function Approve(props: Approve.Props) {
   } = props
 
   const fees = capabilities?.feeTotals
-  const loading = !capabilities
 
   let { unlimited } = props
   if (unlimited === undefined) {
@@ -107,12 +106,7 @@ export function Approve(props: Approve.Props) {
             Cancel
           </Button>
           <Button
-            disabled={
-              tokenInfo.isLoading ||
-              tokenInfo.isError ||
-              fetchingQuote ||
-              loading
-            }
+            disabled={tokenInfo.isLoading || tokenInfo.isError || fetchingQuote}
             loading={
               refreshingQuote
                 ? 'Refreshing quote…'
@@ -157,7 +151,7 @@ export function Approve(props: Approve.Props) {
             unlimited={unlimited}
           />
         </div>
-        <Details loading={fetchingQuote || loading}>
+        <Details loading={fetchingQuote}>
           <Details.Item
             label="Requested by"
             value={
