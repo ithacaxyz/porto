@@ -38,3 +38,9 @@ export function uniqBy<data>(data: data[], fn: (item: data) => unknown) {
   }
   return result
 }
+
+export function uuidv4() {
+  if (typeof globalThis !== 'undefined' && 'crypto' in globalThis)
+    return globalThis.crypto.randomUUID()
+  return crypto.randomUUID()
+}

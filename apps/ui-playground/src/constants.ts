@@ -10,6 +10,8 @@ export const sections = [
       'ButtonArea',
       'ChainIcon',
       'ChainsPath',
+      'CopyButton',
+      'Deposit',
       'Details',
       'DiscIcon',
       // 'Frame',

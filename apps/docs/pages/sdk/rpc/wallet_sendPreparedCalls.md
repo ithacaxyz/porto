@@ -20,8 +20,8 @@ type Request = {
     chainId: `0x${string}`;
     /** Data to be forwarded from `wallet_prepareCalls`. */
     context: { quote: unknown };
-    /** Key that signed the digest and produced the signature. */
-    key: {
+    /** Key that signed the digest and produced the signature. Optional when using EOA accounts with built-in signing. */
+    key?: {
       prehash?: boolean
       publicKey: `0x${string}`;
       type: 'address' | 'secp256k1' | 'p256' | 'webauthn-256';

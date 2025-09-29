@@ -43,8 +43,8 @@ Pass your theme to the Porto dialog mode when creating the Porto instance. This 
 
 ```ts [theming.ts]
 import { Mode } from 'porto'
-import { porto  } from 'porto/wagmi'
 import { createConfig } from 'wagmi'
+import { porto } from 'wagmi/connectors'
 import { theme } from './custom-theme.js'
 
 const connector = porto({

@@ -8,7 +8,7 @@ VanillaJS action for granting permissions to an application. Uses Viem's [`grant
 
 ```ts twoslash [example.ts]
 import { toHex, parseEther } from 'viem'
-import { Actions, porto } from 'porto/wagmi'
+import { Actions } from 'porto/wagmi'
 import { config } from './config'
 
 const token = '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa'
@@ -47,7 +47,7 @@ Applications can also grant permissions to a specific signing key by providing t
 
 ```ts twoslash [example.ts]
 import { privateKeyToAccount, toHex, parseEther } from 'viem'
-import { Actions, porto } from 'porto/wagmi'
+import { Actions } from 'porto/wagmi'
 import { config } from './config'
 
 const token = '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa'

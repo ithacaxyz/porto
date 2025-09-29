@@ -76,6 +76,8 @@ function RouteComponent() {
 
   const enableEnsureVisibility = mode.includes('iframe') && !trusted
 
+  if (!request) return null
+
   return (
     <>
       <HeadContent />
@@ -90,7 +92,6 @@ function RouteComponent() {
         // [1] https://fvsch.com/transparent-iframes#toc-3
         // [2] https://github.com/w3c/csswg-drafts/issues/4772
         colorScheme={customTheme?.colorScheme}
-        loading={!request}
         mode={
           display === 'full'
             ? {
@@ -168,7 +169,14 @@ function RouteComponent() {
           <CheckUnsupportedBrowser>
             <CheckReferrer>
               <EnsureVisibility enabled={enableEnsureVisibility}>
-                <Outlet />
+                <div
+                  className="flex h-full w-full flex-col"
+                  key={
+                    import.meta.env.MODE !== 'test' ? request?.id : undefined
+                  }
+                >
+                  <Outlet />
+                </div>
               </EnsureVisibility>
             </CheckReferrer>
           </CheckUnsupportedBrowser>

@@ -1,6 +1,6 @@
-import { porto } from 'porto/wagmi'
 import { createConfig, http } from 'wagmi'
 import { baseSepolia } from 'wagmi/chains'
+import { porto } from 'wagmi/connectors'
 
 export const config = createConfig({
   chains: [baseSepolia],

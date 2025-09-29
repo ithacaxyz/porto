@@ -1,4 +1,5 @@
 import * as Dialog from '../core/Dialog.js'
+import type { QueuedRequest } from '../core/Porto.js'
 import * as Messenger from './Messenger.js'
 
 export const messenger = await Messenger.cliRelay()
@@ -16,6 +17,15 @@ export async function cli() {
     setup(parameters) {
       messenger.on('rpc-response', (response) => {
         Dialog.handleResponse(parameters.internal.store, response)
+      })
+
+      messenger.on('ready', () => {
+        const { store } = parameters.internal
+        const requestQueue = store.getState().requestQueue
+        const requests = requestQueue
+          .map((x) => (x.status === 'pending' ? x : undefined))
+          .filter(Boolean) as readonly QueuedRequest[]
+        messenger.send('rpc-requests', requests)
       })
 
       return {

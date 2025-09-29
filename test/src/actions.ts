@@ -82,7 +82,6 @@ export async function setBalance(
   else {
     await RelayActions.addFaucetFunds(client, {
       address,
-      chainId: client.chain.id,
       tokenAddress: Contracts.exp1Address[client.chain.id as never],
       value,
     })

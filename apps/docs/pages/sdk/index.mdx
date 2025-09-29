@@ -46,9 +46,9 @@ Get started with Wagmi by following the [official guide](https://wagmi.sh/react/
 After you have set up Wagmi, you can set up Porto by using the `porto(){:ts}` connector.
 
 ```ts [wagmi.ts] twoslash
-import { porto } from 'porto/wagmi' // [!code ++]
 import { http, createConfig, createStorage } from 'wagmi'
 import { baseSepolia } from 'wagmi/chains'
+import { porto } from 'wagmi/connectors' // [!code ++]
 
 export const wagmiConfig = createConfig({
   chains: [baseSepolia],

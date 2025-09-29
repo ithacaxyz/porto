@@ -1,3 +1,4 @@
+import 'porto/register'
 import { PortoConfig } from '@porto/apps'
 import { Mode, type Porto, Storage } from 'porto'
 

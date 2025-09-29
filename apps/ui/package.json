@@ -25,6 +25,9 @@
     "dev:css": "panda cssgen --outfile dist/styles.css --watch",
     "postinstall": "panda codegen && pnpm build"
   },
+  "dependencies": {
+    "cuer": "^0.0.2"
+  },
   "peerDependencies": {
     "@ariakit/react": "*",
     "porto": "*",

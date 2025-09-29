@@ -1,42 +1,46 @@
-import { useCallback, useRef, useState } from 'react'
+import { type ReactNode, useCallback, useRef, useState } from 'react'
 import LucideCopy from '~icons/lucide/copy'
 import LucideCopyCheck from '~icons/lucide/copy-check'
-import { css } from '../../styled-system/css'
-import { ButtonArea } from '../ButtonArea/ButtonArea.js'
+import { Button } from '../Button/Button.js'
 
-export function CopyButton({ size = 'small', value }: CopyButton.Props) {
+export function CopyButton({
+  className,
+  label,
+  size = 'small',
+  value,
+  variant = 'content',
+}: CopyButton.Props) {
   const { copy, notifying } = CopyButton.useCopy()
 
   const Icon = notifying ? LucideCopyCheck : LucideCopy
 
-  if (size === 'small') size = 14
-
   return (
-    <ButtonArea
-      className={css({
-        alignItems: 'center',
-        borderRadius: 2,
-        color: 'var(--text-color-th_base-secondary)',
-        display: 'flex',
-        flexShrink: 0,
-        height: 16,
-        justifyContent: 'center',
-        paddingBottom: 1,
-        position: 'relative',
-        width: 16,
-      })}
+    <Button
+      className={className}
       onClick={() => copy(value)}
+      shape={label ? 'normal' : 'square'}
+      size={size === 'mini' ? 'small' : size}
+      style={
+        size === 'mini'
+          ? { height: 22, outlineOffset: 0, width: 22 }
+          : undefined
+      }
       title={notifying ? 'Copied' : 'Copy to clipboard'}
+      variant={variant}
     >
-      <Icon height={size} width={size} />
-    </ButtonArea>
+      {label && <span>{label}</span>}
+      <Icon />
+    </Button>
   )
 }
 
 export namespace CopyButton {
   export type Props = {
-    size?: 'small' | number
+    className?: string
+    label?: ReactNode
+    size?: 'mini' | 'small' | 'medium' | 'large'
     value: string
+    variant?: Button.Props['variant']
   }
 
   export function useCopy(timeout = 800) {

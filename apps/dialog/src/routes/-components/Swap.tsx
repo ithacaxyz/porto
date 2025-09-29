@@ -6,34 +6,37 @@ import {
   Details,
   TokenIcon,
 } from '@porto/ui'
-import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
+import type { Address } from 'ox'
+import type * as Rpc from 'porto/core/internal/schema/request'
 import * as React from 'react'
 import type { Chain } from 'viem'
-import { PriceFormatter, StringFormatter, ValueFormatter } from '~/utils'
+import { AddressFormatter, PriceFormatter, ValueFormatter } from '~/utils'
 import ArrowDown from '~icons/lucide/arrow-down'
 import LucideSendToBack from '~icons/lucide/send-to-back'
 import Star from '~icons/ph/star-four-bold'
+import { ActionPreview } from './ActionPreview'
 import type { ActionRequest } from './ActionRequest'
 import { Layout } from './Layout'
 
 export function Swap(props: Swap.Props) {
   const {
+    address,
     assetIn,
     assetOut,
+    capabilities,
     chainsPath,
     contractAddress,
-    fees,
     fetchingQuote,
     onApprove,
     onReject,
-    onAddFunds,
     refreshingQuote,
     swapType,
     swapping,
-    hasDeficit,
   } = props
 
   const [fiatDisplay, setFiatDisplay] = React.useState(swapType !== 'convert')
+  const fees = capabilities?.feeTotals
+  const loading = !capabilities
 
   const feeFormatted = React.useMemo(() => {
     const feeTotal = fees?.['0x0']?.value
@@ -51,79 +54,9 @@ export function Swap(props: Swap.Props) {
   }, [fees])
 
   return (
-    <Layout>
-      <Layout.Header>
-        <Layout.Header.Default
-          icon={swapType === 'convert' ? Star : LucideSendToBack}
-          title={swapType === 'convert' ? 'Convert' : 'Review swap'}
-          variant="default"
-        />
-      </Layout.Header>
-
-      <Layout.Content>
-        <div className="-mb-[4px] flex flex-col gap-[8px]">
-          <div className="flex flex-col gap-[12px] rounded-th_medium bg-th_base-alt px-[10px] py-[12px]">
-            <Swap.AssetRow
-              asset={assetOut}
-              fiatDisplay={fiatDisplay}
-              onFiatDisplayChange={setFiatDisplay}
-            />
-            <div className="-mx-[10px] relative flex justify-center">
-              <hr className="absolute top-1/2 w-full border-th_separator border-dashed" />
-              <div className="relative flex size-[24px] items-center justify-center rounded-full bg-th_badge">
-                <ArrowDown className="size-[16px] text-th_badge" />
-              </div>
-            </div>
-            <Swap.AssetRow
-              asset={assetIn}
-              fiatDisplay={fiatDisplay}
-              onFiatDisplayChange={setFiatDisplay}
-            />
-            {swapType === 'swap' && contractAddress && (
-              <>
-                <hr className="-mx-[10px] border-th_separator" />
-                <div className="flex flex-row items-center gap-[16px]">
-                  <div className="whitespace-nowrap font-medium text-[14px] text-th_base-secondary">
-                    Requested by
-                  </div>
-                  <div
-                    className="flex flex-grow items-center justify-end gap-[8px] text-[14px] text-th_base"
-                    title={contractAddress}
-                  >
-                    {StringFormatter.truncate(contractAddress)}
-                    <CopyButton value={contractAddress} />
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-          <Details loading={fetchingQuote && !hasDeficit}>
-            {feeFormatted && (
-              <Details.Item
-                label="Fees (est.)"
-                value={
-                  <div title={feeFormatted.full}>{feeFormatted.short}</div>
-                }
-              />
-            )}
-            {chainsPath.length > 0 && (
-              <Details.Item
-                label={`Network${chainsPath.length > 1 ? 's' : ''}`}
-                value={
-                  <ChainsPath chainIds={chainsPath.map((chain) => chain.id)} />
-                }
-              />
-            )}
-          </Details>
-          {hasDeficit && (
-            <div className="rounded-th_medium border border-th_warning bg-th_warning px-3 py-[10px] text-center text-sm text-th_warning">
-              You do not have enough funds.
-            </div>
-          )}
-        </div>
-      </Layout.Content>
-
-      <Layout.Footer>
+    <ActionPreview
+      account={address}
+      actions={
         <Layout.Footer.Actions>
           <Button
             disabled={swapping}
@@ -133,51 +66,101 @@ export function Swap(props: Swap.Props) {
           >
             Cancel
           </Button>
-          {hasDeficit ? (
-            <Button
-              data-testid="add-funds"
-              disabled={!onAddFunds}
-              onClick={onAddFunds}
-              variant="primary"
-              width="grow"
-            >
-              Add funds
-            </Button>
-          ) : (
-            <Button
-              disabled={!onApprove || fetchingQuote}
-              loading={
-                refreshingQuote
-                  ? 'Refreshing quote…'
-                  : swapping
-                    ? 'Swapping…'
-                    : undefined
-              }
-              onClick={onApprove}
-              variant="positive"
-              width="grow"
-            >
-              Swap
-            </Button>
-          )}
+          <Button
+            disabled={!onApprove || fetchingQuote || loading}
+            loading={
+              refreshingQuote
+                ? 'Refreshing quote…'
+                : swapping
+                  ? 'Swapping…'
+                  : undefined
+            }
+            onClick={onApprove}
+            variant="positive"
+            width="grow"
+          >
+            Swap
+          </Button>
         </Layout.Footer.Actions>
-      </Layout.Footer>
-    </Layout>
+      }
+      header={
+        <Layout.Header.Default
+          icon={swapType === 'convert' ? Star : LucideSendToBack}
+          title={swapType === 'convert' ? 'Convert' : 'Review swap'}
+          variant="default"
+        />
+      }
+      onReject={onReject}
+      quotes={capabilities?.quote?.quotes}
+    >
+      <div className="flex flex-col gap-[8px]">
+        <div className="flex flex-col gap-[12px] rounded-th_medium bg-th_base-alt px-[10px] py-[12px]">
+          <Swap.AssetRow
+            asset={assetOut}
+            fiatDisplay={fiatDisplay}
+            onFiatDisplayChange={setFiatDisplay}
+          />
+          <div className="-mx-[10px] relative flex justify-center">
+            <hr className="absolute top-1/2 w-full border-th_separator border-dashed" />
+            <div className="relative flex size-[24px] items-center justify-center rounded-full bg-th_badge">
+              <ArrowDown className="size-[16px] text-th_badge" />
+            </div>
+          </div>
+          <Swap.AssetRow
+            asset={assetIn}
+            fiatDisplay={fiatDisplay}
+            onFiatDisplayChange={setFiatDisplay}
+          />
+          {swapType === 'swap' && contractAddress && (
+            <>
+              <hr className="-mx-[10px] border-th_separator" />
+              <div className="flex flex-row items-center gap-[16px]">
+                <div className="whitespace-nowrap font-medium text-[14px] text-th_base-secondary">
+                  Requested by
+                </div>
+                <div
+                  className="-mr-[4px] flex flex-grow items-center justify-end gap-[2px] text-[14px] text-th_base"
+                  title={contractAddress}
+                >
+                  {AddressFormatter.shorten(contractAddress)}
+                  <CopyButton value={contractAddress} />
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+        <Details loading={fetchingQuote || loading}>
+          {feeFormatted && (
+            <Details.Item
+              label="Fees (est.)"
+              value={<div title={feeFormatted.full}>{feeFormatted.short}</div>}
+            />
+          )}
+          {chainsPath.length > 0 && (
+            <Details.Item
+              label={`Network${chainsPath.length > 1 ? 's' : ''}`}
+              value={
+                <ChainsPath chainIds={chainsPath.map((chain) => chain.id)} />
+              }
+            />
+          )}
+        </Details>
+      </div>
+    </ActionPreview>
   )
 }
 
 export namespace Swap {
   export type Props = {
+    address?: Address.Address | undefined
     assetIn: ActionRequest.CoinAsset
     assetOut: ActionRequest.CoinAsset
+    capabilities?: Rpc.wallet_prepareCalls.Response['capabilities']
     chainsPath: readonly Chain[]
-    contractAddress?: `0x${string}` | undefined
-    fees?: Capabilities.feeTotals.Response | undefined
-    fetchingQuote: boolean
-    hasDeficit?: boolean | undefined
+    contractAddress?: Address.Address | undefined
+    fetchingQuote?: boolean | undefined
     onApprove: () => void
     onReject: () => void
-    onAddFunds?: () => void
     refreshingQuote?: boolean | undefined
     swapType: 'swap' | 'convert'
     swapping?: boolean | undefined

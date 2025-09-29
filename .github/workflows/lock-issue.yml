@@ -9,7 +9,7 @@ jobs:
     if: ${{ github.repository_owner == 'ithacaxyz' }}
     permissions:
       issues: write
-    uses: wevm/actions/.github/workflows/lock-issue.yml@main
+    uses: wevm/actions/.github/workflows/lock-issue.yml@f7ad7f00e16e73322562922c241f21f0c7ffbbec # main
     with:
       issue-comment: |
         This issue has been locked since it has been closed for more than 14 days.

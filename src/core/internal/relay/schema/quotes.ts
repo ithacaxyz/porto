@@ -15,6 +15,8 @@ export const AssetDeficit = z.object({
   decimals: z.optional(z.number()),
   /** Deficit for the asset. */
   deficit: u.bigint(),
+  /** Fiat value of the deficit. */
+  fiat: z.optional(z.object({ currency: z.string(), value: z.string() })),
   /** Token name. */
   name: z.optional(z.string()),
   /** Required amount for the asset. */

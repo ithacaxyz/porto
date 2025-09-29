@@ -63,8 +63,30 @@ export function Button({
         width === 'full' && css({ width: '100%' }),
         width === 'grow' && css({ flexGrow: 1 }),
         cva({
+          compoundVariants: [
+            {
+              css: { borderRadius: 8 },
+              shape: 'square',
+              size: 'large',
+            },
+          ],
           variants: {
-            colors: {
+            buttonVariant: {
+              content: {
+                _dark: {
+                  '&:hover:not(:disabled)': {
+                    backgroundColor: 'var(--background-color-th_base-hovered)',
+                    borderColor: 'transparent',
+                  },
+                },
+                '--button-bd': 'transparent',
+                '--button-bg': 'transparent',
+                '&:hover:not(:disabled)': {
+                  backgroundColor: 'var(--background-color-th_base-hovered)',
+                  borderColor: 'transparent',
+                },
+                color: 'currentColor',
+              },
               // disabled is a color variant rather than being applied when
               // the button is disabled, this is because in certain cases we
               // want the button to be disabled, but not to look like our
@@ -73,6 +95,11 @@ export function Button({
                 '--button-bd': 'var(--border-color-th_disabled)',
                 '--button-bg': 'var(--background-color-th_disabled)',
                 color: 'var(--text-color-th_disabled)',
+              },
+              distinct: {
+                '--button-bd': 'var(--border-color-th_distinct)',
+                '--button-bg': 'var(--background-color-th_distinct)',
+                color: 'var(--text-color-th_distinct)',
               },
               negative: {
                 '--button-bd': 'var(--border-color-th_negative)',
@@ -103,6 +130,15 @@ export function Button({
                 '--button-bd': 'var(--border-color-th_strong)',
                 '--button-bg': 'var(--background-color-th_strong)',
                 color: 'var(--text-color-th_strong)',
+                fontWeight: 600,
+              },
+            },
+            shape: {
+              normal: {},
+              square: {
+                aspectRatio: 1,
+                padding: '0!',
+                width: 'auto',
               },
             },
             size: {
@@ -132,7 +168,8 @@ export function Button({
             },
           },
         })({
-          colors: disabled ? 'disabled' : variant,
+          buttonVariant: disabled ? 'disabled' : variant,
+          shape,
           size:
             typeof size === 'string'
               ? size
@@ -177,8 +214,10 @@ export namespace Button {
     icon?: ReactNode
     loading?: boolean | ReactNode
     size?: ButtonSize | Record<Frame.ModeName, ButtonSize>
-    shape?: 'normal' | 'square' // TODO: implement
+    shape?: 'normal' | 'square'
     variant?:
+      | 'content'
+      | 'distinct'
       | 'negative'
       | 'negative-secondary'
       | 'positive'

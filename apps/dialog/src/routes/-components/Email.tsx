@@ -14,13 +14,16 @@ import { SkipPreviews } from './SkipPreviews'
 
 export function Email(props: Email.Props) {
   const {
-    actions = ['sign-in', 'sign-up'],
     allowBlindSigning,
     defaultValue = '',
     onApprove,
     permissions,
     status,
   } = props
+
+  const [actions, setActions] = React.useState<
+    readonly ('sign-in' | 'sign-up')[]
+  >(props.actions ?? ['sign-in', 'sign-up'])
 
   const enableBlindSigningRef = React.useRef<HTMLInputElement>(null)
 
@@ -186,20 +189,31 @@ export function Email(props: Email.Props) {
               <span className="text-th_base-secondary">Using</span>{' '}
               {displayName}
             </div>
-            <TextButton
-              color="link"
-              onClick={() => {
-                const enableBlindSigning =
-                  enableBlindSigningRef.current?.checked
-                onApprove({
-                  enableBlindSigning,
-                  selectAccount: true,
-                  signIn: true,
-                })
-              }}
-            >
-              Switch
-            </TextButton>
+            <div className="flex items-center gap-0.5">
+              <TextButton
+                color="link"
+                onClick={() => {
+                  const enableBlindSigning =
+                    enableBlindSigningRef.current?.checked
+                  onApprove({
+                    enableBlindSigning,
+                    selectAccount: true,
+                    signIn: true,
+                  })
+                }}
+              >
+                Switch
+              </TextButton>
+              <div className="text-th_base-secondary">⋅</div>
+              <TextButton
+                color="link"
+                onClick={() => {
+                  setActions(['sign-up'])
+                }}
+              >
+                Sign up
+              </TextButton>
+            </div>
           </div>
         )}
       </div>

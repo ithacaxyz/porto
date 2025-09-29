@@ -152,6 +152,7 @@ export async function addFunds<config extends Config>(
 
   const client = await getConnectorClient(config, {
     account: address,
+    assertChainId: false,
     chainId,
     connector,
   })
@@ -178,6 +179,7 @@ export async function getAdmins<config extends Config>(
 
   const client = await getConnectorClient(config, {
     account: address,
+    assertChainId: false,
     chainId,
     connector,
   })
@@ -204,6 +206,7 @@ export async function getAssets<config extends Config>(
 
   const client = await getConnectorClient(config, {
     account,
+    assertChainId: false,
     connector,
   })
 
@@ -228,6 +231,7 @@ export async function getPermissions<config extends Config>(
 
   const client = await getConnectorClient(config, {
     account: address,
+    assertChainId: false,
     chainId,
     connector,
   })
@@ -254,6 +258,7 @@ export async function grantAdmin<config extends Config>(
 
   const client = await getConnectorClient(config, {
     account: address,
+    assertChainId: false,
     chainId,
     connector,
   })
@@ -280,6 +285,7 @@ export async function grantPermissions<config extends Config>(
 
   const client = await getConnectorClient(config, {
     account: address,
+    assertChainId: false,
     chainId,
     connector,
   })
@@ -306,6 +312,7 @@ export async function revokeAdmin<config extends Config>(
 
   const client = await getConnectorClient(config, {
     account: address,
+    assertChainId: false,
     chainId,
     connector,
   })
@@ -330,6 +337,7 @@ export async function revokePermissions<config extends Config>(
 
   const client = await getConnectorClient(config, {
     account: address,
+    assertChainId: false,
     chainId,
     connector,
   })
@@ -440,6 +448,7 @@ export async function verifyEmail<config extends Config>(
 
   const client = await getConnectorClient(config, {
     account: walletAddress,
+    assertChainId: false,
     chainId,
     connector,
   })

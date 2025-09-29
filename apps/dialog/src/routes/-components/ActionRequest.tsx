@@ -1,7 +1,7 @@
-import { Spinner } from '@porto/apps/components'
 import { Button, ButtonArea, ChainsPath, Details } from '@porto/ui'
+import { useQuery } from '@tanstack/react-query'
 import { cx } from 'cva'
-import { type Address, Base64 } from 'ox'
+import { type Address, Base64, Value } from 'ox'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import type * as Quote_schema from 'porto/core/internal/relay/schema/quotes'
 import type * as Rpc from 'porto/core/internal/schema/request'
@@ -15,9 +15,9 @@ import {
   erc20Abi,
   ethAddress,
 } from 'viem'
-import { CheckBalance } from '~/components/CheckBalance'
 import * as Calls from '~/lib/Calls'
 import { porto } from '~/lib/Porto'
+import * as Tokens from '~/lib/Tokens'
 import { Layout } from '~/routes/-components/Layout'
 import { PriceFormatter, ValueFormatter } from '~/utils'
 import ArrowDownLeft from '~icons/lucide/arrow-down-left'
@@ -28,7 +28,10 @@ import LucideSparkles from '~icons/lucide/sparkles'
 import TriangleAlert from '~icons/lucide/triangle-alert'
 import LucideVideo from '~icons/lucide/video'
 import Star from '~icons/ph/star-four-bold'
+import { ActionPreview } from '../-components/ActionPreview'
+import { AddFunds } from '../-components/AddFunds'
 import { Approve } from '../-components/Approve'
+import { InsufficientFunds } from '../-components/InsufficientFunds'
 import { Send } from '../-components/Send'
 import { Swap } from '../-components/Swap'
 
@@ -66,10 +69,6 @@ export function ActionRequest(props: ActionRequest.Props) {
   })
 
   const quotes = capabilities?.quote?.quotes ?? []
-  const quote_destination = quotes.at(-1)
-  const sponsored =
-    quote_destination?.intent?.payer !==
-    '0x0000000000000000000000000000000000000000'
 
   const chainsPath = ActionRequest.useChainsPath(quotes)
 
@@ -79,11 +78,48 @@ export function ActionRequest(props: ActionRequest.Props) {
   )
 
   const identifiedFromRelay = React.useMemo(
-    () => ActionRequest.txIdentity.identifyFromAssetDiffs(assetDiff),
-    [assetDiff],
+    () => ActionRequest.txIdentity.identifyFromAssetDiffs(assetDiff, calls),
+    [assetDiff, calls],
   )
 
   const identified = identifiedFromRelay || identifiedFromCalls
+
+  const relayClient = Hooks.useRelayClient(porto, { chainId })
+  const tokensQuery = useQuery(Tokens.getTokens.queryOptions(relayClient, {}))
+
+  const requiredFundsData = React.useMemo(() => {
+    if (!requiredFunds?.[0] || !tokensQuery.data) return null
+
+    const [firstRequiredFunds] = requiredFunds
+
+    const token = tokensQuery.data.find(
+      (t) => t.symbol === firstRequiredFunds.symbol,
+    )
+
+    if (!token) return null
+
+    const value =
+      typeof firstRequiredFunds.value === 'bigint'
+        ? firstRequiredFunds.value
+        : Value.from(firstRequiredFunds.value, token.decimals)
+
+    return {
+      address: token.address,
+      decimals: token.decimals,
+      deficit: value,
+      required: value,
+      symbol: token.symbol,
+    }
+  }, [requiredFunds, tokensQuery.data])
+
+  const insufficientFundsError = Boolean(
+    prepareCallsQuery.error &&
+      requiredFunds &&
+      requiredFunds.length > 0 &&
+      /insufficient/i.test(prepareCallsQuery.error.message ?? ''),
+  )
+
+  const [showAddFunds, setShowAddFunds] = React.useState(false)
 
   const addNativeCurrencyName = (asset: ActionRequest.CoinAsset) => {
     if (asset.type !== null) return asset
@@ -96,174 +132,154 @@ export function ActionRequest(props: ActionRequest.Props) {
   const fetchingQuote = prepareCallsQuery.isPending
   const refreshingQuote = prepareCallsQuery.isRefetching
 
+  if (insufficientFundsError)
+    return requiredFundsData ? (
+      <InsufficientFunds
+        account={account?.address}
+        assetDeficit={requiredFundsData}
+        chainId={chainId ?? relayClient.chain.id}
+        onReject={onReject}
+      />
+    ) : showAddFunds ? (
+      <AddFunds
+        address={address}
+        chainId={chainId ?? relayClient.chain.id}
+        onApprove={() => setShowAddFunds(false)}
+        onReject={() => setShowAddFunds(false)}
+      />
+    ) : (
+      <InsufficientFunds
+        account={account?.address}
+        chainId={chainId ?? relayClient.chain.id}
+        onAddFunds={() => setShowAddFunds(true)}
+        onReject={onReject}
+      />
+    )
+
+  if (identified?.type === 'approve')
+    return (
+      <Approve
+        address={address}
+        amount={identified.amount}
+        approving={loading}
+        capabilities={fetchingQuote ? undefined : capabilities}
+        chainsPath={chainsPath}
+        fetchingQuote={fetchingQuote}
+        onApprove={() => {
+          if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
+        }}
+        onReject={onReject}
+        refreshingQuote={refreshingQuote}
+        spender={identified.spender}
+        tokenAddress={identified.tokenAddress}
+      />
+    )
+
+  if (identified?.type === 'swap' || identified?.type === 'convert')
+    return (
+      <Swap
+        address={address}
+        assetIn={addNativeCurrencyName(identified.assetIn)}
+        assetOut={addNativeCurrencyName(identified.assetOut)}
+        capabilities={fetchingQuote ? undefined : capabilities}
+        chainsPath={chainsPath}
+        contractAddress={calls[0]?.to}
+        fetchingQuote={fetchingQuote}
+        onApprove={() => {
+          if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
+        }}
+        onReject={onReject}
+        refreshingQuote={refreshingQuote}
+        swapping={loading}
+        swapType={identified.type}
+      />
+    )
+
+  if (identified?.type === 'send' && identified.to)
+    return (
+      <Send
+        address={address}
+        asset={identified.asset}
+        capabilities={fetchingQuote ? undefined : capabilities}
+        chainsPath={chainsPath}
+        fetchingQuote={fetchingQuote}
+        onApprove={() => {
+          if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
+        }}
+        onReject={onReject}
+        refreshingQuote={refreshingQuote}
+        sending={loading}
+        to={identified.to}
+      />
+    )
+
   return (
-    <CheckBalance
-      address={address}
+    <ActionPreview
+      account={account?.address}
+      actions={
+        <Layout.Footer.Actions>
+          <Button
+            disabled={fetchingQuote || loading}
+            onClick={onReject}
+            variant="negative-secondary"
+          >
+            Cancel
+          </Button>
+          <Button
+            data-testid="confirm"
+            disabled={!prepareCallsQuery.isSuccess || refreshingQuote}
+            loading={
+              refreshingQuote
+                ? 'Refreshing quote…'
+                : loading
+                  ? 'Confirming…'
+                  : undefined
+            }
+            onClick={() => {
+              if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
+            }}
+            variant="positive"
+            width="grow"
+          >
+            Confirm
+          </Button>
+        </Layout.Footer.Actions>
+      }
+      error={prepareCallsQuery.error}
+      header={
+        <Layout.Header.Default
+          icon={prepareCallsQuery.isError ? TriangleAlert : Star}
+          title="Review action"
+          variant={prepareCallsQuery.isError ? 'warning' : 'default'}
+        />
+      }
       onReject={onReject}
-      query={prepareCallsQuery}
+      queryParams={{ address, chainId }}
+      quotes={
+        prepareCallsQuery.isPending ? undefined : capabilities?.quote?.quotes
+      }
     >
-      {(deficit) => {
-        if (identified?.type === 'approve')
-          return (
-            <Approve
-              amount={identified.amount}
-              approving={loading}
-              chainsPath={chainsPath}
-              fees={sponsored ? undefined : feeTotals}
-              fetchingQuote={fetchingQuote}
-              hasDeficit={deficit.hasDeficit}
-              onAddFunds={deficit.onAddFunds}
-              onApprove={() => {
-                if (prepareCallsQuery.isSuccess)
-                  onApprove(prepareCallsQuery.data)
-              }}
-              onReject={onReject}
-              refreshingQuote={refreshingQuote}
-              spender={identified.spender}
-              tokenAddress={identified.tokenAddress}
-            />
-          )
-
-        if (identified?.type === 'swap' || identified?.type === 'convert')
-          return (
-            <Swap
-              assetIn={addNativeCurrencyName(identified.assetIn)}
-              assetOut={addNativeCurrencyName(identified.assetOut)}
-              chainsPath={chainsPath}
-              contractAddress={calls[0]?.to}
-              fees={sponsored ? undefined : feeTotals}
-              fetchingQuote={fetchingQuote}
-              hasDeficit={deficit.hasDeficit}
-              onAddFunds={deficit.onAddFunds}
-              onApprove={() => {
-                if (prepareCallsQuery.isSuccess)
-                  onApprove(prepareCallsQuery.data)
-              }}
-              onReject={onReject}
-              refreshingQuote={refreshingQuote}
-              swapping={loading}
-              swapType={identified.type}
-            />
-          )
-
-        if (identified?.type === 'send' && identified.to)
-          return (
-            <Send
-              asset={identified.asset}
-              chainsPath={chainsPath}
-              fees={sponsored ? undefined : feeTotals}
-              fetchingQuote={fetchingQuote}
-              hasDeficit={deficit.hasDeficit}
-              onAddFunds={deficit.onAddFunds}
-              onApprove={() => {
-                if (prepareCallsQuery.isSuccess)
-                  onApprove(prepareCallsQuery.data)
-              }}
-              onReject={onReject}
-              refreshingQuote={refreshingQuote}
-              sending={loading}
-              to={identified.to}
-            />
-          )
-
-        return (
-          <Layout>
-            <Layout.Header>
-              <Layout.Header.Default
-                icon={
-                  prepareCallsQuery.isError && !deficit.hasDeficit
-                    ? TriangleAlert
-                    : Star
-                }
-                title="Review action"
-                variant={
-                  prepareCallsQuery.isError && !deficit.hasDeficit
-                    ? 'warning'
-                    : 'default'
-                }
-              />
-            </Layout.Header>
-
-            <Layout.Content className="pb-2!">
-              <div className="flex flex-col gap-[8px]">
-                <ActionRequest.PaneWithDetails
-                  error={deficit.hasDeficit ? null : prepareCallsQuery.error}
-                  errorMessage="An error occurred while simulating the action. Proceed with caution."
-                  feeTotals={feeTotals}
-                  quotes={quotes}
-                  status={
-                    prepareCallsQuery.isPending
-                      ? 'pending'
-                      : prepareCallsQuery.isError && !deficit.hasDeficit
-                        ? 'error'
-                        : 'success'
-                  }
-                >
-                  {assetDiff.length > 0 ? (
-                    <ActionRequest.AssetDiff assetDiff={assetDiff} />
-                  ) : undefined}
-                </ActionRequest.PaneWithDetails>
-                {deficit.hasDeficit && (
-                  <div className="rounded-th_medium border border-th_warning bg-th_warning px-3 py-[10px] text-center text-sm text-th_warning">
-                    You do not have enough funds.
-                  </div>
-                )}
-              </div>
-            </Layout.Content>
-
-            <Layout.Footer>
-              <Layout.Footer.Actions>
-                <Button
-                  disabled={prepareCallsQuery.isPending || loading}
-                  onClick={onReject}
-                  variant="negative-secondary"
-                >
-                  Cancel
-                </Button>
-                {deficit.hasDeficit ? (
-                  <Button
-                    data-testid="add-funds"
-                    onClick={deficit.onAddFunds}
-                    variant="primary"
-                    width="grow"
-                  >
-                    Add funds
-                  </Button>
-                ) : (
-                  <Button
-                    data-testid="confirm"
-                    disabled={!prepareCallsQuery.isSuccess}
-                    loading={
-                      refreshingQuote
-                        ? 'Refreshing quote…'
-                        : loading
-                          ? 'Confirming…'
-                          : undefined
-                    }
-                    onClick={() => {
-                      if (prepareCallsQuery.isError) {
-                        prepareCallsQuery.refetch()
-                        return
-                      }
-                      if (prepareCallsQuery.isSuccess)
-                        onApprove(prepareCallsQuery.data)
-                    }}
-                    variant={prepareCallsQuery.isError ? 'primary' : 'positive'}
-                    width="grow"
-                  >
-                    {prepareCallsQuery.isError ? 'Retry' : 'Confirm'}
-                  </Button>
-                )}
-              </Layout.Footer.Actions>
-
-              {account?.address && (
-                <Layout.Footer.Account address={account.address} />
-              )}
-            </Layout.Footer>
-          </Layout>
-        )
-      }}
-    </CheckBalance>
+      <div className="flex flex-col gap-[8px]">
+        <ActionRequest.PaneWithDetails
+          error={prepareCallsQuery.error}
+          errorMessage="An error occurred while simulating the action. Proceed with caution."
+          feeTotals={feeTotals}
+          hideDetails={false}
+          quotes={quotes}
+          status={
+            prepareCallsQuery.isPending
+              ? 'pending'
+              : prepareCallsQuery.isError
+                ? 'error'
+                : 'success'
+          }
+        >
+          {assetDiff.length > 0 ? (
+            <ActionRequest.AssetDiff assetDiff={assetDiff} />
+          ) : undefined}
+        </ActionRequest.PaneWithDetails>
+      </div>
+    </ActionPreview>
   )
 }
 
@@ -291,15 +307,16 @@ export namespace ActionRequest {
 
   export function AssetDiff(props: AssetDiff.Props) {
     const { assetDiff } = props
-    if (assetDiff.length === 0) return null
     return (
-      <div className="space-y-2">
-        {assetDiff.map((balance) => {
-          if (balance.type === 'erc721')
-            return <AssetDiff.Erc721Row key={balance.symbol} {...balance} />
-          return <AssetDiff.CoinRow key={balance.symbol} {...balance} />
-        })}
-      </div>
+      assetDiff.length > 0 && (
+        <div className="space-y-2">
+          {assetDiff.map((balance) => {
+            if (balance.type === 'erc721')
+              return <AssetDiff.Erc721Row key={balance.symbol} {...balance} />
+            return <AssetDiff.CoinRow key={balance.symbol} {...balance} />
+          })}
+        </div>
+      )
     )
   }
 
@@ -371,8 +388,12 @@ export namespace ActionRequest {
           const base64Data = uri.split(',')[1]
           if (!base64Data) return
           const json = JSON.parse(Base64.toString(base64Data))
-          if ('image' in json && typeof json.image === 'string')
-            return { type: 'image', url: json.image as string }
+          if ('image' in json && typeof json.image === 'string') {
+            const url = json.image.startsWith('ipfs://')
+              ? `https://ipfs.io/ipfs/${json.image.replace('ipfs://', '')}`
+              : json.image
+            return { type: 'image', url }
+          }
         } catch {
           return
         }
@@ -523,6 +544,7 @@ export namespace ActionRequest {
       feeTotals,
       quotes,
       status,
+      hideDetails,
     } = props
 
     const hasChildren = React.useMemo(
@@ -557,47 +579,57 @@ export namespace ActionRequest {
             })}
           >
             {(() => {
-              if (error)
+              if (error) {
+                const isInsufficientFunds = /insufficient/i.test(
+                  (error as any)?.cause?.message ?? error.message ?? '',
+                )
                 return (
                   <div className="space-y-2 text-[14px] text-th_base">
                     <p className="font-medium text-th_badge-warning">Error</p>
                     <p>{errorMessage}</p>
-                    <p className="text-[11px]">
-                      Details: {(error as any).shortMessage ?? error.message}{' '}
-                      {(error as any).details}
-                    </p>
+                    {isInsufficientFunds ? (
+                      <p className="text-[11px]">
+                        You need more funds to proceed with this action.
+                      </p>
+                    ) : (
+                      <p className="text-[11px]">
+                        Details: {(error as any).shortMessage ?? error.message}{' '}
+                        {(error as any).details}
+                      </p>
+                    )}
                   </div>
                 )
+              }
 
               if (status === 'pending')
-                return (
-                  <div className="flex h-full w-full items-center justify-center">
-                    <div className="flex size-[24px] w-full items-center justify-center">
-                      <Spinner className="text-th_base-secondary" />
-                    </div>
-                  </div>
-                )
+                return <div className="h-[24px] w-full" />
 
               return <div className="space-y-3">{children}</div>
             })()}
           </div>
         )}
 
-        {status === 'success' && feeTotals && quotes && hasDetails && (
-          <Details opened={!showOverview ? true : undefined}>
-            {!sponsored && feeTotalFormatted && (
-              <Details.Item label="Fees (est.)" value={feeTotalFormatted} />
-            )}
-            {chainsPath.length > 0 && (
-              <Details.Item
-                label={`Network${chainsPath.length > 1 ? 's' : ''}`}
-                value={
-                  <ChainsPath chainIds={chainsPath.map((chain) => chain.id)} />
-                }
-              />
-            )}
-          </Details>
-        )}
+        {status === 'success' &&
+          feeTotals &&
+          quotes &&
+          hasDetails &&
+          !hideDetails && (
+            <Details opened={!showOverview ? true : undefined}>
+              {!sponsored && feeTotalFormatted && (
+                <Details.Item label="Fees (est.)" value={feeTotalFormatted} />
+              )}
+              {chainsPath.length > 0 && (
+                <Details.Item
+                  label={`Network${chainsPath.length > 1 ? 's' : ''}`}
+                  value={
+                    <ChainsPath
+                      chainIds={chainsPath.map((chain) => chain.id)}
+                    />
+                  }
+                />
+              )}
+            </Details>
+          )}
       </div>
     )
   }
@@ -610,6 +642,7 @@ export namespace ActionRequest {
       errorMessage?: string | undefined
       quotes?: readonly Quote_schema.Quote[] | undefined
       status: 'pending' | 'error' | 'success'
+      hideDetails?: boolean | undefined
     }
   }
 
@@ -635,7 +668,7 @@ export namespace ActionRequest {
       calls: readonly Call[],
       chainId?: number,
     ): IdentifiedTx | null {
-      if (calls.length === 0 || chainId === undefined) return null
+      if (calls.length === 0) return null
 
       // only show the approve screen for single-call approvals
       if (calls.length === 1) {
@@ -643,6 +676,8 @@ export namespace ActionRequest {
         if (approve) return approve
       }
 
+      // from this point we need a chainId
+      if (chainId === undefined) return null
       const chain = porto.config.chains.find((c) => c.id === chainId)
       if (!chain) return null
       return identifySendCall(calls.at(-1) as Call, chain.nativeCurrency)
@@ -650,8 +685,11 @@ export namespace ActionRequest {
 
     export function identifyFromAssetDiffs(
       assetDiffs: Capabilities.assetDiffs.AssetDiffAsset[],
+      calls?: readonly Call[],
     ): IdentifiedTx | null {
       if (!assetDiffs.length) return null
+
+      const lastCall = calls?.at(-1)
 
       const outgoing = assetDiffs.filter(
         (diff) => diff.direction === 'outgoing',
@@ -694,16 +732,25 @@ export namespace ActionRequest {
           type: 'swap',
         }
 
-      // send: 1 outgoing
+      // send: 1 out + 0 in (only if we can extract recipient address)
       if (
         assetDiffs.length === 1 &&
         assetDiffs[0]?.direction === 'outgoing' &&
-        assetDiffs[0].type !== 'erc721'
-      )
-        return {
-          asset: assetDiffs[0] as CoinAsset,
-          type: 'send',
-        }
+        assetDiffs[0].type !== 'erc721' &&
+        lastCall?.data
+      ) {
+        const recipient = getTransferToAddress({
+          data: lastCall.data,
+          to: lastCall.to,
+          value: lastCall.value,
+        })
+        if (recipient)
+          return {
+            asset: assetDiffs[0] as CoinAsset,
+            to: recipient,
+            type: 'send',
+          }
+      }
 
       return null
     }

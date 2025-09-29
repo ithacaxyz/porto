@@ -7,31 +7,34 @@ import {
   TextButton,
   TokenIcon,
 } from '@porto/ui'
-import { Value } from 'ox'
-import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
+import { type Address, Value } from 'ox'
+import type * as Rpc from 'porto/core/internal/schema/request'
 import * as React from 'react'
-import { type Address, type Chain, erc20Abi, maxUint256 } from 'viem'
+import { type Chain, erc20Abi, maxUint256 } from 'viem'
 import { useReadContracts } from 'wagmi'
 import { PriceFormatter, StringFormatter } from '~/utils'
 import LucideLockKeyholeOpen from '~icons/lucide/lock-keyhole-open'
+import { ActionPreview } from './ActionPreview'
 import { Layout } from './Layout'
 
 export function Approve(props: Approve.Props) {
   const {
+    address,
     amount,
     approving,
+    capabilities,
     chainsPath,
     expiresAt,
-    fees,
     fetchingQuote,
     onApprove,
     onReject,
-    onAddFunds,
-    spender,
     refreshingQuote,
+    spender,
     tokenAddress,
-    hasDeficit,
   } = props
+
+  const fees = capabilities?.feeTotals
+  const loading = !capabilities
 
   let { unlimited } = props
   if (unlimited === undefined) {
@@ -91,71 +94,9 @@ export function Approve(props: Approve.Props) {
   if (tokenInfo.isError) console.error(tokenInfo.error)
 
   return (
-    <Layout>
-      <Layout.Header>
-        <Layout.Header.Default
-          icon={LucideLockKeyholeOpen}
-          title="Allow spend"
-          variant="default"
-        />
-      </Layout.Header>
-
-      <Layout.Content>
-        <div className="-mb-[4px] flex flex-col gap-[8px]">
-          <div className="flex flex-col gap-[10px] rounded-th_medium bg-th_base-alt p-[10px]">
-            <Approve.AllowanceRow
-              amount={
-                unlimited
-                  ? 'Any amount'
-                  : tokenInfo.data &&
-                    Value.format(amount, tokenInfo.data.decimals)
-              }
-              error={tokenInfo.error}
-              expiresAt={expiresAt}
-              loading={tokenInfo.isLoading}
-              name={tokenInfo.data?.name}
-              onRefetch={() => tokenInfo.refetch()}
-              symbol={tokenInfo.data?.symbol}
-              tokenAddress={tokenAddress}
-              unlimited={unlimited}
-            />
-          </div>
-          <Details loading={fetchingQuote && !hasDeficit}>
-            <Details.Item
-              label="Requested by"
-              value={
-                <div className="flex items-center gap-[8px]" title={spender}>
-                  {StringFormatter.truncate(spender)}
-                  <CopyButton value={spender} />
-                </div>
-              }
-            />
-            {feeFormatted && (
-              <Details.Item
-                label="Fees (est.)"
-                value={
-                  <div title={feeFormatted.full}>{feeFormatted.short}</div>
-                }
-              />
-            )}
-            {chainsPath.length > 0 && (
-              <Details.Item
-                label={`Network${chainsPath.length > 1 ? 's' : ''}`}
-                value={
-                  <ChainsPath chainIds={chainsPath.map((chain) => chain.id)} />
-                }
-              />
-            )}
-          </Details>
-          {hasDeficit && (
-            <div className="rounded-th_medium border border-th_warning bg-th_warning px-3 py-[10px] text-center text-sm text-th_warning">
-              You do not have enough funds.
-            </div>
-          )}
-        </div>
-      </Layout.Content>
-
-      <Layout.Footer>
+    <ActionPreview
+      account={address}
+      actions={
         <Layout.Footer.Actions>
           <Button
             disabled={approving}
@@ -165,57 +106,102 @@ export function Approve(props: Approve.Props) {
           >
             Cancel
           </Button>
-          {hasDeficit ? (
-            <Button
-              data-testid="add-funds"
-              disabled={!onAddFunds}
-              onClick={onAddFunds}
-              variant="primary"
-              width="grow"
-            >
-              Add funds
-            </Button>
-          ) : (
-            <Button
-              disabled={
-                tokenInfo.isLoading || tokenInfo.isError || fetchingQuote
-              }
-              loading={
-                refreshingQuote
-                  ? 'Refreshing quote…'
-                  : approving
-                    ? 'Approving…'
-                    : undefined
-              }
-              onClick={onApprove}
-              variant="positive"
-              width="grow"
-            >
-              Approve
-            </Button>
-          )}
+          <Button
+            disabled={
+              tokenInfo.isLoading ||
+              tokenInfo.isError ||
+              fetchingQuote ||
+              loading
+            }
+            loading={
+              refreshingQuote
+                ? 'Refreshing quote…'
+                : approving
+                  ? 'Approving…'
+                  : undefined
+            }
+            onClick={onApprove}
+            variant="positive"
+            width="grow"
+          >
+            Approve
+          </Button>
         </Layout.Footer.Actions>
-      </Layout.Footer>
-    </Layout>
+      }
+      header={
+        <Layout.Header.Default
+          icon={LucideLockKeyholeOpen}
+          title="Allow spend"
+          variant="default"
+        />
+      }
+      onReject={onReject}
+      quotes={capabilities?.quote?.quotes}
+    >
+      <div className="flex flex-col gap-[8px]">
+        <div className="flex flex-col gap-[10px] rounded-th_medium bg-th_base-alt p-[10px]">
+          <Approve.AllowanceRow
+            amount={
+              unlimited
+                ? 'Any amount'
+                : tokenInfo.data &&
+                  Value.format(amount, tokenInfo.data.decimals)
+            }
+            error={tokenInfo.error}
+            expiresAt={expiresAt}
+            loading={tokenInfo.isLoading}
+            name={tokenInfo.data?.name}
+            onRefetch={() => tokenInfo.refetch()}
+            symbol={tokenInfo.data?.symbol}
+            tokenAddress={tokenAddress}
+            unlimited={unlimited}
+          />
+        </div>
+        <Details loading={fetchingQuote || loading}>
+          <Details.Item
+            label="Requested by"
+            value={
+              <div className="flex items-center gap-[8px]" title={spender}>
+                {StringFormatter.truncate(spender)}
+                <CopyButton value={spender} />
+              </div>
+            }
+          />
+          {feeFormatted && (
+            <Details.Item
+              label="Fees (est.)"
+              value={<div title={feeFormatted.full}>{feeFormatted.short}</div>}
+            />
+          )}
+          {chainsPath.length > 0 && (
+            <Details.Item
+              label={`Network${chainsPath.length > 1 ? 's' : ''}`}
+              value={
+                <ChainsPath chainIds={chainsPath.map((chain) => chain.id)} />
+              }
+            />
+          )}
+        </Details>
+      </div>
+    </ActionPreview>
   )
 }
 
 export namespace Approve {
   export type Props = {
+    address?: Address.Address | undefined
     amount: bigint
     approving?: boolean | undefined
+    capabilities?: Rpc.wallet_prepareCalls.Response['capabilities']
     chainsPath: readonly Chain[]
     expiresAt?: Date
-    fees?: Capabilities.feeTotals.Response | undefined
     fetchingQuote?: boolean | undefined
     onApprove: () => void
     onReject: () => void
-    onAddFunds?: () => void
     refreshingQuote?: boolean | undefined
-    spender: `0x${string}`
-    tokenAddress: `0x${string}`
+    spender: Address.Address
+    tokenAddress: Address.Address
     unlimited?: boolean | undefined
-    hasDeficit?: boolean | undefined
   }
 
   export function AllowanceRow({
@@ -304,7 +290,7 @@ export namespace Approve {
       name?: string | undefined
       onRefetch?: (() => void) | undefined
       symbol?: string | undefined
-      tokenAddress: Address
+      tokenAddress: Address.Address
       unlimited?: boolean | undefined
     }
   }

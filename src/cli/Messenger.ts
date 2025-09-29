@@ -2,6 +2,7 @@ import type { ServerResponse } from 'node:http'
 import * as Url from 'node:url'
 import { Json } from 'ox'
 import * as promise from '../core/internal/promise.js'
+import { uuidv4 } from '../core/internal/utils.js'
 import type * as Messenger from '../core/Messenger.js'
 import * as Http from './internal/http.js'
 
@@ -120,7 +121,7 @@ export async function cliRelay(): Promise<CliRelay> {
     },
     relayUrl,
     async send(topic, payload) {
-      const id = crypto.randomUUID()
+      const id = uuidv4()
       const data = { id, payload, topic }
 
       const eventData = `data: ${Json.stringify(data)}\n\n`

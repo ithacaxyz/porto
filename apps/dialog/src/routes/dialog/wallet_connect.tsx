@@ -170,6 +170,7 @@ function RouteComponent() {
 
       return response
     },
+    mutationKey: ['wallet_connect', request.id],
   })
 
   const status = React.useMemo(() => {

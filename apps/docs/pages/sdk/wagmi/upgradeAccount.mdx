@@ -9,7 +9,8 @@ Internally uses [`wallet_prepareUpgradeAccount`](/sdk/rpc/wallet_prepareUpgradeA
 :::code-group
 
 ```ts twoslash [example.ts]
-import { Actions, porto } from 'porto/wagmi'
+import { Actions } from 'porto/wagmi'
+import { porto } from 'wagmi/connectors'
 import { privateKeyToAccount } from 'viem/accounts'
 import { config } from './config'
 
@@ -34,9 +35,10 @@ You can grant permissions for an application to perform actions on behalf of the
 :::code-group
 
 ```ts twoslash [example.ts]
-import { Actions, porto } from 'porto/wagmi'
+import { Actions } from 'porto/wagmi'
 import { parseEther } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
+import { porto } from 'wagmi/connectors'
 import { config } from './config'
 
 const eoa = privateKeyToAccount('0x...')
