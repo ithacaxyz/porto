@@ -54,6 +54,12 @@ function InputComponent() {
           />
           <DemoInput
             adornments={{
+              start: { type: 'solid', label: 'USD' },
+            }}
+            placeholder="0.00"
+          />
+          <DemoInput
+            adornments={{
               end: { type: 'valid' },
             }}
             type="email"
@@ -68,10 +74,12 @@ function InputComponent() {
           />
           <DemoInput
             adornments={{
-              end: { type: 'required' },
-              start: { label: '+1', type: 'solid' },
+              start: {
+                type: 'phone-prefix',
+                prefixes: ['+1', '+44'],
+              },
             }}
-            placeholder="(650) 555-1234"
+            placeholder="+1 (650) 555-1234"
             type="tel"
           />
         </div>

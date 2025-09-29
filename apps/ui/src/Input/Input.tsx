@@ -1,5 +1,5 @@
 import type { InputHTMLAttributes, ReactNode, RefObject } from 'react'
-import { useRef, useState } from 'react'
+import { useRef, useState, useMemo } from 'react'
 import LucideCheck from '~icons/lucide/check'
 import { css, cva, cx } from '../../styled-system/css'
 import { Frame } from '../Frame/Frame.js'
@@ -13,8 +13,10 @@ export function Input({
   onChange,
   removeCompletion = true,
   size = { dialog: 'medium', full: 'large' },
-  value,
+  value: value_,
   formatValue,
+  onFocus,
+  onBlur,
   ...props
 }: Input.Props) {
   const frame = Frame.useFrame(true)
@@ -22,6 +24,12 @@ export function Input({
 
   const [isFocused, setIsFocused] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const { adornmentStart, value } = Input.useExtractPhonePrefix(
+    adornments?.start,
+    isFocused,
+    value_,
+  )
 
   return (
     <div
@@ -73,14 +81,12 @@ export function Input({
           }),
       )}
     >
-      {adornments?.start && (
-        <Adornment
-          adornment={adornments.start}
-          inputRef={inputRef}
-          onChange={onChange}
-          position="start"
-        />
-      )}
+      <Adornment
+        adornment={adornmentStart}
+        inputRef={inputRef}
+        onChange={onChange}
+        position="start"
+      />
       <input
         aria-invalid={invalid ? 'true' : undefined}
         autoCapitalize={removeCompletion ? 'off' : undefined}
@@ -103,10 +109,14 @@ export function Input({
             height: '100%',
             minWidth: 0,
           }),
-          !adornments?.start &&
-            css({ paddingLeft: 'var(--input-padding-inline)' }),
           !adornments?.end &&
-            css({ paddingRight: 'var(--input-padding-inline)' }),
+            css({
+              paddingRight: 'var(--input-padding-inline)',
+            }),
+          !adornmentStart &&
+            css({
+              paddingLeft: 'var(--input-padding-inline)',
+            }),
           className,
         )}
         data-1p-ignore={removeCompletion ? true : undefined}
@@ -118,17 +128,21 @@ export function Input({
         spellCheck={removeCompletion ? false : undefined}
         value={isFocused || !formatValue ? value : formatValue(value)}
         {...props}
-        onBlur={() => setIsFocused(false)}
-        onFocus={() => setIsFocused(true)}
+        onBlur={(e) => {
+          setIsFocused(false)
+          onBlur?.(e)
+        }}
+        onFocus={(e) => {
+          setIsFocused(true)
+          onFocus?.(e)
+        }}
       />
-      {adornments?.end && (
-        <Adornment
-          adornment={adornments.end}
-          inputRef={inputRef}
-          onChange={onChange}
-          position="end"
-        />
-      )}
+      <Adornment
+        adornment={adornments?.end}
+        inputRef={inputRef}
+        onChange={onChange}
+        position="end"
+      />
     </div>
   )
 }
@@ -139,11 +153,13 @@ function Adornment({
   onChange,
   position,
 }: {
-  adornment: Input.Adornment
+  adornment?: Input.Adornment | undefined
   inputRef: RefObject<HTMLInputElement | null>
   onChange: (value: string) => void
   position: 'start' | 'end'
 }) {
+  if (!adornment) return null
+  if (Input.isAdornmentPhonePrefix(adornment)) return null
   return (
     <div
       className={cx(
@@ -167,9 +183,11 @@ function Adornment({
           }),
         position === 'end' &&
           Input.isAdornmentValid(adornment) &&
-          css({
-            paddingRight: 14,
-          }),
+          css({ paddingRight: 14 }),
+        Input.isAdornmentSolid(adornment) &&
+          (position === 'start'
+            ? css({ paddingLeft: 0, paddingRight: 8 })
+            : css({ paddingLeft: 8, paddingRight: 0 })),
       )}
     >
       {Input.isAdornmentFill(adornment) ? (
@@ -193,15 +211,14 @@ function Adornment({
       ) : Input.isAdornmentSolid(adornment) ? (
         <div
           className={css({
+            display: 'flex',
             alignItems: 'center',
+            height: '100%',
             borderRight: '1px solid var(--border-color-th_field)',
             color: 'var(--text-color-th_field-secondary)',
-            display: 'flex',
             fontWeight: 500,
-            height: '100%',
-            marginInlineEnd: 12,
-            marginInlineStart: 'calc(var(--input-padding-inline) * -1)',
-            paddingInline: 12,
+            paddingLeft: 12,
+            paddingRight: 12,
           })}
         >
           {adornment.label}
@@ -234,7 +251,10 @@ function Adornment({
 export namespace Input {
   export interface Props
     extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | 'onChange'> {
-    adornments?: { end?: Adornment; start?: Adornment }
+    adornments?: {
+      end?: Exclude<Adornment, AdornmentPhonePrefix>
+      start?: Adornment
+    }
     formatValue?: (value: string) => string
     invalid?: boolean
     onChange: (value: string) => void
@@ -267,12 +287,18 @@ export namespace Input {
     label?: ReactNode
   }
 
+  export type AdornmentPhonePrefix = {
+    type: 'phone-prefix'
+    prefixes: string[]
+  }
+
   export type Adornment =
     | ReactNode
     | AdornmentFill
     | AdornmentRequired
     | AdornmentSolid
     | AdornmentValid
+    | AdornmentPhonePrefix
 
   function adornmentCheck<T extends string>(
     type: T,
@@ -290,4 +316,27 @@ export namespace Input {
   export const isAdornmentRequired = adornmentCheck('required')
   export const isAdornmentSolid = adornmentCheck('solid')
   export const isAdornmentValid = adornmentCheck('valid')
+  export const isAdornmentPhonePrefix = adornmentCheck('phone-prefix')
+
+  export function useExtractPhonePrefix(
+    adornmentStart: Adornment | undefined,
+    isFocused: boolean,
+    value: string,
+  ) {
+    return useMemo(() => {
+      if (!adornmentStart || !Input.isAdornmentPhonePrefix(adornmentStart))
+        return { adornmentStart, value }
+
+      if (isFocused) return { adornmentStart: null, value }
+
+      for (const prefix of adornmentStart.prefixes)
+        if (value.startsWith(prefix))
+          return {
+            adornmentStart: { type: 'solid', label: prefix },
+            value: value.slice(prefix.length).trim(),
+          }
+
+      return { adornmentStart: null, value }
+    }, [adornmentStart, isFocused, value])
+  }
 }
