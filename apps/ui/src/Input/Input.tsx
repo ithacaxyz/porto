@@ -1,5 +1,5 @@
 import type { InputHTMLAttributes, ReactNode, RefObject } from 'react'
-import { useRef, useState, useMemo } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import LucideCheck from '~icons/lucide/check'
 import { css, cva, cx } from '../../styled-system/css'
 import { Frame } from '../Frame/Frame.js'
@@ -211,12 +211,12 @@ function Adornment({
       ) : Input.isAdornmentSolid(adornment) ? (
         <div
           className={css({
-            display: 'flex',
             alignItems: 'center',
-            height: '100%',
             borderRight: '1px solid var(--border-color-th_field)',
             color: 'var(--text-color-th_field-secondary)',
+            display: 'flex',
             fontWeight: 500,
+            height: '100%',
             paddingLeft: 12,
             paddingRight: 12,
           })}
@@ -332,7 +332,7 @@ export namespace Input {
       for (const prefix of adornmentStart.prefixes)
         if (value.startsWith(prefix))
           return {
-            adornmentStart: { type: 'solid', label: prefix },
+            adornmentStart: { label: prefix, type: 'solid' },
             value: value.slice(prefix.length).trim(),
           }
 
