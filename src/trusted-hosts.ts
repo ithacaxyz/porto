@@ -31,5 +31,5 @@ export const hostnames = [
   'app.cashmere.exchange',
   'mainnet.cashmere.exchange',
   'alpha.intentfi.io',
-  'https://garden.staging.btcfi.wtf'
+  'garden.staging.btcfi.wtf'
 ]
