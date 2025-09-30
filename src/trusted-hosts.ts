@@ -30,4 +30,5 @@ export const hostnames = [
   'news.kiwistand.com',
   'app.cashmere.exchange',
   'mainnet.cashmere.exchange',
+  'alpha.intentfi.io',
 ]
