@@ -1,3 +1,4 @@
+import { decode as cborDecode } from 'cbor-x'
 import * as AbiFunction from 'ox/AbiFunction'
 import * as AbiParameters from 'ox/AbiParameters'
 import * as Address from 'ox/Address'
@@ -30,6 +31,7 @@ import type {
   UnionRequiredBy,
 } from '../core/internal/types.js'
 import type * as Storage from '../core/Storage.js'
+import { type AAGUID, lookupAaguid } from '../internal/webauthn/aaguid.js'
 
 type PrivateKeyFn = () => Hex.Hex
 
@@ -66,6 +68,29 @@ export type WebAuthnKey = BaseKey<
       }
   >
 >
+
+export type AuthenticatorInfo = {
+  aaguid: string
+  info?: AAGUID[string] | undefined
+}
+
+function normalizeAuthenticatorInfo(
+  authenticator: AuthenticatorInfo | undefined,
+): Extract<Key, { type: 'webauthn-p256' }>['authenticator'] {
+  if (!authenticator) return undefined
+
+  const { aaguid, info } = authenticator
+  if (!info) return { aaguid }
+
+  return {
+    aaguid,
+    info: {
+      name: info.name,
+      ...(info.icon_dark && { icon_dark: info.icon_dark }),
+      ...(info.icon_light && { icon_light: info.icon_light }),
+    },
+  }
+}
 
 export type Permissions = Key_schema.Permissions
 
@@ -269,8 +294,13 @@ export async function createWebAuthnP256(
     },
   })
 
+  const authenticator = await extractAuthenticatorMetadata(credential).catch(
+    () => undefined,
+  )
+
   return fromWebAuthnP256({
     ...parameters,
+    authenticator,
     credential: {
       id: credential.id,
       publicKey: credential.publicKey,
@@ -692,6 +722,7 @@ export function fromWebAuthnP256(parameters: fromWebAuthnP256.Parameters) {
     includePrefix: false,
   })
   return from({
+    ...normalizeAuthenticatorInfo(parameters.authenticator),
     chainId: parameters.chainId,
     expiry: parameters.expiry ?? 0,
     feeToken: parameters.feeToken,
@@ -712,6 +743,8 @@ export declare namespace fromWebAuthnP256 {
     from.Value,
     'chainId' | 'expiry' | 'feeToken' | 'id' | 'permissions' | 'role'
   > & {
+    /** Authenticator metadata derived from attestation data. */
+    authenticator?: AuthenticatorInfo | undefined
     /** WebAuthnP256 Credential. */
     credential: Pick<WebAuthnP256.P256Credential, 'id' | 'publicKey'>
     /** Relying Party ID. */
@@ -1261,6 +1294,69 @@ export declare namespace getFeeToken {
         value: bigint
       })
     | undefined
+}
+
+async function extractAuthenticatorMetadata(
+  credential: WebAuthnP256.P256Credential,
+): Promise<AuthenticatorInfo | undefined> {
+  const response = credential.raw.response as
+    | AuthenticatorAttestationResponse
+    | undefined
+  if (!response?.attestationObject) return undefined
+
+  try {
+    const attestationObject = new Uint8Array(response.attestationObject)
+    const decoded = cborDecode(attestationObject) as {
+      authData?: ArrayBuffer | Uint8Array
+    }
+    if (!decoded.authData) return undefined
+
+    const authData =
+      decoded.authData instanceof Uint8Array
+        ? decoded.authData
+        : new Uint8Array(decoded.authData)
+    if (authData.length < 37) return undefined
+
+    const flags = authData[32]
+    // @ts-expect-error - TODO: handle
+    const hasAttestedCredentialData = (flags & 0x40) !== 0
+    if (!hasAttestedCredentialData) return undefined
+
+    let offset = 37
+    if (authData.length < offset + 16) return undefined
+    const aaguidBytes = authData.slice(offset, offset + 16)
+    offset += 16
+
+    if (authData.length < offset + 2) return undefined
+    const view = new DataView(
+      authData.buffer,
+      authData.byteOffset,
+      authData.byteLength,
+    )
+    const credentialIdLength = view.getUint16(offset)
+    offset += 2
+    if (authData.length < offset + credentialIdLength) return undefined
+
+    // Skip credential ID bytes to ensure the buffer is well-formed.
+    offset += credentialIdLength
+    if (authData.length < offset) return undefined
+
+    const aaguid = formatAaguid(aaguidBytes)
+    if (!aaguid) return undefined
+
+    const info = await lookupAaguid({ aaguid })
+    return { aaguid, info }
+  } catch {
+    return undefined
+  }
+}
+
+function formatAaguid(bytes: Uint8Array): string | undefined {
+  if (bytes.length < 16) return undefined
+  const hex = Array.from(bytes, (value) =>
+    value.toString(16).padStart(2, '0'),
+  ).join('')
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`
 }
 
 ///////////////////////////////////////////////////////////////////////////

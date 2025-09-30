@@ -3,6 +3,19 @@ import * as Token from './token.js'
 import * as u from './utils.js'
 
 export const Base = z.object({
+  /** Metadata about the authenticator that produced this key, if available. */
+  authenticator: z.optional(
+    z.object({
+      aaguid: z.string(),
+      info: z.optional(
+        z.object({
+          icon_dark: z.optional(z.string()),
+          icon_light: z.optional(z.string()),
+          name: z.string(),
+        }),
+      ),
+    }),
+  ),
   /** Chain ID the key belongs to. If not provided, the key is valid on all chains. */
   chainId: z.optional(u.number()),
   /** The expiry of the key. */

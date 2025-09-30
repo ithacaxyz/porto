@@ -71,6 +71,7 @@ function RouteComponent() {
 
   const location = useLocation()
   const request = Hooks.useRequest(porto)
+  const accounts = Hooks.useAccounts(porto)
 
   const [controlledSize, setControlledSize] = React.useState(mode === 'popup')
   const heightUpdateCheckTimer =
@@ -82,6 +83,21 @@ function RouteComponent() {
   }, [mode])
 
   const enableEnsureVisibility = mode.includes('iframe') && !trusted
+
+  React.useEffect(() => {
+    if (!accounts || accounts.length === 0) return
+    for (const account of accounts) {
+      if (!account?.keys) continue
+      for (const key of account.keys) {
+        if (key?.type !== 'webauthn-p256' || !key.authenticator) continue
+        console.info('[Porto] WebAuthn authenticator detected', {
+          account: account.address,
+          authenticator: key.authenticator,
+          keyId: key.id,
+        })
+      }
+    }
+  }, [accounts])
 
   if (!request) return null
 

@@ -14,6 +14,12 @@ export function SignIn(props: SignIn.Props) {
   const account = Hooks.useAccount(porto)
   const hostname = Dialog.useStore((state) => state.referrer?.url?.hostname)
 
+  const authenticator = account?.keys?.find(
+    (key) => key.type === 'webauthn-p256' && key.authenticator,
+  )?.authenticator
+
+  const authenticatorLabel = authenticator?.info?.name ?? authenticator?.aaguid
+
   const [mode, setMode] = React.useState<'sign-in' | 'sign-up'>('sign-in')
   const signingIn = mode === 'sign-in' && status === 'responding'
   const signingUp = mode === 'sign-up' && status === 'responding'
@@ -41,6 +47,14 @@ export function SignIn(props: SignIn.Props) {
       <Permissions title="Permissions requested" {...permissions} />
 
       <Layout.Footer>
+        {authenticatorLabel && (
+          <div className="w-full px-3 text-[13px] text-th_base-secondary">
+            Using passkey from{' '}
+            <span className="font-medium text-th_base">
+              {authenticatorLabel}
+            </span>
+          </div>
+        )}
         <Layout.Footer.Actions>
           <Button
             data-testid="sign-up"
