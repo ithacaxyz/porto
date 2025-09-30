@@ -196,9 +196,7 @@ function RouteComponent() {
       <SignUp
         enableSignIn={actions.includes('sign-in')}
         onApprove={(options) => respond.mutate(options)}
-        onReject={() => {
-          Actions.reject(porto, request)
-        }}
+        onReject={() => Actions.reject(porto, request)}
         permissions={grantPermissions?.permissions}
         status={status}
       />
