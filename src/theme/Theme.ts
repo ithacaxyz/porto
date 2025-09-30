@@ -71,6 +71,10 @@ export type Theme<
   secondaryHoveredBackground: SchemeColor
   secondaryHoveredBorder: SchemeColor
 
+  distinctBackground: SchemeColor
+  distinctContent: SchemeColor
+  distinctBorder: SchemeColor
+
   disabledBackground: SchemeColor
   disabledBorder: SchemeColor
   disabledContent: SchemeColor

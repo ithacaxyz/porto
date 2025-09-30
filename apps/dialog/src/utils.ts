@@ -1,4 +1,4 @@
-import { Value } from 'ox'
+import { type Address, Value } from 'ox'
 
 export namespace PriceFormatter {
   /**
@@ -26,6 +26,14 @@ export namespace StringFormatter {
   ) {
     if (str.length <= start + end) return str
     return `${str.slice(0, start)}\u2026${str.slice(-end)}`
+  }
+}
+
+export namespace AddressFormatter {
+  export function shorten(address: Address.Address, chars = 4) {
+    return address.length < chars * 2 + 2
+      ? address
+      : address.slice(0, chars + 2) + '…' + address.slice(-chars)
   }
 }
 

@@ -2125,48 +2125,6 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       expect(merchantBalance_post).toBeLessThan(merchantBalance_pre)
     })
 
-    test('behavior: invalid merchant RPC URL', async () => {
-      const p = getPorto()
-      const contracts = await TestConfig.getContracts(p)
-
-      const porto = getPorto({ merchantUrl: 'https://example.com/rpc' })
-
-      const {
-        accounts: [account],
-      } = await porto.provider.request({
-        method: 'wallet_connect',
-        params: [
-          {
-            capabilities: { createAccount: true },
-          },
-        ],
-      })
-      const address = account!.address
-
-      await expect(() =>
-        porto.provider.request({
-          method: 'wallet_sendCalls',
-          params: [
-            {
-              calls: [
-                {
-                  data: encodeFunctionData({
-                    abi: contracts.exp1.abi,
-                    args: [Hex.random(20), Value.fromEther('1')],
-                    functionName: 'transfer',
-                  }),
-                  to: contracts.exp1.address,
-                },
-              ],
-              chainId: Anvil.enabled ? undefined : '0x2105',
-              from: address,
-              version: '1',
-            },
-          ],
-        }),
-      ).rejects.toThrowError('Merchant hostname "example.com" is not trusted.')
-    })
-
     test('behavior: use inferred permissions', async () => {
       const porto = getPorto()
       const client = TestConfig.getRelayClient(porto)

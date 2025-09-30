@@ -449,8 +449,6 @@ export namespace Frame {
   export interface Props {
     children?: ReactNode
     colorScheme?: 'light' | 'dark' | 'light dark' | undefined
-    loading?: boolean | undefined
-    loadingText?: string | undefined
     mode: Mode | ModeName
     onClose?: (() => void) | undefined
     onHeight?: ((height: number) => void) | undefined

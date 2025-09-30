@@ -67,6 +67,28 @@ describe('from', () => {
       }
     `)
   })
+
+  test('behavior: custom sign', () => {
+    const account = Account.from({
+      address: '0x0000000000000000000000000000000000000000',
+      sign: async () => {
+        return '0x'
+      },
+    })
+
+    expect(account).toMatchInlineSnapshot(`
+      {
+        "address": "0x0000000000000000000000000000000000000000",
+        "keys": undefined,
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "privateKey",
+        "type": "local",
+      }
+    `)
+  })
 })
 
 describe('fromPrivateKey', () => {

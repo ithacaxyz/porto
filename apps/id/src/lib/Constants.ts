@@ -125,6 +125,15 @@ export const defaultAssets: Record<
       symbol: 'ETH',
     },
   ],
+  [Chains.berachain.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'Ethereum',
+      symbol: 'ETH',
+    },
+  ],
   [Chains.bsc.id]: [
     {
       address: '0x0000000000000000000000000000000000000000',
@@ -220,6 +229,24 @@ export const defaultAssets: Record<
       logo: '/icons/usdc.svg',
       name: 'USD Coin',
       symbol: 'USDC',
+    },
+  ],
+  [Chains.hoodi.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'Ethereum',
+      symbol: 'ETH',
+    },
+  ],
+  [Chains.katana.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'Ethereum',
+      symbol: 'ETH',
     },
   ],
   [Chains.mainnet.id]: [

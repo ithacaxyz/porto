@@ -44,7 +44,7 @@ function defineAnvil(parameters: AnvilParameters) {
   const config = {
     ...parameters,
     accounts: accounts.length,
-    odyssey: true,
+    hardfork: 'osaka' as never,
   } as const
 
   const transport = RpcTransport.fromHttp(rpcUrl)

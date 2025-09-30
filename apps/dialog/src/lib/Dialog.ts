@@ -9,30 +9,14 @@ import { createStore } from 'zustand/vanilla'
 export const store = createStore(
   devtools(
     persist<store.State>(
-      () => {
-        const referrer = (() => {
-          const referrer = new URLSearchParams(window.location.search).get(
-            'referrer',
-          )
-          if (!referrer) return undefined
-          try {
-            const parsed = JSON.parse(referrer)
-            return {
-              ...parsed,
-              url: parsed.url ? new URL(parsed.url) : undefined,
-            }
-          } catch {}
-          return undefined
-        })()
-        return {
-          accountMetadata: {},
-          customTheme: undefined,
-          display: 'full',
-          error: null,
-          mode: 'popup-standalone',
-          referrer,
-        }
-      },
+      () => ({
+        accountMetadata: {},
+        customTheme: undefined,
+        display: 'full',
+        error: null,
+        mode: 'popup-standalone',
+        referrer: undefined,
+      }),
       {
         name: 'porto.dialog',
         partialize(state) {

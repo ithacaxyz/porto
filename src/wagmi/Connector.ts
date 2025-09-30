@@ -19,9 +19,16 @@ import type { ExactPartial } from '../core/internal/types.js'
 import type * as Porto from '../core/Porto.js'
 import * as RpcSchema from '../core/RpcSchema.js'
 
+export type PortoParameters<
+  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
+    Chains.Chain,
+    ...Chains.Chain[],
+  ],
+> = ExactPartial<Porto.Config<chains>>
+
 export function porto<
   const chains extends readonly [Chains.Chain, ...Chains.Chain[]],
->(config: ExactPartial<Porto.Config<chains>> = {}) {
+>(parameters: PortoParameters<chains> = {}) {
   type Provider = ReturnType<typeof Porto.create>['provider']
   type Properties = {
     connect<withCapabilities extends boolean = false>(parameters?: {
@@ -46,11 +53,11 @@ export function porto<
   }
 
   return createConnector<Provider, Properties>((wagmiConfig) => {
-    const chains = wagmiConfig.chains ?? config.chains ?? []
+    const chains = wagmiConfig.chains ?? parameters.chains ?? []
 
     const transports = (() => {
       if (wagmiConfig.transports) return wagmiConfig.transports
-      return config.transports
+      return parameters.transports
     })()
 
     let porto_promise: Promise<Porto.Porto<chains>> | undefined
@@ -90,14 +97,18 @@ export function porto<
 
         try {
           if (!accounts?.length && !isReconnecting) {
-            const params = (() => {
-              if (!('capabilities' in rest)) return undefined
-              return [
+            const res = await provider.request({
+              method: 'wallet_connect',
+              params: [
                 {
-                  capabilities: z.encode(
-                    RpcSchema.wallet_connect.Capabilities,
-                    rest.capabilities ?? {},
-                  ),
+                  ...('capabilities' in rest
+                    ? {
+                        capabilities: z.encode(
+                          RpcSchema.wallet_connect.Capabilities,
+                          rest.capabilities ?? {},
+                        ),
+                      }
+                    : {}),
                   chainIds: [
                     numberToHex(chainId),
                     ...chains
@@ -105,11 +116,7 @@ export function porto<
                       .map((x) => numberToHex(x.id)),
                   ],
                 },
-              ] as const
-            })()
-            const res = await provider.request({
-              method: 'wallet_connect',
-              ...(params ? { params } : {}),
+              ],
             })
             accounts = res.accounts
             currentChainId = Number(res.chainIds[0])
@@ -191,7 +198,7 @@ export function porto<
         porto_promise ??= (async () => {
           const Porto = await import('../core/Porto.js')
           return Porto.create({
-            ...config,
+            ...parameters,
             announceProvider: false,
             chains: chains as never,
             transports,

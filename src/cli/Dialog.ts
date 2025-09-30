@@ -1,4 +1,5 @@
 import * as Dialog from '../core/Dialog.js'
+import type { QueuedRequest } from '../core/Porto.js'
 import * as Messenger from './Messenger.js'
 
 export const messenger = await Messenger.cliRelay()
@@ -18,22 +19,22 @@ export async function cli() {
         Dialog.handleResponse(parameters.internal.store, response)
       })
 
+      messenger.on('ready', () => {
+        const { store } = parameters.internal
+        const requestQueue = store.getState().requestQueue
+        const requests = requestQueue
+          .map((x) => (x.status === 'pending' ? x : undefined))
+          .filter(Boolean) as readonly QueuedRequest[]
+        messenger.send('rpc-requests', requests)
+      })
+
       return {
         close() {},
         destroy() {
           messenger.destroy()
         },
         open() {
-          const search = new URLSearchParams([
-            [
-              'referrer',
-              JSON.stringify({
-                title: 'Porto CLI',
-                url: 'cli://porto',
-              }),
-            ],
-            ['relayUrl', messenger.relayUrl],
-          ])
+          const search = new URLSearchParams([['relayUrl', messenger.relayUrl]])
 
           const host = parameters.host.replace(/\/$/, '')
           const url = host + '/?' + search.toString()

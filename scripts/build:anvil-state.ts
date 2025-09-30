@@ -195,7 +195,7 @@ for (const i of Array.from({ length: 2 }, (_, i) => i + 1)) {
   // Deploy SimpleFunder contract.
   const hash = await deployContract(client, {
     abi: SimpleFunder.abi,
-    args: [account.address, orchestratorAddress!, account.address],
+    args: [account.address, account.address],
     bytecode: SimpleFunder.code,
     chain: null,
   })

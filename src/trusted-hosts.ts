@@ -27,4 +27,7 @@ export const hostnames = [
   'swap.defillama.com',
   'uniswap.org',
   'www.bungee.exchange',
+  'news.kiwistand.com',
+  'app.cashmere.exchange',
+  'mainnet.cashmere.exchange',
 ]

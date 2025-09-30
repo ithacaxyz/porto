@@ -8,7 +8,10 @@ import * as AbiError from 'ox/AbiError'
 import * as AbiFunction from 'ox/AbiFunction'
 import type * as Address from 'ox/Address'
 import * as Errors from 'ox/Errors'
+import * as Hash from 'ox/Hash'
 import * as Hex from 'ox/Hex'
+import * as Secp256k1 from 'ox/Secp256k1'
+import * as Signature from 'ox/Signature'
 import {
   BaseError,
   type Calls,
@@ -225,10 +228,11 @@ export namespace getAssets {
 /**
  * Requests faucet funds to be sent to an address on the Relay.
  */
-export async function addFaucetFunds(
-  client: Client,
-  parameters: addFaucetFunds.Parameters,
+export async function addFaucetFunds<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: addFaucetFunds.Parameters<chain>,
 ): Promise<RpcSchema.wallet_addFaucetFunds.Response> {
+  const { address, chain = client.chain, tokenAddress, value } = parameters
   try {
     const method = 'wallet_addFaucetFunds' as const
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
@@ -236,13 +240,21 @@ export async function addFaucetFunds(
       {
         method,
         params: [
-          z.encode(RpcSchema.wallet_addFaucetFunds.Parameters, parameters),
+          z.encode(RpcSchema.wallet_addFaucetFunds.Parameters, {
+            address,
+            chainId: chain?.id!,
+            tokenAddress,
+            value,
+          }),
         ],
       },
       {
         retryCount: 0,
       },
     )
+    // relay state can be behind node state. wait to ensure sync.
+    // TODO: figure out how to resolve.
+    await new Promise((resolve) => setTimeout(resolve, 2_000))
     return result
   } catch (error) {
     parseSchemaError(error)
@@ -251,7 +263,9 @@ export async function addFaucetFunds(
 }
 
 export namespace addFaucetFunds {
-  export type Parameters = RpcSchema.wallet_addFaucetFunds.Parameters
+  export type Parameters<chain extends Chain | undefined = Chain | undefined> =
+    Omit<RpcSchema.wallet_addFaucetFunds.Parameters, 'chainId'> &
+      GetChainParameter<chain>
 }
 
 /**
@@ -428,7 +442,10 @@ export async function prepareCalls<
         retryCount: 0,
       },
     )
-    return z.decode(RpcSchema.wallet_prepareCalls.Response, result)
+    return Object.assign(
+      z.decode(RpcSchema.wallet_prepareCalls.Response, result),
+      { _raw: result },
+    )
   } catch (error) {
     parseSchemaError(error)
     parseExecutionError(error, { calls: parameters.calls })
@@ -447,7 +464,9 @@ export namespace prepareCalls {
     key: RpcSchema.wallet_prepareCalls.Parameters['key']
   } & GetChainParameter<chain>
 
-  export type ReturnType = RpcSchema.wallet_prepareCalls.Response
+  export type ReturnType = RpcSchema.wallet_prepareCalls.Response & {
+    _raw: z.input<typeof RpcSchema.wallet_prepareCalls.Response>
+  }
 
   export type ErrorType =
     | parseSchemaError.ErrorType
@@ -743,6 +762,42 @@ export namespace verifyEmail {
 }
 
 /**
+ * Verifies a prepare calls response.
+ *
+ * @param client - Client to use.
+ * @param parameters - Parameters.
+ * @returns Whether or not the response is valid.
+ */
+export async function verifyPrepareCallsResponse(
+  client: Client,
+  parameters: verifyPrepareCallsResponse.Parameters,
+) {
+  const { signature } = parameters
+  const {
+    signature: _,
+    capabilities: { feeSignature: __, ...capabilities },
+    ...response
+  } = parameters.response
+
+  const sorted = sortKeys({ capabilities, ...response })
+
+  const payload = Hash.keccak256(Hex.fromString(JSON.stringify(sorted)))
+  const address = Secp256k1.recoverAddress({
+    payload,
+    signature: Signature.fromHex(signature),
+  })
+  const { quoteSigner } = await health(client)
+  return address === quoteSigner
+}
+
+export namespace verifyPrepareCallsResponse {
+  export type Parameters = {
+    response: z.input<typeof RpcSchema.wallet_prepareCalls.Response>
+    signature: Hex.Hex
+  }
+}
+
+/**
  * Verifies a signature.
  *
  * @example
@@ -860,6 +915,17 @@ export function parseExecutionError<const calls extends readonly unknown[]>(
   const abiError = getAbiError(error)
   if (error === e && !abiError) return
   throw new ExecutionError(Object.assign(error, { abiError }))
+}
+
+export function sortKeys<value>(value: value): value {
+  if (typeof value === 'object' && value !== null) {
+    if (Array.isArray(value)) return value.map(sortKeys) as value
+    const result = {} as Record<string, unknown>
+    for (const key of Object.keys(value).sort())
+      result[key] = sortKeys(value[key as keyof typeof value])
+    return result as value
+  }
+  return value
 }
 
 export declare namespace parseExecutionError {

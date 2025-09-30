@@ -95,13 +95,12 @@ export default defineConfig(({ mode }) => {
           logger.info('Starting Anvil...')
 
           await anvil({
+            hardfork: 'osaka' as never,
             host: process.env.CI ? '0.0.0.0' : undefined,
             loadState: resolve(
               import.meta.dirname,
               '../../test/src/_generated/anvil.json',
             ),
-            // @ts-expect-error
-            odyssey: true,
             port: anvilConfig.port,
           }).start()
 
@@ -139,7 +138,7 @@ export default defineConfig(({ mode }) => {
               orchestrator: orchestratorAddress,
               simulator: simulatorAddress,
               txGasBuffer: 100_000n,
-              version: 'v24.0.8',
+              version: 'v24.1.0',
             }).start()
             await fetch(relayConfig.rpcUrl + '/start')
             return stop

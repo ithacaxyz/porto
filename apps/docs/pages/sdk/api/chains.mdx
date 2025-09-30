@@ -20,8 +20,11 @@ Porto currently supports the following chains:
 | Arbitrum Sepolia | `Chains.arbitrumSepolia` |
 | Base | `Chains.base` |
 | Base Sepolia | `Chains.baseSepolia` |
+| Berachain | `Chains.berachain` |
 | BNB Smart Chain | `Chains.bsc` |
 | Celo | `Chains.celo` |
+| Hoodi | `Chains.hoodi` |
+| Katana | `Chains.katana` |
 | Ethereum | `Chains.mainnet` |
 | OP Mainnet | `Chains.optimism` |
 | OP Sepolia | `Chains.optimismSepolia` |
@@ -34,8 +37,8 @@ Chains can be directly used with [Wagmi's Config](https://wagmi.sh/react/api/cre
 
 ```ts twoslash
 import { Chains } from 'porto'
-import { porto } from 'porto/wagmi'
 import { createConfig, http } from 'wagmi'
+import { porto } from 'wagmi/connectors'
 
 export const config = createConfig({
   chains: [Chains.baseSepolia], // [!code hl]

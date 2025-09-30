@@ -1,3 +1,4 @@
+import 'porto/register'
 import { PortoConfig } from '@porto/apps'
 import { type Chains, Mode } from 'porto'
 import { porto } from 'porto/wagmi'

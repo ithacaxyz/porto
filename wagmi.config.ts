@@ -56,8 +56,8 @@ const address = {
     [anvil3.id]: anvilAddresses.expNftAddress,
     [anvil.id]: anvilAddresses.expNftAddress,
     [anvil2.id]: anvilAddresses.expNftAddress,
-    [baseSepolia.id]: '0x2a7B2023e4279bF5909785652AB51c9F821344e0',
-    [optimismSepolia.id]: '0x97b7d6e58c56a3547e04F3Ae0cc1E7f69a123Dc4',
+    [baseSepolia.id]: '0xDa70DA3391054b0930a0c7Fd57f6e75b61EE5787',
+    [optimismSepolia.id]: '0x1B8276D9De24FaAAdC7cB4fF626e01bD4E037E41',
   },
 } as const
 

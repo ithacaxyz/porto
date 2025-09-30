@@ -16,7 +16,6 @@ function SpacerComponent() {
   const app = (
     <Frame
       colorScheme={colorScheme}
-      loading={false}
       mode={mode}
       screenKey="spacer-example"
       site={{

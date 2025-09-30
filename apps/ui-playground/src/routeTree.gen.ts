@@ -24,6 +24,8 @@ import { Route as InputImport } from './routes/Input'
 import { Route as FrameImport } from './routes/Frame'
 import { Route as DiscIconImport } from './routes/DiscIcon'
 import { Route as DetailsImport } from './routes/Details'
+import { Route as DepositImport } from './routes/Deposit'
+import { Route as CopyButtonImport } from './routes/CopyButton'
 import { Route as ColorsImport } from './routes/Colors'
 import { Route as ChainsPathImport } from './routes/ChainsPath'
 import { Route as ChainIconImport } from './routes/ChainIcon'
@@ -109,6 +111,18 @@ const DiscIconRoute = DiscIconImport.update({
 const DetailsRoute = DetailsImport.update({
   id: '/Details',
   path: '/Details',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DepositRoute = DepositImport.update({
+  id: '/Deposit',
+  path: '/Deposit',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const CopyButtonRoute = CopyButtonImport.update({
+  id: '/CopyButton',
+  path: '/CopyButton',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -205,6 +219,20 @@ declare module '@tanstack/react-router' {
       path: '/Colors'
       fullPath: '/Colors'
       preLoaderRoute: typeof ColorsImport
+      parentRoute: typeof rootRoute
+    }
+    '/CopyButton': {
+      id: '/CopyButton'
+      path: '/CopyButton'
+      fullPath: '/CopyButton'
+      preLoaderRoute: typeof CopyButtonImport
+      parentRoute: typeof rootRoute
+    }
+    '/Deposit': {
+      id: '/Deposit'
+      path: '/Deposit'
+      fullPath: '/Deposit'
+      preLoaderRoute: typeof DepositImport
       parentRoute: typeof rootRoute
     }
     '/Details': {
@@ -311,6 +339,8 @@ export interface FileRoutesByFullPath {
   '/ChainIcon': typeof ChainIconRoute
   '/ChainsPath': typeof ChainsPathRoute
   '/Colors': typeof ColorsRoute
+  '/CopyButton': typeof CopyButtonRoute
+  '/Deposit': typeof DepositRoute
   '/Details': typeof DetailsRoute
   '/DiscIcon': typeof DiscIconRoute
   '/Frame': typeof FrameRoute
@@ -334,6 +364,8 @@ export interface FileRoutesByTo {
   '/ChainIcon': typeof ChainIconRoute
   '/ChainsPath': typeof ChainsPathRoute
   '/Colors': typeof ColorsRoute
+  '/CopyButton': typeof CopyButtonRoute
+  '/Deposit': typeof DepositRoute
   '/Details': typeof DetailsRoute
   '/DiscIcon': typeof DiscIconRoute
   '/Frame': typeof FrameRoute
@@ -358,6 +390,8 @@ export interface FileRoutesById {
   '/ChainIcon': typeof ChainIconRoute
   '/ChainsPath': typeof ChainsPathRoute
   '/Colors': typeof ColorsRoute
+  '/CopyButton': typeof CopyButtonRoute
+  '/Deposit': typeof DepositRoute
   '/Details': typeof DetailsRoute
   '/DiscIcon': typeof DiscIconRoute
   '/Frame': typeof FrameRoute
@@ -383,6 +417,8 @@ export interface FileRouteTypes {
     | '/ChainIcon'
     | '/ChainsPath'
     | '/Colors'
+    | '/CopyButton'
+    | '/Deposit'
     | '/Details'
     | '/DiscIcon'
     | '/Frame'
@@ -405,6 +441,8 @@ export interface FileRouteTypes {
     | '/ChainIcon'
     | '/ChainsPath'
     | '/Colors'
+    | '/CopyButton'
+    | '/Deposit'
     | '/Details'
     | '/DiscIcon'
     | '/Frame'
@@ -427,6 +465,8 @@ export interface FileRouteTypes {
     | '/ChainIcon'
     | '/ChainsPath'
     | '/Colors'
+    | '/CopyButton'
+    | '/Deposit'
     | '/Details'
     | '/DiscIcon'
     | '/Frame'
@@ -451,6 +491,8 @@ export interface RootRouteChildren {
   ChainIconRoute: typeof ChainIconRoute
   ChainsPathRoute: typeof ChainsPathRoute
   ColorsRoute: typeof ColorsRoute
+  CopyButtonRoute: typeof CopyButtonRoute
+  DepositRoute: typeof DepositRoute
   DetailsRoute: typeof DetailsRoute
   DiscIconRoute: typeof DiscIconRoute
   FrameRoute: typeof FrameRoute
@@ -474,6 +516,8 @@ const rootRouteChildren: RootRouteChildren = {
   ChainIconRoute: ChainIconRoute,
   ChainsPathRoute: ChainsPathRoute,
   ColorsRoute: ColorsRoute,
+  CopyButtonRoute: CopyButtonRoute,
+  DepositRoute: DepositRoute,
   DetailsRoute: DetailsRoute,
   DiscIconRoute: DiscIconRoute,
   FrameRoute: FrameRoute,
@@ -506,6 +550,8 @@ export const routeTree = rootRoute
         "/ChainIcon",
         "/ChainsPath",
         "/Colors",
+        "/CopyButton",
+        "/Deposit",
         "/Details",
         "/DiscIcon",
         "/Frame",
@@ -541,6 +587,12 @@ export const routeTree = rootRoute
     },
     "/Colors": {
       "filePath": "Colors.tsx"
+    },
+    "/CopyButton": {
+      "filePath": "CopyButton.tsx"
+    },
+    "/Deposit": {
+      "filePath": "Deposit.tsx"
     },
     "/Details": {
       "filePath": "Details.tsx"

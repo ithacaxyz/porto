@@ -1,5 +1,77 @@
 # porto
 
+## 0.2.21
+
+### Patch Changes
+
+- [`6e91585`](https://github.com/ithacaxyz/porto/commit/6e91585147eea2d94d2c1a14e23499ec3ab1241a) Thanks [@jxom](https://github.com/jxom)! - Added support for Berachain, Hoodi, Katana.
+
+## 0.2.20
+
+### Patch Changes
+
+- [`124f1cc`](https://github.com/ithacaxyz/porto/commit/124f1ccccb50daceb740132bb528629e80470cd2) Thanks [@jxom](https://github.com/jxom)! - Fixed chain assertions on Wagmi Actions.
+
+## 0.2.19
+
+### Patch Changes
+
+- [`e349533`](https://github.com/ithacaxyz/porto/commit/e349533172d27d4786eb598f08f7c1597da77040) Thanks [@jxom](https://github.com/jxom)! - Added `crypto.randomUUID` fallbacks.
+
+## 0.2.18
+
+### Patch Changes
+
+- [`02bf0a8`](https://github.com/ithacaxyz/porto/commit/02bf0a8c88d1fa698490a1d1f96a5967eb026e02) Thanks [@jxom](https://github.com/jxom)! - Tweaked `porto` connector.
+
+## 0.2.17
+
+### Patch Changes
+
+- [`122c653`](https://github.com/ithacaxyz/porto/commit/122c6530758080229e3c594d1bcaba2bc4e5ddca) Thanks [@jxom](https://github.com/jxom)! - Added assertion for `indexedDB`.
+
+## 0.2.16
+
+### Patch Changes
+
+- [`3a45b15`](https://github.com/ithacaxyz/porto/commit/3a45b15d2c2f69b48660913b44a776d4d82774b4) Thanks [@jxom](https://github.com/jxom)! - Removed implicit module declarations in favor of `porto/register` module.
+
+## 0.2.15
+
+### Patch Changes
+
+- [`11b0845`](https://github.com/ithacaxyz/porto/commit/11b084547496e3144cff56a7e056d39a8c1a179f) Thanks [@jxom](https://github.com/jxom)! - Added export to fix inference.
+
+## 0.2.14
+
+### Patch Changes
+
+- [`cb6cc99`](https://github.com/ithacaxyz/porto/commit/cb6cc995f0e56885b4f962a7f02f4824cedb3116) Thanks [@jxom](https://github.com/jxom)! - Added Zod export to `porto/internal`.
+
+## 0.2.13
+
+### Patch Changes
+
+- [`21000cb`](https://github.com/ithacaxyz/porto/commit/21000cbb208abd1eb9810eec136bfa9283510ea7) Thanks [@jxom](https://github.com/jxom)! - Added listener for `ready` on CLI Dialog.
+
+- [#909](https://github.com/ithacaxyz/porto/pull/909) [`6f79c12`](https://github.com/ithacaxyz/porto/commit/6f79c12a5cac3d078ada5a29f75b94a4f388ccc6) Thanks [@jxom](https://github.com/jxom)! - Inferred `Account#source` based on the `sign` parameter.
+
+- [#905](https://github.com/ithacaxyz/porto/pull/905) [`bd9dce2`](https://github.com/ithacaxyz/porto/commit/bd9dce23a18f780aabca10f588f64de3e1d258a6) Thanks [@jxom](https://github.com/jxom)! - Removed trusted origin check for merchant RPCs in favor of verifying `wallet_prepareCalls` responses.
+
+## 0.2.12
+
+### Patch Changes
+
+- [#902](https://github.com/ithacaxyz/porto/pull/902) [`cf8eeba`](https://github.com/ithacaxyz/porto/commit/cf8eebae7295fe28b730fbbe96bc71c5d4928168) Thanks [@jxom](https://github.com/jxom)! - Returned capabilities for all chains by default.
+
+## 0.2.11
+
+### Patch Changes
+
+- [#887](https://github.com/ithacaxyz/porto/pull/887) [`47ef88a`](https://github.com/ithacaxyz/porto/commit/47ef88a4cc88736cec87da58177bedea2b4d0341) Thanks [@hazelnutcloud](https://github.com/hazelnutcloud)! - Added `webAuthn` usage downstream to `Mode.relay`.
+
+- [#889](https://github.com/ithacaxyz/porto/pull/889) [`6f6c3a1`](https://github.com/ithacaxyz/porto/commit/6f6c3a134880b867e398338f3d67b441cc2aaa85) Thanks [@hazelnutcloud](https://github.com/hazelnutcloud)! - Fixed selector check on call permissions.
+
 ## 0.2.10
 
 ### Patch Changes

@@ -1,5 +1,4 @@
-import { IndeterminateLoader } from '@porto/apps/components'
-import { Screen, Spinner } from '@porto/ui'
+import { Screen } from '@porto/ui'
 import { cva, cx, type VariantProps } from 'cva'
 import { Address } from 'ox'
 import type * as React from 'react'
@@ -8,39 +7,13 @@ import { StringFormatter } from '~//utils'
 import ChevronDown from '~icons/lucide/chevron-down'
 
 export function Layout(props: Layout.Props) {
-  const { children, loading = false, loadingTitle } = props
-  return (
-    <Screen>
-      {loading ? (
-        loadingTitle ? (
-          <div className="p-3">
-            <IndeterminateLoader title={loadingTitle} />
-          </div>
-        ) : (
-          <div className="flex h-40 items-center justify-center text-th_base-secondary">
-            <Spinner size="large" />
-          </div>
-        )
-      ) : (
-        children
-      )}
-    </Screen>
-  )
+  return <Screen {...props} />
 }
 
 export namespace Layout {
   export type Props = {
     children?: React.ReactNode | undefined
-  } & (
-    | {
-        loading?: boolean
-        loadingTitle?: string
-      }
-    | {
-        loading?: undefined
-        loadingTitle?: undefined
-      }
-  )
+  }
 
   //////////////////////////////////////////////////////////////////
   // Headers
@@ -128,7 +101,7 @@ export namespace Layout {
     className?: string
   }) {
     return (
-      <div className={cx('flex-grow px-3 pb-3', props.className)}>
+      <div className={cx('flex-grow px-3 pb-[12px]', props.className)}>
         {props.children}
       </div>
     )

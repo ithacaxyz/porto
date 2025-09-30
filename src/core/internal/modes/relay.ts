@@ -193,7 +193,7 @@ export function relay(parameters: relay.Parameters = {}) {
 
       async getCapabilities(parameters) {
         const { chainIds, internal } = parameters
-        const { getClient } = internal
+        const { client } = internal
 
         const base = {
           atomic: {
@@ -218,43 +218,32 @@ export function relay(parameters: relay.Parameters = {}) {
           },
         } as const
 
-        const capabilities = await Promise.all(
-          chainIds.map(async (chainId) => {
-            const capabilities = await (async () => {
-              try {
-                return await RelayActions.getCapabilities(getClient(chainId), {
-                  raw: true,
-                })
-              } catch {
-                return null
-              }
-            })()
-            return {
-              [chainId]: {
-                ...base,
-                ...(capabilities
-                  ? {
-                      feeToken: {
-                        supported: true,
-                        tokens: capabilities.fees.tokens,
-                      },
-                      requiredFunds: {
-                        supported: Boolean(multichain),
-                        tokens: multichain
-                          ? capabilities.fees.tokens.filter(
-                              (token) => token.interop,
-                            )
-                          : [],
-                      },
-                    }
-                  : {}),
-              },
-            } as const
-          }),
-          // biome-ignore lint/performance/noAccumulatingSpread: _
-        ).then((x) => x.reduce((acc, curr) => ({ ...acc, ...curr }), {}))
+        const capabilities = await RelayActions.getCapabilities(client, {
+          chainIds: chainIds ? chainIds.map((id) => Hex.toNumber(id)) : 'all',
+          raw: true,
+        })
 
-        return capabilities
+        return Object.entries(capabilities).reduce(
+          (acc, [chainId, capabilities]) => ({
+            // biome-ignore lint/performance/noAccumulatingSpread: _
+            ...acc,
+            [chainId]: {
+              ...base,
+              ...capabilities,
+              feeToken: {
+                supported: true,
+                tokens: capabilities.fees.tokens,
+              },
+              requiredFunds: {
+                supported: Boolean(multichain),
+                tokens: multichain
+                  ? capabilities.fees.tokens.filter((token) => token.interop)
+                  : [],
+              },
+            },
+          }),
+          {} as Record<Hex.Hex, typeof base>,
+        ) as Record<Hex.Hex, typeof base>
       },
 
       async getKeys(parameters) {

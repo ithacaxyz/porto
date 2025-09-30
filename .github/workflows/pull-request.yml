@@ -27,10 +27,10 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - name: Comment PR
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
             const commentMarker = '<!-- extension-download-comment -->'
@@ -93,7 +93,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with: 
           submodules: 'recursive'
 
@@ -101,7 +101,7 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Report bundle size
-        uses: andresz1/size-limit-action@master
+        uses: andresz1/size-limit-action@94bc357df29c36c8f8d50ea497c3e225c3c95d1d # master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           package_manager: pnpm

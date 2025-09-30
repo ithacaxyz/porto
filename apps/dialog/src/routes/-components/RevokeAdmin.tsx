@@ -4,11 +4,11 @@ import { Key } from 'porto'
 import type * as Token from 'porto/core/internal/schema/token'
 import { Hooks } from 'porto/wagmi'
 
-import { CheckBalance } from '~/components/CheckBalance'
 import * as Calls from '~/lib/Calls'
 import { Layout } from '~/routes/-components/Layout'
 import { StringFormatter } from '~/utils'
 import WalletIcon from '~icons/lucide/wallet-cards'
+import { ActionPreview } from './ActionPreview'
 import { ActionRequest } from './ActionRequest'
 
 export function RevokeAdmin(props: RevokeAdmin.Props) {
@@ -24,76 +24,65 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
     feeToken,
     revokeKeys: revokeKey ? [Key.from(revokeKey)] : [],
   })
-  const { feeTotals, quote } = prepareCallsQuery.data?.capabilities ?? {}
+  const { capabilities } = prepareCallsQuery.data ?? {}
+  const { feeTotals, quote } = capabilities ?? {}
   const quotes = quote?.quotes ?? []
 
   return (
-    <CheckBalance onReject={onReject} query={prepareCallsQuery}>
-      {(deficit) => (
-        <Layout>
-          <Layout.Header>
-            <Layout.Header.Default
-              content={
-                <div>
-                  Remove the ability of the following wallet to recover this
-                  passkey if it is lost.
-                </div>
-              }
-              title="Remove recovery method"
-            />
-          </Layout.Header>
-          <Layout.Content>
-            <ActionRequest.PaneWithDetails
-              error={prepareCallsQuery.error}
-              errorMessage="An error occurred while calculating fees. This may be due to network issues or insufficient funds."
-              feeTotals={feeTotals}
-              quotes={quotes}
-              status={prepareCallsQuery.status}
-            >
-              {revokeKey && (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-th_badge-positive">
-                    <WalletIcon className="h-4 w-4 text-th_badge-positive" />
-                  </div>
-                  <span className="font-medium font-mono text-base">
-                    {StringFormatter.truncate(revokeKey.publicKey)}
-                  </span>
-                </div>
-              )}
-            </ActionRequest.PaneWithDetails>
-          </Layout.Content>
-          <Layout.Footer>
-            <Layout.Footer.Actions>
-              <Button disabled={loading} onClick={onReject} width="grow">
-                Cancel
-              </Button>
-              {deficit.hasDeficit && deficit.onAddFunds ? (
-                <Button
-                  onClick={deficit.onAddFunds}
-                  variant="primary"
-                  width="grow"
-                >
-                  Add funds
-                </Button>
-              ) : (
-                <Button
-                  loading={loading && 'Removing…'}
-                  onClick={onApprove}
-                  variant={prepareCallsQuery.isError ? 'secondary' : 'primary'}
-                  width="grow"
-                >
-                  {prepareCallsQuery.isError ? 'Attempt anyway' : 'Remove'}
-                </Button>
-              )}
-            </Layout.Footer.Actions>
-
-            {admins.data?.address && (
-              <Layout.Footer.Account address={admins.data.address} />
-            )}
-          </Layout.Footer>
-        </Layout>
-      )}
-    </CheckBalance>
+    <ActionPreview
+      account={admins.data?.address}
+      actions={
+        <Layout.Footer.Actions>
+          <Button disabled={loading} onClick={onReject} width="grow">
+            Cancel
+          </Button>
+          <Button
+            loading={loading && 'Removing…'}
+            onClick={onApprove}
+            variant={prepareCallsQuery.isError ? 'secondary' : 'primary'}
+            width="grow"
+          >
+            {prepareCallsQuery.isError ? 'Attempt anyway' : 'Remove'}
+          </Button>
+        </Layout.Footer.Actions>
+      }
+      error={prepareCallsQuery.error}
+      header={
+        <Layout.Header.Default
+          content={
+            <div>
+              Remove the ability of the following wallet to recover this passkey
+              if it is lost.
+            </div>
+          }
+          title="Remove recovery method"
+        />
+      }
+      onReject={onReject}
+      queryParams={{ address: admins.data?.address }}
+      quotes={
+        prepareCallsQuery.isPending ? undefined : capabilities?.quote?.quotes
+      }
+    >
+      <ActionRequest.PaneWithDetails
+        error={prepareCallsQuery.error}
+        errorMessage="An error occurred while calculating fees. This may be due to network issues or insufficient funds."
+        feeTotals={feeTotals}
+        quotes={quotes}
+        status={prepareCallsQuery.status}
+      >
+        {revokeKey && (
+          <div className="flex items-center justify-center gap-2">
+            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-th_badge-positive">
+              <WalletIcon className="h-4 w-4 text-th_badge-positive" />
+            </div>
+            <span className="font-medium font-mono text-base">
+              {StringFormatter.truncate(revokeKey.publicKey)}
+            </span>
+          </div>
+        )}
+      </ActionRequest.PaneWithDetails>
+    </ActionPreview>
   )
 }
 

@@ -240,6 +240,23 @@ export const portoTheme: PortoTheme = {
     '#313131',
   ],
 
+  // distinct
+  distinctBackground: [
+    'Distinct background color. Used for elements that need to stand out between primary and secondary prominence.',
+    '#fcfcfc',
+    '#111111',
+  ],
+  distinctBorder: [
+    'Distinct border color. Used around distinct surfaces.',
+    '#e8e8e8',
+    '#313131',
+  ],
+  distinctContent: [
+    'Distinct content color. Used over distinctBackground for text and icons.',
+    '#000000',
+    '#ffffff',
+  ],
+
   // disabled
   disabledBackground: [
     'Disabled buttons background color. Used for disabled buttons and interactive elements.',

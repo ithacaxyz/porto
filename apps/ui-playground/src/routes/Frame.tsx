@@ -349,7 +349,6 @@ function RouteComponent() {
       <DemoContainer mode={mode}>
         <Frame
           colorScheme={colorScheme}
-          loading={frameLoading}
           mode="full"
           screenKey={String(screen)}
           site={{

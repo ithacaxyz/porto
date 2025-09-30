@@ -522,7 +522,23 @@ function GetCapabilities() {
         }
         type="button"
       >
-        Get Capabilities
+        Get Capabilities (all)
+      </button>
+      <button
+        onClick={async () => {
+          const chainId = await porto.provider.request({
+            method: 'eth_chainId',
+          })
+          porto.provider
+            .request({
+              method: 'wallet_getCapabilities',
+              params: [undefined, [chainId]],
+            })
+            .then(setResult)
+        }}
+        type="button"
+      >
+        Get Capabilities (current chain)
       </button>
       {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
     </div>
@@ -1138,16 +1154,6 @@ function SendCalls() {
         <>
           <pre>{id}</pre>
 
-          <div>
-            <a
-              href={`https://odyssey-explorer.ithaca.xyz/tx/${id}`}
-              rel="noreferrer"
-              target="_blank"
-            >
-              Explorer
-            </a>
-          </div>
-
           <br />
 
           <button
@@ -1265,18 +1271,7 @@ function SendTransaction() {
         <option value="noop">Noop</option>
       </select>
       <button type="submit">Send</button>
-      {hash && (
-        <>
-          <pre>{hash}</pre>
-          <a
-            href={`https://odyssey-explorer.ithaca.xyz/tx/${hash}`}
-            rel="noreferrer"
-            target="_blank"
-          >
-            Explorer
-          </a>
-        </>
-      )}
+      {hash && <pre>{hash}</pre>}
     </form>
   )
 }
@@ -1946,18 +1941,7 @@ function PrepareCalls() {
         </select>
         <button type="submit">Sign & Send</button>
       </div>
-      {hash && (
-        <>
-          <pre>{hash}</pre>
-          <a
-            href={`https://odyssey-explorer.ithaca.xyz/tx/${hash}`}
-            rel="noreferrer"
-            target="_blank"
-          >
-            Explorer
-          </a>
-        </>
-      )}
+      {hash && <pre>{hash}</pre>}
     </form>
   )
 }

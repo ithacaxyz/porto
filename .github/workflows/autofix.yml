@@ -17,7 +17,7 @@ jobs:
     runs-on: ['ubuntu-latest']
     steps:
       - name: Clone repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -28,4 +28,4 @@ jobs:
           pnpm check:markdown
 
       - name: Commit
-        uses: autofix-ci/action@2891949f3779a1cafafae1523058501de3d4e944
+        uses: autofix-ci/action@2891949f3779a1cafafae1523058501de3d4e944 # 2891949f3779a1cafafae1523058501de3d4e944

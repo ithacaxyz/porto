@@ -7,7 +7,8 @@ VanillaJS action for connecting an account. Uses Viem's [`connect`](/sdk/viem/Wa
 :::code-group
 
 ```ts twoslash [example.ts]
-import { Actions, porto } from 'porto/wagmi'
+import { Actions } from 'porto/wagmi'
+import { porto } from 'wagmi/connectors'
 import { config } from './config'
 
 const result = await Actions.connect(config, { // [!code focus]
@@ -28,7 +29,8 @@ You can grant permissions for an application to perform actions on behalf of the
 :::code-group
 
 ```ts twoslash [example.ts]
-import { Actions, porto } from 'porto/wagmi'
+import { Actions } from 'porto/wagmi'
+import { porto } from 'wagmi/connectors'
 import { parseEther, toHex } from 'viem'
 import { config } from './config'
 

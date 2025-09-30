@@ -2,10 +2,10 @@ import { Button } from '@porto/ui'
 import type { RpcSchema } from 'ox'
 import type { RpcSchema as porto_RpcSchema } from 'porto'
 import { Hooks } from 'porto/wagmi'
-import { CheckBalance } from '~/components/CheckBalance'
 import * as Calls from '~/lib/Calls'
 import * as Dialog from '~/lib/Dialog'
 import { Layout } from '~/routes/-components/Layout'
+import { ActionPreview } from './ActionPreview'
 import { Permissions } from './Permissions'
 
 export function RevokePermissions(props: RevokePermissions.Props) {
@@ -19,69 +19,62 @@ export function RevokePermissions(props: RevokePermissions.Props) {
     enabled: !!permissions,
     feeToken: capabilities?.feeToken,
   })
+  const prepareCallsCapabilities = prepareCallsQuery.data?.capabilities
 
   return (
-    <CheckBalance onReject={onReject} query={prepareCallsQuery}>
-      {(deficit) => (
-        <Layout>
-          <Layout.Header>
-            <Layout.Header.Default
-              content={
-                <>
-                  Remove the ability for{' '}
-                  {hostname ? (
-                    <span className="font-medium">{hostname}</span>
-                  ) : (
-                    'this website'
-                  )}{' '}
-                  to spend with the following rule.
-                </>
-              }
-              title="Revoke permissions"
-              variant="warning"
-            />
-          </Layout.Header>
-
-          {permissions && (
-            <Layout.Content className="pl-0">
-              <Permissions
-                calls={permissions.calls ?? []}
-                spend={permissions.spend?.map((x) => ({
-                  ...x,
-                  limit: x.limit,
-                }))}
-              />
-            </Layout.Content>
-          )}
-
-          <Layout.Footer>
-            <Layout.Footer.Actions>
-              <Button disabled={loading} onClick={onReject} width="grow">
-                Cancel
-              </Button>
-              {deficit.hasDeficit && deficit.onAddFunds ? (
-                <Button
-                  onClick={deficit.onAddFunds}
-                  variant="primary"
-                  width="grow"
-                >
-                  Add funds
-                </Button>
+    <ActionPreview
+      actions={
+        <Layout.Footer.Actions>
+          <Button disabled={loading} onClick={onReject} width="grow">
+            Cancel
+          </Button>
+          <Button
+            loading={loading && 'Authorizing…'}
+            onClick={onApprove}
+            variant="negative"
+            width="grow"
+          >
+            Revoke
+          </Button>
+        </Layout.Footer.Actions>
+      }
+      error={prepareCallsQuery.error}
+      header={
+        <Layout.Header.Default
+          content={
+            <>
+              Remove the ability for{' '}
+              {hostname ? (
+                <span className="font-medium">{hostname}</span>
               ) : (
-                <Button
-                  loading={loading && 'Authorizing…'}
-                  onClick={onApprove}
-                  variant="negative"
-                  width="grow"
-                >
-                  Revoke
-                </Button>
-              )}
-            </Layout.Footer.Actions>
-          </Layout.Footer>
-        </Layout>
+                'this website'
+              )}{' '}
+              to spend with the following rule.
+            </>
+          }
+          title="Revoke permissions"
+          variant="warning"
+        />
+      }
+      onReject={onReject}
+      quotes={
+        prepareCallsQuery.isPending
+          ? undefined
+          : prepareCallsCapabilities?.quote?.quotes
+      }
+    >
+      {permissions && (
+        <div className="pl-0">
+          <Permissions
+            calls={permissions.calls ?? []}
+            spend={permissions.spend?.map((x) => ({
+              ...x,
+              limit: x.limit,
+            }))}
+          />
+        </div>
       )}
-    </CheckBalance>
+    </ActionPreview>
   )
 }
 

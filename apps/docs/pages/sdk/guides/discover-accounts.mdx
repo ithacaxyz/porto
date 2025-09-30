@@ -32,9 +32,9 @@ In the `config.ts` file created in the [Wagmi setup](https://wagmi.sh/react/gett
 Make sure to use a [supported chain](/sdk/api/chains) for your application. In the below example, we will use Base Sepolia (`baseSepolia`).
 
 ```tsx twoslash [config.ts]
-import { porto } from 'porto/wagmi' // [!code ++]
 import { createConfig, http } from 'wagmi'
 import { baseSepolia } from 'wagmi/chains'
+import { porto } from 'wagmi/connectors'
 
 export const config = createConfig({
   chains: [baseSepolia],

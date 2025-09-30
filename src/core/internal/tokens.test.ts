@@ -16,7 +16,7 @@ describe.runIf(!Anvil.enabled)('getTokens', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "address": "0x7c61733e8a9c6dac20afeb46e9c4ba96c5a9f7cf",
+          "address": "0xacb60ce1e9d71c15a34c3afd903f552520b4a28f",
           "decimals": 18,
           "feeToken": true,
           "interop": true,
@@ -34,7 +34,7 @@ describe.runIf(!Anvil.enabled)('getTokens', () => {
           "uid": "teth",
         },
         {
-          "address": "0x2d49a0e75c86779c391418214ec7e1b18e58bb34",
+          "address": "0xfca413a634c4df6b98ebb970a44d9a32f8f5c64e",
           "decimals": 18,
           "feeToken": true,
           "interop": true,
@@ -97,7 +97,7 @@ describe.runIf(!Anvil.enabled)('getToken', () => {
 
     expect({ ...token, nativeRate: null }).toMatchInlineSnapshot(`
       {
-        "address": "0x2d49a0e75c86779c391418214ec7e1b18e58bb34",
+        "address": "0xfca413a634c4df6b98ebb970a44d9a32f8f5c64e",
         "decimals": 18,
         "feeToken": true,
         "interop": true,
@@ -167,7 +167,7 @@ describe.runIf(!Anvil.enabled)('resolveFeeToken', () => {
 
     expect({ ...feeToken, nativeRate: null }).toMatchInlineSnapshot(`
       {
-        "address": "0x2d49a0e75c86779c391418214ec7e1b18e58bb34",
+        "address": "0xfca413a634c4df6b98ebb970a44d9a32f8f5c64e",
         "decimals": 18,
         "feeToken": true,
         "interop": true,
@@ -250,13 +250,13 @@ describe.runIf(!Anvil.enabled)('resolveFeeToken', () => {
     const client = TestConfig.getRelayClient(porto)
 
     const feeToken = await Tokens.resolveFeeToken(client, {
-      addressOrSymbol: '0x2d49a0e75c86779c391418214ec7e1b18e58bb34',
+      addressOrSymbol: '0xfCA413a634C4dF6B98ebb970A44d9a32F8f5c64E',
       store: porto._internal.store,
     })
 
     expect({ ...feeToken, nativeRate: null }).toMatchInlineSnapshot(`
       {
-        "address": "0x2d49a0e75c86779c391418214ec7e1b18e58bb34",
+        "address": "0xfca413a634c4df6b98ebb970a44d9a32f8f5c64e",
         "decimals": 18,
         "feeToken": true,
         "interop": true,
