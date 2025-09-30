@@ -1,6 +1,7 @@
 import * as Mipd from 'mipd'
 import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
+import * as Json from 'ox/Json'
 import * as ox_Provider from 'ox/Provider'
 import * as RpcResponse from 'ox/RpcResponse'
 import { type ValueOf, withCache } from 'viem'
@@ -19,7 +20,6 @@ import * as Rpc from './schema/rpc.js'
 import * as Store from './store.js'
 import * as UrlString from './urlString.js'
 import { uuidv4, withDedupe } from './utils.js'
-import * as Json from 'ox/Json'
 
 export type Provider = ox_Provider.Provider<{
   includeEvents: true
