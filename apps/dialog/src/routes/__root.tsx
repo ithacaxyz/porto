@@ -101,7 +101,7 @@ function RouteComponent() {
         colorScheme={customTheme?.colorScheme}
         frameActions={
           <UI.ButtonArea.Anchor
-            className="focus-visible:outline-[2px] focus-visible:outline-th_focus focus-visible:outline-offset-[-2px] flex h-full items-center bg-transparent px-[4px]"
+            className="flex h-full items-center bg-transparent px-[4px] focus-visible:outline-[2px] focus-visible:outline-th_focus focus-visible:outline-offset-[-2px]"
             external
             href="mailto:support@ithaca.xyz"
             title="Report Bug"
