@@ -18,7 +18,6 @@ import { DepositButtons } from '~/components/DepositButtons'
 import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
-import { SetupApplePay } from '~/routes/-components/SetupApplePay'
 import TriangleAlertIcon from '~icons/lucide/triangle-alert'
 import Star from '~icons/ph/star-four-bold'
 
@@ -33,7 +32,7 @@ const config = createConfig({
 })
 const queryClient = new QueryClient()
 
-type View = 'default' | 'error' | 'onramp' | 'pay-with-card'
+type View = 'default' | 'error' | 'onramp'
 
 export function AddFunds(props: AddFunds.Props) {
   const { chainId, onApprove, onReject } = props
@@ -63,14 +62,6 @@ export function AddFunds(props: AddFunds.Props) {
       referrer?.url?.hostname.endsWith('preview.porto.sh')
     )
   }, [referrer?.url])
-
-  if (view === 'pay-with-card')
-    return (
-      <SetupApplePay
-        onBack={() => setView('default')}
-        onComplete={() => setView('default')}
-      />
-    )
 
   if (view === 'error')
     return (
@@ -134,15 +125,6 @@ export function AddFunds(props: AddFunds.Props) {
             showApplePay &&
             address && (
               <div className="flex gap-2">
-                {view !== 'onramp' && (
-                  <Button
-                    onClick={() => setView('pay-with-card')}
-                    variant="primary"
-                    width="grow"
-                  >
-                    Pay with card
-                  </Button>
-                )}
                 <Onramp
                   address={address}
                   onApprove={onApprove}
