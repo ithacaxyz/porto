@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.22
+
+### Patch Changes
+
+- [#932](https://github.com/ithacaxyz/porto/pull/932) [`af4ab65`](https://github.com/ithacaxyz/porto/commit/af4ab650a8224b4797a2fa4cdba154e9a4679d39) Thanks [@jxom](https://github.com/jxom)! - Added EIP-1193 Provider deduplication mechanism.
+
 ## 0.2.21
 
 ### Patch Changes
