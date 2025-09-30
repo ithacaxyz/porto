@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import type { ComponentProps } from 'react'
 import { useEffect, useState } from 'react'
 import { ComponentScreen } from '~/components/ComponentScreen/ComponentScreen'
+import LucideExternalLink from '~icons/lucide/external-link'
 import LucideLogIn from '~icons/lucide/log-in'
 import LucideMoreHorizontal from '~icons/lucide/more-horizontal'
 import LucidePlus from '~icons/lucide/plus'
@@ -143,6 +144,63 @@ function ButtonComponent() {
           <Button size="large" width="full">
             Large
           </Button>
+        </div>
+      </ComponentScreen.Section>
+      <ComponentScreen.Section title="Button.Anchor">
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button.Anchor external href="https://porto.sh" variant="primary">
+              Visit Porto
+            </Button.Anchor>
+            <Button.Anchor
+              external
+              href="https://porto.sh"
+              icon={<LucideExternalLink />}
+              variant="secondary"
+            >
+              Documentation
+            </Button.Anchor>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button.Anchor external href="https://porto.sh" size="small">
+              Small Link
+            </Button.Anchor>
+            <Button.Anchor external href="https://porto.sh" size="medium">
+              Medium Link
+            </Button.Anchor>
+            <Button.Anchor external href="https://porto.sh" size="large">
+              Large Link
+            </Button.Anchor>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button.Anchor
+              external
+              href="https://porto.sh"
+              shape="square"
+              size="small"
+              variant="content"
+            >
+              <LucideExternalLink />
+            </Button.Anchor>
+            <Button.Anchor
+              external
+              href="https://porto.sh"
+              shape="square"
+              size="medium"
+              variant="distinct"
+            >
+              <LucideExternalLink />
+            </Button.Anchor>
+            <Button.Anchor
+              external
+              href="https://porto.sh"
+              shape="square"
+              size="large"
+              variant="strong"
+            >
+              <LucideExternalLink />
+            </Button.Anchor>
+          </div>
         </div>
       </ComponentScreen.Section>
     </ComponentScreen>

@@ -1,9 +1,12 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import type {
+  AnchorHTMLAttributes,
+  ButtonHTMLAttributes,
+  CSSProperties,
+  ReactNode,
+} from 'react'
 import { css, cva, cx } from '../../styled-system/css'
 import { Frame } from '../Frame/Frame.js'
 import { Spinner } from '../Spinner/Spinner.js'
-
-type ButtonSize = 'small' | 'medium' | 'large'
 
 export function Button({
   children,
@@ -13,20 +16,99 @@ export function Button({
   loading,
   shape = 'normal',
   size,
+  style,
+  type = 'button',
   variant = 'secondary',
   width = 'auto',
-  type = 'button',
   ...props
 }: Button.Props) {
-  const frame = Frame.useFrame(true)
-
-  size ??= { dialog: 'medium', full: 'large' }
+  const resolvedSize = Button.useResolvedSize(size)
 
   if (loading === true) loading = 'Loading…'
 
+  const frame = Frame.useFrame(true)
+
   return (
     <button
-      className={cx(
+      disabled={Boolean(loading) || disabled}
+      type={type}
+      {...Button.styles({
+        className,
+        disabled: Boolean(loading) || disabled,
+        frame,
+        shape,
+        size: resolvedSize,
+        style,
+        variant,
+        width,
+      })}
+      {...props}
+    >
+      <Button.Inner icon={icon} loading={loading} size={resolvedSize}>
+        {children}
+      </Button.Inner>
+    </button>
+  )
+}
+
+export namespace Button {
+  export type Size = 'small' | 'medium' | 'large'
+  export type Shape = 'normal' | 'square'
+  export type Variant =
+    | 'content'
+    | 'distinct'
+    | 'negative'
+    | 'negative-secondary'
+    | 'positive'
+    | 'primary'
+    | 'secondary'
+    | 'strong'
+  export type Width = 'auto' | 'full' | 'grow' | number | undefined
+
+  export interface BaseProps {
+    icon?: ReactNode
+    loading?: boolean | ReactNode
+    size?: Size | Record<Frame.ModeName, Size>
+    shape?: Shape
+    variant?: Variant
+    width?: Width
+  }
+
+  export interface Props
+    extends ButtonHTMLAttributes<HTMLButtonElement>,
+      BaseProps {}
+
+  export function useResolvedSize(
+    size?: Size | Record<Frame.ModeName, Size>,
+  ): Size {
+    const frame = Frame.useFrame(true)
+    const resolvedSize = size ?? { dialog: 'medium', full: 'large' }
+    return typeof resolvedSize === 'string'
+      ? resolvedSize
+      : (frame && resolvedSize[frame.mode]) || 'medium'
+  }
+
+  export function styles({
+    className,
+    disabled,
+    frame,
+    shape,
+    size,
+    style,
+    variant,
+    width,
+  }: {
+    className?: string | undefined
+    disabled?: boolean | undefined
+    frame?: Frame.Context | null
+    shape: Shape
+    size: Size | Record<Frame.ModeName, Size>
+    style?: CSSProperties
+    variant: Variant
+    width: Width
+  }) {
+    return {
+      className: cx(
         css({
           _active: {
             transform: 'translateY(1px)',
@@ -176,22 +258,25 @@ export function Button({
               : (frame && size[frame.mode]) || 'medium',
         }),
         className,
-      )}
-      disabled={Boolean(loading) || disabled}
-      type={type}
-      {...props}
-      style={{
-        ...props.style,
+      ),
+      style: {
+        ...style,
         width: typeof width === 'number' ? width : undefined,
-      }}
-    >
+      },
+    }
+  }
+
+  export function Inner({ children, icon, loading, size }: Inner.Props) {
+    return (
       <div
-        className={css({
-          alignItems: 'center',
-          display: 'flex',
-          gap: size === 'small' ? 6 : 8,
-          height: '100%',
-        })}
+        className={cx(
+          css({
+            alignItems: 'center',
+            display: 'flex',
+            height: '100%',
+          }),
+          size === 'small' ? css({ gap: 6 }) : css({ gap: 8 }),
+        )}
       >
         {loading ? (
           <>
@@ -205,25 +290,64 @@ export function Button({
           </>
         )}
       </div>
-    </button>
-  )
-}
+    )
+  }
 
-export namespace Button {
-  export interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
-    icon?: ReactNode
-    loading?: boolean | ReactNode
-    size?: ButtonSize | Record<Frame.ModeName, ButtonSize>
-    shape?: 'normal' | 'square'
-    variant?:
-      | 'content'
-      | 'distinct'
-      | 'negative'
-      | 'negative-secondary'
-      | 'positive'
-      | 'primary'
-      | 'secondary'
-      | 'strong'
-    width?: 'auto' | 'full' | 'grow' | number | undefined
+  export namespace Inner {
+    export interface Props {
+      children?: ReactNode
+      icon?: ReactNode
+      loading?: boolean | ReactNode
+      size: Button.Size
+    }
+  }
+
+  export function Anchor({
+    children,
+    className,
+    external,
+    href,
+    icon,
+    loading,
+    shape = 'normal',
+    size,
+    style,
+    variant = 'secondary',
+    width = 'auto',
+    ...props
+  }: Anchor.Props) {
+    const resolvedSize = Button.useResolvedSize(size)
+    const frame = Frame.useFrame(true)
+
+    return (
+      <a
+        href={href}
+        rel={external ? 'noopener noreferrer' : undefined}
+        target={external ? '_blank' : undefined}
+        {...Button.styles({
+          className,
+          frame,
+          shape,
+          size: resolvedSize,
+          style,
+          variant,
+          width,
+        })}
+        {...props}
+      >
+        <Inner icon={icon} loading={loading} size={resolvedSize}>
+          {children}
+        </Inner>
+      </a>
+    )
+  }
+
+  export namespace Anchor {
+    export interface Props
+      extends AnchorHTMLAttributes<HTMLAnchorElement>,
+        BaseProps {
+      external?: boolean
+      href: string
+    }
   }
 }
