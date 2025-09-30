@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.23
+
+### Patch Changes
+
+- [`ee100ba`](https://github.com/ithacaxyz/porto/commit/ee100bacc37e1635a0eda9929478873098f8f84f) Thanks [@jxom](https://github.com/jxom)! - Fixed `undefined` keys.
+
 ## 0.2.22
 
 ### Patch Changes
