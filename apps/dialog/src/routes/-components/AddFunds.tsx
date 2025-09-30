@@ -18,7 +18,7 @@ import { DepositButtons } from '~/components/DepositButtons'
 import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
-import { PayWithCard } from '~/routes/-components/PayWithCard'
+import { SetupApplePay } from '~/routes/-components/SetupApplePay'
 import TriangleAlertIcon from '~icons/lucide/triangle-alert'
 import Star from '~icons/ph/star-four-bold'
 
@@ -66,7 +66,7 @@ export function AddFunds(props: AddFunds.Props) {
 
   if (view === 'pay-with-card')
     return (
-      <PayWithCard
+      <SetupApplePay
         onBack={() => setView('default')}
         onComplete={() => setView('default')}
       />

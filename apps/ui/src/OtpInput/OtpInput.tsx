@@ -8,6 +8,7 @@ import {
 import { css, cx } from '../../styled-system/css'
 
 export function OtpInput({
+  autoFocus = false,
   disabled = false,
   status = 'default',
   length = 4,
@@ -152,6 +153,8 @@ export function OtpInput({
           )}
           <input
             aria-invalid={status === 'invalid'}
+            // biome-ignore lint/a11y/noAutofocus: _
+            autoFocus={index === 0 && autoFocus}
             className={cx(
               css({
                 _focus: {
@@ -211,6 +214,7 @@ export function OtpInput({
 
 export namespace OtpInput {
   export interface Props {
+    autoFocus?: boolean
     disabled?: boolean
     length?: number
     mode?: 'auto' | 'wide' | 'fill'

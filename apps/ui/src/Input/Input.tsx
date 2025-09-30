@@ -332,7 +332,7 @@ export namespace Input {
       for (const prefix of adornmentStart.prefixes)
         if (value.startsWith(prefix))
           return {
-            adornmentStart: { label: prefix, type: 'solid' },
+            adornmentStart: { label: prefix, type: 'solid' } as const,
             value: value.slice(prefix.length).trim(),
           }
 
