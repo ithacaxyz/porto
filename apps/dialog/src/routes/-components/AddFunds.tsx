@@ -124,13 +124,11 @@ export function AddFunds(props: AddFunds.Props) {
           ) : (
             showApplePay &&
             address && (
-              <div className="flex gap-2">
-                <Onramp
-                  address={address}
-                  onApprove={onApprove}
-                  setView={setView}
-                />
-              </div>
+              <Onramp
+                address={address}
+                onApprove={onApprove}
+                setView={setView}
+              />
             )
           )}
           {view !== 'onramp' && (
