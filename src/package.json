@@ -18,10 +18,14 @@
     "!jsr.json"
   ],
   "dependencies": {
+    "expo": "^54.0.10",
     "hono": "^4.9.8",
     "idb-keyval": "^6.2.1",
     "mipd": "^0.0.7",
+    "expo-auth-session": "~7.0.8",
+    "expo-web-browser": "~15.0.7",
     "ox": "^0.9.6",
+    "react-native": "0.81.4",
     "zod": "^4.1.5",
     "zustand": "^5.0.1"
   },

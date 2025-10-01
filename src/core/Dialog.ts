@@ -1,5 +1,10 @@
 import type { RpcRequest, RpcResponse } from 'ox'
+import * as Json from 'ox/Json'
 import * as Provider from 'ox/Provider'
+import {
+  getReactNativeEnvironment,
+  type ReactNativeEnvironment,
+} from '../react-native/environment.js'
 import type { ThemeFragment } from '../theme/Theme.js'
 import * as IO from './internal/intersectionObserver.js'
 import { logger } from './internal/logger.js'
@@ -7,6 +12,14 @@ import type { Internal } from './internal/porto.js'
 import * as UserAgent from './internal/userAgent.js'
 import * as Messenger from './Messenger.js'
 import type { QueuedRequest, Store } from './Porto.js'
+
+type AuthSessionStatus = 'cancel' | 'error' | 'success' | 'unknown'
+const AuthSessionStatus = {
+  cancel: 'cancel',
+  error: 'error',
+  success: 'success',
+  unknown: 'unknown',
+} as const
 
 export const hostUrls = {
   local: 'http://localhost:5175/dialog/',
@@ -551,6 +564,212 @@ export declare namespace popup {
      * @default { width: 360, height: 282 }
      */
     size?: { width: number; height: number } | undefined
+  }
+}
+
+export function authSession(options: authSession.Options = {}) {
+  console.info('authSession', options, typeof navigator, navigator.product)
+  if (typeof navigator === 'undefined' || navigator.product !== 'ReactNative')
+    return popup()
+
+  const { redirectPath = 'auth', requestOptions } = options
+
+  return from({
+    name: 'authSession',
+    setup(parameters) {
+      const { host, internal } = parameters
+      const { store } = internal
+
+      const environment = getReactNativeEnvironment()
+      environment.maybeCompleteAuthSession?.()
+
+      let processing = false
+      let inFlightId: number | null = null
+
+      async function handle(request: QueuedRequest) {
+        const { request: rpcRequest } = request
+        const path = (() => {
+          switch (rpcRequest.method) {
+            case 'wallet_connect':
+              return 'wallet_connect'
+            default:
+              throw new Provider.UnsupportedMethodError({
+                message: `Method not supported in Mode.reactNative(): ${rpcRequest.method}`,
+              })
+          }
+        })()
+
+        const redirectUri =
+          options.makeRedirectUri?.({ environment, request: rpcRequest }) ??
+          environment.makeRedirectUri({ path: redirectPath })
+          console.info('[Dialog.authSession] redirectUri', redirectUri)
+
+        const url = new URL(host)
+        url.pathname = `${url.pathname.replace(/\/$/, '')}/${path}`
+        console.info('[Dialog.authSession] url', url)
+       
+        const searchParams = url.searchParams
+        searchParams.set('redirectUri', redirectUri)
+        searchParams.set('method', rpcRequest.method)
+        searchParams.set('id', String(rpcRequest.id))
+        searchParams.set('jsonrpc', '2.0')
+        if (environment.platform)
+          searchParams.set('os', environment.platform.toLowerCase())
+
+        console.info('[Dialog.authSession] searchParams', searchParams)
+        const params = (rpcRequest.params ?? []) as readonly unknown[]
+        if (params.length > 0)
+          searchParams.set('params', Json.stringify(params))
+
+        const decodedParams = (rpcRequest as any)._decoded?.params
+        if (decodedParams)
+          searchParams.set('_decoded', Json.stringify(decodedParams))
+        console.info('[Dialog.authSession] searchParams', searchParams)
+        url.search = searchParams.toString()
+        console.info('[Dialog.authSession] url', url)
+        const result = await environment.openAuthSessionAsync(
+          url.toString(),
+          redirectUri,
+          requestOptions,
+        )
+        console.info('[Dialog.authSession] result', result)
+
+        const response = (() => {
+          if (result.type === 'success' && result.url) {
+            console.info('[Dialog.authSession] result.url', result.url)
+            const resolved = new URL(result.url)
+            console.info('[Dialog.authSession] resolved', resolved)
+            const status =
+              (resolved.searchParams.get(
+                'status',
+              ) as AuthSessionStatus | null) ?? AuthSessionStatus.unknown
+            console.info('[Dialog.authSession] status', status)
+            const message = resolved.searchParams.get('message') ?? undefined
+            const payload = resolved.searchParams.get('payload') ?? undefined
+            console.info('[Dialog.authSession] payload', payload)
+            if (status === AuthSessionStatus.success)
+              try {
+                return {
+                  id: rpcRequest.id,
+                  jsonrpc: '2.0',
+                  result: payload ? Json.parse(payload) : undefined,
+                } satisfies RpcResponse.RpcResponse
+              } catch (error) {
+                console.info('[Dialog.authSession] error', error)
+                return {
+                  error: {
+                    code: -32603,
+                    message:
+                      error instanceof Error
+                        ? error.message
+                        : 'Failed to parse redirect payload',
+                  },
+                  id: rpcRequest.id,
+                  jsonrpc: '2.0',
+                } satisfies RpcResponse.RpcResponse
+              }
+
+            console.info('[Dialog.authSession] status', status)
+            const error =
+              status === AuthSessionStatus.cancel
+                ? new Provider.UserRejectedRequestError({
+                    message: message ?? 'User rejected request',
+                  })
+                : new Provider.ProviderRpcError(
+                    -32603,
+                    message ?? status ?? 'Request failed',
+                  )
+            console.info('[Dialog.authSession] error', error)
+            return {
+              error: {
+                code: error.code,
+                message: error.message,
+              },
+              id: rpcRequest.id,
+              jsonrpc: '2.0',
+            } satisfies RpcResponse.RpcResponse
+          }
+          console.info('[Dialog.authSession] result.type', result.type)
+          if (result.type === 'cancel' || result.type === 'dismiss')
+            return {
+              error: {
+                code: Provider.UserRejectedRequestError.code,
+                message: 'User rejected request',
+              },
+              id: rpcRequest.id,
+              jsonrpc: '2.0',
+            } satisfies RpcResponse.RpcResponse
+
+          return {
+            error: {
+              code: -32603,
+              message: result.error ?? 'Request failed',
+            },
+            id: rpcRequest.id,
+            jsonrpc: '2.0',
+          } satisfies RpcResponse.RpcResponse
+        })()
+        console.info('[Dialog.authSession] response', response)
+
+        handleResponse(store, response)
+        environment.dismissAuthSession?.()
+      }
+
+      return {
+        close() {
+          environment.dismissAuthSession?.()
+        },
+        destroy() {
+          environment.dismissAuthSession?.()
+        },
+        open() {},
+        async secure() {
+          return {
+            frame: false,
+            host: true,
+            protocol: true,
+          }
+        },
+        async syncRequests(requests) {
+          if (processing) return
+          const request = requests[0]
+          if (!request) return
+          if (inFlightId === request.request.id) return
+
+          inFlightId = request.request.id
+          processing = true
+          try {
+            await handle(request)
+          } catch (error) {
+            handleResponse(store, {
+              error: {
+                code: -32603,
+                message:
+                  error instanceof Error ? error.message : 'Request failed',
+              },
+              id: request.request.id,
+              jsonrpc: '2.0',
+            })
+            environment.dismissAuthSession?.()
+          } finally {
+            inFlightId = null
+            processing = false
+          }
+        },
+      }
+    },
+    supportsHeadless: true,
+  })
+}
+
+export declare namespace authSession {
+  export type Options = {
+    makeRedirectUri?: (parameters: {
+      environment: ReactNativeEnvironment
+      request: QueuedRequest['request']
+    }) => string
+    redirectPath?: string | undefined
+    requestOptions?: Record<string, unknown> | undefined
   }
 }
 
