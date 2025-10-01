@@ -29,6 +29,35 @@ export default defineConfig(({ mode }) => {
     )
   }
 
+  const plugins = [
+    skipMkcert
+      ? null
+      : Mkcert({
+          hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
+        }),
+    Tailwindcss(),
+    React(),
+    Plugins.Icons(),
+    TsconfigPaths(),
+    TanStackRouterVite(),
+    // must come last
+    // @see https://docs.sentry.io/platforms/javascript/guides/tanstackstart-react/sourcemaps/uploading/vite/#configuration
+    SentryVitePlugin({
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      disable: process.env.VERCEL_ENV !== 'production',
+      org: 'ithaca',
+      project: 'porto-manager',
+    }),
+  ]
+
+  if (mode === 'development') {
+    plugins.push(
+      Terminal({
+        console: 'terminal',
+      }),
+    )
+  }
+
   return {
     build: {
       sourcemap: true,
@@ -37,29 +66,7 @@ export default defineConfig(({ mode }) => {
       __APP_VERSION__: JSON.stringify(portoCommitSha),
       'process.env': {},
     },
-    plugins: [
-      skipMkcert
-        ? null
-        : Mkcert({
-            hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
-          }),
-      Tailwindcss(),
-      Terminal({
-        console: 'terminal',
-      }),
-      React(),
-      Plugins.Icons(),
-      TsconfigPaths(),
-      TanStackRouterVite(),
-      // must come last
-      // @see https://docs.sentry.io/platforms/javascript/guides/tanstackstart-react/sourcemaps/uploading/vite/#configuration
-      SentryVitePlugin({
-        authToken: process.env.SENTRY_AUTH_TOKEN,
-        disable: process.env.VERCEL_ENV !== 'production',
-        org: 'ithaca',
-        project: 'porto-manager',
-      }),
-    ],
+    plugins,
     server: {
       proxy: {
         '/dialog/': {
