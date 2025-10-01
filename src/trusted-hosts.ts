@@ -7,6 +7,7 @@ export const hostnames = [
   'cartel.sh',
   'cctp.exchange',
   'cut-v2.mattlovan.dev',
+  'postcaptain.xyz',
   'daimo.ngrok.app',
   'eco.com',
   'happypath.enso.build',
