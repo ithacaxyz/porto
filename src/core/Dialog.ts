@@ -100,6 +100,7 @@ export function iframe(options: iframe.Options = {}) {
       const iframe = document.createElement('iframe')
       iframe.setAttribute('data-testid', 'porto')
       const iframeAllow = [
+        'payment',
         `publickey-credentials-get ${hostUrl.origin}`,
         `publickey-credentials-create ${hostUrl.origin}`,
       ]
@@ -607,7 +608,7 @@ export function experimental_inline(options: inline.Options) {
       const iframe = document.createElement('iframe')
       iframe.setAttribute(
         'allow',
-        `publickey-credentials-get ${hostUrl.origin}; publickey-credentials-create ${hostUrl.origin}`,
+        `payment; publickey-credentials-get ${hostUrl.origin}; publickey-credentials-create ${hostUrl.origin}`,
       )
       iframe.setAttribute('aria-label', 'Porto Wallet')
       iframe.setAttribute('tabindex', '0')
