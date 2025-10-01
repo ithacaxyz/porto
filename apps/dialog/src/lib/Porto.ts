@@ -2,7 +2,7 @@ import { PortoConfig } from '@porto/apps'
 import { Mode, Storage } from 'porto'
 import { Porto } from 'porto/remote'
 
-import { isReactNativeRequest } from './isReactNativeRequest.js'
+import { isReactNativeRequest } from './ReactNative.js'
 
 const baseConfig = PortoConfig.getConfig()
 const { mode: baseMode, ...restConfig } = baseConfig

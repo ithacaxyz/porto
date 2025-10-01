@@ -1,13 +1,12 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import * as Json from 'ox/Json'
 import * as Provider from 'ox/Provider'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
 import * as Dialog from '~/lib/Dialog'
-import { isReactNativeRequest } from '~/lib/isReactNativeRequest'
 import * as PermissionsRequest from '~/lib/PermissionsRequest'
 import { porto } from '~/lib/Porto'
+import { useAuthSessionRedirect } from '~/lib/ReactNative'
 import * as Router from '~/lib/Router'
 import { Email } from '../-components/Email'
 import { SignIn } from '../-components/SignIn'
@@ -176,73 +175,9 @@ function RouteComponent() {
     respond.isPending,
   ])
 
-  const hasRedirectedRef = React.useRef(false)
-  React.useEffect(() => {
-    if (!isReactNativeRequest()) return
-    if (hasRedirectedRef.current) return
+  useAuthSessionRedirect(respond)
 
-    const searchParams = (() => {
-      try {
-        return new URLSearchParams(window.location.search)
-      } catch {
-        return undefined
-      }
-    })()
-    if (!searchParams) return
-
-    const redirectUri = searchParams.get('redirectUri')
-    if (!redirectUri) return
-
-    const schemeRegex = /^([a-z][a-z\d+\-.]*):/i
-    if (!schemeRegex.test(redirectUri)) return
-
-    const params = new URLSearchParams()
-
-    if (respond.isSuccess) {
-      const data = respond.data as { cancelResponse?: boolean }
-      if (data?.cancelResponse) return
-      params.set('status', 'success')
-      params.set('payload', Json.stringify(respond.data ?? {}))
-    } else if (respond.isError) {
-      const error = respond.error
-      const isUserRejected =
-        error instanceof Provider.UserRejectedRequestError ||
-        (typeof error === 'object' &&
-          error !== null &&
-          'code' in error &&
-          (error as { code?: number }).code ===
-            Provider.UserRejectedRequestError.code)
-      params.set(
-        'status',
-        isUserRejected ? 'cancel' : 'error',
-      )
-      const message =
-        error instanceof Error
-          ? error.message
-          : isUserRejected
-            ? 'User rejected request'
-            : 'Request failed'
-      if (message) params.set('message', message)
-    } else {
-      return
-    }
-
-    const redirectTarget = `${redirectUri}?${params.toString()}`
-    try {
-      window.location.href = redirectTarget
-    } catch {
-      window.open(redirectTarget, '_blank')
-    } finally {
-      hasRedirectedRef.current = true
-      // window.close()
-    }
-  }, [respond.isError, respond.isSuccess, respond.data, respond.error])
-
-  if (respond.isSuccess && isReactNativeRequest()) {
-    console.info('isReactNativeRequest')
-    console.info('respond.data', respond.data)
-    return null
-  }
+  if (respond.isSuccess) return
 
   if (capabilities?.email ?? true)
     return (

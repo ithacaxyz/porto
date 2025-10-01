@@ -52,7 +52,7 @@ export namespace parseSearchRequest {
     jsonrpc: '2.0'
     id: number
     _returnType: undefined
-    } & {
+  } & {
     redirectUri?: string | undefined
     os?: 'ios' | 'android' | 'web' | undefined
   }

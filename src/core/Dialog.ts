@@ -568,7 +568,6 @@ export declare namespace popup {
 }
 
 export function authSession(options: authSession.Options = {}) {
-  console.info('authSession', options, typeof navigator, navigator.product)
   if (typeof navigator === 'undefined' || navigator.product !== 'ReactNative')
     return popup()
 
@@ -588,26 +587,35 @@ export function authSession(options: authSession.Options = {}) {
 
       async function handle(request: QueuedRequest) {
         const { request: rpcRequest } = request
-        const path = (() => {
-          switch (rpcRequest.method) {
-            case 'wallet_connect':
-              return 'wallet_connect'
-            default:
-              throw new Provider.UnsupportedMethodError({
-                message: `Method not supported in Mode.reactNative(): ${rpcRequest.method}`,
-              })
-          }
-        })()
+        const reactNativePaths: Record<string, string> = {
+          account_verifyEmail: 'account_verifyEmail',
+          eth_requestAccounts: 'eth_requestAccounts',
+          eth_sendTransaction: 'eth_sendTransaction',
+          eth_signTypedData_v4: 'eth_signTypedData_v4',
+          personal_sign: 'personal_sign',
+          wallet_addFunds: 'wallet_addFunds',
+          wallet_connect: 'wallet_connect',
+          wallet_grantAdmin: 'wallet_grantAdmin',
+          wallet_grantPermissions: 'wallet_grantPermissions',
+          wallet_prepareUpgradeAccount: 'wallet_prepareUpgradeAccount',
+          wallet_revokeAdmin: 'wallet_revokeAdmin',
+          wallet_revokePermissions: 'wallet_revokePermissions',
+          wallet_sendCalls: 'wallet_sendCalls',
+        }
+
+        const path = reactNativePaths[rpcRequest.method]
+        if (!path)
+          throw new Provider.UnsupportedMethodError({
+            message: `Method not supported in Mode.reactNative(): ${rpcRequest.method}`,
+          })
 
         const redirectUri =
           options.makeRedirectUri?.({ environment, request: rpcRequest }) ??
           environment.makeRedirectUri({ path: redirectPath })
-          console.info('[Dialog.authSession] redirectUri', redirectUri)
 
         const url = new URL(host)
         url.pathname = `${url.pathname.replace(/\/$/, '')}/${path}`
-        console.info('[Dialog.authSession] url', url)
-       
+
         const searchParams = url.searchParams
         searchParams.set('redirectUri', redirectUri)
         searchParams.set('method', rpcRequest.method)
@@ -616,7 +624,6 @@ export function authSession(options: authSession.Options = {}) {
         if (environment.platform)
           searchParams.set('os', environment.platform.toLowerCase())
 
-        console.info('[Dialog.authSession] searchParams', searchParams)
         const params = (rpcRequest.params ?? []) as readonly unknown[]
         if (params.length > 0)
           searchParams.set('params', Json.stringify(params))
@@ -624,29 +631,22 @@ export function authSession(options: authSession.Options = {}) {
         const decodedParams = (rpcRequest as any)._decoded?.params
         if (decodedParams)
           searchParams.set('_decoded', Json.stringify(decodedParams))
-        console.info('[Dialog.authSession] searchParams', searchParams)
         url.search = searchParams.toString()
-        console.info('[Dialog.authSession] url', url)
         const result = await environment.openAuthSessionAsync(
           url.toString(),
           redirectUri,
           requestOptions,
         )
-        console.info('[Dialog.authSession] result', result)
 
         const response = (() => {
           if (result.type === 'success' && result.url) {
-            console.info('[Dialog.authSession] result.url', result.url)
             const resolved = new URL(result.url)
-            console.info('[Dialog.authSession] resolved', resolved)
             const status =
               (resolved.searchParams.get(
                 'status',
               ) as AuthSessionStatus | null) ?? AuthSessionStatus.unknown
-            console.info('[Dialog.authSession] status', status)
             const message = resolved.searchParams.get('message') ?? undefined
             const payload = resolved.searchParams.get('payload') ?? undefined
-            console.info('[Dialog.authSession] payload', payload)
             if (status === AuthSessionStatus.success)
               try {
                 return {
@@ -655,7 +655,6 @@ export function authSession(options: authSession.Options = {}) {
                   result: payload ? Json.parse(payload) : undefined,
                 } satisfies RpcResponse.RpcResponse
               } catch (error) {
-                console.info('[Dialog.authSession] error', error)
                 return {
                   error: {
                     code: -32603,
@@ -669,7 +668,6 @@ export function authSession(options: authSession.Options = {}) {
                 } satisfies RpcResponse.RpcResponse
               }
 
-            console.info('[Dialog.authSession] status', status)
             const error =
               status === AuthSessionStatus.cancel
                 ? new Provider.UserRejectedRequestError({
@@ -679,7 +677,6 @@ export function authSession(options: authSession.Options = {}) {
                     -32603,
                     message ?? status ?? 'Request failed',
                   )
-            console.info('[Dialog.authSession] error', error)
             return {
               error: {
                 code: error.code,
@@ -689,7 +686,6 @@ export function authSession(options: authSession.Options = {}) {
               jsonrpc: '2.0',
             } satisfies RpcResponse.RpcResponse
           }
-          console.info('[Dialog.authSession] result.type', result.type)
           if (result.type === 'cancel' || result.type === 'dismiss')
             return {
               error: {
@@ -709,7 +705,6 @@ export function authSession(options: authSession.Options = {}) {
             jsonrpc: '2.0',
           } satisfies RpcResponse.RpcResponse
         })()
-        console.info('[Dialog.authSession] response', response)
 
         handleResponse(store, response)
         environment.dismissAuthSession?.()

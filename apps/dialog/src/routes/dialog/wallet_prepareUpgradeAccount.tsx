@@ -4,6 +4,7 @@ import { Actions } from 'porto/remote'
 import * as React from 'react'
 import * as PermissionsRequest from '~/lib/PermissionsRequest'
 import { porto } from '~/lib/Porto'
+import { useAuthSessionRedirect } from '~/lib/ReactNative'
 import * as Router from '~/lib/Router'
 import { Email } from '../-components/Email'
 import { SignUp } from '../-components/SignUp'
@@ -54,6 +55,8 @@ function RouteComponent() {
       } as typeof request)
     },
   })
+
+  useAuthSessionRedirect(respond)
 
   const status = React.useMemo(() => {
     if (capabilities?.grantPermissions && grantPermissionsQuery.isFetching)

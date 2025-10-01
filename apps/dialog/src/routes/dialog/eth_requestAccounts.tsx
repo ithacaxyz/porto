@@ -4,6 +4,7 @@ import type { RpcSchema } from 'ox'
 import type { RpcSchema as porto_RpcSchema } from 'porto'
 import { Actions, Hooks } from 'porto/remote'
 import { porto } from '~/lib/Porto'
+import { useAuthSessionRedirect } from '~/lib/ReactNative'
 import * as Router from '~/lib/Router'
 import { SignIn } from '../-components/SignIn'
 import { SignUp } from '../-components/SignUp'
@@ -57,6 +58,8 @@ function RouteComponent() {
       )
     },
   })
+
+  useAuthSessionRedirect(respond)
 
   if (address)
     return (

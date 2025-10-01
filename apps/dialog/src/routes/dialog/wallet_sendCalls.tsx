@@ -4,6 +4,7 @@ import { Actions, Hooks } from 'porto/remote'
 import { RelayActions } from 'porto/viem'
 import type * as Calls from '~/lib/Calls'
 import { porto } from '~/lib/Porto'
+import { useAuthSessionRedirect } from '~/lib/ReactNative'
 import * as Router from '~/lib/Router'
 import { ActionRequest } from '../-components/ActionRequest'
 
@@ -53,6 +54,8 @@ function RouteComponent() {
       })
     },
   })
+
+  useAuthSessionRedirect(respond)
 
   return (
     <ActionRequest
