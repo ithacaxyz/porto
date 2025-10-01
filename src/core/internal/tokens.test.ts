@@ -87,15 +87,6 @@ describe.runIf(!Anvil.enabled)('getTokens', () => {
           "symbol": "USDT0",
           "uid": "tether",
         },
-        {
-          "address": "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
-          "decimals": 6,
-          "feeToken": true,
-          "interop": true,
-          "nativeRate": null,
-          "symbol": "USDC",
-          "uid": "usd-coin",
-        },
       ]
     `)
   })
@@ -110,7 +101,7 @@ describe.runIf(!Anvil.enabled)('getToken', () => {
 
     expect({ ...token, nativeRate: null }).toMatchInlineSnapshot(`
       {
-        "address": "0x372ec5245de15f17a37bfde017204bffe9be6d19",
+        "address": "0xfca413a634c4df6b98ebb970a44d9a32f8f5c64e",
         "decimals": 18,
         "feeToken": true,
         "interop": true,
@@ -180,7 +171,7 @@ describe.runIf(!Anvil.enabled)('resolveFeeToken', () => {
 
     expect({ ...feeToken, nativeRate: null }).toMatchInlineSnapshot(`
       {
-        "address": "0x372ec5245de15f17a37bfde017204bffe9be6d19",
+        "address": "0xfca413a634c4df6b98ebb970a44d9a32f8f5c64e",
         "decimals": 18,
         "feeToken": true,
         "interop": true,
@@ -269,7 +260,13 @@ describe.runIf(!Anvil.enabled)('resolveFeeToken', () => {
 
     expect({ ...feeToken, nativeRate: null }).toMatchInlineSnapshot(`
       {
+        "address": "0xfca413a634c4df6b98ebb970a44d9a32f8f5c64e",
+        "decimals": 18,
+        "feeToken": true,
+        "interop": true,
         "nativeRate": null,
+        "symbol": "EXP",
+        "uid": "exp1",
       }
     `)
   })
