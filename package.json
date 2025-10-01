@@ -150,7 +150,8 @@
       "hono@<4.9.7": "4.9.7",
       "@metamask/sdk-communication-layer@>=0.16.0 <=0.33.0": "0.33.1",
       "@metamask/sdk@>=0.16.0 <=0.33.0": "0.33.1",
-      "axios@<1.12.0": "1.12.0"
+      "axios@<1.12.0": "1.12.0",
+      "bigint-buffer@<=1.1.5": "npm:bigint-buffer-fixed"
     },
     "patchedDependencies": {
       "@tanstack/react-router": "patches/@tanstack__react-router.patch",

@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react'
 import { css, cx } from '~/../styled-system/css'
+import { ButtonArea } from '~/ButtonArea/ButtonArea.js'
 import { useSize } from '~/hooks/useSize.js'
 import { LightDarkImage } from '~/LightDarkImage/LightDarkImage.js'
 import LucideBadgeCheck from '~icons/lucide/badge-check'
@@ -20,6 +21,7 @@ const FrameContext = createContext<Frame.Context | null>(null)
 export function Frame({
   children,
   colorScheme = 'light dark',
+  frameActions,
   mode: mode_,
   onClose,
   onHeight,
@@ -187,7 +189,12 @@ export function Frame({
                 }),
             )}
           >
-            <FrameBar mode={mode} onClose={onClose} site={site} />
+            <FrameBar
+              frameActions={frameActions}
+              mode={mode}
+              onClose={onClose}
+              site={site}
+            />
             <div
               className={cx(
                 css({
@@ -253,10 +260,12 @@ export function Frame({
 }
 
 function FrameBar({
+  frameActions,
   mode,
   onClose,
   site,
 }: {
+  frameActions?: ReactNode | undefined
   mode: Frame.Mode
   onClose?: (() => void) | null
   site: Frame.Site
@@ -396,13 +405,11 @@ function FrameBar({
           )}
         </div>
       </div>
+      {frameActions}
       {onClose && (
-        <button
+        <ButtonArea
           className={cx(
             css({
-              _active: {
-                transform: 'translateY(1px)',
-              },
               _focusVisible: {
                 outline: '2px solid var(--color-th_focus)',
                 outlineOffset: -2,
@@ -410,7 +417,6 @@ function FrameBar({
               alignItems: 'center',
               background: 'transparent',
               border: 'none',
-              cursor: 'pointer!',
               display: 'flex',
               height: '100%',
               padding: '0 12px',
@@ -430,7 +436,6 @@ function FrameBar({
           )}
           onClick={onClose}
           title="Close Dialog"
-          type="button"
         >
           <LucideX
             className={css({
@@ -439,7 +444,7 @@ function FrameBar({
               width: 18,
             })}
           />
-        </button>
+        </ButtonArea>
       )}
     </div>
   )
@@ -449,6 +454,7 @@ export namespace Frame {
   export interface Props {
     children?: ReactNode
     colorScheme?: 'light' | 'dark' | 'light dark' | undefined
+    frameActions?: ReactNode | undefined
     mode: Mode | ModeName
     onClose?: (() => void) | undefined
     onHeight?: ((height: number) => void) | undefined

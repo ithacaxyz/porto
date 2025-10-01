@@ -1,5 +1,17 @@
 # porto
 
+## 0.2.23
+
+### Patch Changes
+
+- [`ee100ba`](https://github.com/ithacaxyz/porto/commit/ee100bacc37e1635a0eda9929478873098f8f84f) Thanks [@jxom](https://github.com/jxom)! - Fixed `undefined` keys.
+
+## 0.2.22
+
+### Patch Changes
+
+- [#932](https://github.com/ithacaxyz/porto/pull/932) [`af4ab65`](https://github.com/ithacaxyz/porto/commit/af4ab650a8224b4797a2fa4cdba154e9a4679d39) Thanks [@jxom](https://github.com/jxom)! - Added EIP-1193 Provider deduplication mechanism.
+
 ## 0.2.21
 
 ### Patch Changes

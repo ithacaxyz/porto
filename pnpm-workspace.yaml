@@ -1,15 +1,3 @@
-packages:
-  - "apps/*"
-  - "docker/*"
-  - "examples/*"
-  - "src"
-
-minimumReleaseAge: 2880 # 48 hours
-minimumReleaseAgeExclude:
-  - "@wagmi/connectors"
-  - "@wagmi/core"
-  - wagmi
-
 catalog:
   "@ariakit/react": "^0.4.18"
   "@ariakit/tailwind": "^0.1.8"
@@ -50,3 +38,13 @@ catalog:
   zustand: "^5.0.3"
   "@vitejs/plugin-react": "^4.6.0"
   "@vitejs/plugin-react-swc": "^4.0.0"
+minimumReleaseAge: 2880 # 48 hours
+minimumReleaseAgeExclude:
+  - "@wagmi/connectors"
+  - "@wagmi/core"
+  - wagmi
+packages:
+  - "apps/*"
+  - "docker/*"
+  - "examples/*"
+  - "src"

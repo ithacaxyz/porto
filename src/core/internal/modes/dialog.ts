@@ -196,7 +196,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             // Build keys to assign onto the account.
             const adminKeys = account.capabilities?.admins
               ?.map((admin) => Key.from(admin, { chainId: client.chain.id }))
-              .filter(Boolean) as readonly Key.Key[]
+              .filter(Boolean) as readonly Key.Key[] | undefined
 
             const sessionKeys = account.capabilities?.permissions
               ?.map((permission) => {
@@ -215,7 +215,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                   return undefined
                 }
               })
-              .filter(Boolean) as readonly Key.Key[]
+              .filter(Boolean) as readonly Key.Key[] | undefined
 
             const signInWithEthereum_response = await (async () => {
               if (!account.capabilities?.signInWithEthereum) return
@@ -244,7 +244,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             return {
               ...Account.from({
                 address: account.address,
-                keys: [...adminKeys, ...sessionKeys],
+                keys: [...(adminKeys ?? []), ...(sessionKeys ?? [])],
               }),
               signInWithEthereum: signInWithEthereum_response,
             }
@@ -507,7 +507,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             accounts.map(async (account) => {
               const adminKeys = account.capabilities?.admins
                 ?.map((key) => Key.from(key))
-                .filter(Boolean) as readonly Key.Key[]
+                .filter(Boolean) as readonly Key.Key[] | undefined
               const sessionKeys = account.capabilities?.permissions
                 ?.map((permission) => {
                   try {
@@ -525,7 +525,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                     return undefined
                   }
                 })
-                .filter(Boolean) as readonly Key.Key[]
+                .filter(Boolean) as readonly Key.Key[] | undefined
 
               const signInWithEthereum_response = await (async () => {
                 if (!account.capabilities?.signInWithEthereum) return
@@ -554,7 +554,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
               return {
                 ...Account.from({
                   address: account.address,
-                  keys: [...adminKeys, ...sessionKeys],
+                  keys: [...(adminKeys ?? []), ...(sessionKeys ?? [])],
                 }),
                 signInWithEthereum: signInWithEthereum_response,
               } as const

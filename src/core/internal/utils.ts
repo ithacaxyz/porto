@@ -44,3 +44,24 @@ export function uuidv4() {
     return globalThis.crypto.randomUUID()
   return crypto.randomUUID()
 }
+
+/** Deduplicates in-flight promises. */
+export function withDedupe<data>(
+  fn: () => Promise<data>,
+  { enabled = true, id }: withDedupe.Options,
+): Promise<data> {
+  if (!enabled || !id) return fn()
+  if (withDedupe.cache.get(id)) return withDedupe.cache.get(id)!
+  const promise = fn().finally(() => withDedupe.cache.delete(id))
+  withDedupe.cache.set(id, promise)
+  return promise
+}
+
+export namespace withDedupe {
+  export type Options = {
+    enabled?: boolean | undefined
+    id?: string | undefined
+  }
+
+  export const cache = new Map<string, Promise<any>>()
+}

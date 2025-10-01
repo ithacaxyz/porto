@@ -1,0 +1,31 @@
+{
+  "name": "dynamic",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@dynamic-labs/ethereum": "^4.33.0",
+    "@dynamic-labs/sdk-react-core": "^4.33.0",
+    "@dynamic-labs/wagmi-connector": "^4.33.0",
+    "@tanstack/react-query": "^5",
+    "porto": "workspace:*",
+    "react": "^19",
+    "react-dom": "^19",
+    "viem": "^2.37",
+    "wagmi": "^2"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^4.5.1",
+    "globals": "^16.2.0",
+    "typescript": "^5.9.2",
+    "vite-plugin-mkcert": "^1.17",
+    "vite": "^6.3.5"
+  }
+}

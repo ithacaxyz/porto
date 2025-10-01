@@ -14,6 +14,7 @@ import * as Dialog from '~/lib/Dialog'
 import { EnsureVisibility } from '~/lib/IntersectionObserver'
 import { porto } from '~/lib/Porto'
 import * as Referrer from '~/lib/Referrer'
+import LucideBug from '~icons/lucide/bug'
 import LucideCircleAlert from '~icons/lucide/circle-alert'
 import { Layout } from './-components/Layout'
 
@@ -98,6 +99,16 @@ function RouteComponent() {
         // [1] https://fvsch.com/transparent-iframes#toc-3
         // [2] https://github.com/w3c/csswg-drafts/issues/4772
         colorScheme={customTheme?.colorScheme}
+        frameActions={
+          <UI.ButtonArea.Anchor
+            className="flex h-full items-center bg-transparent px-[4px] focus-visible:outline-[2px] focus-visible:outline-th_focus focus-visible:outline-offset-[-2px]"
+            external
+            href="mailto:support@ithaca.xyz"
+            title="Report Bug"
+          >
+            <LucideBug className="size-[16px] text-th_frame" />
+          </UI.ButtonArea.Anchor>
+        }
         mode={
           display === 'full'
             ? {
