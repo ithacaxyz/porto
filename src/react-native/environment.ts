@@ -1,32 +1,29 @@
-export type AuthSessionResult = {
-  type: string
-  url?: string | undefined
-  error?: string | undefined
-}
+import type * as AuthSession from 'expo-auth-session'
+import type * as WebBrowser from 'expo-web-browser'
+import type { Platform } from 'react-native'
+
+export type AuthSessionResult = AuthSession.AuthSessionResult
 
 export type ReactNativeEnvironment = {
-  platform?: string | undefined
-  makeRedirectUri: (options?: { path?: string | undefined }) => string
-  openAuthSessionAsync: (
-    url: string,
-    redirectUri: string,
-    options?: Record<string, unknown>,
-  ) => Promise<AuthSessionResult>
-  dismissAuthSession?: (() => void) | undefined
-  maybeCompleteAuthSession?: (() => void) | undefined
+  platform?: Platform['OS']
+  makeRedirectUri: typeof AuthSession.makeRedirectUri
+  openAuthSessionAsync: typeof WebBrowser.openAuthSessionAsync
+  dismissAuthSession?: typeof WebBrowser.dismissAuthSession
+  maybeCompleteAuthSession?: typeof WebBrowser.maybeCompleteAuthSession
 }
 
-let environment: ReactNativeEnvironment | undefined
+let environment: ReactNativeEnvironment
 
-export function setReactNativeEnvironment(env: ReactNativeEnvironment) {
-  environment = env
-}
-
-export function getReactNativeEnvironment(): ReactNativeEnvironment {
-  if (!environment)
-    throw new Error(
-      'React Native environment is not configured. ' +
-        "Import 'porto/react-native/expo' or call setReactNativeEnvironment() with an AuthSession implementation.",
-    )
-  return environment
+export const reactNative = {
+  get environment() {
+    if (!environment)
+      throw new Error(
+        'React Native environment is not configured. ' +
+          "Import 'porto/react-native/expo' or call setReactNativeEnvironment() with an AuthSession implementation.",
+      )
+    return environment
+  },
+  set environment(env: ReactNativeEnvironment) {
+    environment = env
+  },
 }

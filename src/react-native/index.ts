@@ -1,7 +1,6 @@
 export {
   type AuthSessionResult,
-  getReactNativeEnvironment,
   type ReactNativeEnvironment,
-  setReactNativeEnvironment,
+  reactNative,
 } from './environment.js'
 export * as Porto from './Porto.js'

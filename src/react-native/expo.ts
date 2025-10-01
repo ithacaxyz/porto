@@ -2,11 +2,11 @@ import * as AuthSession from 'expo-auth-session'
 import * as WebBrowser from 'expo-web-browser'
 import { Platform } from 'react-native'
 
-import { setReactNativeEnvironment } from './environment.js'
+import { reactNative } from './environment.js'
 
 WebBrowser.maybeCompleteAuthSession?.()
 
-setReactNativeEnvironment({
+reactNative.environment = {
   dismissAuthSession() {
     if (Platform.OS !== 'android') WebBrowser.dismissAuthSession()
   },
@@ -34,7 +34,7 @@ setReactNativeEnvironment({
     return uri
   },
   maybeCompleteAuthSession() {
-    WebBrowser.maybeCompleteAuthSession()
+    return WebBrowser.maybeCompleteAuthSession()
   },
   async openAuthSessionAsync(url, redirectUri, options) {
     try {
@@ -55,4 +55,4 @@ setReactNativeEnvironment({
     }
   },
   platform: Platform.OS,
-})
+}

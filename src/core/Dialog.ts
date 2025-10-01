@@ -2,8 +2,8 @@ import type { RpcRequest, RpcResponse } from 'ox'
 import * as Json from 'ox/Json'
 import * as Provider from 'ox/Provider'
 import {
-  getReactNativeEnvironment,
   type ReactNativeEnvironment,
+  reactNative,
 } from '../react-native/environment.js'
 import type { ThemeFragment } from '../theme/Theme.js'
 import * as IO from './internal/intersectionObserver.js'
@@ -579,7 +579,7 @@ export function authSession(options: authSession.Options = {}) {
       const { host, internal } = parameters
       const { store } = internal
 
-      const environment = getReactNativeEnvironment()
+      const environment = reactNative.environment
       environment.maybeCompleteAuthSession?.()
 
       let processing = false
@@ -699,7 +699,7 @@ export function authSession(options: authSession.Options = {}) {
           return {
             error: {
               code: -32603,
-              message: result.error ?? 'Request failed',
+              message: (result as any).error ?? 'Request failed',
             },
             id: rpcRequest.id,
             jsonrpc: '2.0',
