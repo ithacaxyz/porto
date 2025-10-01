@@ -1,6 +1,7 @@
 import type { Theme } from '@porto/apps'
 import type { Address } from 'ox'
 import type { Messenger } from 'porto'
+import type { Key } from 'porto/viem/Key'
 import * as Zustand from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 import { useShallow } from 'zustand/shallow'
@@ -35,6 +36,7 @@ export declare namespace store {
       Address.Address,
       {
         email?: string | undefined
+        authenticator?: Extract<Key, { type: 'webauthn-p256' }>['authenticator']
       }
     >
     customTheme: Theme.TailwindCustomTheme | undefined

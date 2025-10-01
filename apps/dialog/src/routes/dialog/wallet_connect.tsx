@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import * as Provider from 'ox/Provider'
 import { Actions, Hooks } from 'porto/remote'
+import type { Key } from 'porto/viem/Key'
 import * as React from 'react'
 
 import * as Dialog from '~/lib/Dialog'
@@ -150,14 +151,30 @@ function RouteComponent() {
       const { accounts } = response as { accounts: { address: string }[] }
       const address = accounts[0]?.address
 
-      if (address && email)
-        Dialog.store.setState((state) => ({
-          ...state,
-          accountMetadata: {
-            ...state.accountMetadata,
-            [address]: { email },
-          },
-        }))
+      if (address) {
+        // Attempt to grab authenticator info from the current Porto store.
+        const portoAccounts = porto._internal.store.getState().accounts
+        const account = portoAccounts.find((a) => a.address === address)
+        const authenticator = (() => {
+          const key = account?.keys?.find(
+            (k) => k.type === 'webauthn-p256' && k.role === 'admin',
+          ) as Extract<Key, { type: 'webauthn-p256' }> | undefined
+          return key?.authenticator
+        })()
+
+        if (email || authenticator)
+          Dialog.store.setState((state) => ({
+            ...state,
+            accountMetadata: {
+              ...state.accountMetadata,
+              [address as `0x${string}`]: {
+                ...(state.accountMetadata[address as `0x${string}`] ?? {}),
+                ...(email ? { email } : {}),
+                ...(authenticator ? { authenticator } : {}),
+              },
+            },
+          }))
+      }
 
       return response
     },

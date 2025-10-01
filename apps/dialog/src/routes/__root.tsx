@@ -9,6 +9,7 @@ import {
 } from '@tanstack/react-router'
 import { Actions, Hooks } from 'porto/remote'
 import { hostnames } from 'porto/trusted-hosts'
+import type { Key } from 'porto/viem/Key'
 import * as React from 'react'
 import * as Dialog from '~/lib/Dialog'
 import { EnsureVisibility } from '~/lib/IntersectionObserver'
@@ -72,6 +73,52 @@ function RouteComponent() {
   const location = useLocation()
   const request = Hooks.useRequest(porto)
   const accounts = Hooks.useAccounts(porto)
+
+  React.useEffect(() => {
+    if (!accounts || accounts.length === 0) return
+    Dialog.store.setState((state) => {
+      let changed = false
+      const accountMetadata = { ...state.accountMetadata }
+
+      for (const account of accounts) {
+        if (!account?.address) continue
+
+        const key = account.keys?.find(
+          (k) => k.type === 'webauthn-p256' && k.role === 'admin',
+        ) as Extract<Key, { type: 'webauthn-p256' }> | undefined
+
+        const authenticator = key?.authenticator
+
+        if (!authenticator) continue
+
+        const previous = accountMetadata[account.address]
+        const previousAuthenticator = previous?.authenticator
+
+        const sameAuthenticator =
+          previousAuthenticator?.aaguid === authenticator.aaguid &&
+          previousAuthenticator?.info?.name === authenticator.info?.name &&
+          previousAuthenticator?.info?.icon_dark ===
+            authenticator.info?.icon_dark &&
+          previousAuthenticator?.info?.icon_light ===
+            authenticator.info?.icon_light
+
+        if (sameAuthenticator) continue
+
+        accountMetadata[account.address] = {
+          ...previous,
+          authenticator,
+        }
+        changed = true
+      }
+
+      if (!changed) return state
+
+      return {
+        ...state,
+        accountMetadata,
+      }
+    })
+  }, [accounts])
 
   const [controlledSize, setControlledSize] = React.useState(mode === 'popup')
   const heightUpdateCheckTimer =

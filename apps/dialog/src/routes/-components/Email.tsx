@@ -24,6 +24,11 @@ export function Email(props: Email.Props) {
       ? state.accountMetadata[account.address]?.email
       : undefined,
   )
+  const authenticator = Dialog.useStore((state) =>
+    account?.address
+      ? state.accountMetadata[account.address]?.authenticator
+      : undefined,
+  )
   const displayName = (() => {
     if (!account) return undefined
     if (email) return email
@@ -165,9 +170,17 @@ export function Email(props: Email.Props) {
           // If no sign up button, this means the user is already logged in, however
           // the user may want to sign in with a different passkey.
           <div className="flex w-full justify-between gap-2">
-            <div>
-              <span className="text-th_base-secondary">Using</span>{' '}
-              {displayName}
+            <div className="flex flex-col">
+              <div>
+                <span className="text-th_base-secondary">Using</span>{' '}
+                {displayName}
+              </div>
+              {authenticator && (
+                <div className="text-th_base-secondary">
+                  Authenticator:{' '}
+                  {authenticator.info?.name || authenticator.aaguid}
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-0.5">
               <TextButton

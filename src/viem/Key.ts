@@ -722,7 +722,7 @@ export function fromWebAuthnP256(parameters: fromWebAuthnP256.Parameters) {
     includePrefix: false,
   })
   return from({
-    ...normalizeAuthenticatorInfo(parameters.authenticator),
+    authenticator: normalizeAuthenticatorInfo(parameters.authenticator),
     chainId: parameters.chainId,
     expiry: parameters.expiry ?? 0,
     feeToken: parameters.feeToken,
