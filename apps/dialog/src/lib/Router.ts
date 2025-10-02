@@ -23,6 +23,11 @@ export function parseSearchRequest<
     if ('_decoded' in search && search._decoded) return search as never
     if (search._decoded) return search as never
 
+    // Skip validation if search is empty (happens during route preloading in newer TanStack Router)
+    if (!search.method || Object.keys(search).length === 0) {
+      return search as never
+    }
+
     const request = RpcRequest.validate(RpcRequest.Request, search)
     if (request.method === method)
       return {

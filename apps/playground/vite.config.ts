@@ -8,8 +8,9 @@ import { createClient, http, parseEther } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { writeContract } from 'viem/actions'
 import * as chains from 'viem/chains'
-import { createLogger, defineConfig, loadEnv } from 'vite'
+import { createLogger, defineConfig, loadEnv, type PluginOption } from 'vite'
 import mkcert from 'vite-plugin-mkcert'
+import Terminal from 'vite-plugin-terminal'
 import { Key, RelayActions } from '../../src/index.js'
 import { Route } from '../../src/server/index.js'
 import {
@@ -45,68 +46,64 @@ export default defineConfig(({ mode }) => {
   const skipMkcert = env.SKIP_MKCERT === 'true' || mode === 'test'
   const allowedHosts = env.ALLOWED_HOSTS?.split(',') ?? []
 
-  return {
-    define: {
-      __APP_VERSION__: JSON.stringify(commitSha),
-    },
-    plugins: [
-      skipMkcert
-        ? null
-        : mkcert({
-            hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
-          }),
-      react(),
-      Plugins.Icons(),
-      tailwindcss(),
-      {
-        // TODO(next): support `anvil2` & `anvil3`.
-        async configureServer(server) {
-          if (process.env.ANVIL !== 'true') return
+  const plugins: PluginOption[] = [
+    skipMkcert
+      ? null
+      : mkcert({
+          hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
+        }),
+    react(),
+    Plugins.Icons(),
+    tailwindcss(),
+    {
+      // TODO(next): support `anvil2` & `anvil3`.
+      async configureServer(server) {
+        if (process.env.ANVIL !== 'true') return
 
-          const { exp1Abi } = await import('@porto/apps/contracts')
+        const { exp1Abi } = await import('@porto/apps/contracts')
 
-          process.env = { ...process.env, ...loadEnv(mode, process.cwd()) }
+        process.env = { ...process.env, ...loadEnv(mode, process.cwd()) }
 
-          const anvilConfig = {
-            port: 8545,
-            rpcUrl: 'http://127.0.0.1:8545',
-          }
-          const anvilClient = createClient({
-            account: privateKeyToAccount(
-              '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
-            ),
-            transport: http(anvilConfig.rpcUrl),
-          }).extend(() => ({ mode: 'anvil' }))
+        const anvilConfig = {
+          port: 8545,
+          rpcUrl: 'http://127.0.0.1:8545',
+        }
+        const anvilClient = createClient({
+          account: privateKeyToAccount(
+            '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+          ),
+          transport: http(anvilConfig.rpcUrl),
+        }).extend(() => ({ mode: 'anvil' }))
 
-          const relayConfig = {
-            port: 9119,
-            rpcUrl: 'http://127.0.0.1:9119',
-          }
-          const relayClient = createClient({
-            chain: chains.anvil,
-            transport: http(relayConfig.rpcUrl),
+        const relayConfig = {
+          port: 9119,
+          rpcUrl: 'http://127.0.0.1:9119',
+        }
+        const relayClient = createClient({
+          chain: chains.anvil,
+          transport: http(relayConfig.rpcUrl),
+        })
+
+        if (process.env.CLEAN === 'true')
+          rmSync(resolve(import.meta.dirname, 'anvil.json'), {
+            force: true,
           })
 
-          if (process.env.CLEAN === 'true')
-            rmSync(resolve(import.meta.dirname, 'anvil.json'), {
-              force: true,
-            })
+        logger.info('Starting Anvil...')
 
-          logger.info('Starting Anvil...')
+        await anvil({
+          hardfork: 'osaka' as never,
+          host: process.env.CI ? '0.0.0.0' : undefined,
+          loadState: resolve(
+            import.meta.dirname,
+            '../../test/src/_generated/anvil.json',
+          ),
+          port: anvilConfig.port,
+        }).start()
 
-          await anvil({
-            hardfork: 'osaka' as never,
-            host: process.env.CI ? '0.0.0.0' : undefined,
-            loadState: resolve(
-              import.meta.dirname,
-              '../../test/src/_generated/anvil.json',
-            ),
-            port: anvilConfig.port,
-          }).start()
+        logger.info('Anvil started on ' + anvilConfig.rpcUrl)
 
-          logger.info('Anvil started on ' + anvilConfig.rpcUrl)
-
-          logger.info('Starting Relay...')
+        logger.info('Starting Relay...')
 
           const startRelay = async ({
             accountProxy = accountProxyAddress,
@@ -145,85 +142,90 @@ export default defineConfig(({ mode }) => {
           }
           let stopRelay = await startRelay()
 
-          logger.info('Relay started on ' + relayConfig.rpcUrl)
+        logger.info('Relay started on ' + relayConfig.rpcUrl)
 
-          // Allow CORS.
-          server.middlewares.use(async (_, res, next) => {
-            res.setHeader('Access-Control-Allow-Origin', '*')
-            next()
+        // Allow CORS.
+        server.middlewares.use(async (_, res, next) => {
+          res.setHeader('Access-Control-Allow-Origin', '*')
+          next()
+        })
+
+        // Upgrade Relay on `/rpc/up`.
+        server.middlewares.use(async (req, res, next) => {
+          if (!req.url?.startsWith('/rpc/up')) return next()
+
+          stopRelay()
+          stopRelay = await startRelay({
+            accountProxy: accountNewProxyAddress,
+            legacyAccountProxy: accountProxyAddress,
           })
+          res.statusCode = 302
+          res.setHeader('Location', '/')
+          return res.end()
+        })
 
-          // Upgrade Relay on `/rpc/up`.
-          server.middlewares.use(async (req, res, next) => {
-            if (!req.url?.startsWith('/rpc/up')) return next()
+        // Drip tokens on `/faucet`.
+        server.middlewares.use(async (req, res, next) => {
+          if (!req.url?.startsWith('/faucet')) return next()
 
-            stopRelay()
-            stopRelay = await startRelay({
-              accountProxy: accountNewProxyAddress,
-              legacyAccountProxy: accountProxyAddress,
-            })
-            res.statusCode = 302
-            res.setHeader('Location', '/')
-            return res.end()
-          })
+          const url = new URL(`https://localhost${req.url}`)
+          const address = url.searchParams.get('address') as `0x${string}`
+          const value = url.searchParams.get('value') as string
 
-          // Drip tokens on `/faucet`.
-          server.middlewares.use(async (req, res, next) => {
-            if (!req.url?.startsWith('/faucet')) return next()
-
-            const url = new URL(`https://localhost${req.url}`)
-            const address = url.searchParams.get('address') as `0x${string}`
-            const value = url.searchParams.get('value') as string
-
-            const hash = await writeContract(anvilClient, {
-              abi: exp1Abi,
-              address: exp1Address,
-              args: [address, BigInt(value)],
-              chain: null,
-              functionName: 'mint',
-            })
-
-            res.statusCode = 200
-            res.setHeader('Content-Type', 'application/json')
-            return res.end(JSON.stringify({ id: hash }))
-          })
-
-          // Create merchant account.
-          const merchantKey = Key.createSecp256k1()
-          const merchantAccount = await RelayActions.createAccount(
-            relayClient,
-            {
-              authorizeKeys: [merchantKey],
-            },
-          )
-          await writeContract(anvilClient, {
+          const hash = await writeContract(anvilClient, {
             abi: exp1Abi,
             address: exp1Address,
-            args: [merchantAccount.address, parseEther('10000')],
+            args: [address, BigInt(value)],
             chain: null,
             functionName: 'mint',
           })
-          await RelayActions.sendCalls(relayClient, {
-            account: merchantAccount,
-            calls: [],
-          })
 
-          // Handle merchant requests on `/merchant`.
-          server.middlewares.use(async (req, res, next) => {
-            if (!req.url?.startsWith('/merchant')) return next()
-            if (req.method !== 'POST') return next()
+          res.statusCode = 200
+          res.setHeader('Content-Type', 'application/json')
+          return res.end(JSON.stringify({ id: hash }))
+        })
 
-            return Route.merchant({
-              address: merchantAccount.address,
+        // Create merchant account.
+        const merchantKey = Key.createSecp256k1()
+        const merchantAccount = await RelayActions.createAccount(relayClient, {
+          authorizeKeys: [merchantKey],
+        })
+        await writeContract(anvilClient, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [merchantAccount.address, parseEther('10000')],
+          chain: null,
+          functionName: 'mint',
+        })
+        await RelayActions.sendCalls(relayClient, {
+          account: merchantAccount,
+          calls: [],
+        })
+
+        // Handle merchant requests on `/merchant`.
+        server.middlewares.use(async (req, res, next) => {
+          if (!req.url?.startsWith('/merchant')) return next()
+          if (req.method !== 'POST') return next()
+
+          return Route.merchant({
+            address: merchantAccount.address,
               basePath: '/merchant',
-              key: merchantKey.privateKey!(),
-              relay: http(relayConfig.rpcUrl),
-            }).listener(req, res)
-          })
-        },
-        name: 'anvil',
+            key: merchantKey.privateKey!(),
+            relay: http(relayConfig.rpcUrl),
+          }).listener(req, res)
+        })
       },
-    ],
+      name: 'anvil',
+    },
+  ]
+
+  if (mode === 'development') plugins.push(Terminal({ console: 'terminal' }))
+
+  return {
+    define: {
+      __APP_VERSION__: JSON.stringify(commitSha),
+    },
+    plugins,
     server: {
       allowedHosts,
     },

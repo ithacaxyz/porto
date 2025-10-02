@@ -102,8 +102,8 @@ const offDialogRequest = Events.onDialogRequest(
       search: (search) => {
         return {
           ...search,
-          _decoded: undefined,
           ...request,
+          _decoded: true,
           account,
         } as never
       },
