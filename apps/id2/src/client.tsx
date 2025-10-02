@@ -2,9 +2,6 @@ import { StartClient } from '@tanstack/react-start/client'
 import * as React from 'react'
 import { hydrateRoot } from 'react-dom/client'
 
-// import { WagmiProvider } from 'wagmi'
-// import * as Wagmi from '~/lib/Wagmi.ts'
-
 hydrateRoot(
   document,
   <React.StrictMode>

@@ -37,7 +37,7 @@ function RouteComponent() {
     const params = new URLSearchParams(window.location.search)
     const current = Number(params.get('porto.chainId') ?? Number.NaN)
     if (current === desiredChain.id) return
-    navigate({
+    void navigate({
       replace: true,
       search: (prev) => ({ ...prev, 'porto.chainId': desiredChain.id }),
       to: '.',

@@ -232,7 +232,7 @@ export async function getPermissions<config extends Config>(
   const client = await getConnectorClient(config, {
     account: address,
     assertChainId: false,
-    chainId,
+    chainId: config.state.chainId,
     connector,
   })
 

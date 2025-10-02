@@ -642,7 +642,7 @@ export default defineConfig({
         hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
       }),
       Plugins.Icons(),
-    ],
+    ] as never,
     server: {
       proxy: {},
     },

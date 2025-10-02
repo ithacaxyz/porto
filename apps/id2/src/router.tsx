@@ -1,51 +1,33 @@
-import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query'
 import { createRouter } from '@tanstack/react-router'
 import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query'
-import { Json } from 'ox'
-import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
-import { NotFound } from '~/components/NotFound'
+import { WagmiProvider } from 'wagmi'
+
+import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary.tsx'
+import { NotFound } from '~/components/NotFound.tsx'
+import * as Query from '~/lib/Query.tsx'
+import * as Wagmi from '~/lib/Wagmi.ts'
 import { routeTree } from '~/routeTree.gen.ts'
 
 export function getRouter() {
-  const queryClient: QueryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        gcTime: 1_000 * 60 * 60 * 24, // 24 hours
-        queryKeyHashFn: Json.stringify,
-        refetchOnReconnect: () => !queryClient.isMutating(),
-        retry: 0,
-        staleTime: (_) => 60 * 1_000, // 1 minute
-      },
-    },
-    mutationCache: new MutationCache({
-      onError: (error) => {
-        if (import.meta.env.MODE !== 'development') return
-        console.error(error)
-      },
-    }),
-    queryCache: new QueryCache({
-      onError: (error, query) => {
-        if (import.meta.env.MODE !== 'development') return
-        if (query.state.data !== undefined) console.error(error)
-      },
-    }),
-  })
+  const rqContext = Query.getContext()
 
   const router = createRouter({
     context: {
-      queryClient,
+      ...rqContext,
     },
     defaultErrorComponent: DefaultCatchBoundary,
     defaultNotFoundComponent: () => <NotFound />,
     defaultPreload: 'intent',
     routeTree,
     scrollRestoration: true,
+    Wrap: (props) => (
+      <WagmiProvider config={Wagmi.config}>
+        <Query.Providers {...rqContext}>{props.children}</Query.Providers>
+      </WagmiProvider>
+    ),
   })
 
-  setupRouterSsrQueryIntegration({
-    queryClient,
-    router,
-  })
+  setupRouterSsrQueryIntegration({ queryClient: rqContext.queryClient, router })
 
   return router
 }

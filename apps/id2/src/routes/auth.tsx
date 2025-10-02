@@ -48,12 +48,12 @@ function RouteComponent() {
 
   useAccountEffect({
     onConnect() {
-      navigate({ to: '/' })
+      void navigate({ to: '/' })
     },
   })
 
   React.useEffect(() => {
-    if (account.address) navigate({ to: '/' })
+    if (account.address) void navigate({ to: '/' })
   }, [account.address, navigate])
 
   return (

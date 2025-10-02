@@ -1,19 +1,24 @@
-import { createMiddleware, createStart } from '@tanstack/react-start'
+import { createStart } from '@tanstack/react-start'
 
-const globalMiddleware = createMiddleware({ type: 'function' })
-  .client((options) => {
-    const timestamp = Date.now()
-    console.info(`[client-${timestamp}]`, options.functionId)
-    return options.next()
-  })
-  .server((options) => {
-    const timestamp = Date.now()
-    console.info(`[server-${timestamp}]`, options.functionId)
-    return options.next()
-  })
-
-export const startInstance = createStart(() => {
-  return {
-    functionMiddleware: [globalMiddleware],
+declare module '@tanstack/react-start' {
+  interface Register {
+    server: {
+      requestContext: {
+        fromFetch: boolean
+      }
+    }
   }
+}
+
+export const startInstance = createStart(() => ({
+  defaultSsr: true,
+}))
+
+startInstance.createMiddleware().server((options) => {
+  return options.next({
+    context: {
+      ...options.context,
+      fromStartInstanceMw: true,
+    },
+  })
 })

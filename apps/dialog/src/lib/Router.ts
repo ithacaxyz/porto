@@ -36,7 +36,7 @@ export function parseSearchRequest<
     )
   } catch (error) {
     const rpcError = Provider.parseError(error)
-    Actions.rejectAll(porto, rpcError)
+    void Actions.rejectAll(porto, rpcError)
     throw error
   }
 }

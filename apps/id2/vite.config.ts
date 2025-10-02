@@ -5,7 +5,6 @@ import { sentryVitePlugin as SentryVitePlugin } from '@sentry/vite-plugin'
 import Tailwindcss from '@tailwindcss/vite'
 import { tanstackStart as TanstackStart } from '@tanstack/react-start/plugin/vite'
 import React from '@vitejs/plugin-react'
-import Icons from 'unplugin-icons/vite'
 import { defineConfig, loadEnv } from 'vite'
 import Mkcert from 'vite-plugin-mkcert'
 
@@ -45,15 +44,15 @@ export default defineConfig(({ mode }) => {
             hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
           }),
       Tailwindcss(),
-      Plugins.Icons(),
-      Icons({
-        compiler: 'jsx',
-        jsx: 'react',
-      }),
+      Plugins.Icons({ autoInstall: true }),
       TsconfigPaths({
         projects: ['./tsconfig.json'],
       }),
-      TanstackStart(),
+      TanstackStart({
+        server: { entry: './server.ts' },
+        srcDirectory: './src',
+        start: { entry: './start.tsx' },
+      }),
       React(),
       // must come last
       // @see https://docs.sentry.io/platforms/javascript/guides/tanstackstart-react/sourcemaps/uploading/vite/#configuration

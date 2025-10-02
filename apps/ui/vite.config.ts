@@ -1,5 +1,5 @@
 import * as path from 'node:path'
-import React from '@vitejs/plugin-react-swc'
+import React from '@vitejs/plugin-react'
 import Dts from 'unplugin-dts/vite'
 import { FileSystemIconLoader } from 'unplugin-icons/loaders'
 import Icons from 'unplugin-icons/vite'
@@ -35,7 +35,9 @@ export default defineConfig({
       },
       jsx: 'react',
     }),
-    React(),
+    React({
+      jsxRuntime: 'classic',
+    }),
     TsconfigPaths(),
     Dts({ exclude: ['styled-system'] }),
   ],
