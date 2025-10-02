@@ -37,6 +37,9 @@ export default defineConfig(({ mode }) => {
       __APP_VERSION__: JSON.stringify(portoCommitSha),
       'process.env': {},
     },
+    optimizeDeps: {
+      include: ['react/jsx-runtime'],
+    },
     plugins: [
       skipMkcert
         ? null
@@ -64,6 +67,9 @@ export default defineConfig(({ mode }) => {
         project: 'porto-manager',
       }),
     ],
+    resolve: {
+      dedupe: ['react', 'react-dom'],
+    },
     server: {
       proxy: {
         '/dialog/': {
