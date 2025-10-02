@@ -19,7 +19,7 @@
     "wagmi": "^2"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.13.1",
+    "@cloudflare/vite-plugin": "^1.13.8",
     "@cloudflare/workers-types": "^4.20250913.0",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
