@@ -8,21 +8,16 @@ export function isReactNativeRequest() {
   return searchParams.has('redirectUri')
 }
 
-type MutationLike = {
-  data: unknown
-  error: unknown
-  isError: boolean
-  isSuccess: boolean
-}
-
-function isUserRejected(error: unknown) {
+function userRejected(error: unknown) {
   if (error instanceof Provider.UserRejectedRequestError) return true
   if (typeof error !== 'object' || error === null) return false
-  const code = (error as { code?: unknown }).code
+  const code = Object.hasOwn(error, 'code') ? (error as any).code : undefined
   return code === Provider.UserRejectedRequestError.code
 }
 
-export function useAuthSessionRedirect(mutation: MutationLike) {
+export function useAuthSessionRedirect(
+  mutation: useAuthSessionRedirect.Options,
+) {
   const hasRedirectedRef = React.useRef(false)
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: _
@@ -50,12 +45,12 @@ export function useAuthSessionRedirect(mutation: MutationLike) {
     const params = new URLSearchParams()
 
     if (isSuccess) {
-      const data = mutation.data as { cancelResponse?: boolean } | unknown
+      const data = mutation.data
       if (
         data &&
         typeof data === 'object' &&
         'cancelResponse' in data &&
-        (data as { cancelResponse?: boolean }).cancelResponse
+        data.cancelResponse
       )
         return
 
@@ -63,11 +58,11 @@ export function useAuthSessionRedirect(mutation: MutationLike) {
       if (mutation.data !== undefined)
         params.set('payload', Json.stringify(mutation.data))
     } else if (isError) {
-      params.set('status', isUserRejected(mutation.error) ? 'cancel' : 'error')
+      params.set('status', userRejected(mutation.error) ? 'cancel' : 'error')
 
       const message = (() => {
         if (mutation.error instanceof Error) return mutation.error.message
-        if (isUserRejected(mutation.error)) return 'User rejected request'
+        if (userRejected(mutation.error)) return 'User rejected request'
         if (
           typeof mutation.error === 'object' &&
           mutation.error !== null &&
@@ -90,4 +85,13 @@ export function useAuthSessionRedirect(mutation: MutationLike) {
       window.open(redirectTarget, '_blank')
     }
   }, [mutation.data, mutation.error, mutation.isError, mutation.isSuccess])
+}
+
+export declare namespace useAuthSessionRedirect {
+  export type Options = {
+    isError: boolean
+    isSuccess: boolean
+    error: unknown
+    data: unknown
+  }
 }
