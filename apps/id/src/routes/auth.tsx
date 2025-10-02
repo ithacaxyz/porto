@@ -42,7 +42,7 @@ function RouteComponent() {
 
   useAccountEffect({
     onConnect() {
-      navigate({ to: '/' })
+      void navigate({ to: '/' })
     },
   })
 

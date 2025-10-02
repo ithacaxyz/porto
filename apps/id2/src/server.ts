@@ -1,9 +1,7 @@
-import handler from '@tanstack/react-start/server-entry'
+import Handler from '@tanstack/react-start/server-entry'
 
 console.info('[server-entry]')
 
 export default {
-  fetch(request: Request) {
-    return handler.fetch(request)
-  },
-}
+  fetch: async (request: Request): Promise<Response> => Handler.fetch(request),
+} satisfies typeof Handler

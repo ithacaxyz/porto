@@ -34,11 +34,11 @@ function RouteComponent() {
   const navigate = useNavigate()
   useAccountEffect({
     onDisconnect() {
-      navigate({ to: '/auth' })
+      void navigate({ to: '/auth' })
     },
   })
   React.useEffect(() => {
-    if (!address) navigate({ to: '/auth' })
+    if (!address) void navigate({ to: '/auth' })
   }, [address, navigate])
 
   const links = React.useMemo(() => {

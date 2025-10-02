@@ -2,7 +2,7 @@ import ChildProcess from 'node:child_process'
 import { PortoUi } from '@porto/ui/vite-plugin'
 import { sentryVitePlugin as SentryVitePlugin } from '@sentry/vite-plugin'
 import Tailwindcss from '@tailwindcss/vite'
-import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
+import { tanstackRouter as TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import React from '@vitejs/plugin-react'
 import { defineConfig, loadEnv } from 'vite'
 import Mkcert from 'vite-plugin-mkcert'
@@ -73,6 +73,9 @@ export default defineConfig(({ mode }) => {
             ),
     },
     plugins,
+    resolve: {
+      dedupe: ['react', 'react-dom'],
+    },
     server: {
       allowedHosts,
     },

@@ -4,20 +4,11 @@ import {
   createFileRoute,
   Link,
   Outlet,
-  redirect,
   useNavigate,
 } from '@tanstack/react-router'
-import { createMiddleware } from '@tanstack/react-start'
-import { getCookie } from '@tanstack/react-start/server'
 import { cx } from 'cva'
 import * as React from 'react'
-import {
-  deserialize,
-  type State,
-  useAccount,
-  useAccountEffect,
-  useDisconnect,
-} from 'wagmi'
+import { useAccount, useAccountEffect, useDisconnect } from 'wagmi'
 import { StringFormatter } from '~/utils.ts'
 import LucideChevronUp from '~icons/lucide/chevron-up'
 import LucideClock from '~icons/lucide/clock'
@@ -26,29 +17,29 @@ import LucideCoins from '~icons/lucide/coins'
 import LucideQrCode from '~icons/lucide/qr-code'
 import LucideSendHorizontal from '~icons/lucide/send-horizontal'
 
-const sharedContextMiddlewareServer = createMiddleware().server(
-  async (options) => {
-    const cookie = getCookie('wagmi.store')
-    const deserialized = deserialize(cookie ?? '') as { state: State }
-    const currentConnectorId = deserialized.state.current
-    const currentConnection = deserialized.state.connections.get(
-      currentConnectorId ?? '',
-    )
-    console.info(
-      'sharedContextMiddleware.server, currentConnector',
-      currentConnection,
-    )
-    if (!currentConnection?.accounts.length) throw redirect({ to: '/auth' })
+// const sharedContextMiddlewareServer = createMiddleware().server(
+//   async (options) => {
+//     const cookie = getCookie('wagmi.store')
+//     const deserialized = deserialize(cookie ?? '') as { state: State }
+//     const currentConnectorId = deserialized.state.current
+//     const currentConnection = deserialized.state.connections.get(
+//       currentConnectorId ?? '',
+//     )
+//     console.info(
+//       'sharedContextMiddleware.server, currentConnector',
+//       currentConnection,
+//     )
+//     if (!currentConnection?.accounts.length) throw redirect({ to: '/auth' })
 
-    return options.next()
-  },
-)
+//     return options.next()
+//   },
+// )
 
 export const Route = createFileRoute('/_dash')({
   component: RouteComponent,
-  server: {
-    middleware: [sharedContextMiddlewareServer],
-  },
+  // server: {
+  //   middleware: [sharedContextMiddlewareServer],
+  // },
 })
 
 function RouteComponent() {
@@ -60,12 +51,12 @@ function RouteComponent() {
 
   useAccountEffect({
     onDisconnect() {
-      navigate({ to: '/auth' })
+      void navigate({ to: '/auth' })
     },
   })
 
   React.useEffect(() => {
-    if (!account.address) navigate({ to: '/auth' })
+    if (!account.address) void navigate({ to: '/auth' })
   }, [account.address, navigate])
 
   const links = React.useMemo(() => {

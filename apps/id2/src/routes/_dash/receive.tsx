@@ -6,7 +6,6 @@ import { Cuer } from 'cuer'
 import { cx } from 'cva'
 import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
-import { ChainIcon } from '~/components/ChainIcon.tsx'
 import ExternalLinkIcon from '~icons/lucide/external-link'
 
 export const Route = createFileRoute('/_dash/receive')({
@@ -104,16 +103,32 @@ function RouteComponent() {
           <div className="flex size-full justify-between">
             <div className="*:-mr-5 flex gap-2 *:size-9.5 *:rounded-full *:outline-[3.5px] *:outline-gray1 dark:*:outline-gray">
               <div>
-                <ChainIcon chainId={56} className="size-9.5" />
+                <img
+                  alt="Chain 56 icon"
+                  className="size-9.5"
+                  src="https://tokenlist.up.railway.app/icon/56"
+                />
               </div>
               <div>
-                <ChainIcon chainId={42_161} className="size-9.5" />
+                <img
+                  alt="Chain 42161 icon"
+                  className="size-9.5"
+                  src="https://tokenlist.up.railway.app/icon/42161"
+                />
               </div>
               <div>
-                <ChainIcon chainId={137} className="size-9.5" />
+                <img
+                  alt="Chain 137 icon"
+                  className="size-9.5"
+                  src="https://tokenlist.up.railway.app/icon/137"
+                />
               </div>
               <div>
-                <ChainIcon chainId={10} className="size-9.5" />
+                <img
+                  alt="Chain 10 icon"
+                  className="size-9.5"
+                  src="https://tokenlist.up.railway.app/icon/10"
+                />
               </div>
             </div>
             <Ariakit.Button

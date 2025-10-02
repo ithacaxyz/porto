@@ -648,7 +648,7 @@ export default defineConfig({
         hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
       }),
       Plugins.Icons(),
-    ],
+    ] as never,
     resolve: {
       alias: {
         porto: NodePath.join(process.cwd(), '../../src'),

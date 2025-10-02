@@ -42,7 +42,7 @@ function RouteComponent() {
     const params = new URLSearchParams(window.location.search)
     const current = Number(params.get('porto.chainId') ?? Number.NaN)
     if (current === desiredChain.id) return
-    navigate({
+    void navigate({
       replace: true,
       search: (prev) => ({ ...prev, 'porto.chainId': desiredChain.id }),
       to: '.',
@@ -120,7 +120,7 @@ function RouteComponent() {
       getResetKey={() => 'recovery'}
       onCatch={(error, errorInfo) => {
         console.error(error, errorInfo)
-        disconnectAll()
+        void disconnectAll()
       }}
     >
       <section className="overflow-x-auto">
