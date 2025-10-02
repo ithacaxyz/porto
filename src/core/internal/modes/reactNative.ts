@@ -13,9 +13,10 @@ export function reactNative(parameters: reactNative.Parameters = {}) {
   return Mode.from({
     ...dialog({
       ...baseParameters,
-      host: Object.hasOwn(process.env, 'EXPO_PUBLIC_PORTO_HOST')
-        ? process.env.EXPO_PUBLIC_PORTO_HOST
-        : baseParameters.host,
+      host:
+        isReactNative() && Object.hasOwn(process.env, 'EXPO_PUBLIC_PORTO_HOST')
+          ? process.env.EXPO_PUBLIC_PORTO_HOST
+          : baseParameters.host,
       renderer: Dialog.authSession(native ?? {}),
     }),
     name: 'reactNative',

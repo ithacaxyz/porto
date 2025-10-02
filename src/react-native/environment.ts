@@ -2,8 +2,6 @@ import type * as AuthSession from 'expo-auth-session'
 import type * as WebBrowser from 'expo-web-browser'
 import type { Platform } from 'react-native'
 
-export type AuthSessionResult = AuthSession.AuthSessionResult
-
 export type ReactNativeEnvironment = {
   platform?: Platform['OS']
   redirectUri?: string
