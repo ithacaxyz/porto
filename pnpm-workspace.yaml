@@ -2,7 +2,7 @@ catalog:
   '@ariakit/react': ^0.4.18
   '@ariakit/tailwind': ^0.1.8
   '@iconify/json': ^2.2.386
-  '@sentry/react': ^10.12.0
+  '@sentry/react': ^10.17.0
   '@sentry/vite-plugin': ^4.3.0
   '@svgr/core': ^8.1.0
   '@svgr/plugin-jsx': ^8.1.0
