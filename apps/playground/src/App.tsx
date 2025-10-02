@@ -98,6 +98,7 @@ export function App() {
         <div className="flex gap-2">
           Mode:
           <select
+            name="mode"
             onChange={(e) => setMode(e.target.value as ModeType)}
             value={mode}
           >
@@ -358,7 +359,9 @@ function Connect() {
       <div>
         <label>
           <input
+            autoComplete="off"
             checked={email}
+            name="email"
             onChange={() => setEmail((x) => !x)}
             type="checkbox"
           />
@@ -367,6 +370,7 @@ function Connect() {
         <label>
           <input
             checked={grantPermissions}
+            name="grantPermissions"
             onChange={() => setGrantPermissions((x) => !x)}
             type="checkbox"
           />
@@ -375,6 +379,7 @@ function Connect() {
         <label>
           <input
             checked={siwe}
+            name="siwe"
             onChange={() => setSiwe((x) => !x)}
             type="checkbox"
           />
@@ -812,6 +817,7 @@ function UpgradeAccount() {
       </div>
       <div>
         <input
+          name="privateKey"
           onChange={(e) => setPrivateKey(e.target.value)}
           placeholder="Private Key"
           style={{ width: '300px' }}
@@ -822,6 +828,7 @@ function UpgradeAccount() {
       <label>
         <input
           checked={grantPermissions}
+          name="grantPermissions"
           onChange={() => setGrantPermissions((x) => !x)}
           type="checkbox"
         />
@@ -1147,7 +1154,12 @@ function SendCalls() {
           <option value="revert">Revert</option>
           <option value="noop">Noop Calls</option>
         </select>
-        <input name="address" placeholder="address" type="text" />
+        <input
+          autoComplete="off"
+          name="address"
+          placeholder="address"
+          type="text"
+        />
         <button type="submit">Send</button>
       </div>
       {id && (
@@ -1947,23 +1959,57 @@ function PrepareCalls() {
 }
 
 function ShowClientCapabilities() {
+  const [platformAuthenticatorAvailable, setPlatformAuthenticatorAvailable] =
+    React.useState<boolean | null>(null)
+  const [isConditionalMediationAvailable, setIsConditionalMediationAvailable] =
+    React.useState<boolean | null>(null)
   const [userClientCapabilities, setUserClientCapabilities] =
     React.useState<PublicKeyCredentialClientCapabilities | null>(null)
 
   React.useEffect(() => {
-    const check = async () => {
-      const capabilities = await PublicKeyCredential.getClientCapabilities()
-      setUserClientCapabilities(capabilities)
-      console.info(capabilities)
-    }
-    check().catch(console.error)
+    PublicKeyCredential.getClientCapabilities()
+      .then(setUserClientCapabilities)
+      .catch((error) => {
+        console.error(error)
+        setUserClientCapabilities(null)
+      })
+
+    PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
+      .then(setPlatformAuthenticatorAvailable)
+      .catch((error) => {
+        console.error(error)
+        setPlatformAuthenticatorAvailable(false)
+      })
+
+    PublicKeyCredential.isConditionalMediationAvailable()
+      .then(setIsConditionalMediationAvailable)
+      .catch((error) => {
+        console.error(error)
+        setIsConditionalMediationAvailable(false)
+      })
   }, [])
 
   return (
-    <details className="">
-      <summary>User Client Capabilities</summary>
-      <pre>{JSON.stringify(userClientCapabilities, null, 2)}</pre>
-    </details>
+    <React.Fragment>
+      <details>
+        <summary>User Client Capabilities</summary>
+        <pre>{JSON.stringify(userClientCapabilities, null, 2)}</pre>
+      </details>
+      <details>
+        <summary>Platform Authenticator / Conditional Mediation</summary>
+        <pre>
+          {JSON.stringify(
+            {
+              isConditionalMediationAvailable,
+              verifyingPlatformAuthenticatorAvailable:
+                platformAuthenticatorAvailable,
+            },
+            null,
+            2,
+          )}
+        </pre>
+      </details>
+    </React.Fragment>
   )
 }
 
