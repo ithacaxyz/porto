@@ -5,6 +5,7 @@ import {
   type ReactNativeEnvironment,
   reactNative,
 } from '../react-native/environment.js'
+import { isReactNative } from '../react-native/utils.js'
 import type { ThemeFragment } from '../theme/Theme.js'
 import * as IO from './internal/intersectionObserver.js'
 import { logger } from './internal/logger.js'
@@ -13,13 +14,15 @@ import * as UserAgent from './internal/userAgent.js'
 import * as Messenger from './Messenger.js'
 import type { QueuedRequest, Store } from './Porto.js'
 
-type AuthSessionStatus = 'cancel' | 'error' | 'success' | 'unknown'
 const AuthSessionStatus = {
   cancel: 'cancel',
   error: 'error',
   success: 'success',
   unknown: 'unknown',
 } as const
+
+type AuthSessionStatus =
+  (typeof AuthSessionStatus)[keyof typeof AuthSessionStatus]
 
 export const hostUrls = {
   local: 'http://localhost:5175/dialog/',
@@ -568,10 +571,9 @@ export declare namespace popup {
 }
 
 export function authSession(options: authSession.Options = {}) {
-  if (typeof navigator === 'undefined' || navigator.product !== 'ReactNative')
-    return popup()
+  if (!isReactNative()) return noop()
 
-  const { redirectPath = 'auth', requestOptions } = options
+  const { redirectPath = '/', requestOptions } = options
 
   return from({
     name: 'authSession',
@@ -603,8 +605,8 @@ export function authSession(options: authSession.Options = {}) {
           wallet_sendCalls: 'wallet_sendCalls',
         }
 
-        const path = reactNativePaths[rpcRequest.method]
-        if (!path)
+        const rpcMethod = reactNativePaths[rpcRequest.method]
+        if (!rpcMethod)
           throw new Provider.UnsupportedMethodError({
             message: `Method not supported in Mode.reactNative(): ${rpcRequest.method}`,
           })
@@ -614,15 +616,15 @@ export function authSession(options: authSession.Options = {}) {
           environment.makeRedirectUri({ path: redirectPath })
 
         const url = new URL(host)
-        url.pathname = `${url.pathname.replace(/\/$/, '')}/${path}`
+        url.pathname = `${url.pathname.replace(/\/$/, '')}/${rpcMethod}`
 
-        const searchParams = url.searchParams
-        searchParams.set('redirectUri', redirectUri)
-        searchParams.set('method', rpcRequest.method)
-        searchParams.set('id', String(rpcRequest.id))
-        searchParams.set('jsonrpc', '2.0')
-        if (environment.platform)
-          searchParams.set('os', environment.platform.toLowerCase())
+        const searchParams = new URLSearchParams({
+          id: String(rpcRequest.id),
+          jsonrpc: '2.0',
+          method: rpcRequest.method,
+          os: environment.platform?.toLowerCase() ?? 'unknown',
+          redirectUri,
+        })
 
         const params = (rpcRequest.params ?? []) as readonly unknown[]
         if (params.length > 0)
@@ -631,7 +633,9 @@ export function authSession(options: authSession.Options = {}) {
         const decodedParams = (rpcRequest as any)._decoded?.params
         if (decodedParams)
           searchParams.set('_decoded', Json.stringify(decodedParams))
+
         url.search = searchParams.toString()
+
         const result = await environment.openAuthSessionAsync(
           url.toString(),
           redirectUri,
@@ -642,9 +646,7 @@ export function authSession(options: authSession.Options = {}) {
           if (result.type === 'success' && result.url) {
             const resolved = new URL(result.url)
             const status =
-              (resolved.searchParams.get(
-                'status',
-              ) as AuthSessionStatus | null) ?? AuthSessionStatus.unknown
+              resolved.searchParams.get('status') ?? AuthSessionStatus.unknown
             const message = resolved.searchParams.get('message') ?? undefined
             const payload = resolved.searchParams.get('payload') ?? undefined
             if (status === AuthSessionStatus.success)
@@ -717,7 +719,9 @@ export function authSession(options: authSession.Options = {}) {
         destroy() {
           environment.dismissAuthSession?.()
         },
-        open() {},
+        open() {
+          void 0
+        },
         async secure() {
           return {
             frame: false,
@@ -727,7 +731,7 @@ export function authSession(options: authSession.Options = {}) {
         },
         async syncRequests(requests) {
           if (processing) return
-          const request = requests[0]
+          const [request] = requests
           if (!request) return
           if (inFlightId === request.request.id) return
 

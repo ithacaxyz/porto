@@ -24,7 +24,7 @@ export function create(
   return PortoBase.create({
     ...parameters,
     mode: parameters.mode ?? defaultConfig.mode,
-  }) as unknown as Porto
+  })
 }
 
 export type Porto<

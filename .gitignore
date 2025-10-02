@@ -66,3 +66,4 @@ CLAUDE.local.md
 bunfig.toml
 mise.toml
 .turbo
+justfile
