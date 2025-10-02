@@ -1,6 +1,5 @@
 /// <reference types="vite/client" />
 
-import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 import type { QueryClient } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import {
@@ -73,29 +72,6 @@ export const Route = createRootRouteWithContext<{
   notFoundComponent: () => <NotFound />,
 })
 
-export const persister = createAsyncStoragePersister({
-  key: 'porto.id',
-  storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-})
-
-// function Providers(
-//   props: React.PropsWithChildren<{
-//     initialState?: State | undefined
-//     children: React.ReactNode
-//   }>,
-// ) {
-//   return (
-//     <React.Suspense fallback={<div>Loading...</div>}>
-//       <WagmiProvider config={Wagmi.config} initialState={props.initialState}>
-//         <UI.Ui>
-//           {/** biome-ignore lint/complexity/noUselessFragments: _ */}
-//           <React.Fragment>{props.children}</React.Fragment>
-//         </UI.Ui>
-//       </WagmiProvider>
-//     </React.Suspense>
-//   )
-// }
-
 function RootComponent() {
   return (
     <RootDocument>
@@ -105,10 +81,6 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  // const { deferredPromise } = Route.useLoaderData()
-
-  // const [awaitedCookie] = useAwaited({ promise: deferredPromise })
-  // const initialState = cookieToInitialState(Wagmi.config, awaitedCookie)
   return (
     <html className="scheme-light-dark" lang="en">
       <head>

@@ -36,7 +36,7 @@ export default defineConfig({
       jsx: 'react',
     }),
     React({
-      jsxRuntime: 'classic',
+      jsxRuntime: 'automatic',
     }),
     TsconfigPaths(),
     Dts({ exclude: ['styled-system'] }),

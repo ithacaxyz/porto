@@ -17,29 +17,8 @@ import LucideCoins from '~icons/lucide/coins'
 import LucideQrCode from '~icons/lucide/qr-code'
 import LucideSendHorizontal from '~icons/lucide/send-horizontal'
 
-// const sharedContextMiddlewareServer = createMiddleware().server(
-//   async (options) => {
-//     const cookie = getCookie('wagmi.store')
-//     const deserialized = deserialize(cookie ?? '') as { state: State }
-//     const currentConnectorId = deserialized.state.current
-//     const currentConnection = deserialized.state.connections.get(
-//       currentConnectorId ?? '',
-//     )
-//     console.info(
-//       'sharedContextMiddleware.server, currentConnector',
-//       currentConnection,
-//     )
-//     if (!currentConnection?.accounts.length) throw redirect({ to: '/auth' })
-
-//     return options.next()
-//   },
-// )
-
 export const Route = createFileRoute('/_dash')({
   component: RouteComponent,
-  // server: {
-  //   middleware: [sharedContextMiddlewareServer],
-  // },
 })
 
 function RouteComponent() {
