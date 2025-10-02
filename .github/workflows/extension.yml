@@ -36,6 +36,7 @@ jobs:
 
       - name: Zip extension
         run: |
+          pnpm --filter extension exec wxt prepare
           pnpm --filter extension zip
           pnpm --filter extension zip:firefox
 

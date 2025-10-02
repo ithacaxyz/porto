@@ -140,7 +140,6 @@ overrides:
   '@metamask/sdk@>=0.16.0 <=0.33.0': 0.33.1
   axios@<1.12.0: 1.12.0
   bigint-buffer@<=1.1.5: npm:bigint-buffer-fixed
-  vite-node: 3.2.4
 
 patchedDependencies:
   '@tanstack/react-router':
