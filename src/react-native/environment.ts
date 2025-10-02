@@ -1,15 +1,4 @@
-import type * as AuthSession from 'expo-auth-session'
-import type * as WebBrowser from 'expo-web-browser'
-import type { Platform } from 'react-native'
-
-export type ReactNativeEnvironment = {
-  platform?: Platform['OS']
-  redirectUri?: string
-  makeRedirectUri: typeof AuthSession.makeRedirectUri
-  openAuthSessionAsync: typeof WebBrowser.openAuthSessionAsync
-  dismissAuthSession: typeof WebBrowser.dismissAuthSession
-  maybeCompleteAuthSession?: typeof WebBrowser.maybeCompleteAuthSession
-}
+import type { ReactNativeEnvironment } from './types.js'
 
 let environment: ReactNativeEnvironment
 
@@ -29,3 +18,5 @@ export const reactNative = {
 } satisfies {
   environment: ReactNativeEnvironment
 }
+
+export * from './types.js'

@@ -77,11 +77,11 @@
     "wagmi": "catalog:",
     "yaml": "^2.8.1",
     "expo-auth-session": "~7.0.8",
-    "expo-web-browser": "~15.0.7",
-    "expo": "~54.0.10",
+    "expo-web-browser": "~15.0.8",
+    "expo": "~54.0.12",
     "react-native": "0.81.4"
   },
-  "packageManager": "pnpm@10.17.0",
+  "packageManager": "pnpm@10.17.1",
   "engines": {
     "node": ">=22.5"
   },

@@ -1,10 +1,7 @@
 import type { RpcRequest, RpcResponse } from 'ox'
 import * as Json from 'ox/Json'
 import * as Provider from 'ox/Provider'
-import {
-  type ReactNativeEnvironment,
-  reactNative,
-} from '../react-native/environment.js'
+import * as ReactNativeEnvironment from '../react-native/environment.js'
 import { isReactNative } from '../react-native/utils.js'
 import type { ThemeFragment } from '../theme/Theme.js'
 import * as IO from './internal/intersectionObserver.js'
@@ -570,10 +567,14 @@ export declare namespace popup {
   }
 }
 
+/**
+ * Instantiates a authSession dialog for React Native.
+ * @param options - Options.
+ */
 export function authSession(options: authSession.Options = {}) {
   if (!isReactNative()) return noop()
 
-  const { redirectPath = '/', requestOptions } = options
+  const { requestOptions = { showTitle: true } } = options
 
   return from({
     name: 'authSession',
@@ -581,7 +582,7 @@ export function authSession(options: authSession.Options = {}) {
       const { host, internal } = parameters
       const { store } = internal
 
-      const environment = reactNative.environment
+      const environment = ReactNativeEnvironment.reactNative.environment
       environment.maybeCompleteAuthSession?.()
 
       let processing = false
@@ -610,10 +611,13 @@ export function authSession(options: authSession.Options = {}) {
           throw new Provider.UnsupportedMethodError({
             message: `Method not supported in Mode.reactNative(): ${rpcRequest.method}`,
           })
-
-        const redirectUri =
-          options.makeRedirectUri?.({ environment, request: rpcRequest }) ??
-          environment.makeRedirectUri({ path: redirectPath })
+        const redirectUri = environment.makeRedirectUri({
+          ...(options.redirectUri
+            ? { scheme: options.redirectUri.scheme }
+            : {}),
+          path: options.redirectUri?.path ?? '/',
+          preferLocalhost: typeof __DEV__ === 'boolean' && __DEV__,
+        })
 
         const url = new URL(host)
         url.pathname = `${url.pathname.replace(/\/$/, '')}/${rpcMethod}`
@@ -622,7 +626,6 @@ export function authSession(options: authSession.Options = {}) {
           id: String(rpcRequest.id),
           jsonrpc: '2.0',
           method: rpcRequest.method,
-          os: environment.platform?.toLowerCase() ?? 'unknown',
           redirectUri,
         })
 
@@ -763,12 +766,13 @@ export function authSession(options: authSession.Options = {}) {
 
 export declare namespace authSession {
   export type Options = {
-    makeRedirectUri?: (parameters: {
-      environment: ReactNativeEnvironment
-      request: QueuedRequest['request']
-    }) => string
-    redirectPath?: string | undefined
-    requestOptions?: Record<string, unknown> | undefined
+    /**
+     * where to redirect the user after operations are completed
+     */
+    redirectUri?:
+      | ReactNativeEnvironment.ReactNativeEnvironment['redirectUri']
+      | undefined
+    requestOptions?: ReactNativeEnvironment.AuthSessionOpenOptions | undefined
   }
 }
 

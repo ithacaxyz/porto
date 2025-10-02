@@ -21,7 +21,6 @@ export function configureExpoEnvironment() {
     makeRedirectUri: AuthSession.makeRedirectUri,
     maybeCompleteAuthSession: WebBrowser.maybeCompleteAuthSession,
     openAuthSessionAsync: WebBrowser.openAuthSessionAsync,
-    platform: Platform.OS,
   } satisfies ReactNativeEnvironment
 
   reactNative.environment = environment

@@ -90,16 +90,26 @@ A controller to manage the dialog theme, created by `Dialog.createThemeControlle
 
 ## Mode.reactNative
 
-React Native mode is used to communicate with the React Native application.
+React Native mode is used to communicate with React Native applications. Setup assumes the use of [`expo`](https://expo.dev).
 
 ### Usage
 
 ```ts twoslash
+import 'porto/react-native/expo'
 import { Porto, Mode } from 'porto'
 
 const porto = Porto.create({
   mode: Mode.reactNative(), // [!code focus]
 })
+```
+
+or
+
+```ts twoslash
+import 'porto/react-native/expo'
+import { Porto, Mode } from 'porto/index.native'
+
+const porto = Porto.create()
 ```
 
 ### Options
@@ -110,6 +120,15 @@ const porto = Porto.create({
 - **Default**: `"https://id.porto.sh/dialog"`
 
 URL of the dialog embed.
+
+#### redirectUri
+
+- **Type**: `{ scheme: string, path?: string } | undefined`
+
+Where to redirect the user after operations are completed.
+Defaults to the result of `AuthSession.makeRedirectUri({ path: '/' })` if no value is passed.
+
+[Learn more](https://docs.expo.dev/linking/into-your-app/#test-a-link-using-expo-go).
 
 #### theme
 

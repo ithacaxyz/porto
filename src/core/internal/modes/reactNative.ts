@@ -6,9 +6,12 @@ import { dialog } from './dialog.js'
 
 export function reactNative(parameters: reactNative.Parameters = {}) {
   if (!isReactNative())
-    return Mode.from({ actions: Relay.relay().actions, name: 'relay' })
+    return (
+      parameters.fallback ??
+      Mode.from({ actions: Relay.relay().actions, name: 'relay' })
+    )
 
-  const { native, ...baseParameters } = parameters
+  const { redirectUri, requestOptions, ...baseParameters } = parameters
 
   return Mode.from({
     ...dialog({
@@ -17,7 +20,7 @@ export function reactNative(parameters: reactNative.Parameters = {}) {
         isReactNative() && Object.hasOwn(process.env, 'EXPO_PUBLIC_PORTO_HOST')
           ? process.env.EXPO_PUBLIC_PORTO_HOST
           : baseParameters.host,
-      renderer: Dialog.authSession(native ?? {}),
+      renderer: Dialog.authSession({ redirectUri, requestOptions }),
     }),
     name: 'reactNative',
   })
@@ -25,7 +28,7 @@ export function reactNative(parameters: reactNative.Parameters = {}) {
 
 export declare namespace reactNative {
   export type BrowserParameters = dialog.Parameters
-  export type Parameters = Omit<dialog.Parameters, 'renderer' | 'fallback'> & {
-    native?: Dialog.authSession.Options | undefined
-  }
+  export type Parameters =
+    | (Omit<dialog.Parameters, 'renderer'> & Dialog.authSession.Options)
+    | undefined
 }
