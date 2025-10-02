@@ -53,6 +53,7 @@ export default defineConfig(({ mode }) => {
         srcDirectory: './src',
         start: { entry: './start.tsx' },
       }),
+      // must come after TanstackStart
       React(),
       // must come last
       // @see https://docs.sentry.io/platforms/javascript/guides/tanstackstart-react/sourcemaps/uploading/vite/#configuration
