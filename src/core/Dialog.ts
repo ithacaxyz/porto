@@ -598,12 +598,22 @@ export function authSession(options: authSession.Options = {}) {
           personal_sign: 'personal_sign',
           wallet_addFunds: 'wallet_addFunds',
           wallet_connect: 'wallet_connect',
+          wallet_getAccountVersion: 'wallet_getAccountVersion',
+          wallet_getAssets: 'wallet_getAssets',
+          wallet_getCallsStatus: 'wallet_getCallsStatus',
+          wallet_getCapabilities: 'wallet_getCapabilities',
+          wallet_getKeys: 'wallet_getKeys',
+          wallet_getPermissions: 'wallet_getPermissions',
           wallet_grantAdmin: 'wallet_grantAdmin',
           wallet_grantPermissions: 'wallet_grantPermissions',
+          wallet_prepareCalls: 'wallet_prepareCalls',
           wallet_prepareUpgradeAccount: 'wallet_prepareUpgradeAccount',
           wallet_revokeAdmin: 'wallet_revokeAdmin',
           wallet_revokePermissions: 'wallet_revokePermissions',
           wallet_sendCalls: 'wallet_sendCalls',
+          wallet_sendPreparedCalls: 'wallet_sendPreparedCalls',
+          wallet_switchEthereumChain: 'wallet_switchEthereumChain',
+          wallet_verifySignature: 'wallet_verifySignature',
         }
 
         const rpcMethod = reactNativePaths[rpcRequest.method]
