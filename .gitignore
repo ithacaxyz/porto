@@ -65,3 +65,4 @@ CLAUDE.local.md
 .zed
 bunfig.toml
 mise.toml
+justfile
