@@ -4,10 +4,10 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import * as Router from '~/lib/Router.js'
-import { App, Providers } from './App.js'
+import { App } from './App.js'
 import './styles.css'
 
-if (import.meta.env.PROD)
+if (import.meta.env.PROD) {
   Sentry.init({
     dsn: 'https://1b4e28921c688e2b03d1b63f8d018913@o4509056062849024.ingest.us.sentry.io/4509080371724288',
     environment: Env.get(),
@@ -18,9 +18,12 @@ if (import.meta.env.PROD)
     replaysOnErrorSampleRate: 1.0,
     replaysSessionSampleRate: 0.1,
   })
+}
 
 const rootElement = document.querySelector('div#root')
+
 if (!rootElement) throw new Error('Root element not found')
+
 createRoot(rootElement, {
   onCaughtError: Sentry.reactErrorHandler(),
   onRecoverableError: Sentry.reactErrorHandler(),
@@ -29,9 +32,7 @@ createRoot(rootElement, {
   }),
 }).render(
   <StrictMode>
-    <Providers>
-      <App />
-    </Providers>
+    <App />
   </StrictMode>,
 )
 
@@ -92,39 +93,15 @@ document.addEventListener('keydown', (event) => {
     document.documentElement.toggleAttribute('data-dialog')
   }
 
-  // ⌥ + d: clear all stores, local storage, cookies, sessions, and indexeddb
-  if (event.altKey && event.code === 'KeyD') {
-    console.info(
-      'Clearing all stores, local storage, cookies, sessions, and indexeddb',
-    )
-
-    window.localStorage.clear()
-    window.sessionStorage.clear()
-    window.indexedDB
-      .databases()
-      .then((databases) =>
-        databases.forEach((database) => {
-          if (!database.name) return
-          window.indexedDB.deleteDatabase(database.name)
-        }),
-      )
-      .catch((error) => console.error('Error clearing indexeddb', error))
-  }
-
   // ⌥ + h: hide dev tools
   if (event.altKey && event.code === 'KeyH') {
-    try {
-      const tsqDevToolsContainer = document.querySelector(
-        'div.tsqd-parent-container',
-      )
-      if (tsqDevToolsContainer)
-        tsqDevToolsContainer.hidden = !tsqDevToolsContainer.hidden
-      const tsrDevToolsContainer = document.querySelector(
-        'footer.TanStackRouterDevtools',
-      )
-      if (tsrDevToolsContainer)
-        tsrDevToolsContainer.hidden = !tsrDevToolsContainer.hidden
-    } catch {}
+    const devToolsElement = document.querySelector(
+      'button[aria-label="Open TanStack Router Devtools"]',
+    )
+    if (devToolsElement) devToolsElement.hidden = !devToolsElement.hidden
+
+    const devTools = document.querySelector('div[data-item="dev-tools"]')
+    if (devTools) devTools.hidden = !devTools.hidden
   }
 })
 

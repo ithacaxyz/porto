@@ -17,7 +17,7 @@ export const Route = createFileRoute('/dialog/wallet_sendCalls')({
 function RouteComponent() {
   const request = Route.useSearch()
   const { capabilities, calls, chainId, from } =
-    request._decoded.params[0] ?? {}
+    request._decoded?.params?.[0] ?? {}
 
   const { feeToken, merchantUrl, requiredFunds } = capabilities ?? {}
 
