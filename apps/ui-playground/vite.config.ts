@@ -1,5 +1,5 @@
 import Tailwindcss from '@tailwindcss/vite'
-import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
+import { tanstackRouter as TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import React from '@vitejs/plugin-react'
 import Icons from 'unplugin-icons/vite'
 import { defineConfig } from 'vite'
@@ -13,9 +13,9 @@ export default defineConfig({
       jsx: 'react',
     }),
     Tailwindcss(),
-    React(),
     TsconfigPaths(),
     TanStackRouterVite(),
+    React(),
   ],
   resolve: {
     dedupe: ['react', 'react-dom'],
