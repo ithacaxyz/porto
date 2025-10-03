@@ -1,25 +1,15 @@
-import * as Environment from './environment.js'
+import {
+  configure,
+  isEnvironmentConfigured,
+  isReactNative,
+  Porto,
+} from '../core/react-native/index.js'
 
-export * from './environment.js'
-export * as Porto from './Porto.js'
-export * from './types.js'
-export * from './utils.js'
+/**
+ * React Native entrypoint
+ * @see https://reactnative.dev/docs/platform-specific-code#native-specific-extensions-ie-sharing-code-with-nodejs-and-web
+ **/
+export * as Mode from '../core/Mode.js'
+export { Porto }
 
-import { isReactNative } from './utils.js'
-
-export const configure = () =>
-  void import('./expo.js')
-    .then(({ configureExpoEnvironment }) => configureExpoEnvironment())
-    .catch((error) => {
-      console.error(
-        [
-          '[porto:react-native] Expo environment not configured',
-          'You need to import the configuration entrypoint at the top of your app',
-          "import 'porto/react-native/expo'",
-          'then import `Porto` and the rest',
-        ].join('\n'),
-        error,
-      )
-    })
-
-if (isReactNative() && !Environment.isEnvironmentConfigured()) configure()
+if (isReactNative() && !isEnvironmentConfigured()) configure()

@@ -1,5 +1,5 @@
-import { isReactNative } from '../../../react-native/utils.js'
 import * as Dialog from '../../Dialog.js'
+import { isReactNative } from '../../react-native/utils.js'
 import * as Mode from '../mode.js'
 import * as Relay from '../modes/relay.js'
 import { dialog } from './dialog.js'

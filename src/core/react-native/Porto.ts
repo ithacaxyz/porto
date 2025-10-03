@@ -1,7 +1,7 @@
-import type * as Chains from '../core/Chains.js'
-import type { ExactPartial } from '../core/internal/types.js'
-import * as Mode from '../core/Mode.js'
-import * as PortoBase from '../core/Porto.js'
+import type * as Chains from '../Chains.js'
+import type { ExactPartial } from '../internal/types.js'
+import * as Mode from '../Mode.js'
+import * as PortoBase from '../Porto.js'
 
 export const defaultConfig = {
   ...PortoBase.defaultConfig,

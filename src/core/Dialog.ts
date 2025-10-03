@@ -1,8 +1,6 @@
 import type { RpcRequest, RpcResponse } from 'ox'
 import * as Json from 'ox/Json'
 import * as Provider from 'ox/Provider'
-import * as ReactNativeEnvironment from '../react-native/environment.js'
-import { isReactNative } from '../react-native/utils.js'
 import type { ThemeFragment } from '../theme/Theme.js'
 import * as IO from './internal/intersectionObserver.js'
 import { logger } from './internal/logger.js'
@@ -10,6 +8,8 @@ import type { Internal } from './internal/porto.js'
 import * as UserAgent from './internal/userAgent.js'
 import * as Messenger from './Messenger.js'
 import type { QueuedRequest, Store } from './Porto.js'
+import * as ReactNativeEnvironment from './react-native/environment.js'
+import { isReactNative } from './react-native/utils.js'
 
 const AuthSessionStatus = {
   cancel: 'cancel',
