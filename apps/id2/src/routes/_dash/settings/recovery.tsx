@@ -27,7 +27,7 @@ function RouteComponent() {
     'default',
   )
 
-  // In dev mode, use testnet (Base Sepolia) by default
+  // Base Sepolia (testnet) in dev
   const desiredChain = React.useMemo(() => {
     return import.meta.env.DEV ? Chains.baseSepolia : Chains.base
   }, [])

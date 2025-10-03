@@ -8,6 +8,7 @@ import { tanstackStart as TanstackStart } from '@tanstack/react-start/plugin/vit
 import React from '@vitejs/plugin-react'
 import { defineConfig, loadEnv } from 'vite'
 import Mkcert from 'vite-plugin-mkcert'
+import Terminal from 'vite-plugin-terminal'
 
 import TsconfigPaths from 'vite-tsconfig-paths'
 
@@ -30,6 +31,46 @@ export default defineConfig(({ mode }) => {
     )
   }
 
+  const plugins = [
+    skipMkcert
+      ? null
+      : Mkcert({
+          hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
+        }),
+    Tailwindcss(),
+    Plugins.Icons({ autoInstall: true }),
+    TsconfigPaths({
+      projects: ['./tsconfig.json'],
+    }),
+    TanstackStart({
+      server: { entry: './server.ts' },
+      srcDirectory: './src',
+      start: { entry: './start.tsx' },
+    }),
+    // must come after TanstackStart
+    React(),
+    cloudflare({
+      viteEnvironment: {
+        name: 'ssr',
+      },
+    }),
+  ]
+
+  if (mode === 'development') plugins.push(Terminal({ console: 'terminal' }))
+
+  if (mode === 'production') {
+    plugins.push(
+      // must come last
+      // @see https://docs.sentry.io/platforms/javascript/guides/tanstackstart-react/sourcemaps/uploading/vite/#configuration
+      SentryVitePlugin({
+        authToken: process.env.SENTRY_AUTH_TOKEN,
+        disable: process.env.VERCEL_ENV !== 'production',
+        org: 'ithaca',
+        project: 'porto-manager',
+      }),
+    )
+  }
+
   return {
     build: {
       sourcemap: true,
@@ -41,38 +82,7 @@ export default defineConfig(({ mode }) => {
     optimizeDeps: {
       include: ['react/jsx-runtime'],
     },
-    plugins: [
-      skipMkcert
-        ? null
-        : Mkcert({
-            hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
-          }),
-      Tailwindcss(),
-      Plugins.Icons({ autoInstall: true }),
-      TsconfigPaths({
-        projects: ['./tsconfig.json'],
-      }),
-      TanstackStart({
-        server: { entry: './server.ts' },
-        srcDirectory: './src',
-        start: { entry: './start.tsx' },
-      }),
-      // must come after TanstackStart
-      React(),
-      // must come last
-      // @see https://docs.sentry.io/platforms/javascript/guides/tanstackstart-react/sourcemaps/uploading/vite/#configuration
-      SentryVitePlugin({
-        authToken: process.env.SENTRY_AUTH_TOKEN,
-        disable: process.env.VERCEL_ENV !== 'production',
-        org: 'ithaca',
-        project: 'porto-manager',
-      }),
-      cloudflare({
-        viteEnvironment: {
-          name: 'ssr',
-        },
-      }),
-    ],
+    plugins,
     resolve: {
       dedupe: ['react', 'react-dom'],
     },

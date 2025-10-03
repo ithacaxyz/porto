@@ -18,6 +18,7 @@
     "clean": "rm -rf dist ./tsconfig.build.tsbuildinfo src/tsconfig.build.tsbuildinfo",
     "deps": "pnpx taze -r",
     "dev": "pnpm preconstruct && pnpm --filter dialog --filter id --filter playground --filter service dev",
+    "dev:id2": "pnpm preconstruct && pnpm --filter dialog --filter id2 --filter playground --filter service dev",
     "dev:anvil": "pnpm preconstruct && ANVIL=true pnpm --filter playground --filter dialog --filter id dev",
     "dev:cli": "tsx src/cli/bin/index.ts",
     "dev:ext": "pnpm --filter extension dev",
