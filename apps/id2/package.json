@@ -7,12 +7,13 @@
     "dev": "vite dev --port 5174",
     "build": "vite build && tsc --noEmit",
     "start": "vite start",
+    "serve": "vite serve",
     "check": "biome check --write --unsafe",
-    "check:types": "tsc --noEmit"
+    "check:types": "tsc --noEmit",
+    "typegen": "wrangler types --env-interface Env"
   },
   "dependencies": {
     "@ariakit/react": "catalog:",
-    "nitro": "npm:nitro-nightly",
     "@ariakit/tailwind": "catalog:",
     "@porto/apps": "workspace:*",
     "@porto/ui": "workspace:*",
@@ -35,6 +36,8 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.13.9",
+    "wrangler": "^4.41.0",
     "@iconify/json": "catalog:",
     "@sentry/vite-plugin": "catalog:",
     "@svgr/core": "catalog:",
