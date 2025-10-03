@@ -27,7 +27,7 @@
     "dev:ext": "pnpm --filter extension dev",
     "dev:interop": "pnpm preconstruct && pnpm --filter dialog --filter id --filter playground-interop dev",
     "dev:theme": "pnpm preconstruct && pnpm --filter dialog --filter id --filter playground --filter theme dev",
-    "dev:wagmi": "pnpm preconstruct && pnpm --filter dialog --filter id --filter wagmi-example dev",
+    "dev:wagmi": "pnpm preconstruct && pnpm --filter dialog --filter id2 --filter wagmi-example dev",
     "docs:build": "pnpm --filter docs build",
     "docs:dev": "pnpm --filter dialog --filter id --filter docs dev",
     "format": "biome format --write",
