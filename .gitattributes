@@ -7,3 +7,4 @@ wrangler.json linguist-language=JSON-with-Comments
 apple-app-site-association linguist-language=JSON
 
 routeTree.gen.ts linguist-generated=true
+worker-configuration.d.ts linguist-generated=true
