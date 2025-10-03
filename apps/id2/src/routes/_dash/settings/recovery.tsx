@@ -1,12 +1,7 @@
 import * as Ariakit from '@ariakit/react'
 import { Toast } from '@porto/apps/components'
 import * as Ui from '@porto/ui'
-import {
-  CatchBoundary,
-  createFileRoute,
-  Link,
-  useNavigate,
-} from '@tanstack/react-router'
+import { CatchBoundary, createFileRoute, Link } from '@tanstack/react-router'
 import { Chains } from 'porto'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
@@ -18,40 +13,45 @@ import {
   useConnectors,
   useDisconnect,
 } from 'wagmi'
+import * as Porto from '~/lib/Porto.ts'
 import { mipdConfig } from '~/lib/Wagmi'
 
 export const Route = createFileRoute('/_dash/settings/recovery')({
   component: RouteComponent,
-  // ssr: false,
 })
 
 function RouteComponent() {
   const account = useAccount()
-  const navigate = useNavigate()
 
   const [_view, setView] = React.useState<'default' | 'success' | 'loading'>(
     'default',
   )
 
+  // In dev mode, use testnet (Base Sepolia) by default
   const desiredChain = React.useMemo(() => {
-    const params = new URLSearchParams(window.location.search)
-    return params.has('testnet') && params.get('testnet') !== 'false'
-      ? Chains.baseSepolia
-      : Chains.base
+    return import.meta.env.DEV ? Chains.baseSepolia : Chains.base
   }, [])
 
-  // Ensure `porto.chainId` search param is set based on `?testnet` flag
+  // Ensure Porto uses the desired chain
   React.useEffect(() => {
-    if (typeof window === 'undefined') return
-    const params = new URLSearchParams(window.location.search)
-    const current = Number(params.get('porto.chainId') ?? Number.NaN)
-    if (current === desiredChain.id) return
-    void navigate({
-      replace: true,
-      search: (prev) => ({ ...prev, 'porto.chainId': desiredChain.id }),
-      to: '.',
+    const currentChainId = Porto.porto._internal.store.getState().chainIds[0]
+    if (currentChainId === desiredChain.id) return
+
+    console.log(
+      '[recovery] Updating Porto chainId to:',
+      desiredChain.name,
+      desiredChain.id,
+    )
+
+    // Update Porto's internal state with the desired chainId as primary
+    const otherChainIds = Porto.config.chains
+      .map((chain) => chain.id)
+      .filter((id) => id !== desiredChain.id)
+
+    Porto.porto._internal.store.setState({
+      chainIds: [desiredChain.id, ...otherChainIds] as never,
     })
-  }, [navigate, desiredChain])
+  }, [desiredChain])
 
   const connect = useConnect({ config: mipdConfig })
   const disconnect = useDisconnect({ config: mipdConfig })
@@ -60,7 +60,7 @@ function RouteComponent() {
   )
 
   const grantAdmin = Hooks.useGrantAdmin()
-  const { data } = Hooks.useAdmins()
+  const { data } = Hooks.useAdmins({ chainId: desiredChain.id })
   const revokeAdmin = Hooks.useRevokeAdmin()
 
   const disconnectAll = async () =>
