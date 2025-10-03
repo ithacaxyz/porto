@@ -224,9 +224,6 @@ export default defineConfig(({ mode }) => {
     define: {
       __APP_VERSION__: JSON.stringify(commitSha),
     },
-    optimizeDeps: {
-      include: ['react/jsx-runtime'],
-    },
     plugins,
     server: {
       allowedHosts,
