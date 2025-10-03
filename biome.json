@@ -39,7 +39,8 @@
       "!**/_dist",
       "!**/dist",
       "!**/node_modules",
-      "!**/.next"
+      "!**/.next",
+      "!**/worker-configuration.d.ts"
     ]
   },
   "formatter": {

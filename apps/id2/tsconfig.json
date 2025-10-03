@@ -16,10 +16,20 @@
     "allowImportingTsExtensions": true,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
-    "types": ["unplugin-icons/types/react", "typed-query-selector/strict"],
+    "types": [
+      "vite/client",
+      "unplugin-icons/types/react",
+      "typed-query-selector/strict"
+    ],
     "paths": {
       "~/*": ["./src/*"]
     },
+
     "noEmit": true
-  }
+  },
+  "files": [
+    "./vite-env.d.ts",
+    "./vite.config.ts",
+    "./worker-configuration.d.ts"
+  ]
 }

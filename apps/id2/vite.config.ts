@@ -1,6 +1,7 @@
 import ChildProcess from 'node:child_process'
 import NodeFS from 'node:fs'
 import NodePath from 'node:path'
+import { cloudflare } from '@cloudflare/vite-plugin'
 import { sentryVitePlugin as SentryVitePlugin } from '@sentry/vite-plugin'
 import Tailwindcss from '@tailwindcss/vite'
 import { tanstackStart as TanstackStart } from '@tanstack/react-start/plugin/vite'
@@ -65,6 +66,11 @@ export default defineConfig(({ mode }) => {
         disable: process.env.VERCEL_ENV !== 'production',
         org: 'ithaca',
         project: 'porto-manager',
+      }),
+      cloudflare({
+        viteEnvironment: {
+          name: 'ssr',
+        },
       }),
     ],
     resolve: {
