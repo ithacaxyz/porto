@@ -35,6 +35,9 @@ function ButtonComponent() {
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="positive">Positive</Button>
           </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button variant="warning">Warning</Button>
+          </div>
         </div>
       </ComponentScreen.Section>
       <ComponentScreen.Section title="Sizes">
