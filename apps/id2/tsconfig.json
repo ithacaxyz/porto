@@ -24,7 +24,6 @@
     "paths": {
       "~/*": ["./src/*"]
     },
-
     "noEmit": true
   },
   "files": [

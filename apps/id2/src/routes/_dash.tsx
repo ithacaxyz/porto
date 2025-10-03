@@ -22,21 +22,30 @@ export const Route = createFileRoute('/_dash')({
 })
 
 function RouteComponent() {
-  const account = useAccount()
+  const navigate = useNavigate()
 
+  const account = useAccount()
   const disconnect = useDisconnect()
 
-  const navigate = useNavigate()
+  const [isInitialLoad, setIsInitialLoad] = React.useState(true)
+
+  React.useEffect(() => {
+    setIsInitialLoad(false)
+  }, [])
 
   useAccountEffect({
     onDisconnect() {
+      if (isInitialLoad) return
       void navigate({ to: '/auth' })
     },
   })
 
   React.useEffect(() => {
-    if (!account.address) void navigate({ to: '/auth' })
-  }, [account.address, navigate])
+    if (isInitialLoad) return
+    if (account.status === 'disconnected') {
+      void navigate({ to: '/auth' })
+    }
+  }, [account.status, navigate, isInitialLoad])
 
   const links = React.useMemo(() => {
     return [

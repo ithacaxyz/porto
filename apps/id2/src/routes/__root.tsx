@@ -34,7 +34,14 @@ export const Route = createRootRouteWithContext<{
     links: [
       { href: appCss, rel: 'stylesheet' },
       { color: '#fffff', href: '/site.webmanifest', rel: 'manifest' },
-      { href: '/favicon.ico', rel: 'icon' },
+
+      { href: '/icon-light.png', rel: 'icon', type: 'image/png' },
+      {
+        href: '/icon-dark.png',
+        media: '(prefers-color-scheme: light)',
+        rel: 'icon',
+        type: 'image/png',
+      },
     ],
     meta: [
       {

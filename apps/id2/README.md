@@ -6,7 +6,7 @@ From root, run:
 
 ```sh
 pnpm i
-pnpm dev:id
+pnpm dev:id2
 ```
 
 ### Icons
