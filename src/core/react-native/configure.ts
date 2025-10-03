@@ -2,14 +2,11 @@ import * as AuthSession from 'expo-auth-session'
 import * as WebBrowser from 'expo-web-browser'
 import { Platform } from 'react-native'
 
-import {
-  isEnvironmentConfigured,
-  type ReactNativeEnvironment,
-  reactNative,
-} from './environment.js'
+import { isEnvironmentConfigured, reactNative } from './environment.js'
+import type { ReactNativeEnvironment } from './types.js'
 import { isReactNative } from './utils.js'
 
-export function configureExpoEnvironment() {
+export function configureReactNativeEnvironment() {
   if (isEnvironmentConfigured()) return reactNative.environment
 
   WebBrowser.maybeCompleteAuthSession()
@@ -27,4 +24,5 @@ export function configureExpoEnvironment() {
   return environment
 }
 
-if (isReactNative() && !isEnvironmentConfigured()) configureExpoEnvironment()
+if (isReactNative() && !isEnvironmentConfigured())
+  configureReactNativeEnvironment()

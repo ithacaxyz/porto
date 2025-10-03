@@ -2,9 +2,7 @@ import type { ReactNativeEnvironment } from './types.js'
 
 let environment: ReactNativeEnvironment
 
-export function isEnvironmentConfigured(): boolean {
-  return environment !== undefined
-}
+export const isEnvironmentConfigured = () => environment !== undefined
 
 export const reactNative = {
   get environment() {
