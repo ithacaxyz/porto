@@ -65,10 +65,22 @@ function RouteComponent() {
         >
           <div className="flex size-full justify-between">
             <div className="*:-mr-5 flex gap-2 *:size-9.5 *:rounded-full *:outline-[3.5px] *:outline-gray1 dark:*:outline-gray">
-              <img alt="ETH icon" src="/token-icons/eth.svg" />
-              <img alt="HYPE icon" src="/token-icons/hype.svg" />
-              <img alt="UNI icon" src="/token-icons/uni.svg" />
-              <img alt="USDC icon" src="/token-icons/usdc.svg" />
+              <img
+                alt="ETH icon"
+                src="https://tokenlist.up.railway.app/icon/1/eth"
+              />
+              <img
+                alt="HYPE icon"
+                src="https://tokenlist.up.railway.app/icon/non-evm/hype"
+              />
+              <img
+                alt="UNI icon"
+                src="https://tokenlist.up.railway.app/icon/1/uni"
+              />
+              <img
+                alt="USDC icon"
+                src="https://tokenlist.up.railway.app/icon/1/usdc"
+              />
             </div>
             <Ariakit.Button
               className="h-min rounded-4xl bg-gray2 px-3.5 py-2.5 font-medium text-base outline-1 outline-gray3 outline-offset-[-1px]"
@@ -104,29 +116,29 @@ function RouteComponent() {
             <div className="*:-mr-5 flex gap-2 *:size-9.5 *:rounded-full *:outline-[3.5px] *:outline-gray1 dark:*:outline-gray">
               <div>
                 <img
-                  alt="Chain 56 icon"
-                  className="size-9.5"
-                  src="https://tokenlist.up.railway.app/icon/56"
-                />
-              </div>
-              <div>
-                <img
                   alt="Chain 42161 icon"
-                  className="size-9.5"
+                  className="size-9.5 rounded-full"
                   src="https://tokenlist.up.railway.app/icon/42161"
                 />
               </div>
               <div>
                 <img
+                  alt="Chain 56 icon"
+                  className="size-9.5 rounded-full"
+                  src="https://tokenlist.up.railway.app/icon/56"
+                />
+              </div>
+              <div>
+                <img
                   alt="Chain 137 icon"
-                  className="size-9.5"
+                  className="size-9.5 rounded-full"
                   src="https://tokenlist.up.railway.app/icon/137"
                 />
               </div>
               <div>
                 <img
                   alt="Chain 10 icon"
-                  className="size-9.5"
+                  className="size-9.5 rounded-full"
                   src="https://tokenlist.up.railway.app/icon/10"
                 />
               </div>

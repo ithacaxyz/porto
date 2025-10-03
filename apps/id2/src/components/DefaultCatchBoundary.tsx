@@ -1,3 +1,4 @@
+import * as Ui from '@porto/ui'
 import type { ErrorComponentProps } from '@tanstack/react-router'
 import {
   ErrorComponent,
@@ -20,17 +21,14 @@ export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
     <div className="flex min-w-0 flex-1 flex-col items-center justify-center gap-6 p-4">
       <ErrorComponent error={error} />
       <div className="flex flex-wrap items-center gap-2">
-        <button
-          className={
-            'rounded bg-gray-600 px-2 py-1 font-extrabold text-white uppercase dark:bg-gray-700'
-          }
+        <Ui.Button
           onClick={() => {
             router.invalidate()
           }}
           type="button"
         >
           Try Again
-        </button>
+        </Ui.Button>
         {isRoot ? (
           <Link
             className={
@@ -45,8 +43,8 @@ export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
             className={
               'rounded bg-gray-600 px-2 py-1 font-extrabold text-white uppercase dark:bg-gray-700'
             }
-            onClick={(_e) => {
-              // e.preventDefault()
+            onClick={(e) => {
+              e.preventDefault()
               window.history.back()
             }}
             to="/"
