@@ -16,6 +16,8 @@ import {
 } from 'viem'
 import { useAccount, useSendCalls } from 'wagmi'
 import { waitForCallsStatus } from 'wagmi/actions'
+import { ChainIcon } from '~/components/ChainIcon.tsx'
+import { TokenIcon } from '~/components/TokenIcon.tsx'
 import * as Porto from '~/lib/Porto.ts'
 import * as Wagmi from '~/lib/Wagmi.ts'
 import { StringFormatter, ValueFormatter } from '~/utils.ts'
@@ -393,20 +395,20 @@ function RouteComponent() {
                               {sourceAsset ? (
                                 <div className="flex gap-2.5">
                                   <div className="relative">
-                                    <img
-                                      alt={sourceAsset.symbol}
-                                      src={`https://tokenlist.up.railway.app/icon/${formState.values.sourceChainId}/${sourceAsset.symbol.toLowerCase()}`}
+                                    <TokenIcon
+                                      size={24}
+                                      symbol={sourceAsset.symbol}
                                     />
+
                                     <div className="-end-1.25 -bottom-1 absolute size-4">
                                       {sourceAsset.chainId <= 0 ? (
                                         <div className="flex size-full items-center justify-center rounded-full bg-gray5">
                                           <LucideArrowLeftRight className="size-2.5 text-gray10" />
                                         </div>
                                       ) : (
-                                        <img
-                                          alt={`Chain ${sourceAsset.chainId} icon`}
+                                        <ChainIcon
+                                          chainId={sourceAsset.chainId}
                                           className="size-4"
-                                          src={`https://tokenlist.up.railway.app/icon/${sourceAsset.chainId}`}
                                         />
                                       )}
                                     </div>
@@ -428,17 +430,14 @@ function RouteComponent() {
                             }}
                           >
                             <Ariakit.TabList className="scrollbar-width-thin scrollbar-gray6 h-full max-h-57 min-w-36.5 space-y-px overflow-y-auto p-2.5">
-                              {assets?.map(([symbol, values]) => (
+                              {assets?.map(([symbol, _values]) => (
                                 <Ariakit.Tab
                                   className="flex h-11.5 w-full items-center gap-2 rounded-[10px] px-3 font-medium text-[16px] hover:bg-gray3 aria-selected:bg-gray4 data-focus-visible:bg-gray4"
                                   id={symbol}
                                   key={symbol}
                                 >
-                                  <img
-                                    alt={symbol}
-                                    className="size-6"
-                                    src={`https://tokenlist.up.railway.app/icon/${values.at(-1)?.chainId}/${symbol.toLowerCase()}`}
-                                  />
+                                  <TokenIcon size={24} symbol={symbol} />
+
                                   <div>{symbol}</div>
                                 </Ariakit.Tab>
                               ))}
@@ -478,10 +477,9 @@ function RouteComponent() {
                                         <div className="flex gap-2.5">
                                           {value.chainId !== 0 &&
                                           value.chainId !== -1 ? (
-                                            <img
-                                              alt={`Chain ${value.chainId} icon`}
+                                            <ChainIcon
+                                              chainId={value.chainId}
                                               className="size-6"
-                                              src={`https://tokenlist.up.railway.app/icon/${value.chainId}`}
                                             />
                                           ) : (
                                             <div className="flex size-6 items-center justify-center rounded-full bg-gray5">
@@ -544,10 +542,12 @@ function RouteComponent() {
                           <div className="flex items-center justify-between gap-2.5">
                             {formState.values.targetChainId ? (
                               <div className="flex gap-2.5">
-                                <img
-                                  alt={`Chain ${formState.values.targetChainId} icon`}
+                                <ChainIcon
+                                  chainId={Number.parseInt(
+                                    formState.values.targetChainId,
+                                    10,
+                                  )}
                                   className="size-6"
-                                  src={`https://tokenlist.up.railway.app/icon/${formState.values.targetChainId}`}
                                 />
                                 <div className="whitespace-nowrap">
                                   {Porto.config.chains.find(
@@ -583,10 +583,9 @@ function RouteComponent() {
                                 value={chain.id.toString()}
                               >
                                 <div className="flex gap-2.5">
-                                  <img
-                                    alt={`Chain ${chain.id} icon`}
+                                  <ChainIcon
+                                    chainId={chain.id}
                                     className="size-6"
-                                    src={`https://tokenlist.up.railway.app/icon/${chain.id}`}
                                   />
                                   <div>{chain.name}</div>
                                 </div>

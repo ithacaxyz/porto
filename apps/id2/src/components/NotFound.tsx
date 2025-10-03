@@ -1,3 +1,4 @@
+import * as Ui from '@porto/ui'
 import { Link } from '@tanstack/react-router'
 
 export function NotFound({ children }: { children?: any }) {
@@ -7,19 +8,16 @@ export function NotFound({ children }: { children?: any }) {
         {children || <p>The page you are looking for does not exist.</p>}
       </div>
       <p className="flex flex-wrap items-center gap-2">
-        <button
-          className="rounded bg-emerald-500 px-2 py-1 font-black text-sm text-white uppercase"
+        <Ui.Button
           onClick={() => window.history.back()}
           type="button"
+          variant="primary"
         >
           Go back
-        </button>
-        <Link
-          className="rounded bg-cyan-600 px-2 py-1 font-black text-sm text-white uppercase"
-          to="/"
-        >
-          Start Over
-        </Link>
+        </Ui.Button>
+        <Ui.Button variant="secondary">
+          <Link to="/">Start Over</Link>
+        </Ui.Button>
       </p>
     </div>
   )
