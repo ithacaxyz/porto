@@ -6,6 +6,10 @@
     "paths": {
       "~/*": ["./src/*"]
     },
-    "types": ["unplugin-icons/types/react", "typed-query-selector/strict"]
+    "types": [
+      "unplugin-icons/types/react",
+      "typed-query-selector/strict",
+      "vite-plugin-terminal/client"
+    ]
   }
 }

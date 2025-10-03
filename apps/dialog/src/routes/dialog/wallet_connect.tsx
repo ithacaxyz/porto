@@ -3,10 +3,10 @@ import { createFileRoute } from '@tanstack/react-router'
 import * as Provider from 'ox/Provider'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
-
 import * as Dialog from '~/lib/Dialog'
 import * as PermissionsRequest from '~/lib/PermissionsRequest'
 import { porto } from '~/lib/Porto'
+import { useAuthSessionRedirect } from '~/lib/ReactNative'
 import * as Router from '~/lib/Router'
 import { Email } from '../-components/Email'
 import { SignIn } from '../-components/SignIn'
@@ -174,6 +174,8 @@ function RouteComponent() {
     grantPermissionsQuery.isFetching,
     respond.isPending,
   ])
+
+  useAuthSessionRedirect(respond)
 
   if (respond.isSuccess) return
 

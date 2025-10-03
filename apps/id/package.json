@@ -33,6 +33,7 @@
     "wagmi": "catalog:"
   },
   "devDependencies": {
+    "vite-plugin-terminal": "^1.3.0",
     "@iconify/json": "catalog:",
     "@svgr/core": "catalog:",
     "@svgr/plugin-jsx": "catalog:",

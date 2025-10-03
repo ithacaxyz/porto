@@ -5,6 +5,7 @@ import { Actions } from 'porto/remote'
 import { useMemo } from 'react'
 
 import { porto } from '~/lib/Porto'
+import { useAuthSessionRedirect } from '~/lib/ReactNative'
 import * as Router from '~/lib/Router'
 import { SignMessage } from '../-components/SignMessage'
 
@@ -29,6 +30,8 @@ function RouteComponent() {
       return Actions.respond(porto, request)
     },
   })
+
+  useAuthSessionRedirect(respond)
 
   if (Object.keys(siwe).length > 0)
     return (

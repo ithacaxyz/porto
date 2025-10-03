@@ -4,6 +4,7 @@ import { Actions } from 'porto/remote'
 import * as React from 'react'
 
 import { porto } from '~/lib/Porto'
+import { useAuthSessionRedirect } from '~/lib/ReactNative'
 import * as Router from '~/lib/Router'
 import * as TypedMessages from '~/lib/TypedMessages'
 import {
@@ -30,6 +31,8 @@ function RouteComponent() {
       return Actions.respond(porto, request)
     },
   })
+
+  useAuthSessionRedirect(respond)
 
   const handleSign = () => respond.mutate()
   const handleReject = () => Actions.reject(porto, request)

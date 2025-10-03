@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Actions } from 'porto/remote'
 
 import { porto } from '~/lib/Porto'
+import { useAuthSessionRedirect } from '~/lib/ReactNative'
 import * as Router from '~/lib/Router'
 import { VerifyEmail } from '../-components/VerifyEmail'
 
@@ -24,6 +25,8 @@ function RouteComponent() {
       return Actions.respond(porto, request)
     },
   })
+
+  useAuthSessionRedirect(respond)
 
   return (
     <VerifyEmail

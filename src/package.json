@@ -45,6 +45,18 @@
     },
     "wagmi": {
       "optional": true
+    },
+    "react-native": {
+      "optional": true
+    },
+    "expo": {
+      "optional": true
+    },
+    "expo-auth-session": {
+      "optional": true
+    },
+    "expo-web-browser": {
+      "optional": true
     }
   },
   "license": "MIT",

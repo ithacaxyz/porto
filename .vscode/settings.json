@@ -18,7 +18,7 @@
     "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
   },
   "[mdx]": {
-    "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
+    "editor.defaultFormatter": "unifiedjs.vscode-mdx"
   },
   "[typescript]": {
     "editor.defaultFormatter": "biomejs.biome"
