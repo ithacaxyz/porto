@@ -21,12 +21,13 @@
     "clean": "rm -rf src/_dist ./tsconfig.build.tsbuildinfo src/tsconfig.build.tsbuildinfo",
     "deps": "pnpx taze -r",
     "dev": "pnpm preconstruct && pnpm --filter dialog --filter id --filter playground --filter service dev",
+    "dev:id2": "pnpm preconstruct && pnpm --filter dialog --filter id2 --filter playground --filter service dev",
     "dev:anvil": "pnpm preconstruct && ANVIL=true pnpm --filter playground --filter dialog --filter id dev",
     "dev:cli": "tsx src/cli/bin/index.ts",
     "dev:ext": "pnpm --filter extension dev",
     "dev:interop": "pnpm preconstruct && pnpm --filter dialog --filter id --filter playground-interop dev",
     "dev:theme": "pnpm preconstruct && pnpm --filter dialog --filter id --filter playground --filter theme dev",
-    "dev:wagmi": "pnpm preconstruct && pnpm --filter dialog --filter id --filter wagmi-example dev",
+    "dev:wagmi": "pnpm preconstruct && pnpm --filter dialog --filter id2 --filter wagmi-example dev",
     "docs:build": "pnpm --filter docs build",
     "docs:dev": "pnpm --filter dialog --filter id --filter docs dev",
     "format": "biome format --write",
@@ -41,7 +42,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.17.1",
-    "@biomejs/biome": "^2.2.4",
+    "@biomejs/biome": "^2.2.5",
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.7",
     "@clack/prompts": "~0.11.0",
@@ -134,7 +135,6 @@
       "ox": "catalog:",
       "porto": "workspace:*",
       "viem": "catalog:",
-
       "ws@>=8.0.0 <8.17.1": "8.17.1",
       "nanoid@>=4.0.0 <5.0.9": "5.0.9",
       "tar-fs@>=3.0.0 <3.0.7": "3.0.7",
@@ -155,8 +155,8 @@
       "bigint-buffer@<=1.1.5": "npm:bigint-buffer-fixed"
     },
     "patchedDependencies": {
-      "@tanstack/react-router": "patches/@tanstack__react-router.patch",
-      "@wagmi/cli": "patches/@wagmi__cli.patch"
+      "@wagmi/cli": "patches/@wagmi__cli.patch",
+      "@tanstack/react-router": "patches/@tanstack__react-router.patch"
     }
   }
 }

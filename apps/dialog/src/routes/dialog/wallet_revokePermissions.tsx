@@ -17,13 +17,16 @@ export const Route = createFileRoute('/dialog/wallet_revokePermissions')({
 
 function RouteComponent() {
   const request = Route.useSearch()
-  const parameters = request.params[0]
+  const parameters = request.params?.[0] ?? {}
 
   const respond = useMutation({
     mutationFn() {
       return Actions.respond(porto, request)
     },
   })
+
+  // Don't render until we have the required data
+  if (!parameters.id) return null
 
   return (
     <RevokePermissions
