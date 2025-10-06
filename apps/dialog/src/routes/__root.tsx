@@ -10,6 +10,7 @@ import {
 import { Actions, Hooks } from 'porto/remote'
 import { hostnames } from 'porto/trusted-hosts'
 import * as React from 'react'
+import { ErrorBoundary } from '~/components/ErrorBoundary'
 import * as Dialog from '~/lib/Dialog'
 import { EnsureVisibility } from '~/lib/IntersectionObserver'
 import { porto } from '~/lib/Porto'
@@ -182,22 +183,24 @@ function RouteComponent() {
         }}
         visible
       >
-        <CheckError>
-          <CheckUnsupportedBrowser>
-            <CheckReferrer>
-              <EnsureVisibility enabled={enableEnsureVisibility}>
-                <div
-                  className="flex h-full w-full flex-col"
-                  key={
-                    import.meta.env.MODE !== 'test' ? request?.id : undefined
-                  }
-                >
-                  <Outlet />
-                </div>
-              </EnsureVisibility>
-            </CheckReferrer>
-          </CheckUnsupportedBrowser>
-        </CheckError>
+        <ErrorBoundary>
+          <CheckError>
+            <CheckUnsupportedBrowser>
+              <CheckReferrer>
+                <EnsureVisibility enabled={enableEnsureVisibility}>
+                  <div
+                    className="flex h-full w-full flex-col"
+                    key={
+                      import.meta.env.MODE !== 'test' ? request?.id : undefined
+                    }
+                  >
+                    <Outlet />
+                  </div>
+                </EnsureVisibility>
+              </CheckReferrer>
+            </CheckUnsupportedBrowser>
+          </CheckError>
+        </ErrorBoundary>
       </UI.Frame>
 
       <React.Suspense>
