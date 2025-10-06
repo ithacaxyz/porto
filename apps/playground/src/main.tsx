@@ -10,4 +10,4 @@ createRoot(document.getElementById('root')!).render(
 )
 
 if (import.meta.env.VERCEL_ENV !== 'production')
-  import('eruda').then(({ default: eruda }) => eruda.init())
+  void import('eruda').then(({ default: eruda }) => eruda.init())

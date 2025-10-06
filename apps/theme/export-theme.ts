@@ -532,7 +532,7 @@ if (args.values.watch) {
   const stdoutMode = outPath === null
   if (stdoutMode) console.clear()
 
-  exportTheme()
+  await exportTheme()
 
   if (!stdoutMode) console.log('Watching for changes…')
 
@@ -548,7 +548,7 @@ if (args.values.watch) {
     }
   })
 } else {
-  exportTheme()
+  await exportTheme()
 }
 
 // thanks https://stackoverflow.com/a/3943023

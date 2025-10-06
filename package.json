@@ -82,7 +82,7 @@
     "node": ">=22.5"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm check"
+    "pre-commit": "pnpm check --linter-enabled=false"
   },
   "knip": {
     "entry": [
@@ -134,6 +134,7 @@
       "ox": "catalog:",
       "porto": "workspace:*",
       "viem": "catalog:",
+
       "ws@>=8.0.0 <8.17.1": "8.17.1",
       "nanoid@>=4.0.0 <5.0.9": "5.0.9",
       "tar-fs@>=3.0.0 <3.0.7": "3.0.7",

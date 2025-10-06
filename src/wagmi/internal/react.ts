@@ -121,7 +121,7 @@ export function useAdmins<
   // biome-ignore lint/correctness/useExhaustiveDependencies: `queryKey` not required
   useEffect(() => {
     if (!activeConnector) return
-    ;(async () => {
+    void (async () => {
       provider.current ??=
         (await activeConnector.getProvider?.()) as EIP1193Provider
       provider.current?.on('message', (event) => {
@@ -222,7 +222,7 @@ export function useAssets<
   // biome-ignore lint/correctness/useExhaustiveDependencies: `queryKey` not required
   useEffect(() => {
     if (!activeConnector) return
-    ;(async () => {
+    void (async () => {
       provider.current ??=
         (await activeConnector.getProvider?.()) as EIP1193Provider
       provider.current?.on('message', (event) => {
@@ -475,7 +475,7 @@ export function usePermissions<
   // biome-ignore lint/correctness/useExhaustiveDependencies: `queryKey` not required
   useEffect(() => {
     if (!activeConnector) return
-    ;(async () => {
+    void (async () => {
       provider.current ??=
         (await activeConnector.getProvider?.()) as EIP1193Provider
       provider.current?.on('message', (event) => {

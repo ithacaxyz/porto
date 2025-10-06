@@ -122,7 +122,7 @@ porto._internal.store.subscribe(
 )
 
 porto.messenger.on('success', (payload) => {
-  Router.router.navigate({
+  void Router.router.navigate({
     search: (search) => ({ ...search, ...payload }) as never,
     to: '/dialog/success',
   })

@@ -73,7 +73,7 @@ function Me() {
     <div>
       <button
         onClick={() => {
-          fetch('/api/me', { credentials: 'include' })
+          void fetch('/api/me', { credentials: 'include' })
             .then((res) => res.text())
             .then((data) => setMe(data))
         }}

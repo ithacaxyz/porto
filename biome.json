@@ -81,6 +81,7 @@
         "useExhaustiveDependencies": "error"
       },
       "nursery": {
+        "noFloatingPromises": "error",
         "useSortedClasses": {
           "fix": "safe",
           "level": "error",
