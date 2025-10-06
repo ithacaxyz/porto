@@ -65,11 +65,9 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
       }
     >
       <ActionRequest.PaneWithDetails
-        error={prepareCallsQuery.error}
-        errorMessage="An error occurred while calculating fees. This may be due to network issues or insufficient funds."
         feeTotals={feeTotals}
         quotes={quotes}
-        status={prepareCallsQuery.status}
+        status={prepareCallsQuery.isPending ? 'pending' : 'success'}
       >
         {revokeKey && (
           <div className="flex items-center justify-center gap-2">
