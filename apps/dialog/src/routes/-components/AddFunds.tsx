@@ -1,18 +1,13 @@
 import { UserAgent } from '@porto/apps'
 import { exp1Address } from '@porto/apps/contracts'
 import { Button, PresetsInput, Separator } from '@porto/ui'
-import {
-  QueryClient,
-  QueryClientProvider,
-  useMutation,
-} from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { cx } from 'cva'
 import { type Address, type Hex, Value } from 'ox'
 import { Hooks as RemoteHooks } from 'porto/remote'
 import { RelayActions } from 'porto/viem'
 import * as React from 'react'
 import { zeroAddress } from 'viem'
-import { createConfig, WagmiProvider } from 'wagmi'
 import * as z from 'zod/mini'
 import { DepositButtons } from '~/components/DepositButtons'
 import * as Dialog from '~/lib/Dialog'
@@ -23,14 +18,6 @@ import Star from '~icons/ph/star-four-bold'
 
 const presetAmounts = ['30', '50', '100', '250'] as const
 const maxAmount = 500
-
-const config = createConfig({
-  chains: porto._internal.config.chains,
-  multiInjectedProviderDiscovery: true,
-  storage: null,
-  transports: porto._internal.config.transports,
-})
-const queryClient = new QueryClient()
 
 type View = 'default' | 'error' | 'onramp'
 
@@ -126,11 +113,11 @@ export function AddFunds(props: AddFunds.Props) {
             />
           )}
           {view !== 'onramp' && (
-            <WagmiProvider config={config} reconnectOnMount={false}>
-              <QueryClientProvider client={queryClient}>
-                <DepositButtons address={address ?? ''} chainId={chain?.id} />
-              </QueryClientProvider>
-            </WagmiProvider>
+            <DepositButtons
+              address={address ?? ''}
+              chainId={chain?.id}
+              nativeTokenName={chain?.nativeCurrency?.symbol}
+            />
           )}
         </div>
       </Layout.Content>

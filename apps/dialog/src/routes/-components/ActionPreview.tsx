@@ -351,7 +351,12 @@ function FundsNeededSection(props: {
       )}
 
       {depositAddress && (
-        <DepositButtons address={depositAddress} chainId={deficit.chainId} />
+        <DepositButtons
+          address={depositAddress}
+          assetDeficits={deficit.assetDeficits}
+          chainId={deficit.chainId}
+          nativeTokenName={chain?.nativeCurrency?.symbol}
+        />
       )}
     </div>
   )

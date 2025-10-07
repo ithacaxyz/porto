@@ -1,76 +1,321 @@
-import { Button, Deposit, Spinner } from '@porto/ui'
+import * as Ariakit from '@ariakit/react'
+import { Button, Deposit } from '@porto/ui'
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
+import { Hex, Value } from 'ox'
+import type * as Quote_schema from 'porto/core/internal/relay/schema/quotes'
 import * as React from 'react'
-import { useAccount, useConnect, useDisconnect } from 'wagmi'
+import { encodeFunctionData, erc20Abi, zeroAddress } from 'viem'
+import {
+  createConfig,
+  useAccount,
+  useAccountEffect,
+  useConnect,
+  useDisconnect,
+  useSendCalls,
+  useWaitForCallsStatus,
+  WagmiProvider,
+} from 'wagmi'
+import { porto } from '~/lib/Porto'
 
-export function DepositButtons(props: { address: string; chainId?: number }) {
-  const { address, chainId } = props
-  const { connector } = useAccount()
+const config = createConfig({
+  chains: porto._internal.config.chains,
+  multiInjectedProviderDiscovery: true,
+  storage: null,
+  transports: porto._internal.config.transports,
+})
+const queryClient = new QueryClient()
+
+export function DepositButtons(props: {
+  address: string
+  chainId?: number
+  assetDeficits?: Quote_schema.AssetDeficit[]
+  nativeTokenName?: string
+}) {
+  const { address, assetDeficits, chainId, nativeTokenName } = props
+  return (
+    <WagmiProvider config={config} reconnectOnMount={false}>
+      <QueryClientProvider client={queryClient}>
+        <div className="flex w-full flex-col gap-[8px]">
+          <Deposit address={address} />
+          <DepositFromWallet
+            address={address}
+            assetDeficits={assetDeficits}
+            chainId={chainId}
+            nativeTokenName={nativeTokenName}
+          />
+        </div>
+      </QueryClientProvider>
+    </WagmiProvider>
+  )
+}
+
+function DepositFromWallet(props: {
+  address: string
+  chainId?: number
+  assetDeficits?: Quote_schema.AssetDeficit[]
+  nativeTokenName?: string
+}) {
+  const { address, assetDeficits, chainId, nativeTokenName } = props
+  const [view, setView] = React.useState<
+    'default' | 'connected-wallet-transfer' | 'connected-wallet-no-funds'
+  >('default')
+  const { address: account, connector } = useAccount()
   const disconnect = useDisconnect()
-  const connect = useConnect()
+  const queryClient = useQueryClient()
+  const connect = useConnect({
+    mutation: {
+      async onSuccess(data) {
+        if (chainId === undefined) return
 
-  const options = React.useMemo(
-    () =>
-      [
-        {
-          icon: <MetaMaskIcon />,
-          name: 'MetaMask',
-          rdns: 'io.metamask',
-        },
-        {
-          icon: <PhantomIcon />,
-          name: 'Phantom',
-          rdns: 'app.phantom',
-        },
-        {
-          icon: <CoinbaseIcon />,
-          name: 'Coinbase',
-          rdns: 'com.coinbase.wallet',
-        },
-      ].map((option) => ({
-        ...option,
-        connector: connect.connectors.find(
-          (connector) => option.rdns === connector.id,
-        ),
-      })),
-    [connect.connectors],
+        const account = data.accounts[0] as `0x${string}`
+        const hexChainId = Hex.fromNumber(chainId)
+        const response = await porto.provider.request({
+          method: 'wallet_getAssets',
+          params: [{ account, chainFilter: [hexChainId] }],
+        })
+        const assets = response[hexChainId] ?? []
+        const nonZeroAssets = assets.filter((asset) => asset.balance !== '0x0')
+        queryClient.setQueryData(['assets', { account, chainId }], assets)
+
+        form.setValues(
+          Object.fromEntries(
+            nonZeroAssets.map((asset) => [asset.address ?? zeroAddress, true]),
+          ),
+        )
+
+        const hasRequiredTokenAmount = nonZeroAssets.length > 0
+        setView(
+          hasRequiredTokenAmount
+            ? 'connected-wallet-transfer'
+            : 'connected-wallet-no-funds',
+        )
+      },
+    },
+  })
+
+  const { data: assets = [] } = useQuery({
+    enabled: Boolean(account && chainId),
+    async queryFn() {
+      if (!chainId) throw new Error('Missing chainId')
+      const hexChainId = Hex.fromNumber(chainId)
+      const response = await porto.provider.request({
+        method: 'wallet_getAssets',
+        params: [{ account: account! }],
+      })
+      return response[hexChainId]
+    },
+    queryKey: ['assets', { account, chainId }],
+  })
+
+  const nonZeroAssets = React.useMemo(() => {
+    return assets.filter((asset) => asset.balance !== '0x0')
+  }, [assets])
+
+  useAccountEffect({
+    onDisconnect() {
+      setView('default')
+    },
+  })
+
+  const form = Ariakit.useFormStore({})
+  const sendCalls = useSendCalls()
+  const { isLoading: isConfirming } = useWaitForCallsStatus({
+    id: sendCalls.data?.id,
+  })
+  form.useSubmit(async (state) => {
+    if (!address) throw new Error('address is required')
+    if (!connector) throw new Error('connector is required')
+    const calls = []
+    for (const [key, value] of Object.entries(state.values)) {
+      if (!value) continue
+      const asset = assets.find(
+        (asset) => (asset.address ?? zeroAddress) === key,
+      )
+      if (!asset) throw new Error('asset is required')
+
+      const deficit = assetDeficits?.find(
+        (d) => (d.address ?? zeroAddress).toLowerCase() === key.toLowerCase(),
+      )
+
+      const balance = Hex.toBigInt(asset.balance, {
+        size: asset.metadata?.decimals,
+      })
+
+      calls.push(
+        key === 'native' || key === zeroAddress
+          ? ({
+              to: address as `0x${string}`,
+              value: deficit?.required ?? Value.fromEther('0.1'),
+            } as const)
+          : ({
+              data: encodeFunctionData({
+                abi: erc20Abi,
+                args: [address as `0x${string}`, deficit?.required ?? balance],
+                functionName: 'transfer',
+              }),
+              to: key as `0x${string}`,
+            } as const),
+      )
+    }
+    await sendCalls.sendCallsAsync({
+      calls,
+      experimental_fallback: true,
+    })
+  })
+
+  const state = Ariakit.useStoreState(form)
+  const submittable = React.useMemo(
+    () => Object.values(state.values).some((value) => value),
+    [state.values],
   )
 
-  return (
-    <div className="flex w-full flex-col gap-[8px]">
-      <Deposit address={address} />
+  const options = React.useMemo(() => {
+    const wallets = [
+      {
+        icon: <MetaMaskIcon />,
+        name: 'MetaMask',
+        rdns: 'io.metamask',
+      },
+      {
+        icon: <PhantomIcon />,
+        name: 'Phantom',
+        rdns: 'app.phantom',
+      },
+      {
+        icon: <CoinbaseIcon />,
+        name: 'Coinbase',
+        rdns: 'com.coinbase.wallet',
+      },
+    ]
 
-      <div className="flex w-full gap-[8px]">
-        {options.map((option) => (
+    const mapped = wallets.map((option) => ({
+      ...option,
+      connector: connect.connectors.find(
+        (connector) => option.rdns === connector.id,
+      ),
+    }))
+
+    // if there is no named wallet detected but an ethereum provider is present,
+    // the metamask button gets enabled and acts as a generic connect button
+    const hasNamedWallet = mapped.some((w) => w.connector)
+    if (!hasNamedWallet) {
+      const injectedConnector = connect.connectors.find(
+        (c) => c.type === 'injected',
+      )
+      if (injectedConnector)
+        mapped[0] = {
+          connector: injectedConnector,
+          icon: <MetaMaskIcon />,
+          name: 'Connect Wallet',
+          rdns: 'injected',
+        }
+    }
+
+    return mapped
+  }, [connect.connectors])
+
+  if (view === 'connected-wallet-transfer' && account)
+    return (
+      <Ariakit.Form className="flex w-full flex-col gap-[8px]" store={form}>
+        <div className="flex flex-col gap-2">
+          {nonZeroAssets.map((asset) => (
+            // biome-ignore lint/a11y/noLabelWithoutControl: Label contains checkbox
+            <label
+              className="flex h-9 w-full items-center justify-between rounded-md bg-th_secondary px-2"
+              key={asset.address ?? asset.type}
+            >
+              <div>
+                {asset.metadata?.symbol ??
+                  (asset.type === 'native' ? nativeTokenName : asset.type)}
+              </div>
+              <Ariakit.FormCheckbox
+                name={form.names[asset.address ?? zeroAddress] as string}
+              />
+            </label>
+          ))}
+        </div>
+
+        <div className="flex gap-2">
           <Button
-            className="group"
-            disabled={!option.connector}
-            key={option.name}
-            onClick={async () => {
-              if (option.connector) {
-                if (option.connector.id === connector?.id)
-                  await disconnect.disconnectAsync()
-                connect.connect({
-                  chainId: chainId as never,
-                  connector: option.connector,
-                })
-              }
+            onClick={() => {
+              disconnect.disconnect()
+              setView('default')
             }}
-            title={`Connect with ${option.name}`}
             variant="secondary"
             width="grow"
           >
-            <div className="group-disabled:opacity-60">
-              {connect.isPending &&
-              'id' in connect.variables.connector &&
-              connect.variables.connector.id === option.connector?.id ? (
-                <Spinner />
-              ) : (
-                option.icon
-              )}
-            </div>
+            Back
           </Button>
-        ))}
-      </div>
+          <Ariakit.FormSubmit
+            render={
+              <Button
+                disabled={!submittable}
+                loading={
+                  sendCalls.isPending
+                    ? 'Check Wallet'
+                    : isConfirming
+                      ? 'Confirming'
+                      : undefined
+                }
+                variant="primary"
+                width="grow"
+              >
+                Transfer
+              </Button>
+            }
+          />
+        </div>
+      </Ariakit.Form>
+    )
+
+  if (view === 'connected-wallet-no-funds' && account)
+    return (
+      <Button
+        onClick={() => {
+          disconnect.disconnect()
+          setView('default')
+        }}
+        variant="secondary"
+        width="full"
+      >
+        Go back
+      </Button>
+    )
+
+  return (
+    <div className="flex w-full gap-[8px]">
+      {options.map((option) => (
+        <Button
+          disabled={!option.connector}
+          key={option.name}
+          loading={
+            connect.isPending &&
+            'id' in connect.variables.connector &&
+            connect.variables.connector.id === option.connector?.id &&
+            'Connecting…'
+          }
+          onClick={async () => {
+            if (option.connector) {
+              if (option.connector.id === connector?.id)
+                await disconnect.disconnectAsync()
+              connect.connect({
+                chainId: chainId as never,
+                connector: option.connector,
+              })
+            }
+          }}
+          title={`Connect with ${option.name}`}
+          variant="secondary"
+          width="grow"
+        >
+          {option.icon}
+        </Button>
+      ))}
     </div>
   )
 }
