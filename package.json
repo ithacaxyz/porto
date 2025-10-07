@@ -152,8 +152,8 @@
       "@metamask/sdk@>=0.16.0 <=0.33.0": "0.33.1",
       "axios@<1.12.0": "1.12.0",
       "bigint-buffer@<=1.1.5": "npm:bigint-buffer-fixed",
-      "tar-fs@>=2.0.0 <2.1.4": ">=2.1.4",
-      "tar-fs@>=3.0.0 <3.1.1": ">=3.1.1"
+      "tar-fs@>=2.0.0 <2.1.4": "2.1.4",
+      "tar-fs@>=3.0.0 <3.1.1": "3.1.1"
     },
     "patchedDependencies": {
       "@tanstack/react-router": "patches/@tanstack__react-router.patch",
