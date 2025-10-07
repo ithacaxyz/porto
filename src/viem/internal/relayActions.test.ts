@@ -1289,6 +1289,9 @@ describe.runIf(!Anvil.enabled)('verifySignature', () => {
   })
 })
 
+describe.todo('onrampStatus')
+describe.todo('getOnrampContactInfo')
+
 // TODO: Figure out way to get `code` from server
 describe.todo('setPhone + verifyPhone')
 

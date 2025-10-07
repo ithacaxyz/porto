@@ -604,6 +604,111 @@ export namespace sendPreparedCalls {
 }
 
 /**
+ * NOTE: SHOULD ONLY BE USED ON SERVER.
+ *
+ * Gets onramp contact info for address.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function getOnrampContactInfo(
+  client: Client,
+  parameters: getOnrampContactInfo.Parameters,
+): Promise<getOnrampContactInfo.ReturnType> {
+  const { address, secret } = parameters
+
+  try {
+    const method = 'account_getOnrampContactInfo' as const
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
+    const result = await client.request<Schema>(
+      {
+        method,
+        params: [
+          z.encode(RpcSchema.account_getOnrampContactInfo.Parameters, {
+            address,
+            secret,
+          }),
+        ],
+      },
+      {
+        retryCount: 0,
+      },
+    )
+    return z.decode(RpcSchema.account_getOnrampContactInfo.Response, result)
+  } catch (error) {
+    parseSchemaError(error)
+    parseExecutionError(error)
+    throw error
+  }
+}
+
+export namespace getOnrampContactInfo {
+  export type Parameters = RpcSchema.account_getOnrampContactInfo.Parameters
+
+  export type ReturnType = RpcSchema.account_getOnrampContactInfo.Response
+
+  export type ErrorType =
+    | parseSchemaError.ErrorType
+    | parseExecutionError.ErrorType
+    | Errors.GlobalErrorType
+}
+
+/**
+ * Gets onramp status for address
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function onrampStatus(
+  client: Client,
+  parameters: onrampStatus.Parameters,
+): Promise<onrampStatus.ReturnType> {
+  const { address } = parameters
+
+  try {
+    const method = 'account_onrampStatus' as const
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
+    const result = await client.request<Schema>(
+      {
+        method,
+        params: [
+          z.encode(RpcSchema.account_onrampStatus.Parameters, {
+            address,
+          }),
+        ],
+      },
+      {
+        retryCount: 0,
+      },
+    )
+    return z.decode(RpcSchema.account_onrampStatus.Response, result)
+  } catch (error) {
+    parseSchemaError(error)
+    parseExecutionError(error)
+    throw error
+  }
+}
+
+export namespace onrampStatus {
+  export type Parameters = RpcSchema.account_onrampStatus.Parameters
+
+  export type ReturnType = RpcSchema.account_onrampStatus.Response
+
+  export type ErrorType =
+    | parseSchemaError.ErrorType
+    | parseExecutionError.ErrorType
+    | Errors.GlobalErrorType
+}
+
+/**
  * Resends phone verification for address
  *
  * @example

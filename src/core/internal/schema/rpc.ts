@@ -12,6 +12,45 @@ const KeyWithCredentialId = z.object({
   privateKey: z.optional(z.any()),
 })
 
+export namespace account_getOnrampContactInfo {
+  export const Parameters = z.object({
+    address: u.address(),
+    secret: z.string(),
+  })
+  export type Parameters = z.infer<typeof Parameters>
+
+  export const Request = z.object({
+    method: z.literal('account_getOnrampContactInfo'),
+    params: z.readonly(z.tuple([Parameters])),
+  })
+  export type Request = z.infer<typeof Request>
+
+  export const Response = z.object({
+    email: z.string(),
+    phone: z.string(),
+  })
+  export type Response = z.infer<typeof Response>
+}
+
+export namespace account_onrampStatus {
+  export const Parameters = z.object({
+    address: u.address(),
+  })
+  export type Parameters = z.infer<typeof Parameters>
+
+  export const Request = z.object({
+    method: z.literal('account_onrampStatus'),
+    params: z.readonly(z.tuple([Parameters])),
+  })
+  export type Request = z.infer<typeof Request>
+
+  export const Response = z.object({
+    email: z.number(),
+    phone: z.number(),
+  })
+  export type Response = z.infer<typeof Response>
+}
+
 export namespace account_resendVerifyPhone {
   export const Parameters = z.object({
     email: z.string(),
