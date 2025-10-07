@@ -3,7 +3,7 @@ import NodeFS from 'node:fs'
 import NodePath from 'node:path'
 import { sentryVitePlugin as SentryVitePlugin } from '@sentry/vite-plugin'
 import Tailwindcss from '@tailwindcss/vite'
-import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
+import { tanstackRouter as TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import React from '@vitejs/plugin-react'
 import { defineConfig, loadEnv } from 'vite'
 import Mkcert from 'vite-plugin-mkcert'
@@ -43,10 +43,10 @@ export default defineConfig(({ mode }) => {
             hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
           }),
       Tailwindcss(),
-      React(),
       Plugins.Icons(),
       TsconfigPaths(),
       TanStackRouterVite(),
+      React(),
       // must come last
       // @see https://docs.sentry.io/platforms/javascript/guides/tanstackstart-react/sourcemaps/uploading/vite/#configuration
       SentryVitePlugin({

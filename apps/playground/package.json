@@ -31,6 +31,7 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "unplugin-icons": "catalog:",
+    "vite-plugin-terminal": "^1.3.0",
     "vite-plugin-mkcert": "catalog:"
   }
 }

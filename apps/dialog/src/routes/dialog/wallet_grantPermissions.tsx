@@ -18,7 +18,7 @@ export const Route = createFileRoute('/dialog/wallet_grantPermissions')({
 
 function RouteComponent() {
   const request = Route.useSearch()
-  const parameters = request.params[0]
+  const parameters = request.params?.[0]
 
   const grantPermissionsQuery = PermissionsRequest.useResolve(parameters)
   const grantPermissions = grantPermissionsQuery.data

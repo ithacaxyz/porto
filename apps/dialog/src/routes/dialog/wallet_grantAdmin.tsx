@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import { Hex } from 'ox'
 import { Actions } from 'porto/remote'
 
 import { porto } from '~/lib/Porto'
@@ -17,7 +18,7 @@ export const Route = createFileRoute('/dialog/wallet_grantAdmin')({
 
 function RouteComponent() {
   const request = Route.useSearch()
-  const parameters = request.params[0]
+  const parameters = request.params?.[0] ?? {}
 
   const respond = useMutation({
     mutationFn() {
@@ -25,10 +26,14 @@ function RouteComponent() {
     },
   })
 
+  // Don't render until we have the required data
+  if (!parameters.key || !parameters.chainId) return null
+
   return (
     <div>
       <GrantAdmin
         authorizeKey={parameters.key}
+        chainId={Hex.toNumber(parameters.chainId)}
         feeToken={parameters.capabilities?.feeToken}
         loading={respond.isPending}
         onApprove={() => respond.mutate()}

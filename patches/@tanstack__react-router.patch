@@ -1,18 +1,27 @@
 diff --git a/dist/esm/useNavigate.js b/dist/esm/useNavigate.js
-index a00398bfa382722316586dc6879de9e41fa2069a..05c5a9514701acc06e414329179e31b0e0e8a0cb 100644
+index 7e7685189a067981cd299bb7a792ed1112520c8a..cbcd533ace82b6315e75774b5301dae34e05a5c7 100644
 --- a/dist/esm/useNavigate.js
 +++ b/dist/esm/useNavigate.js
-@@ -4,12 +4,9 @@ function useNavigate(_defaultOpts) {
-   const { navigate } = useRouter();
+@@ -1,15 +1,17 @@
+ import * as React from "react";
+ import { useRouter } from "./useRouter.js";
+ function useNavigate(_defaultOpts) {
+-  const router = useRouter();
++  const { navigate } = useRouter();
    return React.useCallback(
      (options) => {
--      return navigate({
--        from: _defaultOpts == null ? void 0 : _defaultOpts.from,
--        ...options
+-      return router.navigate({
+-        ...options,
+-        from: options.from ?? _defaultOpts?.from
 -      });
++      // return router.navigate({
++      //   ...options,
++      //   from: options.from ?? _defaultOpts?.from
++      // });
 +      return navigate(options);
      },
--    [_defaultOpts == null ? void 0 : _defaultOpts.from, navigate]
+-    [_defaultOpts?.from, router]
++    // [_defaultOpts?.from, router]
 +    [navigate]
    );
  }

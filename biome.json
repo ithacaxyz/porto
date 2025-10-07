@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.2.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.2.5/schema.json",
   "assist": {
     "actions": {
       "source": {
@@ -39,7 +39,8 @@
       "!**/_dist",
       "!**/dist",
       "!**/node_modules",
-      "!**/.next"
+      "!**/.next",
+      "!**/worker-configuration.d.ts"
     ]
   },
   "formatter": {
