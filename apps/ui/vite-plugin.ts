@@ -19,7 +19,6 @@ export function PortoUi(): PluginOption[] {
       jsx: 'react',
     }),
     {
-      name: 'porto-ui:alias',
       config() {
         const styledSystem = path.resolve(process.cwd(), './styled-system')
 
@@ -36,6 +35,7 @@ export function PortoUi(): PluginOption[] {
           },
         }
       },
+      name: 'porto-ui:alias',
     },
   ]
 }

@@ -1,12 +1,12 @@
 import type { Config } from '@pandacss/dev'
 
 export const portoUiConfig = {
+  include: ['./node_modules/@porto/ui/src/**/*.{ts,tsx}'],
   jsxFramework: 'react',
   jsxStyleProps: 'none',
   prefix: 'ui',
   preflight: false,
   presets: [],
-  include: ['./node_modules/@porto/ui/src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       animationStyles: {
