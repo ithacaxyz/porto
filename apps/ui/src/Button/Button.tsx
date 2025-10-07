@@ -4,7 +4,7 @@ import type {
   CSSProperties,
   ReactNode,
 } from 'react'
-import { css, cva, cx } from '../../styled-system/css'
+import { css, cva, cx } from 'styled-system/css'
 import { Frame } from '../Frame/Frame.js'
 import { Spinner } from '../Spinner/Spinner.js'
 

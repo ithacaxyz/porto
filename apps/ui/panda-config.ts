@@ -1,14 +1,12 @@
-import { defineConfig } from '@pandacss/dev'
+import type { Config } from '@pandacss/dev'
 
-export default defineConfig({
-  exclude: [],
-  include: ['./src/**/*.{ts,tsx}'],
+export const portoUiConfig = {
   jsxFramework: 'react',
   jsxStyleProps: 'none',
-  outdir: 'styled-system',
   prefix: 'ui',
-  preflight: false, // no css reset
+  preflight: false,
   presets: [],
+  include: ['./node_modules/@porto/ui/src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       animationStyles: {
@@ -30,4 +28,4 @@ export default defineConfig({
       },
     },
   },
-})
+} as const satisfies Partial<Config>

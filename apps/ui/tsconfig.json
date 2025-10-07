@@ -1,6 +1,6 @@
 {
   "extends": "../tsconfig.base.json",
-  "include": ["src", "styled-system"],
+  "include": ["src"],
   "files": ["./vite-env.d.ts"],
   "compilerOptions": {
     "paths": {

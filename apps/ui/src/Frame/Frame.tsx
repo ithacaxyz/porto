@@ -7,7 +7,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { css, cx } from '~/../styled-system/css'
+import { css, cx } from 'styled-system/css'
 import { ButtonArea } from '~/ButtonArea/ButtonArea.js'
 import { useSize } from '~/hooks/useSize.js'
 import { LightDarkImage } from '~/LightDarkImage/LightDarkImage.js'
