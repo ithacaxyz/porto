@@ -1289,5 +1289,8 @@ describe.runIf(!Anvil.enabled)('verifySignature', () => {
   })
 })
 
+// TODO: Figure out way to get `code` from server
+describe.todo('setPhone + verifyPhone')
+
 // TODO: Figure out way to get `token` from server (e.g. email link from inbox)
 describe.todo('setEmail + verifyEmail')
