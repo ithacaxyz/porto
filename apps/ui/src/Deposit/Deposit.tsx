@@ -42,9 +42,13 @@ export function Deposit({
             width: 48,
           })}
         >
-          <Cuer.Root value={uri}>
-            <Cuer.Cells />
+          <Cuer.Root
+            errorCorrection="low"
+            shapeRendering="geometricPrecision"
+            value={uri}
+          >
             <Cuer.Finder radius={1} />
+            <Cuer.Cells radius={1} />
           </Cuer.Root>
         </div>
         <div
