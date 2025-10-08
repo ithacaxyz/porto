@@ -604,6 +604,163 @@ export namespace sendPreparedCalls {
 }
 
 /**
+ * NOTE: SHOULD ONLY BE USED ON SERVER.
+ *
+ * Gets onramp contact info for address.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function getOnrampContactInfo(
+  client: Client,
+  parameters: getOnrampContactInfo.Parameters,
+): Promise<getOnrampContactInfo.ReturnType> {
+  const { address, secret } = parameters
+
+  try {
+    const method = 'account_getOnrampContactInfo' as const
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
+    const result = await client.request<Schema>(
+      {
+        method,
+        params: [
+          z.encode(RpcSchema.account_getOnrampContactInfo.Parameters, {
+            address,
+            secret,
+          }),
+        ],
+      },
+      {
+        retryCount: 0,
+      },
+    )
+    return z.decode(RpcSchema.account_getOnrampContactInfo.Response, result)
+  } catch (error) {
+    parseSchemaError(error)
+    parseExecutionError(error)
+    throw error
+  }
+}
+
+export namespace getOnrampContactInfo {
+  export type Parameters = RpcSchema.account_getOnrampContactInfo.Parameters
+
+  export type ReturnType = RpcSchema.account_getOnrampContactInfo.Response
+
+  export type ErrorType =
+    | parseSchemaError.ErrorType
+    | parseExecutionError.ErrorType
+    | Errors.GlobalErrorType
+}
+
+/**
+ * Gets onramp status for address
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function onrampStatus(
+  client: Client,
+  parameters: onrampStatus.Parameters,
+): Promise<onrampStatus.ReturnType> {
+  const { address } = parameters
+
+  try {
+    const method = 'account_onrampStatus' as const
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
+    const result = await client.request<Schema>(
+      {
+        method,
+        params: [
+          z.encode(RpcSchema.account_onrampStatus.Parameters, {
+            address,
+          }),
+        ],
+      },
+      {
+        retryCount: 0,
+      },
+    )
+    return z.decode(RpcSchema.account_onrampStatus.Response, result)
+  } catch (error) {
+    parseSchemaError(error)
+    parseExecutionError(error)
+    throw error
+  }
+}
+
+export namespace onrampStatus {
+  export type Parameters = RpcSchema.account_onrampStatus.Parameters
+
+  export type ReturnType = RpcSchema.account_onrampStatus.Response
+
+  export type ErrorType =
+    | parseSchemaError.ErrorType
+    | parseExecutionError.ErrorType
+    | Errors.GlobalErrorType
+}
+
+/**
+ * Resends phone verification for address
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function resendVerifyPhone(
+  client: Client,
+  parameters: resendVerifyPhone.Parameters,
+): Promise<resendVerifyPhone.ReturnType> {
+  const { phone, walletAddress } = parameters
+
+  try {
+    const method = 'account_resendVerifyPhone' as const
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
+    const result = await client.request<Schema>(
+      {
+        method,
+        params: [
+          z.encode(RpcSchema.account_resendVerifyPhone.Parameters, {
+            phone,
+            walletAddress,
+          }),
+        ],
+      },
+      {
+        retryCount: 0,
+      },
+    )
+    return z.decode(RpcSchema.account_resendVerifyPhone.Response, result)
+  } catch (error) {
+    parseSchemaError(error)
+    parseExecutionError(error)
+    throw error
+  }
+}
+
+export namespace resendVerifyPhone {
+  export type Parameters = RpcSchema.account_resendVerifyPhone.Parameters
+
+  export type ReturnType = RpcSchema.account_resendVerifyPhone.Response
+
+  export type ErrorType =
+    | parseSchemaError.ErrorType
+    | parseExecutionError.ErrorType
+    | Errors.GlobalErrorType
+}
+
+/**
  * Sets email for address
  *
  * @example
@@ -648,6 +805,58 @@ export namespace setEmail {
   export type Parameters = RpcSchema.account_setEmail.Parameters
 
   export type ReturnType = RpcSchema.account_setEmail.Response
+
+  export type ErrorType =
+    | parseSchemaError.ErrorType
+    | parseExecutionError.ErrorType
+    | Errors.GlobalErrorType
+}
+
+/**
+ * Sets phone for address
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function setPhone(
+  client: Client,
+  parameters: setPhone.Parameters,
+): Promise<setPhone.ReturnType> {
+  const { phone, walletAddress } = parameters
+
+  try {
+    const method = 'account_setPhone' as const
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
+    const result = await client.request<Schema>(
+      {
+        method,
+        params: [
+          z.encode(RpcSchema.account_setPhone.Parameters, {
+            phone,
+            walletAddress,
+          }),
+        ],
+      },
+      {
+        retryCount: 0,
+      },
+    )
+    return z.decode(RpcSchema.account_setPhone.Response, result)
+  } catch (error) {
+    parseSchemaError(error)
+    parseExecutionError(error)
+    throw error
+  }
+}
+
+export namespace setPhone {
+  export type Parameters = RpcSchema.account_setPhone.Parameters
+
+  export type ReturnType = RpcSchema.account_setPhone.Response
 
   export type ErrorType =
     | parseSchemaError.ErrorType
@@ -754,6 +963,59 @@ export namespace verifyEmail {
   export type Parameters = RpcSchema.account_verifyEmail.Parameters
 
   export type ReturnType = RpcSchema.account_verifyEmail.Response
+
+  export type ErrorType =
+    | parseSchemaError.ErrorType
+    | parseExecutionError.ErrorType
+    | Errors.GlobalErrorType
+}
+
+/**
+ * Verifies email for address
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function verifyPhone(
+  client: Client,
+  parameters: verifyPhone.Parameters,
+): Promise<verifyPhone.ReturnType> {
+  const { code, phone, walletAddress } = parameters
+
+  try {
+    const method = 'account_verifyPhone' as const
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
+    const result = await client.request<Schema>(
+      {
+        method,
+        params: [
+          z.encode(RpcSchema.account_verifyPhone.Parameters, {
+            code,
+            phone,
+            walletAddress,
+          }),
+        ],
+      },
+      {
+        retryCount: 0,
+      },
+    )
+    return z.decode(RpcSchema.account_verifyPhone.Response, result)
+  } catch (error) {
+    parseSchemaError(error)
+    parseExecutionError(error)
+    throw error
+  }
+}
+
+export namespace verifyPhone {
+  export type Parameters = RpcSchema.account_verifyPhone.Parameters
+
+  export type ReturnType = RpcSchema.account_verifyPhone.Response
 
   export type ErrorType =
     | parseSchemaError.ErrorType
