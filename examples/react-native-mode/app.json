@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff",
+        "foregroundImage": "./assets/adaptive-icon.png"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.oaz.reactnativemode",
+      "predictiveBackGestureEnabled": false
+    },
+    "icon": "./assets/icon.png",
+    "ios": {
+      "bundleIdentifier": "com.oaz.reactnativemode",
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "supportsTablet": true
+    },
+    "name": "react-native-mode",
+    "newArchEnabled": true,
+    "orientation": "portrait",
+    "plugins": ["expo-web-browser"],
+    "slug": "react-native-mode",
+    "splash": {
+      "backgroundColor": "#ffffff",
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain"
+    },
+    "userInterfaceStyle": "light",
+    "version": "1.0.0",
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png",
+      "output": "single"
+    }
+  }
+}
