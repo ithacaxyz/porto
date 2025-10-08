@@ -21,9 +21,7 @@ export function ErrorScreen(props: ErrorScreen.Props) {
         <Layout.Header.Default
           icon={LucideOctagonAlert}
           title={
-            dialogError.type === 'execution'
-              ? 'Simulation error'
-              : 'Error found'
+            dialogError.type === 'call' ? 'Simulation error' : 'Error found'
           }
           variant="warning"
         />
@@ -33,7 +31,7 @@ export function ErrorScreen(props: ErrorScreen.Props) {
         <div className="flex flex-col gap-2 rounded-lg border border-th_warning bg-th_warning px-[12px] py-[10px] text-[14px] text-th_warning">
           <div className="font-medium">{dialogError.title}</div>
           <div className="max-h-[160px] overflow-auto">
-            <pre className="whitespace-pre-wrap font-sans text-[14px] text-th_base-secondary">
+            <pre className="break-all whitespace-pre-wrap font-sans text-[14px] text-th_base-secondary">
               {dialogError.message}
             </pre>
           </div>
@@ -109,43 +107,23 @@ export namespace ErrorScreen {
   export function Execution(props: Execution.Props) {
     const { dialogError, onCancel, onRetry } = props
 
-    const errorContext = ErrorScreen.useErrorContext()
-    const errorDetails = DialogErrors.formatDialogError(
-      dialogError,
-      errorContext,
-    )
-
     return (
       <ErrorScreen
         dialogError={dialogError}
         footer={
-          <div className="flex w-full flex-col gap-2 px-3">
-            <UI.Button.Anchor
-              external
-              href={ErrorScreen.getBugReportMailto(
-                dialogError.title,
-                errorDetails,
-              )}
-              icon={<LucideBug className="size-[16px]" />}
-              variant="warning"
-              width="full"
+          <Layout.Footer.Actions>
+            <UI.Button onClick={onCancel} variant="secondary" width="grow">
+              Cancel
+            </UI.Button>
+            <UI.Button
+              icon={<LucideRefreshCw className="size-[16px]" />}
+              onClick={onRetry}
+              variant="secondary"
+              width="grow"
             >
-              Report bug
-            </UI.Button.Anchor>
-            <div className="flex w-full gap-2">
-              <UI.Button onClick={onCancel} variant="secondary" width="grow">
-                Cancel
-              </UI.Button>
-              <UI.Button
-                icon={<LucideRefreshCw className="size-[16px]" />}
-                onClick={onRetry}
-                variant="secondary"
-                width="grow"
-              >
-                Retry
-              </UI.Button>
-            </div>
-          </div>
+              Retry
+            </UI.Button>
+          </Layout.Footer.Actions>
         }
       />
     )
@@ -153,7 +131,7 @@ export namespace ErrorScreen {
 
   export namespace Execution {
     export type Props = {
-      dialogError: DialogErrors.ExecutionError
+      dialogError: DialogErrors.CallError | DialogErrors.RelayError
       onCancel: () => void
       onRetry: () => void
     }
