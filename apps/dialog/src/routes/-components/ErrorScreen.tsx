@@ -31,7 +31,7 @@ export function ErrorScreen(props: ErrorScreen.Props) {
         <div className="flex flex-col gap-2 rounded-lg border border-th_warning bg-th_warning px-[12px] py-[10px] text-[14px] text-th_warning">
           <div className="font-medium">{dialogError.title}</div>
           <div className="max-h-[160px] overflow-auto">
-            <pre className="break-all whitespace-pre-wrap font-sans text-[14px] text-th_base-secondary">
+            <pre className="whitespace-pre-wrap break-all font-sans text-[14px] text-th_base-secondary">
               {dialogError.message}
             </pre>
           </div>
