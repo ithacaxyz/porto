@@ -1,5 +1,4 @@
 import Checkbox from 'expo-checkbox'
-import { StatusBar } from 'expo-status-bar'
 import { Hex, Json } from 'ox'
 import * as React from 'react'
 import { Button, ScrollView, Text, View } from 'react-native'
@@ -10,7 +9,6 @@ export default function App() {
     <ScrollView
       style={{ flex: 1, height: '100%', marginTop: 100, padding: 16 }}
     >
-      <StatusBar style="auto" />
       <Connect />
       <Login />
       <Divider />

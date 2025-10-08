@@ -16,7 +16,6 @@
     "expo-crypto": "~15.0.7",
     "expo-dev-client": "~6.0.13",
     "expo-modules-core": "~3.0.20",
-    "expo-status-bar": "~3.0.8",
     "expo-web-browser": "~15.0.8",
     "ox": "^0.9.9",
     "porto-924": "https://pkg.pr.new/porto@924",
