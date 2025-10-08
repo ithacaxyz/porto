@@ -1,10 +1,30 @@
 import { Button, Input, OtpInput, TextButton } from '@porto/ui'
+import { useMutation } from '@tanstack/react-query'
+import { Hooks } from 'porto/remote'
+import { RelayActions } from 'porto/viem'
 import * as React from 'react'
+import type { Address } from 'viem'
+import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import LucideAsterisk from '~icons/lucide/asterisk'
 
+const dummy = true
+async function noop(name: string) {
+  console.log('started:', name)
+  await new Promise((resolve) => {
+    console.log('finished:', name)
+    setTimeout(resolve, 2_000)
+  })
+}
+
 export function SetupApplePay(props: SetupApplePay.Props) {
-  const { showEmail = true, showPhone = true, onBack, onComplete } = props
+  const {
+    address,
+    showEmail = true,
+    showPhone = true,
+    onBack,
+    onComplete,
+  } = props
 
   const [screen, setScreen] = React.useState<'phone-email' | 'otp'>(
     'phone-email',
@@ -13,7 +33,7 @@ export function SetupApplePay(props: SetupApplePay.Props) {
   const [phone, setPhone] = React.useState('')
   const [otpCode, setOtpCode] = React.useState('')
   const [otpCompleted, setOtpCompleted] = React.useState(false)
-  const [verifying, setVerifying] = React.useState(false)
+  const [noResend, setNoResend] = React.useState(false)
   const containerRef = React.useRef<HTMLDivElement>(null)
 
   const isValidEmail = email && /.+@.+/.test(email)
@@ -21,42 +41,98 @@ export function SetupApplePay(props: SetupApplePay.Props) {
   const isValid =
     (showEmail ? isValidEmail : true) && (showPhone ? isValidPhone : true)
 
+  const client = Hooks.useRelayClient(porto)
+  const setInfo = useMutation({
+    async mutationFn(data: {
+      email: string | undefined
+      phone: string | undefined
+    }) {
+      if (dummy) await noop('setInfo')
+      else {
+        const promises = []
+        if (data.email)
+          promises.push(
+            RelayActions.setEmail(client, {
+              email: data.email,
+              walletAddress: address,
+            }),
+          )
+        if (data.phone)
+          promises.push(
+            RelayActions.setPhone(client, {
+              phone: data.phone,
+              walletAddress: address,
+            }),
+          )
+        await Promise.all(promises)
+      }
+    },
+  })
+  const verifyPhone = useMutation({
+    async mutationFn(data: { code: string; phone: string }) {
+      if (dummy) await noop('verifyPhone')
+      else
+        await RelayActions.verifyPhone(client, {
+          code: data.code,
+          phone: data.phone,
+          walletAddress: address,
+        })
+    },
+  })
+  const resendVerifyPhone = useMutation({
+    async mutationFn(data: { phone: string }) {
+      if (dummy) await noop('resendVerifyPhone')
+      else
+        await RelayActions.resendVerifyPhone(client, {
+          phone: data.phone,
+          walletAddress: address,
+        })
+    },
+  })
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (isValid) {
-      if (showPhone) {
-        // TODO: account_setPhone
-        setScreen('otp')
-      } else if (showEmail) {
-        // TODO: account_setEmail
-        onComplete()
-      }
-    }
+    if (!isValid) return
+    setInfo.mutate(
+      { email, phone },
+      {
+        onError(error) {
+          console.log('onError', error)
+        },
+        onSuccess() {
+          if (showPhone) setScreen('otp')
+          else if (showEmail) onComplete()
+        },
+      },
+    )
   }
 
   const handleOtpChange = React.useCallback((code: string) => {
     setOtpCode(code)
     if (code.length < 6) {
       setOtpCompleted(false)
-      setVerifying(false)
     }
   }, [])
 
-  const handleOtpFill = React.useCallback((code: string) => {
-    setOtpCode(code)
-    setVerifying(true)
-    containerRef.current?.focus()
-    setTimeout(() => {
-      setVerifying(false)
-      setOtpCompleted(true)
-    }, 800)
-  }, [])
-
-  React.useEffect(() => {
-    if (!otpCompleted) return
-    const timeout = setTimeout(onComplete, 800)
-    return () => clearTimeout(timeout)
-  }, [otpCompleted, onComplete])
+  const handleOtpFill = React.useCallback(
+    (code: string) => {
+      setOtpCode(code)
+      containerRef.current?.focus()
+      verifyPhone.mutate(
+        { code, phone },
+        {
+          onError() {
+            setOtpCompleted(false)
+          },
+          onSuccess() {
+            setOtpCompleted(true)
+            onComplete()
+          },
+        },
+      )
+    },
+    [phone, verifyPhone.mutate, onComplete],
+  )
 
   if (screen === 'otp')
     return (
@@ -86,12 +162,12 @@ export function SetupApplePay(props: SetupApplePay.Props) {
         <Layout.Footer>
           <Layout.Footer.Actions>
             <Button
-              disabled={verifying || otpCompleted}
+              disabled={verifyPhone.isPending || otpCompleted}
               onClick={() => setScreen('phone-email')}
               variant={otpCompleted ? 'primary' : 'secondary'}
               width="grow"
             >
-              {verifying
+              {verifyPhone.isPending
                 ? 'Verifying code…'
                 : otpCompleted
                   ? 'Correct!'
@@ -101,7 +177,26 @@ export function SetupApplePay(props: SetupApplePay.Props) {
         </Layout.Footer>
         <p className="px-3 pb-3 text-center text-[12px] text-th_base-secondary">
           Didn't receive the code?{' '}
-          <TextButton color="link">Resend it</TextButton>
+          <TextButton
+            color="link"
+            disabled={noResend}
+            onClick={() => {
+              setNoResend(true)
+              resendVerifyPhone.mutate(
+                { phone },
+                {
+                  onError() {
+                    setNoResend(false)
+                  },
+                  onSuccess() {
+                    setTimeout(() => setNoResend(false), 10_000)
+                  },
+                },
+              )
+            }}
+          >
+            Resend it
+          </TextButton>
         </p>
       </Layout>
     )
@@ -177,7 +272,8 @@ export function SetupApplePay(props: SetupApplePay.Props) {
               Back
             </Button>
             <Button
-              disabled={!isValid}
+              disabled={!isValid || setInfo.isPending}
+              loading={setInfo.isPending}
               type="submit"
               variant="primary"
               width="grow"
@@ -223,6 +319,7 @@ export function SetupApplePay(props: SetupApplePay.Props) {
 
 export namespace SetupApplePay {
   export type Props = {
+    address: Address
     showEmail: boolean | undefined
     showPhone: boolean | undefined
     onBack: () => void
