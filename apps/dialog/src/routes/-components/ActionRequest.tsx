@@ -253,6 +253,7 @@ export function ActionRequest(props: ActionRequest.Props) {
           variant={prepareCallsQuery.isError ? 'warning' : 'default'}
         />
       }
+      onQuotesRefetch={() => prepareCallsQuery.refetch()}
       onReject={onReject}
       queryParams={{ address, chainId }}
       quotes={
