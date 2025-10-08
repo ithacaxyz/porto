@@ -7,8 +7,8 @@ export type RuntimeError = {
   stack?: string
 }
 
-export type ExecutionError = {
-  type: 'execution'
+export type CallError = {
+  type: 'call'
   title: string
   message: string
   callInfo?: {
@@ -20,7 +20,14 @@ export type ExecutionError = {
   }
 }
 
-export type DialogError = RuntimeError | ExecutionError
+export type RelayError = {
+  type: 'relay'
+  title: string
+  message: string
+  details?: string
+}
+
+export type DialogError = RuntimeError | CallError | RelayError
 
 export type DialogErrorContext = {
   chainId?: number
@@ -75,6 +82,17 @@ const abiErrors = {
   VerifiedCallError: 'Unable to verify and execute this transaction.',
 } as const
 
+export function createRelayError(error: Error): RelayError {
+  const err = error as any
+  const errorMessage = err.details || err.message || ''
+
+  return {
+    message: errorMessage || 'An error occurred.',
+    title: 'Relay error',
+    type: 'relay',
+  }
+}
+
 export function createCallError(
   error: Error,
   calls?: readonly {
@@ -82,8 +100,12 @@ export function createCallError(
     data?: Hex
     value?: bigint
   }[],
-): ExecutionError {
+): CallError | RelayError {
   const err = error as any
+
+  const errorMessage = err.details || err.message || ''
+
+  if (errorMessage && !err.abiError) return createRelayError(error)
 
   const abiErrorName = err.abiError?.name
   const title = abiErrorName || 'Simulation error'
@@ -108,6 +130,6 @@ export function createCallError(
     },
     message,
     title,
-    type: 'execution',
+    type: 'call',
   }
 }
