@@ -31,6 +31,8 @@ const config = createConfig({
 })
 const queryClient = new QueryClient()
 
+const defaultNativeDeposit = Value.fromEther('0.1')
+
 export function DepositButtons(props: {
   address: string
   chainId?: number
@@ -38,11 +40,17 @@ export function DepositButtons(props: {
   nativeTokenName?: string
 }) {
   const { address, assetDeficits, chainId, nativeTokenName } = props
+  const nativeDeficit = assetDeficits?.find(
+    (d) => d.address === null || d.address === zeroAddress,
+  )
   return (
     <WagmiProvider config={config} reconnectOnMount={false}>
       <QueryClientProvider client={queryClient}>
         <div className="flex w-full flex-col gap-[8px]">
-          <Deposit address={address} />
+          <Deposit
+            address={address}
+            value={nativeDeficit?.required ?? defaultNativeDeposit}
+          />
           <DepositFromWallet
             address={address}
             assetDeficits={assetDeficits}
@@ -109,11 +117,11 @@ function DepositFromWallet(props: {
       })
       return response[Hex.fromNumber(chainId)]
     },
+    queryKey: ['assets', { account, chainId }],
     select: (assets = []) => ({
       assets,
       nonZeroAssets: assets.filter((asset) => asset.balance !== '0x0'),
     }),
-    queryKey: ['assets', { account, chainId }],
   })
 
   useWatchBlockNumber({
@@ -158,7 +166,7 @@ function DepositFromWallet(props: {
         key === 'native' || key === zeroAddress
           ? ({
               to: address as `0x${string}`,
-              value: deficit?.required ?? Value.fromEther('0.1'),
+              value: deficit?.required ?? defaultNativeDeposit,
             } as const)
           : ({
               data: encodeFunctionData({

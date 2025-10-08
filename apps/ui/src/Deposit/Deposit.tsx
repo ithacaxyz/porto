@@ -7,6 +7,7 @@ export function Deposit({
   address,
   className,
   label = 'Deposit crypto',
+  value,
 }: Deposit.Props) {
   return (
     <div
@@ -36,7 +37,12 @@ export function Deposit({
             width: 48,
           })}
         >
-          <Cuer.Root value={address}>
+          <Cuer.Root
+            value={
+              `ethereum:${address}` +
+              (value === undefined ? '' : `?value=${value}`)
+            }
+          >
             <Cuer.Cells />
             <Cuer.Finder radius={1} />
           </Cuer.Root>
@@ -84,5 +90,6 @@ export namespace Deposit {
     address: string
     className?: string
     label?: ReactNode
+    value?: bigint
   }
 }
