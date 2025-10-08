@@ -20,6 +20,7 @@ import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import TriangleAlertIcon from '~icons/lucide/triangle-alert'
 import Star from '~icons/ph/star-four-bold'
+import { SetupApplePay } from './SetupApplePay'
 
 const presetAmounts = ['30', '50', '100', '250'] as const
 const maxAmount = 500
@@ -42,6 +43,10 @@ export function AddFunds(props: AddFunds.Props) {
   const account = RemoteHooks.useAccount(porto)
   const address = props.address ?? account?.address
   const chain = RemoteHooks.useChain(porto, { chainId })
+  // TODO: account_onrampStatus
+  const { data: onrampStatus } = {
+    data: { email: Math.floor(Date.now() / 1000), phone: null },
+  }
 
   const showFaucet = React.useMemo(() => {
     if (import.meta.env.MODE === 'test') return true
@@ -114,6 +119,16 @@ export function AddFunds(props: AddFunds.Props) {
 
       <Layout.Content>
         <div className="flex flex-col gap-3">
+          <SetupApplePay
+            address={address!}
+            onBack={() => console.log('onBack')}
+            onComplete={() => {
+              // TODO: Create order to render Apple Pay button
+              console.log('onComplete')
+            }}
+            showEmail={!onrampStatus.email}
+            showPhone={!onrampStatus.phone}
+          />
           <Separator label="Select deposit method" size="medium" spacing={0} />
           {showApplePay && address && (
             <Onramp address={address} onApprove={onApprove} setView={setView} />

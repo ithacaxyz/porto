@@ -134,6 +134,7 @@ export function SetupApplePay(props: SetupApplePay.Props) {
     [phone, verifyPhone.mutate, onComplete],
   )
 
+  // TODO: render error (e.g. invalid code)
   if (screen === 'otp')
     return (
       <Layout>
@@ -201,6 +202,7 @@ export function SetupApplePay(props: SetupApplePay.Props) {
       </Layout>
     )
 
+  // TODO: render error (e.g. invalid phone, email/phone already verified)
   return (
     <Layout>
       <Layout.Header>

@@ -104,6 +104,41 @@ export namespace getKeys {
 }
 
 /**
+ * Gets onramp contact info for address.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function getOnrampContactInfo<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getOnrampContactInfo.Parameters,
+): Promise<getOnrampContactInfo.ReturnType>
+export async function getOnrampContactInfo(
+  client: Client,
+  parameters: getOnrampContactInfo.Parameters,
+) {
+  const { address, secret } = parameters
+  return await RelayActions.getOnrampContactInfo(client, {
+    address,
+    secret,
+  })
+}
+
+export declare namespace getOnrampContactInfo {
+  export type Parameters = RelayActions.getOnrampContactInfo.Parameters
+
+  export type ReturnType = RelayActions.getOnrampContactInfo.ReturnType
+
+  export type ErrorType =
+    | RelayActions.getOnrampContactInfo.ErrorType
+    | Errors.GlobalErrorType
+}
+
+/**
  * Prepares the digest to sign over and fills the request to send a call bundle.
  *
  * @example
@@ -374,7 +409,7 @@ export declare namespace prepareUpgradeAccount {
 }
 
 /**
- * Verifies phone for address
+ * Resends phone verification code for address
  *
  * @example
  * TODO
