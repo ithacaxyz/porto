@@ -590,7 +590,7 @@ export function authSession(options: authSession.Options = {}) {
 
       async function handle(request: QueuedRequest) {
         const { request: rpcRequest } = request
-        const reactNativePaths: Record<string, string> = {
+        const reactNativePaths = {
           account_verifyEmail: 'account_verifyEmail',
           eth_requestAccounts: 'eth_requestAccounts',
           eth_sendTransaction: 'eth_sendTransaction',
@@ -614,9 +614,10 @@ export function authSession(options: authSession.Options = {}) {
           wallet_sendPreparedCalls: 'wallet_sendPreparedCalls',
           wallet_switchEthereumChain: 'wallet_switchEthereumChain',
           wallet_verifySignature: 'wallet_verifySignature',
-        }
+        } as const satisfies Record<string, string>
 
-        const rpcMethod = reactNativePaths[rpcRequest.method]
+        const rpcMethod =
+          reactNativePaths[rpcRequest.method as keyof typeof reactNativePaths]
         if (!rpcMethod)
           throw new Provider.UnsupportedMethodError({
             message: `Method not supported in Mode.reactNative(): ${rpcRequest.method}`,

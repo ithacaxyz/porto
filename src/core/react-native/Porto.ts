@@ -13,7 +13,7 @@ export type Config<
     Chains.Chain,
     ...Chains.Chain[],
   ],
-> = Omit<PortoBase.Config<chains>, 'mode'> & { mode: Mode.Mode | null }
+> = PortoBase.Config<chains>
 
 export function create<
   const chains extends readonly [Chains.Chain, ...Chains.Chain[]],
