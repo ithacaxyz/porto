@@ -39,7 +39,7 @@ function RouteComponent() {
 
   useAuthSessionRedirect(respond)
 
-  const handleSign = () => respond.mutate()
+  const handleSign = () => respond.mutate({})
   const handleReject = () => respond.mutate({ reject: true })
 
   const parsedData = React.useMemo(() => {

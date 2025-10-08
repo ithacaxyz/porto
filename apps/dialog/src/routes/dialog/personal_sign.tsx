@@ -43,7 +43,7 @@ function RouteComponent() {
       <SignMessage.Siwe
         address={address}
         loading={respond.isPending}
-        onApprove={() => respond.mutate()}
+        onApprove={() => respond.mutate({})}
         onReject={() => respond.mutate({ reject: true })}
       />
     )
@@ -52,7 +52,7 @@ function RouteComponent() {
       address={address}
       loading={respond.isPending}
       message={message}
-      onApprove={() => respond.mutate()}
+      onApprove={() => respond.mutate({})}
       onReject={() => respond.mutate({ reject: true })}
     />
   )

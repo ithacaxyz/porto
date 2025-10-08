@@ -38,14 +38,18 @@ function RouteComponent() {
         throw new Provider.UserRejectedRequestError()
       }
 
-      const { capabilities, context, key } = data
+      const { capabilities, context, key } =
+        data as Calls.prepareCalls.useQuery.Data
 
       if (!account) throw new Error('account not found.')
       if (!key) throw new Error('key not found.')
 
-      const signature = await RelayActions.signCalls(data, {
-        account,
-      })
+      const signature = await RelayActions.signCalls(
+        data as Calls.prepareCalls.useQuery.Data,
+        {
+          account,
+        },
+      )
 
       const result = await RelayActions.sendPreparedCalls(client, {
         capabilities: capabilities.feeSignature

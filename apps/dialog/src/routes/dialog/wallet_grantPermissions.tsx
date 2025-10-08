@@ -44,7 +44,7 @@ function RouteComponent() {
     <GrantPermissions
       address={undefined}
       loading={respond.isPending}
-      onApprove={() => respond.mutate()}
+      onApprove={() => respond.mutate({})}
       onReject={() => respond.mutate({ reject: true })}
       request={grantPermissions}
     />

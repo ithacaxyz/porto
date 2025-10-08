@@ -37,7 +37,7 @@ function RouteComponent() {
     <RevokePermissions
       {...parameters}
       loading={respond.isPending}
-      onApprove={() => respond.mutate()}
+      onApprove={() => respond.mutate({})}
       onReject={() => respond.mutate({ reject: true })}
     />
   )

@@ -37,7 +37,7 @@ function RouteComponent() {
     <RevokeAdmin
       feeToken={parameters.capabilities?.feeToken}
       loading={respond.isPending}
-      onApprove={() => respond.mutate()}
+      onApprove={() => respond.mutate({})}
       onReject={() => respond.mutate({ reject: true })}
       revokeKeyId={parameters.id}
     />

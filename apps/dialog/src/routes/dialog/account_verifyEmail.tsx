@@ -22,7 +22,7 @@ function RouteComponent() {
   const [{ email, walletAddress }] = request.params
 
   const respond = useMutation({
-    async mutationFn({ reject }: { reject?: boolean } = {}) {
+    async mutationFn({ reject }: { reject?: boolean }) {
       if (reject) {
         await Actions.reject(porto, request)
         throw new Provider.UserRejectedRequestError()
@@ -38,7 +38,7 @@ function RouteComponent() {
       address={walletAddress}
       email={email}
       loading={respond.isPending}
-      onApprove={() => respond.mutate()}
+      onApprove={() => respond.mutate({})}
       onReject={() => respond.mutate({ reject: true })}
     />
   )
