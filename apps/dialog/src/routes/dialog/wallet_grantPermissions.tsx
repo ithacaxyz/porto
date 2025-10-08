@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import * as Provider from 'ox/Provider'
 import { Actions } from 'porto/remote'
 
 import * as PermissionsRequest from '~/lib/PermissionsRequest'
@@ -25,7 +26,11 @@ function RouteComponent() {
   const grantPermissions = grantPermissionsQuery.data
 
   const respond = useMutation({
-    mutationFn() {
+    async mutationFn({ reject }: { reject?: boolean } = {}) {
+      if (reject) {
+        await Actions.reject(porto, request)
+        throw new Provider.UserRejectedRequestError()
+      }
       return Actions.respond(porto, {
         ...request,
         params: [grantPermissions?._encoded],
@@ -40,7 +45,7 @@ function RouteComponent() {
       address={undefined}
       loading={respond.isPending}
       onApprove={() => respond.mutate()}
-      onReject={() => Actions.reject(porto, request)}
+      onReject={() => respond.mutate({ reject: true })}
       request={grantPermissions}
     />
   )

@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import * as Provider from 'ox/Provider'
 import { Actions, Hooks } from 'porto/remote'
 import { RelayActions } from 'porto/viem'
 import type * as Calls from '~/lib/Calls'
@@ -28,7 +29,15 @@ function RouteComponent() {
   const respond = useMutation({
     // TODO: use EIP-1193 Provider + `wallet_sendPreparedCalls` in the future
     // to dedupe.
-    async mutationFn(data: Calls.prepareCalls.useQuery.Data) {
+    async mutationFn(
+      data: Calls.prepareCalls.useQuery.Data | { reject: true },
+    ) {
+      // Handle rejection through mutation to support React Native redirect
+      if ('reject' in data && data.reject) {
+        await Actions.reject(porto, request!)
+        throw new Provider.UserRejectedRequestError()
+      }
+
       const { capabilities, context, key } = data
 
       if (!account) throw new Error('account not found.')
@@ -66,7 +75,7 @@ function RouteComponent() {
       loading={respond.isPending}
       merchantUrl={merchantUrl}
       onApprove={(data) => respond.mutate(data)}
-      onReject={() => Actions.reject(porto, request!)}
+      onReject={() => respond.mutate({ reject: true })}
       requiredFunds={requiredFunds}
     />
   )

@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import * as Provider from 'ox/Provider'
 import { Actions } from 'porto/remote'
 import * as React from 'react'
 
@@ -27,7 +28,11 @@ function RouteComponent() {
   const [_address, data] = request.params
 
   const respond = useMutation({
-    mutationFn() {
+    async mutationFn({ reject }: { reject?: boolean } = {}) {
+      if (reject) {
+        await Actions.reject(porto, request)
+        throw new Provider.UserRejectedRequestError()
+      }
       return Actions.respond(porto, request)
     },
   })
@@ -35,7 +40,7 @@ function RouteComponent() {
   useAuthSessionRedirect(respond)
 
   const handleSign = () => respond.mutate()
-  const handleReject = () => Actions.reject(porto, request)
+  const handleReject = () => respond.mutate({ reject: true })
 
   const parsedData = React.useMemo(() => {
     try {

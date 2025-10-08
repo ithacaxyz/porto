@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import * as Provider from 'ox/Provider'
 import { Actions } from 'porto/remote'
 
 import { porto } from '~/lib/Porto'
@@ -21,7 +22,11 @@ function RouteComponent() {
   const [{ email, walletAddress }] = request.params
 
   const respond = useMutation({
-    mutationFn() {
+    async mutationFn({ reject }: { reject?: boolean } = {}) {
+      if (reject) {
+        await Actions.reject(porto, request)
+        throw new Provider.UserRejectedRequestError()
+      }
       return Actions.respond(porto, request)
     },
   })
@@ -34,7 +39,7 @@ function RouteComponent() {
       email={email}
       loading={respond.isPending}
       onApprove={() => respond.mutate()}
-      onReject={() => Actions.reject(porto, request)}
+      onReject={() => respond.mutate({ reject: true })}
     />
   )
 }

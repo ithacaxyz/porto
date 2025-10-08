@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import * as Provider from 'ox/Provider'
 import { Actions } from 'porto/remote'
 import { porto } from '~/lib/Porto'
 import { useAuthSessionRedirect } from '~/lib/ReactNative'
@@ -23,7 +24,14 @@ function RouteComponent() {
       : {}
 
   const respond = useMutation({
-    mutationFn(result: Parameters<AddFunds.Props['onApprove']>[0]) {
+    async mutationFn(
+      result: Parameters<AddFunds.Props['onApprove']>[0] | { reject: true },
+    ) {
+      // Handle rejection through mutation to support React Native redirect
+      if ('reject' in result && result.reject) {
+        await Actions.reject(porto, request)
+        throw new Provider.UserRejectedRequestError()
+      }
       return Actions.respond(porto, request, { result })
     },
   })
@@ -35,7 +43,7 @@ function RouteComponent() {
       address={address}
       chainId={chainId}
       onApprove={(result) => respond.mutate(result)}
-      onReject={() => Actions.reject(porto, request)}
+      onReject={() => respond.mutate({ reject: true })}
     />
   )
 }
