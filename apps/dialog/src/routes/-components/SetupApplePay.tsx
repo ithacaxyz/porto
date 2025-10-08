@@ -4,7 +4,7 @@ import { Layout } from '~/routes/-components/Layout'
 import LucideAsterisk from '~icons/lucide/asterisk'
 
 export function SetupApplePay(props: SetupApplePay.Props) {
-  const { onBack, onComplete } = props
+  const { showEmail = true, showPhone = true, onBack, onComplete } = props
 
   const [screen, setScreen] = React.useState<'phone-email' | 'otp'>(
     'phone-email',
@@ -18,11 +18,20 @@ export function SetupApplePay(props: SetupApplePay.Props) {
 
   const isValidEmail = email && /.+@.+/.test(email)
   const isValidPhone = phone.length >= 6
-  const isValid = isValidEmail && isValidPhone
+  const isValid =
+    (showEmail ? isValidEmail : true) && (showPhone ? isValidPhone : true)
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (isValid) setScreen('otp')
+    if (isValid) {
+      if (showPhone) {
+        // TODO: account_setPhone
+        setScreen('otp')
+      } else if (showEmail) {
+        // TODO: account_setEmail
+        onComplete()
+      }
+    }
   }
 
   const handleOtpChange = React.useCallback((code: string) => {
@@ -108,44 +117,58 @@ export function SetupApplePay(props: SetupApplePay.Props) {
             </div>
           </div>
           <div className="flex flex-col gap-0.5">
-            <div className="text-[15px] text-th_base leading-[22px]">
-              To pay with card, you will need to add your phone number & email
-              address.
-            </div>
+            {!showEmail && showPhone ? (
+              <div className="text-[15px] text-th_base leading-[22px]">
+                To pay with card, you will need to add your phone number.
+              </div>
+            ) : showEmail && !showPhone ? (
+              <div className="text-[15px] text-th_base leading-[22px]">
+                To pay with card, you will need to add your email address.
+              </div>
+            ) : (
+              <div className="text-[15px] text-th_base leading-[22px]">
+                To pay with card, you will need to add your phone number & email
+                address.
+              </div>
+            )}
           </div>
         </div>
       </Layout.Header>
       <form noValidate onSubmit={handleSubmit}>
         <Layout.Content>
           <div className="flex flex-col gap-3">
-            <Input
-              adornments={{
-                end: isValidEmail && { type: 'valid' },
-              }}
-              autoFocus
-              inputMode="email"
-              name="email"
-              onChange={setEmail}
-              placeholder="example@ithaca.xyz"
-              type="text"
-              value={email}
-            />
-            <Input
-              adornments={{
-                end: isValidPhone && { type: 'valid' },
-                start: {
-                  prefixes: ['+1'],
-                  type: 'phone-prefix',
-                },
-              }}
-              inputMode="numeric"
-              name="phone"
-              onChange={setPhone}
-              pattern="\d*"
-              placeholder="+1 (650) 555-1234"
-              type="tel"
-              value={phone}
-            />
+            {showEmail && (
+              <Input
+                adornments={{
+                  end: isValidEmail && { type: 'valid' },
+                }}
+                autoFocus
+                inputMode="email"
+                name="email"
+                onChange={setEmail}
+                placeholder="example@ithaca.xyz"
+                type="text"
+                value={email}
+              />
+            )}
+            {showPhone && (
+              <Input
+                adornments={{
+                  end: isValidPhone && { type: 'valid' },
+                  start: {
+                    prefixes: ['+1'],
+                    type: 'phone-prefix',
+                  },
+                }}
+                inputMode="numeric"
+                name="phone"
+                onChange={setPhone}
+                pattern="\d*"
+                placeholder="+1 (650) 555-1234"
+                type="tel"
+                value={phone}
+              />
+            )}
           </div>
         </Layout.Content>
         <Layout.Footer>
@@ -167,7 +190,7 @@ export function SetupApplePay(props: SetupApplePay.Props) {
           By using this onramp, you agree to Coinbase's{' '}
           <a
             className="underline"
-            href="https://example.org"
+            href="https://www.coinbase.com/legal/user_agreement"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -176,16 +199,16 @@ export function SetupApplePay(props: SetupApplePay.Props) {
           ,{' '}
           <a
             className="underline"
-            href="https://example.org"
+            href="https://www.coinbase.com/legal/guest-checkout/us"
             rel="noopener noreferrer"
             target="_blank"
           >
-            Terms of Use
+            Terms of Service
           </a>{' '}
           and{' '}
           <a
             className="underline"
-            href="https://example.org"
+            href="https://www.coinbase.com/legal/privacy"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -200,6 +223,8 @@ export function SetupApplePay(props: SetupApplePay.Props) {
 
 export namespace SetupApplePay {
   export type Props = {
+    showEmail: boolean | undefined
+    showPhone: boolean | undefined
     onBack: () => void
     onComplete: () => void
   }
