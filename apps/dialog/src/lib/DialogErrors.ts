@@ -46,13 +46,34 @@ export function createRuntimeError(error: Error): RuntimeError {
   }
 }
 
-const abiErrors: Record<string, string> = {
+const abiErrors = {
+  CallError: 'Unable to execute this transaction.',
   DeadlineExpired: 'This transaction deadline has expired.',
+  ExceededSpendLimit: 'Transaction exceeds the spending limit for this token.',
+  FnSelectorNotRecognized:
+    'The requested function is not recognized by this contract.',
   InsufficientAllowance: 'This transaction requires a token approval.',
+  InsufficientGas:
+    'Not enough gas to complete this transaction. Try increasing the gas limit.',
   InvalidSignature: 'The signature for this transaction is invalid.',
+  KeyDoesNotExist: 'The key used for this transaction does not exist.',
+  NoSpendPermissions: 'No spending permissions configured for this token.',
   Paused: 'This contract is currently paused.',
+  PaymentError: 'Unable to process payment for this transaction.',
+  PreCallError: 'Unable to execute prerequisite transaction step.',
+  PreCallVerificationError: 'Unable to verify prerequisite transaction step.',
+  SimulateExecuteFailed:
+    'Transaction simulation failed. Try providing more gas or check transaction parameters.',
   Unauthorized: 'The account does not have permission to perform this action.',
-}
+  UnauthorizedCall: 'This key is not authorized to perform this action.',
+  UnauthorizedCallContext:
+    'This operation cannot be called from the current context.',
+  UnsupportedAccountImplementation:
+    'This account implementation is not supported.',
+  VerificationError:
+    'Unable to verify this transaction. The operation may be invalid.',
+  VerifiedCallError: 'Unable to verify and execute this transaction.',
+} as const
 
 export function createCallError(
   error: Error,
@@ -68,7 +89,7 @@ export function createCallError(
   const title = abiErrorName || 'Simulation error'
 
   const message =
-    (abiErrorName && abiErrors?.[abiErrorName]) ||
+    (abiErrorName && abiErrors[abiErrorName as keyof typeof abiErrors]) ||
     err.message ||
     'Execution simulation failed.'
 
