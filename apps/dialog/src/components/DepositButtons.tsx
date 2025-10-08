@@ -58,10 +58,10 @@ export function DepositButtons(props: {
             value={nativeDeficit?.required ?? defaultNativeDeposit}
           />
           <DepositFromWallet
-            portoAccount={portoAccount}
             assetDeficits={assetDeficits}
             chainId={chainId}
             nativeTokenName={nativeTokenName}
+            portoAccount={portoAccount}
           />
         </div>
       </QueryClientProvider>
