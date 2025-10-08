@@ -39,7 +39,12 @@ export function DepositButtons(props: {
   assetDeficits?: Quote_schema.AssetDeficit[]
   nativeTokenName?: string
 }) {
-  const { address, assetDeficits, chainId, nativeTokenName } = props
+  const {
+    address: portoAccount,
+    assetDeficits,
+    chainId,
+    nativeTokenName,
+  } = props
   const nativeDeficit = assetDeficits?.find(
     (d) => d.address === null || d.address === zeroAddress,
   )
@@ -48,12 +53,12 @@ export function DepositButtons(props: {
       <QueryClientProvider client={queryClient}>
         <div className="flex w-full flex-col gap-[8px]">
           <Deposit
-            address={address}
+            address={portoAccount}
             chainId={chainId}
             value={nativeDeficit?.required ?? defaultNativeDeposit}
           />
           <DepositFromWallet
-            address={address}
+            portoAccount={portoAccount}
             assetDeficits={assetDeficits}
             chainId={chainId}
             nativeTokenName={nativeTokenName}
@@ -65,16 +70,16 @@ export function DepositButtons(props: {
 }
 
 function DepositFromWallet(props: {
-  address: string
+  portoAccount: string
   chainId?: number
   assetDeficits?: Quote_schema.AssetDeficit[]
   nativeTokenName?: string
 }) {
-  const { address, assetDeficits, chainId, nativeTokenName } = props
+  const { portoAccount, assetDeficits, chainId, nativeTokenName } = props
   const [view, setView] = React.useState<'default' | 'connected-wallet'>(
     'default',
   )
-  const { address: account, connector } = useAccount()
+  const { address: externalAccount, connector } = useAccount()
   const disconnect = useDisconnect()
   const queryClient = useQueryClient()
   const connect = useConnect({
@@ -82,15 +87,18 @@ function DepositFromWallet(props: {
       async onSuccess(data) {
         if (chainId === undefined) return
 
-        const account = data.accounts[0] as `0x${string}`
+        const externalAccount = data.accounts[0] as `0x${string}`
         const hexChainId = Hex.fromNumber(chainId)
         const response = await porto.provider.request({
           method: 'wallet_getAssets',
-          params: [{ account, chainFilter: [hexChainId] }],
+          params: [{ account: externalAccount, chainFilter: [hexChainId] }],
         })
         const assets = response[hexChainId] ?? []
         const nonZeroAssets = assets.filter((asset) => asset.balance !== '0x0')
-        queryClient.setQueryData(['assets', { account, chainId }], assets)
+        queryClient.setQueryData(
+          ['assets', { account: externalAccount, chainId }],
+          assets,
+        )
 
         form.setValues(
           Object.fromEntries(
@@ -107,18 +115,18 @@ function DepositFromWallet(props: {
     data: { assets, nonZeroAssets },
     refetch: refetchAssets,
   } = useQuery({
-    enabled: Boolean(account && chainId),
+    enabled: Boolean(externalAccount && chainId),
     initialData: [],
     async queryFn() {
       if (!chainId) throw new Error('Missing chainId')
-      if (!account) throw new Error('Missing account')
+      if (!externalAccount) throw new Error('Missing account')
       const response = await porto.provider.request({
         method: 'wallet_getAssets',
-        params: [{ account }],
+        params: [{ account: externalAccount }],
       })
       return response[Hex.fromNumber(chainId)]
     },
-    queryKey: ['assets', { account, chainId }],
+    queryKey: ['assets', { account: externalAccount, chainId }],
     select: (assets = []) => ({
       assets,
       nonZeroAssets: assets.filter((asset) => asset.balance !== '0x0'),
@@ -127,7 +135,7 @@ function DepositFromWallet(props: {
 
   useWatchBlockNumber({
     chainId: chainId as never,
-    enabled: Boolean(account && chainId),
+    enabled: Boolean(externalAccount && chainId),
     onBlockNumber() {
       refetchAssets()
     },
@@ -145,7 +153,7 @@ function DepositFromWallet(props: {
     id: sendCalls.data?.id,
   })
   form.useSubmit(async (state) => {
-    if (!address) throw new Error('address is required')
+    if (!portoAccount) throw new Error('account is required')
     if (!connector) throw new Error('connector is required')
     const calls = []
     for (const [key, value] of Object.entries(state.values)) {
@@ -166,13 +174,16 @@ function DepositFromWallet(props: {
       calls.push(
         key === 'native' || key === zeroAddress
           ? ({
-              to: address as `0x${string}`,
+              to: portoAccount as `0x${string}`,
               value: deficit?.required ?? defaultNativeDeposit,
             } as const)
           : ({
               data: encodeFunctionData({
                 abi: erc20Abi,
-                args: [address as `0x${string}`, deficit?.required ?? balance],
+                args: [
+                  portoAccount as `0x${string}`,
+                  deficit?.required ?? balance,
+                ],
                 functionName: 'transfer',
               }),
               to: key as `0x${string}`,
@@ -236,7 +247,7 @@ function DepositFromWallet(props: {
     return mapped
   }, [connect.connectors])
 
-  if (view === 'connected-wallet' && account)
+  if (view === 'connected-wallet' && externalAccount)
     return nonZeroAssets.length > 0 ? (
       <Ariakit.Form className="flex w-full flex-col gap-[8px]" store={form}>
         <div className="flex flex-col gap-2">
