@@ -18,6 +18,7 @@ import {
   useDisconnect,
   useSendCalls,
   useWaitForCallsStatus,
+  useWatchBlockNumber,
   WagmiProvider,
 } from 'wagmi'
 import { porto } from '~/lib/Porto'
@@ -61,9 +62,9 @@ function DepositFromWallet(props: {
   nativeTokenName?: string
 }) {
   const { address, assetDeficits, chainId, nativeTokenName } = props
-  const [view, setView] = React.useState<
-    'default' | 'connected-wallet-transfer' | 'connected-wallet-no-funds'
-  >('default')
+  const [view, setView] = React.useState<'default' | 'connected-wallet'>(
+    'default',
+  )
   const { address: account, connector } = useAccount()
   const disconnect = useDisconnect()
   const queryClient = useQueryClient()
@@ -88,33 +89,40 @@ function DepositFromWallet(props: {
           ),
         )
 
-        const hasRequiredTokenAmount = nonZeroAssets.length > 0
-        setView(
-          hasRequiredTokenAmount
-            ? 'connected-wallet-transfer'
-            : 'connected-wallet-no-funds',
-        )
+        setView('connected-wallet')
       },
     },
   })
 
-  const { data: assets = [] } = useQuery({
+  const {
+    data: { assets, nonZeroAssets },
+    refetch: refetchAssets,
+  } = useQuery({
     enabled: Boolean(account && chainId),
+    initialData: [],
     async queryFn() {
       if (!chainId) throw new Error('Missing chainId')
-      const hexChainId = Hex.fromNumber(chainId)
+      if (!account) throw new Error('Missing account')
       const response = await porto.provider.request({
         method: 'wallet_getAssets',
-        params: [{ account: account! }],
+        params: [{ account }],
       })
-      return response[hexChainId]
+      return response[Hex.fromNumber(chainId)]
     },
+    select: (assets = []) => ({
+      assets,
+      nonZeroAssets: assets.filter((asset) => asset.balance !== '0x0'),
+    }),
     queryKey: ['assets', { account, chainId }],
   })
 
-  const nonZeroAssets = React.useMemo(() => {
-    return assets.filter((asset) => asset.balance !== '0x0')
-  }, [assets])
+  useWatchBlockNumber({
+    chainId: chainId as never,
+    enabled: Boolean(account && chainId),
+    onBlockNumber() {
+      refetchAssets()
+    },
+  })
 
   useAccountEffect({
     onDisconnect() {
@@ -219,8 +227,8 @@ function DepositFromWallet(props: {
     return mapped
   }, [connect.connectors])
 
-  if (view === 'connected-wallet-transfer' && account)
-    return (
+  if (view === 'connected-wallet' && account)
+    return nonZeroAssets.length > 0 ? (
       <Ariakit.Form className="flex w-full flex-col gap-[8px]" store={form}>
         <div className="flex flex-col gap-2">
           {nonZeroAssets.map((asset) => (
@@ -271,10 +279,7 @@ function DepositFromWallet(props: {
           />
         </div>
       </Ariakit.Form>
-    )
-
-  if (view === 'connected-wallet-no-funds' && account)
-    return (
+    ) : (
       <Button
         onClick={() => {
           disconnect.disconnect()
