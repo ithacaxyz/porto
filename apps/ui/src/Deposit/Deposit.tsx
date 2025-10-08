@@ -5,10 +5,15 @@ import { CopyButton } from '../CopyButton/CopyButton.js'
 
 export function Deposit({
   address,
+  chainId,
   className,
   label = 'Deposit crypto',
   value,
 }: Deposit.Props) {
+  const params = new URLSearchParams()
+  if (chainId !== undefined) params.set('chainId', String(chainId))
+  if (value !== undefined) params.set('value', String(value))
+  const uri = `ethereum:${address}${params.size > 0 ? `?${params}` : ''}`
   return (
     <div
       className={cx(
@@ -37,12 +42,7 @@ export function Deposit({
             width: 48,
           })}
         >
-          <Cuer.Root
-            value={
-              `ethereum:${address}` +
-              (value === undefined ? '' : `?value=${value}`)
-            }
-          >
+          <Cuer.Root value={uri}>
             <Cuer.Cells />
             <Cuer.Finder radius={1} />
           </Cuer.Root>
@@ -88,6 +88,7 @@ export function Deposit({
 export namespace Deposit {
   export interface Props {
     address: string
+    chainId?: number
     className?: string
     label?: ReactNode
     value?: bigint

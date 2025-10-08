@@ -49,6 +49,7 @@ export function DepositButtons(props: {
         <div className="flex w-full flex-col gap-[8px]">
           <Deposit
             address={address}
+            chainId={chainId}
             value={nativeDeficit?.required ?? defaultNativeDeposit}
           />
           <DepositFromWallet
