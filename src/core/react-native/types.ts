@@ -9,8 +9,6 @@ export type ReactNativeEnvironment = {
         /**
          * the app scheme, usually defined in `app.json` / `app.config.ts`
          * run `npx uri-scheme list` to get your app's scheme
-         *
-         * can be set using `EXPO_PUBLIC_SCHEME` environment variable
          */
         scheme: string
         /**
