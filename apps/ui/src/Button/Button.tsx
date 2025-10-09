@@ -107,7 +107,10 @@ export namespace Button {
     style?: CSSProperties
     variant: Variant
     width: Width
-  }) {
+  }): {
+    className: string
+    style: CSSProperties
+  } {
     return {
       className: cx(
         css({

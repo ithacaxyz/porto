@@ -8,6 +8,7 @@ import type * as Quote_schema from 'porto/core/internal/relay/schema/quotes'
 import { Hooks as RemoteHooks } from 'porto/remote'
 import { RelayActions } from 'porto/viem'
 import * as React from 'react'
+import { useWatchBlockNumber } from 'wagmi'
 import { DepositButtons } from '~/components/DepositButtons'
 import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
@@ -26,12 +27,21 @@ export function ActionPreview(props: ActionPreview.Props) {
     actions,
     account,
     onReject,
+    onQuotesRefetch,
   } = props
 
   const deficit = useDeficit(quotes, error, queryParams)
   const [showAddFunds, setShowAddFunds] = React.useState(false)
 
   const depositAddress = deficit?.address || account
+
+  useWatchBlockNumber({
+    chainId: deficit?.chainId as never,
+    enabled: Boolean(deficit?.chainId && onQuotesRefetch),
+    onBlockNumber() {
+      onQuotesRefetch?.()
+    },
+  })
 
   if (showAddFunds && deficit)
     return (
@@ -85,6 +95,7 @@ export namespace ActionPreview {
     actions?: React.ReactNode
     account?: Address.Address
     onReject: () => void
+    onQuotesRefetch?: () => void
   }
 
   export type Quote = {
@@ -351,7 +362,12 @@ function FundsNeededSection(props: {
       )}
 
       {depositAddress && (
-        <DepositButtons address={depositAddress} chainId={deficit.chainId} />
+        <DepositButtons
+          address={depositAddress}
+          assetDeficits={deficit.assetDeficits}
+          chainId={deficit.chainId}
+          nativeTokenName={chain?.nativeCurrency?.symbol}
+        />
       )}
     </div>
   )
