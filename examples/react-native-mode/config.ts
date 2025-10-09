@@ -1,7 +1,7 @@
 import 'porto/react-native'
 
 import { Hex, Value } from 'ox'
-import { Mode, Porto } from 'porto-924'
+import { Mode, Porto } from 'porto'
 import { baseSepolia } from 'porto-924/Chains'
 import { exp1Address, exp2Address } from './contracts'
 
