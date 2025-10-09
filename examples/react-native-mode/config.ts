@@ -1,4 +1,4 @@
-import 'porto-924/react-native'
+import 'porto/react-native'
 
 import { Hex, Value } from 'ox'
 import { Mode, Porto } from 'porto-924'
