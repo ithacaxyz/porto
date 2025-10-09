@@ -28,13 +28,13 @@
   "peerDependencies": {
     "@tanstack/react-query": ">=5.59.0",
     "@wagmi/core": ">=2.16.3",
+    "expo-auth-session": ">=7.0.8",
+    "expo-web-browser": ">=15.0.8",
     "react": ">=18",
+    "react-native": ">=0.81.4",
     "typescript": ">=5.4.0",
     "viem": ">=2.37.0",
-    "wagmi": ">=2.0.0",
-    "react-native": ">=0.81.4",
-    "expo-auth-session": ">=7.0.8",
-    "expo-web-browser": ">=15.0.8"
+    "wagmi": ">=2.0.0"
   },
   "peerDependenciesMeta": {
     "@tanstack/react-query": {
