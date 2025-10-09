@@ -1,4 +1,5 @@
 import type { RpcRequest, RpcResponse } from 'ox'
+import * as Json from 'ox/Json'
 import * as Provider from 'ox/Provider'
 import type { ThemeFragment } from '../theme/Theme.js'
 import * as IO from './internal/intersectionObserver.js'
@@ -7,6 +8,18 @@ import type { Internal } from './internal/porto.js'
 import * as UserAgent from './internal/userAgent.js'
 import * as Messenger from './Messenger.js'
 import type { QueuedRequest, Store } from './Porto.js'
+import * as ReactNativeEnvironment from './react-native/environment.js'
+import { isReactNative } from './react-native/utils.js'
+
+const AuthSessionStatus = {
+  cancel: 'cancel',
+  error: 'error',
+  success: 'success',
+  unknown: 'unknown',
+} as const
+
+type AuthSessionStatus =
+  (typeof AuthSessionStatus)[keyof typeof AuthSessionStatus]
 
 export const hostUrls = {
   local: 'http://localhost:5175/dialog/',
@@ -551,6 +564,226 @@ export declare namespace popup {
      * @default { width: 360, height: 282 }
      */
     size?: { width: number; height: number } | undefined
+  }
+}
+
+/**
+ * Instantiates a authSession dialog for React Native.
+ * @param options - Options.
+ */
+export function authSession(options: authSession.Options = {}) {
+  if (!isReactNative()) return noop()
+
+  const { requestOptions = { showTitle: true } } = options
+
+  return from({
+    name: 'authSession',
+    setup(parameters) {
+      const { host, internal } = parameters
+      const { store } = internal
+
+      const environment = ReactNativeEnvironment.reactNative.environment
+      environment.maybeCompleteAuthSession?.()
+
+      let processing = false
+      let inFlightId: number | null = null
+
+      async function handle(request: QueuedRequest) {
+        const { request: rpcRequest } = request
+        const reactNativePaths = {
+          account_verifyEmail: 'account_verifyEmail',
+          eth_requestAccounts: 'eth_requestAccounts',
+          eth_sendTransaction: 'eth_sendTransaction',
+          eth_signTypedData_v4: 'eth_signTypedData_v4',
+          personal_sign: 'personal_sign',
+          wallet_addFunds: 'wallet_addFunds',
+          wallet_connect: 'wallet_connect',
+          wallet_getAccountVersion: 'wallet_getAccountVersion',
+          wallet_getAssets: 'wallet_getAssets',
+          wallet_getCallsStatus: 'wallet_getCallsStatus',
+          wallet_getCapabilities: 'wallet_getCapabilities',
+          wallet_getKeys: 'wallet_getKeys',
+          wallet_getPermissions: 'wallet_getPermissions',
+          wallet_grantAdmin: 'wallet_grantAdmin',
+          wallet_grantPermissions: 'wallet_grantPermissions',
+          wallet_prepareCalls: 'wallet_prepareCalls',
+          wallet_prepareUpgradeAccount: 'wallet_prepareUpgradeAccount',
+          wallet_revokeAdmin: 'wallet_revokeAdmin',
+          wallet_revokePermissions: 'wallet_revokePermissions',
+          wallet_sendCalls: 'wallet_sendCalls',
+          wallet_sendPreparedCalls: 'wallet_sendPreparedCalls',
+          wallet_switchEthereumChain: 'wallet_switchEthereumChain',
+          wallet_verifySignature: 'wallet_verifySignature',
+        } as const satisfies Record<string, string>
+
+        const rpcMethod =
+          reactNativePaths[rpcRequest.method as keyof typeof reactNativePaths]
+        if (!rpcMethod)
+          throw new Provider.UnsupportedMethodError({
+            message: `Method not supported in Mode.reactNative(): ${rpcRequest.method}`,
+          })
+        const redirectUri = environment.makeRedirectUri({
+          ...(options.redirectUri
+            ? { scheme: options.redirectUri.scheme }
+            : {}),
+          path: options.redirectUri?.path ?? '/',
+          preferLocalhost: typeof __DEV__ === 'boolean' && __DEV__,
+        })
+
+        const url = new URL(host)
+        url.pathname = `${url.pathname.replace(/\/$/, '')}/${rpcMethod}`
+
+        const searchParams = new URLSearchParams({
+          id: String(rpcRequest.id),
+          jsonrpc: '2.0',
+          method: rpcRequest.method,
+          redirectUri,
+        })
+
+        const params = (rpcRequest.params ?? []) as readonly unknown[]
+        if (params.length > 0)
+          searchParams.set('params', Json.stringify(params))
+
+        const decodedParams = (rpcRequest as any)._decoded?.params
+        if (decodedParams)
+          searchParams.set('_decoded', Json.stringify(decodedParams))
+
+        url.search = searchParams.toString()
+
+        const result = await environment.openAuthSessionAsync(
+          url.toString(),
+          redirectUri,
+          requestOptions,
+        )
+
+        const response = (() => {
+          if (result.type === 'success' && result.url) {
+            const resolved = new URL(result.url)
+            const status =
+              resolved.searchParams.get('status') ?? AuthSessionStatus.unknown
+            const message = resolved.searchParams.get('message') ?? undefined
+            const payload = resolved.searchParams.get('payload') ?? undefined
+            if (status === AuthSessionStatus.success)
+              try {
+                return {
+                  id: rpcRequest.id,
+                  jsonrpc: '2.0',
+                  result: payload ? Json.parse(payload) : undefined,
+                } satisfies RpcResponse.RpcResponse
+              } catch (error) {
+                return {
+                  error: {
+                    code: -32603,
+                    message:
+                      error instanceof Error
+                        ? error.message
+                        : 'Failed to parse redirect payload',
+                  },
+                  id: rpcRequest.id,
+                  jsonrpc: '2.0',
+                } satisfies RpcResponse.RpcResponse
+              }
+
+            const error =
+              status === AuthSessionStatus.cancel
+                ? new Provider.UserRejectedRequestError({
+                    message: message ?? 'User rejected request',
+                  })
+                : new Provider.ProviderRpcError(
+                    -32603,
+                    message ?? status ?? 'Request failed',
+                  )
+            return {
+              error: {
+                code: error.code,
+                message: error.message,
+              },
+              id: rpcRequest.id,
+              jsonrpc: '2.0',
+            } satisfies RpcResponse.RpcResponse
+          }
+          if (result.type === 'cancel' || result.type === 'dismiss')
+            return {
+              error: {
+                code: Provider.UserRejectedRequestError.code,
+                message: 'User rejected request',
+              },
+              id: rpcRequest.id,
+              jsonrpc: '2.0',
+            } satisfies RpcResponse.RpcResponse
+
+          return {
+            error: {
+              code: -32603,
+              message: (result as any).error ?? 'Request failed',
+            },
+            id: rpcRequest.id,
+            jsonrpc: '2.0',
+          } satisfies RpcResponse.RpcResponse
+        })()
+
+        handleResponse(store, response)
+        environment.dismissAuthSession?.()
+      }
+
+      return {
+        close() {
+          environment.dismissAuthSession?.()
+        },
+        destroy() {
+          environment.dismissAuthSession?.()
+        },
+        open() {
+          void 0
+        },
+        async secure() {
+          return {
+            frame: false,
+            host: true,
+            protocol: true,
+          }
+        },
+        async syncRequests(requests) {
+          if (processing) return
+          const [request] = requests
+          if (!request) return
+          if (inFlightId === request.request.id) return
+
+          inFlightId = request.request.id
+          processing = true
+          try {
+            await handle(request)
+          } catch (error) {
+            handleResponse(store, {
+              error: {
+                code: -32603,
+                message:
+                  error instanceof Error ? error.message : 'Request failed',
+              },
+              id: request.request.id,
+              jsonrpc: '2.0',
+            })
+            environment.dismissAuthSession?.()
+          } finally {
+            inFlightId = null
+            processing = false
+          }
+        },
+      }
+    },
+    supportsHeadless: false,
+  })
+}
+
+export declare namespace authSession {
+  export type Options = {
+    /**
+     * where to redirect the user after operations are completed
+     */
+    redirectUri?:
+      | ReactNativeEnvironment.ReactNativeEnvironment['redirectUri']
+      | undefined
+    requestOptions?: ReactNativeEnvironment.AuthSessionOpenOptions | undefined
   }
 }
 

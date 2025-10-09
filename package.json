@@ -68,16 +68,20 @@
     "simple-git-hooks": "^2.13.1",
     "size-limit": "^11.2.0",
     "tsdown": "^0.15.1",
-    "tsx": "^4.20.5",
+    "tsx": "^4.20.6",
     "typed-query-selector": "^2.12.0",
     "typescript": "catalog:",
     "viem": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:",
     "wagmi": "catalog:",
-    "yaml": "^2.8.1"
+    "yaml": "^2.8.1",
+    "expo-auth-session": "~7.0.8",
+    "expo-web-browser": "~15.0.8",
+    "expo": "~54.0.12",
+    "react-native": "0.81.4"
   },
-  "packageManager": "pnpm@10.17.0",
+  "packageManager": "pnpm@10.17.1",
   "engines": {
     "node": ">=22.5"
   },
@@ -86,7 +90,7 @@
   },
   "knip": {
     "entry": [
-      "src/{index,remote/index,server/index,register/index,theme/index,viem/index,wagmi/index}.ts!"
+      "src/{index,remote/index,server/index,register/index,theme/index,viem/index,wagmi/index,react-native/index}.ts!"
     ],
     "ignore": [
       "**/_generated/**",
@@ -95,7 +99,8 @@
       "contracts/**",
       "scripts/**",
       "src/cli/**",
-      "wagmi.config.ts"
+      "wagmi.config.ts",
+      "react-native/**"
     ],
     "ignoreBinaries": [
       "forge"
@@ -108,8 +113,11 @@
       "examples/**"
     ],
     "ignoreDependencies": [
+      "expo-auth-session",
+      "expo-web-browser",
       "open",
       "react",
+      "react-native",
       "wagmi",
       "@wagmi/*",
       "@tanstack/react-query",
