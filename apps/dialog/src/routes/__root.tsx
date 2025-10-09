@@ -83,9 +83,6 @@ function RouteComponent() {
 
   const enableEnsureVisibility = mode.includes('iframe') && !trusted
 
-  // TODO: returning `null` breaks react-native
-  // if (!request) return null
-
   return (
     <>
       <HeadContent />
