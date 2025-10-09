@@ -1,4 +1,5 @@
-import type { ReactNativeEnvironment } from './types.js'
+import type * as AuthSession from 'expo-auth-session'
+import type * as WebBrowser from 'expo-web-browser'
 
 let environment: ReactNativeEnvironment
 
@@ -17,4 +18,26 @@ export const reactNative = {
   environment: ReactNativeEnvironment
 }
 
-export * from './types.js'
+export type AuthSessionOpenOptions = WebBrowser.AuthSessionOpenOptions
+
+export type ReactNativeEnvironment = {
+  redirectUri?:
+    | {
+        /**
+         * the app scheme, usually defined in `app.json` / `app.config.ts`
+         * run `npx uri-scheme list` to get your app's scheme
+         */
+        scheme: string
+        /**
+         * the path to redirect to
+         *
+         * @default '/'
+         */
+        path?: string
+      }
+    | undefined
+  makeRedirectUri: typeof AuthSession.makeRedirectUri
+  openAuthSessionAsync: typeof WebBrowser.openAuthSessionAsync
+  dismissAuthSession: typeof WebBrowser.dismissAuthSession
+  maybeCompleteAuthSession?: typeof WebBrowser.maybeCompleteAuthSession
+}
