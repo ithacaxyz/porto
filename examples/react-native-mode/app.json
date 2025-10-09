@@ -21,6 +21,7 @@
     "newArchEnabled": true,
     "orientation": "portrait",
     "plugins": ["expo-web-browser"],
+    "scheme": "react-native-mode",
     "slug": "react-native-mode",
     "splash": {
       "backgroundColor": "#ffffff",

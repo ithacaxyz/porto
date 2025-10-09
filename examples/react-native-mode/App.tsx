@@ -10,9 +10,12 @@ export default function App() {
       style={{ flex: 1, height: '100%', marginTop: 100, padding: 16 }}
     >
       <Connect />
-      <Login />
       <Divider />
       <SignMessage />
+      <Divider />
+      <GrantPermissions />
+      <Divider />
+      <GetPermissions />
     </ScrollView>
   )
 }
@@ -100,25 +103,6 @@ function Connect() {
   )
 }
 
-function Login() {
-  const [result, setResult] = React.useState<readonly string[] | null>(null)
-
-  return (
-    <View>
-      <Text>eth_requestAccounts</Text>
-      <Button
-        onPress={() =>
-          porto.provider
-            .request({ method: 'eth_requestAccounts' })
-            .then(setResult)
-        }
-        title="Login"
-      />
-      <Pre text={result} />
-    </View>
-  )
-}
-
 function SignMessage() {
   const [signature, setSignature] = React.useState<string | null>(null)
 
@@ -140,6 +124,50 @@ function SignMessage() {
         title="Sign Message"
       />
       <Pre text={signature} />
+    </View>
+  )
+}
+
+function GrantPermissions() {
+  const [result, setResult] = React.useState<unknown | null>(null)
+  return (
+    <View>
+      <Text>wallet_grantPermissions</Text>
+      <Button
+        onPress={async () => {
+          const p = permissions()
+          if (!p) {
+            console.warn('no permissions to grant')
+            return
+          }
+          const result = await porto.provider.request({
+            method: 'wallet_grantPermissions',
+            params: [p],
+          })
+          setResult(result)
+        }}
+        title="Grant Permissions"
+      />
+      <Pre text={result} />
+    </View>
+  )
+}
+
+function GetPermissions() {
+  const [result, setResult] = React.useState<unknown | null>(null)
+
+  return (
+    <View>
+      <Text>wallet_getPermissions</Text>
+      <Button
+        onPress={() =>
+          porto.provider
+            .request({ method: 'wallet_getPermissions' })
+            .then(setResult)
+        }
+        title="Get Permissions"
+      />
+      {result ? <Pre text={result} /> : null}
     </View>
   )
 }

@@ -8,8 +8,8 @@ pnpx gitpick ithacaxyz/porto/tree/main/examples/react-native-mode porto-react-na
 
 ## 2. Prerequisites
 
-- XCode for iOS
-- Android Studio for Android
+- XCode for iOS with iOS Simulator (I use [XCodesApp](https://github.com/XcodesOrg/XcodesApp))
+- Android Studio for Android with Android Emulator (If targeting Android)
 
 ## 3. Install Dependencies
 
