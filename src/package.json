@@ -40,22 +40,22 @@
     "@tanstack/react-query": {
       "optional": true
     },
+    "expo-auth-session": {
+      "optional": true
+    },
+    "expo-web-browser": {
+      "optional": true
+    },
     "react": {
+      "optional": true
+    },
+    "react-native": {
       "optional": true
     },
     "typescript": {
       "optional": true
     },
     "wagmi": {
-      "optional": true
-    },
-    "react-native": {
-      "optional": true
-    },
-    "expo-auth-session": {
-      "optional": true
-    },
-    "expo-web-browser": {
       "optional": true
     }
   },
