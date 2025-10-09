@@ -1424,9 +1424,9 @@ importers:
       ox:
         specifier: ^0.9.6
         version: 0.9.6(typescript@5.9.2)(zod@4.1.5)
-      porto-924:
-        specifier: https://pkg.pr.new/porto@924
-        version: porto@https://pkg.pr.new/porto@924(694ed10b26465d1f0c180d574ad73738)
+      porto:
+        specifier: workspace:*
+        version: link:../../src
       react:
         specifier: 19.1.0
         version: 19.1.0
@@ -11667,39 +11667,6 @@ packages:
   pony-cause@2.1.11:
     resolution: {integrity: sha512-M7LhCsdNbNgiLYiP4WjsfLUuFmCfnjdF6jKe2R9NKl4WFN+HZPGHJZ9lnLP7f9ZnKe3U9nuWD0szirmj+migUg==}
     engines: {node: '>=12.0.0'}
-
-  porto@https://pkg.pr.new/porto@924:
-    resolution: {tarball: https://pkg.pr.new/porto@924}
-    version: 0.2.23
-    hasBin: true
-    peerDependencies:
-      '@tanstack/react-query': '>=5.59.0'
-      '@wagmi/core': '>=2.16.3'
-      expo: '*'
-      expo-auth-session: '*'
-      expo-web-browser: '*'
-      react: '>=18'
-      react-native: '*'
-      typescript: '>=5.4.0'
-      viem: ^2.37.8
-      wagmi: '>=2.0.0'
-    peerDependenciesMeta:
-      '@tanstack/react-query':
-        optional: true
-      expo:
-        optional: true
-      expo-auth-session:
-        optional: true
-      expo-web-browser:
-        optional: true
-      react:
-        optional: true
-      react-native:
-        optional: true
-      typescript:
-        optional: true
-      wagmi:
-        optional: true
 
   poseidon-lite@0.2.1:
     resolution: {integrity: sha512-xIr+G6HeYfOhCuswdqcFpSX47SPhm0EpisWJ6h7fHlWwaVIvH3dLnejpatrtw6Xc6HaLrpq05y7VRfvDmDGIog==}
@@ -29178,30 +29145,6 @@ snapshots:
       points-on-curve: 0.2.0
 
   pony-cause@2.1.11: {}
-
-  porto@https://pkg.pr.new/porto@924(694ed10b26465d1f0c180d574ad73738):
-    dependencies:
-      '@wagmi/core': 2.21.2(@tanstack/query-core@5.90.1)(@types/react@19.1.17)(react@19.1.0)(typescript@5.9.2)(use-sync-external-store@1.5.0(react@19.1.0))(viem@2.37.8(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5))
-      hono: 4.9.8
-      idb-keyval: 6.2.2
-      mipd: 0.0.7(typescript@5.9.2)
-      ox: 0.9.6(typescript@5.9.2)(zod@4.1.5)
-      viem: 2.37.8(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5)
-      zod: 4.1.5
-      zustand: 5.0.5(@types/react@19.1.17)(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))
-    optionalDependencies:
-      '@tanstack/react-query': 5.90.1(react@19.1.0)
-      expo: 54.0.12(@babel/core@7.28.4)(@expo/metro-runtime@6.1.2)(bufferutil@4.0.9)(graphql@16.11.0)(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(bufferutil@4.0.9)(react@19.1.0)(utf-8-validate@5.0.10))(react@19.1.0)(utf-8-validate@5.0.10)
-      expo-auth-session: 7.0.8(expo@54.0.12)(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(bufferutil@4.0.9)(react@19.1.0)(utf-8-validate@5.0.10))(react@19.1.0)
-      expo-web-browser: 15.0.8(expo@54.0.12)(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(bufferutil@4.0.9)(react@19.1.0)(utf-8-validate@5.0.10))
-      react: 19.1.0
-      react-native: 0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(bufferutil@4.0.9)(react@19.1.0)(utf-8-validate@5.0.10)
-      typescript: 5.9.2
-      wagmi: 2.17.5(@tanstack/query-core@5.90.1)(@tanstack/react-query@5.90.1(react@19.1.0))(@types/react@19.1.17)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.1.0)(typescript@5.9.2)(utf-8-validate@5.0.10)(viem@2.37.8(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5))(zod@4.1.5)
-    transitivePeerDependencies:
-      - '@types/react'
-      - immer
-      - use-sync-external-store
 
   poseidon-lite@0.2.1: {}
 
