@@ -1,7 +1,7 @@
 import { type ReactNode, useCallback, useRef, useState } from 'react'
+import { css, cx } from 'styled-system/css'
 import LucideCopy from '~icons/lucide/copy'
 import LucideCopyCheck from '~icons/lucide/copy-check'
-import { css, cx } from '../../styled-system/css'
 import { Button } from '../Button/Button.js'
 import { TextButton } from '../TextButton/TextButton.js'
 
