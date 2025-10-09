@@ -41,6 +41,21 @@ function CopyButtonComponent() {
           </div>
         </div>
       </ComponentScreen.Section>
+      <ComponentScreen.Section surface="base" title="Stateful Label">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-2">
+            <CopyButton
+              label={{ copied: 'Copied!', normal: 'Copy' }}
+              value={demoText}
+            />
+            <CopyButton
+              label={{ copied: 'Copied to clipboard', normal: 'Copy address' }}
+              value={demoAddress}
+              variant="primary"
+            />
+          </div>
+        </div>
+      </ComponentScreen.Section>
       <ComponentScreen.Section surface="base" title="Examples">
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-2">

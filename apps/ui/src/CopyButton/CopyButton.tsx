@@ -1,10 +1,13 @@
 import { type ReactNode, useCallback, useRef, useState } from 'react'
 import LucideCopy from '~icons/lucide/copy'
 import LucideCopyCheck from '~icons/lucide/copy-check'
+import { css, cx } from '../../styled-system/css'
 import { Button } from '../Button/Button.js'
+import { TextButton } from '../TextButton/TextButton.js'
 
 export function CopyButton({
   className,
+  iconPosition = 'end',
   label,
   size = 'small',
   value,
@@ -13,6 +16,7 @@ export function CopyButton({
   const { copy, notifying } = CopyButton.useCopy()
 
   const Icon = notifying ? LucideCopyCheck : LucideCopy
+  const label_ = CopyButton.getLabel(label, notifying)
 
   return (
     <Button
@@ -28,8 +32,9 @@ export function CopyButton({
       title={notifying ? 'Copied' : 'Copy to clipboard'}
       variant={variant}
     >
-      {label && <span>{label}</span>}
-      <Icon />
+      {iconPosition === 'start' && <Icon />}
+      {label_ && <span>{label_}</span>}
+      {iconPosition === 'end' && <Icon />}
     </Button>
   )
 }
@@ -37,10 +42,68 @@ export function CopyButton({
 export namespace CopyButton {
   export type Props = {
     className?: string
-    label?: ReactNode
+    iconPosition?: 'start' | 'end'
+    label?: Label
     size?: 'mini' | 'small' | 'medium' | 'large'
     value: string
     variant?: Button.Props['variant']
+  }
+
+  export type Label =
+    | ReactNode
+    | {
+        normal: ReactNode
+        copied: ReactNode
+      }
+
+  export function getLabel(label: Label, notifying: boolean) {
+    return label && typeof label === 'object' && 'normal' in label
+      ? notifying
+        ? label.copied
+        : label.normal
+      : label
+  }
+
+  export function Text({
+    className,
+    iconPosition = 'end',
+    label,
+    value,
+  }: Text.Props) {
+    const { copy, notifying } = CopyButton.useCopy()
+
+    const Icon = notifying ? LucideCopyCheck : LucideCopy
+    const icon = <Icon className={css({ height: 14, width: 14 })} />
+    const label_ = getLabel(label, notifying)
+
+    return (
+      <TextButton
+        className={cx(
+          className,
+          css({
+            alignItems: 'center',
+            display: 'flex',
+            fontSize: 13,
+            gap: 8,
+          }),
+        )}
+        onClick={() => copy(value)}
+        title={notifying ? 'Copied' : 'Copy to clipboard'}
+      >
+        {iconPosition === 'start' && icon}
+        {label_ && <span>{label_}</span>}
+        {iconPosition === 'end' && icon}
+      </TextButton>
+    )
+  }
+
+  export namespace Text {
+    export type Props = {
+      className?: string
+      iconPosition?: 'start' | 'end'
+      label?: Label
+      value: string
+    }
   }
 
   export function useCopy(timeout = 800) {

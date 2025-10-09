@@ -177,7 +177,7 @@ export const portoTheme: PortoTheme = {
   ],
   badgeWarningBackground: [
     'Background color for warning badges. Used for badges indicating warnings or important notices.',
-    '#fbf8e6',
+    '#fdf5c2',
     '#252018',
   ],
   badgeWarningContent: [
@@ -357,6 +357,21 @@ export const portoTheme: PortoTheme = {
     'Warning border color. Used around warning surfaces.',
     '#e2a336',
     '#8f6424',
+  ],
+  warningStrongBackground: [
+    'Warning strong background color. Used for warning elements that need to stand out with more emphasis.',
+    '#e2a336',
+    '#e2a336',
+  ],
+  warningStrongContent: [
+    'Warning strong content color. Used over warningStrongBackground for text and icons.',
+    '#ffffff',
+    '#ffffff',
+  ],
+  warningStrongBorder: [
+    'Warning strong border color. Used around warning strong surfaces.',
+    '#e2a336',
+    '#e2a336',
   ],
 
   // field

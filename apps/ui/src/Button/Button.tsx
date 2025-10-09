@@ -34,7 +34,7 @@ export function Button({
       type={type}
       {...Button.styles({
         className,
-        disabled: Boolean(loading) || disabled,
+        disabled,
         frame,
         shape,
         size: resolvedSize,
@@ -63,6 +63,7 @@ export namespace Button {
     | 'primary'
     | 'secondary'
     | 'strong'
+    | 'warning'
   export type Width = 'auto' | 'full' | 'grow' | number | undefined
 
   export interface BaseProps {
@@ -216,6 +217,11 @@ export namespace Button {
                 '--button-bg': 'var(--background-color-th_strong)',
                 color: 'var(--text-color-th_strong)',
                 fontWeight: 600,
+              },
+              warning: {
+                '--button-bd': 'var(--border-color-th_warning-strong)',
+                '--button-bg': 'var(--background-color-th_warning-strong)',
+                color: 'var(--text-color-th_warning-strong)',
               },
             },
             shape: {
