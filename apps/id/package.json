@@ -50,6 +50,7 @@
     "unplugin-icons": "catalog:",
     "vite": "catalog:",
     "vite-plugin-mkcert": "catalog:",
+    "vite-plugin-terminal": "^1.3.0",
     "vite-tsconfig-paths": "^5.1.4"
   },
   "repository": {

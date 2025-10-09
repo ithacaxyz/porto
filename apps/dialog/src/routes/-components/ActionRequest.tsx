@@ -16,6 +16,7 @@ import {
   ethAddress,
 } from 'viem'
 import * as Calls from '~/lib/Calls'
+import * as Errors from '~/lib/DialogErrors'
 import { porto } from '~/lib/Porto'
 import * as Tokens from '~/lib/Tokens'
 import { Layout } from '~/routes/-components/Layout'
@@ -25,12 +26,12 @@ import ArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideFileText from '~icons/lucide/file-text'
 import LucideMusic from '~icons/lucide/music'
 import LucideSparkles from '~icons/lucide/sparkles'
-import TriangleAlert from '~icons/lucide/triangle-alert'
 import LucideVideo from '~icons/lucide/video'
 import Star from '~icons/ph/star-four-bold'
 import { ActionPreview } from '../-components/ActionPreview'
 import { AddFunds } from '../-components/AddFunds'
 import { Approve } from '../-components/Approve'
+import { ErrorScreen } from '../-components/ErrorScreen'
 import { InsufficientFunds } from '../-components/InsufficientFunds'
 import { Send } from '../-components/Send'
 import { Swap } from '../-components/Swap'
@@ -112,13 +113,6 @@ export function ActionRequest(props: ActionRequest.Props) {
     }
   }, [requiredFunds, tokensQuery.data])
 
-  const insufficientFundsError = Boolean(
-    prepareCallsQuery.error &&
-      requiredFunds &&
-      requiredFunds.length > 0 &&
-      /insufficient/i.test(prepareCallsQuery.error.message ?? ''),
-  )
-
   const [showAddFunds, setShowAddFunds] = React.useState(false)
 
   const addNativeCurrencyName = (asset: ActionRequest.CoinAsset) => {
@@ -132,7 +126,19 @@ export function ActionRequest(props: ActionRequest.Props) {
   const fetchingQuote = prepareCallsQuery.isPending
   const refreshingQuote = prepareCallsQuery.isRefetching
 
-  if (insufficientFundsError)
+  const insufficientFunds = React.useMemo(() => {
+    const errorMessage = prepareCallsQuery.error?.message ?? ''
+    const abiErrorName = (prepareCallsQuery.error as any)?.abiError?.name
+    return (
+      prepareCallsQuery.error !== null &&
+      requiredFunds &&
+      requiredFunds.length > 0 &&
+      /insufficient/i.test(errorMessage) &&
+      !/allowance/i.test(abiErrorName)
+    )
+  }, [prepareCallsQuery.error, requiredFunds])
+
+  if (insufficientFunds)
     return requiredFundsData ? (
       <InsufficientFunds
         account={account?.address}
@@ -153,6 +159,15 @@ export function ActionRequest(props: ActionRequest.Props) {
         chainId={chainId ?? relayClient.chain.id}
         onAddFunds={() => setShowAddFunds(true)}
         onReject={onReject}
+      />
+    )
+
+  if (prepareCallsQuery.error)
+    return (
+      <ErrorScreen.Execution
+        dialogError={Errors.createCallError(prepareCallsQuery.error, calls)}
+        onCancel={onReject}
+        onRetry={() => prepareCallsQuery.refetch()}
       />
     )
 
@@ -245,14 +260,14 @@ export function ActionRequest(props: ActionRequest.Props) {
           </Button>
         </Layout.Footer.Actions>
       }
-      error={prepareCallsQuery.error}
       header={
         <Layout.Header.Default
-          icon={prepareCallsQuery.isError ? TriangleAlert : Star}
+          icon={Star}
           title="Review action"
-          variant={prepareCallsQuery.isError ? 'warning' : 'default'}
+          variant="default"
         />
       }
+      onQuotesRefetch={() => prepareCallsQuery.refetch()}
       onReject={onReject}
       queryParams={{ address, chainId }}
       quotes={
@@ -261,18 +276,10 @@ export function ActionRequest(props: ActionRequest.Props) {
     >
       <div className="flex flex-col gap-[8px]">
         <ActionRequest.PaneWithDetails
-          error={prepareCallsQuery.error}
-          errorMessage="An error occurred while simulating the action. Proceed with caution."
           feeTotals={feeTotals}
           hideDetails={false}
           quotes={quotes}
-          status={
-            prepareCallsQuery.isPending
-              ? 'pending'
-              : prepareCallsQuery.isError
-                ? 'error'
-                : 'success'
-          }
+          status={prepareCallsQuery.isPending ? 'pending' : 'success'}
         >
           {assetDiff.length > 0 ? (
             <ActionRequest.AssetDiff assetDiff={assetDiff} />
@@ -537,15 +544,7 @@ export namespace ActionRequest {
   }
 
   export function PaneWithDetails(props: PaneWithDetails.Props) {
-    const {
-      children,
-      error,
-      errorMessage = 'An error occurred. Proceed with caution.',
-      feeTotals,
-      quotes,
-      status,
-      hideDetails,
-    } = props
+    const { children, feeTotals, quotes, status, hideDetails } = props
 
     const hasChildren = React.useMemo(
       () => React.Children.count(children) > 0,
@@ -571,41 +570,12 @@ export namespace ActionRequest {
     return (
       <div className="space-y-2">
         {showOverview && (
-          <div
-            className={cx('space-y-3 overflow-hidden rounded-lg px-3', {
-              'bg-th_badge-warning py-2 text-th_badge-warning':
-                status === 'error',
-              'bg-th_base-alt py-3': status !== 'error',
-            })}
-          >
-            {(() => {
-              if (error) {
-                const isInsufficientFunds = /insufficient/i.test(
-                  (error as any)?.cause?.message ?? error.message ?? '',
-                )
-                return (
-                  <div className="space-y-2 text-[14px] text-th_base">
-                    <p className="font-medium text-th_badge-warning">Error</p>
-                    <p>{errorMessage}</p>
-                    {isInsufficientFunds ? (
-                      <p className="text-[11px]">
-                        You need more funds to proceed with this action.
-                      </p>
-                    ) : (
-                      <p className="text-[11px]">
-                        Details: {(error as any).shortMessage ?? error.message}{' '}
-                        {(error as any).details}
-                      </p>
-                    )}
-                  </div>
-                )
-              }
-
-              if (status === 'pending')
-                return <div className="h-[24px] w-full" />
-
-              return <div className="space-y-3">{children}</div>
-            })()}
+          <div className="space-y-3 overflow-hidden rounded-lg bg-th_base-alt px-3 py-3">
+            {status === 'pending' ? (
+              <div className="h-[24px] w-full" />
+            ) : (
+              <div className="space-y-3">{children}</div>
+            )}
           </div>
         )}
 
@@ -637,11 +607,9 @@ export namespace ActionRequest {
   export namespace PaneWithDetails {
     export type Props = {
       children?: React.ReactNode | undefined
-      error?: Error | null | undefined
       feeTotals?: Capabilities.feeTotals.Response | undefined
-      errorMessage?: string | undefined
       quotes?: readonly Quote_schema.Quote[] | undefined
-      status: 'pending' | 'error' | 'success'
+      status: 'pending' | 'success'
       hideDetails?: boolean | undefined
     }
   }

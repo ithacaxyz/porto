@@ -65,4 +65,6 @@ CLAUDE.local.md
 .zed
 bunfig.toml
 mise.toml
+.turbo
 justfile
+_dist
