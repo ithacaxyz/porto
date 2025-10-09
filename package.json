@@ -11,7 +11,7 @@
     "check": "biome check . --fix --unsafe",
     "check:pin-ci": "pnpx pin-github-action .github/workflows/",
     "check:markdown": "markdownlint-cli2 --config .github/.markdownlint-cli2.jsonc '**/*.md' '**/*.mdx'",
-    "check:build": "tsx ./scripts/prepublish.ts && publint --strict ./src && attw --pack ./src --profile esm-only",
+    "check:build": "tsx ./scripts/prepublish.ts && publint --strict . && attw --pack . --profile esm-only",
     "check:knip": "knip --production",
     "check:repo": "sherif --ignore-rule packages-without-package-json",
     "check:size": "size-limit",
