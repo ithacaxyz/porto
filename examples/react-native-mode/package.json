@@ -1,6 +1,5 @@
 {
   "name": "react-native-mode",
-  "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
     "start": "expo start --clear --dev-client --tunnel",
