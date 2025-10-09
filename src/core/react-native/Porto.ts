@@ -7,6 +7,9 @@ export const defaultConfig = {
   mode: Mode.reactNative(),
 } as const satisfies Partial<Porto.Config>
 
+/**
+ * Instantiates a Porto instance with React Native mode.
+ */
 export function create(
   parameters: ExactPartial<Porto.Config> | undefined = {},
 ): Porto.Porto {
@@ -16,4 +19,4 @@ export function create(
   })
 }
 
-export type { Porto }
+export { Porto }

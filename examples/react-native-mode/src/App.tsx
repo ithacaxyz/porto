@@ -2,6 +2,7 @@ import Checkbox from 'expo-checkbox'
 import { Hex, Json } from 'ox'
 import * as React from 'react'
 import { Button, ScrollView, Text, View } from 'react-native'
+
 import { permissions, porto } from './config'
 
 export default function App() {
@@ -46,7 +47,6 @@ function Connect() {
               })
               .then(setResult)
               .catch((error) => {
-                console.info(payload)
                 console.error(error)
                 setError(
                   Json.stringify({ error: error.message, payload }, null, 2),
@@ -72,7 +72,6 @@ function Connect() {
               })
               .then(setResult)
               .catch((error) => {
-                console.info(payload)
                 console.error(error)
                 setError(
                   Json.stringify({ error: error.message, payload }, null, 2),

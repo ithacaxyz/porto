@@ -1,3 +1,4 @@
+import './crypto.js'
 import {
   isEnvironmentConfigured,
   isReactNative,
