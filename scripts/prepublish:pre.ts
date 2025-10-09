@@ -3,6 +3,8 @@ import * as path from 'node:path'
 
 const packageJsonPath = path.join(process.cwd(), 'package.json')
 
+fs.copyFileSync(packageJsonPath, packageJsonPath.replace('.json', '.tmp.json'))
+
 // Read package.json as text to find the marker position
 const content = fs.readFileSync(packageJsonPath, 'utf-8')
 const data = JSON.parse(content)
