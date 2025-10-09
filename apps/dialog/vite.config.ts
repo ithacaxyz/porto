@@ -1,4 +1,5 @@
 import ChildProcess from 'node:child_process'
+import { PortoUi } from '@porto/ui/vite-plugin'
 import { sentryVitePlugin as SentryVitePlugin } from '@sentry/vite-plugin'
 import Tailwindcss from '@tailwindcss/vite'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
@@ -46,9 +47,10 @@ export default defineConfig(({ mode }) => {
         : Mkcert({
             hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
           }),
+      Plugins.Icons(),
+      PortoUi(),
       Tailwindcss(),
       React(),
-      Plugins.Icons(),
       TsconfigPaths(),
       TanStackRouterVite(),
       // must come last

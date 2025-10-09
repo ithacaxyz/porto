@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "prepare": "panda codegen",
     "dev": "vite --port 5175",
     "prebuild": "tsc --build",
     "build": "vite build",
@@ -35,6 +36,7 @@
   },
   "devDependencies": {
     "@iconify/json": "catalog:",
+    "@pandacss/dev": "catalog:",
     "@porto/apps": "workspace:*",
     "@svgr/core": "catalog:",
     "@svgr/plugin-jsx": "catalog:",
@@ -46,6 +48,7 @@
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "globals": "catalog:",
+    "postcss": "catalog:",
     "tailwindcss": "catalog:",
     "tw-animate-css": "catalog:",
     "typescript": "catalog:",
