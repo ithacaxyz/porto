@@ -113,8 +113,11 @@
       "examples/**"
     ],
     "ignoreDependencies": [
+      "expo-auth-session",
+      "expo-web-browser",
       "open",
       "react",
+      "react-native",
       "wagmi",
       "@wagmi/*",
       "@tanstack/react-query",
