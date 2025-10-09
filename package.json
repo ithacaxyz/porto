@@ -57,6 +57,11 @@
     "@wagmi/cli": "^2.2.0",
     "@wagmi/core": "catalog:",
     "cac": "^6",
+    "expo": "~54.0.12",
+    "expo-auth-session": "~7.0.8",
+    "expo-crypto": "~15.0.7",
+    "expo-standard-web-crypto": "~3.0.7",
+    "expo-web-browser": "~15.0.8",
     "http-proxy": "^1.18.1",
     "knip": "^5.50.5",
     "markdownlint-cli2": "^0.18.1",
@@ -64,6 +69,7 @@
     "playwright": "1.53.0",
     "prool": "catalog:",
     "publint": "^0.3.12",
+    "react-native": "0.81.4",
     "sherif": "^1.6.1",
     "simple-git-hooks": "^2.13.1",
     "size-limit": "^11.2.0",
@@ -75,11 +81,7 @@
     "vite": "catalog:",
     "vitest": "catalog:",
     "wagmi": "catalog:",
-    "yaml": "^2.8.1",
-    "expo-auth-session": "~7.0.8",
-    "expo-web-browser": "~15.0.8",
-    "expo": "~54.0.12",
-    "react-native": "0.81.4"
+    "yaml": "^2.8.1"
   },
   "packageManager": "pnpm@10.17.1",
   "engines": {
@@ -114,6 +116,7 @@
     ],
     "ignoreDependencies": [
       "expo-auth-session",
+      "expo-crypto",
       "expo-web-browser",
       "open",
       "react",

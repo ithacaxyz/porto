@@ -29,6 +29,7 @@
     "@tanstack/react-query": ">=5.59.0",
     "@wagmi/core": ">=2.16.3",
     "expo-auth-session": ">=7.0.8",
+    "expo-crypto": ">=15.0.7",
     "expo-web-browser": ">=15.0.8",
     "react": ">=18",
     "react-native": ">=0.81.4",
@@ -41,6 +42,9 @@
       "optional": true
     },
     "expo-auth-session": {
+      "optional": true
+    },
+    "expo-crypto": {
       "optional": true
     },
     "expo-web-browser": {

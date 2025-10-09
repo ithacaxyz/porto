@@ -94,8 +94,25 @@ React Native mode is used to communicate with React Native applications. Setup a
 
 ### Usage
 
+Install required dependencies:
+
+```sh
+pnpm expo install expo-web-browser expo-auth-session expo-crypto
+```
+
+Since we rely on a few Web Crypto APIs such as [`crypto.randomUUID`](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID)
+and [`crypto.getRandomValues`](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues),
+we need to polyfill those at the earliest possible stage. So in your entrypoint file (i.e., root `index.ts` / `index.native.ts`):
+
+```ts
+import 'porto/react-native/register'
+
+// ...
+```
+
+Then import `Porto` anywhere in your application:
+
 ```ts twoslash
-import 'porto/react-native'
 import { Porto, Mode } from 'porto'
 
 const porto = Porto.create({
@@ -106,11 +123,12 @@ const porto = Porto.create({
 or
 
 ```ts twoslash
-import 'porto/react-native'
-import { Porto, Mode } from 'porto'
+import { Porto } from 'porto/react-native'
 
 const porto = Porto.create()
 ```
+
+See [full example here](https://github.com/ithacaxyz/porto/tree/main/examples/react-native-mode).
 
 ### Options
 
