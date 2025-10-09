@@ -1,10 +1,12 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Hex, Siwe } from 'ox'
+import * as Provider from 'ox/Provider'
 import { Actions } from 'porto/remote'
 import { useMemo } from 'react'
 
 import { porto } from '~/lib/Porto'
+import { useAuthSessionRedirect } from '~/lib/ReactNative'
 import * as Router from '~/lib/Router'
 import { SignMessage } from '../-components/SignMessage'
 
@@ -25,18 +27,24 @@ function RouteComponent() {
   const siwe = useMemo(() => Siwe.parseMessage(message), [message])
 
   const respond = useMutation({
-    mutationFn() {
+    async mutationFn({ reject }: { reject?: boolean } = {}) {
+      if (reject) {
+        await Actions.reject(porto, request)
+        throw new Provider.UserRejectedRequestError()
+      }
       return Actions.respond(porto, request)
     },
   })
+
+  useAuthSessionRedirect(respond)
 
   if (Object.keys(siwe).length > 0)
     return (
       <SignMessage.Siwe
         address={address}
         loading={respond.isPending}
-        onApprove={() => respond.mutate()}
-        onReject={() => Actions.reject(porto, request)}
+        onApprove={() => respond.mutate({})}
+        onReject={() => respond.mutate({ reject: true })}
       />
     )
   return (
@@ -44,8 +52,8 @@ function RouteComponent() {
       address={address}
       loading={respond.isPending}
       message={message}
-      onApprove={() => respond.mutate()}
-      onReject={() => Actions.reject(porto, request)}
+      onApprove={() => respond.mutate({})}
+      onReject={() => respond.mutate({ reject: true })}
     />
   )
 }

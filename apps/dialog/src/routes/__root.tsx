@@ -84,8 +84,6 @@ function RouteComponent() {
 
   const enableEnsureVisibility = mode.includes('iframe') && !trusted
 
-  if (!request) return null
-
   return (
     <>
       <HeadContent />

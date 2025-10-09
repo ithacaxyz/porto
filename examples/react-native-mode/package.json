@@ -1,0 +1,35 @@
+{
+  "name": "react-native-mode",
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start --clear --dev-client --tunnel",
+    "android": "expo run:android",
+    "android-no-cache": "expo run:android --no-build-cache",
+    "ios": "expo run:ios",
+    "ios-no-cache": "expo run:ios --no-build-cache",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "expo": "~54.0.12",
+    "expo-auth-session": "~7.0.8",
+    "expo-checkbox": "~5.0.7",
+    "expo-crypto": "~15.0.7",
+    "expo-web-browser": "~15.0.8",
+    "ox": "^0.9.9",
+    "porto": "latest",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "0.81.4",
+    "react-native-web": "^0.21.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.4",
+    "@types/babel__core": "^7.20.5",
+    "@types/react": "~19.1.17",
+    "babel-plugin-module-resolver": "^5.0.2",
+    "expo-dev-client": "~6.0.13",
+    "babel-plugin-transform-import-meta": "^2.3.3",
+    "typescript": "~5.9.2"
+  },
+  "private": true
+}
