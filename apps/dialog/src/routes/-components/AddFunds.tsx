@@ -1,17 +1,21 @@
 import { UserAgent } from '@porto/apps'
 import { exp1Address } from '@porto/apps/contracts'
+import { usePrevious } from '@porto/apps/hooks'
 import { Button, PresetsInput, Separator } from '@porto/ui'
 import { useMutation } from '@tanstack/react-query'
 import { cx } from 'cva'
 import { type Address, type Hex, Value } from 'ox'
 import { Hooks as RemoteHooks } from 'porto/remote'
 import { RelayActions } from 'porto/viem'
+import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
-import { zeroAddress } from 'viem'
+import { zeroAddress, zeroHash } from 'viem'
+import { useWatchBlockNumber } from 'wagmi'
 import * as z from 'zod/mini'
 import { DepositButtons } from '~/components/DepositButtons'
 import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
+import * as Tokens from '~/lib/Tokens'
 import { Layout } from '~/routes/-components/Layout'
 import TriangleAlertIcon from '~icons/lucide/triangle-alert'
 import Star from '~icons/ph/star-four-bold'
@@ -29,6 +33,55 @@ export function AddFunds(props: AddFunds.Props) {
   const account = RemoteHooks.useAccount(porto)
   const address = props.address ?? account?.address
   const chain = RemoteHooks.useChain(porto, { chainId })
+
+  const { data: tokens } = Tokens.getTokens.useQuery()
+  const { data: assets, refetch: refetchAssets } = Hooks.useAssets({
+    account: account?.address,
+    query: {
+      enabled: Boolean(account?.address),
+      select: (data) =>
+        // As we support interop, we can listen to the
+        // aggregated assets across all supported chains.
+        data[0],
+    },
+  })
+  const balanceMap = React.useMemo(() => {
+    const addressBalanceMap = new Map<Address.Address, bigint>()
+    if (!assets) return addressBalanceMap
+
+    const tokenAddressMap = new Map<Address.Address, boolean>()
+    if (tokens)
+      for (const token of tokens) tokenAddressMap.set(token.address, true)
+
+    for (const asset of assets) {
+      const address =
+        (asset.address === 'native' || asset.type === 'native'
+          ? zeroAddress
+          : asset.address) ?? zeroAddress
+      if (tokenAddressMap.has(address)) {
+        const balance = addressBalanceMap.get(address)
+        addressBalanceMap.set(address, (balance ?? 0n) + asset.balance)
+      }
+    }
+    return addressBalanceMap
+  }, [assets, tokens])
+  useWatchBlockNumber({
+    enabled: Boolean(account?.address),
+    onBlockNumber() {
+      refetchAssets()
+    },
+  })
+  const previousBalanceMap = usePrevious({ value: balanceMap })
+
+  // Close dialog when one of the token balances increases
+  React.useEffect(() => {
+    if (typeof previousBalanceMap === 'undefined') return
+    for (const [address, balance] of balanceMap) {
+      const previousBalance = previousBalanceMap.get(address)
+      if (typeof previousBalance === 'undefined') continue
+      if (balance > previousBalance) onApprove?.({ id: zeroHash })
+    }
+  }, [balanceMap, onApprove, previousBalanceMap])
 
   const showFaucet = React.useMemo(() => {
     if (import.meta.env.MODE === 'test') return true
