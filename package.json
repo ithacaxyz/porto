@@ -116,6 +116,7 @@
     ],
     "ignoreDependencies": [
       "expo-auth-session",
+      "expo-crypto",
       "expo-web-browser",
       "open",
       "react",
