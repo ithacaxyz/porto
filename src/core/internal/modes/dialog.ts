@@ -31,8 +31,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
     themeController,
   } = parameters
 
-  const isReactNativeRenderer = renderer.name === 'authSession'
-
   const listeners = new Set<(requestQueue: readonly QueuedRequest[]) => void>()
   const requestStore = RpcRequest.createStore()
 
@@ -288,7 +286,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         if (request.method !== 'wallet_getAccountVersion')
           throw new Error('Cannot get version for method: ' + request.method)
 
-        if (!renderer.supportsHeadless || isReactNativeRenderer)
+        if (!renderer.supportsHeadless)
           return fallback.actions.getAccountVersion(parameters)
 
         const provider = getProvider(store)
@@ -303,7 +301,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         if (request.method !== 'wallet_getAssets')
           throw new Error('Cannot get assets for method: ' + request.method)
 
-        if (!renderer.supportsHeadless || isReactNativeRenderer)
+        if (!renderer.supportsHeadless)
           return fallback.actions.getAssets(parameters)
 
         const provider = getProvider(store)
@@ -318,7 +316,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         if (request.method !== 'wallet_getCallsStatus')
           throw new Error('Cannot get status for method: ' + request.method)
 
-        if (!renderer.supportsHeadless || isReactNativeRenderer)
+        if (!renderer.supportsHeadless)
           return fallback.actions.getCallsStatus(parameters)
 
         const provider = getProvider(store)
@@ -335,7 +333,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             'Cannot get capabilities for method: ' + request.method,
           )
 
-        if (!renderer.supportsHeadless || isReactNativeRenderer)
+        if (!renderer.supportsHeadless)
           return fallback.actions.getCapabilities(parameters)
 
         const provider = getProvider(store)
@@ -348,7 +346,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const { store } = internal
 
         const keys = await (async () => {
-          if (!renderer.supportsHeadless || isReactNativeRenderer)
+          if (!renderer.supportsHeadless)
             return fallback.actions.getKeys(parameters)
 
           const provider = getProvider(store)
@@ -576,7 +574,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         if (request.method !== 'wallet_prepareCalls')
           throw new Error('Cannot prepare calls for method: ' + request.method)
 
-        if (!renderer.supportsHeadless || isReactNativeRenderer)
+        if (!renderer.supportsHeadless)
           return fallback.actions.prepareCalls(parameters)
 
         const feeToken = await resolveFeeToken(internal, parameters)
@@ -617,7 +615,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             'Cannot prepare upgrade for method: ' + request.method,
           )
 
-        if (!renderer.supportsHeadless || isReactNativeRenderer)
+        if (!renderer.supportsHeadless)
           return fallback.actions.prepareUpgradeAccount(parameters)
 
         // Extract the capabilities from the request.
@@ -746,7 +744,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         // without sending a request to the dialog. If the key does not
         // have permission to execute the calls, fall back to the dialog.
         if (key && key.role === 'session') {
-          if (!renderer.supportsHeadless || isReactNativeRenderer)
+          if (!renderer.supportsHeadless)
             return fallback.actions.sendCalls(parameters)
 
           try {
@@ -879,7 +877,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             'Cannot send prepared calls for method: ' + request.method,
           )
 
-        if (!renderer.supportsHeadless || isReactNativeRenderer)
+        if (!renderer.supportsHeadless)
           return fallback.actions.sendPreparedCalls(parameters)
 
         const provider = getProvider(store)

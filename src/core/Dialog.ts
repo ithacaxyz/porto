@@ -771,7 +771,7 @@ export function authSession(options: authSession.Options = {}) {
         },
       }
     },
-    supportsHeadless: true,
+    supportsHeadless: false,
   })
 }
 
