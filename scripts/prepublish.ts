@@ -1,39 +1,23 @@
 import * as fs from 'node:fs'
-import { join, relative, resolve } from 'node:path'
-import { getExports } from './utils/exports.js'
+import * as path from 'node:path'
 
-const packageJsonPath = join(import.meta.dirname, '../src/package.json')
-const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'))
+const packageJsonPath = path.join(process.cwd(), 'package.json')
 
-const exports = getExports({
-  onEntry: ({ entryName, name, parentEntryName }) => {
-    const modulePath = (dist?: string) => {
-      let path = './'
-      if (dist) path += `${dist}/`
-      if (dist || (parentEntryName && parentEntryName !== 'core'))
-        path += `${parentEntryName}/`
-      if (dist || name !== 'index') path += name
-      return path
-    }
+// Read package.json as text to find the marker position
+const content = fs.readFileSync(packageJsonPath, 'utf-8')
+const data = JSON.parse(content)
 
-    try {
-      fs.mkdirSync(resolve(import.meta.dirname, '../src', entryName))
-    } catch {}
-    fs.writeFileSync(
-      resolve(import.meta.dirname, '../src', entryName, 'package.json'),
-      JSON.stringify(
-        {
-          main: relative(modulePath(), modulePath('_dist')) + '.js',
-          type: 'module',
-          types: relative(modulePath(), modulePath('_dist')) + '.d.ts',
-        },
-        null,
-        2,
-      ),
-    )
-  },
-})
+// Find all keys that appear before "[!start-pkg]" in the file
+const keys = Object.keys(data)
+const markerIndex = keys.indexOf('[!start-pkg]')
 
-packageJson.exports = exports.dist
+// Remove all keys up to and including the marker
+const keysToRemove = keys.slice(0, markerIndex + 1)
+for (const key of keysToRemove) {
+  delete data[key]
+}
 
-fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
+// Write back to package.json
+fs.writeFileSync(packageJsonPath, JSON.stringify(data, null, 2) + '\n', 'utf-8')
+
+console.log('✓ Trimmed package.json')

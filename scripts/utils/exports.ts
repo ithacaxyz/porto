@@ -1,13 +1,7 @@
 import * as fs from 'node:fs'
 import { matchesGlob, resolve } from 'node:path'
 
-const exclude = [
-  '_dist',
-  'node_modules',
-  'jsr.json',
-  'tsdoc.json',
-  'version.ts',
-]
+const exclude = ['dist', 'node_modules', 'jsr.json', 'tsdoc.json', 'version.ts']
 
 export function getExports({
   onEntry,
@@ -44,10 +38,10 @@ export function getExports({
         src[entryName] = entryName
       } else {
         dist[entryName] = {
-          types: `./_dist/${name}.d.ts`,
-          default: `./_dist/${name}.js`,
+          types: `./dist/${name}.d.ts`,
+          default: `./dist/${name}.js`,
         }
-        src[entryName] = `./${name}.ts`
+        src[entryName] = `./src/${name}.ts`
 
         if (name === 'index') continue
 
@@ -70,15 +64,13 @@ export function getExports({
       const isIndex = entry.name === 'index.ts'
       const name = entry.name.replace(/\.ts$/, '')
 
-      if (!/^[A-Z]/.test(name) && name !== 'index') continue
-
       const entryName = `.${parentEntry.name === 'core' ? '' : `/${parentEntry.name}`}${isIndex ? '' : `/${name}`}`
 
       dist[entryName] = {
-        types: `./_dist/${parentEntry.name}/${name}.d.ts`,
-        default: `./_dist/${parentEntry.name}/${name}.js`,
+        types: `./dist/${parentEntry.name}/${name}.d.ts`,
+        default: `./dist/${parentEntry.name}/${name}.js`,
       }
-      src[entryName] = `./${parentEntry.name}/${name}.ts`
+      src[entryName] = `./src/${parentEntry.name}/${name}.ts`
 
       if (entryName !== '.')
         onEntry?.({ entryName, name, parentEntryName: parentEntry.name })

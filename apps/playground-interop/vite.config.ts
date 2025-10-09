@@ -4,7 +4,7 @@ import { defineConfig } from 'vite'
 import mkcert from 'vite-plugin-mkcert'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     tailwindcss(),
@@ -12,4 +12,11 @@ export default defineConfig({
       hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
     }),
   ],
-})
+  ...(mode === 'development'
+    ? {
+        resolve: {
+          conditions: ['src'],
+        },
+      }
+    : {}),
+}))

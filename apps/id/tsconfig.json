@@ -3,8 +3,10 @@
   "include": ["src"],
   "files": ["./vite-env.d.ts"],
   "compilerOptions": {
+    "customConditions": ["src"],
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": ["./src/*"],
+      "porto/*": ["../../src/*"]
     },
     "types": ["unplugin-icons/types/react", "typed-query-selector/strict"]
   }
