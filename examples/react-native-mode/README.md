@@ -3,7 +3,7 @@
 ## 1. Setup
 
 ```sh
-pnpx gitpick ithacaxyz/porto/tree/main/examples/react-native-mode porto-react-native-mode && cd porto-react-native-mode
+pnpx gitpick ithacaxyz/porto/tree/main/examples/react-native-mode porto-react-native-app && cd porto-react-native-app
 ```
 
 ## 2. Prerequisites

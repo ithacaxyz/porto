@@ -54,6 +54,7 @@
       "./core/Transport": "./src/core/Transport.ts",
       "./internal": "./src/internal/index.ts",
       "./react-native": "./src/react-native/index.ts",
+      "./react-native/crypto": "./src/react-native/crypto.ts",
       "./react-native/register": "./src/react-native/register.ts",
       "./register": "./src/register/index.ts",
       "./remote": "./src/remote/index.ts",
@@ -109,6 +110,8 @@
     "cac": "^6",
     "expo": "~54.0.12",
     "expo-auth-session": "~7.0.8",
+    "expo-crypto": "~15.0.7",
+    "expo-standard-web-crypto": "~3.0.7",
     "expo-web-browser": "~15.0.8",
     "http-proxy": "^1.18.1",
     "knip": "^5.50.5",
@@ -165,6 +168,7 @@
     ],
     "ignoreDependencies": [
       "expo-auth-session",
+      "expo-crypto",
       "expo-web-browser",
       "open",
       "react",
@@ -361,6 +365,11 @@
       "src": "./src/react-native/index.ts",
       "types": "./dist/react-native/index.d.ts",
       "import": "./dist/react-native/index.js"
+    },
+    "./react-native/crypto": {
+      "src": "./src/react-native/crypto.ts",
+      "types": "./dist/react-native/crypto.d.ts",
+      "import": "./dist/react-native/crypto.js"
     },
     "./react-native/register": {
       "src": "./src/react-native/register.ts",
