@@ -31,7 +31,10 @@
     "react": ">=18",
     "typescript": ">=5.4.0",
     "viem": ">=2.37.0",
-    "wagmi": ">=2.0.0"
+    "wagmi": ">=2.0.0",
+    "react-native": ">=0.81.4",
+    "expo-auth-session": ">=7.0.8",
+    "expo-web-browser": ">=15.0.8"
   },
   "peerDependenciesMeta": {
     "@tanstack/react-query": {
@@ -47,9 +50,6 @@
       "optional": true
     },
     "react-native": {
-      "optional": true
-    },
-    "expo": {
       "optional": true
     },
     "expo-auth-session": {
