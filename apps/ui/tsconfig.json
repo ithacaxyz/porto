@@ -1,10 +1,11 @@
 {
   "extends": "../tsconfig.base.json",
-  "include": ["src"],
+  "include": ["src", "styled-system"],
   "files": ["./vite-env.d.ts"],
   "compilerOptions": {
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": ["./src/*"],
+      "styled-system/*": ["./styled-system/*"]
     },
     "types": ["unplugin-icons/types/react", "typed-query-selector/strict"]
   }

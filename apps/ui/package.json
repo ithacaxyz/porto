@@ -12,7 +12,8 @@
   },
   "scripts": {
     "check": "biome check --write --unsafe",
-    "check:types": "tsc --noEmit"
+    "check:types": "tsc --noEmit",
+    "generate:panda": "panda codegen"
   },
   "dependencies": {
     "cuer": "^0.0.2",
