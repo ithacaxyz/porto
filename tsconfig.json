@@ -9,7 +9,6 @@
   ],
   "compilerOptions": {
     "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "customConditions": ["src"]
+    "moduleResolution": "nodenext"
   }
 }

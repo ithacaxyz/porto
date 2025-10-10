@@ -3,7 +3,6 @@
   "include": ["src", "styled-system"],
   "files": ["./vite-env.d.ts"],
   "compilerOptions": {
-    "customConditions": ["src"],
     "paths": {
       "~/*": ["./src/*"]
     },

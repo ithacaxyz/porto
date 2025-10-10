@@ -17,9 +17,6 @@ export default defineConfig(({ mode }) => {
     define: {
       'import.meta.env.VITE_DEFAULT_ENV': JSON.stringify(defaultEnv),
     },
-    resolve: {
-      conditions: ['src'],
-    },
     test: {
       alias: {
         porto: join(__dirname, '../src'),

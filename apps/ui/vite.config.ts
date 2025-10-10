@@ -39,11 +39,4 @@ export default defineConfig(({ mode }) => ({
     TsconfigPaths(),
     Dts({ exclude: ['styled-system'] }),
   ],
-  ...(mode === 'development'
-    ? {
-        resolve: {
-          conditions: ['src'],
-        },
-      }
-    : {}),
 }))

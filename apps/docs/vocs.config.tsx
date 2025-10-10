@@ -636,11 +636,6 @@ export default defineConfig({
       text: 'Changelog',
     },
   ],
-  twoslash: {
-    compilerOptions: {
-      moduleResolution: ModuleResolutionKind.Bundler,
-    },
-  },
   vite: {
     plugins: [
       Mkcert({
@@ -648,12 +643,6 @@ export default defineConfig({
       }),
       Plugins.Icons(),
     ],
-    resolve: {
-      alias: {
-        porto: NodePath.join(process.cwd(), '../../src'),
-      },
-      conditions: ['src'],
-    },
     server: {
       proxy: {},
     },

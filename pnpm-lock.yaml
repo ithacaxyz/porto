@@ -292,12 +292,12 @@ importers:
       wagmi:
         specifier: 'catalog:'
         version: 2.17.5(@tanstack/query-core@5.90.1)(@tanstack/react-query@5.90.1(react@19.1.0))(@types/react@19.1.17)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.1.0)(typescript@5.9.2)(utf-8-validate@5.0.10)(viem@2.37.8(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5))(zod@4.1.5)
+      wshy:
+        specifier: 0.0.3
+        version: 0.0.3(typescript@5.9.2)
       yaml:
         specifier: ^2.8.1
         version: 2.8.1
-      zshy:
-        specifier: ^0.4.3
-        version: 0.4.3(typescript@5.9.2)
 
   apps/dialog:
     dependencies:
@@ -14106,6 +14106,12 @@ packages:
       utf-8-validate:
         optional: true
 
+  wshy@0.0.3:
+    resolution: {integrity: sha512-/vuFPXJ6MMzo9JlumVSSEvc0evS39rkg/m+72ZSa21+gk0/pqC4P0RQHzd5i7R9nfHQ18MwcLzfsjsIXJCaUqA==}
+    hasBin: true
+    peerDependencies:
+      typescript: '>5.5.0'
+
   wsl-utils@0.1.0:
     resolution: {integrity: sha512-h3Fbisa2nKGPxCpm89Hk33lBLsnaGBvctQopaBSOW/uIs6FTe1ATyAnKFJrzVs9vpGdsTe73WF3V4lIsk4Gacw==}
     engines: {node: '>=18'}
@@ -14250,12 +14256,6 @@ packages:
 
   zod@4.1.5:
     resolution: {integrity: sha512-rcUUZqlLJgBC33IT3PNMgsCq6TzLQEG/Ei/KTCU0PedSWRMAXoOUN+4t/0H+Q8bdnLPdqUYnvboJT0bn/229qg==}
-
-  zshy@0.4.3:
-    resolution: {integrity: sha512-onhD/E4OVAOFION4DmXza93+x8XItEdyZibxrtDu2rpAYIg63cKhmYqLwXmK0UNfqchvyabbBDUcJbQg097dZA==}
-    hasBin: true
-    peerDependencies:
-      typescript: '>5.5.0'
 
   zustand@5.0.0:
     resolution: {integrity: sha512-LE+VcmbartOPM+auOjCCLQOsQ05zUTp8RkgwRzefUk+2jISdMMFnxvyTjA4YNWr5ZGXYbVsEMZosttuxUBkojQ==}
@@ -32229,6 +32229,13 @@ snapshots:
       bufferutil: 4.0.9
       utf-8-validate: 5.0.10
 
+  wshy@0.0.3(typescript@5.9.2):
+    dependencies:
+      arg: 5.0.2
+      fast-glob: 3.3.3
+      table: 6.9.0
+      typescript: 5.9.2
+
   wsl-utils@0.1.0:
     dependencies:
       is-wsl: 3.1.0
@@ -32434,13 +32441,6 @@ snapshots:
   zod@4.0.5: {}
 
   zod@4.1.5: {}
-
-  zshy@0.4.3(typescript@5.9.2):
-    dependencies:
-      arg: 5.0.2
-      fast-glob: 3.3.3
-      table: 6.9.0
-      typescript: 5.9.2
 
   zustand@5.0.0(@types/react@19.1.17)(react@19.1.0)(use-sync-external-store@1.4.0(react@19.1.0)):
     optionalDependencies:

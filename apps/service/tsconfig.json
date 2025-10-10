@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "customConditions": ["src"],
     "strict": true,
     "baseUrl": ".",
     "noEmit": true,

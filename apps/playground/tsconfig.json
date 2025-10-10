@@ -2,7 +2,6 @@
   "extends": "../tsconfig.base.json",
   "include": ["src", "vite.config.ts"],
   "compilerOptions": {
-    "customConditions": ["src"],
     "noUncheckedIndexedAccess": false,
     "types": ["unplugin-icons/types/react", "typed-query-selector/strict"]
   }

@@ -3,13 +3,6 @@ import { defineConfig } from 'vite'
 import mkcert from 'vite-plugin-mkcert'
 
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig({
   plugins: [mkcert(), react()],
-  ...(mode === 'development'
-    ? {
-        resolve: {
-          conditions: ['src'],
-        },
-      }
-    : {}),
-}))
+})

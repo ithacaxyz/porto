@@ -3,7 +3,7 @@
     "build": "pnpm build:dist && pnpm build:cli",
     "build:anvil-state": "tsx scripts/build:anvil-state.ts",
     "build:cli": "tsdown --config ./src/cli/tsdown.config.ts",
-    "build:dist": "zshy --project ./tsconfig.build.json",
+    "build:dist": "wshy --project ./tsconfig.build.json",
     "build:contracts": "tsx scripts/prebuild:contracts.ts && forge build --config-path ./contracts/account/foundry.toml && forge build --config-path ./contracts/demo/foundry.toml && tsx scripts/postbuild:contracts.ts && pnpm wagmi generate",
     "changeset:prepublish": "pnpm build && tsx ./scripts/prepublish:pre.ts",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish",
@@ -29,7 +29,7 @@
     "format": "biome format --write",
     "gen:chains": "tsx ./scripts/chains.ts",
     "postinstall": "git submodule update --init --recursive && pnpm preconstruct",
-    "preconstruct": "tsx ./scripts/preconstruct.ts && pnpm build:dist",
+    "preconstruct": "tsx ./scripts/preconstruct.ts && pnpm build:dist --dev",
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
     "relay:up": "tsx scripts/relay:up.ts",
@@ -130,8 +130,8 @@
     "vite": "catalog:",
     "vitest": "catalog:",
     "wagmi": "catalog:",
-    "yaml": "^2.8.1",
-    "zshy": "^0.4.3"
+    "wshy": "0.0.3",
+    "yaml": "^2.8.1"
   },
   "packageManager": "pnpm@10.17.1",
   "engines": {

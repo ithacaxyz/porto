@@ -3,7 +3,6 @@
   "include": ["src"],
   "files": ["./vite-env.d.ts"],
   "compilerOptions": {
-    "customConditions": ["src"],
     "paths": {
       "~/*": ["./src/*"],
       "porto/*": ["../../src/*"]

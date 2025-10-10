@@ -226,12 +226,5 @@ export default defineConfig(({ mode }) => {
     server: {
       allowedHosts,
     },
-    ...(mode === 'development'
-      ? {
-          resolve: {
-            conditions: ['src'],
-          },
-        }
-      : {}),
   }
 })
