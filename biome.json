@@ -36,7 +36,6 @@
       "!apps/**/routeTree.gen.ts",
       "!apps/**/dist",
       "!**/_",
-      "!**/_dist",
       "!**/dist",
       "!**/node_modules",
       "!**/.next"

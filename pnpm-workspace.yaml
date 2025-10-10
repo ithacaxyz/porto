@@ -48,8 +48,9 @@ minimumReleaseAgeExclude:
   - "@wagmi/connectors"
   - "@wagmi/core"
   - wagmi
+  - wshy
 packages:
+  - "."
   - "apps/*"
   - "docker/*"
   - "examples/*"
-  - "src"

@@ -1,5 +1,13 @@
 # porto
 
+## 0.2.25
+
+### Patch Changes
+
+- [`350af4b`](https://github.com/ithacaxyz/porto/commit/350af4bdfe552750567645a6fb1ab9adefaf3a5b) Thanks [@jxom](https://github.com/jxom)! - Updated dist structure.
+
+- [#953](https://github.com/ithacaxyz/porto/pull/953) [`e90ba55`](https://github.com/ithacaxyz/porto/commit/e90ba555c465a1092ea363f31ef8ff9c79f540d3) Thanks [@o-az](https://github.com/o-az)! - Reduced required setup config for `Mode.reactNative()` mode.
+
 ## 0.2.24
 
 ### Patch Changes

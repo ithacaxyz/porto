@@ -33,9 +33,6 @@ next-env.d.ts
 contracts/**/cache
 contracts/**/out
 
-# lib
-src/_dist
-
 # next.js
 .next
 out
@@ -67,4 +64,4 @@ bunfig.toml
 mise.toml
 .turbo
 justfile
-_dist
+dist
