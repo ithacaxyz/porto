@@ -26,7 +26,7 @@ import type { Hex } from 'viem'
 
 export const errorSelectors: Record<Hex, string> = {
 ${Object.entries(errors)
-  .sort(([, a], [, b]) => a.localeCompare(b))
+  .sort(([a], [b]) => a.localeCompare(b))
   .map(([selector, name]) => `  '${selector}': '${name}',`)
   .join('\n')}
 } as const
