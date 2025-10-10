@@ -1,4 +1,4 @@
-import { css } from '../../styled-system/css'
+import { css } from 'styled-system/css'
 import { Frame } from '../Frame/Frame.js'
 
 export function Spacer({ orientation, ...props }: Spacer.Props) {
