@@ -38,7 +38,7 @@ module.exports = {
       ...(defaultConfiguration.resolver.unstable_conditionNames || []),
       'import',
     ],
-    unstable_enablePackageExports: false,
+    unstable_enablePackageExports: true,
   },
   transformer: {
     ...defaultConfiguration.transformer,

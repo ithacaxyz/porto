@@ -1454,6 +1454,9 @@ importers:
       react-native-web:
         specifier: ^0.21.1
         version: 0.21.1(encoding@0.1.13)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      viem:
+        specifier: ^2.37.8
+        version: 2.37.8(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.5)
     devDependencies:
       '@babel/core':
         specifier: ^7.28.4
