@@ -24,7 +24,7 @@ export function PortoUi(): PluginOption[] {
 
         if (!fs.existsSync(styledSystem))
           throw new Error(
-            `styled-system/ not found. Generate it with: pnpm panda codegen`,
+            'styled-system/ not found. Generate it with: pnpm panda codegen',
           )
 
         return {
