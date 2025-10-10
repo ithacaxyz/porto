@@ -5,10 +5,7 @@ import Process from 'node:process'
 import { ModuleResolutionKind } from 'typescript'
 import Mkcert from 'vite-plugin-mkcert'
 import { defineConfig } from 'vocs'
-
 import { Plugins } from '../~internal/vite/index'
-import path from 'node:path'
-import url from 'node:url'
 
 const commitSha =
   ChildProcess.execSync('git rev-parse --short HEAD').toString().trim() ||
@@ -653,7 +650,7 @@ export default defineConfig({
     ],
     resolve: {
       alias: {
-        porto: NodePath.join(dirname(), '../../src'),
+        porto: NodePath.join(process.cwd(), '../../src'),
       },
       conditions: ['src'],
     },
@@ -662,8 +659,3 @@ export default defineConfig({
     },
   },
 })
-
-function dirname() {
-  if (typeof import.meta.dirname !== 'undefined') return import.meta.dirname
-  return path.dirname(url.fileURLToPath(import.meta.url))
-}
