@@ -7,7 +7,7 @@ import { defineConfig } from 'vite'
 import TsconfigPaths from 'vite-tsconfig-paths'
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig({
   build: {
     emptyOutDir: false,
     lib: {
@@ -39,4 +39,4 @@ export default defineConfig(({ mode }) => ({
     TsconfigPaths(),
     Dts({ exclude: ['styled-system'] }),
   ],
-}))
+})
