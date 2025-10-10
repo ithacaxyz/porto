@@ -16,7 +16,7 @@ for (const line of result.stdout.split('\n')) {
   if (parts.length < 4) continue
   const [, , signature, selector] = parts
   if (!signature || !selector || !selector.startsWith('0x')) continue
-  const name = signature.slice(0, signature.indexOf('('))
+  const [name] = signature.split('(')
   if (name) errors[selector] = name
 }
 
