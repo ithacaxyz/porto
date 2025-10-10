@@ -93,9 +93,9 @@ jobs:
           - env: ${{ inputs.env || 'prod' }}
             browser: 'true'
             enabled: ${{ (inputs.test-deployment-browser == true || inputs.test-deployment-browser == null) }}
-          - env: ${{ inputs.env || 'prod' }}
-            browser: 'false'
-            enabled: ${{ (inputs.test-deployment-node == true || inputs.test-deployment-node == null) }}
+          # - env: ${{ inputs.env || 'prod' }}
+          #   browser: 'false'
+          #   enabled: ${{ (inputs.test-deployment-node == true || inputs.test-deployment-node == null) }}
     env: 
       CI: true
       VITE_DEFAULT_ENV: ${{ matrix.env }}

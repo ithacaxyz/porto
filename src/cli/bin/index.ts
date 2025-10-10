@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { cac } from 'cac'
 
-import pkgJson from '../../package.json' with { type: 'json' }
+import pkgJson from '../../../package.json' with { type: 'json' }
 
 const cli = cac('porto')
 
