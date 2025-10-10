@@ -182,15 +182,17 @@ export function merchant(options: merchant.Options) {
               },
             ],
           })
-          const { typedData } = z.decode(
+          const { capabilities } = z.decode(
             MerchantSchema.wallet_prepareCalls.Response,
             result,
           )
+          const { feePayerDigest } = capabilities
+          if (!feePayerDigest) throw new Error('`feePayerDigest` is required')
 
           const signature = sponsor
             ? await Key.sign(key, {
                 address: null,
-                payload: TypedData.getSignPayload(typedData),
+                payload: feePayerDigest,
               })
             : undefined
 

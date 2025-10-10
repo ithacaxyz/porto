@@ -522,6 +522,8 @@ export namespace wallet_prepareCalls {
     assetDiffs: z.optional(c.assetDiffs.Response),
     /** Keys authorized on the account. */
     authorizeKeys: z.nullish(c.authorizeKeys.Response),
+    /** Digest for the fee payer. */
+    feePayerDigest: z.optional(u.hex()),
     /** Fee signature. */
     feeSignature: z.optional(u.hex()),
     /** Fee totals. */
