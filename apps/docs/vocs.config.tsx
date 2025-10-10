@@ -2,10 +2,13 @@ import ChildProcess from 'node:child_process'
 import NodeFS from 'node:fs'
 import NodePath from 'node:path'
 import Process from 'node:process'
+import { ModuleResolutionKind } from 'typescript'
 import Mkcert from 'vite-plugin-mkcert'
 import { defineConfig } from 'vocs'
 
 import { Plugins } from '../~internal/vite/index'
+import path from 'node:path'
+import url from 'node:url'
 
 const commitSha =
   ChildProcess.execSync('git rev-parse --short HEAD').toString().trim() ||
@@ -636,6 +639,11 @@ export default defineConfig({
       text: 'Changelog',
     },
   ],
+  twoslash: {
+    compilerOptions: {
+      moduleResolution: ModuleResolutionKind.Bundler,
+    },
+  },
   vite: {
     plugins: [
       Mkcert({
@@ -643,8 +651,19 @@ export default defineConfig({
       }),
       Plugins.Icons(),
     ],
+    resolve: {
+      alias: {
+        porto: NodePath.join(dirname(), '../../src'),
+      },
+      conditions: ['src'],
+    },
     server: {
       proxy: {},
     },
   },
 })
+
+function dirname() {
+  if (typeof import.meta.dirname !== 'undefined') return import.meta.dirname
+  return path.dirname(url.fileURLToPath(import.meta.url))
+}
