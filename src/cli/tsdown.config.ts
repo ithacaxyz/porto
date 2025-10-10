@@ -9,7 +9,7 @@ export default defineConfig({
   external: getExternals(),
   format: ['esm'],
   minify: true,
-  outDir: resolve(import.meta.dirname, '../_dist/cli/bin'),
+  outDir: resolve(import.meta.dirname, '../../dist/cli/bin'),
   target: 'node20',
 })
 
@@ -18,7 +18,7 @@ export default defineConfig({
 
 function getExternals() {
   const pkgJson = JSON.parse(
-    readFileSync(resolve(import.meta.dirname, '../package.json'), 'utf-8'),
+    readFileSync(resolve(import.meta.dirname, '../../package.json'), 'utf-8'),
   )
 
   const externals: (string | RegExp)[] = []

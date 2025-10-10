@@ -3,6 +3,7 @@
   "include": [".", "../src/**/*.test.ts", "../src/**/*.test.tsx"],
   "compilerOptions": {
     "baseUrl": ".",
+    "customConditions": ["src"],
     "noEmit": true,
     "paths": {
       "porto": ["../src/index.ts"],

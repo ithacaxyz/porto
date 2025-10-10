@@ -2,9 +2,9 @@ import ChildProcess from 'node:child_process'
 import NodeFS from 'node:fs'
 import NodePath from 'node:path'
 import Process from 'node:process'
+import { ModuleResolutionKind } from 'typescript'
 import Mkcert from 'vite-plugin-mkcert'
 import { defineConfig } from 'vocs'
-
 import { Plugins } from '../~internal/vite/index'
 
 const commitSha =
@@ -636,6 +636,11 @@ export default defineConfig({
       text: 'Changelog',
     },
   ],
+  twoslash: {
+    compilerOptions: {
+      moduleResolution: ModuleResolutionKind.Bundler,
+    },
+  },
   vite: {
     plugins: [
       Mkcert({
@@ -643,6 +648,12 @@ export default defineConfig({
       }),
       Plugins.Icons(),
     ],
+    resolve: {
+      alias: {
+        porto: NodePath.join(process.cwd(), '../../src'),
+      },
+      conditions: ['src'],
+    },
     server: {
       proxy: {},
     },

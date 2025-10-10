@@ -47,7 +47,7 @@ minimumReleaseAgeExclude:
   - "@wagmi/core"
   - wagmi
 packages:
+  - "."
   - "apps/*"
   - "docker/*"
   - "examples/*"
-  - "src"
