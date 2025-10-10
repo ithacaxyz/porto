@@ -642,6 +642,11 @@ export default defineConfig({
       }),
       Plugins.Icons(),
     ],
+    resolve: {
+      alias: {
+        porto: NodePath.join(process.cwd(), '../../src'),
+      },
+    },
     server: {
       proxy: {},
     },
