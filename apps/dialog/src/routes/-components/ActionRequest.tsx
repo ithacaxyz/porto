@@ -115,6 +115,12 @@ export function ActionRequest(props: ActionRequest.Props) {
 
   const [showAddFunds, setShowAddFunds] = React.useState(false)
 
+  const dialogErrorQuery = useQuery({
+    enabled: Boolean(prepareCallsQuery.error),
+    queryFn: () => Errors.createCallError(prepareCallsQuery.error!, calls),
+    queryKey: ['dialogError', prepareCallsQuery.error, calls],
+  })
+
   const addNativeCurrencyName = (asset: ActionRequest.CoinAsset) => {
     if (asset.type !== null) return asset
     return {
@@ -165,7 +171,13 @@ export function ActionRequest(props: ActionRequest.Props) {
   if (prepareCallsQuery.error)
     return (
       <ErrorScreen.Execution
-        dialogError={Errors.createCallError(prepareCallsQuery.error, calls)}
+        dialogError={
+          dialogErrorQuery.data ?? {
+            message: 'Resolving error details…',
+            title: 'Processing error…',
+            type: 'call',
+          }
+        }
         onCancel={onReject}
         onRetry={() => prepareCallsQuery.refetch()}
       />

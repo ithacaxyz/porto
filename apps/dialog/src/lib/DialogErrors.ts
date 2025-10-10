@@ -106,14 +106,14 @@ export function createRelayError(error: Error): RelayError {
   }
 }
 
-export function createCallError(
+export async function createCallError(
   error: Error,
   calls?: readonly {
     to?: Address
     data?: Hex
     value?: bigint
   }[],
-): CallError | RelayError {
+): Promise<CallError | RelayError> {
   const err = error as any
 
   const errorMessage = err.details || err.message || ''
@@ -126,8 +126,9 @@ export function createCallError(
     const selector = (typeof rawError === 'string' ? rawError : '')
       .toLowerCase()
       .slice(0, 10)
-    if (isHex(selector) && errorSelectors[selector])
-      abiErrorName = errorSelectors[selector]
+    if (isHex(selector))
+      abiErrorName =
+        errorSelectors[selector] || (await fetchErrorSignature(selector))
   }
 
   const title = abiErrorName || 'Simulation error'
@@ -154,5 +155,48 @@ export function createCallError(
     message,
     title,
     type: 'call',
+  }
+}
+
+async function fetchErrorSignature(selector: Hex): Promise<string | null> {
+  if (fetchErrorSignature.cache.has(selector))
+    return fetchErrorSignature.cache.get(selector) || null
+
+  const errorName =
+    (await fetchErrorSignature.openChain(selector)) ||
+    (await fetchErrorSignature.fourByte(selector))
+
+  if (errorName) fetchErrorSignature.cache.set(selector, errorName)
+  return errorName
+}
+
+namespace fetchErrorSignature {
+  export const cache = new Map<Hex, string>()
+
+  const fetchOptions = { signal: AbortSignal.timeout(3000) }
+
+  export async function openChain(selector: Hex): Promise<string | null> {
+    try {
+      const res = await fetch(
+        `https://api.openchain.xyz/signature-database/v1/lookup?function=${selector}`,
+        fetchOptions,
+      )
+      const { result } = await res.json()
+      const [signature] = result.function[selector]
+      return signature.name.split('(')[0] ?? null
+    } catch {}
+    return null
+  }
+
+  export async function fourByte(selector: Hex): Promise<string | null> {
+    try {
+      const res = await fetch(
+        `https://www.4byte.directory/api/v1/signatures/?hex_signature=${selector}`,
+        fetchOptions,
+      )
+      const { results } = await res.json()
+      return results[0].text_signature.split('(')[0] ?? null
+    } catch {}
+    return null
   }
 }
