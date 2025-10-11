@@ -592,7 +592,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
     const merchantSignature = await Key.sign(merchantKey, {
       address: null,
-      payload: request.digest,
+      payload: request.capabilities.feePayerDigest!,
     })
 
     const result = await sendPreparedCalls(client, {

@@ -5,7 +5,6 @@ import type { BlankEnv, BlankSchema, Schema as hono_Schema } from 'hono/types'
 import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import * as RpcResponse from 'ox/RpcResponse'
-import * as TypedData from 'ox/TypedData'
 import { createClient, rpcSchema } from 'viem'
 import * as z from 'zod/mini'
 import type * as RpcSchema_relay from '../core/internal/relay/rpcSchema.js'
@@ -182,15 +181,17 @@ export function merchant(options: merchant.Options) {
               },
             ],
           })
-          const { typedData } = z.decode(
+          const { capabilities } = z.decode(
             MerchantSchema.wallet_prepareCalls.Response,
             result,
           )
+          const { feePayerDigest } = capabilities
+          if (!feePayerDigest) throw new Error('`feePayerDigest` is required')
 
           const signature = sponsor
             ? await Key.sign(key, {
                 address: null,
-                payload: TypedData.getSignPayload(typedData),
+                payload: feePayerDigest,
               })
             : undefined
 
