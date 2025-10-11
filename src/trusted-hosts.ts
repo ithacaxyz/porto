@@ -36,4 +36,5 @@ export const hostnames = [
   'o.bun-alewife.ts.net',
   'alpha.intentfi.io',
   'garden.staging.btcfi.wtf',
+  'sushi.com',
 ]
