@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.26
+
+### Patch Changes
+
+- [`403b886`](https://github.com/ithacaxyz/porto/commit/403b8865f9a7b807c4d8cf70790fd28a11baf21f) Thanks [@jxom](https://github.com/jxom)! - Asserted chain exists in `Chains.all`.
+
 ## 0.2.25
 
 ### Patch Changes
