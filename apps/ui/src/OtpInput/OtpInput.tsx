@@ -5,7 +5,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { css, cx } from '../../styled-system/css'
+import { css, cx } from 'styled-system/css'
 
 export function OtpInput({
   autoFocus = false,
