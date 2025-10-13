@@ -1,5 +1,4 @@
 @import "@porto/apps/styles.css";
-@import "@porto/ui/base.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 

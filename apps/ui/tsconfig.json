@@ -4,7 +4,7 @@
   "files": ["./vite-env.d.ts"],
   "compilerOptions": {
     "paths": {
-      "styled-system/*": ["./styled-system/*"]
+      "~/*": ["./src/*"]
     },
     "types": ["unplugin-icons/types/react", "typed-query-selector/strict"]
   }

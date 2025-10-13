@@ -1,5 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
-import { css, cx } from 'styled-system/css'
+import { css, cx } from '../../styled-system/css'
 
 export function TextButton({
   children,

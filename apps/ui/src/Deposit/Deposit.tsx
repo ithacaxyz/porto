@@ -1,6 +1,6 @@
 import { Cuer } from 'cuer'
 import type { ReactNode } from 'react'
-import { css, cx } from 'styled-system/css'
+import { css, cx } from '../../styled-system/css'
 import { CopyButton } from '../CopyButton/CopyButton.js'
 
 export function Deposit({

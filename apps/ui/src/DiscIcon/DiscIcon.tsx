@@ -1,6 +1,6 @@
 import type { ImgHTMLAttributes, ReactNode } from 'react'
 import { Children, createContext, useContext, useEffect, useState } from 'react'
-import { css, cx } from 'styled-system/css'
+import { css, cx } from '../../styled-system/css'
 
 const DiscIconContext = createContext<
   | {

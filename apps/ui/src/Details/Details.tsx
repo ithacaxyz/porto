@@ -1,6 +1,6 @@
 import { type ReactNode, useState } from 'react'
-import { css } from 'styled-system/css'
 import LucideInfo from '~icons/lucide/info'
+import { css } from '../../styled-system/css'
 import { ButtonArea } from '../ButtonArea/ButtonArea.js'
 
 export function Details({

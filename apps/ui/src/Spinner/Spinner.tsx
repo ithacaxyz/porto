@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import { css } from 'styled-system/css'
+import { css } from '~/../styled-system/css'
 
 export function Spinner({
   baseColor = 'transparent',
