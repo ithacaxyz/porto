@@ -1,0 +1,9 @@
+[build]
+builder = "DOCKERFILE"
+buildCommand = "docker buildx build --tag porto-rn --file Dockerfile . --no-cache --progress=plain"
+
+[deploy]
+healthcheckPath = "/"
+healthcheckTimeout = 100
+startCommand = "./server"
+restartPolicyType = "ON_FAILURE"
