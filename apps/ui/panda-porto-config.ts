@@ -1,7 +1,7 @@
 import type { Config } from '@pandacss/dev'
 
 export const portoUiConfig = {
-  include: ['./node_modules/@porto/ui/src/**/*.{ts,tsx}'],
+  include: ['../ui/src/**/*.{ts,tsx}'],
   jsxFramework: 'react',
   jsxStyleProps: 'none',
   prefix: 'ui',

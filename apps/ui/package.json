@@ -7,8 +7,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./panda-config": "./panda-porto-config.ts",
-    "./vite-plugin": "./vite-plugin.ts",
-    "./base.css": "./base.css"
+    "./vite-plugin": "./vite-plugin.ts"
   },
   "scripts": {
     "check": "biome check --write --unsafe",
