@@ -1,7 +1,7 @@
 import { Chains } from 'porto'
 import { Children, createContext, useContext } from 'react'
-import { css, cx } from 'styled-system/css'
 import LucideRefreshCw from '~icons/lucide/refresh-cw'
+import { css, cx } from '../../styled-system/css'
 import { ButtonArea } from '../ButtonArea/ButtonArea.js'
 import { ChainIcon } from '../ChainIcon/ChainIcon.js'
 import { Spinner } from '../Spinner/Spinner.js'

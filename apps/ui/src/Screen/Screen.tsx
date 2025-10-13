@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
-import { css, cx } from 'styled-system/css'
 import ChevronRight from '~icons/lucide/chevron-right'
+import { css, cx } from '../../styled-system/css'
 import { ButtonArea } from '../ButtonArea/ButtonArea.js'
 import { Frame } from '../Frame/Frame.js'
 

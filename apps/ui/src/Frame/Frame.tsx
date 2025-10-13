@@ -7,12 +7,12 @@ import {
   useRef,
   useState,
 } from 'react'
-import { css, cx } from 'styled-system/css'
+import { css, cx } from '~/../styled-system/css'
+import { ButtonArea } from '~/ButtonArea/ButtonArea.js'
+import { useSize } from '~/hooks/useSize.js'
+import { LightDarkImage } from '~/LightDarkImage/LightDarkImage.js'
 import LucideBadgeCheck from '~icons/lucide/badge-check'
 import LucideX from '~icons/lucide/x'
-import { ButtonArea } from '../ButtonArea/ButtonArea.js'
-import { useSize } from '../hooks/useSize.js'
-import { LightDarkImage } from '../LightDarkImage/LightDarkImage.js'
 import iconDefaultDark from './icon-default-dark.svg'
 import iconDefaultLight from './icon-default-light.svg'
 
