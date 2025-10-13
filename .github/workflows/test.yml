@@ -133,6 +133,10 @@ jobs:
         if: matrix.enabled == true
         uses: ./.github/actions/install-dependencies
 
+      - name: Run prepare scripts
+        if: matrix.enabled == true
+        run: pnpm --filter "./apps/**" run prepare
+
       - name: Set up Docker
         if: matrix.enabled == true && matrix.env == 'anvil'
         uses: docker/setup-docker-action@b60f85385d03ac8acfca6d9996982511d8620a19 # v4
