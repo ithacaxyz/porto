@@ -1,3 +1,4 @@
+import { execSync } from 'node:child_process'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -18,6 +19,12 @@ export function PortoUi(): PluginOption[] {
       },
       jsx: 'react',
     }),
+    {
+      buildStart() {
+        execSync('panda cssgen', { cwd: process.cwd(), stdio: 'inherit' })
+      },
+      name: 'porto-ui:panda-cssgen',
+    },
     {
       config(_, { mode }) {
         const styledSystem = path.resolve(process.cwd(), './styled-system')
