@@ -8,6 +8,7 @@
     "prebuild": "tsc --build",
     "build": "vite build",
     "check": "biome check --write --unsafe",
+    "check:css": "tsx scripts/check-css.ts",
     "check:types": "tsc --noEmit",
     "prepreview": "pnpm build",
     "preview": "vite preview",

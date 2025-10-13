@@ -13,6 +13,11 @@ jobs:
     uses: ./.github/workflows/verify.yml
     secrets: inherit
 
+  verify-dialog:
+    name: Verify Dialog
+    uses: ./.github/workflows/verify-dialog.yml
+    secrets: inherit
+
   extension:
     name: Extension
     uses: ./.github/workflows/extension.yml
