@@ -11,7 +11,8 @@
     "check:types": "tsc --noEmit",
     "prepreview": "pnpm build",
     "preview": "vite preview",
-    "sync:ui-assets": "rm -rf public/ui && cp -r ../ui/assets public/ui"
+    "sync:ui-assets": "rm -rf public/ui && cp -r ../ui/assets public/ui",
+    "generate:error-selectors": "tsx scripts/generate-error-selectors.ts > src/lib/generated-error-selectors.ts"
   },
   "dependencies": {
     "@ariakit/react": "catalog:",
