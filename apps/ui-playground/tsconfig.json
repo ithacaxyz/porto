@@ -7,6 +7,6 @@
       "~/*": ["./src/*"],
       "styled-system/*": ["./styled-system/*"]
     },
-    "types": ["unplugin-icons/types/react"]
+    "types": ["unplugin-icons/types/react", "typed-query-selector/strict"]
   }
 }

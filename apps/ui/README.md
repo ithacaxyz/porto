@@ -57,6 +57,20 @@ module.exports = { plugins: { "@pandacss/dev/postcss": {} } };
 @import "@porto/ui/base.css";
 ```
 
+**tsconfig.json**
+
+```json
+{
+  "include": ["src", "styled-system"],
+  "compilerOptions": {
+    "paths": {
+      "styled-system/*": ["./styled-system/*"]
+    },
+    "types": ["typed-query-selector/strict"]
+  }
+}
+```
+
 ## Add chain icons
 
 1. get official chain icon, in SVG
