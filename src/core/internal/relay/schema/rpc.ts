@@ -75,8 +75,8 @@ export namespace account_onrampStatus {
 
   /** Response for `account_onrampStatus`. */
   export const Response = z.object({
-    email: z.number(),
-    phone: z.number(),
+    email: z.optional(z.number()),
+    phone: z.optional(z.number()),
   })
   export type Response = z.infer<typeof Response>
 }

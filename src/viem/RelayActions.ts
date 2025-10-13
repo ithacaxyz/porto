@@ -139,6 +139,40 @@ export declare namespace getOnrampContactInfo {
 }
 
 /**
+ * Gets onramp status for address.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function onrampStatus<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: onrampStatus.Parameters,
+): Promise<onrampStatus.ReturnType>
+export async function onrampStatus(
+  client: Client,
+  parameters: onrampStatus.Parameters,
+) {
+  const { address } = parameters
+  return await RelayActions.onrampStatus(client, {
+    address,
+  })
+}
+
+export declare namespace onrampStatus {
+  export type Parameters = RelayActions.onrampStatus.Parameters
+
+  export type ReturnType = RelayActions.onrampStatus.ReturnType
+
+  export type ErrorType =
+    | RelayActions.onrampStatus.ErrorType
+    | Errors.GlobalErrorType
+}
+
+/**
  * Prepares the digest to sign over and fills the request to send a call bundle.
  *
  * @example

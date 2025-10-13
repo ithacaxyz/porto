@@ -2,7 +2,7 @@ import { UserAgent } from '@porto/apps'
 import { exp1Address } from '@porto/apps/contracts'
 import { usePrevious } from '@porto/apps/hooks'
 import { Button, PresetsInput, Separator } from '@porto/ui'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { cx } from 'cva'
 import { type Address, type Hex, Value } from 'ox'
 import { Hooks as RemoteHooks } from 'porto/remote'
@@ -24,7 +24,9 @@ import { SetupApplePay } from './SetupApplePay'
 const presetAmounts = ['30', '50', '100', '250'] as const
 const maxAmount = 500
 
-type View = 'default' | 'error' | 'onramp'
+type View = 'default' | 'error' | 'onramp' | 'setup-onramp'
+
+const dummy = true
 
 export function AddFunds(props: AddFunds.Props) {
   const { chainId, onApprove, onReject } = props
@@ -34,10 +36,22 @@ export function AddFunds(props: AddFunds.Props) {
   const account = RemoteHooks.useAccount(porto)
   const address = props.address ?? account?.address
   const chain = RemoteHooks.useChain(porto, { chainId })
-  // TODO: account_onrampStatus
-  const { data: onrampStatus } = {
-    data: { email: Math.floor(Date.now() / 1000), phone: null },
-  }
+
+  const client = RemoteHooks.useRelayClient(porto)
+  const { data: onrampStatus } = useQuery({
+    enabled: Boolean(address),
+    async queryFn() {
+      if (!address) throw new Error('address required')
+      if (dummy) return { email: true, phone: false }
+      return await RelayActions.onrampStatus(client, { address })
+    },
+    queryKey: ['onrampStatus', address],
+  })
+  const queryClient = useQueryClient()
+  const { createOrder, lastOrderEvent } = useOnrampOrder({
+    onApprove,
+    sandbox: true,
+  })
 
   const { data: tokens } = Tokens.getTokens.useQuery()
   const { data: assets, refetch: refetchAssets } = Hooks.useAssets({
@@ -147,6 +161,37 @@ export function AddFunds(props: AddFunds.Props) {
       </Layout>
     )
 
+  if (view === 'setup-onramp')
+    return (
+      <SetupApplePay
+        address={address!}
+        dummy={dummy}
+        onBack={() => {
+          setView('default')
+        }}
+        onComplete={() => {
+          if (!address) throw new Error('address is required')
+          if (dummy)
+            queryClient.setQueryData(
+              ['onrampStatus', address],
+              { email: true, phone: true },
+              {},
+            )
+          createOrder.mutate(
+            // TODO: Get `amount` from request
+            { address, amount: '10' },
+            {
+              onSuccess() {
+                setView('default')
+              },
+            },
+          )
+        }}
+        showEmail={!onrampStatus?.email}
+        showPhone={!onrampStatus?.phone}
+      />
+    )
+
   return (
     <Layout>
       <Layout.Header>
@@ -159,20 +204,7 @@ export function AddFunds(props: AddFunds.Props) {
 
       <Layout.Content>
         <div className="flex flex-col gap-3">
-          <SetupApplePay
-            address={address!}
-            onBack={() => console.log('onBack')}
-            onComplete={() => {
-              // TODO: Create order to render Apple Pay button
-              console.log('onComplete')
-            }}
-            showEmail={!onrampStatus.email}
-            showPhone={!onrampStatus.phone}
-          />
           <Separator label="Select deposit method" size="medium" spacing={0} />
-          {showApplePay && address && (
-            <Onramp address={address} onApprove={onApprove} setView={setView} />
-          )}
           {showFaucet && (
             <Faucet
               address={address}
@@ -180,6 +212,32 @@ export function AddFunds(props: AddFunds.Props) {
               onApprove={onApprove}
             />
           )}
+          {showApplePay &&
+            address &&
+            (onrampStatus?.email && onrampStatus?.phone ? (
+              <>
+                {createOrder.isSuccess && createOrder.data?.url && (
+                  <iframe
+                    allow="payment"
+                    // TODO: tweak iframe styles
+                    className={cx(
+                      'h-12.5 w-full overflow-hidden border-0 bg-transparent',
+                      lastOrderEvent?.eventName ===
+                        'onramp_api.apple_pay_button_pressed'
+                        ? 'overflow-visible! fixed inset-0 z-100 h-full!'
+                        : 'w-full border-0 bg-transparent',
+                    )}
+                    src={createOrder.data.url}
+                    title="Onramp"
+                  />
+                )}
+                <Button>Pay with Apple Pay</Button>
+              </>
+            ) : (
+              <Button onClick={() => setView('setup-onramp')}>
+                Setup Apple Pay
+              </Button>
+            ))}
           {view !== 'onramp' && (
             <DepositButtons
               address={address ?? ''}
@@ -267,44 +325,31 @@ const cbPostMessageSchema = z.union([
 ])
 type CbPostMessageSchema = z.infer<typeof cbPostMessageSchema>
 
-function Onramp(props: {
-  address: Address.Address
+function useOnrampOrder(props: {
+  sandbox?: boolean | undefined
   onApprove: (result: { id: Hex.Hex }) => void
-  setView: (view: View) => void
 }) {
-  const { address } = props
-
-  const [view, setView] = React.useState<'start' | 'amount' | 'pay'>('start')
-
-  const minAmount = 2
-  const maxAmount = 500
-  const presetAmounts = React.useMemo(() => {
-    if (minAmount > 0) {
-      const getMultipliers = (amount: number) => {
-        if (amount <= 5) return [1, 5, 10, 25]
-        if (amount <= 10) return [1, 2, 5, 10]
-        return [1, 2, 3, 4]
-      }
-      return getMultipliers(minAmount).map(
-        (multiplier) => minAmount * multiplier,
-      )
-    }
-    return [30, 50, 100, 250] as const
-  }, [])
-
-  const [mode, setMode] = React.useState<'preset' | 'custom'>(
-    minAmount ? 'custom' : 'preset',
-  )
-  const [amount, setAmount] = React.useState<string>(
-    (minAmount ? minAmount : presetAmounts[0]).toString(),
-  )
-  const [sandbox, setSandbox] = React.useState(true)
+  const { sandbox = true, onApprove } = props
 
   const domain = Dialog.useStore((state) =>
     state.mode === 'popup' ? location.hostname : state.referrer?.url?.hostname,
   )
   const createOrder = useMutation({
     async mutationFn(variables: { address: string; amount: string }) {
+      if (dummy) {
+        console.log(
+          'started:',
+          `${import.meta.env.VITE_WORKERS_URL}/onramp/orders`,
+        )
+        await new Promise((resolve) => {
+          console.log(
+            'finished:',
+            `${import.meta.env.VITE_WORKERS_URL}/onramp/orders`,
+          )
+          setTimeout(resolve, 2_000)
+        })
+        return { orderId: 'foo', type: 'apple', url: 'https://example.com' }
+      }
       const response = await fetch(
         `${import.meta.env.VITE_WORKERS_URL}/onramp/orders`,
         {
@@ -331,10 +376,12 @@ function Onramp(props: {
     },
   })
 
-  const [onrampState, setOnrampState] = React.useState<CbPostMessageSchema>({
-    eventName: 'onramp_api.load_pending',
-  })
-  // TODO: iframe loading timeout
+  const [orderEvents, setOnrampEvents] = React.useState<CbPostMessageSchema[]>(
+    [],
+  )
+  const lastOrderEvent = React.useMemo(() => orderEvents.at(-1), [orderEvents])
+
+  // TODO: add iframe loading timeout
   React.useEffect(() => {
     function handlePostMessage(event: MessageEvent) {
       if (event.origin !== 'https://pay.coinbase.com') return
@@ -342,162 +389,34 @@ function Onramp(props: {
         const data = z.parse(cbPostMessageSchema, JSON.parse(event.data))
         console.log('postMessage', data)
         if ('eventName' in data && data.eventName.startsWith('onramp_api.')) {
-          setOnrampState(data)
-          if (data.eventName === 'onramp_api.commit_success') {
-            // TODO: get transaction hash from order
-            // https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/get-an-onramp-order-by-id
-            props.onApprove({ id: zeroAddress })
-          }
+          setOnrampEvents((state) => [...state, data])
+          if (data.eventName === 'onramp_api.commit_success')
+            onApprove({ id: zeroAddress })
         }
       } catch (error) {
-        setOnrampState({
-          data: {
-            errorCode: 'ERROR_CODE_GUEST_APPLE_PAY_NOT_SUPPORTED',
-            errorMessage: (error as Error).message ?? 'Something went wrong',
+        setOnrampEvents((state) => [
+          ...state,
+          {
+            data: {
+              errorCode: 'ERROR_CODE_GUEST_APPLE_PAY_NOT_SUPPORTED',
+              errorMessage: (error as Error).message ?? 'Something went wrong',
+            },
+            eventName: 'onramp_api.load_error',
           },
-          eventName: 'onramp_api.load_error',
-        })
+        ])
       }
     }
     window.addEventListener('message', handlePostMessage)
     return () => {
       window.removeEventListener('message', handlePostMessage)
     }
-  }, [props.onApprove])
+  }, [onApprove])
 
-  if (view === 'start') {
-    return (
-      <Button
-        onClick={() => {
-          props.setView('onramp')
-          setView('amount')
-        }}
-        type="submit"
-        variant="primary"
-        width="grow"
-      >
-        Onramp
-      </Button>
-    )
+  return {
+    createOrder,
+    lastOrderEvent,
+    orderEvents,
   }
-
-  // TODO: Show amount selector immediately if email/phone exist for address + phone is verified
-  if (view === 'amount') {
-    return (
-      <form
-        className="grid h-min w-full grid-flow-row auto-rows-min grid-cols-1 space-y-3"
-        onSubmit={(event) => {
-          event.preventDefault()
-          event.stopPropagation()
-          createOrder.mutate(
-            { address, amount },
-            {
-              onSuccess() {
-                setView('pay')
-              },
-            },
-          )
-        }}
-      >
-        <div className="col-span-1 row-span-1">
-          <PresetsInput
-            adornments={{
-              end: {
-                label: `Max. $${maxAmount}`,
-                type: 'fill',
-                value: String(maxAmount),
-              },
-              start: '$',
-            }}
-            inputMode="decimal"
-            max={maxAmount}
-            min={minAmount}
-            mode={mode}
-            onChange={setAmount}
-            onModeChange={setMode}
-            placeholder="Enter amount"
-            presets={presetAmounts.map((value) => ({
-              label: `$${value}`,
-              value: value.toString(),
-            }))}
-            type="number"
-            value={amount}
-          />
-        </div>
-        <div className="col-span-1 row-span-1 space-y-1.5">
-          <label>
-            <input
-              checked={sandbox}
-              onChange={() => setSandbox((x) => !x)}
-              type="checkbox"
-            />
-            Sandbox?
-          </label>
-        </div>
-        <div className="col-span-1 row-span-1 space-y-1.5">
-          <Button
-            className="w-full flex-1"
-            disabled={!address || !amount || Number(amount) === 0}
-            loading={createOrder.isPending}
-            type="submit"
-            variant="primary"
-            width="grow"
-          >
-            Continue
-          </Button>
-          <Button
-            className="w-full flex-1"
-            onClick={() => {
-              props.setView('default')
-              setView('start')
-            }}
-            type="button"
-            variant="secondary"
-            width="grow"
-          >
-            Back
-          </Button>
-        </div>
-      </form>
-    )
-  }
-
-  return (
-    <div className="w-full">
-      {createOrder.isSuccess && createOrder.data?.url && (
-        <iframe
-          allow="payment"
-          // TODO: tweak iframe styles
-          className={cx(
-            'h-12.5 w-full overflow-hidden border-0 bg-transparent',
-            onrampState.eventName === 'onramp_api.apple_pay_button_pressed'
-              ? 'overflow-visible! fixed inset-0 z-100 h-full!'
-              : 'w-full border-0 bg-transparent',
-          )}
-          onError={() =>
-            setOnrampState({
-              data: {
-                errorCode: 'ERROR_CODE_INIT',
-                errorMessage: 'Failed to load',
-              },
-              eventName: 'onramp_api.load_error',
-            })
-          }
-          src={createOrder.data.url}
-          title="Onramp"
-        />
-      )}
-      <Button
-        className="w-full flex-1"
-        onClick={() => setView('amount')}
-        type="button"
-        variant="secondary"
-        width="grow"
-      >
-        Back
-      </Button>
-    </div>
-  )
 }
 
 function Faucet(props: {

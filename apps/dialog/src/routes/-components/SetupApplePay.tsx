@@ -8,7 +8,6 @@ import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import LucideAsterisk from '~icons/lucide/asterisk'
 
-const dummy = true
 async function noop(name: string) {
   console.log('started:', name)
   await new Promise((resolve) => {
@@ -24,6 +23,7 @@ export function SetupApplePay(props: SetupApplePay.Props) {
     showPhone = true,
     onBack,
     onComplete,
+    dummy = true,
   } = props
 
   const [screen, setScreen] = React.useState<'phone-email' | 'otp'>(
@@ -326,6 +326,8 @@ export namespace SetupApplePay {
     showPhone: boolean | undefined
     onBack: () => void
     onComplete: () => void
+    // TODO: Remove
+    dummy: boolean
   }
 
   export function AppleIcon() {
