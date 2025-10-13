@@ -19,10 +19,10 @@ export function PortoUi(): PluginOption[] {
       jsx: 'react',
     }),
     {
-      config() {
+      config(_, { mode }) {
         const styledSystem = path.resolve(process.cwd(), './styled-system')
 
-        if (!fs.existsSync(styledSystem))
+        if (mode !== 'test' && !fs.existsSync(styledSystem))
           throw new Error(
             'styled-system/ not found. Generate it with: pnpm panda codegen',
           )
