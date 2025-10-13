@@ -3,15 +3,17 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 
-const distDir = path.join(import.meta.dirname, '../dist/dialog/assets')
-const cssFiles = fs.globSync(path.join(distDir, '*.css'))
+console.log('Checking generated CSS file…')
 
-if (cssFiles.length === 0) {
+const distDir = path.join(import.meta.dirname, '../dist/dialog/assets')
+const [cssFile] = fs.globSync(path.join(distDir, '*.css'))
+
+if (!cssFile) {
   console.error('[ERROR] No CSS file found in dist/dialog/assets/.')
   process.exit(1)
 }
 
-const css = fs.readFileSync(cssFiles[0], 'utf-8')
+const css = fs.readFileSync(cssFile, 'utf-8')
 
 const checks = [
   {
@@ -43,7 +45,7 @@ const checks = [
   },
 ]
 
-console.log(`Found CSS file: ${cssFiles[0]}\n`)
+console.log(`Found CSS file: ${path.relative(distDir, cssFile)}`)
 
 let failed = false
 for (const { name, test } of checks) {
@@ -60,4 +62,4 @@ if (failed) {
   process.exit(1)
 }
 
-console.log('\nAll CSS checks passed.')
+console.log('All checks passed.')
