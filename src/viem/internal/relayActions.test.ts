@@ -666,14 +666,11 @@ describe('prepareCalls + sendPreparedCalls', () => {
           },
         ],
         capabilities: {
-          meta: {
-            // TODO: allow `requiredFunds` to be set without `feeToken`
-            feeToken: contracts.exp1.address,
-          },
+          meta: {},
           requiredFunds: [
             {
               address: contracts.exp1.address,
-              value: Value.fromEther('5'),
+              value: Value.fromEther('6'),
             },
           ],
         },
@@ -719,8 +716,8 @@ describe('prepareCalls + sendPreparedCalls', () => {
         args: [account.address],
         functionName: 'balanceOf',
       })
-      expect(balance_post_destination).toBeGreaterThan(Value.fromEther('5'))
-      expect(balance_post_destination).toBeLessThan(Value.fromEther('5.0005'))
+      expect(balance_post_destination).toBeGreaterThan(Value.fromEther('5.9'))
+      expect(balance_post_destination).toBeLessThan(Value.fromEther('6.1'))
     },
   )
 
@@ -1288,6 +1285,12 @@ describe.runIf(!Anvil.enabled)('verifySignature', () => {
     expect(result.valid).toBe(false)
   })
 })
+
+describe.todo('onrampStatus')
+describe.todo('getOnrampContactInfo')
+
+// TODO: Figure out way to get `code` from server
+describe.todo('setPhone + verifyPhone')
 
 // TODO: Figure out way to get `token` from server (e.g. email link from inbox)
 describe.todo('setEmail + verifyEmail')

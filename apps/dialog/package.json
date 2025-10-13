@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "prepare": "panda codegen",
     "dev": "vite --port 5175",
     "prebuild": "tsc --build",
     "build": "vite build",
@@ -10,7 +11,8 @@
     "check:types": "tsc --noEmit",
     "prepreview": "pnpm build",
     "preview": "vite preview",
-    "sync:ui-assets": "rm -rf public/ui && cp -r ../ui/assets public/ui"
+    "sync:ui-assets": "rm -rf public/ui && cp -r ../ui/assets public/ui",
+    "generate:error-selectors": "tsx scripts/generate-error-selectors.ts > src/lib/generated-error-selectors.ts"
   },
   "dependencies": {
     "@ariakit/react": "catalog:",
@@ -35,6 +37,7 @@
   },
   "devDependencies": {
     "@iconify/json": "catalog:",
+    "@pandacss/dev": "catalog:",
     "@porto/apps": "workspace:*",
     "@svgr/core": "catalog:",
     "@svgr/plugin-jsx": "catalog:",
@@ -46,12 +49,14 @@
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "globals": "catalog:",
+    "postcss": "catalog:",
     "tailwindcss": "catalog:",
     "tw-animate-css": "catalog:",
     "typescript": "catalog:",
     "unplugin-icons": "catalog:",
     "vite": "catalog:",
     "vite-plugin-mkcert": "catalog:",
+    "vite-plugin-terminal": "^1.3.0",
     "vite-tsconfig-paths": "^5.1.4"
   },
   "repository": {

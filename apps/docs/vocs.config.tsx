@@ -4,7 +4,6 @@ import NodePath from 'node:path'
 import Process from 'node:process'
 import Mkcert from 'vite-plugin-mkcert'
 import { defineConfig } from 'vocs'
-
 import { Plugins } from '../~internal/vite/index'
 
 const commitSha =
@@ -643,6 +642,11 @@ export default defineConfig({
       }),
       Plugins.Icons(),
     ] as never,
+    resolve: {
+      alias: {
+        porto: NodePath.join(process.cwd(), '../../src'),
+      },
+    },
     server: {
       proxy: {},
     },

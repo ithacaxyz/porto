@@ -1,5 +1,27 @@
 # porto
 
+## 0.2.26
+
+### Patch Changes
+
+- [`403b886`](https://github.com/ithacaxyz/porto/commit/403b8865f9a7b807c4d8cf70790fd28a11baf21f) Thanks [@jxom](https://github.com/jxom)! - Asserted chain exists in `Chains.all`.
+
+## 0.2.25
+
+### Patch Changes
+
+- [`350af4b`](https://github.com/ithacaxyz/porto/commit/350af4bdfe552750567645a6fb1ab9adefaf3a5b) Thanks [@jxom](https://github.com/jxom)! - Updated dist structure.
+
+- [#953](https://github.com/ithacaxyz/porto/pull/953) [`e90ba55`](https://github.com/ithacaxyz/porto/commit/e90ba555c465a1092ea363f31ef8ff9c79f540d3) Thanks [@o-az](https://github.com/o-az)! - Reduced required setup config for `Mode.reactNative()` mode.
+
+## 0.2.24
+
+### Patch Changes
+
+- [#924](https://github.com/ithacaxyz/porto/pull/924) [`3d27c2b`](https://github.com/ithacaxyz/porto/commit/3d27c2b4baba412086cf19b47f0390cdcaf38b0e) Thanks [@o-az](https://github.com/o-az)! - Added support for React Native, via a `Mode.reactNative()` mode.
+
+- [#935](https://github.com/ithacaxyz/porto/pull/935) [`f050df5`](https://github.com/ithacaxyz/porto/commit/f050df5b627c9ce2bf7773249900dfab6e2bb6a1) Thanks [@tmm](https://github.com/tmm)! - Added `allow="payment"` to dialog iframe for onramp support.
+
 ## 0.2.23
 
 ### Patch Changes

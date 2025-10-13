@@ -2,7 +2,6 @@ import { PresetsInput } from '@porto/ui'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { ComponentScreen } from '~/components/ComponentScreen/ComponentScreen'
-import '@porto/ui/styles.css'
 
 export const Route = createFileRoute('/PresetsInput')({
   component: PresetsInputComponent,

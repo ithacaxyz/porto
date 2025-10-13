@@ -3,10 +3,10 @@ import { createFileRoute } from '@tanstack/react-router'
 import * as Provider from 'ox/Provider'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
-
 import * as Dialog from '~/lib/Dialog'
 import * as PermissionsRequest from '~/lib/PermissionsRequest'
 import { porto } from '~/lib/Porto'
+import { useAuthSessionRedirect } from '~/lib/ReactNative'
 import * as Router from '~/lib/Router'
 import { Email } from '../-components/Email'
 import { SignIn } from '../-components/SignIn'
@@ -49,14 +49,22 @@ function RouteComponent() {
       email,
       signIn,
       selectAccount,
+      reject,
     }: {
       email?: string
       signIn?: boolean
       selectAccount?: boolean
+      reject?: boolean
     }) {
       if (!request) throw new Error('no request found.')
       if (request.method !== 'wallet_connect')
         throw new Error('request is not a wallet_connect request.')
+
+      // Handle rejection through mutation to support React Native redirect
+      if (reject) {
+        await Actions.reject(porto, request)
+        throw new Provider.UserRejectedRequestError()
+      }
 
       const params = request.params ?? []
 
@@ -132,7 +140,7 @@ function RouteComponent() {
                 error: {
                   action: 'retry-in-popup',
                   message:
-                    'Your browser doesn’t support passkey creation in the current context.',
+                    "Your browser doesn't support passkey creation in the current context.",
                   name: 'CREDENTIAL_CREATION_FAILED',
                   secondaryMessage:
                     'Please try again in a popup window for better compatibility.',
@@ -175,6 +183,8 @@ function RouteComponent() {
     respond.isPending,
   ])
 
+  useAuthSessionRedirect(respond)
+
   if (respond.isSuccess) return
 
   if (capabilities?.email ?? true)
@@ -197,7 +207,7 @@ function RouteComponent() {
       <SignUp
         enableSignIn={actions.includes('sign-in')}
         onApprove={(options) => respond.mutate(options)}
-        onReject={() => Actions.reject(porto, request)}
+        onReject={() => respond.mutate({ reject: true })}
         permissions={grantPermissions?.permissions}
         status={status}
       />
