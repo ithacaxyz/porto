@@ -1,5 +1,5 @@
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from 'react'
-import { css, cx } from '../../styled-system/css'
+import { css, cx } from 'styled-system/css'
 
 const buttonAreaStyles = css({
   _active: {
