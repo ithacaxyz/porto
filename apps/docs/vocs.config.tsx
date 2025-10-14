@@ -2,6 +2,7 @@ import ChildProcess from 'node:child_process'
 import NodeFS from 'node:fs'
 import NodePath from 'node:path'
 import Process from 'node:process'
+import ts from 'typescript'
 import Mkcert from 'vite-plugin-mkcert'
 import { defineConfig } from 'vocs'
 import { Plugins } from '../~internal/vite/index'
@@ -635,6 +636,12 @@ export default defineConfig({
       text: 'Changelog',
     },
   ],
+  twoslash: {
+    compilerOptions: {
+      composite: true,
+      moduleResolution: ts.ModuleResolutionKind.Bundler,
+    },
+  },
   vite: {
     plugins: [
       Mkcert({

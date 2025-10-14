@@ -130,7 +130,7 @@
     "vite": "catalog:",
     "vitest": "catalog:",
     "wagmi": "catalog:",
-    "wshy": "0.0.3",
+    "wshy": "0.0.4",
     "yaml": "^2.8.1"
   },
   "packageManager": "pnpm@10.17.1",
