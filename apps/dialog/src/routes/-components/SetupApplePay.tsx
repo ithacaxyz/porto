@@ -132,7 +132,7 @@ export function SetupApplePay(props: SetupApplePay.Props) {
         },
       )
     },
-    [phone, verifyPhone.mutate, onComplete],
+    [phone, verifyPhone.mutate, onComplete, verifyPhone],
   )
 
   // TODO: render error (e.g. invalid code)
