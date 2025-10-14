@@ -1,5 +1,7 @@
 /// <reference types="vite/client" />
 
+import { Ui } from '@porto/ui'
+
 import type { QueryClient } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import {
@@ -8,14 +10,12 @@ import {
   Outlet,
   Scripts,
 } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { createServerFn } from '@tanstack/react-start'
 import { getCookie } from '@tanstack/react-start/server'
 import type * as React from 'react'
-
-import appCss from '~/app.css?url'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary.tsx'
 import { NotFound } from '~/components/NotFound.tsx'
+import appCss from '~/styles.css?url'
 
 const getCookieServerFn = createServerFn().handler(async () =>
   getCookie('wagmi.store'),
@@ -77,8 +77,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body className="antialiased">
-        {children}
-        <TanStackRouterDevtools position="bottom-right" />
+        <Ui assetsBaseUrl="/id2/ui">{children}</Ui>
         <ReactQueryDevtools buttonPosition="bottom-left" />
         <Scripts />
       </body>

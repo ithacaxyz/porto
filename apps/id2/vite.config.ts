@@ -2,6 +2,7 @@ import ChildProcess from 'node:child_process'
 import NodeFS from 'node:fs'
 import NodePath from 'node:path'
 import { cloudflare } from '@cloudflare/vite-plugin'
+import { PortoUi } from '@porto/ui/vite-plugin'
 import { sentryVitePlugin as SentryVitePlugin } from '@sentry/vite-plugin'
 import Tailwindcss from '@tailwindcss/vite'
 import { tanstackStart as TanstackStart } from '@tanstack/react-start/plugin/vite'
@@ -39,6 +40,7 @@ export default defineConfig(({ mode }) => {
         }),
     Tailwindcss(),
     Plugins.Icons({ autoInstall: true }),
+    PortoUi(),
     TsconfigPaths({
       projects: ['./tsconfig.json'],
     }),

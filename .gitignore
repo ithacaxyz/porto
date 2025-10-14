@@ -70,3 +70,5 @@ styled-system
 .expo
 ios
 android
+_dist
+styled-system
