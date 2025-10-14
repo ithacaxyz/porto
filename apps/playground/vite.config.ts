@@ -55,7 +55,11 @@ export default defineConfig(({ mode }) => {
         : mkcert({
             hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
           }),
-      react(),
+      react({
+        babel: {
+          plugins: ['babel-plugin-react-compiler'],
+        },
+      }),
       Plugins.Icons(),
       tailwindcss(),
       {

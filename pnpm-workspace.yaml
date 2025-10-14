@@ -21,6 +21,7 @@ catalog:
   "@types/react": "^19"
   "@types/react-dom": "^19"
   "@wagmi/core": "^2.21.2"
+  "babel-plugin-react-compiler": "^1.0.0"
   cva: "npm:class-variance-authority@^0.7.1"
   globals: "^16.4.0"
   ox: "^0.9.6"
@@ -41,8 +42,7 @@ catalog:
   wagmi: "^2.17.5"
   zod: "4.1.5"
   zustand: "^5.0.3"
-  "@vitejs/plugin-react": "^4.6.0"
-  "@vitejs/plugin-react-swc": "^4.0.0"
+  "@vitejs/plugin-react": "^5.0.4"
 minimumReleaseAge: 2880 # 48 hours
 minimumReleaseAgeExclude:
   - "@wagmi/connectors"

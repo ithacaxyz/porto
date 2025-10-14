@@ -33,7 +33,11 @@ export default defineConfig(({ mode }) => {
     PortoUi(),
     TsconfigPaths(),
     TanStackRouterVite(),
-    React(),
+    React({
+      babel: {
+        plugins: ['babel-plugin-react-compiler'],
+      },
+    }),
     // must come last
     // @see https://docs.sentry.io/platforms/javascript/guides/tanstackstart-react/sourcemaps/uploading/vite/#configuration
     SentryVitePlugin({

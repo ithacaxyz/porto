@@ -49,6 +49,7 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
+    "babel-plugin-react-compiler": "catalog:",
     "globals": "catalog:",
     "postcss": "catalog:",
     "tailwindcss": "catalog:",
