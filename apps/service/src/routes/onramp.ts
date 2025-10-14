@@ -41,11 +41,10 @@ onrampApp.post(
           request: { method, path },
         })
 
-        // TODO: Remove
-        const dummy = true
-
         const porto = Porto.create({ announceProvider: false })
         const client = RelayClient.fromPorto(porto)
+        // TODO: Remove
+        const dummy = true
         const contactInfo = dummy
           ? {
               email: 'test@ithaca.xyz',

@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import { Hooks } from 'porto/remote'
 import { RelayActions } from 'porto/viem'
 import * as React from 'react'
-import type { Address } from 'viem'
+import type { Address, BaseError } from 'viem'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import LucideAsterisk from '~icons/lucide/asterisk'
@@ -43,11 +43,15 @@ export function SetupApplePay(props: SetupApplePay.Props) {
     (showEmail ? isValidEmail : true) && (showPhone ? isValidPhone : true)
 
   const client = Hooks.useRelayClient(porto)
-  const setInfo = useMutation({
-    async mutationFn(data: {
+  const setInfo = useMutation<
+    void,
+    BaseError,
+    {
       email: string | undefined
       phone: string | undefined
-    }) {
+    }
+  >({
+    async mutationFn(data) {
       if (dummy) await noop('setInfo')
       else {
         const promises = []
@@ -69,8 +73,15 @@ export function SetupApplePay(props: SetupApplePay.Props) {
       }
     },
   })
-  const verifyPhone = useMutation({
-    async mutationFn(data: { code: string; phone: string }) {
+  const verifyPhone = useMutation<
+    void,
+    BaseError,
+    {
+      code: string
+      phone: string
+    }
+  >({
+    async mutationFn(data) {
       if (dummy) await noop('verifyPhone')
       else
         await RelayActions.verifyPhone(client, {
@@ -132,10 +143,9 @@ export function SetupApplePay(props: SetupApplePay.Props) {
         },
       )
     },
-    [phone, verifyPhone.mutate, onComplete, verifyPhone],
+    [phone, verifyPhone.mutate, onComplete],
   )
 
-  // TODO: render error (e.g. invalid code)
   if (screen === 'otp')
     return (
       <Layout>
@@ -177,6 +187,11 @@ export function SetupApplePay(props: SetupApplePay.Props) {
             </Button>
           </Layout.Footer.Actions>
         </Layout.Footer>
+        {verifyPhone.error?.details && (
+          <div className="px-3 pb-3 text-center text-[14px] text-th_base-negative">
+            {verifyPhone.error.details}
+          </div>
+        )}
         <p className="px-3 pb-3 text-center text-[12px] text-th_base-secondary">
           Didn't receive the code?{' '}
           <TextButton
@@ -203,7 +218,6 @@ export function SetupApplePay(props: SetupApplePay.Props) {
       </Layout>
     )
 
-  // TODO: render error (e.g. invalid phone, email/phone already verified)
   return (
     <Layout>
       <Layout.Header>
@@ -286,6 +300,11 @@ export function SetupApplePay(props: SetupApplePay.Props) {
             </Button>
           </Layout.Footer.Actions>
         </Layout.Footer>
+        {setInfo.error?.details && (
+          <div className="px-3 pb-3 text-center text-[14px] text-th_base-negative">
+            {setInfo.error.details}
+          </div>
+        )}
         <p className="px-3 pb-3 text-center text-[12px] text-th_base-secondary">
           By using this onramp, you agree to Coinbase's{' '}
           <a

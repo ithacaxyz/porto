@@ -49,12 +49,30 @@ export function AddFunds(props: AddFunds.Props) {
     },
     queryKey: ['onrampStatus', address],
   })
-  const queryClient = useQueryClient()
   const { createOrder, lastOrderEvent } = useOnrampOrder({
     onApprove,
     sandbox,
   })
   const [iframeLoaded, setIframeLoaded] = React.useState(false)
+
+  const queryClient = useQueryClient()
+  const onCompleteOnrampSetup = React.useCallback(() => {
+    if (!address) throw new Error('address is required')
+    if (dummy)
+      queryClient.setQueryData(
+        ['onrampStatus', address],
+        { email: true, phone: true },
+        {},
+      )
+    createOrder.mutate(
+      { address, amount: value ?? '10' },
+      {
+        onSuccess() {
+          setView('default')
+        },
+      },
+    )
+  }, [address, value, queryClient.setQueryData, createOrder.mutate])
 
   // create onramp order if onramp status is valid
   // biome-ignore lint/correctness/useExhaustiveDependencies: keep stable
@@ -182,23 +200,7 @@ export function AddFunds(props: AddFunds.Props) {
         onBack={() => {
           setView('default')
         }}
-        onComplete={() => {
-          if (!address) throw new Error('address is required')
-          if (dummy)
-            queryClient.setQueryData(
-              ['onrampStatus', address],
-              { email: true, phone: true },
-              {},
-            )
-          createOrder.mutate(
-            { address, amount: value ?? '10' },
-            {
-              onSuccess() {
-                setView('default')
-              },
-            },
-          )
-        }}
+        onComplete={onCompleteOnrampSetup}
         showEmail={!onrampStatus?.email}
         showPhone={!onrampStatus?.phone}
       />
