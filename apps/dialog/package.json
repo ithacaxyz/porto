@@ -39,6 +39,7 @@
   "devDependencies": {
     "@iconify/json": "catalog:",
     "@pandacss/dev": "catalog:",
+    "typed-query-selector": "catalog:",
     "@porto/apps": "workspace:*",
     "@svgr/core": "catalog:",
     "@svgr/plugin-jsx": "catalog:",

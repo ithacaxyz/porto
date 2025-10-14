@@ -87,7 +87,9 @@ export async function buildMessage<chain extends Chain | undefined>(
       },
       method: 'POST',
     })
-    const res = await response.json().catch(() => undefined)
+    const res = (await response.json().catch(() => undefined)) as
+      | { nonce: string }
+      | undefined
     if (!res?.nonce) throw new Error('`nonce` or `authUrl.nonce` is required.')
     return res.nonce
   })()

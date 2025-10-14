@@ -19,8 +19,8 @@ export const Route = createFileRoute('/dialog/wallet_addFunds')({
 function RouteComponent() {
   const request = Route.useSearch()
   const { address, chainId } =
-    request._decoded.method === 'wallet_addFunds'
-      ? request._decoded.params[0]
+    request._decoded?.method === 'wallet_addFunds'
+      ? (request._decoded.params?.[0] ?? {})
       : {}
 
   const respond = useMutation({
