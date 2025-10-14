@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.28
+
+### Patch Changes
+
+- [`104decb`](https://github.com/ithacaxyz/porto/commit/104decb91c2ef64983b8a35b38b105c005dbc288) Thanks [@jxom](https://github.com/jxom)! - Added `additionalAuthorization` to `Quote` type.
+
 ## 0.2.27
 
 ### Patch Changes
