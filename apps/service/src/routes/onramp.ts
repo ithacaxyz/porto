@@ -1,6 +1,5 @@
 import { env } from 'cloudflare:workers'
 import { zValidator } from '@hono/zod-validator'
-import { PortoConfig } from '@porto/apps'
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 import { importJWK, type JWTPayload, SignJWT } from 'jose'
@@ -42,10 +41,7 @@ onrampApp.post(
           request: { method, path },
         })
 
-        const porto = Porto.create({
-          ...PortoConfig.getConfig(),
-          announceProvider: false,
-        })
+        const porto = Porto.create({ announceProvider: false })
         const client = RelayClient.fromPorto(porto)
         const contactInfo = await RelayActions.getOnrampContactInfo(client, {
           address,
