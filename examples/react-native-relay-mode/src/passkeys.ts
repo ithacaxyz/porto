@@ -1,11 +1,11 @@
+import 'porto/react-native/register'
+
 import { Base64 } from 'ox'
 import { Platform } from 'react-native'
 import * as passkey from 'react-native-passkeys'
 import type OxWebAuthn from '../node_modules/ox/_types/core/internal/webauthn'
 
-const RELYING_PARTY_DOMAIN =
-  process.env.EXPO_PUBLIC_SERVER_DOMAIN || process.env.EXPO_PUBLIC_SERVER_DOMAIN
-
+const RELYING_PARTY_DOMAIN = process.env.EXPO_PUBLIC_SERVER_DOMAIN
 if (!RELYING_PARTY_DOMAIN)
   console.warn('\n\n\nEXPO_PUBLIC_SERVER_DOMAIN is not set\n\n\n')
 

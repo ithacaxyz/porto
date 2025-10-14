@@ -54,7 +54,9 @@
   "search.exclude": {
     "**/_/**": true,
     "**/.tanstack/**": true,
+    "**/android/**": true,
     "**/dist/**": true,
+    "**/ios/**": true,
     "**/routeTree.gen.ts": true,
     "contracts": true,
     "pnpm-lock.yaml": true

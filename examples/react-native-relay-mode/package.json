@@ -1,11 +1,6 @@
 {
   "name": "react-native-relay-mode",
   "main": "index.ts",
-  "imports": {
-    "#*": "./src/*",
-    "#package.json": "./package.json",
-    "#app.config.ts": "./app.config.ts"
-  },
   "scripts": {
     "start": "expo start --clear --dev-client --tunnel",
     "android": "expo run:android",

@@ -2,8 +2,8 @@ import { Hex, Value } from 'ox'
 import { Mode, Porto } from 'porto'
 import { baseSepolia } from 'viem/chains'
 
-import { exp1Address, exp2Address } from '#contracts.ts'
-import { createFn, getFn, rp } from '#passkeys.ts'
+import { exp1Address, exp2Address } from './contracts'
+import { createFn, getFn, rp } from './passkeys'
 
 export const porto = Porto.create({
   mode: Mode.relay({

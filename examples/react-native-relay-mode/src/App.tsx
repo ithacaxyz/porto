@@ -3,7 +3,7 @@ import { Hex, Json } from 'ox'
 import * as React from 'react'
 import { Button, ScrollView, Text, View } from 'react-native'
 
-import { permissions, porto } from '#porto.ts'
+import { permissions, porto } from './porto'
 
 export default function App() {
   return (
