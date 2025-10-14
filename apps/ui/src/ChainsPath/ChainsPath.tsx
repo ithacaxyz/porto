@@ -15,7 +15,7 @@ export function ChainsPath({ chainIds }: ChainsPath.Props) {
             },
         )
         .reverse(),
-    [chainIds.map],
+    [chainIds.map, chainIds],
   )
   return (
     destinationChain && (

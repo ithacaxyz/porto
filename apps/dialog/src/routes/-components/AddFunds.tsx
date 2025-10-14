@@ -348,7 +348,11 @@ function Onramp(props: {
     return () => {
       window.removeEventListener('message', handlePostMessage)
     }
-  }, [props.onApprove])
+  }, [
+    props.onApprove, // TODO: get transaction hash from order
+    // https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/get-an-onramp-order-by-id
+    props,
+  ])
 
   if (view === 'start') {
     return (

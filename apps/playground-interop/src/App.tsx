@@ -501,7 +501,7 @@ function Action({
     queryClient.invalidateQueries({
       queryKey: [Query.getAssetsQueryKey({})[0]],
     })
-  }, [waitForCallsStatus.isSuccess, queryClient.invalidateQueries])
+  }, [waitForCallsStatus.isSuccess, queryClient.invalidateQueries, queryClient])
 
   return (
     <div>
