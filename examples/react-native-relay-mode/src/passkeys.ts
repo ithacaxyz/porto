@@ -1,5 +1,3 @@
-import 'porto/react-native/register'
-
 import { Base64 } from 'ox'
 import { Platform } from 'react-native'
 import * as passkey from 'react-native-passkeys'
