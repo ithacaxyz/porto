@@ -254,12 +254,18 @@ export function AddFunds(props: AddFunds.Props) {
                   lastOrderEvent?.eventName ===
                     'onramp_api.apple_pay_button_pressed' ||
                   lastOrderEvent?.eventName === 'onramp_api.polling_start') && (
-                  <Button className="bg-black! text-white! dark:bg-white! dark:text-black!">
-                    <span className="-tracking-[2.8%] font-medium text-[14px]">
-                      Pay with
-                    </span>
-                    {applePayLogo}
-                  </Button>
+                  <Button
+                    className="bg-black! text-white! dark:bg-white! dark:text-black!"
+                    disabled
+                    loading={
+                      <>
+                        <span className="-tracking-[2.8%] font-medium text-[14px]">
+                          Pay with
+                        </span>
+                        {applePayLogo}
+                      </>
+                    }
+                  />
                 )}
               </div>
             ) : (
