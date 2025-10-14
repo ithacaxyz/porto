@@ -320,6 +320,7 @@ function Onramp(props: {
     eventName: 'onramp_api.load_pending',
   })
   // TODO: iframe loading timeout
+  // biome-ignore lint/correctness/useExhaustiveDependencies: _
   React.useEffect(() => {
     function handlePostMessage(event: MessageEvent) {
       if (event.origin !== 'https://pay.coinbase.com') return
@@ -348,11 +349,7 @@ function Onramp(props: {
     return () => {
       window.removeEventListener('message', handlePostMessage)
     }
-  }, [
-    props.onApprove, // TODO: get transaction hash from order
-    // https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/get-an-onramp-order-by-id
-    props,
-  ])
+  }, [props.onApprove])
 
   if (view === 'start') {
     return (

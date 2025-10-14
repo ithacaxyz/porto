@@ -496,12 +496,13 @@ function Action({
   })
   const queryClient = useQueryClient()
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: _
   React.useEffect(() => {
     if (!waitForCallsStatus.isSuccess) return
     queryClient.invalidateQueries({
       queryKey: [Query.getAssetsQueryKey({})[0]],
     })
-  }, [waitForCallsStatus.isSuccess, queryClient.invalidateQueries, queryClient])
+  }, [waitForCallsStatus.isSuccess, queryClient.invalidateQueries])
 
   return (
     <div>
