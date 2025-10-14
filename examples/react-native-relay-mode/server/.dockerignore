@@ -1,0 +1,10 @@
+# ignore everything
+*
+
+# except these files
+!index.ts
+!apple-app-site-association
+!assetlinks.json
+!Dockerfile
+!railway.toml
+!.dockerignore

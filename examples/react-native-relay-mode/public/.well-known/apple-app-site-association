@@ -1,0 +1,13 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["Q7767Q7TRJ.com.example.porto_relay_mode"],
+        "components": [{ "/": "/*" }]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["Q7767Q7TRJ.com.example.porto_relay_mode"]
+  }
+}

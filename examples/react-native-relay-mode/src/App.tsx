@@ -1,14 +1,19 @@
 import Checkbox from 'expo-checkbox'
 import { Hex, Json } from 'ox'
 import * as React from 'react'
-import { Button, ScrollView, Text, View } from 'react-native'
+import { Button, Platform, ScrollView, Text, View } from 'react-native'
 
-import { permissions, porto } from './config'
+import { permissions, porto } from './porto'
 
 export default function App() {
   return (
     <ScrollView
-      style={{ flex: 1, height: '100%', marginTop: 100, padding: 16 }}
+      style={{
+        flex: 1,
+        height: '100%',
+        marginTop: Platform.select({ default: 100, web: 0 }),
+        padding: 16,
+      }}
     >
       <Connect />
       <Divider />
@@ -178,11 +183,13 @@ function Divider() {
 }
 
 function Pre(props: { text?: unknown }) {
-  if (!props.text) return null
+  if (!props?.text) return null
   return (
     <View style={{ backgroundColor: '#f9f9f9', borderRadius: 8, padding: 16 }}>
       <Text style={{ color: '#666', fontFamily: 'monospace', fontSize: 14 }}>
-        {Json.stringify(props.text, null, 2)}
+        {typeof props.text === 'string'
+          ? props.text
+          : Json.stringify(props.text, null, 2)}
       </Text>
     </View>
   )
