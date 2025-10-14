@@ -25,16 +25,16 @@
     "wagmi": "^2"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.13.1",
-    "@cloudflare/workers-types": "^4.20250913.0",
+    "@cloudflare/vite-plugin": "^1.13.12",
+    "@cloudflare/workers-types": "^4.20251011.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
-    "@vitejs/plugin-react": "^4.4.1",
-    "globals": "^16.0.0",
+    "@vitejs/plugin-react": "^5.0.4",
+    "globals": "^16.4.0",
     "typescript": "~5.9.2",
     "vite": "^6.3.6",
-    "vite-plugin-mkcert": "^1",
-    "wrangler": "^4.37.0"
+    "vite-plugin-mkcert": "^1.17",
+    "wrangler": "^4.42.2"
   }
 }

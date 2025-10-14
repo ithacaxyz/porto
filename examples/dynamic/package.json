@@ -22,10 +22,10 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@vitejs/plugin-react": "^4.5.1",
-    "globals": "^16.2.0",
+    "@vitejs/plugin-react": "^5.0.4",
+    "globals": "^16.4.0",
     "typescript": "^5.9.2",
-    "vite-plugin-mkcert": "^1.17",
-    "vite": "^6.3.5"
+    "vite": "^6.3.6",
+    "vite-plugin-mkcert": "^1.17"
   }
 }

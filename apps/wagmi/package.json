@@ -18,11 +18,11 @@
     "wagmi": "catalog:"
   },
   "devDependencies": {
+    "@tanstack/react-query-devtools": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "globals": "catalog:",
-    "@tanstack/react-query-devtools": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-mkcert": "catalog:"

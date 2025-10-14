@@ -24,10 +24,10 @@
     "@types/express": "^5.0.3",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
-    "@vitejs/plugin-react": "^4.4.1",
-    "globals": "^16.0.0",
-    "tsx": "^4.20.5",
+    "@vitejs/plugin-react": "^5.0.4",
+    "globals": "^16.4.0",
+    "tsx": "^4.20.6",
     "typescript": "~5.9.2",
-    "vite": "^6.3.5"
+    "vite": "^6.3.6"
   }
 }
