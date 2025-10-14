@@ -30,7 +30,7 @@ const sandbox = true
 const dummy = false
 
 export function AddFunds(props: AddFunds.Props) {
-  const { chainId, onApprove, onReject } = props
+  const { chainId, onApprove, onReject, value } = props
 
   const [view, setView] = React.useState<View>('default')
 
@@ -43,7 +43,7 @@ export function AddFunds(props: AddFunds.Props) {
     enabled: Boolean(address),
     async queryFn() {
       if (!address) throw new Error('address required')
-      if (dummy) return { email: true, phone: false }
+      if (dummy) return { email: true, phone: true }
       return await RelayActions.onrampStatus(client, { address })
     },
     queryKey: ['onrampStatus', address],
@@ -53,6 +53,17 @@ export function AddFunds(props: AddFunds.Props) {
     onApprove,
     sandbox,
   })
+  const [iframeLoaded, setIframeLoaded] = React.useState(false)
+
+  // create onramp order if onramp status is valid
+  // biome-ignore lint/correctness/useExhaustiveDependencies: keep stable
+  React.useEffect(() => {
+    if (!address) return
+    if (onrampStatus?.email && onrampStatus?.phone) {
+      setIframeLoaded(false)
+      createOrder.mutate({ address, amount: value ?? '10' })
+    }
+  }, [address, onrampStatus])
 
   const { data: tokens } = Tokens.getTokens.useQuery()
   const { data: assets, refetch: refetchAssets } = Hooks.useAssets({
@@ -179,8 +190,7 @@ export function AddFunds(props: AddFunds.Props) {
               {},
             )
           createOrder.mutate(
-            // TODO: Get `amount` from request
-            { address, amount: '10' },
+            { address, amount: value ?? '10' },
             {
               onSuccess() {
                 setView('default')
@@ -216,18 +226,21 @@ export function AddFunds(props: AddFunds.Props) {
           {showApplePay &&
             address &&
             (onrampStatus?.email && onrampStatus?.phone ? (
-              <>
+              <div className="flex w-full flex-col">
                 {createOrder.isSuccess && createOrder.data?.url && (
                   <iframe
-                    allow="payment"
-                    // TODO: tweak iframe styles
+                    {...(!UserAgent.isFirefox() && {
+                      allow: 'payment',
+                    })}
                     className={cx(
-                      'h-12.5 w-full overflow-hidden border-0 bg-transparent',
+                      'h-9.5 w-full overflow-hidden border-0 bg-transparent',
                       lastOrderEvent?.eventName ===
-                        'onramp_api.apple_pay_button_pressed'
+                        'onramp_api.apple_pay_button_pressed' ||
+                        lastOrderEvent?.eventName === 'onramp_api.polling_start'
                         ? 'overflow-visible! fixed inset-0 z-100 h-full!'
                         : 'w-full border-0 bg-transparent',
                     )}
+                    onLoad={() => setIframeLoaded(true)}
                     src={createOrder.data.url}
                     title="Onramp"
                   />
@@ -238,7 +251,7 @@ export function AddFunds(props: AddFunds.Props) {
                   </span>
                   {applePayLogo}
                 </Button>
-              </>
+              </div>
             ) : (
               <Button
                 className="bg-black! text-white! dark:bg-white! dark:text-black!"
@@ -278,6 +291,7 @@ export declare namespace AddFunds {
     chainId?: number | undefined
     onApprove: (result: { id: Hex.Hex }) => void
     onReject?: () => void
+    value?: string | undefined
   }
 }
 
@@ -330,12 +344,23 @@ function useOnrampOrder(props: {
         await response.json(),
       )
     },
+    onSuccess() {
+      setOnrampEvents([])
+    },
   })
 
   const [orderEvents, setOnrampEvents] = React.useState<CbPostMessageSchema[]>(
     [],
   )
   const lastOrderEvent = React.useMemo(() => orderEvents.at(-1), [orderEvents])
+  const iframeLoaded = React.useMemo(
+    () =>
+      orderEvents.find(
+        (event) => event.eventName === 'onramp_api.load_success',
+      ),
+    [orderEvents],
+  )
+
   // TODO: add iframe loading timeout
   React.useEffect(() => {
     function handlePostMessage(event: MessageEvent) {
@@ -369,6 +394,7 @@ function useOnrampOrder(props: {
 
   return {
     createOrder,
+    iframeLoaded,
     lastOrderEvent,
     orderEvents,
   }

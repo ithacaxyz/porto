@@ -54,6 +54,7 @@ export function ActionPreview(props: ActionPreview.Props) {
         onReject={() => {
           setShowAddFunds(false)
         }}
+        value={deficit.amount?.fiat}
       />
     )
 
