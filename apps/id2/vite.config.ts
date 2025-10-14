@@ -2,6 +2,7 @@ import ChildProcess from 'node:child_process'
 import NodeFS from 'node:fs'
 import NodePath from 'node:path'
 import { cloudflare } from '@cloudflare/vite-plugin'
+import { baseIconsConfig, PortoUi } from '@porto/ui/vite-plugin'
 import { sentryVitePlugin as SentryVitePlugin } from '@sentry/vite-plugin'
 import Tailwindcss from '@tailwindcss/vite'
 import { tanstackStart as TanstackStart } from '@tanstack/react-start/plugin/vite'
@@ -37,8 +38,9 @@ export default defineConfig(({ mode }) => {
       : Mkcert({
           hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
         }),
+    PortoUi({ includeIcons: false }),
+    ...Plugins.Icons(baseIconsConfig),
     Tailwindcss(),
-    Plugins.Icons({ autoInstall: true }),
     TsconfigPaths({
       projects: ['./tsconfig.json'],
     }),

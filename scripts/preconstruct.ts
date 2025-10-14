@@ -1,53 +1,70 @@
 import * as fs from 'node:fs'
-import { basename, dirname, resolve } from 'node:path'
-import { getExports } from './utils/exports.js'
+import * as path from 'node:path'
 
-console.log('Setting up packages for development.')
+const rootDir = path.resolve(import.meta.dirname, '..')
+const srcDir = path.join(rootDir, 'src')
+const packageJsonPath = path.join(rootDir, 'package.json')
 
-const packagePath = resolve(import.meta.dirname, '../src/package.json')
-const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf-8'))
+// Read package.json
+const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'))
 
-console.log(`${packageJson.name} — ${dirname(packagePath)}`)
+// Generate exports
+const exports: Record<string, string> = {
+  '.': './src/index.ts',
+}
 
-const dir = resolve(dirname(packagePath))
+// Read src directory
+const entries = fs.readdirSync(srcDir, { withFileTypes: true })
 
-// Empty dist directories
-fs.rmSync(resolve(dir, '_dist'), { force: true, recursive: true })
+for (const entry of entries) {
+  // Skip non-directories and special directories
+  if (!entry.isDirectory()) {
+    // Handle top-level .ts files (excluding index.ts)
+    if (entry.name.endsWith('.ts') && entry.name !== 'index.ts') {
+      const name = entry.name.replace(/\.ts$/, '')
+      exports[`./${name}`] = `./src/${entry.name}`
+    }
+    continue
+  }
 
-const exports = getExports()
+  // Skip node_modules
+  if (entry.name === 'node_modules') continue
 
-// Link exports to dist locations
-for (const [key, distExports] of Object.entries(exports.dist ?? {})) {
-  // Skip `package.json` exports
-  if (/package\.json$/.test(key)) continue
-  if (/tsconfig\.json$/.test(key)) continue
+  const dirPath = path.join(srcDir, entry.name)
+  const dirEntries = fs.readdirSync(dirPath, { withFileTypes: true })
 
-  let entries: any
-  if (typeof distExports === 'string')
-    entries = [
-      ['default', distExports],
-      ['types', distExports.replace('.js', '.d.ts')],
-    ]
-  else entries = Object.entries(distExports as {})
+  // Check if directory has index.ts
+  const hasIndex = dirEntries.some((e) => e.name === 'index.ts' && e.isFile())
 
-  // Link exports to dist locations
-  for (const [, value] of entries as [
-    type: 'types' | 'default',
-    value: string,
-  ][]) {
-    const srcFilePath = resolve(dir, exports.src[key]!)
+  if (hasIndex)
+    // Add directory-level export
+    exports[`./${entry.name}`] = `./src/${entry.name}/index.ts`
 
-    const distDir = resolve(dir, dirname(value))
-    const distFileName = basename(value)
-    const distFilePath = resolve(distDir, distFileName)
-
-    fs.mkdirSync(distDir, { recursive: true })
-
-    // Symlink src to dist file
-    try {
-      fs.symlinkSync(srcFilePath, distFilePath, 'file')
-    } catch {}
+  // Add second-level files (excluding index.ts)
+  for (const subEntry of dirEntries) {
+    if (
+      subEntry.isFile() &&
+      subEntry.name !== 'index.ts' &&
+      !subEntry.name.endsWith('.test.ts') &&
+      !subEntry.name.endsWith('.bench.ts')
+    ) {
+      const name = subEntry.name.replace(/\.ts$/, '')
+      exports[`./${entry.name}/${name}`] =
+        `./src/${entry.name}/${subEntry.name}`
+    }
   }
 }
 
-console.log('Done.')
+// Update package.json
+packageJson.zshy = packageJson.zshy || {}
+packageJson.zshy.exports = exports
+
+// Write package.json back
+fs.writeFileSync(
+  packageJsonPath,
+  JSON.stringify(packageJson, null, 2) + '\n',
+  'utf-8',
+)
+
+console.log('✓ Updated zshy.exports in package.json')
+console.log(`  Generated ${Object.keys(exports).length} export entries`)

@@ -8,6 +8,7 @@
     "build": "vite build",
     "check": "biome check --write --unsafe",
     "check:types": "tsc --noEmit",
+    "prepare": "panda codegen",
     "prepreview": "pnpm build",
     "preview": "vite preview",
     "sync:ui-assets": "rm -rf public/ui && cp -r ../ui/assets public/ui"
@@ -23,12 +24,14 @@
   },
   "devDependencies": {
     "@iconify/json": "catalog:",
+    "@pandacss/dev": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "@tanstack/router-plugin": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "globals": "catalog:",
+    "postcss": "catalog:",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
     "unplugin-icons": "catalog:",

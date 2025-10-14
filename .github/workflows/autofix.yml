@@ -23,9 +23,7 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Lint and format
-        run: |
-          pnpm check
-          pnpm check:markdown
+        run: pnpm check
 
       - name: Commit
         uses: autofix-ci/action@2891949f3779a1cafafae1523058501de3d4e944 # 2891949f3779a1cafafae1523058501de3d4e944

@@ -33,7 +33,7 @@
   --text-color-th_badge-negative: light-dark(#dc3e42, #ec5d5e);
   --background-color-th_badge-positive: light-dark(#e3f3e8, #1a3428);
   --text-color-th_badge-positive: light-dark(#30a46c, #30a46c);
-  --background-color-th_badge-warning: light-dark(#fbf8e6, #252018);
+  --background-color-th_badge-warning: light-dark(#fdf5c2, #252018);
   --text-color-th_badge-warning: light-dark(#e2a336, #8f6424);
   --background-color-th_primary: light-dark(#0090ff, #0090ff);
   --border-color-th_primary: light-dark(#0090ff, #0090ff);
@@ -66,6 +66,9 @@
   --background-color-th_warning: light-dark(#fefbe9, #252018);
   --text-color-th_warning: light-dark(#e2a336, #8f6424);
   --border-color-th_warning: light-dark(#e2a336, #8f6424);
+  --background-color-th_warning-strong: light-dark(#e2a336, #e2a336);
+  --text-color-th_warning-strong: light-dark(#ffffff, #ffffff);
+  --border-color-th_warning-strong: light-dark(#e2a336, #e2a336);
   --background-color-th_field: light-dark(#f9f9f9, #191919);
   --border-color-th_field: light-dark(#e0e0e0, #313131);
   --text-color-th_field: light-dark(#202020, #eeeeee);

@@ -1,10 +1,12 @@
 import ChildProcess from 'node:child_process'
+import { PortoUi } from '@porto/ui/vite-plugin'
 import { sentryVitePlugin as SentryVitePlugin } from '@sentry/vite-plugin'
 import Tailwindcss from '@tailwindcss/vite'
 import { tanstackRouter as TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import React from '@vitejs/plugin-react'
 import { defineConfig, loadEnv } from 'vite'
 import Mkcert from 'vite-plugin-mkcert'
+import Terminal from 'vite-plugin-terminal'
 import TsconfigPaths from 'vite-tsconfig-paths'
 
 import { Plugins } from '../~internal/vite/index'
@@ -19,6 +21,36 @@ export default defineConfig(({ mode }) => {
 
   const skipMkcert = env.SKIP_MKCERT === 'true' || mode === 'test'
   const allowedHosts = env.ALLOWED_HOSTS?.split(',') ?? []
+
+  const plugins = [
+    skipMkcert
+      ? null
+      : Mkcert({
+          hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
+        }),
+    Tailwindcss(),
+    Plugins.Icons(),
+    PortoUi(),
+    TsconfigPaths(),
+    React(),
+    TanStackRouterVite(),
+    // must come last
+    // @see https://docs.sentry.io/platforms/javascript/guides/tanstackstart-react/sourcemaps/uploading/vite/#configuration
+    SentryVitePlugin({
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      disable: process.env.VERCEL_ENV !== 'production',
+      org: 'ithaca',
+      project: 'porto-dialog',
+    }),
+  ]
+
+  if (mode === 'development') {
+    plugins.push(
+      Terminal({
+        console: 'terminal',
+      }),
+    )
+  }
 
   return {
     base: '/dialog/',
@@ -40,26 +72,7 @@ export default defineConfig(({ mode }) => {
               env.VITE_WORKERS_URL ?? 'https://service.porto.workers.dev',
             ),
     },
-    plugins: [
-      skipMkcert
-        ? null
-        : Mkcert({
-            hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
-          }),
-      Tailwindcss(),
-      Plugins.Icons(),
-      TsconfigPaths(),
-      React(),
-      TanStackRouterVite(),
-      // must come last
-      // @see https://docs.sentry.io/platforms/javascript/guides/tanstackstart-react/sourcemaps/uploading/vite/#configuration
-      SentryVitePlugin({
-        authToken: process.env.SENTRY_AUTH_TOKEN,
-        disable: process.env.VERCEL_ENV !== 'production',
-        org: 'ithaca',
-        project: 'porto-dialog',
-      }),
-    ],
+    plugins,
     resolve: {
       dedupe: ['react', 'react-dom'],
     },

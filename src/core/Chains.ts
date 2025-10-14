@@ -7,7 +7,7 @@ export * from './internal/_generated/chains.js'
 
 export const all = [
   chains.base,
-  ...Object.values(chains).filter((c) => c.id !== chains.base.id),
+  ...Object.values(chains).filter((c) => c && c.id !== chains.base.id),
 ] as const satisfies [Chain, ...Chain[]]
 
 export const anvil = viem_anvil

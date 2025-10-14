@@ -1,6 +1,5 @@
 import * as Ariakit from '@ariakit/react'
 import { useCopyToClipboard } from '@porto/apps/hooks'
-import * as Ui from '@porto/ui'
 import { createFileRoute } from '@tanstack/react-router'
 import { Cuer } from 'cuer'
 import { cx } from 'cva'
@@ -20,7 +19,7 @@ function RouteComponent() {
     <main className="size-full space-y-6 md:ml-2">
       <section className="grid min-h-[50%] grid-flow-col grid-cols-2 justify-items-stretch gap-4 *:rounded-2xl *:bg-white lg:grid-rows-4 dark:*:bg-gray1">
         <div
-          className={Ui.cx(
+          className={cx(
             'flex flex-col items-center px-9 pt-6 pb-3.5',
             'lg:col-span-1 lg:row-span-4',
             'col-span-full row-span-full',
@@ -57,7 +56,7 @@ function RouteComponent() {
           </div>
         </div>
         <div
-          className={Ui.cx(
+          className={cx(
             'flex w-full flex-col items-center px-9 pt-6 pb-3.5',
             'lg:col-span-2 lg:row-start-1 lg:row-end-3',
             'col-span-full',
@@ -106,7 +105,7 @@ function RouteComponent() {
         </div>
 
         <div
-          className={Ui.cx(
+          className={cx(
             'flex flex-col items-center px-9 pt-6 pb-3.5',
             'lg:col-span-2 lg:row-start-3 lg:row-end-5',
             'col-span-full',

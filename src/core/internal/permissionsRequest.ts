@@ -37,28 +37,36 @@ export async function toKey(
 
   const chainId = options.chainId ?? request.chainId
   const expiry = request.expiry ?? 0
-  const type = request.key?.type ?? 'secp256k1'
   const feeToken = request.feeToken
   const permissions = Key.resolvePermissions(request, {
     feeTokens: options.feeTokens,
   })
-  const publicKey = request?.key?.publicKey ?? '0x'
-
-  const key = Key.from({
+  const baseParameters = {
     chainId,
     expiry,
     feeToken,
     permissions,
-    publicKey,
-    role: 'session',
-    type,
-  })
-  if (request?.key) return key
+    role: 'session' as const,
+  }
 
-  return await Key.createWebCryptoP256({
-    ...key,
-    role: 'session',
-  })
+  if (request?.key)
+    return Key.from({
+      ...baseParameters,
+      publicKey: request.key.publicKey,
+      type: request.key.type ?? 'secp256k1',
+    })
+
+  const hasWebCryptoSubtle =
+    typeof globalThis.crypto?.subtle?.generateKey === 'function'
+
+  if (hasWebCryptoSubtle)
+    try {
+      return await Key.createWebCryptoP256(baseParameters)
+    } catch (error) {
+      if (!isWebCryptoUnavailable(error)) throw error
+    }
+
+  return Key.createP256(baseParameters)
 }
 
 export declare namespace toKey {
@@ -66,4 +74,15 @@ export declare namespace toKey {
     chainId?: number | undefined
     feeTokens?: Tokens.Tokens | undefined
   }
+}
+
+function isWebCryptoUnavailable(error: unknown) {
+  if (!(error instanceof Error)) return false
+  const message = error.message?.toLowerCase() ?? ''
+  return (
+    error.name === 'TypeError' ||
+    error.name === 'ReferenceError' ||
+    message.includes('subtle') ||
+    message.includes('generatekey')
+  )
 }

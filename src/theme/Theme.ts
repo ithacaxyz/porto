@@ -98,6 +98,9 @@ export type Theme<
   warningBackground: SchemeColor
   warningContent: SchemeColor
   warningBorder: SchemeColor
+  warningStrongBackground: SchemeColor
+  warningStrongContent: SchemeColor
+  warningStrongBorder: SchemeColor
 
   fieldBackground: SchemeColor
   fieldContent: SchemeColor

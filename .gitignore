@@ -33,9 +33,6 @@ next-env.d.ts
 contracts/**/cache
 contracts/**/out
 
-# lib
-src/_dist
-
 # next.js
 .next
 out

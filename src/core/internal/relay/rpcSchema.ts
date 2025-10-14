@@ -13,12 +13,32 @@ export * from './schema/rpc.js'
 
 export type Schema = RpcSchema_ox.From<
   | {
+      Request: z.input<typeof Rpc.account_getOnrampContactInfo.Request>
+      ReturnType: z.input<typeof Rpc.account_getOnrampContactInfo.Response>
+    }
+  | {
+      Request: z.input<typeof Rpc.account_onrampStatus.Request>
+      ReturnType: z.input<typeof Rpc.account_onrampStatus.Response>
+    }
+  | {
+      Request: z.input<typeof Rpc.account_resendVerifyPhone.Request>
+      ReturnType: z.input<typeof Rpc.account_resendVerifyPhone.Response>
+    }
+  | {
       Request: z.input<typeof Rpc.account_setEmail.Request>
       ReturnType: z.input<typeof Rpc.account_setEmail.Response>
     }
   | {
+      Request: z.input<typeof Rpc.account_setPhone.Request>
+      ReturnType: z.input<typeof Rpc.account_setPhone.Response>
+    }
+  | {
       Request: z.input<typeof Rpc.account_verifyEmail.Request>
       ReturnType: z.input<typeof Rpc.account_verifyEmail.Response>
+    }
+  | {
+      Request: z.input<typeof Rpc.account_verifyPhone.Request>
+      ReturnType: z.input<typeof Rpc.account_verifyPhone.Response>
     }
   | {
       Request: z.input<typeof Rpc.health.Request>

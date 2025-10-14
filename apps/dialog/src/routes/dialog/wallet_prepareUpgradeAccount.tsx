@@ -1,9 +1,11 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import * as Provider from 'ox/Provider'
 import { Actions } from 'porto/remote'
 import * as React from 'react'
 import * as PermissionsRequest from '~/lib/PermissionsRequest'
 import { porto } from '~/lib/Porto'
+import { useAuthSessionRedirect } from '~/lib/ReactNative'
 import * as Router from '~/lib/Router'
 import { Email } from '../-components/Email'
 import { SignUp } from '../-components/SignUp'
@@ -29,12 +31,24 @@ function RouteComponent() {
   const grantPermissions = grantPermissionsQuery.data
 
   const respond = useMutation({
-    async mutationFn({ email }: { email?: string | undefined } = {}) {
+    async mutationFn({
+      email,
+      reject,
+    }: {
+      email?: string | undefined
+      reject?: boolean
+    } = {}) {
       if (!request) throw new Error('no request found.')
       if (request.method !== 'wallet_prepareUpgradeAccount')
         throw new Error(
           'request is not a wallet_prepareUpgradeAccount request.',
         )
+
+      // Handle rejection through mutation to support React Native redirect
+      if (reject) {
+        await Actions.reject(porto, request)
+        throw new Provider.UserRejectedRequestError()
+      }
 
       const params = request.params ?? []
 
@@ -54,6 +68,8 @@ function RouteComponent() {
       } as typeof request)
     },
   })
+
+  useAuthSessionRedirect(respond)
 
   const status = React.useMemo(() => {
     if (capabilities?.grantPermissions && grantPermissionsQuery.isFetching)
@@ -80,7 +96,7 @@ function RouteComponent() {
     <SignUp
       enableSignIn={false}
       onApprove={() => respond.mutate({})}
-      onReject={() => Actions.reject(porto, request)}
+      onReject={() => respond.mutate({ reject: true })}
       permissions={grantPermissions?.permissions}
       status={status}
     />

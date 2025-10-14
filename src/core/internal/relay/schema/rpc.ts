@@ -31,6 +31,78 @@ const Call = z.object({
   value: z.optional(u.bigint()),
 })
 
+export namespace account_getOnrampContactInfo {
+  /** Parameters for `account_getOnrampContactInfo` request. */
+  export const Parameters = z.object({
+    /** Address to get onramp status for. */
+    address: u.address(),
+    secret: z.string(),
+  })
+
+  export type Parameters = z.infer<typeof Parameters>
+
+  /** Request for `account_getOnrampContactInfo`. */
+  export const Request = z.object({
+    method: z.literal('account_getOnrampContactInfo'),
+    params: z.readonly(z.tuple([Parameters])),
+  })
+  export type Request = z.infer<typeof Request>
+
+  /** Response for `account_getOnrampContactInfo`. */
+  export const Response = z.object({
+    email: z.string(),
+    phone: z.string(),
+  })
+  export type Response = z.infer<typeof Response>
+}
+
+export namespace account_onrampStatus {
+  /** Parameters for `account_onrampStatus` request. */
+  export const Parameters = z.object({
+    /** Address to get onramp status for. */
+    address: u.address(),
+  })
+
+  export type Parameters = z.infer<typeof Parameters>
+
+  /** Request for `account_onrampStatus`. */
+  export const Request = z.object({
+    method: z.literal('account_onrampStatus'),
+    params: z.readonly(z.tuple([Parameters])),
+  })
+  export type Request = z.infer<typeof Request>
+
+  /** Response for `account_onrampStatus`. */
+  export const Response = z.object({
+    email: z.number(),
+    phone: z.number(),
+  })
+  export type Response = z.infer<typeof Response>
+}
+
+export namespace account_resendVerifyPhone {
+  /** Parameters for `account_resendVerifyPhone` request. */
+  export const Parameters = z.object({
+    /** Phone to set for wallet address. */
+    phone: z.string(),
+    /** Address to set phone. */
+    walletAddress: u.address(),
+  })
+
+  export type Parameters = z.infer<typeof Parameters>
+
+  /** Request for `account_resendVerifyPhone`. */
+  export const Request = z.object({
+    method: z.literal('account_resendVerifyPhone'),
+    params: z.readonly(z.tuple([Parameters])),
+  })
+  export type Request = z.infer<typeof Request>
+
+  /** Response for `account_resendVerifyPhone`. */
+  export const Response = z.null()
+  export type Response = z.infer<typeof Response>
+}
+
 export namespace account_setEmail {
   /** Parameters for `account_setEmail` request. */
   export const Parameters = z.object({
@@ -54,6 +126,29 @@ export namespace account_setEmail {
   export type Response = z.infer<typeof Response>
 }
 
+export namespace account_setPhone {
+  /** Parameters for `account_setPhone` request. */
+  export const Parameters = z.object({
+    /** Phone to set for wallet address. */
+    phone: z.string(),
+    /** Address to set phone. */
+    walletAddress: u.address(),
+  })
+
+  export type Parameters = z.infer<typeof Parameters>
+
+  /** Request for `account_setPhone`. */
+  export const Request = z.object({
+    method: z.literal('account_setPhone'),
+    params: z.readonly(z.tuple([Parameters])),
+  })
+  export type Request = z.infer<typeof Request>
+
+  /** Response for `account_setPhone`. */
+  export const Response = z.null()
+  export type Response = z.infer<typeof Response>
+}
+
 export namespace account_verifyEmail {
   /** Parameters for `account_verifyEmail` request. */
   export const Parameters = z.object({
@@ -73,6 +168,27 @@ export namespace account_verifyEmail {
   export type Request = z.infer<typeof Request>
 
   /** Response for `account_verifyEmail`. */
+  export const Response = z.null()
+  export type Response = z.infer<typeof Response>
+}
+
+export namespace account_verifyPhone {
+  /** Parameters for `account_verifyPhone` request. */
+  export const Parameters = z.object({
+    code: z.string(),
+    phone: z.string(),
+    walletAddress: u.address(),
+  })
+  export type Parameters = z.infer<typeof Parameters>
+
+  /** Request for `account_verifyPhone`. */
+  export const Request = z.object({
+    method: z.literal('account_verifyPhone'),
+    params: z.readonly(z.tuple([Parameters])),
+  })
+  export type Request = z.infer<typeof Request>
+
+  /** Response for `account_verifyPhone`. */
   export const Response = z.null()
   export type Response = z.infer<typeof Response>
 }

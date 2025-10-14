@@ -13,12 +13,6 @@
     "src/**/tsdown.config.ts"
   ],
   "compilerOptions": {
-    "declaration": true,
-    "declarationMap": true,
-    "module": "ES2022",
-    "moduleResolution": "node",
-    "outDir": "./src/_dist",
-    "sourceMap": true,
-    "rootDir": "./src"
+    "sourceMap": true
   }
 }

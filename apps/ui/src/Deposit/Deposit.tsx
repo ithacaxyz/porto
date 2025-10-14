@@ -1,13 +1,19 @@
 import { Cuer } from 'cuer'
 import type { ReactNode } from 'react'
-import { css, cx } from '../../styled-system/css'
+import { css, cx } from 'styled-system/css'
 import { CopyButton } from '../CopyButton/CopyButton.js'
 
 export function Deposit({
   address,
+  chainId,
   className,
   label = 'Deposit crypto',
+  value,
 }: Deposit.Props) {
+  const params = new URLSearchParams()
+  if (chainId !== undefined) params.set('chainId', String(chainId))
+  if (value !== undefined) params.set('value', String(value))
+  const uri = `ethereum:${address}${params.size > 0 ? `?${params}` : ''}`
   return (
     <div
       className={cx(
@@ -36,9 +42,13 @@ export function Deposit({
             width: 48,
           })}
         >
-          <Cuer.Root value={address}>
-            <Cuer.Cells />
+          <Cuer.Root
+            errorCorrection="low"
+            shapeRendering="geometricPrecision"
+            value={uri}
+          >
             <Cuer.Finder radius={1} />
+            <Cuer.Cells radius={1} />
           </Cuer.Root>
         </div>
         <div
@@ -82,7 +92,9 @@ export function Deposit({
 export namespace Deposit {
   export interface Props {
     address: string
+    chainId?: number
     className?: string
     label?: ReactNode
+    value?: bigint
   }
 }

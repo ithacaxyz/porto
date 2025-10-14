@@ -1,6 +1,6 @@
 {
   "extends": ["../tsconfig.base.json"],
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["**/*.ts", "**/*.tsx", "styled-system"],
   "compilerOptions": {
     "strict": true,
     "esModuleInterop": true,
@@ -22,7 +22,8 @@
       "typed-query-selector/strict"
     ],
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": ["./src/*"],
+      "styled-system/*": ["./styled-system/*"]
     },
     "noEmit": true
   },

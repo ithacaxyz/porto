@@ -80,7 +80,6 @@ pnpm check:build              # Validate build outputs with publint and attw
 pnpm check:size               # Check bundle size limits
 pnpm check:repo               # Check repository structure with sherif
 pnpm check:knip               # Check for unused dependencies with knip
-pnpm check:markdown           # Lint markdown files
 ```
 
 ### Contract Development

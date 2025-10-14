@@ -20,6 +20,8 @@ export function isSafari() {
 }
 
 export function isMobile() {
+  // biome-ignore lint/suspicious/noTsIgnore: _
+  // @ts-ignore
   if (window.navigator?.userAgentData?.mobile) return true
 
   return (

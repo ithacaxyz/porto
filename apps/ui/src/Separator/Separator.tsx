@@ -1,5 +1,5 @@
 import type { HTMLAttributes } from 'react'
-import { css, cx } from '../../styled-system/css'
+import { css, cx } from 'styled-system/css'
 import { Frame } from '../Frame/Frame.js'
 
 export function Separator({
