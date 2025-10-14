@@ -8,328 +8,140 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as TokenIconRouteImport } from './routes/TokenIcon'
+import { Route as ThemeSwitchRouteImport } from './routes/ThemeSwitch'
+import { Route as SpinnerRouteImport } from './routes/Spinner'
+import { Route as SpacerRouteImport } from './routes/Spacer'
+import { Route as ShowAfterRouteImport } from './routes/ShowAfter'
+import { Route as SeparatorRouteImport } from './routes/Separator'
+import { Route as ScreenRouteImport } from './routes/Screen'
+import { Route as PresetsInputRouteImport } from './routes/PresetsInput'
+import { Route as OtpInputRouteImport } from './routes/OtpInput'
+import { Route as InputRouteImport } from './routes/Input'
+import { Route as FrameRouteImport } from './routes/Frame'
+import { Route as DiscIconRouteImport } from './routes/DiscIcon'
+import { Route as DetailsRouteImport } from './routes/Details'
+import { Route as DepositRouteImport } from './routes/Deposit'
+import { Route as CopyButtonRouteImport } from './routes/CopyButton'
+import { Route as ColorsRouteImport } from './routes/Colors'
+import { Route as ChainsPathRouteImport } from './routes/ChainsPath'
+import { Route as ChainIconRouteImport } from './routes/ChainIcon'
+import { Route as ButtonAreaRouteImport } from './routes/ButtonArea'
+import { Route as ButtonRouteImport } from './routes/Button'
+import { Route as BalanceRouteImport } from './routes/Balance'
+import { Route as IndexRouteImport } from './routes/index'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as TokenIconImport } from './routes/TokenIcon'
-import { Route as ThemeSwitchImport } from './routes/ThemeSwitch'
-import { Route as SpinnerImport } from './routes/Spinner'
-import { Route as SpacerImport } from './routes/Spacer'
-import { Route as ShowAfterImport } from './routes/ShowAfter'
-import { Route as SeparatorImport } from './routes/Separator'
-import { Route as ScreenImport } from './routes/Screen'
-import { Route as PresetsInputImport } from './routes/PresetsInput'
-import { Route as OtpInputImport } from './routes/OtpInput'
-import { Route as InputImport } from './routes/Input'
-import { Route as FrameImport } from './routes/Frame'
-import { Route as DiscIconImport } from './routes/DiscIcon'
-import { Route as DetailsImport } from './routes/Details'
-import { Route as DepositImport } from './routes/Deposit'
-import { Route as CopyButtonImport } from './routes/CopyButton'
-import { Route as ColorsImport } from './routes/Colors'
-import { Route as ChainsPathImport } from './routes/ChainsPath'
-import { Route as ChainIconImport } from './routes/ChainIcon'
-import { Route as ButtonAreaImport } from './routes/ButtonArea'
-import { Route as ButtonImport } from './routes/Button'
-import { Route as BalanceImport } from './routes/Balance'
-import { Route as IndexImport } from './routes/index'
-
-// Create/Update Routes
-
-const TokenIconRoute = TokenIconImport.update({
+const TokenIconRoute = TokenIconRouteImport.update({
   id: '/TokenIcon',
   path: '/TokenIcon',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const ThemeSwitchRoute = ThemeSwitchImport.update({
+const ThemeSwitchRoute = ThemeSwitchRouteImport.update({
   id: '/ThemeSwitch',
   path: '/ThemeSwitch',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const SpinnerRoute = SpinnerImport.update({
+const SpinnerRoute = SpinnerRouteImport.update({
   id: '/Spinner',
   path: '/Spinner',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const SpacerRoute = SpacerImport.update({
+const SpacerRoute = SpacerRouteImport.update({
   id: '/Spacer',
   path: '/Spacer',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const ShowAfterRoute = ShowAfterImport.update({
+const ShowAfterRoute = ShowAfterRouteImport.update({
   id: '/ShowAfter',
   path: '/ShowAfter',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const SeparatorRoute = SeparatorImport.update({
+const SeparatorRoute = SeparatorRouteImport.update({
   id: '/Separator',
   path: '/Separator',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const ScreenRoute = ScreenImport.update({
+const ScreenRoute = ScreenRouteImport.update({
   id: '/Screen',
   path: '/Screen',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const PresetsInputRoute = PresetsInputImport.update({
+const PresetsInputRoute = PresetsInputRouteImport.update({
   id: '/PresetsInput',
   path: '/PresetsInput',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const OtpInputRoute = OtpInputImport.update({
+const OtpInputRoute = OtpInputRouteImport.update({
   id: '/OtpInput',
   path: '/OtpInput',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const InputRoute = InputImport.update({
+const InputRoute = InputRouteImport.update({
   id: '/Input',
   path: '/Input',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const FrameRoute = FrameImport.update({
+const FrameRoute = FrameRouteImport.update({
   id: '/Frame',
   path: '/Frame',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const DiscIconRoute = DiscIconImport.update({
+const DiscIconRoute = DiscIconRouteImport.update({
   id: '/DiscIcon',
   path: '/DiscIcon',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const DetailsRoute = DetailsImport.update({
+const DetailsRoute = DetailsRouteImport.update({
   id: '/Details',
   path: '/Details',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const DepositRoute = DepositImport.update({
+const DepositRoute = DepositRouteImport.update({
   id: '/Deposit',
   path: '/Deposit',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const CopyButtonRoute = CopyButtonImport.update({
+const CopyButtonRoute = CopyButtonRouteImport.update({
   id: '/CopyButton',
   path: '/CopyButton',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const ColorsRoute = ColorsImport.update({
+const ColorsRoute = ColorsRouteImport.update({
   id: '/Colors',
   path: '/Colors',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const ChainsPathRoute = ChainsPathImport.update({
+const ChainsPathRoute = ChainsPathRouteImport.update({
   id: '/ChainsPath',
   path: '/ChainsPath',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const ChainIconRoute = ChainIconImport.update({
+const ChainIconRoute = ChainIconRouteImport.update({
   id: '/ChainIcon',
   path: '/ChainIcon',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const ButtonAreaRoute = ButtonAreaImport.update({
+const ButtonAreaRoute = ButtonAreaRouteImport.update({
   id: '/ButtonArea',
   path: '/ButtonArea',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const ButtonRoute = ButtonImport.update({
+const ButtonRoute = ButtonRouteImport.update({
   id: '/Button',
   path: '/Button',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const BalanceRoute = BalanceImport.update({
+const BalanceRoute = BalanceRouteImport.update({
   id: '/Balance',
   path: '/Balance',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const IndexRoute = IndexImport.update({
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-// Populate the FileRoutesByPath interface
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/Balance': {
-      id: '/Balance'
-      path: '/Balance'
-      fullPath: '/Balance'
-      preLoaderRoute: typeof BalanceImport
-      parentRoute: typeof rootRoute
-    }
-    '/Button': {
-      id: '/Button'
-      path: '/Button'
-      fullPath: '/Button'
-      preLoaderRoute: typeof ButtonImport
-      parentRoute: typeof rootRoute
-    }
-    '/ButtonArea': {
-      id: '/ButtonArea'
-      path: '/ButtonArea'
-      fullPath: '/ButtonArea'
-      preLoaderRoute: typeof ButtonAreaImport
-      parentRoute: typeof rootRoute
-    }
-    '/ChainIcon': {
-      id: '/ChainIcon'
-      path: '/ChainIcon'
-      fullPath: '/ChainIcon'
-      preLoaderRoute: typeof ChainIconImport
-      parentRoute: typeof rootRoute
-    }
-    '/ChainsPath': {
-      id: '/ChainsPath'
-      path: '/ChainsPath'
-      fullPath: '/ChainsPath'
-      preLoaderRoute: typeof ChainsPathImport
-      parentRoute: typeof rootRoute
-    }
-    '/Colors': {
-      id: '/Colors'
-      path: '/Colors'
-      fullPath: '/Colors'
-      preLoaderRoute: typeof ColorsImport
-      parentRoute: typeof rootRoute
-    }
-    '/CopyButton': {
-      id: '/CopyButton'
-      path: '/CopyButton'
-      fullPath: '/CopyButton'
-      preLoaderRoute: typeof CopyButtonImport
-      parentRoute: typeof rootRoute
-    }
-    '/Deposit': {
-      id: '/Deposit'
-      path: '/Deposit'
-      fullPath: '/Deposit'
-      preLoaderRoute: typeof DepositImport
-      parentRoute: typeof rootRoute
-    }
-    '/Details': {
-      id: '/Details'
-      path: '/Details'
-      fullPath: '/Details'
-      preLoaderRoute: typeof DetailsImport
-      parentRoute: typeof rootRoute
-    }
-    '/DiscIcon': {
-      id: '/DiscIcon'
-      path: '/DiscIcon'
-      fullPath: '/DiscIcon'
-      preLoaderRoute: typeof DiscIconImport
-      parentRoute: typeof rootRoute
-    }
-    '/Frame': {
-      id: '/Frame'
-      path: '/Frame'
-      fullPath: '/Frame'
-      preLoaderRoute: typeof FrameImport
-      parentRoute: typeof rootRoute
-    }
-    '/Input': {
-      id: '/Input'
-      path: '/Input'
-      fullPath: '/Input'
-      preLoaderRoute: typeof InputImport
-      parentRoute: typeof rootRoute
-    }
-    '/OtpInput': {
-      id: '/OtpInput'
-      path: '/OtpInput'
-      fullPath: '/OtpInput'
-      preLoaderRoute: typeof OtpInputImport
-      parentRoute: typeof rootRoute
-    }
-    '/PresetsInput': {
-      id: '/PresetsInput'
-      path: '/PresetsInput'
-      fullPath: '/PresetsInput'
-      preLoaderRoute: typeof PresetsInputImport
-      parentRoute: typeof rootRoute
-    }
-    '/Screen': {
-      id: '/Screen'
-      path: '/Screen'
-      fullPath: '/Screen'
-      preLoaderRoute: typeof ScreenImport
-      parentRoute: typeof rootRoute
-    }
-    '/Separator': {
-      id: '/Separator'
-      path: '/Separator'
-      fullPath: '/Separator'
-      preLoaderRoute: typeof SeparatorImport
-      parentRoute: typeof rootRoute
-    }
-    '/ShowAfter': {
-      id: '/ShowAfter'
-      path: '/ShowAfter'
-      fullPath: '/ShowAfter'
-      preLoaderRoute: typeof ShowAfterImport
-      parentRoute: typeof rootRoute
-    }
-    '/Spacer': {
-      id: '/Spacer'
-      path: '/Spacer'
-      fullPath: '/Spacer'
-      preLoaderRoute: typeof SpacerImport
-      parentRoute: typeof rootRoute
-    }
-    '/Spinner': {
-      id: '/Spinner'
-      path: '/Spinner'
-      fullPath: '/Spinner'
-      preLoaderRoute: typeof SpinnerImport
-      parentRoute: typeof rootRoute
-    }
-    '/ThemeSwitch': {
-      id: '/ThemeSwitch'
-      path: '/ThemeSwitch'
-      fullPath: '/ThemeSwitch'
-      preLoaderRoute: typeof ThemeSwitchImport
-      parentRoute: typeof rootRoute
-    }
-    '/TokenIcon': {
-      id: '/TokenIcon'
-      path: '/TokenIcon'
-      fullPath: '/TokenIcon'
-      preLoaderRoute: typeof TokenIconImport
-      parentRoute: typeof rootRoute
-    }
-  }
-}
-
-// Create and export the route tree
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -355,7 +167,6 @@ export interface FileRoutesByFullPath {
   '/ThemeSwitch': typeof ThemeSwitchRoute
   '/TokenIcon': typeof TokenIconRoute
 }
-
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/Balance': typeof BalanceRoute
@@ -380,9 +191,8 @@ export interface FileRoutesByTo {
   '/ThemeSwitch': typeof ThemeSwitchRoute
   '/TokenIcon': typeof TokenIconRoute
 }
-
 export interface FileRoutesById {
-  __root__: typeof rootRoute
+  __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/Balance': typeof BalanceRoute
   '/Button': typeof ButtonRoute
@@ -406,7 +216,6 @@ export interface FileRoutesById {
   '/ThemeSwitch': typeof ThemeSwitchRoute
   '/TokenIcon': typeof TokenIconRoute
 }
-
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
@@ -482,7 +291,6 @@ export interface FileRouteTypes {
     | '/TokenIcon'
   fileRoutesById: FileRoutesById
 }
-
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BalanceRoute: typeof BalanceRoute
@@ -506,6 +314,165 @@ export interface RootRouteChildren {
   SpinnerRoute: typeof SpinnerRoute
   ThemeSwitchRoute: typeof ThemeSwitchRoute
   TokenIconRoute: typeof TokenIconRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/TokenIcon': {
+      id: '/TokenIcon'
+      path: '/TokenIcon'
+      fullPath: '/TokenIcon'
+      preLoaderRoute: typeof TokenIconRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ThemeSwitch': {
+      id: '/ThemeSwitch'
+      path: '/ThemeSwitch'
+      fullPath: '/ThemeSwitch'
+      preLoaderRoute: typeof ThemeSwitchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/Spinner': {
+      id: '/Spinner'
+      path: '/Spinner'
+      fullPath: '/Spinner'
+      preLoaderRoute: typeof SpinnerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/Spacer': {
+      id: '/Spacer'
+      path: '/Spacer'
+      fullPath: '/Spacer'
+      preLoaderRoute: typeof SpacerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ShowAfter': {
+      id: '/ShowAfter'
+      path: '/ShowAfter'
+      fullPath: '/ShowAfter'
+      preLoaderRoute: typeof ShowAfterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/Separator': {
+      id: '/Separator'
+      path: '/Separator'
+      fullPath: '/Separator'
+      preLoaderRoute: typeof SeparatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/Screen': {
+      id: '/Screen'
+      path: '/Screen'
+      fullPath: '/Screen'
+      preLoaderRoute: typeof ScreenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/PresetsInput': {
+      id: '/PresetsInput'
+      path: '/PresetsInput'
+      fullPath: '/PresetsInput'
+      preLoaderRoute: typeof PresetsInputRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/OtpInput': {
+      id: '/OtpInput'
+      path: '/OtpInput'
+      fullPath: '/OtpInput'
+      preLoaderRoute: typeof OtpInputRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/Input': {
+      id: '/Input'
+      path: '/Input'
+      fullPath: '/Input'
+      preLoaderRoute: typeof InputRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/Frame': {
+      id: '/Frame'
+      path: '/Frame'
+      fullPath: '/Frame'
+      preLoaderRoute: typeof FrameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/DiscIcon': {
+      id: '/DiscIcon'
+      path: '/DiscIcon'
+      fullPath: '/DiscIcon'
+      preLoaderRoute: typeof DiscIconRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/Details': {
+      id: '/Details'
+      path: '/Details'
+      fullPath: '/Details'
+      preLoaderRoute: typeof DetailsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/Deposit': {
+      id: '/Deposit'
+      path: '/Deposit'
+      fullPath: '/Deposit'
+      preLoaderRoute: typeof DepositRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/CopyButton': {
+      id: '/CopyButton'
+      path: '/CopyButton'
+      fullPath: '/CopyButton'
+      preLoaderRoute: typeof CopyButtonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/Colors': {
+      id: '/Colors'
+      path: '/Colors'
+      fullPath: '/Colors'
+      preLoaderRoute: typeof ColorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ChainsPath': {
+      id: '/ChainsPath'
+      path: '/ChainsPath'
+      fullPath: '/ChainsPath'
+      preLoaderRoute: typeof ChainsPathRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ChainIcon': {
+      id: '/ChainIcon'
+      path: '/ChainIcon'
+      fullPath: '/ChainIcon'
+      preLoaderRoute: typeof ChainIconRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ButtonArea': {
+      id: '/ButtonArea'
+      path: '/ButtonArea'
+      fullPath: '/ButtonArea'
+      preLoaderRoute: typeof ButtonAreaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/Button': {
+      id: '/Button'
+      path: '/Button'
+      fullPath: '/Button'
+      preLoaderRoute: typeof ButtonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/Balance': {
+      id: '/Balance'
+      path: '/Balance'
+      fullPath: '/Balance'
+      preLoaderRoute: typeof BalanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -532,107 +499,6 @@ const rootRouteChildren: RootRouteChildren = {
   ThemeSwitchRoute: ThemeSwitchRoute,
   TokenIconRoute: TokenIconRoute,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/",
-        "/Balance",
-        "/Button",
-        "/ButtonArea",
-        "/ChainIcon",
-        "/ChainsPath",
-        "/Colors",
-        "/CopyButton",
-        "/Deposit",
-        "/Details",
-        "/DiscIcon",
-        "/Frame",
-        "/Input",
-        "/OtpInput",
-        "/PresetsInput",
-        "/Screen",
-        "/Separator",
-        "/ShowAfter",
-        "/Spacer",
-        "/Spinner",
-        "/ThemeSwitch",
-        "/TokenIcon"
-      ]
-    },
-    "/": {
-      "filePath": "index.tsx"
-    },
-    "/Balance": {
-      "filePath": "Balance.tsx"
-    },
-    "/Button": {
-      "filePath": "Button.tsx"
-    },
-    "/ButtonArea": {
-      "filePath": "ButtonArea.tsx"
-    },
-    "/ChainIcon": {
-      "filePath": "ChainIcon.tsx"
-    },
-    "/ChainsPath": {
-      "filePath": "ChainsPath.tsx"
-    },
-    "/Colors": {
-      "filePath": "Colors.tsx"
-    },
-    "/CopyButton": {
-      "filePath": "CopyButton.tsx"
-    },
-    "/Deposit": {
-      "filePath": "Deposit.tsx"
-    },
-    "/Details": {
-      "filePath": "Details.tsx"
-    },
-    "/DiscIcon": {
-      "filePath": "DiscIcon.tsx"
-    },
-    "/Frame": {
-      "filePath": "Frame.tsx"
-    },
-    "/Input": {
-      "filePath": "Input.tsx"
-    },
-    "/OtpInput": {
-      "filePath": "OtpInput.tsx"
-    },
-    "/PresetsInput": {
-      "filePath": "PresetsInput.tsx"
-    },
-    "/Screen": {
-      "filePath": "Screen.tsx"
-    },
-    "/Separator": {
-      "filePath": "Separator.tsx"
-    },
-    "/ShowAfter": {
-      "filePath": "ShowAfter.tsx"
-    },
-    "/Spacer": {
-      "filePath": "Spacer.tsx"
-    },
-    "/Spinner": {
-      "filePath": "Spinner.tsx"
-    },
-    "/ThemeSwitch": {
-      "filePath": "ThemeSwitch.tsx"
-    },
-    "/TokenIcon": {
-      "filePath": "TokenIcon.tsx"
-    }
-  }
-}
-ROUTE_MANIFEST_END */

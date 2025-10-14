@@ -8,41 +8,53 @@ import type { PluginOption } from 'vite'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-export function PortoUi(): PluginOption[] {
+export const baseIconsConfig = {
+  compiler: 'jsx',
+  customCollections: {
+    chains: FileSystemIconLoader(
+      path.resolve(__dirname, './src/ChainIcon/icons'),
+    ),
+  },
+  jsx: 'react',
+} as const
+
+export type PortoUiOptions = {
+  includeIcons?: boolean
+}
+
+export function PortoUi(options: PortoUiOptions = {}): PluginOption[] {
   return [
-    Icons({
-      compiler: 'jsx',
-      customCollections: {
-        chains: FileSystemIconLoader(
-          path.resolve(__dirname, './src/ChainIcon/icons'),
-        ),
-      },
-      jsx: 'react',
-    }),
-    {
-      buildStart() {
-        execSync('panda cssgen', { cwd: process.cwd(), stdio: 'inherit' })
-      },
-      name: 'porto-ui:panda-cssgen',
-    },
-    {
-      config(_, { mode }) {
-        const styledSystem = path.resolve(process.cwd(), './styled-system')
-
-        if (mode !== 'test' && !fs.existsSync(styledSystem))
-          throw new Error(
-            'styled-system/ not found. Generate it with: pnpm panda codegen',
-          )
-
-        return {
-          resolve: {
-            alias: {
-              'styled-system': styledSystem,
-            },
-          },
-        }
-      },
-      name: 'porto-ui:alias',
-    },
+    options.includeIcons && Icons(baseIconsConfig),
+    PortoUiPandaCssGen(),
+    PortoUiStyledSystemAlias(),
   ]
+}
+
+export function PortoUiPandaCssGen(): PluginOption {
+  return {
+    buildStart() {
+      execSync('panda cssgen', { cwd: process.cwd(), stdio: 'inherit' })
+    },
+    name: 'porto-ui:panda-cssgen',
+  }
+}
+
+export function PortoUiStyledSystemAlias(): PluginOption {
+  return {
+    config(_, { mode }) {
+      const styledSystem = path.resolve(process.cwd(), './styled-system')
+      if (mode !== 'test' && !fs.existsSync(styledSystem))
+        throw new Error(
+          'styled-system/ not found. Generate it with: pnpm panda codegen',
+        )
+      return {
+        resolve: {
+          alias: {
+            'styled-system': styledSystem,
+          },
+        },
+      }
+    },
+    name: 'porto-ui:alias',
+  }
 }
