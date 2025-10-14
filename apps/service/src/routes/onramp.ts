@@ -41,12 +41,21 @@ onrampApp.post(
           request: { method, path },
         })
 
+        // TODO: Remove
+        const dummy = true
+
         const porto = Porto.create({ announceProvider: false })
         const client = RelayClient.fromPorto(porto)
-        const contactInfo = await RelayActions.getOnrampContactInfo(client, {
-          address,
-          secret: env.ONRAMP_SECRET,
-        })
+        const contactInfo = dummy
+          ? {
+              email: 'test@ithaca.xyz',
+              phone: '+116173125700',
+              phoneVerifiedAt: new Date().toISOString(),
+            }
+          : await RelayActions.getOnrampContactInfo(client, {
+              address,
+              secret: env.ONRAMP_SECRET,
+            })
         if (!contactInfo.email)
           throw new HTTPException(500, { message: 'Invalid email' })
         if (!contactInfo.phone)

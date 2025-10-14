@@ -43,7 +43,8 @@ export function AddFunds(props: AddFunds.Props) {
     enabled: Boolean(address),
     async queryFn() {
       if (!address) throw new Error('address required')
-      if (dummy) return { email: true, phone: true }
+      const localDummy = true
+      if (localDummy || dummy) return { email: true, phone: true }
       return await RelayActions.onrampStatus(client, { address })
     },
     queryKey: ['onrampStatus', address],
