@@ -56,6 +56,7 @@ export function AddFunds(props: AddFunds.Props) {
   const [iframeLoaded, setIframeLoaded] = React.useState(false)
 
   const queryClient = useQueryClient()
+  // biome-ignore lint/correctness/useExhaustiveDependencies: explanation
   const onCompleteOnrampSetup = React.useCallback(() => {
     if (!address) throw new Error('address is required')
     if (dummy)
@@ -72,7 +73,7 @@ export function AddFunds(props: AddFunds.Props) {
         },
       },
     )
-  }, [address, value, queryClient.setQueryData, createOrder.mutate])
+  }, [address, value])
 
   // create onramp order if onramp status is valid
   // biome-ignore lint/correctness/useExhaustiveDependencies: keep stable

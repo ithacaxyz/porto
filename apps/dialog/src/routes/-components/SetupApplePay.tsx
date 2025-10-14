@@ -126,6 +126,7 @@ export function SetupApplePay(props: SetupApplePay.Props) {
     }
   }, [])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: explanation
   const handleOtpFill = React.useCallback(
     (code: string) => {
       setOtpCode(code)
@@ -143,7 +144,7 @@ export function SetupApplePay(props: SetupApplePay.Props) {
         },
       )
     },
-    [phone, verifyPhone.mutate, onComplete],
+    [phone, onComplete],
   )
 
   if (screen === 'otp')
