@@ -320,6 +320,7 @@ function Onramp(props: {
     eventName: 'onramp_api.load_pending',
   })
   // TODO: iframe loading timeout
+  // biome-ignore lint/correctness/useExhaustiveDependencies: _
   React.useEffect(() => {
     function handlePostMessage(event: MessageEvent) {
       if (event.origin !== 'https://pay.coinbase.com') return
