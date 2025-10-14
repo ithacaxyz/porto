@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.27
+
+### Patch Changes
+
+- [#957](https://github.com/ithacaxyz/porto/pull/957) [`7f3b8dc`](https://github.com/ithacaxyz/porto/commit/7f3b8dc96232fd4f87664142954f90d0fcf5477b) Thanks [@jxom](https://github.com/jxom)! - Added support for `capabilities.feePayerDigest` on `wallet_prepareCalls` response.
+
 ## 0.2.26
 
 ### Patch Changes

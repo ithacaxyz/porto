@@ -93,9 +93,9 @@ jobs:
           - env: ${{ inputs.env || 'prod' }}
             browser: 'true'
             enabled: ${{ (inputs.test-deployment-browser == true || inputs.test-deployment-browser == null) }}
-          # - env: ${{ inputs.env || 'prod' }}
-          #   browser: 'false'
-          #   enabled: ${{ (inputs.test-deployment-node == true || inputs.test-deployment-node == null) }}
+          - env: ${{ inputs.env || 'prod' }}
+            browser: 'false'
+            enabled: ${{ (inputs.test-deployment-node == true || inputs.test-deployment-node == null) }}
     env: 
       CI: true
       VITE_DEFAULT_ENV: ${{ matrix.env }}
@@ -132,6 +132,10 @@ jobs:
       - name: Install dependencies
         if: matrix.enabled == true
         uses: ./.github/actions/install-dependencies
+
+      - name: Run prepare scripts
+        if: matrix.enabled == true
+        run: pnpm --filter "./apps/**" run prepare
 
       - name: Set up Docker
         if: matrix.enabled == true && matrix.env == 'anvil'

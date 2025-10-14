@@ -1,9 +1,10 @@
 import { Chains } from 'porto'
 import { useMemo } from 'react'
-import { css } from '../../styled-system/css'
+import { css } from 'styled-system/css'
 import { ChainIcon } from '../ChainIcon/ChainIcon.js'
 
 export function ChainsPath({ chainIds }: ChainsPath.Props) {
+  // biome-ignore lint/correctness/useExhaustiveDependencies: _
   const [destinationChain, ...sourceChains] = useMemo(
     () =>
       chainIds

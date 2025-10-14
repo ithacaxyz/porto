@@ -428,20 +428,12 @@ function AddFunds() {
       <h3>wallet_addFunds</h3>
       <button
         onClick={async () => {
-          const chainId = Hex.toNumber(
-            await porto.provider.request({
-              method: 'eth_chainId',
-            }),
-          ) as ChainId
-          const token = exp1Address[chainId as never]
-          if (!token)
-            throw new Error(`exp1 address not defined for chainId ${chainId}`)
           porto.provider
             .request({
               method: 'wallet_addFunds',
               params: [
                 {
-                  value: Env.get() === 'prod' ? '30' : '100',
+                  value: Env.get() === 'prod' ? '10' : '100',
                 },
               ],
             })

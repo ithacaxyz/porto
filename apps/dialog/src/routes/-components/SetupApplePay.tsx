@@ -37,7 +37,8 @@ export function SetupApplePay(props: SetupApplePay.Props) {
   const containerRef = React.useRef<HTMLDivElement>(null)
 
   const isValidEmail = email && /.+@.+/.test(email)
-  const isValidPhone = phone.length >= 6
+  const isValidPhone =
+    phone && /^\+1\s?\(?\d{3}\)?[\s-]?\d{3}[\s-]?\d{4}$/.test(phone)
   const isValid =
     (showEmail ? isValidEmail : true) && (showPhone ? isValidPhone : true)
 
@@ -252,15 +253,16 @@ export function SetupApplePay(props: SetupApplePay.Props) {
               <Input
                 adornments={{
                   end: isValidPhone && { type: 'valid' },
-                  start: {
-                    prefixes: ['+1'],
-                    type: 'phone-prefix',
-                  },
+                  // FIXME: This was causing `pattern` to not work (since it was removing `+1` from input value)
+                  // start: {
+                  //   prefixes: ['+1'],
+                  //   type: 'phone-prefix',
+                  // },
                 }}
                 inputMode="numeric"
                 name="phone"
                 onChange={setPhone}
-                pattern="\d*"
+                pattern="\+1\s?\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{4}"
                 placeholder="+1 (650) 555-1234"
                 type="tel"
                 value={phone}

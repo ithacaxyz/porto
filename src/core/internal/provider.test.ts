@@ -1926,7 +1926,9 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       },
     )
 
-    test.runIf(type === 'relay')('behavior: merchant fee sponsor', async () => {
+    // TODO: unskip when merchant account supports secp256k1 again.
+    test.skip('behavior: merchant fee sponsor', async () => {
+      // test.runIf(type === 'relay')('behavior: merchant fee sponsor', async () => {
       const porto = getPorto()
       const client = TestConfig.getRelayClient(porto)
       const contracts = await TestConfig.getContracts(porto)
