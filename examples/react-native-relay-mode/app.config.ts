@@ -4,6 +4,23 @@ const HOSTNAME = 'porto-relay-mode.app'
 const SCHEME = 'porto-relay-mode'
 const BUNDLE_IDENTIFIER = `com.example.${SCHEME}`
 
+const EXPO_TUNNEL_DOMAIN = `${process.env.EXPO_TUNNEL_SUBDOMAIN || SCHEME}.ngrok.io`
+
+const ASSOCIATED_DOMAINS = [
+  `applinks:${HOSTNAME}`,
+  `applinks:${EXPO_TUNNEL_DOMAIN}`,
+  `webcredentials:${HOSTNAME}`,
+  `webcredentials:${EXPO_TUNNEL_DOMAIN}`,
+]
+
+const SERVER_DOMAIN = process.env.EXPO_PUBLIC_SERVER_DOMAIN
+if (SERVER_DOMAIN) {
+  ASSOCIATED_DOMAINS.push(
+    `applinks:${SERVER_DOMAIN}`,
+    `webcredentials:${SERVER_DOMAIN}`,
+  )
+} else console.warn('\n\n\nEXPO_PUBLIC_SERVER_DOMAIN is not set\n\n\n')
+
 export const expoConfig = {
   android: {
     adaptiveIcon: {
@@ -16,7 +33,7 @@ export const expoConfig = {
   },
   icon: './assets/icon.png',
   ios: {
-    associatedDomains: [`applinks:${HOSTNAME}`, `webcredentials:${HOSTNAME}`],
+    associatedDomains: ASSOCIATED_DOMAINS,
     bundleIdentifier: BUNDLE_IDENTIFIER,
     config: {
       usesNonExemptEncryption: false,
@@ -29,6 +46,14 @@ export const expoConfig = {
   plugins: [
     ['expo-web-browser'],
     ['expo-dev-client', { launchMode: 'most-recent' }],
+    [
+      'expo-build-properties',
+      {
+        ios: {
+          deploymentTarget: '26.0',
+        },
+      },
+    ],
   ],
   scheme: SCHEME,
   slug: SCHEME,

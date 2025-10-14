@@ -1,6 +1,7 @@
 import { Hex, Value } from 'ox'
-import { Mode, Porto } from 'porto/react-native'
+import { Mode, Porto } from 'porto'
 import { baseSepolia } from 'viem/chains'
+
 import { exp1Address, exp2Address } from '#contracts.ts'
 import { createFn, getFn, rp } from '#passkeys.ts'
 

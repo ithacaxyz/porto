@@ -1,31 +1,31 @@
-const server = Bun.serve({
-  development: Bun.env.NODE_ENV !== 'production',
-  error: (error) => {
-    console.error('Error in bun server:', error)
+import NodePath from 'node:path'
 
-    return new Response('Internal Server Error', { status: 500 })
-  },
-  port: Number(Bun.env.PORT),
+const server = Bun.serve({
+  port: Number(Bun.env.PORT || 69_69),
   routes: {
     '/': () => new Response('ok'),
+    '/.well-known/apple-app-site-association': async (request, server) => {
+      const url = new URL(request.url)
+      const ipAddress = server.requestIP(request)
+      console.info(`Request from ${ipAddress?.address} ${url.pathname}`)
 
-    '/.well-known/apple-app-site-association': {
-      async GET(request, server) {
-        const ipAddress = server.requestIP(request)
-        console.info(`Request from ${ipAddress?.address}`)
+      const filePath = NodePath.join(
+        import.meta.dirname,
+        './apple-app-site-association',
+      )
 
-        return Response.json(
-          await Bun.file('./apple-app-site-association').json(),
-        )
-      },
+      return Response.json(await Bun.file(filePath).json())
     },
-    '/.well-known/assetlinks.json': {
-      GET: async (request, server) => {
-        const ipAddress = server.requestIP(request)
-        console.info(`Request from ${ipAddress?.address}`)
+    '/.well-known/apple-app-site-association.json': async () =>
+      Response.redirect('/.well-known/apple-app-site-association', 301),
+    '/.well-known/assetlinks.json': async (request, server) => {
+      const url = new URL(request.url)
+      const ipAddress = server.requestIP(request)
+      console.info(`Request from ${ipAddress?.address} ${url.pathname}`)
 
-        return Response.json(await Bun.file('./assetlinks.json').json())
-      },
+      const filePath = NodePath.join(import.meta.dirname, './assetlinks.json')
+
+      return Response.json(await Bun.file(filePath).json())
     },
   },
 })
@@ -36,6 +36,6 @@ process.on('SIGINT', () => stopAndExit())
 process.on('SIGTERM', () => stopAndExit())
 process.on('SIGQUIT', () => stopAndExit())
 
-if (Bun.env.ENVIRONMENT === 'development')
+if (Bun.env.NODE_ENV === 'development')
   console.info(`Server is running on http://localhost:${server.port}`)
 else console.info(`Server is running on port ${server.port}`)

@@ -3,41 +3,27 @@ import { Platform } from 'react-native'
 import * as passkey from 'react-native-passkeys'
 import type OxWebAuthn from '../node_modules/ox/_types/core/internal/webauthn'
 
-const arrayBufferToBase64URL = (buffer: ArrayBuffer) =>
-  Base64.fromBytes(new Uint8Array(buffer), { url: true })
+const RELYING_PARTY_DOMAIN =
+  process.env.EXPO_PUBLIC_SERVER_DOMAIN || process.env.EXPO_PUBLIC_SERVER_DOMAIN
 
-const utf8StringToBuffer = (value: string) =>
-  new TextEncoder().encode(value) as unknown as ArrayBuffer
-
-const base64URLToArrayBuffer = (input: string) => Base64.toBytes(input)
-
-export const bufferToBase64URL = (input: BufferSource) =>
-  btoa(
-    String.fromCharCode(
-      ...(input instanceof ArrayBuffer
-        ? new Uint8Array(input)
-        : new Uint8Array(input.buffer, input.byteOffset, input.byteLength)),
-    ),
-  )
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '')
-
-const rpDomain =
-  process.env.EXPO_PUBLIC_SERVER_DOMAIN || 'xporto.up.railway.app'
+if (!RELYING_PARTY_DOMAIN)
+  console.warn('\n\n\nEXPO_PUBLIC_SERVER_DOMAIN is not set\n\n\n')
 
 export const rp = {
   id: Platform.select({
-    android: rpDomain,
-    ios: rpDomain,
+    android: RELYING_PARTY_DOMAIN,
+    ios: RELYING_PARTY_DOMAIN,
   }),
-  name: 'porto-rn',
+  name: 'porto-react-native-relay-mode',
 } satisfies PublicKeyCredentialRpEntity
 
 export const user = {
-  displayName: 'username',
-  id: bufferToBase64URL(utf8StringToBuffer('290283490')),
-  name: 'username',
+  displayName: 'porto-react-native-relay-mode',
+  /**
+   * @note
+   */
+  id: bufferToBase64URL(new Uint8Array(16)),
+  name: 'porto-react-native-relay-mode',
 } satisfies PublicKeyCredentialUserEntityJSON
 
 export const authenticatorSelection = {
@@ -111,7 +97,6 @@ export async function getFn(
       id: bufferToBase64URL(item.id as ArrayBuffer),
     })),
     challenge: bufferToBase64URL(publicKey.challenge as ArrayBuffer),
-    extensions: { largeBlob: { support: 'preferred' as const } },
     rpId: publicKey.rpId,
     timeout: publicKey.timeout,
     userVerification: publicKey.userVerification,
@@ -137,4 +122,28 @@ export async function getFn(
   }
 
   return credential as unknown as Credential
+}
+
+function arrayBufferToBase64URL(buffer: ArrayBuffer) {
+  return Base64.fromBytes(new Uint8Array(buffer), { url: true })
+}
+function utf8StringToBuffer(value: string) {
+  return new TextEncoder().encode(value) as unknown as ArrayBuffer
+}
+
+function base64URLToArrayBuffer(input: string) {
+  return Base64.toBytes(input)
+}
+
+function bufferToBase64URL(input: BufferSource) {
+  return btoa(
+    String.fromCharCode(
+      ...(input instanceof ArrayBuffer
+        ? new Uint8Array(input)
+        : new Uint8Array(input.buffer, input.byteOffset, input.byteLength)),
+    ),
+  )
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '')
 }

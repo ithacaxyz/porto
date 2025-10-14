@@ -13,11 +13,13 @@
     "ios": "expo run:ios",
     "ios-no-cache": "expo run:ios --no-build-cache",
     "web": "expo start --web",
+    "server": "bun --watch --hot ./server/index.ts",
     "doctor": "pnpm dlx expo-doctor@latest --verbose --pnpm && pnpm expo install --fix --pnpm"
   },
   "dependencies": {
     "expo": "~54.0.13",
     "expo-auth-session": "~7.0.8",
+    "expo-build-properties": "~1.0.9",
     "expo-checkbox": "~5.0.7",
     "expo-crypto": "~15.0.7",
     "expo-web-browser": "~15.0.8",

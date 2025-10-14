@@ -4,5 +4,6 @@
 .env.example linguist-language=Dotenv
 .vscode/*.json linguist-language=JSON-with-Comments
 wrangler.json linguist-language=JSON-with-Comments
+apple-app-site-association linguist-language=JSON
 
 routeTree.gen.ts linguist-generated=true
