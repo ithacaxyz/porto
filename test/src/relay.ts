@@ -93,7 +93,7 @@ function defineRelay(parameters: {
             http: {
               port,
             },
-            version: 'v26.0.0',
+            version: 'v26.0.2',
           }),
         port,
       }).start()
