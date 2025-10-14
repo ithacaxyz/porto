@@ -538,8 +538,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
   })
 
-  // TODO: unskip when merchant account supports secp256k1 again.
-  test.skip('behavior: fee payer', async () => {
+  test('behavior: fee payer', async () => {
     const userKey = Key.createHeadlessWebAuthnP256()
     const userAccount = await TestActions.createAccount(client, {
       keys: [userKey],
