@@ -54,7 +54,7 @@ export function AddFunds(props: AddFunds.Props) {
     onApprove,
     sandbox,
   })
-  const [_iframeLoaded, setIframeLoaded] = React.useState(false)
+  const [iframeLoaded, setIframeLoaded] = React.useState(false)
 
   // create onramp order if onramp status is valid
   // biome-ignore lint/correctness/useExhaustiveDependencies: keep stable
@@ -234,24 +234,30 @@ export function AddFunds(props: AddFunds.Props) {
                       allow: 'payment',
                     })}
                     className={cx(
-                      'h-9.5 w-full overflow-hidden border-0 bg-transparent',
+                      'h-12.5 w-full overflow-hidden border-0 bg-transparent',
                       lastOrderEvent?.eventName ===
                         'onramp_api.apple_pay_button_pressed' ||
                         lastOrderEvent?.eventName === 'onramp_api.polling_start'
                         ? 'overflow-visible! fixed inset-0 z-100 h-full!'
                         : 'w-full border-0 bg-transparent',
+                      !iframeLoaded && 'sr-only!',
                     )}
                     onLoad={() => setIframeLoaded(true)}
                     src={createOrder.data.url}
                     title="Onramp"
                   />
                 )}
-                <Button className="bg-black! text-white! dark:bg-white! dark:text-black!">
-                  <span className="-tracking-[2.8%] font-medium text-[14px]">
-                    Pay with
-                  </span>
-                  {applePayLogo}
-                </Button>
+                {(!iframeLoaded ||
+                  lastOrderEvent?.eventName ===
+                    'onramp_api.apple_pay_button_pressed' ||
+                  lastOrderEvent?.eventName === 'onramp_api.polling_start') && (
+                  <Button className="bg-black! text-white! dark:bg-white! dark:text-black!">
+                    <span className="-tracking-[2.8%] font-medium text-[14px]">
+                      Pay with
+                    </span>
+                    {applePayLogo}
+                  </Button>
+                )}
               </div>
             ) : (
               <Button
