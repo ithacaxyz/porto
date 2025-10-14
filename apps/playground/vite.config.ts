@@ -138,7 +138,7 @@ export default defineConfig(({ mode }) => {
               orchestrator: orchestratorAddress,
               simulator: simulatorAddress,
               txGasBuffer: 100_000n,
-              version: 'v25.0.0',
+              version: 'v26.0.2',
             }).start()
             await fetch(relayConfig.rpcUrl + '/start')
             return stop
@@ -215,6 +215,7 @@ export default defineConfig(({ mode }) => {
 
             return Route.merchant({
               address: merchantAccount.address,
+              basePath: '/merchant',
               key: merchantKey.privateKey!(),
               relay: http(relayConfig.rpcUrl),
             }).listener(req, res)
