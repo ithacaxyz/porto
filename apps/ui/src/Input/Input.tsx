@@ -1,7 +1,7 @@
 import type { InputHTMLAttributes, ReactNode, RefObject } from 'react'
 import { useMemo, useRef, useState } from 'react'
+import { css, cva, cx } from 'styled-system/css'
 import LucideCheck from '~icons/lucide/check'
-import { css, cva, cx } from '../../styled-system/css'
 import { Frame } from '../Frame/Frame.js'
 import { TextButton } from '../TextButton/TextButton.js'
 

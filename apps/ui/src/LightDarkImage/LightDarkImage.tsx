@@ -1,5 +1,5 @@
 import type { ImgHTMLAttributes } from 'react'
-import { Frame } from '~/Frame/Frame.js'
+import { Frame } from '../Frame/Frame.js'
 
 export function LightDarkImage({
   alt = '',
