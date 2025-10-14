@@ -29,7 +29,7 @@ export type AssetDeficit = z.infer<typeof AssetDeficit>
 /** A quote from the RPC for a given `Intent`. */
 export const Quote = z.object({
   /** An optional additional authorization address, which would be used to delegate the feepayer */
-  additionalAuthorization: z.optional(
+  additionalAuthorization: z.nullable(
     z.object({
       address: u.address(),
       chainId: u.number(),
