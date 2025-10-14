@@ -17,7 +17,7 @@ catalog:
   "@tanstack/react-router": "^1.132.47"
   "@tanstack/router-plugin": "^1.132.56"
   "@tanstack/react-query-devtools": "^5.90.1"
-  "@tanstack/react-router-devtools": "^1.133.1"
+  "@tanstack/react-router-devtools": "^1.133.0"
   "@types/node": "^22.15.32"
   "@types/react": "^19"
   "@types/react-dom": "^19"

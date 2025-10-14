@@ -45,7 +45,7 @@
     "@svgr/plugin-jsx": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "@tanstack/react-query-devtools": "catalog:",
-    "@tanstack/react-router-devtools": "^1.133.1",
+    "@tanstack/react-router-devtools": "catalog:",
     "@tanstack/router-plugin": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "^19.1.13",
