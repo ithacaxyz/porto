@@ -53,7 +53,7 @@ export function AddFunds(props: AddFunds.Props) {
     onApprove,
     sandbox,
   })
-  const [iframeLoaded, setIframeLoaded] = React.useState(false)
+  const [_iframeLoaded, setIframeLoaded] = React.useState(false)
 
   // create onramp order if onramp status is valid
   // biome-ignore lint/correctness/useExhaustiveDependencies: keep stable
@@ -353,13 +353,6 @@ function useOnrampOrder(props: {
     [],
   )
   const lastOrderEvent = React.useMemo(() => orderEvents.at(-1), [orderEvents])
-  const iframeLoaded = React.useMemo(
-    () =>
-      orderEvents.find(
-        (event) => event.eventName === 'onramp_api.load_success',
-      ),
-    [orderEvents],
-  )
 
   // TODO: add iframe loading timeout
   React.useEffect(() => {
@@ -394,7 +387,6 @@ function useOnrampOrder(props: {
 
   return {
     createOrder,
-    iframeLoaded,
     lastOrderEvent,
     orderEvents,
   }
