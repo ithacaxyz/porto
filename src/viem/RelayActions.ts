@@ -104,6 +104,75 @@ export namespace getKeys {
 }
 
 /**
+ * Gets onramp contact info for address.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function getOnrampContactInfo<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getOnrampContactInfo.Parameters,
+): Promise<getOnrampContactInfo.ReturnType>
+export async function getOnrampContactInfo(
+  client: Client,
+  parameters: getOnrampContactInfo.Parameters,
+) {
+  const { address, secret } = parameters
+  return await RelayActions.getOnrampContactInfo(client, {
+    address,
+    secret,
+  })
+}
+
+export declare namespace getOnrampContactInfo {
+  export type Parameters = RelayActions.getOnrampContactInfo.Parameters
+
+  export type ReturnType = RelayActions.getOnrampContactInfo.ReturnType
+
+  export type ErrorType =
+    | RelayActions.getOnrampContactInfo.ErrorType
+    | Errors.GlobalErrorType
+}
+
+/**
+ * Gets onramp status for address.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function onrampStatus<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: onrampStatus.Parameters,
+): Promise<onrampStatus.ReturnType>
+export async function onrampStatus(
+  client: Client,
+  parameters: onrampStatus.Parameters,
+) {
+  const { address } = parameters
+  return await RelayActions.onrampStatus(client, {
+    address,
+  })
+}
+
+export declare namespace onrampStatus {
+  export type Parameters = RelayActions.onrampStatus.Parameters
+
+  export type ReturnType = RelayActions.onrampStatus.ReturnType
+
+  export type ErrorType =
+    | RelayActions.onrampStatus.ErrorType
+    | Errors.GlobalErrorType
+}
+
+/**
  * Prepares the digest to sign over and fills the request to send a call bundle.
  *
  * @example
@@ -374,6 +443,41 @@ export declare namespace prepareUpgradeAccount {
 }
 
 /**
+ * Resends phone verification code for address
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function resendVerifyPhone<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: resendVerifyPhone.Parameters,
+): Promise<resendVerifyPhone.ReturnType>
+export async function resendVerifyPhone(
+  client: Client,
+  parameters: resendVerifyPhone.Parameters,
+) {
+  const { phone, walletAddress } = parameters
+  return await RelayActions.resendVerifyPhone(client, {
+    phone,
+    walletAddress,
+  })
+}
+
+export declare namespace resendVerifyPhone {
+  export type Parameters = RelayActions.resendVerifyPhone.Parameters
+
+  export type ReturnType = RelayActions.resendVerifyPhone.ReturnType
+
+  export type ErrorType =
+    | RelayActions.resendVerifyPhone.ErrorType
+    | Errors.GlobalErrorType
+}
+
+/**
  * Broadcasts a call bundle to the Relay.
  *
  * @example
@@ -617,6 +721,41 @@ export declare namespace setEmail {
 }
 
 /**
+ * Sets phone for address
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function setPhone<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: setPhone.Parameters,
+): Promise<setPhone.ReturnType>
+export async function setPhone(
+  client: Client,
+  parameters: setPhone.Parameters,
+) {
+  const { phone, walletAddress } = parameters
+  return await RelayActions.setPhone(client, {
+    phone,
+    walletAddress,
+  })
+}
+
+export declare namespace setPhone {
+  export type Parameters = RelayActions.setPhone.Parameters
+
+  export type ReturnType = RelayActions.setPhone.ReturnType
+
+  export type ErrorType =
+    | RelayActions.setPhone.ErrorType
+    | Errors.GlobalErrorType
+}
+
+/**
  * Broadcasts an account upgrade.
  *
  * @example
@@ -733,6 +872,42 @@ export declare namespace verifyEmail {
 
   export type ErrorType =
     | RelayActions.verifyEmail.ErrorType
+    | Errors.GlobalErrorType
+}
+
+/**
+ * Verifies phone for address
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function verifyPhone<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: verifyPhone.Parameters,
+): Promise<verifyPhone.ReturnType>
+export async function verifyPhone(
+  client: Client,
+  parameters: verifyPhone.Parameters,
+) {
+  const { code, phone, walletAddress } = parameters
+  return await RelayActions.verifyPhone(client, {
+    code,
+    phone,
+    walletAddress,
+  })
+}
+
+export declare namespace verifyPhone {
+  export type Parameters = RelayActions.verifyPhone.Parameters
+
+  export type ReturnType = RelayActions.verifyPhone.ReturnType
+
+  export type ErrorType =
+    | RelayActions.verifyPhone.ErrorType
     | Errors.GlobalErrorType
 }
 

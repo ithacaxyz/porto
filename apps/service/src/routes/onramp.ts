@@ -1,8 +1,12 @@
 import { env } from 'cloudflare:workers'
 import { zValidator } from '@hono/zod-validator'
+import { PortoConfig } from '@porto/apps'
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 import { importJWK, type JWTPayload, SignJWT } from 'jose'
+import { Porto } from 'porto'
+import { RelayActions, RelayClient } from 'porto/viem'
+import { getAddress } from 'viem'
 import { z } from 'zod'
 
 const onrampApp = new Hono<{ Bindings: Cloudflare.Env }>()
@@ -26,6 +30,7 @@ onrampApp.post(
   ),
   async (c) => {
     const json = c.req.valid('json')
+    const address = getAddress(json.address)
 
     switch (json.provider) {
       case 'coinbase': {
@@ -37,24 +42,34 @@ onrampApp.post(
           request: { method, path },
         })
 
-        // TODO: get data from relay
-        const email = 'tom@ithaca.xyz'
-        const phoneNumber = '+16173125700'
-        const agreementAcceptedAt = new Date().toISOString()
-        const phoneNumberVerifiedAt = new Date().toISOString()
+        const porto = Porto.create({
+          ...PortoConfig.getConfig(),
+          announceProvider: false,
+        })
+        const client = RelayClient.fromPorto(porto)
+        const contactInfo = await RelayActions.getOnrampContactInfo(client, {
+          address,
+          secret: env.ONRAMP_SECRET,
+        })
+        if (!contactInfo.email)
+          throw new HTTPException(500, { message: 'Invalid email' })
+        if (!contactInfo.phone)
+          throw new HTTPException(500, { message: 'Invalid phone' })
+        if (!contactInfo.phoneVerifiedAt)
+          throw new HTTPException(500, { message: 'Phone not verified' })
 
         const response = await fetch(`https://${host}${path}`, {
           body: JSON.stringify({
-            agreementAcceptedAt,
-            destinationAddress: json.address,
+            agreementAcceptedAt: contactInfo.phoneVerifiedAt,
+            destinationAddress: address,
             destinationNetwork: 'base',
             domain: json.domain,
-            email,
-            partnerUserRef: `${json.sandbox ? 'sandbox-' : ''}${json.address}`,
+            email: contactInfo.email,
+            partnerUserRef: `${json.sandbox ? 'sandbox-' : ''}${address}`,
             paymentCurrency: 'USD',
             paymentMethod: 'GUEST_CHECKOUT_APPLE_PAY',
-            phoneNumber,
-            phoneNumberVerifiedAt,
+            phoneNumber: contactInfo.phone,
+            phoneNumberVerifiedAt: contactInfo.phoneVerifiedAt,
             purchaseAmount: json.amount.toString(),
             purchaseCurrency: 'USDC',
           }),
