@@ -33,7 +33,7 @@ export async function createAuth(options: {
           const siweMessage = parseSiweMessage(message)
           return await verifySiweMessage(client, {
             address: address as `0x${string}`,
-            message: siweMessage,
+            message: JSON.stringify(siweMessage),
             signature: signature as `0x${string}`,
           })
         },
