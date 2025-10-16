@@ -29,8 +29,8 @@
     "globals": "catalog:",
     "prool": "^0.0.23",
     "typescript": "catalog:",
-    "vite": "catalog:",
     "unplugin-icons": "catalog:",
+    "vite": "catalog:",
     "vite-plugin-mkcert": "catalog:"
   }
 }

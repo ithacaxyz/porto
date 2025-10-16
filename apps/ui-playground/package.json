@@ -15,8 +15,8 @@
   },
   "dependencies": {
     "@ariakit/react": "catalog:",
-    "@porto/ui": "workspace:*",
     "@porto/apps": "workspace:*",
+    "@porto/ui": "workspace:*",
     "@tanstack/react-router": "catalog:",
     "cva": "catalog:",
     "react": "catalog:",

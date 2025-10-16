@@ -10,18 +10,18 @@
   "dependencies": {
     "@tanstack/react-query": "^5",
     "porto": "latest",
-    "react": "^19",
-    "react-dom": "^19",
-    "viem": "^2.37",
+    "react": "^19.1",
+    "react-dom": "^19.1",
+    "viem": "^2.37.8",
     "wagmi": "^2"
   },
   "devDependencies": {
     "@types/node": "^22",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "typescript": "^5.9.2",
-    "@vitejs/plugin-react": "^4.5.1",
-    "globals": "^16.2.0",
-    "vite": "^6.3.5"
+    "@types/react": "^19.1",
+    "@types/react-dom": "^19.1",
+    "@vitejs/plugin-react": "^5.0.4",
+    "globals": "^16.4.0",
+    "typescript": "~5.9.3",
+    "vite": "^6.3.6"
   }
 }
