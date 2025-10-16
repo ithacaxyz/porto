@@ -524,6 +524,5 @@
       "types": "./dist/wagmi/Query.d.ts",
       "import": "./dist/wagmi/Query.js"
     }
-  },
-  "private": true
+  }
 }
