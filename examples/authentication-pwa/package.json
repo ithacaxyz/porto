@@ -12,13 +12,13 @@
     "preview": "pnpm run build && vite preview"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.90.5",
+    "@tanstack/react-query": "^5",
     "hono": "^4.9.8",
     "porto": "latest",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "viem": "^2.38.2",
-    "wagmi": "^2.18.1"
+    "react": "^19",
+    "react-dom": "^19",
+    "viem": "^2.37",
+    "wagmi": "^2"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.13.13",

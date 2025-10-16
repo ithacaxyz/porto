@@ -43,12 +43,12 @@ catalog:
   zustand: "^5.0.3"
   "@vitejs/plugin-react": "^4.6.0"
   "@vitejs/plugin-react-swc": "^4.0.0"
-# minimumReleaseAge: 2880 # 48 hours
-# minimumReleaseAgeExclude:
-#   - "@wagmi/connectors"
-#   - "@wagmi/core"
-#   - wagmi
-#   - wshy
+minimumReleaseAge: 2880 # 48 hours
+minimumReleaseAgeExclude:
+  - "@wagmi/connectors"
+  - "@wagmi/core"
+  - wagmi
+  - wshy
 packages:
   - "."
   - "apps/*"
