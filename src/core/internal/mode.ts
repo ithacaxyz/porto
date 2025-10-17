@@ -257,8 +257,8 @@ export type Mode = {
     }) => Promise<void>
 
     sendCalls: (parameters: {
-      /** Account to execute the calls with. */
-      account: Account.Account
+      /** Account to execute the calls with (optional for guest checkout). */
+      account?: Account.Account | undefined
       /** Whether the returned bundle identifier is the transaction hash. */
       asTxHash?: boolean | undefined
       /** Calls to execute. */

@@ -1,7 +1,9 @@
 import { Query, UserAgent } from '@porto/apps'
+import { Input } from '@porto/apps/components'
 import { exp1Address, exp2Address } from '@porto/apps/contracts'
 import { Button, Separator } from '@porto/ui'
 import { useMutation } from '@tanstack/react-query'
+import { cx } from 'cva'
 import { Value } from 'ox'
 import type * as Address from 'ox/Address'
 import type * as Quote_schema from 'porto/core/internal/relay/schema/quotes'
@@ -28,6 +30,9 @@ export function ActionPreview(props: ActionPreview.Props) {
     account,
     onReject,
     onQuotesRefetch,
+    onGuestSignIn,
+    onGuestSignUp,
+    guestStatus,
   } = props
 
   const deficit = useDeficit(quotes, error, queryParams)
@@ -65,7 +70,14 @@ export function ActionPreview(props: ActionPreview.Props) {
         {deficit?.amount && <DeficitWarning amount={deficit.amount} />}
       </Layout.Content>
       <Layout.Footer>
-        {deficit ? (
+        {guestStatus && guestStatus !== 'disabled' ? (
+          <GuestCheckoutSection
+            onReject={onReject}
+            onSignIn={onGuestSignIn!}
+            onSignUp={onGuestSignUp!}
+            status={guestStatus}
+          />
+        ) : deficit ? (
           <FundsNeededSection
             account={account}
             deficit={deficit}
@@ -75,7 +87,9 @@ export function ActionPreview(props: ActionPreview.Props) {
         ) : (
           actions
         )}
-        {account && <Layout.Footer.Account address={account} />}
+        {account && !(guestStatus && guestStatus !== 'disabled') && (
+          <Layout.Footer.Account address={account} />
+        )}
       </Layout.Footer>
     </Layout>
   )
@@ -96,6 +110,9 @@ export namespace ActionPreview {
     account?: Address.Address
     onReject: () => void
     onQuotesRefetch?: () => void
+    onGuestSignIn?: () => void
+    onGuestSignUp?: (email?: string) => void
+    guestStatus?: 'disabled' | 'enabled' | 'signing-in' | 'signing-up'
   }
 
   export type Quote = {
@@ -383,4 +400,90 @@ function ApplePayIcon() {
       />
     </svg>
   )
+}
+
+function GuestCheckoutSection(props: GuestCheckoutSection.Props) {
+  const { onSignIn, onSignUp, status } = props
+
+  const [invalid, setInvalid] = React.useState(false)
+
+  const onSignUpSubmit = React.useCallback<
+    React.FormEventHandler<HTMLFormElement>
+  >(
+    async (event) => {
+      event.preventDefault()
+      const formData = new FormData(event.target as HTMLFormElement)
+      const email = String(formData.get('email'))
+      onSignUp(email)
+    },
+    [onSignUp],
+  )
+
+  return (
+    <div className="flex w-full flex-col gap-[8px] px-3">
+      <Button
+        data-testid="sign-in"
+        disabled={status === 'signing-up'}
+        loading={status === 'signing-in' && 'Signing in…'}
+        onClick={onSignIn}
+        variant="primary"
+        width="full"
+      >
+        Sign in to proceed
+      </Button>
+
+      <div className="-tracking-[2.8%] flex items-center whitespace-nowrap text-[12px] text-th_base-secondary leading-[17px]">
+        First time, or lost access?
+        <div className="ms-2 h-px w-full bg-th_separator" />
+      </div>
+
+      <form
+        className="flex w-full flex-col gap-2"
+        onInvalid={(event) => {
+          event.preventDefault()
+          setInvalid(true)
+        }}
+        onSubmit={onSignUpSubmit}
+      >
+        <div className="relative flex items-center">
+          <label className="sr-only" htmlFor="email">
+            Email
+          </label>
+          <Input
+            className={cx(
+              'w-full bg-th_field',
+              invalid && 'not-focus-visible:border-th_negative',
+            )}
+            disabled={status === 'signing-in'}
+            name="email"
+            onChange={() => setInvalid(false)}
+            placeholder="example@ithaca.xyz"
+            type="email"
+          />
+          <div className="-tracking-[2.8%] absolute end-3 text-[12px] text-th_base-secondary leading-normal">
+            Optional
+          </div>
+        </div>
+        <Button
+          data-testid="sign-up"
+          disabled={status === 'signing-in'}
+          loading={status === 'signing-up' && 'Signing up…'}
+          type="submit"
+          variant="secondary"
+          width="full"
+        >
+          {invalid ? 'Invalid email' : 'Create account'}
+        </Button>
+      </form>
+    </div>
+  )
+}
+
+namespace GuestCheckoutSection {
+  export type Props = {
+    onReject: () => void
+    onSignIn: () => void
+    onSignUp: (email?: string) => void
+    status?: 'disabled' | 'enabled' | 'signing-in' | 'signing-up'
+  }
 }

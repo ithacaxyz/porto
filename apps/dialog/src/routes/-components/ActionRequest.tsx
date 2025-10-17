@@ -47,6 +47,9 @@ export function ActionRequest(props: ActionRequest.Props) {
     onApprove,
     onReject,
     requiredFunds,
+    onGuestSignIn,
+    onGuestSignUp,
+    guestStatus,
   } = props
 
   const account = Hooks.useAccount(porto, { address })
@@ -168,7 +171,7 @@ export function ActionRequest(props: ActionRequest.Props) {
       />
     )
 
-  if (prepareCallsQuery.error)
+  if (prepareCallsQuery.error && !(guestStatus && guestStatus !== 'disabled'))
     return (
       <ErrorScreen.Execution
         dialogError={
@@ -272,6 +275,7 @@ export function ActionRequest(props: ActionRequest.Props) {
           </Button>
         </Layout.Footer.Actions>
       }
+      guestStatus={guestStatus}
       header={
         <Layout.Header.Default
           icon={Star}
@@ -279,6 +283,8 @@ export function ActionRequest(props: ActionRequest.Props) {
           variant="default"
         />
       }
+      onGuestSignIn={onGuestSignIn}
+      onGuestSignUp={onGuestSignUp}
       onQuotesRefetch={() => prepareCallsQuery.refetch()}
       onReject={onReject}
       queryParams={{ address, chainId }}
@@ -289,13 +295,19 @@ export function ActionRequest(props: ActionRequest.Props) {
       <div className="flex flex-col gap-[8px]">
         <ActionRequest.PaneWithDetails
           feeTotals={feeTotals}
-          hideDetails={false}
+          hideDetails={guestStatus && guestStatus !== 'disabled'}
           quotes={quotes}
           status={prepareCallsQuery.isPending ? 'pending' : 'success'}
         >
-          {assetDiff.length > 0 ? (
+          {guestStatus && guestStatus !== 'disabled' ? (
+            <div className="text-[14px] text-th_base-secondary">
+              Sign in to view transaction details.
+            </div>
+          ) : assetDiff.length > 0 ? (
             <ActionRequest.AssetDiff assetDiff={assetDiff} />
-          ) : undefined}
+          ) : (
+            []
+          )}
         </ActionRequest.PaneWithDetails>
       </div>
     </ActionPreview>
@@ -316,6 +328,9 @@ export namespace ActionRequest {
       | undefined
     onApprove: (data: Calls.prepareCalls.useQuery.Data) => void
     onReject: () => void
+    onGuestSignIn?: () => void
+    onGuestSignUp?: (email?: string) => void
+    guestStatus?: 'disabled' | 'enabled' | 'signing-in' | 'signing-up'
   }
 
   export type CoinAsset =
@@ -558,13 +573,9 @@ export namespace ActionRequest {
   export function PaneWithDetails(props: PaneWithDetails.Props) {
     const { children, feeTotals, quotes, status, hideDetails } = props
 
-    const hasChildren = React.useMemo(
-      () => React.Children.count(children) > 0,
-      [children],
-    )
     const showOverview = React.useMemo(
-      () => hasChildren || status !== 'success',
-      [status, hasChildren],
+      () => React.Children.count(children) > 0 || status !== 'success',
+      [children, status],
     )
 
     const sponsored =

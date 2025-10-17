@@ -697,6 +697,8 @@ export function relay(parameters: relay.Parameters = {}) {
         const { account, asTxHash, calls, internal, merchantUrl } = parameters
         const { client } = internal
 
+        if (!account) throw new Error('account required for relay mode')
+
         // Try and extract an authorized key to sign the calls with.
         const key = await Mode.getAuthorizedExecuteKey({
           account,

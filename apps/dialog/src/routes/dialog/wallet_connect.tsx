@@ -129,26 +129,7 @@ function RouteComponent() {
         },
         {
           onError: (e) => {
-            // This detects an error that can sometimes happen when calling
-            // navigator.credentials.create() from inside an iframe, notably
-            // the Firefox + Bitwarden extension combination.
-            // See https://github.com/bitwarden/clients/issues/12590
-            if (
-              e?.message?.includes("Invalid 'sameOriginWithAncestors' value")
-            ) {
-              Dialog.store.setState({
-                error: {
-                  action: 'retry-in-popup',
-                  message:
-                    "Your browser doesn't support passkey creation in the current context.",
-                  name: 'CREDENTIAL_CREATION_FAILED',
-                  secondaryMessage:
-                    'Please try again in a popup window for better compatibility.',
-                  title: 'Passkey creation not supported',
-                },
-              })
-              // Prevent the response from being sent,
-              // since the error is handled by the dialog.
+            if (Dialog.handleWebAuthnIframeError(e)) {
               return { cancelResponse: true }
             }
           },

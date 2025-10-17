@@ -32,14 +32,12 @@ export namespace prepareCalls {
     } = options
 
     return Query.queryOptions({
-      enabled: enabled && !!account,
+      enabled,
       // TODO: use EIP-1193 Provider + `wallet_prepareCalls` in the future
       // to dedupe.
       async queryFn({ queryKey }) {
         const [, { account, feeToken: feeTokenOverride, ...parameters }] =
           queryKey
-
-        if (!account) throw new Error('account is required.')
 
         const [tokens, feeToken] = await Promise.all([
           Query_porto.client.ensureQueryData(

@@ -2,8 +2,10 @@ import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import * as Provider from 'ox/Provider'
 import { Actions, Hooks } from 'porto/remote'
-import { RelayActions } from 'porto/viem'
+import { Account, RelayActions } from 'porto/viem'
+import * as React from 'react'
 import type * as Calls from '~/lib/Calls'
+import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import { useAuthSessionRedirect } from '~/lib/ReactNative'
 import * as Router from '~/lib/Router'
@@ -23,8 +25,70 @@ function RouteComponent() {
 
   const { feeToken, merchantUrl, requiredFunds } = capabilities ?? {}
 
-  const account = Hooks.useAccount(porto, { address: from })
+  const currentAccount = Hooks.useAccount(porto, { address: from })
   const client = Hooks.useRelayClient(porto, { chainId })
+
+  const [authenticatedAccount, setAuthenticatedAccount] = React.useState<Account.Account>()
+  const [guestStatus, setGuestStatus] = React.useState<
+    'disabled' | 'enabled' | 'signing-in' | 'signing-up'
+  >('disabled')
+
+  const handleGuestSignIn = React.useCallback(async () => {
+    setGuestStatus('signing-in')
+    try {
+      const response = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{}],
+      })
+      const newAccount = response.accounts?.[0]
+      if (newAccount) {
+        const portoAccount = porto._internal.store.getState().accounts[0]
+        if (portoAccount) {
+          setAuthenticatedAccount(portoAccount)
+          setGuestStatus('disabled')
+        }
+      }
+    } catch (error) {
+      if (Dialog.handleWebAuthnIframeError(error)) return
+      setGuestStatus('enabled')
+    }
+  }, [])
+
+  const handleGuestSignUp = React.useCallback(async (email?: string) => {
+    setGuestStatus('signing-up')
+    try {
+      const response = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: {
+              createAccount: email ? { label: email } : true,
+              email: Boolean(email),
+            },
+          },
+        ],
+      })
+      const newAccount = response.accounts?.[0]
+      if (newAccount) {
+        const portoAccount = porto._internal.store.getState().accounts[0]
+        if (portoAccount) {
+          setAuthenticatedAccount(portoAccount)
+          setGuestStatus('disabled')
+        }
+      }
+    } catch (error) {
+      if (Dialog.handleWebAuthnIframeError(error)) return
+      setGuestStatus('enabled')
+    }
+  }, [])
+
+  const account = from ? currentAccount : authenticatedAccount
+
+  React.useEffect(() => {
+    if (!from && !account) {
+      setGuestStatus('enabled')
+    }
+  }, [from, account])
 
   const respond = useMutation({
     // TODO: use EIP-1193 Provider + `wallet_sendPreparedCalls` in the future
@@ -72,13 +136,16 @@ function RouteComponent() {
 
   return (
     <ActionRequest
-      address={from}
+      address={account?.address}
       calls={calls}
       chainId={chainId}
       feeToken={feeToken}
+      guestStatus={guestStatus}
       loading={respond.isPending}
       merchantUrl={merchantUrl}
       onApprove={(data) => respond.mutate(data)}
+      onGuestSignIn={handleGuestSignIn}
+      onGuestSignUp={handleGuestSignUp}
       onReject={() => respond.mutate({ reject: true })}
       requiredFunds={requiredFunds}
     />
