@@ -67,3 +67,4 @@ justfile
 dist
 _dist
 styled-system
+.zip
