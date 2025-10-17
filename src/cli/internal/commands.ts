@@ -90,10 +90,12 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
   // Register public key for verification.
   if (adminKey) Dialog.messenger.registerPublicKey(adminKey.publicKey)
 
+  const chainId = args.testnet ? Chains.baseSepolia.id : Chains.base.id
+
   // Create an account.
   s.start('Creating account...')
   const { accounts } = await WalletActions.connect(client, {
-    chainIds: [args.testnet ? Chains.baseSepolia.id : Chains.base.id],
+    chainIds: [chainId],
     createAccount: true,
     grantAdmins: adminKey
       ? [
@@ -134,6 +136,7 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
       params: [
         {
           calls: [],
+          chain: { id: chainId },
           key: adminKey,
         },
       ],
