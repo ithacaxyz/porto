@@ -4,7 +4,7 @@ import * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
 import * as ox_Provider from 'ox/Provider'
 import * as RpcResponse from 'ox/RpcResponse'
-import { type ValueOf, withCache } from 'viem'
+import { getAddress, type ValueOf, withCache } from 'viem'
 import * as z from 'zod/mini'
 import * as Account from '../../viem/Account.js'
 import * as Actions from '../../viem/internal/relayActions.js'
@@ -193,9 +193,9 @@ export function from<
             case 'eth_accounts': {
               if (state.accounts.length === 0)
                 throw new ox_Provider.DisconnectedError()
-              return state.accounts.map(
-                (account) => account.address,
-              ) satisfies z.input<typeof Rpc.eth_accounts.Response>
+              return state.accounts.map(getAccountAddress) satisfies z.input<
+                typeof Rpc.eth_accounts.Response
+              >
             }
 
             case 'eth_chainId': {
@@ -208,9 +208,9 @@ export function from<
               // Some apps will call `eth_requestAccounts` multiple times in a short period of time.
               // Return the cached accounts if the request is locked.
               if (state.accounts.length > 0 && lock.get('eth_requestAccounts'))
-                return state.accounts.map(
-                  (account) => account.address,
-                ) satisfies z.input<typeof Rpc.eth_requestAccounts.Response>
+                return state.accounts.map(getAccountAddress) satisfies z.input<
+                  typeof Rpc.eth_requestAccounts.Response
+                >
 
               const client = getClient()
 
@@ -232,9 +232,9 @@ export function from<
               lock.set('eth_requestAccounts', true)
               setTimeout(() => lock.delete('eth_requestAccounts'), 1_000)
 
-              return accounts.map(
-                (account) => account.address,
-              ) satisfies z.input<typeof Rpc.eth_requestAccounts.Response>
+              return accounts.map(getAccountAddress) satisfies z.input<
+                typeof Rpc.eth_requestAccounts.Response
+              >
             }
 
             case 'eth_sendTransaction': {
@@ -870,7 +870,7 @@ export function from<
 
               return {
                 accounts: accounts.map((account) => ({
-                  address: account.address,
+                  address: getAccountAddress(account),
                   capabilities: {
                     admins: account.keys ? getAdmins(account.keys) : [],
                     permissions: account.keys
@@ -1155,10 +1155,7 @@ export function from<
       unsubscribe_accounts = store.subscribe(
         (state) => state.accounts,
         (accounts) => {
-          emitter.emit(
-            'accountsChanged',
-            accounts.map((account) => account.address),
-          )
+          emitter.emit('accountsChanged', accounts.map(getAccountAddress))
         },
         {
           equalityFn: (a, b) =>
@@ -1274,4 +1271,8 @@ function getActivePermissions(
       }
     })
     .filter(Boolean) as never
+}
+
+function getAccountAddress(account: Account.Account): Address.Address {
+  return getAddress(account.address)
 }
