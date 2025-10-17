@@ -401,6 +401,8 @@ function useOnrampOrder(props: {
     }
   }, [onApprove])
 
+  console.log({ lastOrderEvent })
+
   return {
     createOrder,
     lastOrderEvent,
