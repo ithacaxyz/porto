@@ -1,7 +1,8 @@
 import { Query, UserAgent } from '@porto/apps'
 import { exp1Address, exp2Address } from '@porto/apps/contracts'
 import { Button, Separator } from '@porto/ui'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { cx } from 'cva'
 import { Value } from 'ox'
 import type * as Address from 'ox/Address'
 import type * as Quote_schema from 'porto/core/internal/relay/schema/quotes'
@@ -10,12 +11,19 @@ import { RelayActions } from 'porto/viem'
 import * as React from 'react'
 import { useWatchBlockNumber } from 'wagmi'
 import { DepositButtons } from '~/components/DepositButtons'
-import * as Dialog from '~/lib/Dialog'
+import {
+  type CbPostMessageSchema,
+  useOnrampOrder,
+  useShowApplePay,
+} from '~/lib/onramp'
 import { porto } from '~/lib/Porto'
 import { ValueFormatter } from '~/utils'
 import LucideInfo from '~icons/lucide/info'
 import { AddFunds } from './AddFunds'
 import { Layout } from './Layout'
+import { SetupApplePay } from './SetupApplePay'
+
+type View = 'default' | 'setup-onramp'
 
 export function ActionPreview(props: ActionPreview.Props) {
   const {
@@ -32,8 +40,20 @@ export function ActionPreview(props: ActionPreview.Props) {
 
   const deficit = useDeficit(quotes, error, queryParams)
   const [showAddFunds, setShowAddFunds] = React.useState(false)
+  const [view, setView] = React.useState<View>('default')
 
   const depositAddress = deficit?.address || account
+  const fiatDepositValue = React.useMemo(() => {
+    if (deficit?.amount?.fiat) return deficit.amount.fiat
+    const [amount, symbol] = deficit?.amount?.rounded.split(' ') ?? []
+    if (amount && symbol) {
+      if (symbol !== 'USDC' && symbol !== 'USDT') return
+      const value = Number.parseFloat(amount)
+      if (!value) return
+      return value < 5 ? '5' : Math.ceil(value).toString()
+    }
+    return
+  }, [deficit])
 
   useWatchBlockNumber({
     chainId: deficit?.chainId as never,
@@ -42,6 +62,71 @@ export function ActionPreview(props: ActionPreview.Props) {
       onQuotesRefetch?.()
     },
   })
+
+  const showApplePay = useShowApplePay()
+  const client = RemoteHooks.useRelayClient(porto)
+  const { data: onrampStatus } = useQuery({
+    enabled: Boolean(showApplePay && depositAddress),
+    async queryFn() {
+      if (!depositAddress) throw new Error('address required')
+      return await RelayActions.onrampStatus(client, {
+        address: depositAddress,
+      })
+    },
+    queryKey: ['onrampStatus', depositAddress],
+  })
+  const onApprove = React.useCallback(() => {
+    onQuotesRefetch?.()
+  }, [onQuotesRefetch])
+  const { createOrder, lastOrderEvent } = useOnrampOrder({
+    onApprove,
+    sandbox: true,
+  })
+  const [iframeLoaded, setIframeLoaded] = React.useState(false)
+
+  const queryClient = useQueryClient()
+  // biome-ignore lint/correctness/useExhaustiveDependencies: explanation
+  const onCompleteOnrampSetup = React.useCallback(() => {
+    if (!depositAddress) throw new Error('address is required')
+    if (!fiatDepositValue) throw new Error('amount is required')
+    queryClient.setQueryData(
+      ['onrampStatus', depositAddress],
+      { email: true, phone: true },
+      {},
+    )
+    createOrder.mutate(
+      { address: depositAddress, amount: fiatDepositValue },
+      {
+        onSuccess() {
+          setView('default')
+        },
+      },
+    )
+  }, [depositAddress, fiatDepositValue])
+
+  // create onramp order if onramp status is valid
+  // biome-ignore lint/correctness/useExhaustiveDependencies: keep stable
+  React.useEffect(() => {
+    if (!depositAddress) return
+    if (!fiatDepositValue) return
+    if (onrampStatus?.email && onrampStatus?.phone && !createOrder.isPending) {
+      setIframeLoaded(false)
+      createOrder.mutate({ address: depositAddress, amount: fiatDepositValue })
+    }
+  }, [depositAddress, fiatDepositValue, onrampStatus])
+
+  if (view === 'setup-onramp')
+    return (
+      <SetupApplePay
+        address={depositAddress!}
+        onBack={() => {
+          setView('default')
+        }}
+        onComplete={onCompleteOnrampSetup}
+        showEmail={!onrampStatus?.email}
+        showPhone={!onrampStatus?.phone}
+      />
+    )
 
   if (showAddFunds && deficit)
     return (
@@ -72,6 +157,15 @@ export function ActionPreview(props: ActionPreview.Props) {
             deficit={deficit}
             onAddFunds={() => setShowAddFunds(true)}
             onReject={onReject}
+            onramp={{
+              iframeLoaded,
+              lastOrderEvent,
+              setIframeLoaded,
+              setView,
+              status: onrampStatus,
+              url: createOrder.data?.url,
+            }}
+            showApplePay={showApplePay}
           />
         ) : (
           actions
@@ -243,8 +337,19 @@ function FundsNeededSection(props: {
   account?: Address.Address
   onReject: () => void
   onAddFunds: () => void
+  showApplePay: boolean
+  onramp: {
+    iframeLoaded: boolean
+    lastOrderEvent?: CbPostMessageSchema | undefined
+    setIframeLoaded: (iframeLoaded: boolean) => void
+    setView: (view: View) => void
+    status?:
+      | { email?: number | undefined; phone?: number | undefined }
+      | undefined
+    url?: string | undefined
+  }
 }) {
-  const { deficit, account, onReject, onAddFunds } = props
+  const { deficit, account, onReject, onramp, onAddFunds, showApplePay } = props
 
   const depositAddress = deficit.address || account
 
@@ -267,18 +372,7 @@ function FundsNeededSection(props: {
       </div>
     )
 
-  const referrer = Dialog.useStore((state) => state.referrer)
   const client = RemoteHooks.useRelayClient(porto)
-
-  const showApplePay = React.useMemo(() => {
-    if (UserAgent.isInAppBrowser()) return false
-    if (UserAgent.isMobile() && !UserAgent.isSafari()) return false
-    return (
-      referrer?.url?.hostname.endsWith('localhost') ||
-      referrer?.url?.hostname === 'playground.porto.sh' ||
-      referrer?.url?.hostname.endsWith('preview.porto.sh')
-    )
-  }, [referrer?.url])
 
   const showFaucet = React.useMemo(() => {
     if (import.meta.env.MODE !== 'test' && !chain?.testnet) return false
@@ -341,21 +435,59 @@ function FundsNeededSection(props: {
           </Button>
         </div>
       ) : (
-        showApplePay && (
-          <div className="flex w-full gap-[8px]">
-            <Button
-              disabled={faucet.isPending}
-              onClick={onAddFunds}
-              variant="strong"
-              width="grow"
-            >
-              <div className="flex items-center gap-[6px]">
-                Pay with
-                <ApplePayIcon />
-              </div>
-            </Button>
+        showApplePay &&
+        account &&
+        (onramp.status?.email && onramp.status?.phone ? (
+          <div className="flex w-full flex-col">
+            {onramp.url && (
+              <iframe
+                {...(!UserAgent.isFirefox() && {
+                  allow: 'payment',
+                })}
+                className={cx(
+                  'h-12.5 w-full overflow-hidden border-0 bg-transparent',
+                  onramp.lastOrderEvent?.eventName ===
+                    'onramp_api.apple_pay_button_pressed' ||
+                    onramp.lastOrderEvent?.eventName ===
+                      'onramp_api.polling_start'
+                    ? 'overflow-visible! fixed inset-0 z-100 h-full!'
+                    : 'w-full border-0 bg-transparent',
+                  !onramp.iframeLoaded && 'sr-only!',
+                )}
+                onLoad={() => onramp.setIframeLoaded(true)}
+                src={onramp.url}
+                title="Onramp"
+              />
+            )}
+            {(!onramp.iframeLoaded ||
+              onramp.lastOrderEvent?.eventName ===
+                'onramp_api.apple_pay_button_pressed' ||
+              onramp.lastOrderEvent?.eventName ===
+                'onramp_api.polling_start') && (
+              <Button
+                loading={
+                  <div className="flex items-center gap-[6px]">
+                    Pay with
+                    <ApplePayIcon className="mt-0.75" />
+                  </div>
+                }
+                variant="strong"
+                width="grow"
+              />
+            )}
           </div>
-        )
+        ) : (
+          <Button
+            onClick={() => onramp.setView('setup-onramp')}
+            variant="strong"
+            width="grow"
+          >
+            <div className="flex items-center gap-[6px]">
+              Set up
+              <ApplePayIcon className="mt-0.75" />
+            </div>
+          </Button>
+        ))
       )}
 
       {(showApplePay || showFaucet) && depositAddress && (
@@ -374,9 +506,15 @@ function FundsNeededSection(props: {
   )
 }
 
-function ApplePayIcon() {
+export function ApplePayIcon(props: { className?: string | undefined }) {
   return (
-    <svg fill="none" height="15" viewBox="0 0 38 15" width="38">
+    <svg
+      className={props.className}
+      fill="none"
+      height="15"
+      viewBox="0 0 38 15"
+      width="38"
+    >
       <title>Apple Pay</title>
       <path
         d="M6.89 1.944c-.404.49-1.088.856-1.633.856a.894.894 0 0 1-.163-.015 1.068 1.068 0 0 1-.024-.218c0-.623.32-1.245.662-1.634C6.167.419 6.899.038 7.506.015c.015.07.023.155.023.24 0 .623-.265 1.238-.638 1.69Zm.429.989c.342 0 1.58.03 2.389 1.198-.07.054-1.3.747-1.3 2.295 0 1.79 1.564 2.428 1.61 2.443a6.43 6.43 0 0 1-.824 1.712c-.513.74-1.058 1.487-1.875 1.487-.825 0-1.035-.483-1.976-.483-.926 0-1.253.498-2 .498-.755 0-1.276-.693-1.875-1.533-.7-.996-1.261-2.536-1.261-4 0-2.341 1.525-3.586 3.027-3.586.794 0 1.455.521 1.96.521.475 0 1.215-.552 2.125-.552Zm6.295 9.064V.77h4.482c2.28 0 3.82 1.502 3.82 3.75v.016c0 2.241-1.54 3.75-3.82 3.75h-2.474v3.712h-2.008Zm3.992-9.586h-1.984v4.256h1.984c1.44 0 2.28-.778 2.28-2.124v-.015c0-1.346-.84-2.117-2.28-2.117Zm7.187 9.726c-1.619 0-2.794-.995-2.794-2.544v-.015c0-1.518 1.16-2.405 3.23-2.53l2.186-.132v-.731c0-.848-.552-1.315-1.595-1.315-.887 0-1.463.319-1.657.88l-.008.03h-1.829l.008-.07c.187-1.431 1.556-2.38 3.58-2.38 2.186 0 3.415 1.058 3.415 2.855v5.812h-1.914V10.83h-.132c-.467.825-1.37 1.307-2.49 1.307Zm-.88-2.637c0 .723.615 1.151 1.471 1.151 1.167 0 2.03-.762 2.03-1.774v-.684l-1.913.124c-1.082.07-1.588.467-1.588 1.167V9.5Zm7.242 5.485a7.81 7.81 0 0 1-.74-.03v-1.487c.156.016.374.023.576.023.794 0 1.269-.326 1.479-1.097l.101-.389-3.042-8.512h2.116l1.984 6.645h.148l1.976-6.645h2.039l-3.05 8.683c-.731 2.132-1.704 2.81-3.587 2.81Z"
