@@ -8,8 +8,43 @@ import type { PluginOption } from 'vite'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-export function PortoUi(): PluginOption[] {
-  return [
+function StyledSystemAlias(options: {
+  bundle: boolean
+  cwd: string
+}): PluginOption {
+  return {
+    config(_, { mode }) {
+      const styledSystem = path.resolve(
+        options.bundle ? __dirname : options.cwd,
+        './styled-system',
+      )
+
+      if (!options.bundle && mode !== 'test' && !fs.existsSync(styledSystem))
+        throw new Error(
+          'styled-system/ not found. Generate it with: pnpm panda codegen',
+        )
+
+      return {
+        resolve: {
+          alias: {
+            'styled-system': styledSystem,
+          },
+        },
+      }
+    },
+    name: 'porto-ui:alias',
+  }
+}
+
+export type PortoUiOptions = {
+  bundle?: boolean
+}
+
+export function PortoUi(options: PortoUiOptions = {}): PluginOption[] {
+  const { bundle = false } = options
+  const cwd = process.cwd()
+
+  const plugins: PluginOption[] = [
     Icons({
       compiler: 'jsx',
       customCollections: {
@@ -19,30 +54,17 @@ export function PortoUi(): PluginOption[] {
       },
       jsx: 'react',
     }),
-    {
+    StyledSystemAlias({ bundle, cwd }),
+  ]
+
+  if (!bundle) {
+    plugins.push({
       buildStart() {
-        execSync('panda cssgen', { cwd: process.cwd(), stdio: 'inherit' })
+        execSync('panda cssgen', { cwd, stdio: 'inherit' })
       },
       name: 'porto-ui:panda-cssgen',
-    },
-    {
-      config(_, { mode }) {
-        const styledSystem = path.resolve(process.cwd(), './styled-system')
+    })
+  }
 
-        if (mode !== 'test' && !fs.existsSync(styledSystem))
-          throw new Error(
-            'styled-system/ not found. Generate it with: pnpm panda codegen',
-          )
-
-        return {
-          resolve: {
-            alias: {
-              'styled-system': styledSystem,
-            },
-          },
-        }
-      },
-      name: 'porto-ui:alias',
-    },
-  ]
+  return plugins
 }
