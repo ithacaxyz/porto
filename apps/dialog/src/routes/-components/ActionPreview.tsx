@@ -517,7 +517,7 @@ export function ApplePayButton(
         height="20"
         version="1.1"
         viewBox="0 0 105 43"
-        width="auto"
+        width="48.84"
         x="74.32000000000001"
         xmlns="http://www.w3.org/2000/svg"
         y="7.92"
