@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "assets": {
+    "not_found_handling": "single-page-application"
+  },
+  "compatibility_date": "2025-09-06",
+  "main": "worker/index.ts",
+  "name": "sponsoring-privy",
+  "observability": {
+    "enabled": true
+  }
+}
