@@ -9,6 +9,7 @@ import * as Key from '../../viem/Key.js'
 import * as WalletActions from '../../viem/WalletActions.js'
 import * as Dialog from '../Dialog.js'
 import * as Context from './context.js'
+import { numberToHex } from 'viem'
 
 /** Creates a Porto account. */
 export async function createAccount(_: unknown, args: createAccount.Arguments) {
@@ -136,7 +137,7 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
       params: [
         {
           calls: [],
-          chain: { id: chainId },
+          chainId: numberToHex(chainId),
           key: adminKey,
         },
       ],
