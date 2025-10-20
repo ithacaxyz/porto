@@ -1,9 +1,7 @@
-import { UserAgent } from '@porto/apps'
 import { exp1Address } from '@porto/apps/contracts'
 import { usePrevious } from '@porto/apps/hooks'
 import { Button, PresetsInput, Separator } from '@porto/ui'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { cx } from 'cva'
 import { type Address, type Hex, Value } from 'ox'
 import { Hooks as RemoteHooks } from 'porto/remote'
 import { RelayActions } from 'porto/viem'
@@ -18,7 +16,7 @@ import * as Tokens from '~/lib/Tokens'
 import { Layout } from '~/routes/-components/Layout'
 import TriangleAlertIcon from '~icons/lucide/triangle-alert'
 import Star from '~icons/ph/star-four-bold'
-import { ApplePayIcon } from './ActionPreview'
+import { ApplePayButton, ApplePayIframe } from './ActionPreview'
 import { SetupApplePay } from './SetupApplePay'
 
 const presetAmounts = ['30', '50', '100', '250'] as const
@@ -223,51 +221,25 @@ export function AddFunds(props: AddFunds.Props) {
             (onrampStatus?.email && onrampStatus?.phone ? (
               <div className="flex w-full flex-col">
                 {createOrder.isSuccess && createOrder.data?.url && (
-                  <iframe
-                    {...(!UserAgent.isFirefox() && {
-                      allow: 'payment',
-                    })}
-                    className={cx(
-                      'h-12.5 w-full overflow-hidden border-0 bg-transparent',
-                      lastOrderEvent?.eventName ===
-                        'onramp_api.apple_pay_button_pressed' ||
-                        lastOrderEvent?.eventName === 'onramp_api.polling_start'
-                        ? 'overflow-visible! fixed inset-0 z-100 h-full!'
-                        : 'w-full border-0 bg-transparent',
-                      !iframeLoaded && 'sr-only!',
-                    )}
-                    onLoad={() => setIframeLoaded(true)}
+                  <ApplePayIframe
+                    lastOrderEvent={lastOrderEvent}
+                    loaded={iframeLoaded}
+                    setLoaded={setIframeLoaded}
                     src={createOrder.data.url}
-                    title="Onramp"
                   />
                 )}
                 {(!iframeLoaded ||
                   lastOrderEvent?.eventName ===
                     'onramp_api.apple_pay_button_pressed' ||
                   lastOrderEvent?.eventName === 'onramp_api.polling_start') && (
-                  <Button
-                    loading={
-                      <div className="flex items-center gap-[6px]">
-                        Pay with
-                        <ApplePayIcon className="mt-0.75" />
-                      </div>
-                    }
-                    variant="strong"
-                    width="grow"
-                  />
+                  <ApplePayButton label="Pay with" loading />
                 )}
               </div>
             ) : (
-              <Button
+              <ApplePayButton
+                label="Set up"
                 onClick={() => setView('setup-onramp')}
-                variant="strong"
-                width="grow"
-              >
-                <div className="flex items-center gap-[6px]">
-                  Set up
-                  <ApplePayIcon className="mt-0.75" />
-                </div>
-              </Button>
+              />
             ))}
           {view !== 'onramp' && (
             <DepositButtons
