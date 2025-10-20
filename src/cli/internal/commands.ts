@@ -3,13 +3,13 @@ import * as os from 'node:os'
 import * as path from 'node:path'
 import { setTimeout } from 'node:timers/promises'
 import * as prompts from '@clack/prompts'
+import { numberToHex } from 'viem'
 import * as Actions from 'viem/actions'
 import * as Chains from '../../core/Chains.js'
 import * as Key from '../../viem/Key.js'
 import * as WalletActions from '../../viem/WalletActions.js'
 import * as Dialog from '../Dialog.js'
 import * as Context from './context.js'
-import { numberToHex } from 'viem'
 
 /** Creates a Porto account. */
 export async function createAccount(_: unknown, args: createAccount.Arguments) {
