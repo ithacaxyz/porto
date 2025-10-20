@@ -1,4 +1,4 @@
-import { type FrameLocator, page } from '@vitest/browser/context'
+import { type FrameLocator, page } from 'vitest/browser'
 
 export async function interact<returnType>(
   promise: Promise<returnType>,
