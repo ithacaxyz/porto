@@ -24,9 +24,8 @@ const maxAmount = 500
 
 type View = 'default' | 'error' | 'onramp' | 'setup-onramp'
 
-const sandbox = true
-const dummy = true
-const dummy_onrampStatus = true
+const dummy = false
+const dummy_onrampStatus = false
 
 export function AddFunds(props: AddFunds.Props) {
   const { chainId, onApprove, onReject, value } = props
@@ -51,7 +50,7 @@ export function AddFunds(props: AddFunds.Props) {
   })
   const { createOrder, lastOrderEvent } = useOnrampOrder({
     onApprove,
-    sandbox,
+    sandbox: true,
   })
   const [iframeLoaded, setIframeLoaded] = React.useState(false)
 
