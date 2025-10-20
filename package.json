@@ -115,7 +115,7 @@
     "http-proxy": "^1.18.1",
     "knip": "^5.50.5",
     "ox": "catalog:",
-    "playwright": "1.53.0",
+    "playwright": "1.55.1",
     "prool": "catalog:",
     "publint": "^0.3.12",
     "react-native": "0.81.4",
