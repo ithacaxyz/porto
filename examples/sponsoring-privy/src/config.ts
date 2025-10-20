@@ -1,7 +1,8 @@
-import { Hex, Value } from 'ox'
+import { Value } from 'ox'
+import { Porto } from 'porto'
 import { baseSepolia } from 'porto/core/Chains'
 import { porto as portoConnector } from 'porto/wagmi'
-import { createClient } from 'viem'
+import { createClient, custom } from 'viem'
 import { createConfig, http } from 'wagmi'
 import { exp1Address, exp2Address, expNftAddress } from './contracts.ts'
 
@@ -12,6 +13,11 @@ export const config = createConfig({
   transports: {
     [baseSepolia.id]: http(),
   },
+})
+
+export const porto = Porto.create({
+  chains: [baseSepolia],
+  merchantUrl: '/porto/merchant',
 })
 
 export const client = createClient({
@@ -29,7 +35,7 @@ export const permissions = () =>
   ({
     expiry: Math.floor(Date.now() / 1_000) + 60 * 60 * 24 * 30, // 30 days
     feeToken: {
-      limit: '1',
+      limit: Value.fromEther('10000'),
       symbol: 'EXP',
     },
     permissions: {
@@ -47,7 +53,7 @@ export const permissions = () =>
       ],
       spend: [
         {
-          limit: Hex.fromNumber(Value.fromEther('50000')),
+          limit: Value.fromEther('50000'),
           period: 'month',
           token: exp1Address,
         },
