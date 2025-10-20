@@ -81,7 +81,9 @@ const offDialogRequest = Events.onDialogRequest(
   async ({ account, request }) => {
     const connectedAccount = porto._internal.store.getState().accounts[0]
     const requireAccountSync =
-      account && !Address.isEqual(account.address, connectedAccount?.address)
+      account &&
+      connectedAccount?.address &&
+      !Address.isEqual(account.address, connectedAccount.address)
 
     // Clear errors when the request is null (i.e. when the dialog is closed).
     if (!request) return Dialog.store.setState({ error: null })
