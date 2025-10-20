@@ -23,7 +23,6 @@ export function SetupApplePay(props: SetupApplePay.Props) {
     showPhone = true,
     onBack,
     onComplete,
-    dummy = false,
   } = props
 
   const [screen, setScreen] = React.useState<'phone-email' | 'otp'>(
@@ -52,25 +51,22 @@ export function SetupApplePay(props: SetupApplePay.Props) {
     }
   >({
     async mutationFn(data) {
-      if (dummy) await noop('setInfo')
-      else {
-        const promises = []
-        if (data.email)
-          promises.push(
-            RelayActions.setEmail(client, {
-              email: data.email,
-              walletAddress: address,
-            }),
-          )
-        if (data.phone)
-          promises.push(
-            RelayActions.setPhone(client, {
-              phone: data.phone,
-              walletAddress: address,
-            }),
-          )
-        await Promise.all(promises)
-      }
+      const promises = []
+      if (data.email)
+        promises.push(
+          RelayActions.setEmail(client, {
+            email: data.email,
+            walletAddress: address,
+          }),
+        )
+      if (data.phone)
+        promises.push(
+          RelayActions.setPhone(client, {
+            phone: data.phone,
+            walletAddress: address,
+          }),
+        )
+      await Promise.all(promises)
     },
   })
   const verifyPhone = useMutation<
@@ -82,23 +78,19 @@ export function SetupApplePay(props: SetupApplePay.Props) {
     }
   >({
     async mutationFn(data) {
-      if (dummy) await noop('verifyPhone')
-      else
-        await RelayActions.verifyPhone(client, {
-          code: data.code,
-          phone: data.phone,
-          walletAddress: address,
-        })
+      await RelayActions.verifyPhone(client, {
+        code: data.code,
+        phone: data.phone,
+        walletAddress: address,
+      })
     },
   })
   const resendVerifyPhone = useMutation({
     async mutationFn(data: { phone: string }) {
-      if (dummy) await noop('resendVerifyPhone')
-      else
-        await RelayActions.resendVerifyPhone(client, {
-          phone: data.phone,
-          walletAddress: address,
-        })
+      await RelayActions.resendVerifyPhone(client, {
+        phone: data.phone,
+        walletAddress: address,
+      })
     },
   })
 
@@ -348,8 +340,6 @@ export namespace SetupApplePay {
     showPhone: boolean | undefined
     onBack: () => void
     onComplete: () => void
-    // TODO: Remove
-    dummy?: boolean | undefined
   }
 
   export function AppleIcon() {

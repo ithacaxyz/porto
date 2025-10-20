@@ -74,6 +74,17 @@ export function ActionPreview(props: ActionPreview.Props) {
       })
     },
     queryKey: ['onrampStatus', depositAddress],
+    select(data) {
+      const reverifyPhone = (() => {
+        if (!data.phone) return false
+        const timestampDate = new Date(data.phone * 1000)
+        const currentDate = new Date()
+        const diffInMs = currentDate.getTime() - timestampDate.getTime()
+        const diffInDays = diffInMs / (1000 * 60 * 60 * 24)
+        return diffInDays > 60
+      })()
+      return { ...data, reverifyPhone }
+    },
   })
   const onApprove = React.useCallback(() => {
     onQuotesRefetch?.()
@@ -89,9 +100,13 @@ export function ActionPreview(props: ActionPreview.Props) {
   const onCompleteOnrampSetup = React.useCallback(() => {
     if (!depositAddress) throw new Error('address is required')
     if (!fiatDepositValue) throw new Error('amount is required')
+    const timestamp = Math.floor(Date.now() / 1000)
     queryClient.setQueryData(
       ['onrampStatus', depositAddress],
-      { email: true, phone: true },
+      {
+        email: onrampStatus?.email ?? timestamp,
+        phone: onrampStatus?.phone ?? timestamp,
+      },
       {},
     )
     createOrder.mutate(
@@ -102,14 +117,19 @@ export function ActionPreview(props: ActionPreview.Props) {
         },
       },
     )
-  }, [depositAddress, fiatDepositValue])
+  }, [depositAddress, fiatDepositValue, onrampStatus])
 
   // create onramp order if onramp status is valid
   // biome-ignore lint/correctness/useExhaustiveDependencies: keep stable
   React.useEffect(() => {
     if (!depositAddress) return
     if (!fiatDepositValue) return
-    if (onrampStatus?.email && onrampStatus?.phone && !createOrder.isPending) {
+    if (
+      onrampStatus?.email &&
+      onrampStatus.phone &&
+      !onrampStatus.reverifyPhone &&
+      !createOrder.isPending
+    ) {
       setIframeLoaded(false)
       createOrder.mutate({ address: depositAddress, amount: fiatDepositValue })
     }
@@ -124,7 +144,7 @@ export function ActionPreview(props: ActionPreview.Props) {
         }}
         onComplete={onCompleteOnrampSetup}
         showEmail={!onrampStatus?.email}
-        showPhone={!onrampStatus?.phone}
+        showPhone={!onrampStatus?.phone || onrampStatus?.reverifyPhone}
       />
     )
 
@@ -344,7 +364,11 @@ function FundsNeededSection(props: {
     setIframeLoaded: (iframeLoaded: boolean) => void
     setView: (view: View) => void
     status?:
-      | { email?: number | undefined; phone?: number | undefined }
+      | {
+          email?: number | undefined
+          phone?: number | undefined
+          reverifyPhone?: boolean | undefined
+        }
       | undefined
     url?: string | undefined
   }
@@ -437,7 +461,9 @@ function FundsNeededSection(props: {
       ) : (
         showApplePay &&
         account &&
-        (onramp.status?.email && onramp.status?.phone ? (
+        (onramp.status?.email &&
+        onramp.status.phone &&
+        !onramp.status.reverifyPhone ? (
           <div className="flex w-full flex-col">
             {onramp.url && (
               <ApplePayIframe

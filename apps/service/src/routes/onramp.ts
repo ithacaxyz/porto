@@ -54,9 +54,21 @@ onrampApp.post(
         if (!contactInfo.phoneVerifiedAt)
           throw new HTTPException(500, { message: 'Phone not verified' })
 
+        const verifiedAtDate = new Date(contactInfo.phoneVerifiedAt * 1000)
+        const currentDate = new Date()
+        const diffInMs = currentDate.getTime() - verifiedAtDate.getTime()
+        const diffInDays = diffInMs / (1000 * 60 * 60 * 24)
+        if (diffInDays > 60)
+          throw new HTTPException(500, {
+            message: 'Phone re-verification required',
+          })
+
+        const verifiedAt = new Date(
+          contactInfo.phoneVerifiedAt * 1000,
+        ).toISOString()
         const response = await fetch(`https://${host}${path}`, {
           body: JSON.stringify({
-            agreementAcceptedAt: contactInfo.phoneVerifiedAt,
+            agreementAcceptedAt: verifiedAt,
             destinationAddress: address,
             destinationNetwork: 'base',
             domain: json.domain,
@@ -64,8 +76,8 @@ onrampApp.post(
             partnerUserRef: `${json.sandbox ? 'sandbox-' : ''}${address}`,
             paymentCurrency: 'USD',
             paymentMethod: 'GUEST_CHECKOUT_APPLE_PAY',
-            phoneNumber: contactInfo.phone,
-            phoneNumberVerifiedAt: contactInfo.phoneVerifiedAt,
+            phoneNumber: contactInfo.phone.split(' ').join(''),
+            phoneNumberVerifiedAt: verifiedAt,
             purchaseAmount: json.amount.toString(),
             purchaseCurrency: 'USDC',
           }),
