@@ -1,5 +1,6 @@
 import { Env, Theme } from '@porto/apps'
 import * as Sentry from '@sentry/react'
+import { Address } from 'ox'
 import { TrustedHosts } from 'porto/internal'
 import { Events } from 'porto/remote'
 import { Actions } from 'porto/wagmi'
@@ -80,7 +81,7 @@ const offDialogRequest = Events.onDialogRequest(
   async ({ account, request }) => {
     const connectedAccount = porto._internal.store.getState().accounts[0]
     const requireAccountSync =
-      account && account.address !== connectedAccount?.address
+      account && !Address.isEqual(account.address, connectedAccount?.address)
 
     // Clear errors when the request is null (i.e. when the dialog is closed).
     if (!request) return Dialog.store.setState({ error: null })
