@@ -1,6 +1,7 @@
 import { Hex, Value } from 'ox'
 import { baseSepolia } from 'porto/core/Chains'
 import { porto as portoConnector } from 'porto/wagmi'
+import { createClient } from 'viem'
 import { createConfig, http } from 'wagmi'
 import { exp1Address, exp2Address, expNftAddress } from './contracts.ts'
 
@@ -11,6 +12,11 @@ export const config = createConfig({
   transports: {
     [baseSepolia.id]: http(),
   },
+})
+
+export const client = createClient({
+  chain: baseSepolia,
+  transport: http('https://rpc.porto.sh'),
 })
 
 declare module 'wagmi' {

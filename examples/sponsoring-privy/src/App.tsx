@@ -1,7 +1,8 @@
 import { usePrivy, useWallets } from '@privy-io/react-auth'
-import { Hex } from 'ox'
-import { Account } from 'porto/viem'
-import { Hooks } from 'porto/wagmi'
+import { Hex, Json } from 'ox'
+import { baseSepolia } from 'porto/core/Chains'
+import { Account, RelayActions } from 'porto/viem'
+import * as React from 'react'
 import { formatEther, parseEther } from 'viem'
 import {
   type BaseError,
@@ -12,8 +13,8 @@ import {
   useSendCalls,
   useWaitForCallsStatus,
 } from 'wagmi'
-import { porto } from 'wagmi/connectors'
 
+import { client } from './config'
 import { exp1Address, exp1Config } from './contracts'
 
 export function App() {
@@ -45,7 +46,10 @@ function PrivyAccount() {
     (wallet) => wallet.walletClientType === 'privy',
   )
 
-  const upgradeAccount = Hooks.useUpgradeAccount()
+  const [signature, setSignature] = React.useState<string | null>(null)
+  const [upgradedAccount, setUpgradedAccount] =
+    React.useState<RelayActions.upgradeAccount.ReturnType | null>(null)
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
 
   return (
     <section>
@@ -67,39 +71,55 @@ function PrivyAccount() {
       <div>
         <h2>Upgrade Account</h2>
         <button
-          onClick={() => {
-            if (!embeddedWallet) return
-            if (!privy.user?.wallet?.address) return
+          onClick={async () => {
+            try {
+              if (!embeddedWallet) return
+              if (!privy.user?.wallet?.address) return
 
-            const account = Account.from({
-              address: privy.user?.wallet?.address as `0x${string}`,
-              sign: async (parameters) => {
-                const provider = await embeddedWallet.getEthereumProvider()
-                const signature = await provider.request({
-                  method: 'secp256k1_sign',
-                  params: [parameters.hash],
-                })
+              const account = Account.from({
+                address: privy.user?.wallet?.address as `0x${string}`,
+                sign: async (parameters) => {
+                  const provider = await embeddedWallet.getEthereumProvider()
+                  const signature = await provider.request({
+                    method: 'secp256k1_sign',
+                    params: [parameters.hash],
+                  })
+                  console.info(signature)
+                  setSignature(signature)
 
-                Hex.assert(signature)
+                  Hex.assert(signature)
 
-                return signature
-              },
-            })
-            upgradeAccount.mutate({ account, connector: porto() })
+                  return signature
+                },
+                source: 'privateKey',
+              })
+              console.info(account)
+              const upgradedAccount = await RelayActions.upgradeAccount(
+                client,
+                {
+                  account,
+                  chain: baseSepolia,
+                },
+              )
+              setUpgradedAccount(upgradedAccount)
+            } catch (error) {
+              const errorMessage =
+                error instanceof Error
+                  ? error.message
+                  : Json.stringify(error, undefined, 2)
+              console.error(errorMessage)
+              setErrorMessage(errorMessage)
+            }
           }}
           type="button"
         >
           Upgrade Account
         </button>
-        <div>{upgradeAccount.status}</div>
-        {upgradeAccount.error && (
-          <div>
-            Error:{' '}
-            {(upgradeAccount.error as BaseError).shortMessage ||
-              upgradeAccount.error.message}
-          </div>
+        {errorMessage && <pre>{errorMessage}</pre>}
+        {signature && <pre>{JSON.stringify({ signature }, null, 2)}</pre>}
+        {upgradedAccount && (
+          <pre>{JSON.stringify(upgradedAccount, null, 2)}</pre>
         )}
-        <pre>{JSON.stringify(upgradeAccount.data, null, 2)}</pre>
       </div>
     </section>
   )
