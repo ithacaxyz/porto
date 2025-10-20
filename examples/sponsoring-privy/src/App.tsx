@@ -92,7 +92,13 @@ function PrivyAccount() {
           Upgrade Account
         </button>
         <div>{upgradeAccount.status}</div>
-        <div>{upgradeAccount.error?.message}</div>
+        {upgradeAccount.error && (
+          <div>
+            Error:{' '}
+            {(upgradeAccount.error as BaseError).shortMessage ||
+              upgradeAccount.error.message}
+          </div>
+        )}
         <pre>{JSON.stringify(upgradeAccount.data, null, 2)}</pre>
       </div>
     </section>
