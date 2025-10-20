@@ -478,7 +478,7 @@ function FundsNeededSection(props: {
                 'onramp_api.apple_pay_button_pressed' ||
               onramp.lastOrderEvent?.eventName ===
                 'onramp_api.polling_start') && (
-              <ApplePayButton label="Pay with" loading />
+              <ApplePayButton label="Buy with" loading />
             )}
           </div>
         ) : (
@@ -508,7 +508,7 @@ function FundsNeededSection(props: {
 export function ApplePayButton(
   props: Omit<Button.Props, 'children'> & { label: string },
 ) {
-  const { label = 'Pay with', loading } = props
+  const { label = 'Buy with', loading } = props
   const content = (
     <div className="flex items-center gap-[6px]">
       {label}

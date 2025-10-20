@@ -39,7 +39,6 @@ export function AddFunds(props: AddFunds.Props) {
     enabled: Boolean(showApplePay && address),
     async queryFn() {
       if (!address) throw new Error('address required')
-      const timestamp = Math.floor(Date.now() / 1000)
       return await RelayActions.onrampStatus(client, { address })
     },
     queryKey: ['onrampStatus', address],
@@ -246,7 +245,7 @@ export function AddFunds(props: AddFunds.Props) {
                   lastOrderEvent?.eventName ===
                     'onramp_api.apple_pay_button_pressed' ||
                   lastOrderEvent?.eventName === 'onramp_api.polling_start') && (
-                  <ApplePayButton label="Pay with" loading />
+                  <ApplePayButton label="Buy with" loading />
                 )}
               </div>
             ) : (
