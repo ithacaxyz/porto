@@ -1,4 +1,4 @@
-import React from '@vitejs/plugin-react-swc'
+import React from '@vitejs/plugin-react'
 import Dts from 'unplugin-dts/vite'
 import { defineConfig } from 'vite'
 import TsconfigPaths from 'vite-tsconfig-paths'
