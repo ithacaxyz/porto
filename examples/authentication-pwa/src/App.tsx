@@ -2,7 +2,7 @@ import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { useAccount, useConnectors, useDisconnect } from 'wagmi'
 
-import PWABadge from './PWABadge.tsx'
+import PWABadge from './pwa-badge.tsx'
 
 export function App() {
   const account = useAccount()
@@ -72,18 +72,18 @@ function Me() {
   const [me, setMe] = React.useState<string | null>(null)
 
   return (
-    <div>
+    <div style={{ margin: '20px auto' }}>
       <button
         onClick={() => {
           void fetch('/api/me', { credentials: 'include' })
-            .then((res) => res.text())
-            .then((data) => setMe(data))
+            .then((res) => res.json())
+            .then((data) => setMe(JSON.stringify(data, undefined, 2)))
         }}
         type="button"
       >
         Fetch /me (authenticated endpoint)
       </button>
-      <div>{me}</div>
+      <pre style={{ textAlign: 'left', width: '100%' }}>{me}</pre>
     </div>
   )
 }

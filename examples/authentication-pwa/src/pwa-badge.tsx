@@ -30,24 +30,24 @@ function PWABadge() {
   }
 
   return (
-    <div aria-labelledby="toast-message" className="PWABadge" role="alert">
+    <div aria-labelledby="toast-message" role="alert">
       {needRefresh && (
-        <div className="PWABadge-toast">
-          <div className="PWABadge-message">
+        <div className="mb-2">
+          <div className="mb-2">
             <span id={id}>
               New content available, click on reload button to update.
             </span>
           </div>
-          <div className="PWABadge-buttons">
+          <div className="flex gap-2">
             <button
-              className="PWABadge-toast-button"
+              className="rounded-md bg-primary px-4 py-2 text-white"
               onClick={() => updateServiceWorker(true)}
               type="button"
             >
               Reload
             </button>
             <button
-              className="PWABadge-toast-button"
+              className="rounded-md bg-secondary px-4 py-2 text-white"
               onClick={() => close()}
               type="button"
             >

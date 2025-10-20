@@ -20,7 +20,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.13.1",
+    "@cloudflare/vite-plugin": "^1.13.13",
     "@cloudflare/workers-types": "^4.20251008.0",
     "@types/node": "catalog:",
     "typescript": "catalog:",

@@ -1,6 +1,9 @@
 auditConfig:
   ignoreGhsas:
     - GHSA-ffrw-9mx8-89p8
+ignorePatchFailures: false
+resolutionMode: "lowest-direct"
+verifyDepsBeforeRun: "install"
 catalog:
   "@ariakit/react": "^0.4.18"
   "@ariakit/tailwind": "^0.1.8"
@@ -53,4 +56,3 @@ packages:
   - "."
   - "apps/*"
   - "docker/*"
-  - "examples/*"

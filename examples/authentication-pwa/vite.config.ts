@@ -1,12 +1,13 @@
 import { cloudflare } from '@cloudflare/vite-plugin'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import mkcert from 'vite-plugin-mkcert'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
   plugins: [
-    react(),
     cloudflare(),
+    mkcert(),
     VitePWA({
       devOptions: {
         enabled: true,
@@ -33,6 +34,7 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
       },
     }),
+    react(),
   ],
   server: {
     cors: {
