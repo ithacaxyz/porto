@@ -8,14 +8,6 @@ import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import LucideAsterisk from '~icons/lucide/asterisk'
 
-async function noop(name: string) {
-  console.log('started:', name)
-  await new Promise((resolve) => {
-    console.log('finished:', name)
-    setTimeout(resolve, 2_000)
-  })
-}
-
 export function SetupApplePay(props: SetupApplePay.Props) {
   const {
     address,
