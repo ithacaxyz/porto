@@ -1,18 +1,23 @@
-import { type Address, Hex, Value } from 'ox'
-import { Porto } from 'porto'
-import { createClient, custom } from 'viem'
-import { baseSepolia } from 'viem/chains'
-
+import { Hex, Value } from 'ox'
+import { baseSepolia } from 'porto/core/Chains'
+import { porto as portoConnector } from 'porto/wagmi'
+import { createConfig, http } from 'wagmi'
 import { exp1Address, exp2Address, expNftAddress } from './contracts.ts'
 
-export const porto = Porto.create({
-  merchantUrl: '/api/merchant',
+export const config = createConfig({
+  chains: [baseSepolia],
+  connectors: [portoConnector({ merchantUrl: '/porto/merchant' })],
+  multiInjectedProviderDiscovery: false,
+  transports: {
+    [baseSepolia.id]: http(),
+  },
 })
 
-export const client = createClient({
-  chain: baseSepolia,
-  transport: custom(porto.provider),
-})
+declare module 'wagmi' {
+  interface Register {
+    config: typeof config
+  }
+}
 
 export const permissions = () =>
   ({
@@ -24,29 +29,21 @@ export const permissions = () =>
     permissions: {
       calls: [
         {
-          to: exp1Address[
-            baseSepolia.id as keyof typeof exp1Address
-          ] as Address.Address,
+          to: exp1Address,
         },
         {
-          to: exp2Address[
-            baseSepolia.id as keyof typeof exp2Address
-          ] as Address.Address,
+          to: exp2Address,
         },
         {
           signature: 'mint(address)',
-          to: expNftAddress[
-            baseSepolia.id as keyof typeof expNftAddress
-          ] as Address.Address,
+          to: expNftAddress,
         },
       ],
       spend: [
         {
           limit: Hex.fromNumber(Value.fromEther('50000')),
           period: 'month',
-          token: exp1Address[
-            baseSepolia.id as keyof typeof exp1Address
-          ] as Address.Address,
+          token: exp1Address,
         },
       ],
     },
