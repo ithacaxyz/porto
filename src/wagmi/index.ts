@@ -1,4 +1,4 @@
-import '../react-native/register.js'
+import '../react-native/crypto.js'
 
 export * as Actions from './Actions.js'
 export { type PortoParameters, porto } from './Connector.js'

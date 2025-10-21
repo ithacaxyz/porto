@@ -1,4 +1,4 @@
-import '../react-native/register.js'
+import '../react-native/crypto.js'
 
 export {
   useAddFunds,
