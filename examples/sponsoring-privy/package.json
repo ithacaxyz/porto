@@ -6,9 +6,9 @@
     "dev": "vite dev",
     "build": "vite build",
     "build:types": "wrangler types --include-runtime=false",
-    "deploy": "bun run build && wrangler deploy",
-    "prepreview": "bun run build:types",
-    "preview": "bun run build && vite preview"
+    "deploy": "pnpm run build && wrangler deploy",
+    "prepreview": "pnpm run build:types",
+    "preview": "pnpm run build && vite preview"
   },
   "dependencies": {
     "@privy-io/react-auth": "^3.3.0",
