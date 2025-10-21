@@ -91,7 +91,7 @@ export function ActionPreview(props: ActionPreview.Props) {
   }, [onQuotesRefetch])
   const { createOrder, lastOrderEvent } = useOnrampOrder({
     onApprove,
-    // TODO: Flip to `false`
+    // TODO(onramp): Flip to `false`
     sandbox: true,
   })
   const [iframeLoaded, setIframeLoaded] = React.useState(false)
@@ -514,7 +514,7 @@ export function ApplePayButton(
     <div className="flex items-center gap-[6px]">
       {label}
       <svg
-        className="mt-1"
+        className="mt-0.5 sm:mt-1"
         height="20"
         version="1.1"
         viewBox="0 0 105 43"
@@ -558,16 +558,20 @@ export function ApplePayIframe(props: {
   src: string
 }) {
   const { loaded, lastOrderEvent, setLoaded, src } = props
+  const isMobileSafari = React.useMemo(
+    () => UserAgent.isMobile() && UserAgent.isSafari(),
+    [],
+  )
   return (
     <iframe
-      {...(!UserAgent.isFirefox() && {
-        allow: 'payment',
-      })}
+      {...(!UserAgent.isFirefox() && { allow: 'payment' })}
       className={cx(
         'h-12.5 w-full overflow-hidden border-0 bg-transparent',
         lastOrderEvent?.eventName === 'onramp_api.apple_pay_button_pressed' ||
           lastOrderEvent?.eventName === 'onramp_api.polling_start'
-          ? 'overflow-visible! fixed inset-0 z-100 h-full!'
+          ? isMobileSafari
+            ? 'sr-only'
+            : 'overflow-visible! fixed inset-0 z-100 h-full!'
           : 'w-full border-0 bg-transparent',
         !loaded && 'sr-only!',
       )}

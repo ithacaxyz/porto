@@ -6,17 +6,35 @@ import { zeroAddress } from 'viem'
 import * as z from 'zod/mini'
 import * as Dialog from './Dialog'
 
+const hostnames = [
+  'playground.porto.sh',
+  // TODO(onramp): Enable hostnames
+  // 'relay.link',
+]
+
 export function useShowApplePay() {
   const referrer = Dialog.useStore((state) => state.referrer)
+  const mode = Dialog.useStore((state) => state.mode)
   return React.useMemo(() => {
+    // Disallow in-app browsers
     if (UserAgent.isInAppBrowser()) return false
+    // Disallow non-Safari mobile browsers
     if (UserAgent.isMobile() && !UserAgent.isSafari()) return false
+    // Allow localhost (including [env].localhost)
+    if (referrer?.url?.hostname.endsWith('localhost')) return true
+    // Disallow Firefox when in iframe mode
+    if (
+      UserAgent.isFirefox() &&
+      (mode === 'iframe' || mode === 'inline-iframe')
+    )
+      return false
+    // Only allow sites that are allowlisted
     return Boolean(
-      referrer?.url?.hostname.endsWith('localhost') ||
-        referrer?.url?.hostname === 'playground.porto.sh' ||
+      hostnames.includes(referrer?.url?.hostname ?? '') ||
+        // Or Vercel porto previews
         referrer?.url?.hostname.endsWith('preview.porto.sh'),
     )
-  }, [referrer?.url])
+  }, [mode, referrer?.url])
 }
 
 export function useOnrampOrder(props: {
