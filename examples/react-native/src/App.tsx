@@ -28,12 +28,12 @@ import {
   useCapabilities,
   useChainId,
   useConnect,
-  useConnectorClient,
   useConnectors,
   useDisconnect,
   useSendCalls,
   useSignMessage,
   useWaitForCallsStatus,
+  useWalletClient,
 } from 'wagmi'
 
 import { config, permissions } from './config.ts'
@@ -316,7 +316,7 @@ function PreparedCalls() {
   const chainId = useChainId()
   const account = useAccount()
 
-  const connectorClient = useConnectorClient({ config })
+  const client = useWalletClient({ config })
 
   const [hash, setHash] = React.useState<Hex.Hex | null>(null)
 
@@ -325,7 +325,7 @@ function PreparedCalls() {
     if (!account.chain) throw new Error('Account chain not found')
 
     const preparedCalls = await RelayActions.prepareCalls(
-      connectorClient as never,
+      client.data as never,
       {
         calls: [
           {
@@ -349,11 +349,11 @@ function PreparedCalls() {
     )
 
     const { id: hash } = await RelayActions.sendPreparedCalls(
-      connectorClient as never,
+      client.data as never,
       { ...preparedCalls, signature },
     )
     setHash(hash)
-  }, [account.chain, chainId, connectorClient, account.address])
+  }, [account.chain, chainId, client.data, account.address])
 
   return (
     <View style={{ marginBottom: 16 }}>

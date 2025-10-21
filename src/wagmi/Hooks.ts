@@ -1,3 +1,5 @@
+import '../react-native/register.js'
+
 export {
   useAddFunds,
   useAdmins,
