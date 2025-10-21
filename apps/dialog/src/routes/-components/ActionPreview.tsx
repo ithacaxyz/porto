@@ -566,11 +566,11 @@ export function ApplePayIframe(props: {
     <iframe
       {...(!UserAgent.isFirefox() && { allow: 'payment' })}
       className={cx(
-        'h-12.5 w-full overflow-hidden border-0 bg-transparent',
+        'h-12.5 w-full overflow-hidden border-0 bg-transparent!',
         lastOrderEvent?.eventName === 'onramp_api.apple_pay_button_pressed' ||
           lastOrderEvent?.eventName === 'onramp_api.polling_start'
           ? isMobileSafari
-            ? 'sr-only'
+            ? 'sr-only!'
             : 'overflow-visible! fixed inset-0 z-100 h-full!'
           : 'w-full border-0 bg-transparent',
         !loaded && 'sr-only!',

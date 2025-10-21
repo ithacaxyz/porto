@@ -9,6 +9,7 @@ import * as Dialog from './Dialog'
 const hostnames = [
   'playground.porto.sh',
   // TODO(onramp): Enable hostnames
+  // 'id.porto.sh',
   // 'relay.link',
 ]
 
@@ -39,11 +40,10 @@ export function useShowApplePay() {
 
 export function useOnrampOrder(props: {
   domain?: string | undefined
-  dummy?: boolean | undefined
   sandbox?: boolean | undefined
   onApprove: (result: { id: Hex.Hex }) => void
 }) {
-  const { dummy, sandbox = true, onApprove } = props
+  const { sandbox = true, onApprove } = props
 
   const domain =
     props.domain ??
@@ -54,20 +54,6 @@ export function useOnrampOrder(props: {
     )
   const createOrder = useMutation({
     async mutationFn(variables: { address: string; amount: string }) {
-      if (dummy) {
-        console.log(
-          'started:',
-          `${import.meta.env.VITE_WORKERS_URL}/onramp/orders`,
-        )
-        await new Promise((resolve) => {
-          console.log(
-            'finished:',
-            `${import.meta.env.VITE_WORKERS_URL}/onramp/orders`,
-          )
-          setTimeout(resolve, 2_000)
-        })
-        return { orderId: 'foo', type: 'apple', url: 'https://example.com' }
-      }
       const response = await fetch(
         `${import.meta.env.VITE_WORKERS_URL}/onramp/orders`,
         {
@@ -102,7 +88,7 @@ export function useOnrampOrder(props: {
   )
   const lastOrderEvent = React.useMemo(() => orderEvents.at(-1), [orderEvents])
 
-  // TODO: add iframe loading timeout
+  // TODO(onramp): add iframe loading timeout (onramp_api.load_pending => onramp_api.load_success takes more than 5s)
   React.useEffect(() => {
     function handlePostMessage(event: MessageEvent) {
       if (event.origin !== 'https://pay.coinbase.com') return
