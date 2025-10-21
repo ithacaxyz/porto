@@ -1,311 +1,273 @@
 import { usePrivy, useWallets } from '@privy-io/react-auth'
-import { Hex, Json, Secp256k1 } from 'ox'
+import { useSetActiveWallet } from '@privy-io/wagmi'
+import { useQuery } from '@tanstack/react-query'
+import { Address, Hex, Json, Secp256k1 } from 'ox'
 import { baseSepolia } from 'porto/core/Chains'
 import { Account, Key, RelayActions } from 'porto/viem'
 import * as React from 'react'
-import { formatEther, parseEther } from 'viem'
-import { useReadContract } from 'wagmi'
+import { parseEther } from 'viem'
+import { useAccount, useWaitForCallsStatus } from 'wagmi'
 
-import { client, permissions } from './config'
+import { permissions, client as relayClient } from './config'
 import { exp1Address, exp1Config } from './contracts'
 
 export function App() {
   const privy = usePrivy()
 
   if (!privy.ready) return <div>Loading...</div>
-  return <PrivyAccount />
+  return (
+    <main>
+      <ConnectOrCreate />
+      <UpgradeAccount />
+      <SponsoredMint />
+    </main>
+  )
 }
 
-function PrivyAccount() {
+function ConnectOrCreate() {
   const privy = usePrivy()
-  const { wallets } = useWallets()
-  const embeddedWallet = wallets.find(
-    (wallet) => wallet.walletClientType === 'privy',
+  const wallet = useWallet()
+
+  if (!wallet) return null
+
+  return (
+    <div>
+      <h2>Account</h2>
+      <button
+        onClick={async () => {
+          if (privy.user) return await privy.logout()
+
+          return privy.login({
+            loginMethods: ['wallet', 'passkey', 'farcaster', 'email'],
+            walletChainType: 'ethereum-only',
+          })
+        }}
+        type="button"
+      >
+        {privy.user ? 'Logout' : 'Connect or Create'}
+      </button>
+      {wallet.embedded && (
+        <pre>
+          {JSON.stringify(
+            {
+              embedded: wallet.embedded,
+              selectedWallet: {
+                addresses: wallet.selected.addresses,
+                chainId: wallet.selected.chainId,
+                status: wallet.selected.status,
+              },
+            },
+            null,
+            2,
+          )}
+        </pre>
+      )}
+    </div>
   )
+}
 
-  const [signatures, setSignatures] =
-    React.useState<Array<`0x${string}`> | null>(null)
-  const [account, setAccount] =
-    React.useState<Account.Account<'privateKey'> | null>(null)
-  const [upgradedAccount, setUpgradedAccount] =
-    React.useState<RelayActions.upgradeAccount.ReturnType | null>(null)
-  const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
-  const [sessionKey, setSessionKey] = React.useState<Key.Key | null>(null)
-  const [autoUpgrade, setAutoUpgrade] = React.useState(false)
-  const [pendingAutoUpgradeUserId, setPendingAutoUpgradeUserId] =
-    React.useState<string | null>(null)
-  const lastKnownUserIdRef = React.useRef<string | null>(null)
-
-  const [error, setError] = React.useState<string | null>(null)
-  const [isPending, setIsPending] = React.useState(false)
-  const [isConfirmed, setIsConfirmed] = React.useState(false)
-  const [data, setData] =
-    React.useState<RelayActions.sendCalls.ReturnType | null>(null)
-
-  const handleUpgrade = React.useCallback(async () => {
-    try {
-      if (!embeddedWallet) throw new Error('Embedded wallet not available.')
-      if (!privy.user?.wallet?.address)
-        throw new Error('Wallet address is not available for this user.')
-
-      setErrorMessage(null)
-      setSignatures([])
-      setSessionKey(null)
-
-      const policy = permissions()
+function useSessionKey() {
+  return useQuery({
+    queryFn: () => {
       const privateKey = Secp256k1.randomPrivateKey()
       const key = Key.fromSecp256k1({
-        expiry: policy.expiry,
-        feeToken: {
-          limit: '10000',
-          symbol: policy.feeToken.symbol,
-        },
-        permissions: policy.permissions,
+        ...permissions(),
         privateKey,
         role: 'session',
       })
-      console.info(key)
-      setSessionKey(key)
+      return { key, privateKey }
+    },
+    queryKey: ['sessionKey'],
+  })
+}
 
-      const account = Account.from({
-        address: privy.user?.wallet?.address as `0x${string}`,
-        keys: [key],
+function usePortoFromPrivyAccount() {
+  const wallet = useWallet()
+  const sessionKey = useSessionKey()
+
+  return useQuery({
+    enabled:
+      !!sessionKey.data?.key &&
+      !!wallet.embedded &&
+      Address.validate(wallet.embedded.address),
+    queryFn: () =>
+      Account.from({
+        address: wallet.embedded?.address as `0x${string}`,
+        keys: [sessionKey.data?.key as Key.Key],
         sign: async (parameters) => {
-          console.info(parameters)
-          const provider = await embeddedWallet.getEthereumProvider()
+          if (!wallet.embedded)
+            throw new Error('Embedded wallet not available.')
+          const provider = await wallet.embedded.getEthereumProvider()
           const signature = await provider.request({
             method: 'secp256k1_sign',
             params: [parameters.hash],
           })
-          console.info('signature', signature)
-          setSignatures((prev) => [...(prev ?? []), signature])
-
           Hex.assert(signature)
-
           return signature
         },
         source: 'privateKey',
-      })
-      console.info(account)
-      setAccount(account)
+      }),
+    queryKey: ['porto-from-privy-account', wallet.embedded?.address],
+  })
+}
 
-      const upgradedAccount = await RelayActions.upgradeAccount(client, {
-        account,
-        authorizeKeys: [key],
+function useUpgradePortoFromPrivyAccount() {
+  const privy = usePrivy()
+  const wallet = useWallet()
+  const sessionKey = useSessionKey()
+
+  const [upgradedAccount, setUpgradedAccount] =
+    React.useState<RelayActions.upgradeAccount.ReturnType | null>(null)
+
+  const [error, setError] = React.useState<string | null>(null)
+
+  const [status, setStatus] = React.useState<
+    'idle' | 'loading' | 'success' | 'error'
+  >('idle')
+
+  const account = usePortoFromPrivyAccount()
+
+  async function upgradeAccount() {
+    setStatus('loading')
+    try {
+      if (!account.data) throw new Error('Account not available.')
+      if (!sessionKey.data?.key) throw new Error('Session key not available.')
+
+      const upgradedAccount = await RelayActions.upgradeAccount(relayClient, {
+        account: account.data,
+        authorizeKeys: [sessionKey.data.key],
         chain: baseSepolia,
       })
-      setUpgradedAccount(upgradedAccount)
 
-      try {
-        await RelayActions.sendCalls(client, {
-          account,
-          authorizeKeys: [key],
-          calls: [],
-          chain: baseSepolia,
-          // @ts-expect-error
-          key: null,
-          merchantUrl: '/porto/merchant',
-        })
-      } catch (error) {
-        const primingErrorMessage =
-          error instanceof Error
-            ? error.message
-            : Json.stringify(error, undefined, 2)
-        console.error(primingErrorMessage)
-        setErrorMessage(primingErrorMessage)
-      }
+      // propagate session key on-chain
+      void (await RelayActions.sendCalls(relayClient, {
+        account: account.data,
+        authorizeKeys: [sessionKey.data.key],
+        calls: [],
+        chain: baseSepolia,
+        // @ts-expect-error
+        key: null,
+        merchantUrl: '/porto/merchant',
+      }))
+
+      setUpgradedAccount(upgradedAccount)
+      setStatus('success')
+      return upgradedAccount
     } catch (error) {
+      setStatus('error')
       const errorMessage =
         error instanceof Error
           ? error.message
           : Json.stringify(error, undefined, 2)
       console.error(errorMessage)
-      setErrorMessage(errorMessage)
+      setError(errorMessage)
     }
-  }, [embeddedWallet, privy.user])
+  }
 
-  React.useEffect(() => {
-    const primaryUserId =
-      privy.user?.id ??
-      privy.user?.wallet?.address ??
-      privy.user?.email?.address ??
-      null
+  if (!sessionKey.data?.key) return undefined
+  if (!privy.user?.wallet?.address) return undefined
+  if (!wallet.embedded || !Address.validate(wallet.embedded.address))
+    return undefined
 
-    const lastUserId = lastKnownUserIdRef.current
-
-    if (primaryUserId !== lastUserId) {
-      lastKnownUserIdRef.current = primaryUserId
-
-      if (!primaryUserId) {
-        setPendingAutoUpgradeUserId(null)
-        return
-      }
-
-      if (autoUpgrade) setPendingAutoUpgradeUserId(primaryUserId)
-      else setPendingAutoUpgradeUserId(null)
-
-      return
-    }
-
-    if (!autoUpgrade && pendingAutoUpgradeUserId) {
-      setPendingAutoUpgradeUserId(null)
-    }
-  }, [autoUpgrade, pendingAutoUpgradeUserId, privy.user])
-
-  React.useEffect(() => {
-    if (!autoUpgrade) return
-    if (!pendingAutoUpgradeUserId) return
-
-    const currentUserId =
-      privy.user?.id ??
-      privy.user?.wallet?.address ??
-      privy.user?.email?.address ??
-      null
-
-    if (!currentUserId) return
-    if (currentUserId !== pendingAutoUpgradeUserId) return
-    if (!embeddedWallet) return
-
-    let cancelled = false
-
-    const upgrade = async () => {
-      try {
-        await handleUpgrade()
-      } finally {
-        if (!cancelled) setPendingAutoUpgradeUserId(null)
-      }
-    }
-
-    void upgrade()
-
-    return () => {
-      cancelled = true
-    }
-  }, [
-    autoUpgrade,
-    embeddedWallet,
-    handleUpgrade,
-    pendingAutoUpgradeUserId,
-    privy.user,
-  ])
-  return (
-    <section>
-      <div>
-        <h2>Privy Account</h2>
-        <button
-          onClick={async () => {
-            if (privy.user) {
-              await privy.logout()
-              setPendingAutoUpgradeUserId(null)
-              lastKnownUserIdRef.current = null
-            } else
-              privy.login({
-                loginMethods: ['passkey', 'email', 'wallet'],
-                walletChainType: 'ethereum-only',
-              })
-          }}
-          type="button"
-        >
-          {privy.user ? 'Logout' : 'Login'}
-        </button>
-        <label>
-          <input
-            checked={autoUpgrade}
-            onChange={(event) => {
-              const { checked } = event.target
-              setAutoUpgrade(checked)
-              if (!checked) setPendingAutoUpgradeUserId(null)
-            }}
-            type="checkbox"
-          />
-          Auto upgrade
-        </label>
-        <pre>{JSON.stringify(privy.user, null, 2)}</pre>
-      </div>
-      <div>
-        <h2>Upgrade Account</h2>
-        <button
-          onClick={() => {
-            void handleUpgrade()
-          }}
-          type="button"
-        >
-          Upgrade Account
-        </button>
-        {errorMessage && <pre>{errorMessage}</pre>}
-        {signatures && <pre>{Json.stringify({ signatures }, null, 2)}</pre>}
-        {upgradedAccount && (
-          <pre>{Json.stringify(upgradedAccount, null, 2)}</pre>
-        )}
-      </div>
-      {account && (
-        <div>
-          <h2>Mint EXP</h2>
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault()
-              try {
-                console.info(account)
-                if (!sessionKey) throw new Error('Session key not ready.')
-                const data = await RelayActions.sendCalls(client, {
-                  account,
-                  calls: [
-                    {
-                      ...exp1Config,
-                      args: [account.address, parseEther('10')],
-                      functionName: 'mint',
-                      to: exp1Address,
-                    },
-                  ],
-                  chain: baseSepolia,
-                  key: sessionKey,
-                  merchantUrl: '/porto/merchant',
-                })
-                setData(data)
-                setIsPending(true)
-                setIsConfirmed(true)
-              } catch (error) {
-                console.error(error)
-                const errorMessage =
-                  error instanceof Error
-                    ? error.message
-                    : Json.stringify(error, undefined, 2)
-                setError(errorMessage)
-                setIsPending(false)
-                setIsConfirmed(false)
-              }
-            }}
-          >
-            <button disabled={isPending} type="submit">
-              {isPending ? 'Confirming...' : 'Mint 100 EXP'}
-            </button>
-          </form>
-          {data?.id && <div>Transaction Hash: {data.id}</div>}
-          {isConfirmed && 'Transaction confirmed.'}
-          {error && <pre>{error}</pre>}
-        </div>
-      )}
-      {account && <Balance address={account.address} />}
-    </section>
-  )
+  return { error, status, upgradeAccount, upgradedAccount }
 }
 
-function Balance(props: { address: `0x${string}` }) {
-  const { data: balance } = useReadContract({
-    chainId: baseSepolia.id,
-    ...exp1Config,
-    args: [props.address],
-    functionName: 'balanceOf',
-    query: {
-      enabled: !!props.address,
-      refetchInterval: 2_000,
-    },
-  })
+function UpgradeAccount() {
+  const portoFromPrivy = useUpgradePortoFromPrivyAccount()
+
+  if (!portoFromPrivy) return null
 
   return (
     <div>
-      <h2>Balance</h2>
-      <div>Balance: {formatEther(balance ?? 0n)} EXP</div>
+      <h2>Upgrade Account</h2>
+      <button onClick={portoFromPrivy.upgradeAccount} type="button">
+        Upgrade Account
+      </button>
+      {portoFromPrivy.status === 'loading' && <pre>Loading...</pre>}
+      {portoFromPrivy.status === 'success' && <pre>Success</pre>}
+      {portoFromPrivy.status === 'error' && (
+        <pre>Error: {portoFromPrivy.error}</pre>
+      )}
+      {portoFromPrivy.error && <pre>Error: {portoFromPrivy.error}</pre>}
+      {portoFromPrivy.upgradedAccount && (
+        <pre>{Json.stringify(portoFromPrivy.upgradedAccount, null, 2)}</pre>
+      )}
     </div>
   )
+}
+
+function SponsoredMint() {
+  const wallet = useWallet()
+  const sessionKey = useSessionKey()
+  const account = usePortoFromPrivyAccount()
+
+  const [id, setId] = React.useState<Hex.Hex | undefined>(undefined)
+
+  const callStatus = useWaitForCallsStatus({
+    id,
+    query: { enabled: !!id },
+  })
+
+  if (!account.data) return null
+
+  return (
+    <div>
+      <h2>Sponsored Mint</h2>
+      <button
+        disabled={
+          callStatus.isLoading || !account.data || !sessionKey.data?.key
+        }
+        onClick={async () => {
+          if (!account.data) throw new Error('Account not available.')
+          if (!sessionKey.data?.key)
+            throw new Error('Session key not available.')
+          const result = await RelayActions.sendCalls(relayClient, {
+            account: account.data,
+            calls: [
+              {
+                ...exp1Config,
+                args: [account.data.address, parseEther('100')],
+                functionName: 'mint',
+                to: exp1Address,
+              },
+            ],
+            chain: wallet.selected.chain,
+            key: sessionKey.data.key,
+            merchantUrl: '/porto/merchant',
+          })
+          setId(result.id)
+        }}
+        type="button"
+      >
+        mint 100 EXP
+      </button>
+      {id && <pre>{Json.stringify({ bundleId: id }, null, 2)}</pre>}
+      {callStatus.isSuccess && <pre>Transaction confirmed.</pre>}
+      {callStatus.isLoading && <pre>Waiting for confirmation...</pre>}
+      {callStatus.isError && <pre>Error: {callStatus.error?.message}</pre>}
+      {callStatus.data?.receipts?.at(0)?.transactionHash && (
+        <pre>
+          Transaction Hash: {callStatus.data.receipts.at(0)?.transactionHash}
+        </pre>
+      )}
+    </div>
+  )
+}
+
+function useWallet() {
+  const { wallets: allWallets } = useWallets()
+  const selected = useAccount()
+  const embedded = allWallets.find(
+    (wallet) => wallet.walletClientType === 'privy',
+  )
+  const { setActiveWallet } = useSetActiveWallet()
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: _
+  React.useEffect(() => {
+    const wallet = allWallets.at(0)
+    if (allWallets.length > 0 && !selected.address && wallet)
+      void setActiveWallet(wallet)
+  }, [allWallets, selected.address])
+
+  return { all: allWallets, embedded, selected }
 }

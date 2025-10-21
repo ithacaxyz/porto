@@ -1,9 +1,11 @@
+import { createConfig } from '@privy-io/wagmi'
 import { Value } from 'ox'
 import { Porto } from 'porto'
 import { baseSepolia } from 'porto/core/Chains'
 import { porto as portoConnector } from 'porto/wagmi'
 import { createClient } from 'viem'
-import { createConfig, http } from 'wagmi'
+import { http } from 'wagmi'
+
 import { exp1Address, exp2Address, expNftAddress } from './contracts.ts'
 
 export const config = createConfig({
@@ -35,7 +37,7 @@ export const permissions = () =>
   ({
     expiry: Math.floor(Date.now() / 1_000) + 60 * 60 * 24 * 30, // 30 days
     feeToken: {
-      limit: Value.fromEther('10000'),
+      limit: '10000',
       symbol: 'EXP',
     },
     permissions: {

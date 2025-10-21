@@ -4,11 +4,11 @@ import { Buffer } from 'buffer'
 globalThis.Buffer = Buffer
 
 import { PrivyProvider } from '@privy-io/react-auth'
+import { WagmiProvider } from '@privy-io/wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { baseSepolia } from 'viem/chains'
-import { WagmiProvider } from 'wagmi'
 
 import { App } from './App.tsx'
 import { config } from './config.ts'
@@ -26,15 +26,15 @@ createRoot(document.getElementById('root')!).render(
             createOnLogin: 'users-without-wallets',
           },
         },
-        externalWallets: {},
+        loginMethods: ['wallet', 'passkey', 'farcaster', 'email'],
         supportedChains: [baseSepolia],
       }}
     >
-      <WagmiProvider config={config}>
-        <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <WagmiProvider config={config}>
           <App />
-        </QueryClientProvider>
-      </WagmiProvider>
+        </WagmiProvider>
+      </QueryClientProvider>
     </PrivyProvider>
   </StrictMode>,
 )
