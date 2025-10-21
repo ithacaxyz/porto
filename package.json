@@ -133,7 +133,7 @@
     "wshy": "0.0.4",
     "yaml": "^2.8.1"
   },
-  "packageManager": "pnpm@10.18.2",
+  "packageManager": "pnpm@10.18.3",
   "engines": {
     "node": ">=22.5"
   },
@@ -223,7 +223,7 @@
     },
     "peerDependencyRules": {
       "ignoreMissing": [
-        "rspack/core",
+        "@rspack/core",
         "fastestsmallesttextencoderdecoder"
       ]
     }

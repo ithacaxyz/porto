@@ -10,8 +10,6 @@ import {
   verifySiweMessage,
 } from 'viem/siwe'
 
-const porto = Porto.create()
-
 const app = new Hono<{ Bindings: Cloudflare.Env }>().basePath('/api')
 
 app.post('/siwe/nonce', async (c) => {
@@ -40,9 +38,11 @@ app.post('/siwe/verify', async (c) => {
 
   await c.env.NONCE_STORE.delete(nonce)
 
+  const porto = Porto.create()
+
   // Verify the signature.
   const client = RelayClient.fromPorto(porto, { chainId })
-  const valid = await verifySiweMessage(client as never, {
+  const valid = await verifySiweMessage(client, {
     address: address!,
     message,
     signature,
@@ -52,10 +52,10 @@ app.post('/siwe/verify', async (c) => {
   if (!valid) return c.json({ error: 'Invalid signature' }, 401)
 
   const maxAge = 60 * 60 * 24 * 7 // 7 days
-  const exp = Math.floor(Date.now() / 1000) + maxAge
+  const exp = Math.floor(Date.now() / 1_000) + maxAge
 
   // Issue a JWT token for the user in a HTTP-only cookie.
-  const token = await jwt.sign({ exp, sub: address }, c.env.JWT_SECRET)
+  const token = await jwt.sign({ exp, sub: address }, env.JWT_SECRET)
   setCookie(c, 'auth', token, {
     httpOnly: true,
     maxAge,

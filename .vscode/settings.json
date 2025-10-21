@@ -55,6 +55,7 @@
     "**/_/**": true,
     "**/.tanstack/**": true,
     "**/android/**": true,
+    "**/dev-dist/**": true,
     "**/dist/**": true,
     "**/ios/**": true,
     "**/routeTree.gen.ts": true,
