@@ -3,7 +3,7 @@
     "build": "pnpm build:dist && pnpm build:cli",
     "build:anvil-state": "tsx scripts/build:anvil-state.ts",
     "build:cli": "tsdown --config ./src/cli/tsdown.config.ts",
-    "build:dist": "pnpm gen:exports && zile --project ./tsconfig.build.json && pnpm check",
+    "build:dist": "pnpm gen:exports && zile --project ./tsconfig.build.json",
     "build:contracts": "tsx scripts/prebuild:contracts.ts && forge build --config-path ./contracts/account/foundry.toml && forge build --config-path ./contracts/demo/foundry.toml && tsx scripts/postbuild:contracts.ts && pnpm wagmi generate",
     "changeset:prepublish": "pnpm build && tsx ./scripts/prepublish:pre.ts",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish",
@@ -30,7 +30,7 @@
     "gen:chains": "tsx ./scripts/chains.ts",
     "gen:exports": "tsx ./scripts/gen:exports.ts",
     "postinstall": "git submodule update --init --recursive && pnpm preconstruct",
-    "preconstruct": "pnpm gen:exports && zile dev --project ./tsconfig.build.json && pnpm check",
+    "preconstruct": "pnpm gen:exports && zile dev --project ./tsconfig.build.json",
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
     "relay:up": "tsx scripts/relay:up.ts",
@@ -79,7 +79,7 @@
     "vitest": "catalog:",
     "wagmi": "catalog:",
     "yaml": "^2.8.1",
-    "zile": "^0.0.4"
+    "zile": "^0.0.5"
   },
   "packageManager": "pnpm@10.18.3",
   "engines": {
