@@ -5,7 +5,6 @@ import {
   Json,
   P256,
   PublicKey,
-  Secp256k1,
   Signature,
   Value,
 } from 'ox'
@@ -293,18 +292,15 @@ function GrantKeyPermissions() {
       <Text> Create Key & Grant Permissions</Text>
       <Button
         onPress={async () => {
-          const privateKey = Secp256k1.randomPrivateKey()
-          const publicKey = PublicKey.toHex(
-            Secp256k1.getPublicKey({ privateKey }),
-            {
-              includePrefix: false,
-            },
-          )
+          const privateKey = P256.randomPrivateKey()
+          const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
+            includePrefix: false,
+          })
           keyPair = { privateKey, publicKey }
 
           grantPermissions.mutate({
             ...permissions(),
-            key: { publicKey, type: 'secp256k1' },
+            key: { publicKey, type: 'p256' },
           })
         }}
         title="Create & Grant Permissions"
