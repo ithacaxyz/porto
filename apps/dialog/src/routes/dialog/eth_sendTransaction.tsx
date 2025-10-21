@@ -32,7 +32,8 @@ function RouteComponent() {
   const currentAccount = Hooks.useAccount(porto, { address: from })
   const client = Hooks.useRelayClient(porto, { chainId })
 
-  const [authenticatedAccount, setAuthenticatedAccount] = React.useState<Account.Account>()
+  const [authenticatedAccount, setAuthenticatedAccount] =
+    React.useState<Account.Account>()
   const [guestStatus, setGuestStatus] = React.useState<
     'disabled' | 'enabled' | 'signing-in' | 'signing-up'
   >('disabled')
