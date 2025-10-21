@@ -26,6 +26,7 @@ import {
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import {
   useAccount,
+  useCapabilities,
   useChainId,
   useConnect,
   useConnectorClient,
@@ -63,13 +64,21 @@ export default function App() {
             <Connect />
             <SignMessage />
             <SendCalls />
+            <Divider />
+            <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
+              Permissions
+            </Text>
             <GrantPermissions />
             <GetPermissions />
+            <Divider />
             <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
               App-managed Signing
             </Text>
             <GrantKeyPermissions />
             <PreparedCalls />
+            <Divider />
+            <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Misc.</Text>
+            <Capabilities />
           </Providers>
         </ScrollView>
       </SafeAreaView>
@@ -150,7 +159,6 @@ function Connect() {
               addresses: account.addresses,
               chainId: account.chainId,
               status: account.status,
-              // capabilities: account.,
             },
             null,
             2,
@@ -356,6 +364,27 @@ function PreparedCalls() {
       <Text>wallet_prepareCalls → P256.sign → wallet_sendPreparedCalls</Text>
       <Button onPress={sendPreparedCalls} title="Mint 100 EXP" />
       {hash && <Pre text={hash} />}
+    </View>
+  )
+}
+
+function Capabilities() {
+  const [fetchCapabilities, setFetchCapabilities] = React.useState(false)
+  const capabilities = useCapabilities({
+    query: {
+      enabled: fetchCapabilities,
+    },
+  })
+  return (
+    <View style={{ marginBottom: 16 }}>
+      <Text>wallet_getCapabilities</Text>
+      <Button
+        onPress={() => setFetchCapabilities(true)}
+        title="Get Capabilities"
+      />
+      {capabilities.isFetching && <Text>Fetching Capabilities...</Text>}
+      {capabilities.isSuccess && <Pre text={capabilities.data} />}
+      {capabilities.isError && <Pre text={capabilities.error} />}
     </View>
   )
 }
