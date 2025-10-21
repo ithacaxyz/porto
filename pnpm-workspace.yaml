@@ -47,9 +47,10 @@ minimumReleaseAge: 2880 # 48 hours
 minimumReleaseAgeExclude:
   - "@wagmi/connectors"
   - "@wagmi/core"
+  - "@cloudflare/workers-types"
   - vite
   - wagmi
-  - wshy
+  - zile
 packages:
   - "."
   - "apps/*"
