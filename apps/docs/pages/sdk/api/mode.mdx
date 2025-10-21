@@ -128,10 +128,35 @@ import { Porto } from 'porto/react-native'
 const porto = Porto.create()
 ```
 
+#### Wagmi usage
+
+```ts twoslash
+import { createConfig, http } from 'wagmi'
+import { porto } from 'porto/wagmi'
+import [ Platform ] from 'react-native'
+
+const config = createConfig({
+  chains: [baseSepolia],
+  connectors: [
+    porto({
+      ...Platform.select({
+        web: { mode: Mode.dialog() },
+        default: { mode: Mode.reactNative() },
+      })
+    })
+  ],
+  transports: {
+    [baseSepolia.id]: http(),
+  },
+})
+```
+
+You can also check the [Wagmi React Native example](https://github.com/ithacaxyz/porto/tree/main/examples/react-native) for an end-to-end template using Wagmi.
+
 ### Examples
 
-- [With `Mode.reactNative` (dialog)](https://github.com/ithacaxyz/porto/tree/main/examples/react-native).
-- [With `Mode.relay` (headless)](https://github.com/ithacaxyz/porto/tree/main/examples/react-native-relay-mode).
+- [With `Mode.reactNative` (dialog) - Wagmi usage](https://github.com/ithacaxyz/porto/tree/main/examples/react-native).
+- [With `Mode.relay` (headless) - EIP1193 usage](https://github.com/ithacaxyz/porto/tree/main/examples/react-native-relay-mode).
 
 ### Options
 
