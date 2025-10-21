@@ -46,7 +46,8 @@ for (const entry of entries) {
       subEntry.isFile() &&
       subEntry.name !== 'index.ts' &&
       !subEntry.name.endsWith('.test.ts') &&
-      !subEntry.name.endsWith('.bench.ts')
+      !subEntry.name.endsWith('.bench.ts') &&
+      !subEntry.name.endsWith('.config.ts')
     ) {
       const name = subEntry.name.replace(/\.ts$/, '')
       exports[`./${entry.name}/${name}`] =
@@ -55,9 +56,7 @@ for (const entry of entries) {
   }
 }
 
-// Update package.json
-packageJson.zshy = packageJson.zshy || {}
-packageJson.zshy.exports = exports
+packageJson.exports = exports
 
 // Write package.json back
 fs.writeFileSync(
@@ -66,5 +65,5 @@ fs.writeFileSync(
   'utf-8',
 )
 
-console.log('✓ Updated zshy.exports in package.json')
+console.log('✓ Updated exports in package.json')
 console.log(`  Generated ${Object.keys(exports).length} export entries`)
