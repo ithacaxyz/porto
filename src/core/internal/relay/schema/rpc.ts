@@ -50,8 +50,9 @@ export namespace account_getOnrampContactInfo {
 
   /** Response for `account_getOnrampContactInfo`. */
   export const Response = z.object({
-    email: z.string(),
-    phone: z.string(),
+    email: z.optional(z.string()),
+    phone: z.optional(z.string()),
+    phoneVerifiedAt: z.optional(z.number()),
   })
   export type Response = z.infer<typeof Response>
 }
@@ -74,8 +75,8 @@ export namespace account_onrampStatus {
 
   /** Response for `account_onrampStatus`. */
   export const Response = z.object({
-    email: z.number(),
-    phone: z.number(),
+    email: z.optional(z.number()),
+    phone: z.optional(z.number()),
   })
   export type Response = z.infer<typeof Response>
 }

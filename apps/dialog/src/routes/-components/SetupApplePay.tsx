@@ -1,10 +1,21 @@
 import { Button, Input, OtpInput, TextButton } from '@porto/ui'
+import { useMutation } from '@tanstack/react-query'
+import { Hooks } from 'porto/remote'
+import { RelayActions } from 'porto/viem'
 import * as React from 'react'
+import type { Address, BaseError } from 'viem'
+import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import LucideAsterisk from '~icons/lucide/asterisk'
 
 export function SetupApplePay(props: SetupApplePay.Props) {
-  const { onBack, onComplete } = props
+  const {
+    address,
+    showEmail = true,
+    showPhone = true,
+    onBack,
+    onComplete,
+  } = props
 
   const [screen, setScreen] = React.useState<'phone-email' | 'otp'>(
     'phone-email',
@@ -13,41 +24,112 @@ export function SetupApplePay(props: SetupApplePay.Props) {
   const [phone, setPhone] = React.useState('')
   const [otpCode, setOtpCode] = React.useState('')
   const [otpCompleted, setOtpCompleted] = React.useState(false)
-  const [verifying, setVerifying] = React.useState(false)
+  const [noResend, setNoResend] = React.useState(false)
   const containerRef = React.useRef<HTMLDivElement>(null)
 
   const isValidEmail = email && /.+@.+/.test(email)
-  const isValidPhone = phone.length >= 6
-  const isValid = isValidEmail && isValidPhone
+  const isValidPhone =
+    phone && /^\+1\s?\(?\d{3}\)?[\s-]?\d{3}[\s-]?\d{4}$/.test(phone)
+  const isValid =
+    (showEmail ? isValidEmail : true) && (showPhone ? isValidPhone : true)
+
+  const client = Hooks.useRelayClient(porto)
+  const setInfo = useMutation<
+    void,
+    BaseError,
+    {
+      email: string | undefined
+      phone: string | undefined
+    }
+  >({
+    async mutationFn(data) {
+      const promises = []
+      if (data.email)
+        promises.push(
+          RelayActions.setEmail(client, {
+            email: data.email,
+            walletAddress: address,
+          }),
+        )
+      if (data.phone)
+        promises.push(
+          RelayActions.setPhone(client, {
+            phone: data.phone,
+            walletAddress: address,
+          }),
+        )
+      await Promise.all(promises)
+    },
+  })
+  const verifyPhone = useMutation<
+    void,
+    BaseError,
+    {
+      code: string
+      phone: string
+    }
+  >({
+    async mutationFn(data) {
+      await RelayActions.verifyPhone(client, {
+        code: data.code,
+        phone: data.phone,
+        walletAddress: address,
+      })
+    },
+  })
+  const resendVerifyPhone = useMutation({
+    async mutationFn(data: { phone: string }) {
+      await RelayActions.resendVerifyPhone(client, {
+        phone: data.phone,
+        walletAddress: address,
+      })
+    },
+  })
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (isValid) setScreen('otp')
+    if (!isValid) return
+    setInfo.mutate(
+      { email, phone },
+      {
+        onError(error) {
+          console.log('onError', error)
+        },
+        onSuccess() {
+          if (showPhone) setScreen('otp')
+          else if (showEmail) onComplete()
+        },
+      },
+    )
   }
 
   const handleOtpChange = React.useCallback((code: string) => {
     setOtpCode(code)
     if (code.length < 6) {
       setOtpCompleted(false)
-      setVerifying(false)
     }
   }, [])
 
-  const handleOtpFill = React.useCallback((code: string) => {
-    setOtpCode(code)
-    setVerifying(true)
-    containerRef.current?.focus()
-    setTimeout(() => {
-      setVerifying(false)
-      setOtpCompleted(true)
-    }, 800)
-  }, [])
-
-  React.useEffect(() => {
-    if (!otpCompleted) return
-    const timeout = setTimeout(onComplete, 800)
-    return () => clearTimeout(timeout)
-  }, [otpCompleted, onComplete])
+  // biome-ignore lint/correctness/useExhaustiveDependencies: explanation
+  const handleOtpFill = React.useCallback(
+    (code: string) => {
+      setOtpCode(code)
+      containerRef.current?.focus()
+      verifyPhone.mutate(
+        { code, phone },
+        {
+          onError() {
+            setOtpCompleted(false)
+          },
+          onSuccess() {
+            setOtpCompleted(true)
+            onComplete()
+          },
+        },
+      )
+    },
+    [phone, onComplete],
+  )
 
   if (screen === 'otp')
     return (
@@ -77,12 +159,12 @@ export function SetupApplePay(props: SetupApplePay.Props) {
         <Layout.Footer>
           <Layout.Footer.Actions>
             <Button
-              disabled={verifying || otpCompleted}
+              disabled={verifyPhone.isPending || otpCompleted}
               onClick={() => setScreen('phone-email')}
               variant={otpCompleted ? 'primary' : 'secondary'}
               width="grow"
             >
-              {verifying
+              {verifyPhone.isPending
                 ? 'Verifying code…'
                 : otpCompleted
                   ? 'Correct!'
@@ -90,9 +172,33 @@ export function SetupApplePay(props: SetupApplePay.Props) {
             </Button>
           </Layout.Footer.Actions>
         </Layout.Footer>
+        {verifyPhone.error?.details && (
+          <div className="px-3 pb-3 text-center text-[14px] text-th_base-negative">
+            {verifyPhone.error.details}
+          </div>
+        )}
         <p className="px-3 pb-3 text-center text-[12px] text-th_base-secondary">
           Didn't receive the code?{' '}
-          <TextButton color="link">Resend it</TextButton>
+          <TextButton
+            color="link"
+            disabled={noResend}
+            onClick={() => {
+              setNoResend(true)
+              resendVerifyPhone.mutate(
+                { phone },
+                {
+                  onError() {
+                    setNoResend(false)
+                  },
+                  onSuccess() {
+                    setTimeout(() => setNoResend(false), 10_000)
+                  },
+                },
+              )
+            }}
+          >
+            Resend it
+          </TextButton>
         </p>
       </Layout>
     )
@@ -108,44 +214,59 @@ export function SetupApplePay(props: SetupApplePay.Props) {
             </div>
           </div>
           <div className="flex flex-col gap-0.5">
-            <div className="text-[15px] text-th_base leading-[22px]">
-              To pay with card, you will need to add your phone number & email
-              address.
-            </div>
+            {!showEmail && showPhone ? (
+              <div className="text-[15px] text-th_base leading-[22px]">
+                To pay with card, you will need to add your phone number.
+              </div>
+            ) : showEmail && !showPhone ? (
+              <div className="text-[15px] text-th_base leading-[22px]">
+                To pay with card, you will need to add your email address.
+              </div>
+            ) : (
+              <div className="text-[15px] text-th_base leading-[22px]">
+                To pay with card, you will need to add your phone number & email
+                address.
+              </div>
+            )}
           </div>
         </div>
       </Layout.Header>
       <form noValidate onSubmit={handleSubmit}>
         <Layout.Content>
           <div className="flex flex-col gap-3">
-            <Input
-              adornments={{
-                end: isValidEmail && { type: 'valid' },
-              }}
-              autoFocus
-              inputMode="email"
-              name="email"
-              onChange={setEmail}
-              placeholder="example@ithaca.xyz"
-              type="text"
-              value={email}
-            />
-            <Input
-              adornments={{
-                end: isValidPhone && { type: 'valid' },
-                start: {
-                  prefixes: ['+1'],
-                  type: 'phone-prefix',
-                },
-              }}
-              inputMode="numeric"
-              name="phone"
-              onChange={setPhone}
-              pattern="\d*"
-              placeholder="+1 (650) 555-1234"
-              type="tel"
-              value={phone}
-            />
+            {showEmail && (
+              <Input
+                adornments={{
+                  end: isValidEmail && { type: 'valid' },
+                }}
+                autoFocus
+                inputMode="email"
+                name="email"
+                onChange={setEmail}
+                placeholder="example@ithaca.xyz"
+                type="text"
+                value={email}
+              />
+            )}
+            {showPhone && (
+              <Input
+                adornments={{
+                  end: isValidPhone && { type: 'valid' },
+                  // FIXME: This was causing `pattern` to not work (since it was removing `+1` from input value)
+                  // start: {
+                  //   prefixes: ['+1'],
+                  //   type: 'phone-prefix',
+                  // },
+                }}
+                inputMode="numeric"
+                name="phone"
+                onChange={setPhone}
+                pattern="\+1\s?\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{4}"
+                placeholder="+1 (650) 555-1234"
+                type="tel"
+                value={phone}
+              />
+            )}
           </div>
         </Layout.Content>
         <Layout.Footer>
@@ -154,7 +275,8 @@ export function SetupApplePay(props: SetupApplePay.Props) {
               Back
             </Button>
             <Button
-              disabled={!isValid}
+              disabled={!isValid || setInfo.isPending}
+              loading={setInfo.isPending}
               type="submit"
               variant="primary"
               width="grow"
@@ -163,11 +285,16 @@ export function SetupApplePay(props: SetupApplePay.Props) {
             </Button>
           </Layout.Footer.Actions>
         </Layout.Footer>
+        {setInfo.error?.details && (
+          <div className="px-3 pb-3 text-center text-[14px] text-th_base-negative">
+            {setInfo.error.details}
+          </div>
+        )}
         <p className="px-3 pb-3 text-center text-[12px] text-th_base-secondary">
           By using this onramp, you agree to Coinbase's{' '}
           <a
             className="underline"
-            href="https://example.org"
+            href="https://www.coinbase.com/legal/user_agreement"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -176,16 +303,16 @@ export function SetupApplePay(props: SetupApplePay.Props) {
           ,{' '}
           <a
             className="underline"
-            href="https://example.org"
+            href="https://www.coinbase.com/legal/guest-checkout/us"
             rel="noopener noreferrer"
             target="_blank"
           >
-            Terms of Use
+            Terms of Service
           </a>{' '}
           and{' '}
           <a
             className="underline"
-            href="https://example.org"
+            href="https://www.coinbase.com/legal/privacy"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -200,6 +327,9 @@ export function SetupApplePay(props: SetupApplePay.Props) {
 
 export namespace SetupApplePay {
   export type Props = {
+    address: Address
+    showEmail: boolean | undefined
+    showPhone: boolean | undefined
     onBack: () => void
     onComplete: () => void
   }

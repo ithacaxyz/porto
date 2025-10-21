@@ -10,15 +10,15 @@
     "@tanstack/react-query": "^5",
     "next": "^15.5.4",
     "porto": "latest",
-    "react": "^19",
-    "react-dom": "^19",
-    "viem": "^2.37",
+    "react": "^19.1",
+    "react-dom": "^19.1",
+    "viem": "^2.37.8",
     "wagmi": "^2"
   },
   "devDependencies": {
     "@types/node": "^22",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "typescript": "^5"
+    "@types/react": "^19.1",
+    "@types/react-dom": "^19.1",
+    "typescript": "~5.9.3"
   }
 }

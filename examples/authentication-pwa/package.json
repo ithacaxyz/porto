@@ -1,0 +1,43 @@
+{
+  "name": "authentication-pwa",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "build:types": "wrangler types --include-runtime=false",
+    "deploy": "pnpm run build && wrangler deploy",
+    "prepreview": "pnpm build:types",
+    "preview": "pnpm run build && vite preview"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5",
+    "hono": "^4.9",
+    "porto": "latest",
+    "react": "^19.1",
+    "react-dom": "^19.1",
+    "viem": "^2.37.8",
+    "wagmi": "^2"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.13.1",
+    "@cloudflare/workers-types": "^4.20251008.0",
+    "@types/node": "^22",
+    "@types/react": "^19.1",
+    "@types/react-dom": "^19.1",
+    "@vite-pwa/assets-generator": "^1.0.2",
+    "@vitejs/plugin-react": "^5.0.4",
+    "globals": "^16.4.0",
+    "typescript": "~5.9.3",
+    "vite": "^6.3.6",
+    "vite-plugin-pwa": "^1.1.0",
+    "workbox-core": "^7.3.0",
+    "workbox-window": "^7.3.0",
+    "wrangler": "^4.43.0"
+  },
+  "overrides": {
+    "sharp": "^0.33.5",
+    "sharp-ico": "^0.1.5"
+  }
+}

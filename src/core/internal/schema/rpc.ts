@@ -26,8 +26,9 @@ export namespace account_getOnrampContactInfo {
   export type Request = z.infer<typeof Request>
 
   export const Response = z.object({
-    email: z.string(),
-    phone: z.string(),
+    email: z.optional(z.string()),
+    phone: z.optional(z.string()),
+    phoneVerifiedAt: z.optional(z.number()),
   })
   export type Response = z.infer<typeof Response>
 }
@@ -45,8 +46,8 @@ export namespace account_onrampStatus {
   export type Request = z.infer<typeof Request>
 
   export const Response = z.object({
-    email: z.number(),
-    phone: z.number(),
+    email: z.optional(z.number()),
+    phone: z.optional(z.number()),
   })
   export type Response = z.infer<typeof Response>
 }

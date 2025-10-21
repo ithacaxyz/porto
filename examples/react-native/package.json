@@ -18,8 +18,8 @@
     "expo-web-browser": "~15.0.8",
     "ox": "^0.9.6",
     "porto": "latest",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "react": "^19.1",
+    "react-dom": "^19.1",
     "react-native": "0.81.4",
     "react-native-web": "^0.21.1",
     "viem": "^2.37.8"
@@ -27,11 +27,11 @@
   "devDependencies": {
     "@babel/core": "^7.28.4",
     "@types/babel__core": "^7.20.5",
-    "@types/react": "~19.1.17",
+    "@types/react": "^19.1",
     "babel-plugin-module-resolver": "^5.0.2",
     "babel-plugin-transform-import-meta": "^2.3.3",
     "expo-dev-client": "~6.0.15",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.3"
   },
   "private": true
 }

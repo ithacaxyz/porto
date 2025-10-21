@@ -144,7 +144,7 @@ type Permissions = {
   /** Spend permissions */
   spend: {
     /** Spending limit (in wei) per period */
-    limit: `0x${string}`
+    limit: bigint
     /** Period of the spend limit */
     period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
     /** ERC20 token to set the limit on (defaults to native token) */
@@ -209,7 +209,7 @@ type Permissions = {
   /** Spend permissions */
   spend: {
     /** Spending limit (in wei) per period */
-    limit: `0x${string}`
+    limit: bigint
     /** Period of the spend limit */
     period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
     /** ERC20 token to set the limit on (defaults to native token) */

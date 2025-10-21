@@ -6,6 +6,7 @@ interface EnvironmentVariables {
   /** `/onramp` route */
   readonly CB_API_KEY_ID: string
   readonly CB_API_KEY_SECRET: string
+  readonly ONRAMP_SECRET: string
 
   /** `/verify` route */
   readonly VERIFY_CONFIG_URL: string
