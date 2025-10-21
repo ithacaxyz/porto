@@ -131,9 +131,11 @@ const porto = Porto.create()
 #### Wagmi usage
 
 ```ts twoslash
-import { createConfig, http } from 'wagmi'
+import { baseSepolia } from 'porto/core/Chains'
+import { Mode } from 'porto/react-native'
 import { porto } from 'porto/wagmi'
-import [ Platform ] from 'react-native'
+import { Platform } from 'react-native'
+import { createConfig, http } from 'wagmi'
 
 const config = createConfig({
   chains: [baseSepolia],
