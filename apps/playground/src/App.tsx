@@ -222,10 +222,10 @@ function State() {
           <div>
             <span>Address: {state.accounts[0].address} </span>
             <button
-              type="button"
               onClick={async () => {
                 await porto.provider.request({ method: 'wallet_disconnect' })
               }}
+              type="button"
             >
               Disconnect
             </button>
