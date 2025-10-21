@@ -38,7 +38,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
   function waitForQueuedRequest(
     requestId: number,
     store: Porto.Internal['store'],
-  ) {
+  ): Promise<any> {
     return new Promise((resolve, reject) => {
       const listener = (requestQueue: readonly QueuedRequest[]) => {
         // Find the request in the queue based off its JSON-RPC identifier.
