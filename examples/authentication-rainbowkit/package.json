@@ -3,12 +3,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "build:types": "wrangler types --include-runtime=false",
-    "deploy": "pnpm run build && wrangler deploy",
+    "deploy": "vite build && wrangler deploy --keep-vars",
     "dev": "vite",
-    "prepreview": "pnpm build:types",
-    "preview": "pnpm run build && vite preview"
+    "prepreview": "wrangler types --include-runtime=false",
+    "preview": "vite build && vite preview"
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.2.8",
@@ -21,15 +21,15 @@
     "wagmi": "^2"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.13.1",
-    "@cloudflare/workers-types": "^4.20251008.0",
+    "@cloudflare/vite-plugin": "^1.13.13",
+    "@cloudflare/workers-types": "^4.20251014.0",
     "@types/react": "^19.1",
     "@types/react-dom": "^19.1",
     "@vitejs/plugin-react": "^5.0.4",
     "globals": "^16.4.0",
     "typescript": "~5.9.3",
     "vite": "^6.3.6",
-    "vite-plugin-mkcert": "^1.17",
+    "vite-plugin-mkcert": "^1.17.9",
     "wrangler": "^4.43.0"
   }
 }
