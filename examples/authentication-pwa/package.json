@@ -1,15 +1,14 @@
 {
   "name": "authentication-pwa",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "build:types": "wrangler types --include-runtime=false",
-    "deploy": "pnpm run build && wrangler deploy",
-    "prepreview": "pnpm build:types",
-    "preview": "pnpm run build && vite preview"
+    "deploy": "vite build && wrangler deploy",
+    "prepreview": "wrangler types --include-runtime=false",
+    "preview": "vite build && vite preview"
   },
   "dependencies": {
     "@tanstack/react-query": "^5",
@@ -21,8 +20,8 @@
     "wagmi": "^2"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.13.1",
-    "@cloudflare/workers-types": "^4.20251008.0",
+    "@cloudflare/vite-plugin": "^1.13.13",
+    "@cloudflare/workers-types": "^4.20251014.0",
     "@types/node": "^22",
     "@types/react": "^19.1",
     "@types/react-dom": "^19.1",

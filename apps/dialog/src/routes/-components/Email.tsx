@@ -167,7 +167,7 @@ export function Email(props: Email.Props) {
           <div className="flex w-full justify-between gap-2">
             <div>
               <span className="text-th_base-secondary">Using</span>{' '}
-              {displayName}
+              <span className="text-th_base">{displayName}</span>
             </div>
             <div className="flex items-center gap-0.5">
               <TextButton

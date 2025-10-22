@@ -46,7 +46,7 @@ function Me() {
       >
         Fetch /me (authenticated endpoint)
       </button>
-      <div>{me}</div>
+      <pre>{me}</pre>
     </div>
   )
 }

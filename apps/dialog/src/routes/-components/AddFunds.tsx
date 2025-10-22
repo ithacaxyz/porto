@@ -56,6 +56,7 @@ export function AddFunds(props: AddFunds.Props) {
   })
   const { createOrder, lastOrderEvent } = useOnrampOrder({
     onApprove,
+    // TODO(onramp): Flip to `false`
     sandbox: true,
   })
   const [iframeLoaded, setIframeLoaded] = React.useState(false)

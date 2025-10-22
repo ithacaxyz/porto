@@ -68,3 +68,5 @@ dist
 _dist
 styled-system
 .zip
+
+bun.lock

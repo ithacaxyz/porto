@@ -24,7 +24,10 @@ jobs:
         run: pnpm check
 
       - name: Check types
-        run: pnpm check:types
+        run: |
+          pnpm --filter ui prepare
+          pnpm --filter ui build
+          pnpm check:types
 
   build:
     name: Build
