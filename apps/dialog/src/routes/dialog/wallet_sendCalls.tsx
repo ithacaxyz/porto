@@ -20,12 +20,6 @@ export const Route = createFileRoute('/dialog/wallet_sendCalls')({
   },
 })
 
-// temporary account for previewing guest checkout
-// (to be replaced by preGeneratedAccount.address once relay supports non-deployed accounts)
-const tmpPreviewAccount = Account.from({
-  address: '0xA1f954A0f184548E8bae0e3506C38E21022657A3',
-})
-
 function RouteComponent() {
   const request = Route.useSearch()
   const { capabilities, calls, chainId, from } =
@@ -146,8 +140,8 @@ function RouteComponent() {
     if (account) return { account, address: account.address, guest: false }
     if (preGeneratedAccount)
       return {
-        account: tmpPreviewAccount,
-        address: tmpPreviewAccount.address,
+        account: preGeneratedAccount,
+        address: preGeneratedAccount.address,
         guest: true,
       }
     return undefined

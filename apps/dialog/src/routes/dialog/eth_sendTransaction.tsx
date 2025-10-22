@@ -22,12 +22,6 @@ export const Route = createFileRoute('/dialog/eth_sendTransaction')({
   },
 })
 
-// temporary account for previewing guest checkout
-// (to be replaced by preGeneratedAccount.address once relay supports non-deployed accounts)
-const tmpPreviewAccount = Account.from({
-  address: '0xA1f954A0f184548E8bae0e3506C38E21022657A3',
-})
-
 function RouteComponent() {
   const request = Route.useSearch()
   const capabilities = request.params[0].capabilities
@@ -141,10 +135,9 @@ function RouteComponent() {
   const preview = account
     ? { account, address: account.address, guest: false }
     : preGeneratedAccount
-      ? // TODO: Once relay supports non-deployed accounts, use preGeneratedAccount.address
-        {
-          account: tmpPreviewAccount,
-          address: tmpPreviewAccount.address,
+      ? {
+          account: preGeneratedAccount,
+          address: preGeneratedAccount.address,
           guest: true,
         }
       : undefined
