@@ -405,7 +405,7 @@ export namespace ActionRequest {
         return Array.from(balances.values())
           .filter((balance) => balance.value !== BigInt(0))
           .sort((a, b) => (a.value > b.value ? 1 : -1))
-      }, [assetDiff, account?.address])
+      }, [assetDiff, account?.address, address])
     }
 
     export namespace useAssetDiff {
@@ -540,7 +540,7 @@ export namespace ActionRequest {
           </div>
           <ButtonArea
             className={cx(
-              'max-w-[200px] min-w-0 rounded-[4px] font-medium text-[14px]',
+              'min-w-0 max-w-[200px] rounded-[4px] font-medium text-[14px]',
               receiving ? 'text-th_base-positive' : 'text-th_base-secondary',
             )}
             disabled={!fiat}
