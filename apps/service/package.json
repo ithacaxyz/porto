@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@hono/zod-validator": "^0.7.2",
-    "hono": "^4.9.8",
+    "hono": "^4.9",
     "jose": "^6.1.0",
     "porto": "workspace:*",
     "viem": "catalog:",
@@ -21,11 +21,11 @@
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.13.1",
-    "@cloudflare/workers-types": "^4.20250913.0",
+    "@cloudflare/workers-types": "^4.20251008.0",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-mkcert": "catalog:",
-    "wrangler": "^4.37.0"
+    "wrangler": "^4.43.0"
   }
 }

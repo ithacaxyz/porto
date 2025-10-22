@@ -23,7 +23,7 @@ export function SetupApplePay(props: SetupApplePay.Props) {
     showPhone = true,
     onBack,
     onComplete,
-    dummy = true,
+    dummy = false,
   } = props
 
   const [screen, setScreen] = React.useState<'phone-email' | 'otp'>(
@@ -349,7 +349,7 @@ export namespace SetupApplePay {
     onBack: () => void
     onComplete: () => void
     // TODO: Remove
-    dummy: boolean
+    dummy?: boolean | undefined
   }
 
   export function AppleIcon() {

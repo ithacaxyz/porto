@@ -5,7 +5,6 @@ import {
 } from '@wagmi/core'
 import {
   type Address,
-  getAddress,
   numberToHex,
   type ProviderConnectInfo,
   type RpcError,
@@ -182,10 +181,7 @@ export function porto<
       },
       async getAccounts() {
         const provider = await this.getProvider()
-        const accounts = await provider.request({
-          method: 'eth_accounts',
-        })
-        return accounts.map((x) => getAddress(x))
+        return provider.request({ method: 'eth_accounts' })
       },
       async getChainId() {
         const provider = await this.getProvider()
@@ -221,7 +217,7 @@ export function porto<
       name: 'Porto',
       async onAccountsChanged(accounts) {
         wagmiConfig.emitter.emit('change', {
-          accounts: accounts.map((x) => getAddress(x)),
+          accounts: accounts as readonly Address[],
         })
       },
       onChainChanged(chain) {

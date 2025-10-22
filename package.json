@@ -107,7 +107,7 @@
     "@wagmi/cli": "^2.2.0",
     "@wagmi/core": "catalog:",
     "cac": "^6",
-    "expo": "~54.0.12",
+    "expo": "~54.0.13",
     "expo-auth-session": "~7.0.8",
     "expo-crypto": "~15.0.7",
     "expo-standard-web-crypto": "~3.0.7",
@@ -115,7 +115,7 @@
     "http-proxy": "^1.18.1",
     "knip": "^5.50.5",
     "ox": "catalog:",
-    "playwright": "1.53.0",
+    "playwright": "1.55.1",
     "prool": "catalog:",
     "publint": "^0.3.12",
     "react-native": "0.81.4",
@@ -219,6 +219,12 @@
     "patchedDependencies": {
       "@tanstack/react-router": "patches/@tanstack__react-router.patch",
       "@wagmi/cli": "patches/@wagmi__cli.patch"
+    },
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "rspack/core",
+        "fastestsmallesttextencoderdecoder"
+      ]
     }
   },
   "[!start-pkg]": {},
@@ -238,7 +244,7 @@
     "src"
   ],
   "dependencies": {
-    "hono": "^4.9.8",
+    "hono": "^4.9",
     "idb-keyval": "^6.2.1",
     "mipd": "^0.0.7",
     "ox": "^0.9.6",

@@ -15,8 +15,8 @@
   },
   "dependencies": {
     "@ariakit/react": "catalog:",
-    "@porto/ui": "workspace:*",
     "@porto/apps": "workspace:*",
+    "@porto/ui": "workspace:*",
     "@tanstack/react-router": "catalog:",
     "cva": "catalog:",
     "react": "catalog:",
@@ -29,7 +29,7 @@
     "@tanstack/router-plugin": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@vitejs/plugin-react-swc": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
     "globals": "catalog:",
     "postcss": "catalog:",
     "tailwindcss": "catalog:",
