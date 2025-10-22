@@ -30,3 +30,15 @@ pnpm expo run:ios
 ```sh
 pnpm start
 ```
+
+## Development
+
+```sh
+pnpm expo start --dev-client --tunnel --clear
+```
+
+If you encounter any errors like `Unable to resolve "./crypto.js" from "src/react-native/register.ts"`, build Porto then try again:
+
+```sh
+pnpm --workspace-root build:dist
+```

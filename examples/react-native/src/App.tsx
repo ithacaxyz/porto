@@ -1,14 +1,6 @@
 import Checkbox from 'expo-checkbox'
-import {
-  AbiFunction,
-  type Hex,
-  Json,
-  P256,
-  PublicKey,
-  Signature,
-  Value,
-} from 'ox'
-import { RelayActions, RelayClient } from 'porto/viem'
+import { AbiFunction, type Hex, Json, Value } from 'ox'
+import { Key, RelayActions, RelayClient } from 'porto/viem'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import {
@@ -40,6 +32,8 @@ import { exp1Abi, exp1Address } from './contracts.ts'
 import { Providers } from './Providers.tsx'
 
 export default function App() {
+  const [sessionKey, setSessionKey] = React.useState<Key.Key | null>(null)
+
   return (
     <SafeAreaProvider>
       <SafeAreaView
@@ -72,8 +66,8 @@ export default function App() {
             <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
               App-managed Signing
             </Text>
-            <GrantKeyPermissions />
-            <PreparedCalls />
+            <GrantKeyPermissions onKeyCreated={setSessionKey} />
+            <PreparedCalls sessionKey={sessionKey} />
             <Divider />
             <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Misc.</Text>
             <Capabilities />
@@ -276,12 +270,11 @@ function SendCalls() {
   )
 }
 
-let keyPair: {
-  publicKey: Hex.Hex
-  privateKey: Hex.Hex
-} | null = null
-
-function GrantKeyPermissions() {
+function GrantKeyPermissions({
+  onKeyCreated,
+}: {
+  onKeyCreated: (key: Key.Key | null) => void
+}) {
   const chainId = useChainId()
   const grantPermissions = Hooks.useGrantPermissions()
 
@@ -290,17 +283,23 @@ function GrantKeyPermissions() {
       <Text> Create Key & Grant Permissions</Text>
       <Button
         onPress={async () => {
-          const privateKey = P256.randomPrivateKey()
-          const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
-            includePrefix: false,
-          })
-          keyPair = { privateKey, publicKey }
-
-          await grantPermissions.mutateAsync({
+          const key = Key.createHeadlessWebAuthnP256({
             ...permissions(),
-            chainId,
-            key: { publicKey, type: 'p256' },
+            role: 'session',
           })
+
+          onKeyCreated(null)
+
+          try {
+            await grantPermissions.mutateAsync({
+              chainId,
+              ...permissions(),
+              key,
+            })
+            onKeyCreated(key)
+          } catch (error) {
+            onKeyCreated(null)
+          }
         }}
         title="Create & Grant Permissions"
       />
@@ -311,12 +310,9 @@ function GrantKeyPermissions() {
   )
 }
 
-function PreparedCalls() {
+function PreparedCalls({ sessionKey }: { sessionKey: Key.Key | null }) {
   const chainId = useChainId()
   const account = useAccount()
-
-  const permissions = Hooks.usePermissions()
-  const keyPermissions = permissions.data?.find((x) => x.key.type === 'p256')
 
   const [isPending, setIsPending] = React.useState(false)
   const [isSuccess, setIsSuccess] = React.useState(false)
@@ -333,24 +329,18 @@ function PreparedCalls() {
   })
 
   async function sendPreparedCalls() {
-    permissions.refetch()
     setIsPending(true)
     setIsSuccess(false)
     setError(null)
     setCallBundleId(undefined)
     try {
-      if (!keyPair) throw new Error('Key pair not created')
-      if (!keyPermissions)
-        throw new Error('Permissions not yet granted for session key')
+      if (!sessionKey) throw new Error('Session key not created')
       if (!account.chain) throw new Error('Account chain not found')
 
       const porto = await config.connectors.at(0)?.getPortoInstance()
       if (!porto) throw new Error('Porto instance not found')
 
-      const client = RelayClient.fromPorto(porto, {
-        account: account.address,
-        chainId,
-      })
+      const client = RelayClient.fromPorto(porto)
 
       const { digest, ...request } = await RelayActions.prepareCalls(client, {
         account: account.address!,
@@ -358,26 +348,20 @@ function PreparedCalls() {
           {
             data: AbiFunction.encodeData(AbiFunction.fromAbi(exp1Abi, 'mint'), [
               account.address!,
-              Value.fromEther('10'),
+              Value.fromEther('100'),
             ]),
             to: exp1Address,
           },
         ],
         chain: account.chain,
-        key: {
-          permissions: keyPermissions.permissions,
-          prehash: false,
-          publicKey: keyPair.publicKey,
-          type: 'p256',
-        },
+        key: sessionKey,
       })
 
-      const signature = Signature.toHex(
-        P256.sign({
-          payload: digest,
-          privateKey: keyPair.privateKey,
-        }),
-      )
+      const signature = await Key.sign(sessionKey, {
+        address: null,
+        payload: digest,
+        wrap: false,
+      })
 
       const { id: callBundleId } = await RelayActions.sendPreparedCalls(
         client,
@@ -393,10 +377,6 @@ function PreparedCalls() {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : error
       console.error(errorMessage)
-      console.info(
-        'current permissions ids',
-        permissions.data?.map((x) => x.id),
-      )
       setIsPending(false)
       setIsSuccess(false)
       setCallBundleId(undefined)
@@ -408,9 +388,9 @@ function PreparedCalls() {
     <View style={{ marginBottom: 16 }}>
       <Text>wallet_prepareCalls → P256.sign → wallet_sendPreparedCalls</Text>
       <Button
-        disabled={isPending || !keyPermissions}
+        disabled={isPending || !sessionKey}
         onPress={sendPreparedCalls}
-        title="Mint 10 EXP"
+        title="Mint 100 EXP"
       />
       {isPending && <Text>Sending Prepared Calls...</Text>}
       {isSuccess && <Text>Prepared Calls Sent Successfully</Text>}
