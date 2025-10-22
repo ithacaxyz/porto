@@ -71,3 +71,5 @@ styled-system
 
 bun.lock
 tsconfig.tmp.json
+
+no-hooks
