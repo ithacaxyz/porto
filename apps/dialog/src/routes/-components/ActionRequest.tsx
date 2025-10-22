@@ -213,7 +213,10 @@ export function ActionRequest(props: ActionRequest.Props) {
       />
     )
 
-  if ((identified?.type === 'swap' || identified?.type === 'convert') && !guestMode)
+  if (
+    (identified?.type === 'swap' || identified?.type === 'convert') &&
+    !guestMode
+  )
     return (
       <Swap
         address={address}
