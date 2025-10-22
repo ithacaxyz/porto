@@ -8,52 +8,127 @@ const packageJsonPath = path.join(rootDir, 'package.json')
 // Read package.json
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'))
 
-// Generate exports
-const exports: Record<string, string> = {
-  '.': './src/index.ts',
+const exportMap = new Map<
+  string,
+  {
+    src?: string
+    types?: string
+    default?: string
+    conditions: Record<string, string>
+  }
+>()
+const exportOrder: string[] = []
+
+const skipFile = (file: string) =>
+  /(\.test|\.bench|\.config)\.(t|j)sx?$/i.test(file)
+
+const toPosix = (value: string) => value.split(path.sep).join('/')
+
+const ensureEntry = (key: string) => {
+  let entry = exportMap.get(key)
+  if (!entry) {
+    entry = { conditions: {} }
+    exportMap.set(key, entry)
+    exportOrder.push(key)
+  }
+  return entry
 }
 
-// Read src directory
-const entries = fs.readdirSync(srcDir, { withFileTypes: true })
+const registerFile = (relativePath: string) => {
+  const posixPath = toPosix(relativePath)
+  if (skipFile(posixPath)) return
+
+  const ext = path.extname(posixPath).toLowerCase()
+  if (ext !== '.ts' && ext !== '.tsx') return
+
+  const dirName = path.dirname(posixPath)
+  let baseName = path.basename(posixPath, ext)
+
+  let isNative = false
+  if (baseName.endsWith('.native')) {
+    isNative = true
+    baseName = baseName.slice(0, -'.native'.length)
+  }
+
+  const normalizedDir = dirName === '.' ? '' : dirName
+  const key =
+    baseName === 'index'
+      ? normalizedDir
+        ? `./${normalizedDir}`
+        : '.'
+      : normalizedDir
+        ? `./${normalizedDir}/${baseName}`
+        : `./${baseName}`
+
+  const entry = ensureEntry(key)
+
+  const srcPath = `./src/${posixPath}`
+  const distPath = `./dist/${posixPath.replace(/\.(tsx?|jsx?)$/, '.js')}`
+  const typesPath = `./dist/${posixPath.replace(/\.(tsx?|jsx?)$/, '.d.ts')}`
+
+  if (isNative) {
+    entry.conditions['react-native'] = distPath
+    entry.conditions.browser = distPath.replace('.native', '')
+    if (!entry.src) entry.src = srcPath
+    if (!entry.types) entry.types = typesPath
+    if (!entry.default) entry.default = distPath
+  } else {
+    entry.src = srcPath
+    entry.types = typesPath
+    entry.default = distPath
+  }
+}
+
+ensureEntry('.')
+
+const entries = fs
+  .readdirSync(srcDir, { withFileTypes: true })
+  .sort((a, b) => a.name.localeCompare(b.name))
 
 for (const entry of entries) {
-  // Skip non-directories and special directories
-  if (!entry.isDirectory()) {
-    // Handle top-level .ts files (excluding index.ts)
-    if (entry.name.endsWith('.ts') && entry.name !== 'index.ts') {
-      const name = entry.name.replace(/\.ts$/, '')
-      exports[`./${name}`] = `./src/${entry.name}`
-    }
+  if (entry.isFile()) {
+    registerFile(entry.name)
     continue
   }
 
-  // Skip node_modules
-  if (entry.name === 'node_modules') continue
+  if (!entry.isDirectory() || entry.name === 'node_modules') continue
 
   const dirPath = path.join(srcDir, entry.name)
-  const dirEntries = fs.readdirSync(dirPath, { withFileTypes: true })
+  const dirEntries = fs
+    .readdirSync(dirPath, { withFileTypes: true })
+    .filter((subEntry) => subEntry.isFile())
+    .sort((a, b) => a.name.localeCompare(b.name))
 
-  // Check if directory has index.ts
-  const hasIndex = dirEntries.some((e) => e.name === 'index.ts' && e.isFile())
+  const indexEntry = dirEntries.find(
+    (subEntry) => subEntry.name === 'index.ts' || subEntry.name === 'index.tsx',
+  )
 
-  if (hasIndex)
-    // Add directory-level export
-    exports[`./${entry.name}`] = `./src/${entry.name}/index.ts`
+  if (indexEntry) registerFile(path.join(entry.name, indexEntry.name))
 
-  // Add second-level files (excluding index.ts)
-  for (const subEntry of dirEntries) {
-    if (
-      subEntry.isFile() &&
-      subEntry.name !== 'index.ts' &&
-      !subEntry.name.endsWith('.test.ts') &&
-      !subEntry.name.endsWith('.bench.ts') &&
-      !subEntry.name.endsWith('.config.ts')
-    ) {
-      const name = subEntry.name.replace(/\.ts$/, '')
-      exports[`./${entry.name}/${name}`] =
-        `./src/${entry.name}/${subEntry.name}`
-    }
+  for (const subEntry of dirEntries.filter(
+    (subEntry) => subEntry !== indexEntry,
+  ))
+    registerFile(path.join(entry.name, subEntry.name))
+}
+
+const exports: Record<string, Record<string, string>> = {}
+for (const key of exportOrder) {
+  const value = exportMap.get(key)
+  if (!value) continue
+  const entry: Record<string, string> = {}
+
+  if (value.src) entry.src = value.src
+  if (value.types) entry.types = value.types
+
+  for (const [condition, conditionValue] of Object.entries(
+    value.conditions ?? {},
+  )) {
+    entry[condition] = conditionValue
   }
+
+  if (value.default) entry.default = value.default
+
+  exports[key] = entry
 }
 
 packageJson.exports = exports

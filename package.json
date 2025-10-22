@@ -252,6 +252,8 @@
     ".": {
       "src": "./src/index.ts",
       "types": "./dist/index.d.ts",
+      "react-native": "./dist/index.native.js",
+      "browser": "./dist/index.js",
       "default": "./dist/index.js"
     },
     "./cli": {
@@ -447,6 +449,8 @@
     "./wagmi": {
       "src": "./src/wagmi/index.ts",
       "types": "./dist/wagmi/index.d.ts",
+      "react-native": "./dist/wagmi/index.native.js",
+      "browser": "./dist/wagmi/index.js",
       "default": "./dist/wagmi/index.js"
     },
     "./wagmi/Actions": {
@@ -462,6 +466,8 @@
     "./wagmi/Hooks": {
       "src": "./src/wagmi/Hooks.ts",
       "types": "./dist/wagmi/Hooks.d.ts",
+      "react-native": "./dist/wagmi/Hooks.native.js",
+      "browser": "./dist/wagmi/Hooks.js",
       "default": "./dist/wagmi/Hooks.js"
     },
     "./wagmi/Query": {

@@ -33,20 +33,17 @@ declare module 'wagmi' {
 
 export const chainId = baseSepolia.id
 
-export const permissions = () => {
-  const exp1Token = exp1Address[chainId as keyof typeof exp1Address]
-  const exp2Token = exp2Address[chainId as keyof typeof exp2Address]
-
-  return {
+export const permissions = () =>
+  ({
     expiry: Math.floor(Date.now() / 1_000) + 60 * 60, // 1 hour
     feeToken: {
-      limit: '1',
+      limit: '10',
       symbol: 'EXP',
     },
     permissions: {
       calls: [
-        { to: exp1Token },
-        { to: exp2Token },
+        { to: exp1Address },
+        { to: exp2Address },
         {
           signature: 'mint()',
           to: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
@@ -54,11 +51,10 @@ export const permissions = () => {
       ],
       spend: [
         {
-          limit: Value.fromEther('50'),
+          limit: Value.fromEther('50000'),
           period: 'minute',
-          token: exp1Token,
+          token: exp1Address,
         },
       ],
     },
-  } as const
-}
+  }) as const

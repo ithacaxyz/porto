@@ -13,6 +13,9 @@ export const expoConfig = {
     package: BUNDLE_IDENTIFIER.replaceAll('-', '_'),
     predictiveBackGestureEnabled: false,
   },
+  experiments: {
+    reactCompiler: true,
+  },
   icon: './assets/icon.png',
   ios: {
     bundleIdentifier: BUNDLE_IDENTIFIER,

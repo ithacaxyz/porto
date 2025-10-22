@@ -22,10 +22,10 @@ module.exports = {
         }
 
       /**
-       * Prefer CJS for `ox` or `@noble/hashes` to avoid `window.*` usage in ESM builds
+       * Prefer CJS for `ox` to avoid `window.*` usage in ESM builds
        * TODO: fix this in `ox`
        */
-      if (moduleName.startsWith('ox') || moduleName.includes('@noble/hashes'))
+      if (moduleName.startsWith('ox'))
         return {
           filePath: require.resolve(moduleName),
           type: 'sourceFile',

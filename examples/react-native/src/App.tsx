@@ -8,7 +8,7 @@ import {
   Signature,
   Value,
 } from 'ox'
-import { RelayActions } from 'porto/viem'
+import { RelayActions, RelayClient } from 'porto/viem'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import {
@@ -33,7 +33,6 @@ import {
   useSendCalls,
   useSignMessage,
   useWaitForCallsStatus,
-  useWalletClient,
 } from 'wagmi'
 
 import { config, permissions } from './config.ts'
@@ -233,8 +232,6 @@ function GetPermissions() {
 
 function SendCalls() {
   const account = useAccount()
-  const chainId = useChainId()
-
   const sendCalls = useSendCalls()
   const callStatus = useWaitForCallsStatus({
     id: sendCalls.data?.id,
@@ -255,7 +252,7 @@ function SendCalls() {
                   AbiFunction.fromAbi(exp1Abi, 'mint'),
                   [account.address!, Value.fromEther('100')],
                 ),
-                to: exp1Address[chainId],
+                to: exp1Address,
               },
             ],
           })
@@ -285,6 +282,7 @@ let keyPair: {
 } | null = null
 
 function GrantKeyPermissions() {
+  const chainId = useChainId()
   const grantPermissions = Hooks.useGrantPermissions()
 
   return (
@@ -298,8 +296,9 @@ function GrantKeyPermissions() {
           })
           keyPair = { privateKey, publicKey }
 
-          grantPermissions.mutate({
+          await grantPermissions.mutateAsync({
             ...permissions(),
+            chainId,
             key: { publicKey, type: 'p256' },
           })
         }}
@@ -316,50 +315,115 @@ function PreparedCalls() {
   const chainId = useChainId()
   const account = useAccount()
 
-  const client = useWalletClient({ config })
+  const permissions = Hooks.usePermissions()
+  const keyPermissions = permissions.data?.find((x) => x.key.type === 'p256')
 
-  const [hash, setHash] = React.useState<Hex.Hex | null>(null)
+  const [isPending, setIsPending] = React.useState(false)
+  const [isSuccess, setIsSuccess] = React.useState(false)
+  const [error, setError] = React.useState<Error | null>(null)
+  const [callBundleId, setCallBundleId] = React.useState<Hex.Hex | undefined>(
+    undefined,
+  )
 
-  const sendPreparedCalls = React.useCallback(async () => {
-    if (!keyPair) throw new Error('Key pair not created')
-    if (!account.chain) throw new Error('Account chain not found')
+  const callStatus = useWaitForCallsStatus({
+    id: callBundleId,
+    query: {
+      enabled: !!callBundleId,
+    },
+  })
 
-    const preparedCalls = await RelayActions.prepareCalls(
-      client.data as never,
-      {
+  async function sendPreparedCalls() {
+    permissions.refetch()
+    setIsPending(true)
+    setIsSuccess(false)
+    setError(null)
+    setCallBundleId(undefined)
+    try {
+      if (!keyPair) throw new Error('Key pair not created')
+      if (!keyPermissions)
+        throw new Error('Permissions not yet granted for session key')
+      if (!account.chain) throw new Error('Account chain not found')
+
+      const porto = await config.connectors.at(0)?.getPortoInstance()
+      if (!porto) throw new Error('Porto instance not found')
+
+      const client = RelayClient.fromPorto(porto, {
+        account: account.address,
+        chainId,
+      })
+
+      const { digest, ...request } = await RelayActions.prepareCalls(client, {
+        account: account.address!,
         calls: [
           {
             data: AbiFunction.encodeData(AbiFunction.fromAbi(exp1Abi, 'mint'), [
               account.address!,
-              Value.fromEther('100'),
+              Value.fromEther('10'),
             ]),
-            to: exp1Address[chainId],
+            to: exp1Address,
           },
         ],
         chain: account.chain,
-        key: { publicKey: keyPair.publicKey, type: 'p256' },
-      },
-    )
+        key: {
+          permissions: keyPermissions.permissions,
+          prehash: false,
+          publicKey: keyPair.publicKey,
+          type: 'p256',
+        },
+      })
 
-    const signature = Signature.toHex(
-      P256.sign({
-        payload: preparedCalls.digest,
-        privateKey: keyPair.privateKey,
-      }),
-    )
+      const signature = Signature.toHex(
+        P256.sign({
+          payload: digest,
+          privateKey: keyPair.privateKey,
+        }),
+      )
 
-    const { id: hash } = await RelayActions.sendPreparedCalls(
-      client.data as never,
-      { ...preparedCalls, signature },
-    )
-    setHash(hash)
-  }, [account.chain, chainId, client.data, account.address])
+      const { id: callBundleId } = await RelayActions.sendPreparedCalls(
+        client,
+        {
+          ...request,
+          signature,
+        },
+      )
+      setCallBundleId(callBundleId)
+      setIsPending(false)
+      setIsSuccess(true)
+      setError(null)
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : error
+      console.error(errorMessage)
+      console.info(
+        'current permissions ids',
+        permissions.data?.map((x) => x.id),
+      )
+      setIsPending(false)
+      setIsSuccess(false)
+      setCallBundleId(undefined)
+      setError(error instanceof Error ? error : new Error(String(error)))
+    }
+  }
 
   return (
     <View style={{ marginBottom: 16 }}>
       <Text>wallet_prepareCalls → P256.sign → wallet_sendPreparedCalls</Text>
-      <Button onPress={sendPreparedCalls} title="Mint 100 EXP" />
-      {hash && <Pre text={hash} />}
+      <Button
+        disabled={isPending || !keyPermissions}
+        onPress={sendPreparedCalls}
+        title="Mint 10 EXP"
+      />
+      {isPending && <Text>Sending Prepared Calls...</Text>}
+      {isSuccess && <Text>Prepared Calls Sent Successfully</Text>}
+      {callStatus.isSuccess && (
+        <View>
+          <Text>Transaction Hash:</Text>
+          <Link
+            href={`${account.chain?.blockExplorers.default.url}/tx/${callStatus.data.receipts?.at(0)?.transactionHash}`}
+            text={callStatus.data.receipts?.at(0)?.transactionHash}
+          />
+        </View>
+      )}
+      {error && <Pre text={error.message} />}
     </View>
   )
 }
