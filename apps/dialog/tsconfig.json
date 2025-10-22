@@ -6,12 +6,9 @@
     "paths": {
       "~/*": ["./src/*"],
       "porto/*": ["../../src/*"],
-      "styled-system/*": ["./styled-system/*"]
+      "styled-system/*": ["./styled-system/*"],
+      "@porto/ui": ["../ui/src/index.ts"]
     },
-    "types": [
-      "unplugin-icons/types/react",
-      "typed-query-selector/strict",
-      "vite-plugin-terminal/client"
-    ]
+    "types": ["unplugin-icons/types/react", "typed-query-selector/strict"]
   }
 }

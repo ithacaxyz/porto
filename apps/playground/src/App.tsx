@@ -21,13 +21,14 @@ import {
 } from 'ox'
 import { Dialog } from 'porto'
 import * as React from 'react'
-import { hashTypedData, isAddress, isHex, maxUint256 } from 'viem'
+import { erc20Abi, hashTypedData, isAddress, isHex, maxUint256 } from 'viem'
 import {
   generatePrivateKey,
   privateKeyToAccount,
   privateKeyToAddress,
 } from 'viem/accounts'
 import { verifyHash, verifyMessage } from 'viem/actions'
+import { base } from 'viem/chains'
 import {
   type ChainId,
   client,
@@ -436,23 +437,96 @@ function AddFunds() {
   return (
     <div>
       <h3>wallet_addFunds</h3>
-      <button
-        onClick={async () => {
-          porto.provider
-            .request({
-              method: 'wallet_addFunds',
-              params: [
-                {
-                  value: Env.get() === 'prod' ? '10' : '100',
-                },
-              ],
+      <div>
+        <button
+          onClick={async () => {
+            porto.provider
+              .request({
+                method: 'wallet_addFunds',
+                params: [
+                  {
+                    value: Env.get() === 'prod' ? '10' : '100',
+                  },
+                ],
+              })
+              .then(setResult)
+          }}
+          type="button"
+        >
+          Add Funds
+        </button>
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault()
+
+            const chainId = Hex.toNumber(
+              await porto.provider.request({
+                method: 'eth_chainId',
+              }),
+            )
+            if (chainId !== base.id)
+              await porto.provider.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: Hex.fromNumber(base.id) }],
+              })
+
+            const formData = new FormData(e.target as HTMLFormElement)
+            const recipient = formData.get('recipient') as `0x${string}`
+            const amount = formData.get('amount') as `${number}`
+
+            const accounts = await porto.provider.request({
+              method: 'eth_accounts',
             })
-            .then(setResult)
-        }}
-        type="button"
-      >
-        Add Funds
-      </button>
+
+            porto.provider
+              .request({
+                method: 'wallet_sendCalls',
+                params: [
+                  {
+                    calls: [
+                      {
+                        data: AbiFunction.encodeData(
+                          AbiFunction.fromAbi(erc20Abi, 'transfer'),
+                          [recipient, Value.from(amount, 6)],
+                        ),
+                        // base usdc address
+                        to: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
+                      },
+                    ],
+                    capabilities: {
+                      requiredFunds: [
+                        {
+                          symbol: 'USDC',
+                          value: amount,
+                        },
+                      ],
+                    },
+                    from: accounts[0],
+                    version: '1',
+                  },
+                ],
+              })
+              .then(setResult)
+              .catch(console.error)
+          }}
+          style={{ marginTop: 16 }}
+        >
+          <h5 style={{ margin: 0 }}>Onramp + Send</h5>
+          <div>
+            <input name="recipient" placeholder="Recipient" required />
+          </div>
+          <div>
+            <input
+              defaultValue="10"
+              name="amount"
+              placeholder="Amount"
+              required
+              type="number"
+            />
+          </div>
+          <button type="submit">Send</button>
+        </form>
+      </div>
       {result && typeof result === 'object' && 'id' in result ? (
         <pre>{JSON.stringify(result, null, 2)}</pre>
       ) : null}
