@@ -3,15 +3,36 @@
   "private": true,
   "type": "module",
   "main": "./src/index.ts",
+  "types": "./dist/index.d.ts",
   "sideEffects": false,
+  "files": [
+    "dist",
+    "src",
+    "styled-system",
+    "assets",
+    "panda-porto-config.ts",
+    "vite-plugin.ts"
+  ],
   "exports": {
-    ".": "./src/index.ts",
+    ".": {
+      "source": "./src/index.ts",
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./source": "./src/index.ts",
     "./panda-config": "./panda-porto-config.ts",
-    "./vite-plugin": "./vite-plugin.ts"
+    "./vite-plugin": "./vite-plugin.ts",
+    "./styles.css": "./dist/styles.css"
   },
   "scripts": {
+    "build": "pnpm run /^build:/",
+    "build:lib": "vite build",
+    "build:css": "mkdir -p dist && panda cssgen --outfile dist/styles.css",
     "check": "biome check --write --unsafe",
     "check:types": "tsc --noEmit",
+    "dev": "pnpm run /^dev:.*/",
+    "dev:lib": "vite build --watch",
+    "dev:css": "panda cssgen --outfile dist/styles.css --watch",
     "prepare": "panda codegen"
   },
   "dependencies": {
@@ -20,9 +41,7 @@
   },
   "peerDependencies": {
     "@ariakit/react": "*",
-    "@pandacss/dev": "catalog:",
     "porto": "*",
-    "postcss": "catalog:",
     "react": ">=19",
     "react-dom": ">=19"
   },
@@ -35,7 +54,7 @@
     "@size-limit/preset-small-lib": "^11.1.6",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@vitejs/plugin-react-swc": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
     "porto": "workspace:*",
     "postcss": "^8.5.6",
     "rolldown-plugin-dts": "^0.14.2",

@@ -1,13 +1,22 @@
 # Porto UI
 
-## Installation
+The library can be used in two ways:
 
-**package.json** (prepare script optional)
+- **Source Mode**: Uses TypeScript source files directly with full Panda CSS integration. Requires Panda and PostCSS to be installed as dependencies of the app.
+- **Bundled Mode**: Uses a bundled version of the library.
+
+## Source Mode Installation
+
+**package.json**
 
 ```json
 {
   "dependencies": {
-    "@porto/ui": "workspace:*"
+    "@porto/ui": "workspace:*",
+    "@ariakit/react": "catalog:",
+    "porto": "workspace:*",
+    "react": "catalog:",
+    "react-dom": "catalog:"
   },
   "devDependencies": {
     "@pandacss/dev": "catalog:",
@@ -25,14 +34,7 @@
 import { defineConfig } from "@pandacss/dev";
 import { portoUiConfig } from "@porto/ui/panda-config";
 
-// app only using @porto/ui (no need for panda):
 export default defineConfig(portoUiConfig);
-
-// if the app uses panda:
-export default defineConfig({
-  ...portoUiConfig,
-  include: [...portoUiConfig.include, "./src/**/*.{ts,tsx}"],
-});
 ```
 
 **vite.config.ts**
@@ -40,6 +42,7 @@ export default defineConfig({
 ```ts
 import { PortoUi } from "@porto/ui/vite-plugin";
 import { defineConfig } from "vite";
+
 export default defineConfig({
   plugins: [PortoUi()],
 });
@@ -51,10 +54,10 @@ export default defineConfig({
 module.exports = { plugins: { "@pandacss/dev/postcss": {} } };
 ```
 
-**styles.css**
+**src/styles.css**
 
 ```css
-@import "@porto/ui/base.css";
+@import "../styled-system/styles.css";
 ```
 
 **tsconfig.json**
@@ -69,6 +72,34 @@ module.exports = { plugins: { "@pandacss/dev/postcss": {} } };
     "types": ["typed-query-selector/strict"]
   }
 }
+```
+
+## Bundled Mode Installation
+
+**package.json**
+
+```json
+{
+  "dependencies": {
+    "@porto/ui": "git+https://github.com/ithacaxyz/porto.git#main:apps/ui",
+    "@ariakit/react": "*",
+    "porto": "*",
+    "react": ">=19",
+    "react-dom": ">=19"
+  }
+}
+```
+
+**src/styles.css**
+
+```css
+@import "@porto/ui/styles.css";
+```
+
+**Note:** Before first use, build the library:
+
+```bash
+cd node_modules/@porto/ui && pnpm build
 ```
 
 ## Add chain icons
