@@ -164,7 +164,8 @@
       "bigint-buffer@<=1.1.5": "npm:bigint-buffer-fixed",
       "tar-fs@>=2.0.0 <2.1.4": "2.1.4",
       "tar-fs@>=3.0.0 <3.1.1": "3.1.1",
-      "playwright@<1.55.1": "1.55.1"
+      "playwright@<1.55.1": "1.55.1",
+      "hono@>=1.1.0 <4.10.2": ">=4.10.2"
     },
     "patchedDependencies": {
       "@tanstack/react-router": "patches/@tanstack__react-router.patch",
