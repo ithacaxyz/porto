@@ -194,7 +194,7 @@ export function ActionRequest(props: ActionRequest.Props) {
       />
     )
 
-  if (identified?.type === 'approve')
+  if (identified?.type === 'approve' && !guestMode)
     return (
       <Approve
         address={address}
@@ -213,7 +213,7 @@ export function ActionRequest(props: ActionRequest.Props) {
       />
     )
 
-  if (identified?.type === 'swap' || identified?.type === 'convert')
+  if ((identified?.type === 'swap' || identified?.type === 'convert') && !guestMode)
     return (
       <Swap
         address={address}
@@ -233,7 +233,7 @@ export function ActionRequest(props: ActionRequest.Props) {
       />
     )
 
-  if (identified?.type === 'send' && identified.to)
+  if (identified?.type === 'send' && identified.to && !guestMode)
     return (
       <Send
         address={address}
