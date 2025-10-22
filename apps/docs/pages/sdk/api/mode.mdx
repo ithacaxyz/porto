@@ -147,18 +147,22 @@ const config = createConfig({
       })
     })
   ],
+  multiInjectedProviderDiscovery: false,
   transports: {
     [baseSepolia.id]: http(),
   },
 })
 ```
 
-You can also check the [Wagmi React Native example](https://github.com/ithacaxyz/porto/tree/main/examples/react-native) for an end-to-end template using Wagmi.
+:::tip
+Use [`expo-sqlite/kv-store`](https://docs.expo.dev/versions/latest/sdk/sqlite) or [`@react-native-async-storage/async-storage`](https://react-native-async-storage.github.io/async-storage) for storage.
+You can use it for both Wagmi's config and [`@tanstack/react-query`](https://tanstack.com/query/latest/docs/framework/react/plugins/createAsyncStoragePersister) persisted query client.
+:::
 
 ### Examples
 
-- [With `Mode.reactNative` (dialog) - Wagmi usage](https://github.com/ithacaxyz/porto/tree/main/examples/react-native).
-- [With `Mode.relay` (headless) - EIP1193 usage](https://github.com/ithacaxyz/porto/tree/main/examples/react-native-relay-mode).
+- [With `Mode.reactNative` (dialog) - Wagmi usage](https://github.com/ithacaxyz/porto/tree/main/examples/react-native)
+- [With `Mode.relay` (headless) - EIP1193 usage](https://github.com/ithacaxyz/porto/tree/main/examples/react-native-relay-mode)
 
 ### Options
 
@@ -174,9 +178,13 @@ URL of the dialog embed.
 - **Type**: `{ scheme: string, path?: string } | undefined`
 
 Where to redirect the user after operations are completed.
-Defaults to the result of `AuthSession.makeRedirectUri({ path: '/' })` if no value is passed.
+Defaults to the result of [`AuthSession.makeRedirectUri({ path: '/' })`](https://docs.expo.dev/versions/latest/sdk/auth-session/#authsessionmakeredirecturioptions) if no value is passed.
 
-[Learn more](https://docs.expo.dev/linking/into-your-app/#test-a-link-using-expo-go).
+#### requestOptions
+
+- **Type**: `WebBrowser.AuthSessionOpenOptions | undefined`
+
+Configure style, presentation and certain behaviors of the browser auth session for Android, iOS, and Web. [See details](https://docs.expo.dev/versions/latest/sdk/webbrowser/#authsessionopenoptions).
 
 #### theme
 
