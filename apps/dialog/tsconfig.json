@@ -8,10 +8,6 @@
       "porto/*": ["../../src/*"],
       "styled-system/*": ["./styled-system/*"]
     },
-    "types": [
-      "unplugin-icons/types/react",
-      "typed-query-selector/strict",
-      "vite-plugin-terminal/client"
-    ]
+    "types": ["unplugin-icons/types/react", "typed-query-selector/strict"]
   }
 }
