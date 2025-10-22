@@ -2,6 +2,7 @@ import { Button, ButtonArea, ChainsPath, Details } from '@porto/ui'
 import { useQuery } from '@tanstack/react-query'
 import { cx } from 'cva'
 import { type Address, Base64, Value } from 'ox'
+import { Account } from 'porto'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import type * as Quote_schema from 'porto/core/internal/relay/schema/quotes'
 import type * as Rpc from 'porto/core/internal/schema/request'
@@ -42,6 +43,7 @@ export function ActionRequest(props: ActionRequest.Props) {
     calls,
     chainId,
     feeToken,
+    guestMode,
     loading,
     merchantUrl,
     onApprove,
@@ -53,22 +55,28 @@ export function ActionRequest(props: ActionRequest.Props) {
   } = props
 
   const account = Hooks.useAccount(porto, { address })
+  const client = Hooks.useRelayClient(porto, { chainId })
 
-  const prepareCallsQuery = Calls.prepareCalls.useQuery({
-    address,
-    calls,
-    chainId,
-    feeToken,
-    merchantUrl,
-    refetchInterval: ({ state }) => (state.error ? false : 15_000),
-    requiredFunds,
-  })
+  const guestAccount = !guestMode
+    ? account
+    : address && Account.from({ address })
+
+  const prepareCallsQuery = useQuery(
+    Calls.prepareCalls.queryOptions(client, {
+      account: guestAccount,
+      calls,
+      feeToken,
+      merchantUrl,
+      refetchInterval: ({ state }) => (state.error ? false : 15_000),
+      requiredFunds,
+    }),
+  )
 
   const capabilities = prepareCallsQuery.data?.capabilities
   const { assetDiffs, feeTotals } = capabilities ?? {}
 
   const assetDiff = ActionRequest.AssetDiff.useAssetDiff({
-    address: account?.address,
+    address: guestMode ? undefined : (address ?? account?.address),
     assetDiff: assetDiffs,
   })
 
@@ -299,11 +307,7 @@ export function ActionRequest(props: ActionRequest.Props) {
           quotes={quotes}
           status={prepareCallsQuery.isPending ? 'pending' : 'success'}
         >
-          {guestStatus && guestStatus !== 'disabled' ? (
-            <div className="text-[14px] text-th_base-secondary">
-              Sign in to view transaction details.
-            </div>
-          ) : assetDiff.length > 0 ? (
+          {assetDiff.length > 0 ? (
             <ActionRequest.AssetDiff assetDiff={assetDiff} />
           ) : (
             []
@@ -321,6 +325,8 @@ export namespace ActionRequest {
     chainId?: number | undefined
     checkBalance?: boolean | undefined
     feeToken?: Token.Symbol | Address.Address | undefined
+    guestMode?: boolean | undefined
+    guestStatus?: 'disabled' | 'enabled' | 'signing-in' | 'signing-up'
     loading?: boolean | undefined
     merchantUrl?: string | undefined
     requiredFunds?:
@@ -330,7 +336,6 @@ export namespace ActionRequest {
     onReject: () => void
     onGuestSignIn?: () => void
     onGuestSignUp?: (email?: string) => void
-    guestStatus?: 'disabled' | 'enabled' | 'signing-in' | 'signing-up'
   }
 
   export type CoinAsset =
@@ -374,7 +379,7 @@ export namespace ActionRequest {
 
         for (const chainDiff of Object.values(assetDiff)) {
           for (const [account_, assetDiff] of chainDiff) {
-            if (account_ !== account?.address) continue
+            if (address && account_ !== account?.address) continue
             for (const asset of assetDiff) {
               const address = asset.address ?? ethAddress
               const current = balances.get(address)
@@ -535,7 +540,7 @@ export namespace ActionRequest {
           </div>
           <ButtonArea
             className={cx(
-              'max-w-[200px] rounded-[4px] font-medium text-[14px]',
+              'max-w-[200px] min-w-0 rounded-[4px] font-medium text-[14px]',
               receiving ? 'text-th_base-positive' : 'text-th_base-secondary',
             )}
             disabled={!fiat}
@@ -545,7 +550,7 @@ export namespace ActionRequest {
             }}
           >
             <div
-              className="flex items-center justify-end"
+              className="flex min-w-0 items-center justify-end"
               title={
                 currencyType === 'fiat' && fiatValue ? fiatValue : tokenValue
               }

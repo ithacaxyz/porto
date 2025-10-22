@@ -58,14 +58,18 @@ export function relay(parameters: relay.Parameters = {}) {
         const {
           admins,
           email,
+          eoa: eoa_,
           label,
           permissions,
           internal,
           signInWithEthereum,
         } = parameters
-        const { client } = internal
+        const { client, request } = internal
 
-        const eoa = Account.fromPrivateKey(Secp256k1.randomPrivateKey())
+        const eoa =
+          eoa_ ??
+          preGeneratedAccounts.getAccount((request as any).id) ??
+          Account.fromPrivateKey(Secp256k1.randomPrivateKey())
 
         const feeTokens = await Tokens.getTokens(client)
 
@@ -891,5 +895,23 @@ export declare namespace relay {
           getFn?: WebAuthnP256.sign.Options['getFn'] | undefined
         }
       | undefined
+  }
+}
+
+// Keep track of pre-generated accounts
+export namespace preGeneratedAccounts {
+  const accounts = new Map<number, Account.Account<'privateKey'>>()
+  export function setAccount(
+    requestId: number,
+    account: Account.Account<'privateKey'>,
+  ) {
+    accounts.set(requestId, account)
+  }
+  export function getAccount(
+    requestId: number,
+  ): Account.Account<'privateKey'> | undefined {
+    const account = accounts.get(requestId)
+    if (account) accounts.delete(requestId)
+    return account
   }
 }
