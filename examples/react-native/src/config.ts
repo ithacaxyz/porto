@@ -1,24 +1,49 @@
-import { Hex, Value } from 'ox'
-import { Porto } from 'porto/react-native'
-import { baseSepolia } from 'viem/chains'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { Value } from 'ox'
+import { baseSepolia } from 'porto/core/Chains'
+import { Mode } from 'porto/react-native'
+import { porto as portoConnector } from 'porto/wagmi'
+import { Platform } from 'react-native'
+import { createConfig, createStorage, http } from 'wagmi'
 
-import { exp1Address, exp2Address } from './contracts'
+import { exp1Address, exp2Address } from './contracts.ts'
 
-export const porto = Porto.create()
+export const config = createConfig({
+  chains: [baseSepolia],
+  connectors: [
+    portoConnector({
+      ...Platform.select({
+        default: { mode: Mode.reactNative() },
+        web: { mode: Mode.dialog() },
+      }),
+    }),
+  ],
+  multiInjectedProviderDiscovery: false,
+  storage: createStorage({ storage: AsyncStorage }),
+  transports: {
+    [baseSepolia.id]: http(),
+  },
+})
 
-const chainId = baseSepolia.id
+declare module 'wagmi' {
+  interface Register {
+    config: typeof config
+  }
+}
+
+export const chainId = baseSepolia.id
 
 export const permissions = () =>
   ({
     expiry: Math.floor(Date.now() / 1_000) + 60 * 60, // 1 hour
     feeToken: {
-      limit: '1',
+      limit: '10',
       symbol: 'EXP',
     },
     permissions: {
       calls: [
-        { to: exp1Address[chainId as keyof typeof exp1Address] },
-        { to: exp2Address[chainId as keyof typeof exp2Address] },
+        { to: exp1Address },
+        { to: exp2Address },
         {
           signature: 'mint()',
           to: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
@@ -26,9 +51,9 @@ export const permissions = () =>
       ],
       spend: [
         {
-          limit: Hex.fromNumber(Value.fromEther('50')),
+          limit: Value.fromEther('50000'),
           period: 'minute',
-          token: exp1Address[chainId as keyof typeof exp1Address],
+          token: exp1Address,
         },
       ],
     },
