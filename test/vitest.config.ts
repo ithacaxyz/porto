@@ -1,5 +1,5 @@
 import { basename, dirname, join } from 'node:path'
-import { playwright } from '@vitest/browser/providers/playwright'
+import { playwright } from '@vitest/browser-playwright'
 import { loadEnv } from 'vite'
 import { defineConfig } from 'vitest/config'
 
@@ -57,7 +57,8 @@ export default defineConfig(({ mode }) => {
               instances: [
                 { browser: 'chromium' },
                 { browser: 'firefox' },
-                { browser: 'webkit' },
+                // TODO: uncomment once https://github.com/microsoft/playwright/issues/20850 resolved.
+                // { browser: 'webkit' },
               ],
               provider: playwright(),
               screenshotFailures: false,

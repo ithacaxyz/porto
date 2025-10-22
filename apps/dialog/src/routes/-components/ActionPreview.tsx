@@ -74,12 +74,24 @@ export function ActionPreview(props: ActionPreview.Props) {
       })
     },
     queryKey: ['onrampStatus', depositAddress],
+    select(data) {
+      const reverifyPhone = (() => {
+        if (!data.phone) return false
+        const timestampDate = new Date(data.phone * 1000)
+        const currentDate = new Date()
+        const diffInMs = currentDate.getTime() - timestampDate.getTime()
+        const diffInDays = diffInMs / (1000 * 60 * 60 * 24)
+        return diffInDays > 60
+      })()
+      return { ...data, reverifyPhone }
+    },
   })
   const onApprove = React.useCallback(() => {
     onQuotesRefetch?.()
   }, [onQuotesRefetch])
   const { createOrder, lastOrderEvent } = useOnrampOrder({
     onApprove,
+    // TODO(onramp): Flip to `false`
     sandbox: true,
   })
   const [iframeLoaded, setIframeLoaded] = React.useState(false)
@@ -89,9 +101,13 @@ export function ActionPreview(props: ActionPreview.Props) {
   const onCompleteOnrampSetup = React.useCallback(() => {
     if (!depositAddress) throw new Error('address is required')
     if (!fiatDepositValue) throw new Error('amount is required')
+    const timestamp = Math.floor(Date.now() / 1000)
     queryClient.setQueryData(
       ['onrampStatus', depositAddress],
-      { email: true, phone: true },
+      {
+        email: onrampStatus?.email ?? timestamp,
+        phone: onrampStatus?.phone ?? timestamp,
+      },
       {},
     )
     createOrder.mutate(
@@ -102,14 +118,19 @@ export function ActionPreview(props: ActionPreview.Props) {
         },
       },
     )
-  }, [depositAddress, fiatDepositValue])
+  }, [depositAddress, fiatDepositValue, onrampStatus])
 
   // create onramp order if onramp status is valid
   // biome-ignore lint/correctness/useExhaustiveDependencies: keep stable
   React.useEffect(() => {
     if (!depositAddress) return
     if (!fiatDepositValue) return
-    if (onrampStatus?.email && onrampStatus?.phone && !createOrder.isPending) {
+    if (
+      onrampStatus?.email &&
+      onrampStatus.phone &&
+      !onrampStatus.reverifyPhone &&
+      !createOrder.isPending
+    ) {
       setIframeLoaded(false)
       createOrder.mutate({ address: depositAddress, amount: fiatDepositValue })
     }
@@ -124,7 +145,7 @@ export function ActionPreview(props: ActionPreview.Props) {
         }}
         onComplete={onCompleteOnrampSetup}
         showEmail={!onrampStatus?.email}
-        showPhone={!onrampStatus?.phone}
+        showPhone={!onrampStatus?.phone || onrampStatus?.reverifyPhone}
       />
     )
 
@@ -344,7 +365,11 @@ function FundsNeededSection(props: {
     setIframeLoaded: (iframeLoaded: boolean) => void
     setView: (view: View) => void
     status?:
-      | { email?: number | undefined; phone?: number | undefined }
+      | {
+          email?: number | undefined
+          phone?: number | undefined
+          reverifyPhone?: boolean | undefined
+        }
       | undefined
     url?: string | undefined
   }
@@ -437,7 +462,9 @@ function FundsNeededSection(props: {
       ) : (
         showApplePay &&
         account &&
-        (onramp.status?.email && onramp.status?.phone ? (
+        (onramp.status?.email &&
+        onramp.status.phone &&
+        !onramp.status.reverifyPhone ? (
           <div className="flex w-full flex-col">
             {onramp.url && (
               <ApplePayIframe
@@ -452,7 +479,7 @@ function FundsNeededSection(props: {
                 'onramp_api.apple_pay_button_pressed' ||
               onramp.lastOrderEvent?.eventName ===
                 'onramp_api.polling_start') && (
-              <ApplePayButton label="Pay with" loading />
+              <ApplePayButton label="Buy with" loading />
             )}
           </div>
         ) : (
@@ -482,23 +509,23 @@ function FundsNeededSection(props: {
 export function ApplePayButton(
   props: Omit<Button.Props, 'children'> & { label: string },
 ) {
-  const { label = 'Pay with', loading } = props
+  const { label = 'Buy with', loading } = props
   const content = (
     <div className="flex items-center gap-[6px]">
       {label}
       <svg
-        className="mt-1"
+        className="mt-0.5 sm:mt-1"
         height="20"
         version="1.1"
         viewBox="0 0 105 43"
-        width="auto"
+        width="48.84"
         x="74.32000000000001"
         xmlns="http://www.w3.org/2000/svg"
         y="7.92"
       >
         <title>Apple Logo</title>
         <g fill="none" fillRule="evenodd" stroke="none" strokeWidth="1">
-          <g fill="#000">
+          <g fill="currentColor">
             <path d="M19.4028,5.5674 C20.6008,4.0684 21.4138,2.0564 21.1998,0.0004 C19.4458,0.0874 17.3058,1.1574 16.0668,2.6564 C14.9538,3.9414 13.9688,6.0374 14.2258,8.0074 C16.1948,8.1784 18.1618,7.0244 19.4028,5.5674" />
             <path d="M21.1772,8.3926 C18.3182,8.2226 15.8872,10.0156 14.5212,10.0156 C13.1552,10.0156 11.0642,8.4786 8.8022,8.5196 C5.8592,8.5626 3.1282,10.2276 1.6342,12.8746 C-1.4378,18.1696 0.8232,26.0246 3.8112,30.3376 C5.2622,32.4716 7.0102,34.8206 9.3142,34.7366 C11.4912,34.6506 12.3442,33.3266 14.9902,33.3266 C17.6352,33.3266 18.4042,34.7366 20.7082,34.6936 C23.0972,34.6506 24.5922,32.5586 26.0422,30.4226 C27.7072,27.9906 28.3882,25.6426 28.4312,25.5126 C28.3882,25.4706 23.8232,23.7186 23.7812,18.4676 C23.7382,14.0706 27.3652,11.9786 27.5362,11.8496 C25.4882,8.8196 22.2872,8.4786 21.1772,8.3926" />
             <path d="M85.5508,43.0381 L85.5508,39.1991 C85.8628,39.2421 86.6158,39.2871 87.0158,39.2871 C89.2138,39.2871 90.4558,38.3551 91.2108,35.9581 L91.6548,34.5371 L83.2428,11.2321 L88.4368,11.2321 L94.2958,30.1421 L94.4068,30.1421 L100.2668,11.2321 L105.3278,11.2321 L96.6048,35.7141 C94.6078,41.3291 92.3208,43.1721 87.4828,43.1721 C87.1048,43.1721 85.8838,43.1271 85.5508,43.0381" />
@@ -531,16 +558,20 @@ export function ApplePayIframe(props: {
   src: string
 }) {
   const { loaded, lastOrderEvent, setLoaded, src } = props
+  const isMobileSafari = React.useMemo(
+    () => UserAgent.isMobile() && UserAgent.isSafari(),
+    [],
+  )
   return (
     <iframe
-      {...(!UserAgent.isFirefox() && {
-        allow: 'payment',
-      })}
+      {...(!UserAgent.isFirefox() && { allow: 'payment' })}
       className={cx(
-        'h-12.5 w-full overflow-hidden border-0 bg-transparent',
+        'h-12.5 w-full overflow-hidden border-0 bg-transparent!',
         lastOrderEvent?.eventName === 'onramp_api.apple_pay_button_pressed' ||
           lastOrderEvent?.eventName === 'onramp_api.polling_start'
-          ? 'overflow-visible! fixed inset-0 z-100 h-full!'
+          ? isMobileSafari
+            ? 'sr-only!'
+            : 'overflow-visible! fixed inset-0 z-100 h-full!'
           : 'w-full border-0 bg-transparent',
         !loaded && 'sr-only!',
       )}

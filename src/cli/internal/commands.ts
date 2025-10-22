@@ -3,6 +3,7 @@ import * as os from 'node:os'
 import * as path from 'node:path'
 import { setTimeout } from 'node:timers/promises'
 import * as prompts from '@clack/prompts'
+import { numberToHex } from 'viem'
 import * as Actions from 'viem/actions'
 import * as Chains from '../../core/Chains.js'
 import * as Key from '../../viem/Key.js'
@@ -90,10 +91,12 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
   // Register public key for verification.
   if (adminKey) Dialog.messenger.registerPublicKey(adminKey.publicKey)
 
+  const chainId = args.testnet ? Chains.baseSepolia.id : Chains.base.id
+
   // Create an account.
   s.start('Creating account...')
   const { accounts } = await WalletActions.connect(client, {
-    chainIds: [args.testnet ? Chains.baseSepolia.id : Chains.base.id],
+    chainIds: [chainId],
     createAccount: true,
     grantAdmins: adminKey
       ? [
@@ -134,6 +137,7 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
       params: [
         {
           calls: [],
+          chainId: numberToHex(chainId),
           key: adminKey,
         },
       ],

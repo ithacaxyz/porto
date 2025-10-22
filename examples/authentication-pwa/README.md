@@ -6,3 +6,7 @@ cp .env.example .env
 pnpm i
 pnpm dev
 ```
+
+Live Demo:
+
+<https://authentication-pwa.porto.workers.dev>

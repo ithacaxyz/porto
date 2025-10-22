@@ -1,12 +1,16 @@
+import { baseSepolia } from 'porto/core/Chains'
 import { porto } from 'porto/wagmi'
 import { createConfig, http } from 'wagmi'
-import { baseSepolia } from 'wagmi/chains'
 
 export const config = createConfig({
   chains: [baseSepolia],
   connectors: [
     porto({
-      authUrl: '/api/siwe',
+      authUrl: {
+        logout: '/api/siwe/logout',
+        nonce: '/api/siwe/nonce',
+        verify: '/api/siwe/verify',
+      },
     }),
   ],
   multiInjectedProviderDiscovery: false,

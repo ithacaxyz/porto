@@ -24,9 +24,6 @@ const maxAmount = 500
 
 type View = 'default' | 'error' | 'onramp' | 'setup-onramp'
 
-const dummy = false
-const dummy_onrampStatus = false
-
 export function AddFunds(props: AddFunds.Props) {
   const { chainId, onApprove, onReject, value } = props
 
@@ -42,14 +39,24 @@ export function AddFunds(props: AddFunds.Props) {
     enabled: Boolean(showApplePay && address),
     async queryFn() {
       if (!address) throw new Error('address required')
-      if (dummy_onrampStatus || dummy)
-        return { email: undefined, phone: undefined }
       return await RelayActions.onrampStatus(client, { address })
     },
     queryKey: ['onrampStatus', address],
+    select(data) {
+      const reverifyPhone = (() => {
+        if (!data.phone) return false
+        const timestampDate = new Date(data.phone * 1000)
+        const currentDate = new Date()
+        const diffInMs = currentDate.getTime() - timestampDate.getTime()
+        const diffInDays = diffInMs / (1000 * 60 * 60 * 24)
+        return diffInDays > 60
+      })()
+      return { ...data, reverifyPhone }
+    },
   })
   const { createOrder, lastOrderEvent } = useOnrampOrder({
     onApprove,
+    // TODO(onramp): Flip to `false`
     sandbox: true,
   })
   const [iframeLoaded, setIframeLoaded] = React.useState(false)
@@ -58,12 +65,15 @@ export function AddFunds(props: AddFunds.Props) {
   // biome-ignore lint/correctness/useExhaustiveDependencies: explanation
   const onCompleteOnrampSetup = React.useCallback(() => {
     if (!address) throw new Error('address is required')
-    if (dummy)
-      queryClient.setQueryData(
-        ['onrampStatus', address],
-        { email: true, phone: true },
-        {},
-      )
+    const timestamp = Math.floor(Date.now() / 1000)
+    queryClient.setQueryData(
+      ['onrampStatus', address],
+      {
+        email: onrampStatus?.email ?? timestamp,
+        phone: onrampStatus?.phone ?? timestamp,
+      },
+      {},
+    )
     createOrder.mutate(
       { address, amount: value ?? '10' },
       {
@@ -72,13 +82,17 @@ export function AddFunds(props: AddFunds.Props) {
         },
       },
     )
-  }, [address, value])
+  }, [address, value, onrampStatus])
 
   // create onramp order if onramp status is valid
   // biome-ignore lint/correctness/useExhaustiveDependencies: keep stable
   React.useEffect(() => {
     if (!address) return
-    if (onrampStatus?.email && onrampStatus?.phone) {
+    if (
+      onrampStatus?.email &&
+      onrampStatus.phone &&
+      !onrampStatus.reverifyPhone
+    ) {
       setIframeLoaded(false)
       createOrder.mutate({ address, amount: value ?? '10' })
     }
@@ -185,13 +199,12 @@ export function AddFunds(props: AddFunds.Props) {
     return (
       <SetupApplePay
         address={address!}
-        dummy={dummy}
         onBack={() => {
           setView('default')
         }}
         onComplete={onCompleteOnrampSetup}
         showEmail={!onrampStatus?.email}
-        showPhone={!onrampStatus?.phone}
+        showPhone={!onrampStatus?.phone || onrampStatus?.reverifyPhone}
       />
     )
 
@@ -217,7 +230,9 @@ export function AddFunds(props: AddFunds.Props) {
           )}
           {showApplePay &&
             address &&
-            (onrampStatus?.email && onrampStatus?.phone ? (
+            (onrampStatus?.email &&
+            onrampStatus.phone &&
+            !onrampStatus.reverifyPhone ? (
               <div className="flex w-full flex-col">
                 {createOrder.isSuccess && createOrder.data?.url && (
                   <ApplePayIframe
@@ -231,7 +246,7 @@ export function AddFunds(props: AddFunds.Props) {
                   lastOrderEvent?.eventName ===
                     'onramp_api.apple_pay_button_pressed' ||
                   lastOrderEvent?.eventName === 'onramp_api.polling_start') && (
-                  <ApplePayButton label="Pay with" loading />
+                  <ApplePayButton label="Buy with" loading />
                 )}
               </div>
             ) : (
