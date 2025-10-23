@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.30
+
+### Patch Changes
+
+- [#990](https://github.com/ithacaxyz/porto/pull/990) [`254f6bb`](https://github.com/ithacaxyz/porto/commit/254f6bbc72d3b026edfce300d8ce5bcedce45ee7) Thanks [@jxom](https://github.com/jxom)! - Always propagate `chainId` in `Mode.dialog`
+
 ## 0.2.29
 
 ### Patch Changes
