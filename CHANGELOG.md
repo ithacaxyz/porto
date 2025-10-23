@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.31
+
+### Patch Changes
+
+- [`0e8a179`](https://github.com/ithacaxyz/porto/commit/0e8a17976966475d15550c9e06dc6d11c69fbed0) Thanks [@jxom](https://github.com/jxom)! - Exported types required for inference.
+
 ## 0.2.30
 
 ### Patch Changes
