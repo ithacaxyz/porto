@@ -34,13 +34,5 @@
     "vite": "npm:rolldown-vite@latest",
     "vite-plugin-mkcert": "^1.17.9",
     "wrangler": "^4.43.0"
-  },
-  "overrides": {
-    "vite": "npm:rolldown-vite@latest"
-  },
-  "pnpm": {
-    "overrides": {
-      "vite": "npm:rolldown-vite@latest"
-    }
   }
 }
