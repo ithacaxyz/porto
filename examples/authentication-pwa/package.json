@@ -34,9 +34,5 @@
     "workbox-core": "^7.3.0",
     "workbox-window": "^7.3.0",
     "wrangler": "^4.43.0"
-  },
-  "overrides": {
-    "sharp": "^0.33.5",
-    "sharp-ico": "^0.1.5"
   }
 }
