@@ -723,6 +723,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
           account,
           asTxHash,
           calls,
+          chainId,
           internal,
           merchantUrl,
           requiredFunds,
@@ -763,7 +764,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                       merchantUrl,
                       requiredFunds,
                     },
-                    chainId: client.chain.id,
+                    chainId,
                     from: account.address,
                     key,
                   },
@@ -839,6 +840,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                   feeToken,
                   merchantUrl,
                 },
+                ...(chainId ? { chainId: Hex.fromNumber(chainId) } : {}),
               },
             ],
           })
@@ -858,6 +860,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                   feeToken,
                   merchantUrl,
                 },
+                ...(chainId ? { chainId: Hex.fromNumber(chainId) } : {}),
               },
             ],
           })
