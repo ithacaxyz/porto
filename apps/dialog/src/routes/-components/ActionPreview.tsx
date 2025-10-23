@@ -93,7 +93,7 @@ export function ActionPreview(props: ActionPreview.Props) {
   const { createOrder, lastOrderEvent } = useOnrampOrder({
     onApprove,
     // TODO(onramp): Flip to `false`
-    sandbox: true,
+    sandbox: false,
   })
   const [iframeLoaded, setIframeLoaded] = React.useState(false)
 
