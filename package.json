@@ -3,7 +3,7 @@
     "build": "pnpm build:dist && pnpm build:cli",
     "build:anvil-state": "tsx scripts/build:anvil-state.ts",
     "build:cli": "tsdown --config ./src/cli/tsdown.config.ts",
-    "build:dist": "pnpm gen:exports && zile --project ./tsconfig.build.json",
+    "build:dist": "pnpm gen:exports && zile --project ./tsconfig.build.json && echo '' >> package.json",
     "build:contracts": "tsx scripts/prebuild:contracts.ts && forge build --config-path ./contracts/account/foundry.toml && forge build --config-path ./contracts/demo/foundry.toml && tsx scripts/postbuild:contracts.ts && pnpm wagmi generate",
     "changeset:prepublish": "pnpm build && tsx ./scripts/prepublish:pre.ts",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish",
@@ -457,6 +457,8 @@
     "./wagmi/Actions": {
       "src": "./src/wagmi/Actions.ts",
       "types": "./dist/wagmi/Actions.d.ts",
+      "react-native": "./dist/wagmi/Actions.native.js",
+      "browser": "./dist/wagmi/Actions.js",
       "default": "./dist/wagmi/Actions.js"
     },
     "./wagmi/Connector": {

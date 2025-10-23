@@ -52,7 +52,6 @@ export default function App() {
               }}
               text="Porto React Native Example"
             />
-
             <Connect />
             <SignMessage />
             <SendCalls />
@@ -157,7 +156,7 @@ function Connect() {
           )}
         />
       )}
-      {connect.isError && <Pre text={connect.error} />}
+      {connect.isError && <Pre text={connect.error.message} />}
       {connect.isSuccess ||
         (account.isConnected && (
           <Button onPress={() => disconnect.disconnect()} title="Disconnect" />

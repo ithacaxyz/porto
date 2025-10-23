@@ -4,8 +4,7 @@ import * as passkey from 'react-native-passkeys'
 import type OxWebAuthn from '../node_modules/ox/_types/core/internal/webauthn'
 
 const RELYING_PARTY_DOMAIN = process.env.EXPO_PUBLIC_SERVER_DOMAIN
-if (!RELYING_PARTY_DOMAIN)
-  console.warn('\n\n\nEXPO_PUBLIC_SERVER_DOMAIN is not set\n\n\n')
+if (!RELYING_PARTY_DOMAIN) console.warn('EXPO_PUBLIC_SERVER_DOMAIN is not set')
 
 export const rp = {
   id: Platform.select({
@@ -124,9 +123,6 @@ export async function getFn(
 
 function arrayBufferToBase64URL(buffer: ArrayBuffer) {
   return Base64.fromBytes(new Uint8Array(buffer), { url: true })
-}
-function utf8StringToBuffer(value: string) {
-  return new TextEncoder().encode(value) as unknown as ArrayBuffer
 }
 
 function base64URLToArrayBuffer(input: string) {

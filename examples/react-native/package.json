@@ -2,12 +2,14 @@
   "name": "react-native-example",
   "main": "index.ts",
   "scripts": {
-    "start": "expo start --clear --dev-client --tunnel",
-    "android": "expo run:android",
-    "android-no-cache": "expo run:android --no-build-cache",
+    "dev": "expo start --dev-client --tunnel --clear",
+    "dev:ios": "expo start --ios --clear",
+    "dev:android": "expo start --android --clear",
+    "web": "pnpm dev",
     "ios": "expo run:ios",
+    "android": "expo run:android",
     "ios-no-cache": "expo run:ios --no-build-cache",
-    "web": "expo start --web",
+    "android-no-cache": "expo run:android --no-build-cache",
     "doctor": "pnpm dlx expo-doctor@latest --verbose --pnpm && pnpm expo install --fix --pnpm"
   },
   "dependencies": {
