@@ -110,6 +110,44 @@ export function App() {
             <option value="rpc">Relay</option>
           </select>
         </div>
+
+        <div className="flex gap-2 items-center" style={{ marginTop: '8px' }}>
+          Relay:
+          <div className="flex gap-2">
+            {(() => {
+              const envs = Env.envs.filter(
+                (env) =>
+                  env !== 'anvil' || import.meta.env.MODE === 'development',
+              )
+              const [hostEnv] = window.location.host.split(/\.|-/)
+              const defaultEnv = envs.includes(hostEnv as never)
+                ? (hostEnv as Env.Env)
+                : Env.defaultEnv
+              return (
+                <>
+                  {envs.map((env) => (
+                    <button
+                      key={env}
+                      className="inline-flex items-center gap-1.5 rounded-md border border-th_frame px-2 py-1 disabled:opacity-50"
+                      disabled={Env.get() === env}
+                      onClick={() => {
+                        const url = new URL(window.location.href)
+                        if (defaultEnv === env)
+                          url.searchParams.delete('relayEnv')
+                        else url.searchParams.set('relayEnv', env)
+                        window.location.href = String(url)
+                      }}
+                      type="button"
+                    >
+                      {env} {defaultEnv === env && '(default)'}
+                    </button>
+                  ))}
+                </>
+              )
+            })()}
+          </div>
+        </div>
+
         <hr />
         <State />
         <Events />
