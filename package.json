@@ -85,7 +85,7 @@
     "yaml": "^2.8.1",
     "zile": "^0.0.5"
   },
-  "packageManager": "pnpm@10.18.3",
+  "packageManager": "pnpm@10.19.0",
   "engines": {
     "node": ">=22.5"
   },
@@ -146,6 +146,12 @@
   "description": "Next-gen Account for Ethereum",
   "version": "0.2.30",
   "type": "module",
+  "bin": {
+    "porto": "./src/cli/bin/index.ts"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "typings": "./src/index.ts",
   "sideEffects": false,
   "files": [
     "dist",
@@ -205,8 +211,6 @@
     "awkweb.eth <tom@ithaca.xyz>",
     "esm.eth <omar@ithaca.xyz>"
   ],
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
   "module": "./src/index.ts",
   "exports": {
     ".": {
@@ -406,6 +410,7 @@
     "./wagmi": {
       "src": "./src/wagmi/index.ts",
       "types": "./src/wagmi/index.ts",
+      "react-native": "./src/wagmi/index.native.ts",
       "default": "./src/wagmi/index.ts"
     },
     "./wagmi/Actions": {
@@ -421,6 +426,7 @@
     "./wagmi/Hooks": {
       "src": "./src/wagmi/Hooks.ts",
       "types": "./src/wagmi/Hooks.ts",
+      "react-native": "./src/wagmi/Hooks.native.ts",
       "default": "./src/wagmi/Hooks.ts"
     },
     "./wagmi/Query": {
