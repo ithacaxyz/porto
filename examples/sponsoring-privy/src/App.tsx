@@ -8,7 +8,7 @@ import * as React from 'react'
 import { parseEther } from 'viem'
 import { useAccount, useWaitForCallsStatus } from 'wagmi'
 
-import { permissions, client as relayClient } from './config'
+import { permissions, relayClient } from './config'
 import { exp1Address, exp1Config } from './contracts'
 
 export function App() {
@@ -139,17 +139,6 @@ function useUpgradePortoFromPrivyAccount() {
         chain: baseSepolia,
       })
 
-      // propagate session key on-chain
-      void (await RelayActions.sendCalls(relayClient, {
-        account: account.data,
-        authorizeKeys: [sessionKey.data.key],
-        calls: [],
-        chain: baseSepolia,
-        // @ts-expect-error
-        key: null,
-        merchantUrl: '/porto/merchant',
-      }))
-
       setUpgradedAccount(upgradedAccount)
       setStatus('success')
       return upgradedAccount
@@ -183,8 +172,6 @@ function UpgradeAccount() {
       <button onClick={portoFromPrivy.upgradeAccount} type="button">
         Upgrade Account
       </button>
-      {portoFromPrivy.status === 'loading' && <pre>Loading...</pre>}
-      {portoFromPrivy.status === 'success' && <pre>Success</pre>}
       {portoFromPrivy.status === 'error' && (
         <pre>Error: {portoFromPrivy.error}</pre>
       )}
@@ -242,8 +229,6 @@ function SponsoredMint() {
         mint 100 EXP
       </button>
       {id && <pre>{Json.stringify({ bundleId: id }, null, 2)}</pre>}
-      {callStatus.isSuccess && <pre>Transaction confirmed.</pre>}
-      {callStatus.isLoading && <pre>Waiting for confirmation...</pre>}
       {callStatus.isError && <pre>Error: {callStatus.error?.message}</pre>}
       {callStatus.data?.receipts?.at(0)?.transactionHash && (
         <pre>

@@ -2,8 +2,8 @@ import { createConfig } from '@privy-io/wagmi'
 import { Value } from 'ox'
 import { Porto } from 'porto'
 import { baseSepolia } from 'porto/core/Chains'
+import { RelayClient } from 'porto/viem'
 import { porto as portoConnector } from 'porto/wagmi'
-import { createClient } from 'viem'
 import { http } from 'wagmi'
 
 import { exp1Address, exp2Address, expNftAddress } from './contracts.ts'
@@ -22,10 +22,7 @@ export const porto = Porto.create({
   merchantUrl: '/porto/merchant',
 })
 
-export const client = createClient({
-  chain: baseSepolia,
-  transport: http('https://rpc.porto.sh'),
-})
+export const relayClient = RelayClient.fromPorto(porto)
 
 declare module 'wagmi' {
   interface Register {

@@ -11,7 +11,7 @@
     "preview": "pnpm run build && vite preview"
   },
   "dependencies": {
-    "@privy-io/react-auth": "^3.3.0",
+    "@privy-io/react-auth": "^3.4.0",
     "@privy-io/server-auth": "^1.32.5",
     "@privy-io/wagmi": "^2.0.1",
     "@tanstack/react-query": "^5",
@@ -19,13 +19,12 @@
     "porto": "latest",
     "react": "^19.1",
     "react-dom": "^19.1",
-    "viem": "^2.37.8",
+    "viem": "^2.38.3",
     "wagmi": "^2.18.2"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.13.1",
     "@cloudflare/workers-types": "^4.20251008.0",
-    "@total-typescript/ts-reset": "^0.6.1",
     "@types/react": "^19.1",
     "@types/react-dom": "^19.1",
     "@vitejs/plugin-react": "^5.0.4",
