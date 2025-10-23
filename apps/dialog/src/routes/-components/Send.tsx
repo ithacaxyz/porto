@@ -6,7 +6,7 @@ import type { Chain } from 'viem'
 import { AddressFormatter, PriceFormatter, ValueFormatter } from '~/utils'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideSendHorizontal from '~icons/lucide/send-horizontal'
-import { ActionPreview } from './ActionPreview'
+import { ActionPreview, type GuestMode } from './ActionPreview'
 import type { ActionRequest } from './ActionRequest'
 import { Layout } from './Layout'
 
@@ -17,6 +17,7 @@ export function Send(props: Send.Props) {
     capabilities,
     chainsPath,
     fetchingQuote,
+    guestMode,
     onApprove,
     onReject,
     refreshingQuote,
@@ -55,32 +56,35 @@ export function Send(props: Send.Props) {
     <ActionPreview
       account={address}
       actions={
-        <Layout.Footer.Actions>
-          <Button
-            disabled={sending}
-            onClick={onReject}
-            variant="negative-secondary"
-            width="grow"
-          >
-            Cancel
-          </Button>
-          <Button
-            disabled={!onApprove || fetchingQuote || loading}
-            loading={
-              refreshingQuote
-                ? 'Refreshing quote…'
-                : sending
-                  ? 'Sending…'
-                  : undefined
-            }
-            onClick={onApprove}
-            variant="positive"
-            width="grow"
-          >
-            Send
-          </Button>
-        </Layout.Footer.Actions>
+        guestMode ? undefined : (
+          <Layout.Footer.Actions>
+            <Button
+              disabled={sending}
+              onClick={onReject}
+              variant="negative-secondary"
+              width="grow"
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={!onApprove || fetchingQuote || loading}
+              loading={
+                refreshingQuote
+                  ? 'Refreshing quote…'
+                  : sending
+                    ? 'Sending…'
+                    : undefined
+              }
+              onClick={onApprove}
+              variant="positive"
+              width="grow"
+            >
+              Send
+            </Button>
+          </Layout.Footer.Actions>
+        )
       }
+      guestMode={guestMode}
       header={
         <Layout.Header.Default
           icon={LucideSendHorizontal}
@@ -148,6 +152,7 @@ export namespace Send {
     capabilities?: Rpc.wallet_prepareCalls.Response['capabilities']
     chainsPath: readonly Chain[]
     fetchingQuote?: boolean | undefined
+    guestMode?: GuestMode
     onApprove: () => void
     onReject: () => void
     refreshingQuote?: boolean | undefined

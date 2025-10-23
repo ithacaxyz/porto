@@ -29,7 +29,7 @@ import LucideMusic from '~icons/lucide/music'
 import LucideSparkles from '~icons/lucide/sparkles'
 import LucideVideo from '~icons/lucide/video'
 import Star from '~icons/ph/star-four-bold'
-import { ActionPreview } from '../-components/ActionPreview'
+import { ActionPreview, type GuestMode } from '../-components/ActionPreview'
 import { AddFunds } from '../-components/AddFunds'
 import { Approve } from '../-components/Approve'
 import { ErrorScreen } from '../-components/ErrorScreen'
@@ -76,8 +76,9 @@ export function ActionRequest(props: ActionRequest.Props) {
   const { assetDiffs, feeTotals } = capabilities ?? {}
 
   const assetDiff = ActionRequest.AssetDiff.useAssetDiff({
-    address: guestMode ? undefined : (address ?? account?.address),
+    address: address ?? account?.address,
     assetDiff: assetDiffs,
+    showIncomingOnly: Boolean(guestMode),
   })
 
   const quotes = capabilities?.quote?.quotes ?? []
@@ -143,6 +144,16 @@ export function ActionRequest(props: ActionRequest.Props) {
   const fetchingQuote = prepareCallsQuery.isPending
   const refreshingQuote = prepareCallsQuery.isRefetching
 
+  const guestModeData: GuestMode | undefined = React.useMemo(() => {
+    if (!guestStatus || guestStatus === 'disabled') return undefined
+    if (!onGuestSignIn || !onGuestSignUp) return undefined
+    return {
+      onSignIn: onGuestSignIn,
+      onSignUp: onGuestSignUp,
+      status: guestStatus,
+    }
+  }, [guestStatus, onGuestSignIn, onGuestSignUp])
+
   const insufficientFunds = React.useMemo(() => {
     const errorMessage = prepareCallsQuery.error?.message ?? ''
     const abiErrorName = (prepareCallsQuery.error as any)?.abiError?.name
@@ -194,7 +205,7 @@ export function ActionRequest(props: ActionRequest.Props) {
       />
     )
 
-  if (identified?.type === 'approve' && !guestMode)
+  if (identified?.type === 'approve')
     return (
       <Approve
         address={address}
@@ -203,6 +214,7 @@ export function ActionRequest(props: ActionRequest.Props) {
         capabilities={capabilities}
         chainsPath={chainsPath}
         fetchingQuote={fetchingQuote}
+        guestMode={guestModeData}
         onApprove={() => {
           if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
         }}
@@ -213,10 +225,7 @@ export function ActionRequest(props: ActionRequest.Props) {
       />
     )
 
-  if (
-    (identified?.type === 'swap' || identified?.type === 'convert') &&
-    !guestMode
-  )
+  if (identified?.type === 'swap' || identified?.type === 'convert')
     return (
       <Swap
         address={address}
@@ -226,6 +235,7 @@ export function ActionRequest(props: ActionRequest.Props) {
         chainsPath={chainsPath}
         contractAddress={calls[0]?.to}
         fetchingQuote={fetchingQuote}
+        guestMode={guestModeData}
         onApprove={() => {
           if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
         }}
@@ -236,7 +246,7 @@ export function ActionRequest(props: ActionRequest.Props) {
       />
     )
 
-  if (identified?.type === 'send' && identified.to && !guestMode)
+  if (identified?.type === 'send' && identified.to)
     return (
       <Send
         address={address}
@@ -244,6 +254,7 @@ export function ActionRequest(props: ActionRequest.Props) {
         capabilities={capabilities}
         chainsPath={chainsPath}
         fetchingQuote={fetchingQuote}
+        guestMode={guestModeData}
         onApprove={() => {
           if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
         }}
@@ -286,7 +297,7 @@ export function ActionRequest(props: ActionRequest.Props) {
           </Button>
         </Layout.Footer.Actions>
       }
-      guestStatus={guestStatus}
+      guestMode={guestModeData}
       header={
         <Layout.Header.Default
           icon={Star}
@@ -294,8 +305,6 @@ export function ActionRequest(props: ActionRequest.Props) {
           variant="default"
         />
       }
-      onGuestSignIn={onGuestSignIn}
-      onGuestSignUp={onGuestSignUp}
       onQuotesRefetch={() => prepareCallsQuery.refetch()}
       onReject={onReject}
       queryParams={{ address, chainId }}
