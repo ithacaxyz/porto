@@ -459,6 +459,8 @@
     "./wagmi/Actions": {
       "src": "./src/wagmi/Actions.ts",
       "types": "./dist/wagmi/Actions.d.ts",
+      "react-native": "./dist/wagmi/Actions.native.js",
+      "browser": "./dist/wagmi/Actions.js",
       "default": "./dist/wagmi/Actions.js"
     },
     "./wagmi/Connector": {

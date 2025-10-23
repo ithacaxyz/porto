@@ -18,5 +18,3 @@ export function create(
     mode: parameters.mode ?? defaultConfig.mode,
   })
 }
-
-export { Porto }
