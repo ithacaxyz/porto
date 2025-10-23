@@ -694,7 +694,8 @@ export function relay(parameters: relay.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, asTxHash, calls, internal, merchantUrl } = parameters
+        const { account, asTxHash, calls, chainId, internal, merchantUrl } =
+          parameters
         const { client } = internal
 
         // Try and extract an authorized key to sign the calls with.
@@ -730,6 +731,7 @@ export function relay(parameters: relay.Parameters = {}) {
           merchantUrl,
           requiredFunds: multichain ? requiredFunds : undefined,
           webAuthn,
+          ...(chainId ? { chain: { id: chainId } } : {}),
         })
 
         if (asTxHash) {

@@ -263,6 +263,8 @@ export type Mode = {
       asTxHash?: boolean | undefined
       /** Calls to execute. */
       calls: readonly Call.Call[]
+      /** Chain ID to execute the calls on. */
+      chainId?: number | undefined
       /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
       feeToken?: Token.Symbol | Address.Address | undefined
       /** Internal properties. */
