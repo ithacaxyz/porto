@@ -1034,7 +1034,7 @@ function SendCalls() {
 
         const account = result[0]
         const recipient =
-          address || account || '0x0000000000000000000000000000000000000001'
+          address || account || '0x0000000000000000000000000000000000000000'
 
         const params = (() => {
           if (action === 'mint')
