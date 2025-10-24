@@ -1,4 +1,5 @@
 import NodePath from 'node:path'
+import * as Bun from 'bun'
 import * as JoseMourinho from 'jose'
 import { Porto } from 'porto'
 import { RelayClient } from 'porto/viem'
@@ -10,6 +11,9 @@ import {
 
 const porto = Porto.create()
 
+const JWT_SECRET = Bun.env.JWT_SECRET
+if (!JWT_SECRET) throw new Error('JWT_SECRET is not set')
+
 const headers = new Headers({
   'Access-Control-Allow-Headers': 'Content-Type',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -17,37 +21,29 @@ const headers = new Headers({
   'Access-Control-Allow-Private-Network': 'true',
 })
 
-const JWT_SECRET = Bun.env.JWT_SECRET
-if (!JWT_SECRET) throw new Error('JWT_SECRET is not set')
-
 const server = Bun.serve({
-  fetch: (request) => fetch(request, { headers }),
   port: Number(Bun.env.PORT || 69_69),
   routes: {
-    '/': () => new Response('ok', { headers }),
-    '/.well-known/apple-app-site-association': async (request, server) => {
-      const url = new URL(request.url)
-      const ipAddress = server.requestIP(request)
-      console.info(`Request from ${ipAddress?.address} ${url.pathname}`)
+    '/': Response.json({ ok: new Date().toISOString() }, { headers }),
 
-      const filePath = NodePath.join(
-        import.meta.dirname,
-        './apple-app-site-association',
-      )
+    '/.well-known/apple-app-site-association': async () =>
+      Response.json(
+        await Bun.file(
+          NodePath.join(import.meta.dirname, './apple-app-site-association'),
+        ).json(),
+        { headers },
+      ),
+    '/.well-known/apple-app-site-association.json': Response.redirect(
+      '/.well-known/apple-app-site-association',
+    ),
+    '/.well-known/assetlinks.json': async () =>
+      Response.json(
+        await Bun.file(
+          NodePath.join(import.meta.dirname, './assetlinks.json'),
+        ).json(),
+        { headers },
+      ),
 
-      return Response.json(await Bun.file(filePath).json(), { headers })
-    },
-    '/.well-known/apple-app-site-association.json': async () =>
-      Response.redirect('/.well-known/apple-app-site-association', 301),
-    '/.well-known/assetlinks.json': async (request, server) => {
-      const url = new URL(request.url)
-      const ipAddress = server.requestIP(request)
-      console.info(`Request from ${ipAddress?.address} ${url.pathname}`)
-
-      const filePath = NodePath.join(import.meta.dirname, './assetlinks.json')
-
-      return Response.json(await Bun.file(filePath).json(), { headers })
-    },
     '/api/me': async (request) => {
       const token = request.cookies.get('auth')
       if (!token)
@@ -70,25 +66,43 @@ const server = Bun.serve({
       request.cookies.delete('auth')
       return Response.json({ success: true }, { headers, status: 204 })
     },
-    '/api/siwe/nonce': () =>
-      Response.json({ nonce: generateSiweNonce() }, { headers }),
-    '/api/siwe/verify': async (request, server) => {
-      const url = new URL(request.url)
-      const ipAddress = server.requestIP(request)
-      console.info(`Request from ${ipAddress?.address} ${url.pathname}`)
+    '/api/siwe/nonce': async () => {
+      const nonce = generateSiweNonce()
 
-      const params = await request.json()
-      const message = parseSiweMessage(params.message)
-      const { address, chainId } = message
+      await Promise.all([
+        Bun.redis.set(nonce, 'valid'),
+        Bun.redis.expire(nonce, 600),
+      ])
 
-      // Verify the signature.
+      return Response.json({ nonce }, { headers })
+    },
+    '/api/siwe/verify': async (request) => {
+      const { message, signature } = await request.json()
+      const { address, chainId, nonce } = parseSiweMessage(message)
+
+      if (!nonce)
+        return Response.json(
+          { error: 'Nonce is required' },
+          { headers, status: 400 },
+        )
+
+      const nonceSession = await Bun.redis.get(nonce)
+      if (!nonceSession)
+        return Response.json(
+          { error: 'Invalid or expired nonce' },
+          { headers, status: 401 },
+        )
+
+      await Bun.redis.del(nonce)
+
       const client = RelayClient.fromPorto(porto, { chainId })
       const valid = await verifySiweMessage(client, {
-        message: message as string,
-        signature: params.signature,
+        address,
+        message,
+        signature,
       })
 
-      const maxAge = 60 * 60 * 24 * 7 // 7 days
+      const maxAge = 60 * 60 * 24 * 7
       const exp = Math.floor(Date.now() / 1000) + maxAge
 
       if (!valid)

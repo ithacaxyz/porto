@@ -1,4 +1,4 @@
-# React Native Relay Mode
+# React Native Relay Mode (with SIWE)
 
 ## 1. Setup
 
