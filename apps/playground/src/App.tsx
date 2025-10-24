@@ -127,9 +127,8 @@ export function App() {
                 <>
                   {envs.map((env) => (
                     <button
-                      key={env}
-                      className="inline-flex items-center gap-1.5 rounded-md border border-th_frame px-2 py-1 disabled:opacity-50"
                       disabled={Env.get() === env}
+                      key={env}
                       onClick={() => {
                         const url = new URL(window.location.href)
                         if (defaultEnv === env)
