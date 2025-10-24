@@ -82,9 +82,9 @@
     "vitest": "catalog:",
     "wagmi": "catalog:",
     "yaml": "^2.8.1",
-    "zile": "^0.0.5"
+    "zile": "^0.0.7"
   },
-  "packageManager": "pnpm@10.18.3",
+  "packageManager": "pnpm@10.19.0",
   "engines": {
     "node": ">=22.5"
   },
