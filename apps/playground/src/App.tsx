@@ -254,7 +254,17 @@ function State() {
     <div>
       <h3>State</h3>
       {state.accounts.length === 0 ? (
-        <div>Disconnected</div>
+        <div className="flex gap-2">
+          Disconnected
+          <button
+            onClick={async () => {
+              await porto.provider.request({ method: 'eth_requestAccounts' })
+            }}
+            type="button"
+          >
+            Connect
+          </button>
+        </div>
       ) : (
         <div className="flex flex-col gap-2">
           <div>
