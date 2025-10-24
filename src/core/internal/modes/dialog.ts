@@ -834,23 +834,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
           } catch {}
         }
 
-        // Guest mode: queue request for processing after signin / signup.
-        if (!account) {
-          store.setState((x) => ({
-            ...x,
-            requestQueue: [
-              ...x.requestQueue,
-              {
-                account: undefined,
-                request: request as any,
-                status: 'pending',
-              },
-            ],
-          }))
-
-          return waitForQueuedRequest((request as any).id, store)
-        }
-
         if (request.method === 'eth_sendTransaction') {
           // Send a transaction request to the dialog.
           const id = await provider.request({
