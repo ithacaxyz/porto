@@ -33,7 +33,14 @@ export function AddFunds(props: AddFunds.Props) {
   const address = props.address ?? account?.address
   const chain = RemoteHooks.useChain(porto, { chainId })
 
-  const showApplePay = useShowApplePay()
+  const { createOrder, lastOrderEvent } = useOnrampOrder({
+    onApprove,
+    // TODO(onramp): Flip to `false`
+    sandbox: false,
+  })
+  const [iframeLoaded, setIframeLoaded] = React.useState(false)
+
+  const showApplePay = useShowApplePay(createOrder.error)
   const client = RemoteHooks.useRelayClient(porto)
   const { data: onrampStatus } = useQuery({
     enabled: Boolean(showApplePay && address),
@@ -54,12 +61,6 @@ export function AddFunds(props: AddFunds.Props) {
       return { ...data, reverifyPhone }
     },
   })
-  const { createOrder, lastOrderEvent } = useOnrampOrder({
-    onApprove,
-    // TODO(onramp): Flip to `false`
-    sandbox: false,
-  })
-  const [iframeLoaded, setIframeLoaded] = React.useState(false)
 
   const queryClient = useQueryClient()
   // biome-ignore lint/correctness/useExhaustiveDependencies: explanation

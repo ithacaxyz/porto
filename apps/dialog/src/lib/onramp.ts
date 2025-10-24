@@ -13,10 +13,11 @@ const hostnames = [
   // 'relay.link',
 ]
 
-export function useShowApplePay() {
+export function useShowApplePay(error: Error | null) {
   const referrer = Dialog.useStore((state) => state.referrer)
   const mode = Dialog.useStore((state) => state.mode)
   return React.useMemo(() => {
+    if (error) return false
     // Disallow in-app browsers
     if (UserAgent.isInAppBrowser()) return false
     // Disallow non-Safari mobile browsers
@@ -37,13 +38,13 @@ export function useShowApplePay() {
         // Or Vercel porto previews
         referrer?.url?.hostname.endsWith('preview.porto.sh'),
     )
-  }, [mode, referrer?.url])
+  }, [error, mode, referrer?.url])
 }
 
 export function useOnrampOrder(props: {
   domain?: string | undefined
   sandbox?: boolean | undefined
-  onApprove: (result: { id: Hex.Hex }) => void
+  onApprove: (result: { id: Hex.Hex }) => Promise<void> | void
 }) {
   const { sandbox = true, onApprove } = props
 
@@ -92,7 +93,7 @@ export function useOnrampOrder(props: {
 
   // TODO(onramp): add iframe loading timeout (onramp_api.load_pending => onramp_api.load_success takes more than 5s)
   React.useEffect(() => {
-    function handlePostMessage(event: MessageEvent) {
+    async function handlePostMessage(event: MessageEvent) {
       if (event.origin !== 'https://pay.coinbase.com') return
       try {
         const data = z.parse(cbPostMessageSchema, JSON.parse(event.data))
@@ -100,7 +101,7 @@ export function useOnrampOrder(props: {
         if ('eventName' in data && data.eventName.startsWith('onramp_api.')) {
           setOnrampEvents((state) => [...state, data])
           if (data.eventName === 'onramp_api.commit_success')
-            onApprove({ id: zeroAddress })
+            await onApprove({ id: zeroAddress })
         }
       } catch (error) {
         setOnrampEvents((state) => [
