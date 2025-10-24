@@ -78,7 +78,6 @@ export function ActionRequest(props: ActionRequest.Props) {
   const assetDiff = ActionRequest.AssetDiff.useAssetDiff({
     address: address ?? account?.address,
     assetDiff: assetDiffs,
-    showIncomingOnly: Boolean(guestMode),
   })
 
   const quotes = capabilities?.quote?.quotes ?? []

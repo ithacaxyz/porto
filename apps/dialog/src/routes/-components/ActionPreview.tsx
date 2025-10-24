@@ -182,10 +182,7 @@ export function ActionPreview(props: ActionPreview.Props) {
       </Layout.Content>
       <Layout.Footer>
         {guestMode ? (
-          <GuestCheckoutSection
-            guestMode={guestMode}
-            onReject={onReject}
-          />
+          <GuestCheckoutSection guestMode={guestMode} onReject={onReject} />
         ) : deficit ? (
           <FundsNeededSection
             account={account}
@@ -608,7 +605,7 @@ export function ApplePayIframe(props: {
 }
 
 function GuestCheckoutSection(props: GuestCheckoutSection.Props) {
-  const { guestMode, onReject } = props
+  const { guestMode } = props
 
   const [invalid, setInvalid] = React.useState(false)
 

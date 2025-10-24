@@ -1,7 +1,8 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { Hex, Provider, RpcResponse, Secp256k1 } from 'ox'
+import { Provider, RpcResponse, Secp256k1 } from 'ox'
 import { preGeneratedAccounts } from 'porto/core/internal/modes/relay'
+import type * as Messenger from 'porto/core/Messenger'
 import { Actions, Hooks } from 'porto/remote'
 import { Account, RelayActions } from 'porto/viem'
 import * as React from 'react'
@@ -55,26 +56,13 @@ function RouteComponent() {
         params: [{}],
       })
       const newAccount = response.accounts?.[0]
-      if (newAccount) {
-        const portoAccount = porto._internal.store.getState().accounts[0]
-        if (portoAccount) {
-          setAuthenticatedAccount(portoAccount)
-          setGuestStatus('disabled')
-
-          if (chainId)
-            porto.provider.request({
-              method: 'eth_sendTransaction',
-              params: [
-                {
-                  chainId: Hex.fromNumber(chainId),
-                  data,
-                  from: portoAccount.address,
-                  to,
-                  value: value ? Hex.fromNumber(value) : undefined,
-                },
-              ],
-            })
-        }
+      const [portoAccount] = porto._internal.store.getState().accounts
+      if (newAccount && portoAccount) {
+        setAuthenticatedAccount(portoAccount)
+        porto.messenger.send('account', {
+          account: newAccount as Messenger.Payload<'account'>['account'],
+        })
+        setGuestStatus('disabled')
       }
     } catch (error) {
       if (Dialog.handleWebAuthnIframeError(error)) return
@@ -101,26 +89,13 @@ function RouteComponent() {
           ],
         })
         const newAccount = response.accounts?.[0]
-        if (newAccount) {
-          const portoAccount = porto._internal.store.getState().accounts[0]
-          if (portoAccount) {
-            setAuthenticatedAccount(portoAccount)
-            setGuestStatus('disabled')
-
-            if (chainId)
-              porto.provider.request({
-                method: 'eth_sendTransaction',
-                params: [
-                  {
-                    chainId: Hex.fromNumber(chainId),
-                    data,
-                    from: portoAccount.address,
-                    to,
-                    value: value ? Hex.fromNumber(value) : undefined,
-                  },
-                ],
-              })
-          }
+        const [portoAccount] = porto._internal.store.getState().accounts
+        if (newAccount && portoAccount) {
+          setAuthenticatedAccount(portoAccount)
+          porto.messenger.send('account', {
+            account: newAccount as Messenger.Payload<'account'>['account'],
+          })
+          setGuestStatus('disabled')
         }
       } catch (error) {
         if (Dialog.handleWebAuthnIframeError(error)) return

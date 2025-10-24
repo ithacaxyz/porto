@@ -1,8 +1,9 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { Hex, Secp256k1 } from 'ox'
+import { Secp256k1 } from 'ox'
 import * as Provider from 'ox/Provider'
 import { preGeneratedAccounts } from 'porto/core/internal/modes/relay'
+import type * as Messenger from 'porto/core/Messenger'
 import { Actions, Hooks } from 'porto/remote'
 import { Account, RelayActions } from 'porto/viem'
 import * as React from 'react'
@@ -52,28 +53,13 @@ function RouteComponent() {
         params: [{}],
       })
       const newAccount = response.accounts?.[0]
-      if (newAccount) {
-        const portoAccount = porto._internal.store.getState().accounts[0]
-        if (portoAccount) {
-          setAuthenticatedAccount(portoAccount)
-          setGuestStatus('disabled')
-
-          if (chainId)
-            porto.provider.request({
-              method: 'wallet_sendCalls',
-              params: [
-                {
-                  calls: calls.map((call) => ({
-                    ...call,
-                    value: call.value ? Hex.fromNumber(call.value) : undefined,
-                  })),
-                  capabilities: capabilities as any,
-                  chainId: Hex.fromNumber(chainId),
-                  from: portoAccount.address,
-                },
-              ],
-            })
-        }
+      const [portoAccount] = porto._internal.store.getState().accounts
+      if (newAccount && portoAccount) {
+        setAuthenticatedAccount(portoAccount)
+        porto.messenger.send('account', {
+          account: newAccount as Messenger.Payload<'account'>['account'],
+        })
+        setGuestStatus('disabled')
       }
     } catch (error) {
       if (Dialog.handleWebAuthnIframeError(error)) return
@@ -100,31 +86,15 @@ function RouteComponent() {
             },
           ],
         })
-        const newAccount = response.accounts?.[0]
-        if (newAccount) {
-          const portoAccount = porto._internal.store.getState().accounts[0]
-          if (portoAccount) {
-            setAuthenticatedAccount(portoAccount)
-            setGuestStatus('disabled')
 
-            if (chainId)
-              porto.provider.request({
-                method: 'wallet_sendCalls',
-                params: [
-                  {
-                    calls: calls.map((call) => ({
-                      ...call,
-                      value: call.value
-                        ? Hex.fromNumber(call.value)
-                        : undefined,
-                    })),
-                    capabilities: capabilities as any,
-                    chainId: Hex.fromNumber(chainId),
-                    from: portoAccount.address,
-                  },
-                ],
-              })
-          }
+        const newAccount = response.accounts?.[0]
+        const [portoAccount] = porto._internal.store.getState().accounts
+        if (newAccount && portoAccount) {
+          setAuthenticatedAccount(portoAccount)
+          porto.messenger.send('account', {
+            account: newAccount as Messenger.Payload<'account'>['account'],
+          })
+          setGuestStatus('disabled')
         }
       } catch (error) {
         if (Dialog.handleWebAuthnIframeError(error)) return
