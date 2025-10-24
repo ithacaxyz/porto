@@ -14,6 +14,9 @@ const porto = Porto.create()
 const JWT_SECRET = Bun.env.JWT_SECRET
 if (!JWT_SECRET) throw new Error('JWT_SECRET is not set')
 
+/**
+ * In production you will want to have a stricter CORS policy.
+ */
 const headers = new Headers({
   'Access-Control-Allow-Headers': 'Content-Type',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -25,7 +28,6 @@ const server = Bun.serve({
   port: Number(Bun.env.PORT || 69_69),
   routes: {
     '/': Response.json({ ok: new Date().toISOString() }, { headers }),
-
     '/.well-known/apple-app-site-association': async () =>
       Response.json(
         await Bun.file(
@@ -58,11 +60,7 @@ const server = Bun.serve({
       )
       return Response.json(payload, { headers })
     },
-    '/api/siwe/logout': async (request, server) => {
-      const url = new URL(request.url)
-      const ipAddress = server.requestIP(request)
-      console.info(`Request from ${ipAddress?.address} ${url.pathname}`)
-
+    '/api/siwe/logout': async (request) => {
       request.cookies.delete('auth')
       return Response.json({ success: true }, { headers, status: 204 })
     },
@@ -111,7 +109,9 @@ const server = Bun.serve({
           { headers, status: 401 },
         )
 
-      const token = await new JoseMourinho.SignJWT()
+      const token = await new JoseMourinho.SignJWT({
+        sub: address,
+      })
         .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()
         .setExpirationTime(exp)
@@ -137,5 +137,5 @@ process.on('SIGTERM', () => stopAndExit())
 process.on('SIGQUIT', () => stopAndExit())
 
 if (Bun.env.NODE_ENV === 'development')
-  console.info(`Server is running on http://localhost:${server.port}`)
-else console.info(`Server is running on port ${server.port}`)
+  console.info(`Server running on http://localhost:${server.port}`)
+else console.info(`Server running on port ${server.port}`)
