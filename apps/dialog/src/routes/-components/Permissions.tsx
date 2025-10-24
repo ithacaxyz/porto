@@ -1,6 +1,6 @@
 import { Spinner } from '@porto/apps/components'
 import { useMemo } from 'react'
-import { erc20Abi, zeroAddress } from 'viem'
+import { erc20Abi, isAddressEqual, zeroAddress } from 'viem'
 import { useReadContract } from 'wagmi'
 import { ValueFormatter } from '~/utils'
 import LucideBanknote from '~icons/lucide/banknote'
@@ -65,13 +65,17 @@ function SpendPermission(props: SpendPermission.Props) {
     },
   })
 
-  const displayAmount = useMemo(() => {
-    if (token === zeroAddress) return ValueFormatter.format(limit, 18)
-    if (!decimals.data) return null
-    return ValueFormatter.format(limit, decimals.data)
-  }, [limit, decimals.data, token])
+  const isNative = !token || isAddressEqual(token, zeroAddress)
 
-  const isLoading = token && !displayAmount
+  const displayAmount = useMemo(() => {
+    const decimals_ = decimals.data ?? (isNative ? 18 : undefined)
+    return decimals_ === undefined
+      ? null
+      : ValueFormatter.format(limit, decimals_)
+  }, [limit, decimals.data, isNative])
+
+  const displaySymbol = symbol.data ?? (isNative ? 'ETH' : undefined)
+  const isLoading = token && (!displayAmount || !displaySymbol)
 
   return (
     <div className="flex items-center gap-2 py-3 text-[15px] text-th_base-secondary">
@@ -87,7 +91,7 @@ function SpendPermission(props: SpendPermission.Props) {
       <div>
         Spend up to{' '}
         <span className="font-medium text-th_base">
-          {isLoading ? '' : displayAmount} {symbol.data ?? 'ETH'}
+          {isLoading ? '' : `${displayAmount} ${displaySymbol}`}
         </span>{' '}
         per {period}
       </div>

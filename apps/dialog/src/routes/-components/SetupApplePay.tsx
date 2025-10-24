@@ -29,7 +29,7 @@ export function SetupApplePay(props: SetupApplePay.Props) {
 
   const isValidEmail = email && /.+@.+/.test(email)
   const isValidPhone =
-    phone && /^\+1\s?\(?\d{3}\)?[\s-]?\d{3}[\s-]?\d{4}$/.test(phone)
+    phone && /^\(?\d{3}\)?[\s-]?\d{3}[\s-]?\d{4}$/.test(phone)
   const isValid =
     (showEmail ? isValidEmail : true) && (showPhone ? isValidPhone : true)
 
@@ -54,7 +54,7 @@ export function SetupApplePay(props: SetupApplePay.Props) {
       if (data.phone)
         promises.push(
           RelayActions.setPhone(client, {
-            phone: data.phone,
+            phone: `+1${data.phone}`,
             walletAddress: address,
           }),
         )
@@ -80,7 +80,7 @@ export function SetupApplePay(props: SetupApplePay.Props) {
   const resendVerifyPhone = useMutation({
     async mutationFn(data: { phone: string }) {
       await RelayActions.resendVerifyPhone(client, {
-        phone: data.phone,
+        phone: `+1${data.phone}`,
         walletAddress: address,
       })
     },
@@ -253,16 +253,16 @@ export function SetupApplePay(props: SetupApplePay.Props) {
                 adornments={{
                   end: isValidPhone && { type: 'valid' },
                   // FIXME: This was causing `pattern` to not work (since it was removing `+1` from input value)
-                  // start: {
-                  //   prefixes: ['+1'],
-                  //   type: 'phone-prefix',
-                  // },
+                  start: {
+                    label: '+1',
+                    type: 'solid',
+                  },
                 }}
                 inputMode="numeric"
                 name="phone"
                 onChange={setPhone}
-                pattern="\+1\s?\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{4}"
-                placeholder="+1 (650) 555-1234"
+                pattern="\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{4}"
+                placeholder="(650) 555-1234"
                 type="tel"
                 value={phone}
               />

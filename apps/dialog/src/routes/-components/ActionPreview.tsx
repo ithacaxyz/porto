@@ -10,6 +10,7 @@ import type * as Quote_schema from 'porto/core/internal/relay/schema/quotes'
 import { Hooks as RemoteHooks } from 'porto/remote'
 import { RelayActions } from 'porto/viem'
 import * as React from 'react'
+import { isAddressEqual, zeroAddress } from 'viem'
 import { useWatchBlockNumber } from 'wagmi'
 import { DepositButtons } from '~/components/DepositButtons'
 import {
@@ -100,7 +101,7 @@ export function ActionPreview(props: ActionPreview.Props) {
   const { createOrder, lastOrderEvent } = useOnrampOrder({
     onApprove,
     // TODO(onramp): Flip to `false`
-    sandbox: true,
+    sandbox: false,
   })
   const [iframeLoaded, setIframeLoaded] = React.useState(false)
 
@@ -348,8 +349,18 @@ function useDeficit(
     if (!firstDeficit) return undefined
 
     const nativeCurrency = chain?.nativeCurrency
-    const decimals = firstDeficit.decimals ?? nativeCurrency?.decimals ?? 18
-    const symbol = firstDeficit.symbol ?? nativeCurrency?.symbol ?? 'ETH'
+    const isNative =
+      !firstDeficit.address || isAddressEqual(firstDeficit.address, zeroAddress)
+
+    const decimals =
+      firstDeficit.decimals ??
+      (isNative ? (nativeCurrency?.decimals ?? 18) : undefined)
+    const symbol =
+      firstDeficit.symbol ??
+      (isNative ? (nativeCurrency?.symbol ?? 'ETH') : undefined)
+
+    // missing token metadata
+    if (decimals === undefined || !symbol) return undefined
 
     const feeWithBuffer = ((deficit.feeTokenDeficit ?? 0n) * 5n) / 100n // +5% buffer
     const needed = firstDeficit.deficit + feeWithBuffer

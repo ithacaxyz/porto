@@ -66,6 +66,7 @@
     "playwright": "1.56.1",
     "prool": "catalog:",
     "publint": "^0.3.12",
+    "react": "catalog:",
     "react-native": "0.81.4",
     "sherif": "^1.6.1",
     "simple-git-hooks": "^2.13.1",
@@ -75,13 +76,15 @@
     "typed-query-selector": "^2.12.0",
     "typescript": "catalog:",
     "viem": "catalog:",
+    "react-dom": "catalog:",
+    "@types/react-dom": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:",
     "wagmi": "catalog:",
     "yaml": "^2.8.1",
-    "zile": "^0.0.5"
+    "zile": "^0.0.7"
   },
-  "packageManager": "pnpm@10.18.3",
+  "packageManager": "pnpm@10.19.0",
   "engines": {
     "node": ">=22.5"
   },
@@ -163,7 +166,8 @@
       "bigint-buffer@<=1.1.5": "npm:bigint-buffer-fixed",
       "tar-fs@>=2.0.0 <2.1.4": "2.1.4",
       "tar-fs@>=3.0.0 <3.1.1": "3.1.1",
-      "playwright@<1.55.1": "1.55.1"
+      "playwright@<1.55.1": "1.55.1",
+      "hono@>=1.1.0 <4.10.2": ">=4.10.2"
     },
     "patchedDependencies": {
       "@tanstack/react-router": "patches/@tanstack__react-router.patch",
@@ -179,7 +183,7 @@
   "[!start-pkg]": {},
   "name": "porto",
   "description": "Next-gen Account for Ethereum",
-  "version": "0.2.28",
+  "version": "0.2.32",
   "type": "module",
   "bin": {
     "porto": "./dist/cli/bin/index.js"
@@ -251,6 +255,8 @@
     ".": {
       "src": "./src/index.ts",
       "types": "./dist/index.d.ts",
+      "react-native": "./dist/index.native.js",
+      "browser": "./dist/index.js",
       "default": "./dist/index.js"
     },
     "./cli": {
@@ -446,11 +452,15 @@
     "./wagmi": {
       "src": "./src/wagmi/index.ts",
       "types": "./dist/wagmi/index.d.ts",
+      "react-native": "./dist/wagmi/index.native.js",
+      "browser": "./dist/wagmi/index.js",
       "default": "./dist/wagmi/index.js"
     },
     "./wagmi/Actions": {
       "src": "./src/wagmi/Actions.ts",
       "types": "./dist/wagmi/Actions.d.ts",
+      "react-native": "./dist/wagmi/Actions.native.js",
+      "browser": "./dist/wagmi/Actions.js",
       "default": "./dist/wagmi/Actions.js"
     },
     "./wagmi/Connector": {
@@ -461,6 +471,8 @@
     "./wagmi/Hooks": {
       "src": "./src/wagmi/Hooks.ts",
       "types": "./dist/wagmi/Hooks.d.ts",
+      "react-native": "./dist/wagmi/Hooks.native.js",
+      "browser": "./dist/wagmi/Hooks.js",
       "default": "./dist/wagmi/Hooks.js"
     },
     "./wagmi/Query": {

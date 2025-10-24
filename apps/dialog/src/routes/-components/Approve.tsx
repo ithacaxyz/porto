@@ -84,7 +84,7 @@ export function Approve(props: Approve.Props) {
     ],
     query: {
       select: ([decimals, name, symbol]) => ({
-        decimals: decimals.result ?? 18,
+        decimals: decimals.result,
         name: name.result,
         symbol: symbol.result,
       }),
@@ -144,8 +144,9 @@ export function Approve(props: Approve.Props) {
             amount={
               unlimited
                 ? 'Any amount'
-                : tokenInfo.data &&
-                  Value.format(amount, tokenInfo.data.decimals)
+                : tokenInfo.data?.decimals !== undefined
+                  ? Value.format(amount, tokenInfo.data.decimals)
+                  : undefined
             }
             error={tokenInfo.error}
             expiresAt={expiresAt}
@@ -271,10 +272,11 @@ export namespace Approve {
             <div className="truncate font-medium text-[13px] text-th_base-secondary">
               {unlimited
                 ? 'Any amount'
-                : amount &&
-                  `${Intl.NumberFormat('en-US', {
-                    maximumFractionDigits: 4,
-                  }).format(Number(amount))} ${symbol ?? ''}`}
+                : amount
+                  ? `${Intl.NumberFormat('en-US', {
+                      maximumFractionDigits: 4,
+                    }).format(Number(amount))} ${symbol ?? ''}`
+                  : '—'}
             </div>
           </div>
         )}

@@ -264,6 +264,7 @@ export function from<
                     value,
                   },
                 ],
+                chainId: client.chain.id,
                 internal: {
                   client,
                   config,
@@ -1060,6 +1061,7 @@ export function from<
               const { id } = await getMode().actions.sendCalls({
                 account,
                 calls,
+                chainId: client.chain.id,
                 feeToken: capabilities?.feeToken,
                 internal: {
                   client,

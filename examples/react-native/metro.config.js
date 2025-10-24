@@ -22,9 +22,8 @@ module.exports = {
         }
 
       /**
-       * Prefer CJS for `ox` usage in ESM builds
-       * To see what's wrong, comment out this block and run `pnpm expo run:ios`
-       * TODO: fix this in `ox`?
+       * Prefer CJS for `ox` to avoid `window.*` usage in ESM builds
+       * TODO: fix this in `ox`
        */
       if (moduleName.startsWith('ox'))
         return {
@@ -35,7 +34,7 @@ module.exports = {
       return context.resolveRequest(context, moduleName, platform)
     },
     unstable_conditionNames: [
-      ...(defaultConfiguration.resolver.unstable_conditionNames || []),
+      ...(defaultConfiguration.resolver?.unstable_conditionNames || []),
       'import',
     ],
     unstable_enablePackageExports: true,

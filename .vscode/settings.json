@@ -45,13 +45,15 @@
     "**/.tanstack/**": true,
     "**/.vercel/**": true,
     "**/.wrangler/**": true,
-    "**/*.tsbuildinfo": true
+    "**/*.tsbuildinfo": true,
+    "tsconfig.tmp.json": true
   },
   "files.watcherExclude": {
     "**/routeTree.gen.ts": true
   },
   "javascript.preferences.autoImportFileExcludePatterns": ["**/index.js"],
   "search.exclude": {
+    "*.svg": true,
     "**/_/**": true,
     "**/.tanstack/**": true,
     "**/android/**": true,
@@ -60,7 +62,8 @@
     "**/ios/**": true,
     "**/routeTree.gen.ts": true,
     "contracts": true,
-    "pnpm-lock.yaml": true
+    "pnpm-lock.yaml": true,
+    "tsconfig.tmp.json": true
   },
   "tailwindCSS.experimental.classRegex": [
     ["cva\\(((?:[^()]|\\([^()]*\\))*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],

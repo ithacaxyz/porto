@@ -1,5 +1,31 @@
 # porto
 
+## 0.2.32
+
+### Patch Changes
+
+- [`2be589f`](https://github.com/ithacaxyz/porto/commit/2be589fb7cf00e703d864b6c3375dd30b500ed64) Thanks [@jxom](https://github.com/jxom)! - Tweaked logic on `Account#sign`.
+
+## 0.2.31
+
+### Patch Changes
+
+- [`0e8a179`](https://github.com/ithacaxyz/porto/commit/0e8a17976966475d15550c9e06dc6d11c69fbed0) Thanks [@jxom](https://github.com/jxom)! - Exported types required for inference.
+
+## 0.2.30
+
+### Patch Changes
+
+- [#990](https://github.com/ithacaxyz/porto/pull/990) [`254f6bb`](https://github.com/ithacaxyz/porto/commit/254f6bbc72d3b026edfce300d8ce5bcedce45ee7) Thanks [@jxom](https://github.com/jxom)! - Always propagate `chainId` in `Mode.dialog`
+
+## 0.2.29
+
+### Patch Changes
+
+- [#982](https://github.com/ithacaxyz/porto/pull/982) [`c95930e`](https://github.com/ithacaxyz/porto/commit/c95930ea9fe850118928de58edb29607b1b413d9) Thanks [@o-az](https://github.com/o-az)! - - Introduced [React Native](https://reactnative.dev/blog/2023/06/21/package-exports-support#the-new-react-native-condition) custom [exports conditions](https://nodejs.org/docs/latest-v19.x/api/packages.html#community-conditions-definitions) in `package.json#exports` to automatically apply crypto polyfill for Wagmi usage without requiring additional configuration in consumer codebases.
+  Checkout the [Porto/Wagmi React Native example](https://github.com/ithacaxyz/porto/tree/main/examples/react-native)
+  - Fixed chain id not syncing between dialog and React Native for certain requests
+
 ## 0.2.28
 
 ### Patch Changes

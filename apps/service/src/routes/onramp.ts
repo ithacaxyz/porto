@@ -1,6 +1,7 @@
 import { env } from 'cloudflare:workers'
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
+import { cors } from 'hono/cors'
 import { HTTPException } from 'hono/http-exception'
 import { importJWK, type JWTPayload, SignJWT } from 'jose'
 import { Porto } from 'porto'
@@ -14,6 +15,13 @@ const host = 'api.cdp.coinbase.com'
 
 onrampApp.post(
   '/orders',
+  cors({
+    allowMethods: ['POST', 'OPTIONS'],
+    origin: (origin, _originContext) => {
+      if (env.ENVIRONMENT === 'local') return origin
+      return origin?.endsWith('.porto.sh') ? origin : ''
+    },
+  }),
   zValidator(
     'json',
     z.object({

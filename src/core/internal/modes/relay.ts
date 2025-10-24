@@ -698,7 +698,8 @@ export function relay(parameters: relay.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, asTxHash, calls, internal, merchantUrl } = parameters
+        const { account, asTxHash, calls, chainId, internal, merchantUrl } =
+          parameters
         const { client } = internal
 
         if (!account) throw new Error('account required for relay mode')
@@ -736,6 +737,7 @@ export function relay(parameters: relay.Parameters = {}) {
           merchantUrl,
           requiredFunds: multichain ? requiredFunds : undefined,
           webAuthn,
+          ...(chainId ? { chain: { id: chainId } } : {}),
         })
 
         if (asTxHash) {

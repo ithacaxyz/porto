@@ -70,3 +70,6 @@ styled-system
 .zip
 
 bun.lock
+tsconfig.tmp.json
+
+no-hooks

@@ -174,7 +174,7 @@ export namespace Swap {
   export function AssetRow(props: AssetRow.Props) {
     const { asset, fiatDisplay, onFiatDisplayChange } = props
 
-    const decimals = asset.decimals ?? 18
+    if (!asset.decimals) return null
 
     const fiatValue = asset.fiat
       ? PriceFormatter.format(Math.abs(asset.fiat.value))
@@ -182,7 +182,7 @@ export namespace Swap {
 
     const tokenValue = `${ValueFormatter.format(
       asset.value < 0n ? -asset.value : asset.value,
-      decimals,
+      asset.decimals,
     )} ${asset.symbol}`
 
     const assetName = asset.name || asset.symbol || 'Unknown'

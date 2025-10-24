@@ -46,8 +46,10 @@ export function from<const account extends from.Parameters>(
   } = toAccount({
     address: account.address,
     sign({ hash }) {
-      if (source === 'privateKey') return account.sign!({ hash })
-      throw new Error('`sign` not supported on porto accounts.')
+      if (source === 'porto')
+        throw new Error('`sign` not supported on porto accounts.')
+      if (!account.sign) throw new Error('`sign` not supported.')
+      return account.sign({ hash })
     },
     signMessage({ message }) {
       return this.sign!({

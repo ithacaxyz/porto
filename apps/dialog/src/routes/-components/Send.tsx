@@ -163,14 +163,14 @@ export namespace Send {
   export function AmountButton(props: AmountButton.Props) {
     const { asset, currencyType, onToggleCurrency } = props
 
-    const decimals = asset.decimals ?? 18
+    if (!asset.decimals) return null
 
     const fiatValue = asset.fiat
       ? PriceFormatter.format(Math.abs(asset.fiat.value))
       : null
     const tokenValue = `${ValueFormatter.format(
       asset.value < 0n ? -asset.value : asset.value,
-      decimals,
+      asset.decimals,
     )} ${asset.symbol}`
 
     return (
