@@ -64,7 +64,17 @@ export function ActionPreview(props: ActionPreview.Props) {
     },
   })
 
-  const showApplePay = useShowApplePay()
+  const onApprove = React.useCallback(() => {
+    onQuotesRefetch?.()
+  }, [onQuotesRefetch])
+  const { createOrder, lastOrderEvent } = useOnrampOrder({
+    onApprove,
+    // TODO(onramp): Flip to `false`
+    sandbox: false,
+  })
+  const [iframeLoaded, setIframeLoaded] = React.useState(false)
+
+  const showApplePay = useShowApplePay(createOrder.error)
   const client = RemoteHooks.useRelayClient(porto)
   const { data: onrampStatus } = useQuery({
     enabled: Boolean(showApplePay && depositAddress),
@@ -87,15 +97,6 @@ export function ActionPreview(props: ActionPreview.Props) {
       return { ...data, reverifyPhone }
     },
   })
-  const onApprove = React.useCallback(() => {
-    onQuotesRefetch?.()
-  }, [onQuotesRefetch])
-  const { createOrder, lastOrderEvent } = useOnrampOrder({
-    onApprove,
-    // TODO(onramp): Flip to `false`
-    sandbox: false,
-  })
-  const [iframeLoaded, setIframeLoaded] = React.useState(false)
 
   const queryClient = useQueryClient()
   // biome-ignore lint/correctness/useExhaustiveDependencies: explanation

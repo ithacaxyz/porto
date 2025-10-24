@@ -54,7 +54,7 @@ export function SetupApplePay(props: SetupApplePay.Props) {
       if (data.phone)
         promises.push(
           RelayActions.setPhone(client, {
-            phone: `+1${data.phone}`,
+            phone: `+1${data.phone.replace(/\D/g, '')}`,
             walletAddress: address,
           }),
         )
@@ -72,15 +72,16 @@ export function SetupApplePay(props: SetupApplePay.Props) {
     async mutationFn(data) {
       await RelayActions.verifyPhone(client, {
         code: data.code,
-        phone: data.phone,
+        phone: `+1${data.phone.replace(/\D/g, '')}`,
         walletAddress: address,
       })
     },
+    retry: 0,
   })
   const resendVerifyPhone = useMutation({
     async mutationFn(data: { phone: string }) {
       await RelayActions.resendVerifyPhone(client, {
-        phone: `+1${data.phone}`,
+        phone: `+1${data.phone.replace(/\D/g, '')}`,
         walletAddress: address,
       })
     },

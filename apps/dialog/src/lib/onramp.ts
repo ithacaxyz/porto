@@ -13,10 +13,11 @@ const hostnames = [
   // 'relay.link',
 ]
 
-export function useShowApplePay() {
+export function useShowApplePay(error: Error | null) {
   const referrer = Dialog.useStore((state) => state.referrer)
   const mode = Dialog.useStore((state) => state.mode)
   return React.useMemo(() => {
+    if (error) return false
     // Disallow in-app browsers
     if (UserAgent.isInAppBrowser()) return false
     // Disallow non-Safari mobile browsers
@@ -35,7 +36,7 @@ export function useShowApplePay() {
         // Or Vercel porto previews
         referrer?.url?.hostname.endsWith('preview.porto.sh'),
     )
-  }, [mode, referrer?.url])
+  }, [error, mode, referrer?.url])
 }
 
 export function useOnrampOrder(props: {
