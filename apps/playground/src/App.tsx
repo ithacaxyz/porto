@@ -1424,13 +1424,15 @@ function SendTransaction() {
       }}
     >
       <h3>eth_sendTransaction</h3>
-      <select name="action">
-        <option value="mint">Mint 100 EXP</option>
-        <option value="approve">Approve 50 EXP</option>
-        <option value="approve-infinite">Approve Infinite EXP</option>
-        <option value="noop">Noop</option>
-      </select>
-      <button type="submit">Send</button>
+      <div className="flex flex-wrap gap-2">
+        <select name="action">
+          <option value="mint">Mint 100 EXP</option>
+          <option value="approve">Approve 50 EXP</option>
+          <option value="approve-infinite">Approve Infinite EXP</option>
+          <option value="noop">Noop</option>
+        </select>
+        <button type="submit">Send</button>
+      </div>
       {hash && <pre>{hash}</pre>}
     </form>
   )
