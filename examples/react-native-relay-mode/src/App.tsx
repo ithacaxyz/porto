@@ -2,7 +2,6 @@ import Checkbox from 'expo-checkbox'
 import { Hex, Json } from 'ox'
 import * as React from 'react'
 import { Button, Platform, ScrollView, Text, View } from 'react-native'
-
 import { permissions, porto } from './porto'
 
 export default function App() {
@@ -29,8 +28,19 @@ export default function App() {
 function Connect() {
   const [email, setEmail] = React.useState<boolean>(true)
   const [grantPermissions, setGrantPermissions] = React.useState<boolean>(false)
+  const [signInWithEthereum, setSignInWithEthereum] = React.useState<boolean>(
+    !!process.env.EXPO_PUBLIC_SIWE_URL,
+  )
   const [result, setResult] = React.useState<unknown | null>(null)
   const [error, setError] = React.useState<string | null>(null)
+
+  const url = `${process.env.EXPO_PUBLIC_SIWE_URL}/api/siwe`
+
+  const authUrl = {
+    logout: `${url}/logout`,
+    nonce: `${url}/nonce`,
+    verify: `${url}/verify`,
+  }
 
   return (
     <View style={{ flex: 1, gap: 16 }}>
@@ -38,24 +48,28 @@ function Connect() {
       <View>
         <Button
           onPress={async () => {
-            const payload = {
-              capabilities: {
-                createAccount: false,
-                email,
-                grantPermissions: grantPermissions ? permissions() : undefined,
-              },
-            } as const
-            return porto.provider
+            porto.provider
               .request({
                 method: 'wallet_connect',
-                params: [payload],
+                params: [
+                  {
+                    capabilities: {
+                      createAccount: false,
+                      email,
+                      grantPermissions: grantPermissions
+                        ? permissions()
+                        : undefined,
+                      signInWithEthereum: signInWithEthereum
+                        ? { authUrl }
+                        : undefined,
+                    },
+                  },
+                ],
               })
               .then(setResult)
               .catch((error) => {
                 console.error(error)
-                setError(
-                  Json.stringify({ error: error.message, payload }, null, 2),
-                )
+                setError(Json.stringify({ error: error.message }, null, 2))
               })
           }}
           title="Login"
@@ -68,6 +82,9 @@ function Connect() {
                 createAccount: true,
                 email,
                 grantPermissions: grantPermissions ? permissions() : undefined,
+                signInWithEthereum: signInWithEthereum
+                  ? { authUrl }
+                  : undefined,
               },
             } as const
             return porto.provider
@@ -99,6 +116,14 @@ function Connect() {
             value={grantPermissions}
           />
           <Text>Grant Permissions</Text>
+        </View>
+
+        <View style={{ display: 'flex', flexDirection: 'row', gap: 5 }}>
+          <Checkbox
+            onValueChange={() => setSignInWithEthereum((x) => !x)}
+            value={signInWithEthereum}
+          />
+          <Text>Sign-In with Ethereum</Text>
         </View>
       </View>
       <Pre text={result} />

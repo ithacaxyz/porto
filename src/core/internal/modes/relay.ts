@@ -19,6 +19,7 @@ import * as Erc8010 from '../erc8010.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import * as RequiredFunds from '../requiredFunds.js'
+import type * as Capabilities from '../schema/capabilities.js'
 import * as Siwe from '../siwe.js'
 import * as Tokens from '../tokens.js'
 import * as U from '../utils.js'
@@ -105,10 +106,16 @@ export function relay(parameters: relay.Parameters = {}) {
 
         const signInWithEthereum_response = await (async () => {
           if (!signInWithEthereum) return undefined
+          const resolvedSignInWithEthereum =
+            resolveSiweDefaults(signInWithEthereum)
 
-          const message = await Siwe.buildMessage(client, signInWithEthereum, {
-            address: account.address,
-          })
+          const message = await Siwe.buildMessage(
+            client,
+            resolvedSignInWithEthereum,
+            {
+              address: account.address,
+            },
+          )
           const signature = await Account.sign(eoa, {
             payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
           })
@@ -341,9 +348,11 @@ export function relay(parameters: relay.Parameters = {}) {
         // prepareCalls requires the EOA address, but we don't know it here.
         const { digest, digestType, message } = await (async () => {
           if (signInWithEthereum && parameters.address) {
+            const resolvedSignInWithEthereum =
+              resolveSiweDefaults(signInWithEthereum)
             const message = await Siwe.buildMessage(
               client,
-              signInWithEthereum,
+              resolvedSignInWithEthereum,
               {
                 address: parameters.address,
               },
@@ -474,6 +483,8 @@ export function relay(parameters: relay.Parameters = {}) {
 
         const signInWithEthereum_response = await (async () => {
           if (!signInWithEthereum) return undefined
+          const resolvedSignInWithEthereum =
+            resolveSiweDefaults(signInWithEthereum)
 
           if (digestType === 'siwe' && message && signature) {
             const signature_erc8010 = await Erc8010.wrap(client, {
@@ -486,7 +497,7 @@ export function relay(parameters: relay.Parameters = {}) {
           {
             const message = await Siwe.buildMessage(
               client,
-              signInWithEthereum,
+              resolvedSignInWithEthereum,
               {
                 address: account.address,
               },
@@ -860,6 +871,39 @@ export function relay(parameters: relay.Parameters = {}) {
     config: parameters,
     name: 'rpc',
   })
+}
+
+function resolveSiweDefaults(
+  capability: Capabilities.signInWithEthereum.Request,
+): Capabilities.signInWithEthereum.Request {
+  const location =
+    typeof window !== 'undefined' && typeof window.location !== 'undefined'
+      ? window.location
+      : undefined
+
+  if (!location) return capability
+
+  const domain =
+    capability.domain ??
+    (location.host?.length
+      ? location.host
+      : location.hostname?.length
+        ? location.hostname
+        : undefined)
+  const uri =
+    capability.uri ??
+    location.href ??
+    (location.origin
+      ? `${location.origin}${location.pathname ?? ''}${location.search ?? ''}${location.hash ?? ''}`
+      : undefined)
+
+  if (!domain || !uri) return capability
+
+  return {
+    ...capability,
+    domain,
+    uri,
+  }
 }
 
 export declare namespace relay {
