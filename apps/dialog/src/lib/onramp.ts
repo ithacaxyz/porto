@@ -1,4 +1,4 @@
-import { UserAgent } from '@porto/apps'
+import { Env, UserAgent } from '@porto/apps'
 import { useMutation } from '@tanstack/react-query'
 import type { Hex } from 'ox'
 import * as React from 'react'
@@ -21,7 +21,9 @@ export function useShowApplePay() {
     if (UserAgent.isInAppBrowser()) return false
     // Disallow non-Safari mobile browsers
     if (UserAgent.isMobile() && !UserAgent.isSafari()) return false
-    // Allow localhost (including [env].localhost)
+    // Disallow staging environment
+    if (Env.get() === 'stg') return false
+    // Allow localhost
     if (referrer?.url?.hostname.endsWith('localhost')) return true
     // Disallow Firefox when in iframe mode
     if (
