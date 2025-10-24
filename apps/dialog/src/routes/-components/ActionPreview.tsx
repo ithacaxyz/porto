@@ -26,6 +26,12 @@ import { SetupApplePay } from './SetupApplePay'
 
 type View = 'default' | 'setup-onramp'
 
+export type GuestMode = {
+  status: 'enabled' | 'signing-in' | 'signing-up'
+  onSignIn: () => void
+  onSignUp: (email?: string) => void
+}
+
 export function ActionPreview(props: ActionPreview.Props) {
   const {
     header,
@@ -37,9 +43,7 @@ export function ActionPreview(props: ActionPreview.Props) {
     account,
     onReject,
     onQuotesRefetch,
-    onGuestSignIn,
-    onGuestSignUp,
-    guestStatus,
+    guestMode,
   } = props
 
   const deficit = useDeficit(quotes, error, queryParams)
@@ -176,12 +180,10 @@ export function ActionPreview(props: ActionPreview.Props) {
         {deficit?.amount && <DeficitWarning amount={deficit.amount} />}
       </Layout.Content>
       <Layout.Footer>
-        {guestStatus && guestStatus !== 'disabled' ? (
+        {guestMode ? (
           <GuestCheckoutSection
+            guestMode={guestMode}
             onReject={onReject}
-            onSignIn={onGuestSignIn!}
-            onSignUp={onGuestSignUp!}
-            status={guestStatus}
           />
         ) : deficit ? (
           <FundsNeededSection
@@ -202,9 +204,7 @@ export function ActionPreview(props: ActionPreview.Props) {
         ) : (
           actions
         )}
-        {account && !(guestStatus && guestStatus !== 'disabled') && (
-          <Layout.Footer.Account address={account} />
-        )}
+        {account && !guestMode && <Layout.Footer.Account address={account} />}
       </Layout.Footer>
     </Layout>
   )
@@ -225,9 +225,7 @@ export namespace ActionPreview {
     account?: Address.Address
     onReject: () => void
     onQuotesRefetch?: () => void
-    onGuestSignIn?: () => void
-    onGuestSignUp?: (email?: string) => void
-    guestStatus?: 'disabled' | 'enabled' | 'signing-in' | 'signing-up'
+    guestMode?: GuestMode
   }
 
   export type Quote = {
@@ -599,7 +597,7 @@ export function ApplePayIframe(props: {
 }
 
 function GuestCheckoutSection(props: GuestCheckoutSection.Props) {
-  const { onSignIn, onSignUp, status } = props
+  const { guestMode, onReject } = props
 
   const [invalid, setInvalid] = React.useState(false)
 
@@ -610,18 +608,18 @@ function GuestCheckoutSection(props: GuestCheckoutSection.Props) {
       event.preventDefault()
       const formData = new FormData(event.target as HTMLFormElement)
       const email = String(formData.get('email'))
-      onSignUp(email)
+      guestMode.onSignUp(email)
     },
-    [onSignUp],
+    [guestMode],
   )
 
   return (
     <div className="flex w-full flex-col gap-[8px] px-3">
       <Button
         data-testid="sign-in"
-        disabled={status === 'signing-up'}
-        loading={status === 'signing-in' && 'Signing in…'}
-        onClick={onSignIn}
+        disabled={guestMode.status === 'signing-up'}
+        loading={guestMode.status === 'signing-in' && 'Signing in…'}
+        onClick={guestMode.onSignIn}
         variant="primary"
         width="full"
       >
@@ -650,7 +648,7 @@ function GuestCheckoutSection(props: GuestCheckoutSection.Props) {
               'w-full bg-th_field',
               invalid && 'not-focus-visible:border-th_negative',
             )}
-            disabled={status === 'signing-in'}
+            disabled={guestMode.status === 'signing-in'}
             name="email"
             onChange={() => setInvalid(false)}
             placeholder="example@ithaca.xyz"
@@ -662,8 +660,8 @@ function GuestCheckoutSection(props: GuestCheckoutSection.Props) {
         </div>
         <Button
           data-testid="sign-up"
-          disabled={status === 'signing-in'}
-          loading={status === 'signing-up' && 'Signing up…'}
+          disabled={guestMode.status === 'signing-in'}
+          loading={guestMode.status === 'signing-up' && 'Signing up…'}
           type="submit"
           variant="secondary"
           width="full"
@@ -677,9 +675,7 @@ function GuestCheckoutSection(props: GuestCheckoutSection.Props) {
 
 namespace GuestCheckoutSection {
   export type Props = {
+    guestMode: GuestMode
     onReject: () => void
-    onSignIn: () => void
-    onSignUp: (email?: string) => void
-    status?: 'disabled' | 'enabled' | 'signing-in' | 'signing-up'
   }
 }

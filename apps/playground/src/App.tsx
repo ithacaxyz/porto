@@ -110,6 +110,43 @@ export function App() {
             <option value="rpc">Relay</option>
           </select>
         </div>
+
+        <div className="flex gap-2 items-center" style={{ marginTop: '8px' }}>
+          Relay:
+          <div className="flex gap-2">
+            {(() => {
+              const envs = Env.envs.filter(
+                (env) =>
+                  env !== 'anvil' || import.meta.env.MODE === 'development',
+              )
+              const [hostEnv] = window.location.host.split(/\.|-/)
+              const defaultEnv = envs.includes(hostEnv as never)
+                ? (hostEnv as Env.Env)
+                : Env.defaultEnv
+              return (
+                <>
+                  {envs.map((env) => (
+                    <button
+                      disabled={Env.get() === env}
+                      key={env}
+                      onClick={() => {
+                        const url = new URL(window.location.href)
+                        if (defaultEnv === env)
+                          url.searchParams.delete('relayEnv')
+                        else url.searchParams.set('relayEnv', env)
+                        window.location.href = String(url)
+                      }}
+                      type="button"
+                    >
+                      {env} {defaultEnv === env && '(default)'}
+                    </button>
+                  ))}
+                </>
+              )
+            })()}
+          </div>
+        </div>
+
         <hr />
         <State />
         <Events />
@@ -997,7 +1034,7 @@ function SendCalls() {
 
         const account = result[0]
         const recipient =
-          address || account || '0x0000000000000000000000000000000000000001'
+          address || account || '0x0000000000000000000000000000000000000000'
 
         const params = (() => {
           if (action === 'mint')

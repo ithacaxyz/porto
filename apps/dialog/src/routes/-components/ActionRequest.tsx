@@ -2,6 +2,7 @@ import { Button, ButtonArea, ChainsPath, Details } from '@porto/ui'
 import { useQuery } from '@tanstack/react-query'
 import { cx } from 'cva'
 import { type Address, Base64, Value } from 'ox'
+import { Account } from 'porto'
 import type * as Capabilities from 'porto/core/internal/relay/schema/capabilities'
 import type * as Quote_schema from 'porto/core/internal/relay/schema/quotes'
 import type * as Rpc from 'porto/core/internal/schema/request'
@@ -28,7 +29,7 @@ import LucideMusic from '~icons/lucide/music'
 import LucideSparkles from '~icons/lucide/sparkles'
 import LucideVideo from '~icons/lucide/video'
 import Star from '~icons/ph/star-four-bold'
-import { ActionPreview } from '../-components/ActionPreview'
+import { ActionPreview, type GuestMode } from '../-components/ActionPreview'
 import { AddFunds } from '../-components/AddFunds'
 import { Approve } from '../-components/Approve'
 import { ErrorScreen } from '../-components/ErrorScreen'
@@ -42,6 +43,7 @@ export function ActionRequest(props: ActionRequest.Props) {
     calls,
     chainId,
     feeToken,
+    guestMode,
     loading,
     merchantUrl,
     onApprove,
@@ -53,23 +55,30 @@ export function ActionRequest(props: ActionRequest.Props) {
   } = props
 
   const account = Hooks.useAccount(porto, { address })
+  const client = Hooks.useRelayClient(porto, { chainId })
 
-  const prepareCallsQuery = Calls.prepareCalls.useQuery({
-    address,
-    calls,
-    chainId,
-    feeToken,
-    merchantUrl,
-    refetchInterval: ({ state }) => (state.error ? false : 15_000),
-    requiredFunds,
-  })
+  const guestAccount = !guestMode
+    ? account
+    : address && Account.from({ address })
+
+  const prepareCallsQuery = useQuery(
+    Calls.prepareCalls.queryOptions(client, {
+      account: guestAccount,
+      calls,
+      feeToken,
+      merchantUrl,
+      refetchInterval: ({ state }) => (state.error ? false : 15_000),
+      requiredFunds,
+    }),
+  )
 
   const capabilities = prepareCallsQuery.data?.capabilities
   const { assetDiffs, feeTotals } = capabilities ?? {}
 
   const assetDiff = ActionRequest.AssetDiff.useAssetDiff({
-    address: account?.address,
+    address: address ?? account?.address,
     assetDiff: assetDiffs,
+    showIncomingOnly: Boolean(guestMode),
   })
 
   const quotes = capabilities?.quote?.quotes ?? []
@@ -135,6 +144,16 @@ export function ActionRequest(props: ActionRequest.Props) {
   const fetchingQuote = prepareCallsQuery.isPending
   const refreshingQuote = prepareCallsQuery.isRefetching
 
+  const guestModeData: GuestMode | undefined = React.useMemo(() => {
+    if (!guestStatus || guestStatus === 'disabled') return undefined
+    if (!onGuestSignIn || !onGuestSignUp) return undefined
+    return {
+      onSignIn: onGuestSignIn,
+      onSignUp: onGuestSignUp,
+      status: guestStatus,
+    }
+  }, [guestStatus, onGuestSignIn, onGuestSignUp])
+
   const insufficientFunds = React.useMemo(() => {
     const errorMessage = prepareCallsQuery.error?.message ?? ''
     const abiErrorName = (prepareCallsQuery.error as any)?.abiError?.name
@@ -195,6 +214,7 @@ export function ActionRequest(props: ActionRequest.Props) {
         capabilities={capabilities}
         chainsPath={chainsPath}
         fetchingQuote={fetchingQuote}
+        guestMode={guestModeData}
         onApprove={() => {
           if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
         }}
@@ -215,6 +235,7 @@ export function ActionRequest(props: ActionRequest.Props) {
         chainsPath={chainsPath}
         contractAddress={calls[0]?.to}
         fetchingQuote={fetchingQuote}
+        guestMode={guestModeData}
         onApprove={() => {
           if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
         }}
@@ -233,6 +254,7 @@ export function ActionRequest(props: ActionRequest.Props) {
         capabilities={capabilities}
         chainsPath={chainsPath}
         fetchingQuote={fetchingQuote}
+        guestMode={guestModeData}
         onApprove={() => {
           if (prepareCallsQuery.isSuccess) onApprove(prepareCallsQuery.data)
         }}
@@ -275,7 +297,7 @@ export function ActionRequest(props: ActionRequest.Props) {
           </Button>
         </Layout.Footer.Actions>
       }
-      guestStatus={guestStatus}
+      guestMode={guestModeData}
       header={
         <Layout.Header.Default
           icon={Star}
@@ -283,8 +305,6 @@ export function ActionRequest(props: ActionRequest.Props) {
           variant="default"
         />
       }
-      onGuestSignIn={onGuestSignIn}
-      onGuestSignUp={onGuestSignUp}
       onQuotesRefetch={() => prepareCallsQuery.refetch()}
       onReject={onReject}
       queryParams={{ address, chainId }}
@@ -299,11 +319,7 @@ export function ActionRequest(props: ActionRequest.Props) {
           quotes={quotes}
           status={prepareCallsQuery.isPending ? 'pending' : 'success'}
         >
-          {guestStatus && guestStatus !== 'disabled' ? (
-            <div className="text-[14px] text-th_base-secondary">
-              Sign in to view transaction details.
-            </div>
-          ) : assetDiff.length > 0 ? (
+          {assetDiff.length > 0 ? (
             <ActionRequest.AssetDiff assetDiff={assetDiff} />
           ) : (
             []
@@ -321,6 +337,8 @@ export namespace ActionRequest {
     chainId?: number | undefined
     checkBalance?: boolean | undefined
     feeToken?: Token.Symbol | Address.Address | undefined
+    guestMode?: boolean | undefined
+    guestStatus?: 'disabled' | 'enabled' | 'signing-in' | 'signing-up'
     loading?: boolean | undefined
     merchantUrl?: string | undefined
     requiredFunds?:
@@ -330,7 +348,6 @@ export namespace ActionRequest {
     onReject: () => void
     onGuestSignIn?: () => void
     onGuestSignUp?: (email?: string) => void
-    guestStatus?: 'disabled' | 'enabled' | 'signing-in' | 'signing-up'
   }
 
   export type CoinAsset =
@@ -374,7 +391,7 @@ export namespace ActionRequest {
 
         for (const chainDiff of Object.values(assetDiff)) {
           for (const [account_, assetDiff] of chainDiff) {
-            if (account_ !== account?.address) continue
+            if (address && account_ !== account?.address) continue
             for (const asset of assetDiff) {
               const address = asset.address ?? ethAddress
               const current = balances.get(address)
@@ -400,7 +417,7 @@ export namespace ActionRequest {
         return Array.from(balances.values())
           .filter((balance) => balance.value !== BigInt(0))
           .sort((a, b) => (a.value > b.value ? 1 : -1))
-      }, [assetDiff, account?.address])
+      }, [assetDiff, account?.address, address])
     }
 
     export namespace useAssetDiff {
@@ -535,7 +552,7 @@ export namespace ActionRequest {
           </div>
           <ButtonArea
             className={cx(
-              'max-w-[200px] rounded-[4px] font-medium text-[14px]',
+              'min-w-0 max-w-[200px] rounded-[4px] font-medium text-[14px]',
               receiving ? 'text-th_base-positive' : 'text-th_base-secondary',
             )}
             disabled={!fiat}
@@ -545,7 +562,7 @@ export namespace ActionRequest {
             }}
           >
             <div
-              className="flex items-center justify-end"
+              className="flex min-w-0 items-center justify-end"
               title={
                 currencyType === 'fiat' && fiatValue ? fiatValue : tokenValue
               }
