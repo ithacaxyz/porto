@@ -183,7 +183,7 @@
   "[!start-pkg]": {},
   "name": "porto",
   "description": "Next-gen Account for Ethereum",
-  "version": "0.2.31",
+  "version": "0.2.32",
   "type": "module",
   "bin": {
     "porto": "./dist/cli/bin/index.js"

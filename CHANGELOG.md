@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.32
+
+### Patch Changes
+
+- [`2be589f`](https://github.com/ithacaxyz/porto/commit/2be589fb7cf00e703d864b6c3375dd30b500ed64) Thanks [@jxom](https://github.com/jxom)! - Tweaked logic on `Account#sign`.
+
 ## 0.2.31
 
 ### Patch Changes
