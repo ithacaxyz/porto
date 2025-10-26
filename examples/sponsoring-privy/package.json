@@ -14,7 +14,7 @@
     "@privy-io/react-auth": "^3.4.0",
     "@privy-io/server-auth": "^1.32.5",
     "@privy-io/wagmi": "^2.0.1",
-    "@tanstack/react-query": "^5",
+    "@tanstack/react-query": "^5.90.5",
     "buffer": "^6.0.3",
     "porto": "latest",
     "react": "^19.1",
@@ -23,14 +23,14 @@
     "wagmi": "^2.18.2"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.13.1",
+    "@cloudflare/vite-plugin": "^1.13.15",
     "@cloudflare/workers-types": "^4.20251008.0",
     "@types/react": "^19.1",
     "@types/react-dom": "^19.1",
     "@vitejs/plugin-react": "^5.0.4",
     "globals": "^16.4.0",
     "typescript": "~5.9.3",
-    "vite": "npm:rolldown-vite@latest",
+    "vite": "^7.1.11",
     "vite-plugin-mkcert": "^1.17.9",
     "wrangler": "^4.43.0"
   }

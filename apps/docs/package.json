@@ -23,7 +23,7 @@
     "sonner": "catalog:",
     "tailwindcss": "catalog:",
     "viem": "catalog:",
-    "vocs": "latest",
+    "vocs": "^1.1.0",
     "wagmi": "catalog:"
   },
   "devDependencies": {
