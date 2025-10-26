@@ -4,7 +4,7 @@ auditConfig:
 catalog:
   "@ariakit/react": "^0.4.18"
   "@ariakit/tailwind": "^0.1.8"
-  "@iconify/json": "^2.2.386"
+  "@iconify/json": "^2.2.400"
   "@pandacss/dev": "^0.54.0"
   "@sentry/react": "^10.12.0"
   "@sentry/vite-plugin": "^4.3.0"
@@ -29,31 +29,30 @@ catalog:
   react: "^19.1"
   react-dom: "^19.1"
   sonner: "^2.0.7"
-  tailwindcss: "^4.1.13"
-  "@tailwindcss/vite": "^4.1.13"
-  tw-animate-css: "^1.3.8"
+  tailwindcss: "^4.1.16"
+  "@tailwindcss/vite": "^4.1.16"
+  tw-animate-css: "^1.4.0"
   typescript: "~5.9.2"
-  unplugin-icons: "^22.3.0"
+  unplugin-icons: "^22.5.0"
   viem: "^2.38.2"
   vite: "^6.4.1"
   vitest: "^4.0.0"
-  vite-plugin-mkcert: "^1.17.8"
+  vite-plugin-mkcert: "^1.17.9"
   wagmi: "^2.18.2"
   zod: "4.1.5"
   zustand: "^5.0.3"
   "@vitejs/plugin-react": "^4.6.0"
-minimumReleaseAge: 2880 # 48 hours
-minimumReleaseAgeExclude:
-  - "@wagmi/connectors"
-  - "@wagmi/core"
-  - "@cloudflare/workers-types"
-  - hono
-  - vite
-  - wagmi
-  - zile
+# minimumReleaseAge: 2880 # 48 hours
+# minimumReleaseAgeExclude:
+#   - "@wagmi/connectors"
+#   - "@wagmi/core"
+#   - "@cloudflare/workers-types"
+#   - hono
+#   - vite
+#   - wagmi
+  # - zile
 packages:
   - "."
   - "apps/*"
   - "docker/*"
   - "examples/*"
-  
