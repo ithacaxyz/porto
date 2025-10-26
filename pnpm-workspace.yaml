@@ -5,7 +5,7 @@ autoInstallPeers: false
 catalog:
   "@ariakit/react": "^0.4.18"
   "@ariakit/tailwind": "^0.1.8"
-  "@iconify/json": "^2.2.400"
+  "@iconify/json": "^2.2.386"
   "@pandacss/dev": "^0.54.0"
   "@sentry/react": "^10.12.0"
   "@sentry/vite-plugin": "^4.3.0"
