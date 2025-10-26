@@ -2,6 +2,7 @@ import Checkbox from 'expo-checkbox'
 import { Hex, Json } from 'ox'
 import * as React from 'react'
 import { Button, Platform, ScrollView, Text, View } from 'react-native'
+
 import { permissions, porto } from './porto'
 
 export default function App() {
@@ -16,6 +17,8 @@ export default function App() {
     >
       <Connect />
       <Divider />
+      <Me />
+      <Divider />
       <SignMessage />
       <Divider />
       <GrantPermissions />
@@ -25,22 +28,23 @@ export default function App() {
   )
 }
 
+const SERVER_BASE_URL = process.env.EXPO_PUBLIC_SIWE_URL
+if (!SERVER_BASE_URL) throw new Error('EXPO_PUBLIC_SIWE_URL is not set')
+
+// siwe auth routes
+const authUrl = {
+  logout: `${SERVER_BASE_URL}/api/siwe/logout`,
+  nonce: `${SERVER_BASE_URL}/api/siwe/nonce`,
+  verify: `${SERVER_BASE_URL}/api/siwe/verify`,
+} as const
+
 function Connect() {
-  const [email, setEmail] = React.useState<boolean>(true)
   const [grantPermissions, setGrantPermissions] = React.useState<boolean>(false)
   const [signInWithEthereum, setSignInWithEthereum] = React.useState<boolean>(
     !!process.env.EXPO_PUBLIC_SIWE_URL,
   )
   const [result, setResult] = React.useState<unknown | null>(null)
   const [error, setError] = React.useState<string | null>(null)
-
-  const url = `${process.env.EXPO_PUBLIC_SIWE_URL}/api/siwe`
-
-  const authUrl = {
-    logout: `${url}/logout`,
-    nonce: `${url}/nonce`,
-    verify: `${url}/verify`,
-  }
 
   return (
     <View style={{ flex: 1, gap: 16 }}>
@@ -55,7 +59,6 @@ function Connect() {
                   {
                     capabilities: {
                       createAccount: false,
-                      email,
                       grantPermissions: grantPermissions
                         ? permissions()
                         : undefined,
@@ -80,7 +83,6 @@ function Connect() {
             const payload = {
               capabilities: {
                 createAccount: true,
-                email,
                 grantPermissions: grantPermissions ? permissions() : undefined,
                 signInWithEthereum: signInWithEthereum
                   ? { authUrl }
@@ -106,11 +108,6 @@ function Connect() {
 
       <View style={{ display: 'flex', flexDirection: 'row', gap: 10 }}>
         <View style={{ display: 'flex', flexDirection: 'row', gap: 5 }}>
-          <Checkbox onValueChange={() => setEmail((x) => !x)} value={email} />
-          <Text>Email</Text>
-        </View>
-
-        <View style={{ display: 'flex', flexDirection: 'row', gap: 5 }}>
           <Checkbox
             onValueChange={() => setGrantPermissions((x) => !x)}
             value={grantPermissions}
@@ -132,6 +129,32 @@ function Connect() {
   )
 }
 
+function Me() {
+  const [result, setResult] = React.useState<unknown | null>(null)
+  const [error, setError] = React.useState<string | null>(null)
+
+  return (
+    <View>
+      <Text>Fetch `/me` (authenticated endpoint)</Text>
+      <Button
+        onPress={() =>
+          void fetch(`${SERVER_BASE_URL}/api/me`, { credentials: 'include' })
+            .then((result) => result.text())
+            .then((result) => setResult(result))
+            .catch((error) => {
+              console.error(error)
+              setError(Json.stringify({ error: error.message }, null, 2))
+            })
+        }
+        title="Me"
+      />
+
+      <Pre text={result} />
+      {error && <Pre text={error} />}
+    </View>
+  )
+}
+
 function SignMessage() {
   const [signature, setSignature] = React.useState<string | null>(null)
 
@@ -140,13 +163,13 @@ function SignMessage() {
       <Text>personal_sign</Text>
       <Button
         onPress={async () => {
-          const accounts = await porto.provider.request({
+          const [account] = await porto.provider.request({
             method: 'eth_accounts',
           })
-          if (!accounts[0]) return
+          if (!account) return
           const result = await porto.provider.request({
             method: 'personal_sign',
-            params: [Hex.fromString('hello world'), accounts[0]],
+            params: [Hex.fromString('hello world'), account],
           })
           setSignature(result)
         }}

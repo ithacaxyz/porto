@@ -3,15 +3,15 @@ import { Platform } from 'react-native'
 import * as passkey from 'react-native-passkeys'
 import type OxWebAuthn from '../node_modules/ox/_types/core/internal/webauthn'
 
-const RELYING_PARTY_DOMAIN = process.env.EXPO_PUBLIC_SERVER_DOMAIN
-if (!RELYING_PARTY_DOMAIN) console.warn('EXPO_PUBLIC_SERVER_DOMAIN is not set')
+const RELYING_PARTY_DOMAIN = process.env.EXPO_PUBLIC_SERVER_URL
+if (!RELYING_PARTY_DOMAIN) console.warn('EXPO_PUBLIC_SERVER_URL is not set')
 
 const name = 'porto-relay-mode'
 
 export const rp = {
   id: Platform.select({
-    android: RELYING_PARTY_DOMAIN,
-    ios: RELYING_PARTY_DOMAIN,
+    android: RELYING_PARTY_DOMAIN.replace('https://', ''),
+    ios: RELYING_PARTY_DOMAIN.replace('https://', ''),
   }),
   name,
 } satisfies PublicKeyCredentialRpEntity
