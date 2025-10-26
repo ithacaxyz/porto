@@ -35,3 +35,28 @@ pnpm expo run:ios
 ```sh
 pnpm start
 ```
+
+### Server
+
+The example uses the same server for SIWE auth and for `.well-known` files.
+
+#### Development
+
+Run in development mode with:
+
+```sh
+bun --watch --hot ./server/index.ts --env-file .env
+```
+
+#### Production
+
+The example deployes the server to [Railway](https://railway.app) using the `server/railway.toml` and the following command:
+
+```sh
+cd server
+RAILWAY_DOCKERFILE="./Dockerfile" railway up \
+  --service="porto-relay-mode" \
+  --environment='production'
+```
+
+You can deploy to any platform that supports Docker / containers runtime.
