@@ -2,4 +2,4 @@
 "porto": patch
 ---
 
-Added React Native `mode.relay` SIWE coverage
+Added React Native `Mode.relay` SIWE coverage
