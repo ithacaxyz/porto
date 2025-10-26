@@ -1642,6 +1642,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
                 method: 'wallet_verifySignature',
                 params: [
                   {
+                    // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
                     address: res.accounts.at(0)?.address!,
                     digest: hashMessage(message),
                     signature,
@@ -1653,6 +1654,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
 
             {
               const valid = await verifyHash(relayClient, {
+                // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
                 address: res.accounts.at(0)?.address!,
                 hash: hashMessage(message),
                 signature,
@@ -3043,6 +3045,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         })
 
         await setBalance(client, {
+          // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
           address: accounts[0]?.address!,
           value: Value.fromEther('10000'),
         })
@@ -3142,6 +3145,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         })
 
         await setBalance(client, {
+          // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
           address: accounts[0]?.address!,
           value: Value.fromEther('10000'),
         })
@@ -3245,6 +3249,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         })
 
         await setBalance(client, {
+          // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
           address: accounts[0]?.address!,
           value: Value.fromEther('10000'),
         })
@@ -3324,6 +3329,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         })
 
         await setBalance(client, {
+          // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
           address: accounts[0]?.address!,
           value: Value.fromEther('10000'),
         })
@@ -3409,6 +3415,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       })
 
       await setBalance(client, {
+        // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
         address: accounts[0]?.address!,
         value: Value.fromEther('10000'),
       })

@@ -18,9 +18,12 @@
     "formatter": {
       "enabled": true
     },
-    "globals": ["@apply", "@source", "@theme", "@custom-variant"],
     "linter": {
       "enabled": true
+    },
+    "parser": {
+      "allowWrongLineComments": true,
+      "tailwindDirectives": true
     }
   },
   "files": {
@@ -48,6 +51,7 @@
   },
   "javascript": {
     "formatter": {
+      "enabled": true,
       "quoteStyle": "single",
       "semicolons": "asNeeded",
       "trailingCommas": "all"

@@ -291,6 +291,7 @@ export function Dashboard() {
                     const formData = new FormData(
                       event.target as HTMLFormElement,
                     )
+                    // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
                     const email = formData.get('email')?.toString()!
                     setEmailData({ email, verified: false })
                     setEmail('')
@@ -756,7 +757,6 @@ function PaginatedTable<T>({
         <tbody className="border-transparent border-t-10">
           {itemsToShow && itemsToShow?.length > 0 ? (
             itemsToShow?.map((item, index) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: _
               <React.Fragment key={index}>{renderRow(item)}</React.Fragment>
             ))
           ) : (
@@ -1012,7 +1012,7 @@ function AssetRow(
       ) : viewState === 'send' ? (
         <td className="w-full" colSpan={5} ref={ref}>
           <Ariakit.Form
-            className="relative my-2 flex h-16 w-full rounded-2xl border-1 border-gray6 bg-white p-2 dark:bg-gray1"
+            className="relative my-2 flex h-16 w-full rounded-2xl border border-gray6 bg-white p-2 dark:bg-gray1"
             store={sendForm}
           >
             <div className="flex w-[75px] flex-row items-center gap-x-2 border-gray6 border-r pr-1.5 pl-1 sm:w-[85px] sm:pl-2">
@@ -1073,7 +1073,7 @@ function AssetRow(
                         <TruncatedAddress
                           address={sendFormState.values.sendRecipient}
                           className={cx(
-                            '-top-0 absolute w-min cursor-pointer text-left text-xs peer-focus:hidden sm:text-sm',
+                            'absolute top-0 w-min cursor-pointer text-left text-xs peer-focus:hidden sm:text-sm',
                             !valid && 'hidden',
                           )}
                           end={5}
