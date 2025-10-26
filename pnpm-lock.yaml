@@ -162,8 +162,8 @@ importers:
   .:
     dependencies:
       hono:
-        specifier: '>=4.10.2'
-        version: 4.10.2
+        specifier: ^4.10.3
+        version: 4.10.3
       idb-keyval:
         specifier: ^6.2.1
         version: 6.2.2
@@ -770,10 +770,10 @@ importers:
     dependencies:
       '@hono/zod-validator':
         specifier: ^0.7.2
-        version: 0.7.2(hono@4.10.2)(zod@4.1.5)
+        version: 0.7.2(hono@4.10.3)(zod@4.1.5)
       hono:
-        specifier: '>=4.10.2'
-        version: 4.10.2
+        specifier: ^4.10.3
+        version: 4.10.3
       jose:
         specifier: ^6.1.0
         version: 6.1.0
@@ -1075,8 +1075,8 @@ importers:
         specifier: ^5
         version: 5.90.5(react@19.1.0)
       hono:
-        specifier: '>=4.10.2'
-        version: 4.10.2
+        specifier: ^4.10.3
+        version: 4.10.3
       porto:
         specifier: workspace:*
         version: link:../..
@@ -1136,8 +1136,8 @@ importers:
         specifier: ^12.4.1
         version: 12.4.1
       hono:
-        specifier: '>=4.10.2'
-        version: 4.10.2
+        specifier: ^4.10.3
+        version: 4.10.3
       kysely:
         specifier: ^0.28.8
         version: 0.28.8
@@ -1200,8 +1200,8 @@ importers:
         specifier: ^5
         version: 5.90.5(react@19.1.0)
       hono:
-        specifier: '>=4.10.2'
-        version: 4.10.2
+        specifier: ^4.10.3
+        version: 4.10.3
       porto:
         specifier: workspace:*
         version: link:../..
@@ -10161,6 +10161,10 @@ packages:
     resolution: {integrity: sha512-p6fyzl+mQo6uhESLxbF5WlBOAJMDh36PljwlKtP5V1v09NxlqGru3ShK+4wKhSuhuYf8qxMmrivHOa/M7q0sMg==}
     engines: {node: '>=16.9.0'}
 
+  hono@4.10.3:
+    resolution: {integrity: sha512-2LOYWUbnhdxdL8MNbNg9XZig6k+cZXm5IjHn2Aviv7honhBMOHb+jxrKIeJRZJRmn+htUCKhaicxwXuUDlchRA==}
+    engines: {node: '>=16.9.0'}
+
   hookable@5.5.3:
     resolution: {integrity: sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ==}
 
@@ -17790,9 +17794,9 @@ snapshots:
     dependencies:
       hono: 4.10.2
 
-  '@hono/zod-validator@0.7.2(hono@4.10.2)(zod@4.1.5)':
+  '@hono/zod-validator@0.7.2(hono@4.10.3)(zod@4.1.5)':
     dependencies:
-      hono: 4.10.2
+      hono: 4.10.3
       zod: 4.1.5
 
   '@hpke/chacha20poly1305@1.7.1':
@@ -26736,6 +26740,8 @@ snapshots:
       react-is: 16.13.1
 
   hono@4.10.2: {}
+
+  hono@4.10.3: {}
 
   hookable@5.5.3: {}
 

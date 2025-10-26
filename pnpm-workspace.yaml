@@ -47,6 +47,7 @@ minimumReleaseAgeExclude:
   - "@wagmi/connectors"
   - "@wagmi/core"
   - "@cloudflare/workers-types"
+  - hono
   - vite
   - wagmi
   - zile
