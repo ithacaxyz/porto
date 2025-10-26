@@ -13,7 +13,7 @@
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.2.8",
     "@tanstack/react-query": "^5",
-    "hono": "^4.9",
+    "hono": "^4.10.3",
     "porto": "latest",
     "react": "^19.1",
     "react-dom": "^19.1",
