@@ -14,7 +14,7 @@
     "doctor": "pnpm dlx expo-doctor@latest --verbose --pnpm && pnpm expo install --fix --pnpm"
   },
   "dependencies": {
-    "expo": "54.0.17",
+    "expo": "54.0.20",
     "expo-auth-session": "~7.0.8",
     "expo-build-properties": "~1.0.9",
     "expo-checkbox": "~5.0.7",

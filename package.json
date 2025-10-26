@@ -56,7 +56,7 @@
     "@wagmi/cli": "^2.2.0",
     "@wagmi/core": "catalog:",
     "cac": "^6",
-    "expo": "~54.0.13",
+    "expo": "~54.0.20",
     "expo-auth-session": "~7.0.8",
     "expo-crypto": "~15.0.7",
     "expo-standard-web-crypto": "~3.0.7",
