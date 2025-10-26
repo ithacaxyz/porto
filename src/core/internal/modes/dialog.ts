@@ -153,6 +153,23 @@ export function dialog(parameters: dialog.Parameters = {}) {
             const signInWithEthereum =
               request.params?.[0]?.capabilities?.signInWithEthereum
 
+            // If authUrl is provided, fetch the nonce so we can pass it to relay
+            // instead of authUrl (dialog handles authentication, not relay)
+            const siweNonce = await (async () => {
+              if (!authUrl || !signInWithEthereum) return undefined
+              if ('nonce' in signInWithEthereum && signInWithEthereum.nonce)
+                return signInWithEthereum.nonce
+
+              // Fetch nonce from authUrl
+              return fetch(authUrl.nonce, {
+                body: JSON.stringify({ chainId: client.chain.id }),
+                headers: { 'Content-Type': 'application/json' },
+                method: 'POST',
+              })
+                .then((response) => response.json())
+                .then((data) => data.nonce)
+            })()
+
             // Parse the authorize key into a structured key.
             const key = await PermissionsRequest.toKey(
               capabilities?.grantPermissions,
@@ -178,12 +195,14 @@ export function dialog(parameters: dialog.Parameters = {}) {
                     ...request.params?.[0]?.capabilities,
                     grantPermissions: permissionsRequest,
                     signInWithEthereum:
-                      authUrl || signInWithEthereum
-                        ? {
-                            ...signInWithEthereum,
-                            authUrl: authUrl!,
-                          }
-                        : undefined,
+                      siweNonce && signInWithEthereum
+                        ? (() => {
+                            // Pass nonce instead of authUrl - dialog handles authentication
+                            const { authUrl: _, ...rest } =
+                              signInWithEthereum as any
+                            return { ...rest, nonce: siweNonce }
+                          })()
+                        : signInWithEthereum,
                   },
                   chainIds: chainIds?.map((chainId) => Hex.fromNumber(chainId)),
                 },
@@ -466,6 +485,23 @@ export function dialog(parameters: dialog.Parameters = {}) {
           const signInWithEthereum =
             request.params?.[0]?.capabilities?.signInWithEthereum
 
+          // If authUrl is provided, fetch the nonce so we can pass it to relay
+          // instead of authUrl (dialog handles authentication, not relay)
+          const siweNonce = await (async () => {
+            if (!authUrl || !signInWithEthereum) return undefined
+            if ('nonce' in signInWithEthereum && signInWithEthereum.nonce)
+              return signInWithEthereum.nonce
+
+            // Fetch nonce from authUrl
+            return fetch(authUrl.nonce, {
+              body: JSON.stringify({ chainId: client.chain.id }),
+              headers: { 'Content-Type': 'application/json' },
+              method: 'POST',
+            })
+              .then((response) => response.json())
+              .then((data) => data.nonce)
+          })()
+
           // Parse provided (RPC) key into a structured key.
           const key = await PermissionsRequest.toKey(
             capabilities?.grantPermissions,
@@ -492,12 +528,14 @@ export function dialog(parameters: dialog.Parameters = {}) {
                   ...request.params?.[0]?.capabilities,
                   grantPermissions: permissionsRequest,
                   signInWithEthereum:
-                    authUrl || signInWithEthereum
-                      ? {
-                          ...signInWithEthereum,
-                          authUrl: authUrl!,
-                        }
-                      : undefined,
+                    siweNonce && signInWithEthereum
+                      ? (() => {
+                          // Pass nonce instead of authUrl - dialog handles authentication
+                          const { authUrl: _, ...rest } =
+                            signInWithEthereum as any
+                          return { ...rest, nonce: siweNonce }
+                        })()
+                      : signInWithEthereum,
                 },
               },
             ],
