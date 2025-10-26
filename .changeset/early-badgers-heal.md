@@ -2,4 +2,4 @@
 "porto": patch
 ---
 
-Added React Native `Mode.relay` SIWE coverage
+Added SIWE support to `Mode.relay`, including `/nonce` and `/verify` endpoints.

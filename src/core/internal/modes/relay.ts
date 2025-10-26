@@ -124,7 +124,21 @@ export function relay(parameters: relay.Parameters = {}) {
             signature,
           })
 
-          return { message, signature: signature_erc8010 }
+          // If authUrl is provided, authenticate with the server
+          const authUrl = signInWithEthereum.authUrl
+            ? Siwe.resolveAuthUrl(signInWithEthereum.authUrl)
+            : undefined
+
+          if (!authUrl) return { message, signature: signature_erc8010 }
+
+          const { token } = await Siwe.authenticate({
+            address: account.address,
+            authUrl,
+            message,
+            signature: signature_erc8010,
+          })
+
+          return { message, signature: signature_erc8010, token }
         })()
 
         return {
@@ -486,16 +500,17 @@ export function relay(parameters: relay.Parameters = {}) {
           const resolvedSignInWithEthereum =
             resolveSiweDefaults(signInWithEthereum)
 
+          let message_: string
+          let signature_erc8010: Hex.Hex
+
           if (digestType === 'siwe' && message && signature) {
-            const signature_erc8010 = await Erc8010.wrap(client, {
+            signature_erc8010 = await Erc8010.wrap(client, {
               address: account.address,
               signature,
             })
-            return { message, signature: signature_erc8010 }
-          }
-
-          {
-            const message = await Siwe.buildMessage(
+            message_ = message
+          } else {
+            message_ = await Siwe.buildMessage(
               client,
               resolvedSignInWithEthereum,
               {
@@ -503,18 +518,31 @@ export function relay(parameters: relay.Parameters = {}) {
               },
             )
             const signature = await Account.sign(account, {
-              payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
+              payload: PersonalMessage.getSignPayload(Hex.fromString(message_)),
               role: 'admin',
             })
-            const signature_erc8010 = await Erc8010.wrap(client, {
+            signature_erc8010 = await Erc8010.wrap(client, {
               address: account.address,
               signature,
             })
-            return {
-              message,
-              signature: signature_erc8010,
-            }
           }
+
+          // If authUrl is provided, authenticate with the server
+          const authUrl = signInWithEthereum.authUrl
+            ? Siwe.resolveAuthUrl(signInWithEthereum.authUrl)
+            : undefined
+
+          if (!authUrl)
+            return { message: message_, signature: signature_erc8010 }
+
+          const { token } = await Siwe.authenticate({
+            address: account.address,
+            authUrl,
+            message: message_,
+            signature: signature_erc8010,
+          })
+
+          return { message: message_, signature: signature_erc8010, token }
         })()
 
         return {
