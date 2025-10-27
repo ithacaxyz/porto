@@ -67,10 +67,7 @@ export function relay(parameters: relay.Parameters = {}) {
         } = parameters
         const { client, request } = internal
 
-        const eoa =
-          eoa_ ??
-          preGeneratedAccounts.getAccount((request as any).id) ??
-          Account.fromPrivateKey(Secp256k1.randomPrivateKey())
+        const eoa = eoa_ ?? Account.fromPrivateKey(Secp256k1.randomPrivateKey())
 
         const feeTokens = await Tokens.getTokens(client)
 
@@ -971,4 +968,3 @@ export declare namespace relay {
       | undefined
   }
 }
-
