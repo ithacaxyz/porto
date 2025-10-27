@@ -51,12 +51,12 @@ export default function App() {
             <Link
               href="https://porto.sh/sdk/api/mode#modereactnative"
               style={{
-                fontSize: 26,
+                fontSize: 22,
                 fontWeight: '600',
                 textAlign: 'center',
                 textDecorationLine: 'none',
               }}
-              text="Porto React Native Example"
+              text="Porto React Native (Dialog Mode)"
             />
             <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Connect</Text>
             <Connect />

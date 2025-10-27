@@ -2,7 +2,10 @@
 module.exports = (api) => {
   api.cache(true)
   return {
-    plugins: ['babel-plugin-transform-import-meta'],
+    plugins: [
+      ['babel-plugin-react-compiler', { target: '19' }],
+      'babel-plugin-transform-import-meta',
+    ],
     presets: [
       [
         'babel-preset-expo',

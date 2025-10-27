@@ -1,55 +1,95 @@
 import Checkbox from 'expo-checkbox'
 import * as Linking from 'expo-linking'
-import { type Address, Hex, Json } from 'ox'
+import {
+  AbiFunction,
+  type Address,
+  Hex,
+  Json,
+  P256,
+  PublicKey,
+  Signature,
+  Value,
+} from 'ox'
 import * as React from 'react'
 import {
   Button,
-  Platform,
   ScrollView,
+  StatusBar,
+  type StyleProp,
   Text,
   TextInput,
+  type TextStyle,
+  TouchableOpacity,
   View,
 } from 'react-native'
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import {
   generatePrivateKey,
   privateKeyToAccount,
   privateKeyToAddress,
 } from 'viem/accounts'
 
+import { exp1Abi, exp1Address } from './contracts.ts'
 import { permissions, porto } from './porto.ts'
 
 const SERVER_BASE_URL = process.env.EXPO_PUBLIC_SIWE_URL
 if (!SERVER_BASE_URL) throw new Error('EXPO_PUBLIC_SIWE_URL is not set')
 
-// siwe auth routes
 const authUrl = {
   logout: `${SERVER_BASE_URL}/api/siwe/logout`,
   nonce: `${SERVER_BASE_URL}/api/siwe/nonce`,
   verify: `${SERVER_BASE_URL}/api/siwe/verify`,
 } as const
 
+type SessionKeyPair = {
+  privateKey: Hex.Hex
+  publicKey: Hex.Hex
+} | null
+
 export default function App() {
+  const [sessionKey, setSessionKey] = React.useState<SessionKeyPair>(null)
+
   return (
-    <ScrollView
-      style={{
-        flex: 1,
-        height: '100%',
-        marginTop: Platform.select({ default: 100, web: 0 }),
-        padding: 16,
-      }}
-    >
-      <Connect />
-      <Divider />
-      <Me />
-      <Divider />
-      <UpgradeAccount />
-      <Divider />
-      <SignMessage />
-      <Divider />
-      <GrantPermissions />
-      <Divider />
-      <GetPermissions />
-    </ScrollView>
+    <SafeAreaProvider>
+      <SafeAreaView
+        edges={['top']}
+        style={{ flex: 1, paddingTop: StatusBar.currentHeight }}
+      >
+        <ScrollView style={{ backgroundColor: '#F7F7F7', padding: 16 }}>
+          <Link
+            href="https://porto.sh/sdk/api/mode#modereactnative"
+            style={{
+              fontSize: 22,
+              fontWeight: '600',
+              textAlign: 'center',
+              textDecorationLine: 'none',
+            }}
+            text="Porto React Native (Relay Mode)"
+          />
+          <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Connect</Text>
+          <Connect />
+          <Divider />
+          <Me />
+          <Divider />
+          <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
+            EOA to Porto Account
+          </Text>
+          <UpgradeAccount />
+          <Divider />
+          <SignMessage />
+          <Divider />
+          <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Permissions</Text>
+          <GrantPermissions />
+          <GetPermissions />
+          <Divider />
+          <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
+            App-managed Signing ("session keys")
+          </Text>
+          <GrantKeyPermissions onKeyCreated={setSessionKey} />
+          <PreparedCalls sessionKey={sessionKey} />
+        </ScrollView>
+      </SafeAreaView>
+    </SafeAreaProvider>
   )
 }
 
@@ -59,6 +99,7 @@ function Connect() {
     !!process.env.EXPO_PUBLIC_SIWE_URL,
   )
   const [result, setResult] = React.useState<unknown | null>(null)
+  console.info(result)
   const [error, setError] = React.useState<string | null>(null)
 
   return (
@@ -178,7 +219,7 @@ function Me() {
 
   return (
     <View>
-      <Text>Fetch `/me` (authenticated endpoint)</Text>
+      <Text>Fetch /me (authenticated endpoint)</Text>
       <Button
         onPress={() =>
           void fetch(`${SERVER_BASE_URL}/api/me`, { credentials: 'include' })
@@ -366,6 +407,153 @@ function GetPermissions() {
       />
       {result ? <Pre text={result} /> : null}
     </View>
+  )
+}
+
+function GrantKeyPermissions({
+  onKeyCreated,
+}: {
+  onKeyCreated: (key: SessionKeyPair) => void
+}) {
+  const [result, setResult] = React.useState<unknown | null>(null)
+  const [error, setError] = React.useState<string | null>(null)
+
+  return (
+    <View>
+      <Text>Create Key & Grant Permissions</Text>
+      <Button
+        onPress={async () => {
+          try {
+            const privateKey = P256.randomPrivateKey()
+            const publicKey = PublicKey.toHex(
+              P256.getPublicKey({ privateKey }),
+              {
+                includePrefix: false,
+              },
+            )
+
+            onKeyCreated(null)
+
+            const results = await porto.provider.request({
+              method: 'wallet_grantPermissions',
+              params: [
+                {
+                  key: { publicKey, type: 'p256' },
+                  ...permissions(),
+                },
+              ],
+            })
+            onKeyCreated({ privateKey, publicKey })
+            setResult(results)
+          } catch (error) {
+            setError(
+              Json.stringify(
+                { error: error instanceof Error ? error.message : error },
+                null,
+                2,
+              ),
+            )
+            onKeyCreated(null)
+          }
+        }}
+        title="Create Key & Grant Permissions"
+      />
+      {result ? <Pre text={result} /> : error && <Pre text={error} />}
+    </View>
+  )
+}
+
+function PreparedCalls({ sessionKey }: { sessionKey: SessionKeyPair }) {
+  const [hash, setHash] = React.useState<Hex.Hex | null>(null)
+  const [error, setError] = React.useState<string | null>(null)
+
+  return (
+    <View style={{ marginBottom: 16 }}>
+      <Text>wallet_prepareCalls → P256.sign → wallet_sendPreparedCalls</Text>
+      <Button
+        onPress={async () => {
+          try {
+            if (!sessionKey) throw new Error('Session key not created')
+
+            const [account] = await porto.provider.request({
+              method: 'eth_accounts',
+            })
+            if (!account) throw new Error('Account not found')
+
+            const chainId = await porto.provider.request({
+              method: 'eth_chainId',
+            })
+
+            const { digest, ...request } = await porto.provider.request({
+              method: 'wallet_prepareCalls',
+              params: [
+                {
+                  calls: [
+                    {
+                      data: AbiFunction.encodeData(
+                        AbiFunction.fromAbi(exp1Abi, 'mint'),
+                        [account, Value.fromEther('10')],
+                      ),
+                      to: exp1Address,
+                    },
+                  ],
+                  chainId,
+                  key: {
+                    publicKey: sessionKey.publicKey,
+                    type: 'p256',
+                  },
+                },
+              ],
+            })
+
+            const signature = Signature.toHex(
+              P256.sign({
+                payload: digest,
+                privateKey: sessionKey.privateKey,
+              }),
+            )
+
+            const [{ id: hash }] = await porto.provider.request({
+              method: 'wallet_sendPreparedCalls',
+              params: [{ ...request, signature }],
+            })
+            setHash(hash)
+          } catch (error) {
+            console.error(error)
+            setError(
+              Json.stringify(
+                { error: error instanceof Error ? error.message : error },
+                null,
+                2,
+              ),
+            )
+          }
+        }}
+        title="Mint 10 EXP"
+      />
+      {hash ? <Pre text={hash} /> : error && <Pre text={error} />}
+    </View>
+  )
+}
+
+function Link(props: {
+  text?: string
+  href: string
+  style?: StyleProp<TextStyle>
+}) {
+  if (!props.href) return null
+
+  return (
+    <TouchableOpacity onPress={() => Linking.openURL(props.href)}>
+      <Text
+        style={[
+          { color: '#007AFF', textDecorationLine: 'underline' },
+          props.style,
+        ]}
+      >
+        {props.text}
+      </Text>
+    </TouchableOpacity>
   )
 }
 
