@@ -8,7 +8,10 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
+    "types": ["bun"],
     "resolvePackageJsonExports": true,
     "resolvePackageJsonImports": true
-  }
+  },
+  "include": ["src", "server"],
+  "files": ["env.d.ts", "app.config.ts"]
 }

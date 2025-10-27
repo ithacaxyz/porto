@@ -56,4 +56,5 @@ packages:
   - "apps/*"
   - "docker/*"
   - "examples/*"
+  - "!examples/react-native-relay-mode/server"
   
