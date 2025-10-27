@@ -65,7 +65,7 @@ export function relay(parameters: relay.Parameters = {}) {
           internal,
           signInWithEthereum,
         } = parameters
-        const { client, request } = internal
+        const { client } = internal
 
         const eoa = eoa_ ?? Account.fromPrivateKey(Secp256k1.randomPrivateKey())
 
