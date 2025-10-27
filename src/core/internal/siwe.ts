@@ -69,7 +69,8 @@ export async function buildMessage<chain extends Chain | undefined>(
   const authUrl = siwe.authUrl ? resolveAuthUrl(siwe.authUrl) : undefined
 
   if (!chainId) throw new Error('`chainId` is required.')
-  if (!domain) throw new Error('`domain` is required.')
+  const normalizedDomain = normalizeDomain(domain)
+  if (!normalizedDomain) throw new Error('`domain` is required.')
   if (!siwe.nonce && !authUrl?.nonce)
     throw new Error('`nonce` or `authUrl.nonce` is required.')
   if (!uri) throw new Error('`uri` is required.')
@@ -98,7 +99,7 @@ export async function buildMessage<chain extends Chain | undefined>(
     ...siwe,
     address: options.address,
     chainId,
-    domain,
+    domain: normalizedDomain,
     nonce,
     resources: resources as string[] | undefined,
     uri,
@@ -143,4 +144,21 @@ function resolveUrl(url: string, origin: string) {
   if (!origin) return url
   if (!url.startsWith('/')) return url
   return origin + url
+}
+
+function normalizeDomain(domain: string | undefined) {
+  if (!domain) return domain
+  const trimmed = domain.trim()
+  const normalized = (() => {
+    try {
+      const url = new URL(trimmed)
+      return url.host
+    } catch {}
+    try {
+      const url = new URL(`https://${trimmed}`)
+      return url.host
+    } catch {}
+    return trimmed
+  })()
+  return normalized.length > 0 ? normalized : undefined
 }

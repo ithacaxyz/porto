@@ -2,12 +2,18 @@
   "applinks": {
     "details": [
       {
-        "appIDs": ["Q7767Q7TRJ.com.example.porto-relay-mode"],
+        "appIDs": [
+          "Q7767Q7TRJ.com.example.porto-relay-mode",
+          "Q7767Q7TRJ.com.example.porto-react-native"
+        ],
         "components": [{ "/": "/*" }]
       }
     ]
   },
   "webcredentials": {
-    "apps": ["Q7767Q7TRJ.com.example.porto-relay-mode"]
+    "apps": [
+      "Q7767Q7TRJ.com.example.porto-relay-mode",
+      "Q7767Q7TRJ.com.example.porto-react-native"
+    ]
   }
 }

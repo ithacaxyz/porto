@@ -7,6 +7,10 @@
       "~/*": ["./src/*"],
       "porto/*": ["../../src/*"]
     },
-    "types": ["unplugin-icons/types/react", "typed-query-selector/strict"]
+    "types": [
+      "vite-plugin-terminal/client",
+      "unplugin-icons/types/react",
+      "typed-query-selector/strict"
+    ]
   }
 }

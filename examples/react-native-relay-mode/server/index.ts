@@ -1,5 +1,4 @@
 import { Database } from 'bun:sqlite'
-import NodePath from 'node:path'
 import * as Bun from 'bun'
 import * as JoseMourinho from 'jose'
 import { Porto } from 'porto'
@@ -10,8 +9,6 @@ import {
   verifySiweMessage,
 } from 'viem/siwe'
 
-const porto = Porto.create()
-
 const JWT_SECRET = Bun.env.JWT_SECRET
 if (!JWT_SECRET) throw new Error('JWT_SECRET is not set')
 
@@ -19,11 +16,21 @@ if (!JWT_SECRET) throw new Error('JWT_SECRET is not set')
  * In production you will want to have a stricter CORS policy.
  */
 const headers = new Headers({
-  'Access-Control-Allow-Credentials': 'true',
   'Access-Control-Allow-Headers': 'Content-Type',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Origin': 'https://porto-relay-mode.ngrok.io',
 })
+
+const siweHeaders = (() => {
+  const baseHeaders = new Headers(headers)
+  baseHeaders.set('Access-Control-Allow-Credentials', 'true')
+  baseHeaders.set(
+    'Access-Control-Allow-Origin',
+    'https://porto-relay-mode.ngrok.io',
+  )
+  return baseHeaders
+})()
+
+const porto = Porto.create()
 
 const database = new Database(':memory:')
 
@@ -36,51 +43,58 @@ database.run(/* sql */ `
 `)
 
 const server = Bun.serve({
+  development: Bun.env.NODE_ENV !== 'production',
   error: (error) =>
-    Response.json({ error: error.message }, { headers, status: 500 }),
+    Response.json(
+      { error: error.message },
+      { headers: siweHeaders, status: 500 },
+    ),
   port: Number(Bun.env.PORT || 69_69),
   routes: {
     '/': Response.json({ ok: new Date().toISOString() }, { headers }),
-    '/.well-known/apple-app-site-association': async () =>
-      Response.json(
-        await Bun.file(
-          NodePath.join(import.meta.dirname, './apple-app-site-association'),
-        ).json(),
-      ),
+    '/.well-known/apple-app-site-association': {
+      GET: async () => {
+        return Response.json(
+          await Bun.file('./apple-app-site-association').json(),
+          { headers },
+        )
+      },
+    },
     '/.well-known/apple-app-site-association.json': Response.redirect(
       '/.well-known/apple-app-site-association',
     ),
-    '/.well-known/assetlinks.json': async () =>
-      Response.json(
-        await Bun.file(
-          NodePath.join(import.meta.dirname, './assetlinks.json'),
-        ).json(),
-      ),
+    '/.well-known/assetlinks.json': {
+      GET: async () =>
+        Response.json(await Bun.file('./assetlinks.json').json(), {
+          headers,
+        }),
+    },
     '/api/me': async (request) => {
       const token = request.cookies.get('auth')
 
       if (!token)
         return Response.json(
           { error: 'Unauthorized' },
-          { headers, status: 401 },
+          { headers: siweHeaders, status: 401 },
         )
 
       const { payload } = await JoseMourinho.jwtVerify(
         token,
-        new TextEncoder().encode(Bun.env.JWT_SECRET),
+        new TextEncoder().encode(JWT_SECRET),
       )
 
-      return Response.json(payload, { headers })
+      return Response.json(payload, { headers: siweHeaders })
     },
     '/api/siwe/logout': async (request) => {
       request.cookies.delete('auth')
-      return Response.json({ success: true }, { headers, status: 204 })
+      return Response.json(
+        { success: true },
+        { headers: siweHeaders, status: 204 },
+      )
     },
     '/api/siwe/nonce': {
-      OPTIONS: () => new Response(null, { headers }),
-      POST: async (request) => {
-        const url = new URL(request.url)
-
+      OPTIONS: () => new Response(null, { headers: siweHeaders }),
+      POST: async () => {
         const nonce = generateSiweNonce()
 
         database.run(
@@ -88,11 +102,11 @@ const server = Bun.serve({
           [nonce, 'valid', Math.floor(Date.now() / 1_000) + 3_600], // 1 hour
         )
 
-        return Response.json({ nonce }, { headers })
+        return Response.json({ nonce }, { headers: siweHeaders })
       },
     },
     '/api/siwe/verify': {
-      OPTIONS: () => new Response(null, { headers }),
+      OPTIONS: () => new Response(null, { headers: siweHeaders }),
       POST: async (request) => {
         const { message, signature } = await request.json()
 
@@ -101,7 +115,7 @@ const server = Bun.serve({
         if (!nonce)
           return Response.json(
             { error: 'Nonce is required' },
-            { headers, status: 400 },
+            { headers: siweHeaders, status: 400 },
           )
 
         const nonceSession = database.run(
@@ -111,7 +125,7 @@ const server = Bun.serve({
         if (!nonceSession)
           return Response.json(
             { error: 'Invalid or expired nonce' },
-            { headers, status: 401 },
+            { headers: siweHeaders, status: 401 },
           )
 
         database.run('DELETE FROM nonce WHERE nonce = ?', [nonce])
@@ -126,7 +140,7 @@ const server = Bun.serve({
         if (!valid)
           return Response.json(
             { error: 'Invalid signature' },
-            { headers, status: 401 },
+            { headers: siweHeaders, status: 401 },
           )
 
         const maxAge = 60 * 60 * 24 * 7
@@ -138,7 +152,7 @@ const server = Bun.serve({
           .setProtectedHeader({ alg: 'HS256' })
           .setIssuedAt()
           .setExpirationTime(exp)
-          .sign(new TextEncoder().encode(Bun.env.JWT_SECRET))
+          .sign(new TextEncoder().encode(JWT_SECRET))
 
         request.cookies.set('auth', token, {
           httpOnly: true,
@@ -148,7 +162,7 @@ const server = Bun.serve({
           secure: true,
         })
 
-        return Response.json({ success: true }, { headers })
+        return Response.json({ success: true }, { headers: siweHeaders })
       },
     },
   },

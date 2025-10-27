@@ -19,6 +19,7 @@
     "expo-build-properties": "~1.0.9",
     "expo-checkbox": "~5.0.7",
     "expo-crypto": "~15.0.7",
+    "expo-linking": "~8.0.8",
     "expo-network": "~8.0.7",
     "expo-web-browser": "~15.0.8",
     "ox": "^0.9.12",

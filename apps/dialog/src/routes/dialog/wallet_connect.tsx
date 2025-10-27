@@ -73,6 +73,7 @@ function RouteComponent() {
       )
       const capabilities = params[0]?.capabilities
       const grantAdmins = capabilities?.grantAdmins
+      const signInWithEthereumCapability = capabilities?.signInWithEthereum
 
       // If any admins need to be authorized, we need to check the
       // authority & validity of the request.
@@ -115,12 +116,11 @@ function RouteComponent() {
                 selectAccount,
                 ...(capabilities?.signInWithEthereum && {
                   signInWithEthereum: {
-                    ...capabilities?.signInWithEthereum,
+                    ...signInWithEthereumCapability,
                     domain:
-                      capabilities?.signInWithEthereum.domain ??
+                      signInWithEthereumCapability?.domain ??
                       referrerURL?.hostname,
-                    uri:
-                      capabilities?.signInWithEthereum.uri ?? referrerURL?.href,
+                    uri: signInWithEthereumCapability?.uri ?? referrerURL?.href,
                   },
                 }),
               },

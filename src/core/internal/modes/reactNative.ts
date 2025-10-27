@@ -23,7 +23,10 @@ export function reactNative(parameters: reactNative.Parameters = {}) {
 }
 
 export declare namespace reactNative {
-  export type Parameters =
+  export type Parameters = (
     | (Omit<dialog.Parameters, 'renderer'> & Dialog.authSession.Options)
     | undefined
+  ) & {
+    supportAccountUpgrades?: { keyStoreHost: string } | undefined
+  }
 }
