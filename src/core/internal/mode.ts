@@ -52,6 +52,8 @@ export type Mode = {
       admins?: readonly Pick<Key.Key, 'publicKey' | 'type'>[] | undefined
       /** Whether to link `label` to account address as email. */
       email?: boolean | undefined
+      /** Pre-generated EOA to use for account creation. If not provided, a random one will be generated. */
+      eoa?: Account.Account<'privateKey'> | undefined
       /** Internal properties. */
       internal: ActionsInternal
       /** Label to associate with the WebAuthn credential. */
@@ -257,8 +259,8 @@ export type Mode = {
     }) => Promise<void>
 
     sendCalls: (parameters: {
-      /** Account to execute the calls with. */
-      account: Account.Account
+      /** Account to execute the calls with (optional for guest checkout). */
+      account?: Account.Account | undefined
       /** Whether the returned bundle identifier is the transaction hash. */
       asTxHash?: boolean | undefined
       /** Calls to execute. */

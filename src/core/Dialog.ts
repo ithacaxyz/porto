@@ -2,6 +2,8 @@ import type { RpcRequest, RpcResponse } from 'ox'
 import * as Json from 'ox/Json'
 import * as Provider from 'ox/Provider'
 import type { ThemeFragment } from '../theme/Theme.js'
+import * as Account from '../viem/Account.js'
+import * as Key from '../viem/Key.js'
 import * as IO from './internal/intersectionObserver.js'
 import { logger } from './internal/logger.js'
 import type { Internal } from './internal/porto.js'
@@ -206,6 +208,9 @@ export function iframe(options: iframe.Options = {}) {
           iframe.src = src
         }
         handleResponse(store, response)
+      })
+      messenger.on('account', (payload) => {
+        handleAccount(store, payload)
       })
       messenger.on('__internal', (payload) => {
         if (payload.type === 'switch' && payload.mode === 'popup') {
@@ -522,6 +527,9 @@ export function popup(options: popup.Options = {}) {
           messenger.on('rpc-response', (response) =>
             handleResponse(store, response),
           )
+          messenger.on('account', (payload) => {
+            handleAccount(store, payload)
+          })
 
           window.removeEventListener('focus', onBlur)
           window.addEventListener('focus', onBlur)
@@ -882,6 +890,9 @@ export function experimental_inline(options: inline.Options) {
       messenger.on('rpc-response', (response) =>
         handleResponse(store, response),
       )
+      messenger.on('account', (payload) => {
+        handleAccount(store, payload)
+      })
 
       return {
         close() {},
@@ -1044,6 +1055,22 @@ export function handleResponse(
         status: 'success',
       } satisfies QueuedRequest
     }),
+  }))
+}
+
+export function handleAccount(
+  store: Store,
+  payload: Messenger.Payload<'account'>,
+) {
+  const { account } = payload
+  store.setState((x) => ({
+    ...x,
+    accounts: [
+      Account.from({
+        address: account.address,
+        keys: account.capabilities?.admins?.map((key) => Key.from(key)) ?? [],
+      }),
+    ],
   }))
 }
 

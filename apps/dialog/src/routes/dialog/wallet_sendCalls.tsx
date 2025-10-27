@@ -1,9 +1,12 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import * as Provider from 'ox/Provider'
+import type * as Messenger from 'porto/core/Messenger'
 import { Actions, Hooks } from 'porto/remote'
-import { RelayActions } from 'porto/viem'
+import { Account, RelayActions } from 'porto/viem'
+import * as React from 'react'
 import type * as Calls from '~/lib/Calls'
+import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import { useAuthSessionRedirect } from '~/lib/ReactNative'
 import * as Router from '~/lib/Router'
@@ -23,8 +26,82 @@ function RouteComponent() {
 
   const { feeToken, merchantUrl, requiredFunds } = capabilities ?? {}
 
-  const account = Hooks.useAccount(porto, { address: from })
+  const currentAccount = Hooks.useAccount(porto, { address: from })
   const client = Hooks.useRelayClient(porto, { chainId })
+
+  const [authenticatedAccount, setAuthenticatedAccount] =
+    React.useState<Account.Account>()
+  const [guestStatus, setGuestStatus] = React.useState<
+    'disabled' | 'enabled' | 'signing-in' | 'signing-up'
+  >('disabled')
+
+  const handleGuestSignIn = React.useCallback(async () => {
+    setGuestStatus('signing-in')
+    try {
+      const response = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{}],
+      })
+      const newAccount = response.accounts?.[0]
+      const [portoAccount] = porto._internal.store.getState().accounts
+      if (newAccount && portoAccount) {
+        setAuthenticatedAccount(portoAccount)
+        porto.messenger.send('account', {
+          account: newAccount as Messenger.Payload<'account'>['account'],
+        })
+        setGuestStatus('disabled')
+      }
+    } catch (error) {
+      if (Dialog.handleWebAuthnIframeError(error)) return
+      setGuestStatus('enabled')
+    }
+  }, [request.id])
+
+  const handleGuestSignUp = React.useCallback(
+    async (email?: string) => {
+      setGuestStatus('signing-up')
+      try {
+        const response = await porto.provider.request({
+          method: 'wallet_connect',
+          params: [
+            {
+              capabilities: {
+                createAccount: email ? { label: email } : true,
+                email: Boolean(email),
+              },
+            },
+          ],
+        })
+
+        const newAccount = response.accounts?.[0]
+        const [portoAccount] = porto._internal.store.getState().accounts
+        if (newAccount && portoAccount) {
+          setAuthenticatedAccount(portoAccount)
+          porto.messenger.send('account', {
+            account: newAccount as Messenger.Payload<'account'>['account'],
+          })
+          setGuestStatus('disabled')
+        }
+      } catch (error) {
+        if (Dialog.handleWebAuthnIframeError(error)) return
+        setGuestStatus('enabled')
+      }
+    },
+    [request.id],
+  )
+
+  const account = from ? currentAccount : authenticatedAccount
+
+  const preview = React.useMemo(() => {
+    if (account) return { account, address: account.address, guest: false }
+    return undefined
+  }, [account])
+
+  React.useEffect(() => {
+    if (!from && !authenticatedAccount) {
+      setGuestStatus('enabled')
+    }
+  }, [from, authenticatedAccount])
 
   const respond = useMutation({
     // TODO: use EIP-1193 Provider + `wallet_sendPreparedCalls` in the future
@@ -72,13 +149,17 @@ function RouteComponent() {
 
   return (
     <ActionRequest
-      address={from}
+      address={preview?.address}
       calls={calls}
       chainId={chainId}
       feeToken={feeToken}
+      guestMode={preview?.guest}
+      guestStatus={guestStatus}
       loading={respond.isPending}
       merchantUrl={merchantUrl}
       onApprove={(data) => respond.mutate(data)}
+      onGuestSignIn={handleGuestSignIn}
+      onGuestSignUp={handleGuestSignUp}
       onReject={() => respond.mutate({ reject: true })}
       requiredFunds={requiredFunds}
     />

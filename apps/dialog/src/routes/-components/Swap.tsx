@@ -14,7 +14,7 @@ import { AddressFormatter, PriceFormatter, ValueFormatter } from '~/utils'
 import ArrowDown from '~icons/lucide/arrow-down'
 import LucideSendToBack from '~icons/lucide/send-to-back'
 import Star from '~icons/ph/star-four-bold'
-import { ActionPreview } from './ActionPreview'
+import { ActionPreview, type GuestMode } from './ActionPreview'
 import type { ActionRequest } from './ActionRequest'
 import { Layout } from './Layout'
 
@@ -27,6 +27,7 @@ export function Swap(props: Swap.Props) {
     chainsPath,
     contractAddress,
     fetchingQuote,
+    guestMode,
     onApprove,
     onReject,
     refreshingQuote,
@@ -57,32 +58,35 @@ export function Swap(props: Swap.Props) {
     <ActionPreview
       account={address}
       actions={
-        <Layout.Footer.Actions>
-          <Button
-            disabled={swapping}
-            onClick={onReject}
-            variant="negative-secondary"
-            width="grow"
-          >
-            Cancel
-          </Button>
-          <Button
-            disabled={!onApprove || fetchingQuote || loading}
-            loading={
-              refreshingQuote
-                ? 'Refreshing quote…'
-                : swapping
-                  ? 'Swapping…'
-                  : undefined
-            }
-            onClick={onApprove}
-            variant="positive"
-            width="grow"
-          >
-            Swap
-          </Button>
-        </Layout.Footer.Actions>
+        guestMode ? undefined : (
+          <Layout.Footer.Actions>
+            <Button
+              disabled={swapping}
+              onClick={onReject}
+              variant="negative-secondary"
+              width="grow"
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={!onApprove || fetchingQuote || loading}
+              loading={
+                refreshingQuote
+                  ? 'Refreshing quote…'
+                  : swapping
+                    ? 'Swapping…'
+                    : undefined
+              }
+              onClick={onApprove}
+              variant="positive"
+              width="grow"
+            >
+              Swap
+            </Button>
+          </Layout.Footer.Actions>
+        )
       }
+      guestMode={guestMode}
       header={
         <Layout.Header.Default
           icon={swapType === 'convert' ? Star : LucideSendToBack}
@@ -159,6 +163,7 @@ export namespace Swap {
     chainsPath: readonly Chain[]
     contractAddress?: Address.Address | undefined
     fetchingQuote?: boolean | undefined
+    guestMode?: GuestMode
     onApprove: () => void
     onReject: () => void
     refreshingQuote?: boolean | undefined
