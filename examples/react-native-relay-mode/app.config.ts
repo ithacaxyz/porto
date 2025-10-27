@@ -21,15 +21,18 @@ if (SERVER_URL) {
   )
 } else console.warn('EXPO_PUBLIC_SERVER_URL is not set')
 
-export const expoConfig = {
+export default (_context: ConfigContext): ExpoConfig => ({
   android: {
     adaptiveIcon: {
       backgroundColor: '#ffffff',
       foregroundImage: './assets/adaptive-icon.png',
     },
     edgeToEdgeEnabled: true,
-    package: BUNDLE_IDENTIFIER,
+    package: BUNDLE_IDENTIFIER.replaceAll('-', '_'),
     predictiveBackGestureEnabled: false,
+  },
+  experiments: {
+    reactCompiler: true,
   },
   icon: './assets/icon.png',
   ios: {
@@ -44,11 +47,14 @@ export const expoConfig = {
   newArchEnabled: true,
   orientation: 'portrait',
   plugins: [
+    ['expo-dev-client', { launchMode: 'most-recent' }],
     [
       'expo-build-properties',
       {
         android: {
+          buildToolsVersion: '35.0.0',
           compileSdkVersion: 36,
+          targetSdkVersion: 36,
         },
         ios: {
           deploymentTarget: '26.0',
@@ -70,6 +76,4 @@ export const expoConfig = {
     favicon: './assets/favicon.png',
     output: 'single',
   },
-} satisfies ExpoConfig
-
-export default (_context: ConfigContext): ExpoConfig => expoConfig
+})

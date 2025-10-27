@@ -1,5 +1,5 @@
 import Checkbox from 'expo-checkbox'
-import { AbiFunction, type Hex, Json, Value } from 'ox'
+import { AbiFunction, type Address, type Hex, Json, Value } from 'ox'
 import { Key, RelayActions, RelayClient } from 'porto/viem'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
@@ -10,11 +10,17 @@ import {
   StatusBar,
   type StyleProp,
   Text,
+  TextInput,
   type TextStyle,
   TouchableOpacity,
   View,
 } from 'react-native'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
+import {
+  generatePrivateKey,
+  privateKeyToAccount,
+  privateKeyToAddress,
+} from 'viem/accounts'
 import {
   useAccount,
   useCapabilities,
@@ -52,8 +58,16 @@ export default function App() {
               }}
               text="Porto React Native Example"
             />
+            <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Connect</Text>
             <Connect />
+            <Divider />
+            <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
+              EOA to Porto Account
+            </Text>
+            <UpgradeAccount />
+            <Divider />
             <SignMessage />
+            <Divider />
             <SendCalls />
             <Divider />
             <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
@@ -63,7 +77,7 @@ export default function App() {
             <GetPermissions />
             <Divider />
             <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
-              App-managed Signing
+              App-managed Signing ("session keys")
             </Text>
             <GrantKeyPermissions onKeyCreated={setSessionKey} />
             <PreparedCalls sessionKey={sessionKey} />
@@ -78,8 +92,9 @@ export default function App() {
 }
 
 function Connect() {
-  const [email, setEmail] = React.useState<boolean>(true)
-  const [grantPermissions, setGrantPermissions] = React.useState<boolean>(false)
+  const [email, setEmail] = React.useState(true)
+  const [grantPermissions, setGrantPermissions] = React.useState(false)
+  const [signInWithEthereum, setSignInWithEthereum] = React.useState(false)
 
   const account = useAccount()
   const connect = useConnect()
@@ -141,6 +156,13 @@ function Connect() {
           />
           <Text>Grant Permissions</Text>
         </View>
+        {/* <View style={{ display: 'flex', flexDirection: 'row', gap: 5 }}>
+          <Checkbox
+            onValueChange={() => setSignInWithEthereum((x) => !x)}
+            value={signInWithEthereum}
+          />
+          <Text>Sign-In with Ethereum</Text>
+        </View> */}
       </View>
       {connect.isPending && <Text>Connecting...</Text>}
       {account.address && (
@@ -165,13 +187,87 @@ function Connect() {
   )
 }
 
+function UpgradeAccount() {
+  const [accountData, setAccountData] = React.useState<{
+    address: Address.Address
+    privateKey: Hex.Hex
+  } | null>(null)
+  const [grantPermissions, setGrantPermissions] = React.useState(true)
+  const [privateKey, setPrivateKey] = React.useState<Hex.Hex | null>(null)
+
+  const [connector] = useConnectors()
+  const upgradeAccount = Hooks.useUpgradeAccount({
+    mutation: {
+      onError: (error) => console.error(error),
+    },
+  })
+
+  return (
+    <View>
+      <Text>wallet_upgradeAccount</Text>
+      <View>
+        <Button
+          onPress={() => {
+            const privateKey = generatePrivateKey()
+            setPrivateKey(privateKey)
+            setAccountData({
+              address: privateKeyToAddress(privateKey),
+              privateKey,
+            })
+          }}
+          title="Create EOA"
+        />
+
+        {accountData && <Pre text={accountData} />}
+      </View>
+      <View>
+        <TextInput
+          onChangeText={(text) => setPrivateKey(text as Hex.Hex)}
+          placeholder="Private Key (leave empty to generate new EOA)"
+          style={{
+            borderColor: '#ccc',
+            borderWidth: 1,
+            flex: 1,
+            height: 30,
+          }}
+          value={privateKey ?? ''}
+        />
+      </View>
+      <View style={{ display: 'flex', flexDirection: 'row', gap: 5 }}>
+        <Checkbox
+          onValueChange={() => setGrantPermissions((x) => !x)}
+          value={grantPermissions}
+        />
+        <Text>Grant Permissions</Text>
+      </View>
+      <View>
+        <Button
+          onPress={async () =>
+            upgradeAccount.mutate({
+              account: privateKeyToAccount(privateKey as Hex.Hex),
+              connector,
+              grantPermissions: grantPermissions ? permissions() : undefined,
+            })
+          }
+          title="Upgrade EOA to Porto Account"
+        />
+      </View>
+      {upgradeAccount.isPending && <Text>Upgrading Account...</Text>}
+      {upgradeAccount.isSuccess && <Pre text={upgradeAccount.data} />}
+      {upgradeAccount.isError && <Pre text={upgradeAccount.error} />}
+    </View>
+  )
+}
+
 function SignMessage() {
+  const account = useAccount()
   const signMessage = useSignMessage()
 
   return (
     <View style={{ marginBottom: 16 }}>
       <Text>personal_sign</Text>
       <Button
+        disabled={!account.address}
         onPress={async () =>
           signMessage.signMessage({ message: 'hello world' })
         }
@@ -185,11 +281,14 @@ function SignMessage() {
 }
 
 function GrantPermissions() {
+  const account = useAccount()
   const grantPermissions = Hooks.useGrantPermissions()
+
   return (
     <View style={{ marginBottom: 16 }}>
       <Text>wallet_grantPermissions</Text>
       <Button
+        disabled={!account.address}
         onPress={async () => grantPermissions.mutate(permissions())}
         title="Grant Permissions"
       />
@@ -237,6 +336,7 @@ function SendCalls() {
     <View style={{ marginBottom: 16 }}>
       <Text>wallet_sendCalls (Mint 100 EXP)</Text>
       <Button
+        disabled={!account.address}
         onPress={() =>
           sendCalls.sendCalls({
             calls: [
@@ -274,6 +374,7 @@ function GrantKeyPermissions({
 }: {
   onKeyCreated: (key: Key.Key | null) => void
 }) {
+  const account = useAccount()
   const chainId = useChainId()
   const grantPermissions = Hooks.useGrantPermissions()
 
@@ -281,6 +382,7 @@ function GrantKeyPermissions({
     <View style={{ marginBottom: 16 }}>
       <Text> Create Key & Grant Permissions</Text>
       <Button
+        disabled={!account.address}
         onPress={async () => {
           const key = Key.createHeadlessWebAuthnP256({
             ...permissions(),
@@ -310,7 +412,6 @@ function GrantKeyPermissions({
 }
 
 function PreparedCalls({ sessionKey }: { sessionKey: Key.Key | null }) {
-  const chainId = useChainId()
   const account = useAccount()
 
   const [isPending, setIsPending] = React.useState(false)
@@ -408,6 +509,7 @@ function PreparedCalls({ sessionKey }: { sessionKey: Key.Key | null }) {
 }
 
 function Capabilities() {
+  const account = useAccount()
   const [fetchCapabilities, setFetchCapabilities] = React.useState(false)
   const capabilities = useCapabilities({
     query: {
@@ -418,6 +520,7 @@ function Capabilities() {
     <View style={{ marginBottom: 16 }}>
       <Text>wallet_getCapabilities</Text>
       <Button
+        disabled={!account.address}
         onPress={() => setFetchCapabilities(true)}
         title="Get Capabilities"
       />

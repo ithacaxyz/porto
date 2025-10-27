@@ -13,7 +13,13 @@ export const config = createConfig({
   connectors: [
     portoConnector({
       ...Platform.select({
-        default: { mode: Mode.reactNative() },
+        default: {
+          mode: Mode.reactNative({
+            supportAccountUpgrades: {
+              keyStoreHost: process.env.EXPO_PUBLIC_SERVER_URL,
+            },
+          }),
+        },
         web: { mode: Mode.dialog() },
       }),
     }),

@@ -72,6 +72,7 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-native": "0.81.4",
+    "react-native-passkeys": "^0.4.0",
     "sherif": "^1.6.1",
     "simple-git-hooks": "^2.13.1",
     "size-limit": "^11.2.0",
@@ -236,6 +237,9 @@
       "optional": true
     },
     "react-native": {
+      "optional": true
+    },
+    "react-native-passkeys": {
       "optional": true
     },
     "typescript": {

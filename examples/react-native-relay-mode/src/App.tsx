@@ -1,9 +1,32 @@
 import Checkbox from 'expo-checkbox'
-import { Hex, Json } from 'ox'
+import * as Linking from 'expo-linking'
+import { type Address, Hex, Json } from 'ox'
 import * as React from 'react'
-import { Button, Platform, ScrollView, Text, View } from 'react-native'
+import {
+  Button,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from 'react-native'
+import {
+  generatePrivateKey,
+  privateKeyToAccount,
+  privateKeyToAddress,
+} from 'viem/accounts'
 
-import { permissions, porto } from './porto'
+import { permissions, porto } from './porto.ts'
+
+const SERVER_BASE_URL = process.env.EXPO_PUBLIC_SIWE_URL
+if (!SERVER_BASE_URL) throw new Error('EXPO_PUBLIC_SIWE_URL is not set')
+
+// siwe auth routes
+const authUrl = {
+  logout: `${SERVER_BASE_URL}/api/siwe/logout`,
+  nonce: `${SERVER_BASE_URL}/api/siwe/nonce`,
+  verify: `${SERVER_BASE_URL}/api/siwe/verify`,
+} as const
 
 export default function App() {
   return (
@@ -19,6 +42,8 @@ export default function App() {
       <Divider />
       <Me />
       <Divider />
+      <UpgradeAccount />
+      <Divider />
       <SignMessage />
       <Divider />
       <GrantPermissions />
@@ -27,16 +52,6 @@ export default function App() {
     </ScrollView>
   )
 }
-
-const SERVER_BASE_URL = process.env.EXPO_PUBLIC_SIWE_URL
-if (!SERVER_BASE_URL) throw new Error('EXPO_PUBLIC_SIWE_URL is not set')
-
-// siwe auth routes
-const authUrl = {
-  logout: `${SERVER_BASE_URL}/api/siwe/logout`,
-  nonce: `${SERVER_BASE_URL}/api/siwe/nonce`,
-  verify: `${SERVER_BASE_URL}/api/siwe/verify`,
-} as const
 
 function Connect() {
   const [grantPermissions, setGrantPermissions] = React.useState<boolean>(false)
@@ -52,6 +67,8 @@ function Connect() {
       <View>
         <Button
           onPress={async () => {
+            const link = Linking.createURL('/')
+
             porto.provider
               .request({
                 method: 'wallet_connect',
@@ -63,7 +80,11 @@ function Connect() {
                         ? permissions()
                         : undefined,
                       signInWithEthereum: signInWithEthereum
-                        ? { authUrl }
+                        ? {
+                            authUrl,
+                            domain: SERVER_BASE_URL,
+                            uri: link,
+                          }
                         : undefined,
                     },
                   },
@@ -80,12 +101,18 @@ function Connect() {
         <Divider />
         <Button
           onPress={async () => {
+            const link = Linking.createURL('/')
+
             const payload = {
               capabilities: {
                 createAccount: true,
                 grantPermissions: grantPermissions ? permissions() : undefined,
                 signInWithEthereum: signInWithEthereum
-                  ? { authUrl }
+                  ? {
+                      authUrl,
+                      domain: SERVER_BASE_URL,
+                      uri: link,
+                    }
                   : undefined,
               },
             } as const
@@ -103,6 +130,22 @@ function Connect() {
               })
           }}
           title="Register"
+        />
+        <Divider />
+
+        <Button
+          onPress={async () =>
+            porto.provider
+              .request({
+                method: 'wallet_disconnect',
+              })
+              .then(setResult)
+              .catch((error) => {
+                console.error(error)
+                setError(Json.stringify({ error: error.message }, null, 2))
+              })
+          }
+          title="Disconnect"
         />
       </View>
 
@@ -123,8 +166,8 @@ function Connect() {
           <Text>Sign-In with Ethereum</Text>
         </View>
       </View>
-      <Pre text={result} />
       <Pre text={error} />
+      <Pre text={result} />
     </View>
   )
 }
@@ -151,6 +194,108 @@ function Me() {
 
       <Pre text={result} />
       {error && <Pre text={error} />}
+    </View>
+  )
+}
+
+function UpgradeAccount() {
+  const [accountData, setAccountData] = React.useState<{
+    address: Address.Address
+    privateKey: Hex.Hex
+  } | null>(null)
+  const [grantPermissions, setGrantPermissions] = React.useState(true)
+  const [privateKey, setPrivateKey] = React.useState<Hex.Hex | null>(null)
+  const [result, setResult] = React.useState<unknown | null>(null)
+
+  const [error, setError] = React.useState<string | null>(null)
+
+  return (
+    <View>
+      <Text>wallet_upgradeAccount</Text>
+      <View>
+        <Button
+          onPress={() => {
+            const privateKey = generatePrivateKey()
+            setPrivateKey(privateKey)
+            setAccountData({
+              address: privateKeyToAddress(privateKey),
+              privateKey,
+            })
+          }}
+          title="Create EOA"
+        />
+
+        {accountData && <Pre text={accountData} />}
+      </View>
+      <View>
+        <TextInput
+          onChangeText={(text) => setPrivateKey(text as Hex.Hex)}
+          placeholder="Private Key (leave empty to generate new EOA)"
+          style={{
+            backgroundColor: '#fff',
+            borderColor: '#ccc',
+            borderWidth: 1,
+            flex: 1,
+            height: 30,
+            marginVertical: 6,
+            padding: 6,
+          }}
+          value={privateKey ?? ''}
+        />
+      </View>
+      <View style={{ display: 'flex', flexDirection: 'row', gap: 5 }}>
+        <Checkbox
+          onValueChange={() => setGrantPermissions((x) => !x)}
+          value={grantPermissions}
+        />
+        <Text>Grant Permissions</Text>
+      </View>
+      <View>
+        <Button
+          onPress={async () => {
+            try {
+              if (!privateKey) throw new Error('Private key is required')
+              const account = privateKeyToAccount(privateKey)
+
+              const { context, digests } = await porto.provider.request({
+                method: 'wallet_prepareUpgradeAccount',
+                params: [
+                  {
+                    address: account.address,
+                    capabilities: {
+                      grantPermissions: grantPermissions
+                        ? permissions()
+                        : undefined,
+                    },
+                  },
+                ],
+              })
+
+              const signatures = {
+                auth: await account.sign({ hash: digests.auth }),
+                exec: await account.sign({ hash: digests.exec }),
+              }
+
+              const address = await porto.provider.request({
+                method: 'wallet_upgradeAccount',
+                params: [{ context, signatures }],
+              })
+              setResult(address)
+            } catch (error) {
+              console.info(error)
+              setError(
+                Json.stringify(
+                  { error: error instanceof Error ? error.message : error },
+                  null,
+                  2,
+                ),
+              )
+            }
+          }}
+          title="Upgrade EOA to Porto Account"
+        />
+      </View>
+      {result ? <Pre text={result} /> : error && <Pre text={error} />}
     </View>
   )
 }

@@ -622,6 +622,7 @@ export function authSession(options: authSession.Options = {}) {
           wallet_sendCalls: 'wallet_sendCalls',
           wallet_sendPreparedCalls: 'wallet_sendPreparedCalls',
           wallet_switchEthereumChain: 'wallet_switchEthereumChain',
+          wallet_upgradeAccount: 'wallet_upgradeAccount',
           wallet_verifySignature: 'wallet_verifySignature',
         } as const satisfies Record<string, string>
 

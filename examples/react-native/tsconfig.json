@@ -1,5 +1,5 @@
 {
-  "extends": "expo/tsconfig.base",
+  "extends": ["expo/tsconfig.base"],
   "compilerOptions": {
     "strict": true,
     "moduleResolution": "bundler",
@@ -8,7 +8,9 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
+    "resolveJsonModule": true,
     "resolvePackageJsonExports": true,
     "resolvePackageJsonImports": true
-  }
+  },
+  "files": ["env.d.ts", "app.config.ts", "package.json"]
 }
