@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
     "strict": true,
-    "baseUrl": ".",
     "noEmit": true,
+    "paths": {
+      "*": ["./*"]
+    },
     "allowJs": true,
     "checkJs": true,
     "lib": ["ESNext"],

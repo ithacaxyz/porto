@@ -5,6 +5,7 @@
   "scripts": {
     "build": "tsc -b && vite build",
     "check:types": "tsc --noEmit",
+    "check:types_fast": "tsgo --noEmit",
     "dev": "vite --port 5173",
     "preview": "vite preview"
   },

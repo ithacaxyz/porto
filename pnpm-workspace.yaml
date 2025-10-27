@@ -20,6 +20,7 @@ catalog:
   "@types/node": "^22.15.32"
   "@types/react": "^19.1"
   "@types/react-dom": "^19.1"
+  "@typescript/native-preview": "^6.0.1"
   "@wagmi/core": "^2.21.2"
   cva: "npm:class-variance-authority@^0.7.1"
   globals: "^16.4.0"

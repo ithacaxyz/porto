@@ -5,6 +5,7 @@
   "scripts": {
     "build": "NODE_OPTIONS=\"--max-old-space-size=8192\" vocs build --searchIndex false && vocs search-index",
     "check:types": "tsc --noEmit",
+    "check:types_fast": "tsgo --noEmit",
     "dev": "vocs dev",
     "preview": "vocs preview"
   },

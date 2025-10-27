@@ -320,7 +320,7 @@ export declare namespace useConnect {
 }
 
 export function useDisconnect<
-  config extends Config = ResolvedRegister['config'],
+  _config extends Config = ResolvedRegister['config'],
   context = unknown,
 >(
   parameters: useDisconnect.Parameters<context> = {},

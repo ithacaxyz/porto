@@ -1,5 +1,6 @@
 import { Env, Theme } from '@porto/apps'
 import * as Sentry from '@sentry/react'
+import { type Config as WagmiConfig } from '@wagmi/core'
 import { Address } from 'ox'
 import { TrustedHosts } from 'porto/internal'
 import { Events } from 'porto/remote'
@@ -92,7 +93,7 @@ const offDialogRequest = Events.onDialogRequest(
       await Router.router.navigate({
         to: '/dialog/pending',
       })
-      await Actions.connect(Wagmi.config, {
+      await Actions.connect(Wagmi.config as WagmiConfig, {
         connector: getConnectors(Wagmi.config)[0]!,
         force: true,
         selectAccount: account,
