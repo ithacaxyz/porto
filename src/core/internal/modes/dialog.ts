@@ -739,13 +739,13 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const feeToken = await resolveFeeToken(internal, parameters)
 
         // Try and extract an authorized key to sign the calls with.
-        const key =
-          account &&
-          (await Mode.getAuthorizedExecuteKey({
-            account,
-            calls,
-            permissionsId: parameters.permissionsId,
-          }))
+        const key = account
+          ? await Mode.getAuthorizedExecuteKey({
+              account,
+              calls,
+              permissionsId: parameters.permissionsId,
+            })
+          : undefined
 
         // If a session key is found, try execute the calls with it
         // without sending a request to the dialog. If the key does not
