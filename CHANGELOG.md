@@ -1,5 +1,13 @@
 # porto
 
+## 0.2.35
+
+### Patch Changes
+
+- [#1004](https://github.com/ithacaxyz/porto/pull/1004) [`b591519`](https://github.com/ithacaxyz/porto/commit/b5915198bdce1c4dfe0d227ad5b70533d65fdfd1) Thanks [@o-az](https://github.com/o-az)! - Reverted SIWE changes.
+
+- [`3c7139f`](https://github.com/ithacaxyz/porto/commit/3c7139f603fb8400168a248ef861d1ac14e10cdf) Thanks [@jxom](https://github.com/jxom)! - Added `publicKey` as a body parameter to `/siwe/verify`.
+
 ## 0.2.34
 
 ### Patch Changes
