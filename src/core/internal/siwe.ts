@@ -17,7 +17,7 @@ export type AuthUrl = {
 export async function authenticate(
   parameters: authenticate.Parameters,
 ): Promise<authenticate.ReturnType> {
-  const { address, authUrl, message, signature } = parameters
+  const { address, authUrl, message, signature, publicKey } = parameters
 
   const { chainId } = Siwe.parseMessage(message)
 
@@ -28,6 +28,7 @@ export async function authenticate(
       message,
       signature,
       walletAddress: address,
+      ...(publicKey && { publicKey }),
     }),
     credentials: 'include',
     headers: {
@@ -43,6 +44,18 @@ export declare namespace authenticate {
     authUrl: AuthUrl
     message: string
     signature: Hex.Hex
+    /**
+     * Optional P-256 public key for the signing key.
+     * This allows the server to verify which specific key signed the message,
+     * which is useful for:
+     * - Multi-key account management
+     * - Key-specific authorization policies
+     * - Linking passkeys to user accounts
+     *
+     * The public key should be the uncompressed P-256 public key in hex format
+     * (e.g., "0x04..." for uncompressed, or "0x02/03..." for compressed).
+     */
+    publicKey?: Hex.Hex | undefined
   }
 
   type ReturnType = {
