@@ -17,7 +17,7 @@
     }
   ],
   "main": "worker/index.ts",
-  "name": "authentication",
+  "name": "authentication-example",
   "observability": {
     "enabled": true
   },
