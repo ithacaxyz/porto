@@ -1,7 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { Provider, RpcResponse, Secp256k1 } from 'ox'
-import { preGeneratedAccounts } from 'porto/core/internal/modes/relay'
+import { Provider, RpcResponse } from 'ox'
 import type * as Messenger from 'porto/core/Messenger'
 import { Actions, Hooks } from 'porto/remote'
 import { Account, RelayActions } from 'porto/viem'
@@ -40,17 +39,9 @@ function RouteComponent() {
     'disabled' | 'enabled' | 'signing-in' | 'signing-up'
   >('disabled')
 
-  const [preGeneratedAccount] =
-    React.useState<Account.Account<'privateKey'> | null>(() =>
-      from ? null : Account.fromPrivateKey(Secp256k1.randomPrivateKey()),
-    )
-
   const handleGuestSignIn = React.useCallback(async () => {
     setGuestStatus('signing-in')
     try {
-      if (preGeneratedAccount)
-        preGeneratedAccounts.setAccount(request.id, preGeneratedAccount)
-
       const response = await porto.provider.request({
         method: 'wallet_connect',
         params: [{}],
@@ -68,15 +59,12 @@ function RouteComponent() {
       if (Dialog.handleWebAuthnIframeError(error)) return
       setGuestStatus('enabled')
     }
-  }, [preGeneratedAccount, request.id, chainId, data, to, value])
+  }, [request.id])
 
   const handleGuestSignUp = React.useCallback(
     async (email?: string) => {
       setGuestStatus('signing-up')
       try {
-        if (preGeneratedAccount)
-          preGeneratedAccounts.setAccount(request.id, preGeneratedAccount)
-
         const response = await porto.provider.request({
           method: 'wallet_connect',
           params: [
@@ -102,20 +90,14 @@ function RouteComponent() {
         setGuestStatus('enabled')
       }
     },
-    [preGeneratedAccount, request.id, chainId, data, to, value],
+    [request.id],
   )
 
   const account = from ? currentAccount : authenticatedAccount
 
   const preview = account
     ? { account, address: account.address, guest: false }
-    : preGeneratedAccount
-      ? {
-          account: preGeneratedAccount,
-          address: preGeneratedAccount.address,
-          guest: true,
-        }
-      : undefined
+    : undefined
 
   React.useEffect(() => {
     if (!from && !authenticatedAccount) {
