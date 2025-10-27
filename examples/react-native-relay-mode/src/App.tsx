@@ -13,6 +13,7 @@ import {
 import * as React from 'react'
 import {
   Button,
+  Platform,
   ScrollView,
   StatusBar,
   type StyleProp,
@@ -99,7 +100,6 @@ function Connect() {
     !!process.env.EXPO_PUBLIC_SIWE_URL,
   )
   const [result, setResult] = React.useState<unknown | null>(null)
-  console.info(result)
   const [error, setError] = React.useState<string | null>(null)
 
   return (
@@ -122,9 +122,14 @@ function Connect() {
                         : undefined,
                       signInWithEthereum: signInWithEthereum
                         ? {
-                            authUrl,
-                            domain: SERVER_BASE_URL,
-                            uri: link,
+                            ...Platform.select({
+                              default: {
+                                authUrl,
+                                domain: SERVER_BASE_URL,
+                                uri: link,
+                              },
+                              web: { authUrl },
+                            }),
                           }
                         : undefined,
                     },
@@ -150,9 +155,14 @@ function Connect() {
                 grantPermissions: grantPermissions ? permissions() : undefined,
                 signInWithEthereum: signInWithEthereum
                   ? {
-                      authUrl,
-                      domain: SERVER_BASE_URL,
-                      uri: link,
+                      ...Platform.select({
+                        default: {
+                          authUrl,
+                          domain: SERVER_BASE_URL,
+                          uri: link,
+                        },
+                        web: { authUrl },
+                      }),
                     }
                   : undefined,
               },
@@ -323,7 +333,7 @@ function UpgradeAccount() {
               })
               setResult(address)
             } catch (error) {
-              console.info(error)
+              console.error(error)
               setError(
                 Json.stringify(
                   { error: error instanceof Error ? error.message : error },

@@ -9,6 +9,8 @@ import {
   verifySiweMessage,
 } from 'viem/siwe'
 
+const porto = Porto.create()
+
 const JWT_SECRET = Bun.env.JWT_SECRET
 if (!JWT_SECRET) throw new Error('JWT_SECRET is not set')
 
@@ -30,8 +32,6 @@ const siweHeaders = (() => {
   return baseHeaders
 })()
 
-const porto = Porto.create()
-
 const database = new Database(':memory:')
 
 database.run(/* sql */ `
@@ -51,7 +51,21 @@ const server = Bun.serve({
     ),
   port: Number(Bun.env.PORT || 69_69),
   routes: {
-    '/': Response.json({ ok: new Date().toISOString() }, { headers }),
+    '/': Response.json(
+      {
+        ok: new Date().toISOString(),
+        routes: [
+          '/api/me',
+          '/api/siwe/logout',
+          '/api/siwe/nonce',
+          '/api/siwe/verify',
+          '/.well-known/apple-app-site-association',
+          '/.well-known/apple-app-site-association.json',
+          '/.well-known/assetlinks.json',
+        ],
+      },
+      { headers },
+    ),
     '/.well-known/apple-app-site-association': {
       GET: async () => {
         return Response.json(
