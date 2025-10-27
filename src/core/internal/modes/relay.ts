@@ -972,20 +972,3 @@ export declare namespace relay {
   }
 }
 
-// Keep track of pre-generated accounts
-export namespace preGeneratedAccounts {
-  const accounts = new Map<number, Account.Account<'privateKey'>>()
-  export function setAccount(
-    requestId: number,
-    account: Account.Account<'privateKey'>,
-  ) {
-    accounts.set(requestId, account)
-  }
-  export function getAccount(
-    requestId: number,
-  ): Account.Account<'privateKey'> | undefined {
-    const account = accounts.get(requestId)
-    if (account) accounts.delete(requestId)
-    return account
-  }
-}
