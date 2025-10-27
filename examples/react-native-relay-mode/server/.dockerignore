@@ -2,9 +2,11 @@
 *
 
 # except these files
+!bun.lock
 !index.ts
 !apple-app-site-association
 !assetlinks.json
 !Dockerfile
+!package.json
 !railway.toml
 !.dockerignore

@@ -34,7 +34,7 @@ export const permissions = () =>
       ],
       spend: [
         {
-          limit: Hex.fromNumber(Value.fromEther('50000')),
+          limit: Hex.fromNumber(Value.fromEther('5000')),
           period: 'minute',
           token: exp1Address,
         },

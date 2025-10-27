@@ -1,19 +1,26 @@
 # syntax=docker/dockerfile:1
+# check=experimental=all
 FROM oven/bun AS build
 
 WORKDIR /app
 
-ENV NODE_ENV="production"
+# Cache packages installation
+COPY package.json package.json
+COPY bun.lock bun.lock
+
+RUN bun install
 
 COPY index.ts .
 
+ENV NODE_ENV="production"
+
 RUN bun build \
-    --compile \
-    --target bun \
-    --minify-syntax \
-    --minify-whitespace \
-    --outfile server \
-    ./index.ts
+  --compile \
+  --target bun \
+  --minify-syntax \
+  --minify-whitespace \
+  --outfile server \
+  ./index.ts
 
 FROM gcr.io/distroless/base
 

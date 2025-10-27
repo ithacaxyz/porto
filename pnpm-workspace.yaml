@@ -36,7 +36,7 @@ catalog:
   unplugin-icons: "^22.3.0"
   viem: "^2.38.2"
   vite: "^6.4.1"
-  vitest: "4.0.0-beta.18"
+  vitest: "^4.0.3"
   vite-plugin-mkcert: "^1.17.8"
   wagmi: "^2.18.2"
   zod: "4.1.5"
@@ -47,6 +47,7 @@ minimumReleaseAgeExclude:
   - "@wagmi/connectors"
   - "@wagmi/core"
   - "@cloudflare/workers-types"
+  - hono
   - vite
   - wagmi
   - zile
@@ -55,4 +56,5 @@ packages:
   - "apps/*"
   - "docker/*"
   - "examples/*"
+  - "!examples/react-native-relay-mode/server"
   

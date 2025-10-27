@@ -1,5 +1,17 @@
 # porto
 
+## 0.2.34
+
+### Patch Changes
+
+- [#996](https://github.com/ithacaxyz/porto/pull/996) [`606bcd4`](https://github.com/ithacaxyz/porto/commit/606bcd4faee96e4e5c8d8f687f31981c10ce5dc5) Thanks [@o-az](https://github.com/o-az)! - Added SIWE support to `Mode.relay`, including `/nonce` and `/verify` endpoints.
+
+## 0.2.33
+
+### Patch Changes
+
+- [`89b9332`](https://github.com/ithacaxyz/porto/commit/89b9332176cc52a683b68b0cedc07505f1a697db) Thanks [@jxom](https://github.com/jxom)! - Added `gnosis` chain.
+
 ## 0.2.32
 
 ### Patch Changes

@@ -1,7 +1,7 @@
 import type { ConfigContext, ExpoConfig } from 'expo/config'
 
-const HOSTNAME = 'porto-relay-mode.app'
 const SCHEME = 'porto-relay-mode'
+const HOSTNAME = 'porto-relay-mode.app'
 const BUNDLE_IDENTIFIER = `com.example.${SCHEME}`
 
 const EXPO_TUNNEL_DOMAIN = `${process.env.EXPO_TUNNEL_SUBDOMAIN || SCHEME}.ngrok.io`
@@ -13,13 +13,13 @@ const ASSOCIATED_DOMAINS = [
   `webcredentials:${EXPO_TUNNEL_DOMAIN}`,
 ]
 
-const SERVER_DOMAIN = process.env.EXPO_PUBLIC_SERVER_DOMAIN
-if (SERVER_DOMAIN) {
+const SERVER_URL = process.env.EXPO_PUBLIC_SERVER_URL
+if (SERVER_URL) {
   ASSOCIATED_DOMAINS.push(
-    `applinks:${SERVER_DOMAIN}`,
-    `webcredentials:${SERVER_DOMAIN}`,
+    `applinks:${SERVER_URL.replaceAll('https://', '')}`,
+    `webcredentials:${SERVER_URL.replaceAll('https://', '')}`,
   )
-} else console.warn('\n\n\nEXPO_PUBLIC_SERVER_DOMAIN is not set\n\n\n')
+} else console.warn('EXPO_PUBLIC_SERVER_URL is not set')
 
 export const expoConfig = {
   android: {
@@ -28,7 +28,7 @@ export const expoConfig = {
       foregroundImage: './assets/adaptive-icon.png',
     },
     edgeToEdgeEnabled: true,
-    package: BUNDLE_IDENTIFIER.replaceAll('-', '_'),
+    package: BUNDLE_IDENTIFIER,
     predictiveBackGestureEnabled: false,
   },
   icon: './assets/icon.png',
@@ -44,11 +44,12 @@ export const expoConfig = {
   newArchEnabled: true,
   orientation: 'portrait',
   plugins: [
-    ['expo-web-browser'],
-    ['expo-dev-client', { launchMode: 'most-recent' }],
     [
       'expo-build-properties',
       {
+        android: {
+          compileSdkVersion: 36,
+        },
         ios: {
           deploymentTarget: '26.0',
         },
