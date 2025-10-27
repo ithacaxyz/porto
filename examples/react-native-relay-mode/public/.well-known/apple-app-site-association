@@ -2,10 +2,11 @@
   "applinks": {
     "details": [
       {
-        "appIDs": [
-          "Q7767Q7TRJ.com.example.porto-relay-mode",
-          "Q7767Q7TRJ.com.example.porto-react-native"
-        ],
+        "appIDs": ["Q7767Q7TRJ.com.example.porto-relay-mode"],
+        "components": [{ "/": "/*" }]
+      },
+      {
+        "appIDs": ["Q7767Q7TRJ.com.example.porto-react-native"],
         "components": [{ "/": "/*" }]
       }
     ]

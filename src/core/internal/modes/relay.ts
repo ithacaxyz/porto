@@ -64,7 +64,7 @@ export function relay(parameters: relay.Parameters = {}) {
           internal,
           signInWithEthereum,
         } = parameters
-        const { client } = internal
+        const { client, config } = internal
 
         const eoa = eoa_ ?? Account.fromPrivateKey(Secp256k1.randomPrivateKey())
 
@@ -112,6 +112,7 @@ export function relay(parameters: relay.Parameters = {}) {
           })
           const signature = await Account.sign(eoa, {
             payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
+            storage: config.storage,
             webAuthn,
           })
           const signature_erc8010 = await Erc8010.wrap(client, {
@@ -301,7 +302,7 @@ export function relay(parameters: relay.Parameters = {}) {
 
       async grantPermissions(parameters) {
         const { account, internal, permissions } = parameters
-        const { client } = internal
+        const { client, config } = internal
 
         const feeTokens = await Tokens.getTokens(client)
 
@@ -326,6 +327,7 @@ export function relay(parameters: relay.Parameters = {}) {
         const signature = await Key.sign(adminKey, {
           address: null,
           payload: digest,
+          storage: config.storage,
           webAuthn,
         })
         await RelayActions.sendPreparedCalls(client, {
@@ -339,7 +341,7 @@ export function relay(parameters: relay.Parameters = {}) {
 
       async loadAccounts(parameters) {
         const { internal, permissions, signInWithEthereum } = parameters
-        const { client } = internal
+        const { client, config } = internal
 
         const feeTokens = await Tokens.getTokens(client)
 
@@ -441,6 +443,12 @@ export function relay(parameters: relay.Parameters = {}) {
 
         const adminKey = Account.getKey(account, { role: 'admin' })!
 
+        if (webAuthnSignature && config.storage)
+          await config.storage.setItem(
+            `porto.webauthnVerified.${adminKey.hash}`,
+            Date.now(),
+          )
+
         // Get the signature of the authorize session key pre-call.
         const signature = await (async () => {
           // If we don't have a digest, we never signed over anything.
@@ -463,6 +471,7 @@ export function relay(parameters: relay.Parameters = {}) {
           return await Key.sign(adminKey, {
             address: account.address,
             payload: digest,
+            storage: config.storage,
             webAuthn,
           })
         })()
@@ -477,6 +486,7 @@ export function relay(parameters: relay.Parameters = {}) {
           const signature = await Key.sign(adminKey, {
             address: null,
             payload: digest,
+            storage: config.storage,
             webAuthn,
           })
           await RelayActions.sendPreparedCalls(client, {
@@ -788,7 +798,7 @@ export function relay(parameters: relay.Parameters = {}) {
 
       async signPersonalMessage(parameters) {
         const { account, data, internal } = parameters
-        const { client } = internal
+        const { client, config } = internal
 
         // Only admin keys can sign personal messages.
         const key = account.keys?.find(
@@ -799,6 +809,7 @@ export function relay(parameters: relay.Parameters = {}) {
         const signature = await Account.sign(account, {
           key,
           payload: PersonalMessage.getSignPayload(data),
+          storage: config.storage,
           webAuthn,
         })
 
@@ -807,7 +818,7 @@ export function relay(parameters: relay.Parameters = {}) {
 
       async signTypedData(parameters) {
         const { account, internal } = parameters
-        const { client } = internal
+        const { client, config } = internal
 
         // Only admin keys can sign typed data.
         const key = account.keys?.find(
@@ -822,6 +833,7 @@ export function relay(parameters: relay.Parameters = {}) {
           payload: TypedData.getSignPayload(data),
           // If the domain is the Orchestrator, we don't need to replay-safe sign.
           replaySafe: !isOrchestrator,
+          storage: config.storage,
           webAuthn,
         })
 
@@ -851,7 +863,7 @@ export function relay(parameters: relay.Parameters = {}) {
       async verifyEmail(parameters) {
         const { account, chainId, email, token, internal, walletAddress } =
           parameters
-        const { client } = internal
+        const { client, config } = internal
 
         // Only allow admin keys can sign message.
         const key = account.keys?.find(
@@ -862,6 +874,7 @@ export function relay(parameters: relay.Parameters = {}) {
         const signature = await Account.sign(account, {
           key,
           payload: Hash.keccak256(Hex.fromString(`${email}${token}`)),
+          storage: config.storage,
           webAuthn,
         })
 

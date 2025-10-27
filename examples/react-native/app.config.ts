@@ -32,6 +32,7 @@ export default (_context: ConfigContext): ExpoConfig => ({
   },
   experiments: {
     reactCompiler: true,
+    turboModules: true,
   },
   icon: './assets/icon.png',
   ios: {

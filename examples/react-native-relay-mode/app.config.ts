@@ -1,15 +1,14 @@
 import type { ConfigContext, ExpoConfig } from 'expo/config'
 
 const SCHEME = 'porto-relay-mode'
-const HOSTNAME = 'porto-relay-mode.app'
 const BUNDLE_IDENTIFIER = `com.example.${SCHEME}`
 
 const EXPO_TUNNEL_DOMAIN = `${process.env.EXPO_TUNNEL_SUBDOMAIN || SCHEME}.ngrok.io`
 
 const ASSOCIATED_DOMAINS = [
-  `applinks:${HOSTNAME}`,
+  `applinks:${SCHEME}`,
   `applinks:${EXPO_TUNNEL_DOMAIN}`,
-  `webcredentials:${HOSTNAME}`,
+  `webcredentials:${SCHEME}`,
   `webcredentials:${EXPO_TUNNEL_DOMAIN}`,
 ]
 
@@ -33,6 +32,7 @@ export default (_context: ConfigContext): ExpoConfig => ({
   },
   experiments: {
     reactCompiler: true,
+    turboModules: true,
   },
   icon: './assets/icon.png',
   ios: {
@@ -52,9 +52,7 @@ export default (_context: ConfigContext): ExpoConfig => ({
       'expo-build-properties',
       {
         android: {
-          buildToolsVersion: '35.0.0',
           compileSdkVersion: 36,
-          targetSdkVersion: 36,
         },
         ios: {
           deploymentTarget: '26.0',

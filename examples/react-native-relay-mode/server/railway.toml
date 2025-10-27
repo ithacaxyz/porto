@@ -1,6 +1,6 @@
 [build]
 builder = "DOCKERFILE"
-buildCommand = "docker buildx build --tag server --file Dockerfile . --no-cache --progress=plain"
+buildCommand = "docker buildx build --tag porto --file Dockerfile . --no-cache --progress=plain"
 
 [deploy]
 healthcheckPath = "/"
