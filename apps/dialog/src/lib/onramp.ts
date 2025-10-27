@@ -10,7 +10,8 @@ const hostnames = [
   'playground.porto.sh',
   'id.porto.sh',
   'relay.link',
-  'app.uniswap.org',
+  // TODO: Waiting for domain association file
+  // 'app.uniswap.org',
 ]
 
 export function useShowApplePay(error: Error | null) {
