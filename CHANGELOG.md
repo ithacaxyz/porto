@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.33
+
+### Patch Changes
+
+- [`89b9332`](https://github.com/ithacaxyz/porto/commit/89b9332176cc52a683b68b0cedc07505f1a697db) Thanks [@jxom](https://github.com/jxom)! - Added `gnosis` chain.
+
 ## 0.2.32
 
 ### Patch Changes
