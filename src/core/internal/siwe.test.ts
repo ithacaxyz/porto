@@ -65,6 +65,115 @@ describe('authenticate', () => {
       }),
     ).rejects.toThrow()
   })
+
+  test('behavior: includes publicKey when provided', async () => {
+    const siweMessage = `example.com wants you to sign in with your Ethereum account:
+0x1234567890123456789012345678901234567890
+
+Sign in to example.com
+
+URI: https://example.com
+Version: 1
+Chain ID: 1
+Nonce: abcd1234
+Issued At: 2024-01-01T00:00:00.000Z`
+
+    server = await Http.createServer((req, res) => {
+      if (req.method === 'POST' && req.url === '/verify') {
+        let body = ''
+        req.on('data', (chunk) => {
+          body += chunk.toString()
+        })
+        req.on('end', () => {
+          const data = JSON.parse(body)
+          expect(data).toEqual({
+            address: '0x1234567890123456789012345678901234567890',
+            chainId: 1,
+            message: siweMessage,
+            publicKey:
+              '0x04abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
+            signature: '0xdeadbeef',
+            walletAddress: '0x1234567890123456789012345678901234567890',
+          })
+          res.writeHead(200, { 'Content-Type': 'application/json' })
+          res.end(JSON.stringify({ token: 'test-token' }))
+        })
+      } else {
+        res.statusCode = 404
+        res.end('Not Found')
+      }
+    })
+
+    const result = await SiweModule.authenticate({
+      address: '0x1234567890123456789012345678901234567890',
+      authUrl: {
+        logout: `${server.url}/logout`,
+        nonce: `${server.url}/nonce`,
+        verify: `${server.url}/verify`,
+      },
+      message: siweMessage,
+      publicKey:
+        '0x04abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
+      signature: '0xdeadbeef',
+    })
+    expect(result).toEqual({
+      token: 'test-token',
+    })
+  })
+
+  test('behavior: omits publicKey when not provided', async () => {
+    const siweMessage = `example.com wants you to sign in with your Ethereum account:
+0x1234567890123456789012345678901234567890
+
+Sign in to example.com
+
+URI: https://example.com
+Version: 1
+Chain ID: 1
+Nonce: abcd1234
+Issued At: 2024-01-01T00:00:00.000Z`
+
+    server = await Http.createServer((req, res) => {
+      if (req.method === 'POST' && req.url === '/verify') {
+        let body = ''
+        req.on('data', (chunk) => {
+          body += chunk.toString()
+        })
+        req.on('end', () => {
+          const data = JSON.parse(body)
+          // Should NOT have publicKey field
+          expect(data.publicKey).toBeUndefined()
+          expect(data).toEqual({
+            address: '0x1234567890123456789012345678901234567890',
+            chainId: 1,
+            message: siweMessage,
+            signature: '0xdeadbeef',
+            walletAddress: '0x1234567890123456789012345678901234567890',
+          })
+          res.writeHead(200, { 'Content-Type': 'application/json' })
+          res.end(JSON.stringify({ token: 'test-token' }))
+        })
+      } else {
+        res.statusCode = 404
+        res.end('Not Found')
+      }
+    })
+
+    const result = await SiweModule.authenticate({
+      address: '0x1234567890123456789012345678901234567890',
+      authUrl: {
+        logout: `${server.url}/logout`,
+        nonce: `${server.url}/nonce`,
+        verify: `${server.url}/verify`,
+      },
+      message: siweMessage,
+      signature: '0xdeadbeef',
+      // publicKey intentionally omitted
+    })
+    expect(result).toEqual({
+      token: 'test-token',
+    })
+  })
 })
 
 describe('buildMessage', () => {

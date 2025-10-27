@@ -232,6 +232,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 address: account.address,
                 authUrl,
                 message,
+                publicKey: account.capabilities?.admins?.[0]?.publicKey,
                 signature,
               })
               return {
