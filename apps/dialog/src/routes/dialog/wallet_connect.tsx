@@ -115,8 +115,8 @@ function RouteComponent() {
                 selectAccount,
                 ...(capabilities?.signInWithEthereum && {
                   signInWithEthereum: {
-                    authUrl: undefined,
                     ...capabilities?.signInWithEthereum,
+                    authUrl: undefined,
                     domain:
                       capabilities?.signInWithEthereum.domain ??
                       referrerURL?.hostname,
