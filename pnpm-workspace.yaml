@@ -20,7 +20,7 @@ catalog:
   "@types/node": "^22.15.32"
   "@types/react": "^19.1"
   "@types/react-dom": "^19.1"
-  "@typescript/native-preview": "7.0.0-dev.20251027.1"
+  "@typescript/native-preview": "7.0.0-dev.20251025.1"
   "@wagmi/core": "^2.21.2"
   cva: "npm:class-variance-authority@^0.7.1"
   globals: "^16.4.0"
@@ -45,7 +45,6 @@ catalog:
   "@vitejs/plugin-react": "^4.6.0"
 minimumReleaseAge: 2880 # 48 hours
 minimumReleaseAgeExclude:
-  - "@typescript/native-preview"
   - "@wagmi/connectors"
   - "@wagmi/core"
   - "@cloudflare/workers-types"
