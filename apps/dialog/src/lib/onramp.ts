@@ -9,8 +9,8 @@ import * as Dialog from './Dialog'
 const hostnames = [
   'playground.porto.sh',
   'id.porto.sh',
-  'relay.link',
   // TODO: Waiting for domain association file
+  // 'relay.link',
   // 'app.uniswap.org',
 ]
 
