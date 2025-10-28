@@ -15,3 +15,6 @@ export * as Transport from './core/Transport.js'
 export * as Account from './viem/Account.js'
 export * as Key from './viem/Key.js'
 export * as RelayActions from './viem/RelayActions.js'
+
+// Wallet integrations
+export * from './wallets/walletconnect-v2/index.js'

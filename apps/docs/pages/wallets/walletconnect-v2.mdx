@@ -1,0 +1,245 @@
+import { walletConnectV2 } from '../../components/wallets/WalletConnectV2'
+
+# WalletConnect v2
+
+WalletConnect v2 connector for Porto provides seamless integration with 300+ mobile wallets through QR code scanning.
+
+## Features
+
+- ✅ **300+ Mobile Wallets**: Support for MetaMask Mobile, Trust Wallet, Rainbow, Coinbase Wallet, and more
+- ✅ **QR Code Modal**: Beautiful QR code modal for easy mobile wallet connection
+- ✅ **Multi-chain Support**: Works with all Porto-supported chains
+- ✅ **Session Management**: Automatic session persistence and recovery
+- ✅ **Customizable UI**: Theme and styling options for QR modal
+
+## Installation
+
+WalletConnect v2 is included with Porto. No additional installation required.
+
+## Quick Start
+
+```tsx twoslash
+import { createConfig, http } from 'wagmi'
+import { baseSepolia } from 'wagmi/chains'
+import { walletConnectV2 } from 'porto/wallets/walletconnect-v2'
+
+export const config = createConfig({
+  chains: [baseSepolia],
+  connectors: [
+    walletConnectV2({
+      projectId: 'YOUR_WALLETCONNECT_PROJECT_ID', // Required
+    }),
+  ],
+  transports: {
+    [baseSepolia.id]: http(),
+  },
+})
+```
+
+## Configuration
+
+### Required Parameters
+
+- `projectId`: Your WalletConnect Cloud project ID
+
+### Optional Parameters
+
+- `metadata`: App metadata displayed in wallets
+- `qrModalOptions`: QR code modal customization
+- `relayUrl`: Custom relay URL
+- `rpcMap`: Custom RPC URLs for different chains
+
+## Usage Examples
+
+### Basic Setup
+
+```tsx twoslash
+import { walletConnectV2 } from 'porto/wallets/walletconnect-v2'
+
+const connector = walletConnectV2({
+  projectId: 'your-project-id',
+})
+```
+
+### Advanced Configuration
+
+```tsx twoslash
+import { walletConnectV2 } from 'porto/wallets/walletconnect-v2'
+
+const connector = walletConnectV2({
+  projectId: 'your-project-id',
+  metadata: {
+    name: 'My Porto App',
+    description: 'A Porto application with WalletConnect v2',
+    url: 'https://myapp.com',
+    icons: ['https://myapp.com/icon.png'],
+  },
+  qrModalOptions: {
+    themeMode: 'dark',
+    themeVariables: {
+      '--w3m-z-index': '1000',
+    },
+  },
+  relayUrl: 'wss://relay.walletconnect.com',
+  rpcMap: {
+    1: 'https://eth-mainnet.g.alchemy.com/v2/your-api-key',
+    8453: 'https://mainnet.base.org',
+  },
+})
+```
+
+### With Wagmi Hooks
+
+```tsx twoslash
+import { useConnect, useAccount, useDisconnect } from 'wagmi'
+
+function WalletConnectButton() {
+  const { connect, connectors } = useConnect()
+  const { address, isConnected } = useAccount()
+  const { disconnect } = useDisconnect()
+
+  const walletConnectConnector = connectors.find(
+    (connector) => connector.id === 'walletConnectV2'
+  )
+
+  if (isConnected) {
+    return (
+      <div>
+        <p>Connected: {address}</p>
+        <button onClick={() => disconnect()}>
+          Disconnect
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <button
+      onClick={() => connect({ connector: walletConnectConnector })}
+    >
+      Connect with WalletConnect v2
+    </button>
+  )
+}
+```
+
+## Supported Wallets
+
+WalletConnect v2 supports 300+ wallets including:
+
+### Popular Mobile Wallets
+- MetaMask Mobile
+- Trust Wallet
+- Rainbow
+- Coinbase Wallet
+- SafePal
+- TokenPocket
+- Bitget Wallet
+- OKX Wallet
+
+### Hardware Wallets
+- Ledger Live
+- Trezor Suite
+
+### Browser Wallets
+- MetaMask
+- Coinbase Wallet
+- Brave Wallet
+
+[View full list of supported wallets](https://walletconnect.com/registry)
+
+## Project Setup
+
+1. **Create WalletConnect Project**
+   - Go to [WalletConnect Cloud](https://cloud.walletconnect.com/)
+   - Create a new project
+   - Copy your Project ID
+
+2. **Configure Your App**
+   ```tsx
+   const connector = walletConnectV2({
+     projectId: 'your-project-id',
+     metadata: {
+       name: 'Your App Name',
+       description: 'Your app description',
+       url: 'https://yourapp.com',
+       icons: ['https://yourapp.com/icon.png'],
+     },
+   })
+   ```
+
+3. **Test Connection**
+   - Run your app
+   - Click connect button
+   - Scan QR code with mobile wallet
+
+## Troubleshooting
+
+### Common Issues
+
+**QR Code not showing**
+- Ensure you have a valid Project ID
+- Check your internet connection
+- Verify WalletConnect Cloud project is active
+
+**Connection fails**
+- Check Project ID is correct
+- Ensure wallet supports WalletConnect v2
+- Try refreshing the page
+
+**Mobile wallet not found**
+- Update your mobile wallet to latest version
+- Check wallet supports WalletConnect v2
+- Try different wallet
+
+### Debug Mode
+
+Enable debug logging:
+
+```tsx
+const connector = walletConnectV2({
+  projectId: 'your-project-id',
+  qrModalOptions: {
+    themeMode: 'light',
+    themeVariables: {
+      '--w3m-z-index': '1000',
+    },
+  },
+})
+```
+
+## API Reference
+
+### WalletConnectV2Parameters
+
+```tsx
+type WalletConnectV2Parameters = {
+  projectId: string
+  metadata?: {
+    name?: string
+    description?: string
+    url?: string
+    icons?: string[]
+  }
+  qrModalOptions?: {
+    themeMode?: 'light' | 'dark'
+    themeVariables?: Record<string, string>
+  }
+  relayUrl?: string
+  rpcMap?: Record<number, string>
+}
+```
+
+### Connector Methods
+
+- `connect()`: Connect to WalletConnect
+- `disconnect()`: Disconnect from WalletConnect
+- `getAccounts()`: Get connected accounts
+- `getChainId()`: Get current chain ID
+- `switchChain()`: Switch to different chain
+
+## Examples
+
+Check out the [WalletConnect v2 example](/examples/walletconnect-v2) for a complete implementation.
+
+<walletConnectV2 />
