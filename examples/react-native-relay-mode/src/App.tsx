@@ -88,6 +88,9 @@ export default function App() {
           </Text>
           <GrantKeyPermissions onKeyCreated={setSessionKey} />
           <PreparedCalls sessionKey={sessionKey} />
+          <Divider />
+          <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Misc.</Text>
+          <Capabilities />
         </ScrollView>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -183,7 +186,6 @@ function Connect() {
           title="Register"
         />
         <Divider />
-
         <Button
           onPress={async () =>
             porto.provider
@@ -542,6 +544,29 @@ function PreparedCalls({ sessionKey }: { sessionKey: SessionKeyPair }) {
         title="Mint 10 EXP"
       />
       {hash ? <Pre text={hash} /> : error && <Pre text={error} />}
+    </View>
+  )
+}
+
+function Capabilities() {
+  const [result, setResult] = React.useState<unknown | null>(null)
+  const [error, setError] = React.useState<string | null>(null)
+  return (
+    <View style={{ marginBottom: 16 }}>
+      <Text>wallet_getCapabilities</Text>
+      <Button
+        onPress={() =>
+          porto.provider
+            .request({ method: 'wallet_getCapabilities' })
+            .then(setResult)
+            .catch((error) => {
+              console.error(error)
+              setError(Json.stringify({ error: error.message }, null, 2))
+            })
+        }
+        title="Get Capabilities"
+      />
+      {result ? <Pre text={result} /> : error && <Pre text={error} />}
     </View>
   )
 }

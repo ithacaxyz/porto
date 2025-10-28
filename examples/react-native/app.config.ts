@@ -49,6 +49,13 @@ export default (_context: ConfigContext): ExpoConfig => ({
     ['expo-web-browser', { experimentalLauncherActivity: true }],
     ['expo-dev-client', { launchMode: 'most-recent' }],
     [
+      'expo-secure-store',
+      {
+        faceIDPermission:
+          'Allow $(PRODUCT_NAME) to access your Face ID biometric data.',
+      },
+    ],
+    [
       'expo-build-properties',
       {
         android: {
@@ -72,6 +79,6 @@ export default (_context: ConfigContext): ExpoConfig => ({
   web: {
     bundler: 'metro',
     favicon: './assets/favicon.png',
-    output: 'server',
+    output: 'single',
   },
 })
