@@ -21,21 +21,38 @@ export async function authenticate(
 
   const { chainId } = Siwe.parseMessage(message)
 
-  return await fetch(authUrl.verify, {
-    body: JSON.stringify({
-      address,
-      chainId,
-      message,
-      signature,
-      walletAddress: address,
-      ...(publicKey && { publicKey }),
-    }),
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-  }).then((res) => res.json())
+  async function send(credentials: RequestCredentials) {
+    const response = await fetch(authUrl.verify, {
+      body: JSON.stringify({
+        address,
+        chainId,
+        message,
+        signature,
+        ...(publicKey && { publicKey }),
+        walletAddress: address,
+      }),
+      credentials,
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+    })
+
+    const text = await response.json()
+    return text
+  }
+
+  try {
+    return await send('include')
+  } catch (error) {
+    console.error('[porto][siwe] authenticate include failed', error)
+    if (!shouldRetryWithoutCredentials(error)) throw error
+    return await send('omit')
+  }
+}
+
+function shouldRetryWithoutCredentials(error: unknown) {
+  if (!(error instanceof TypeError)) return false
+  const message = (error.message ?? '').toLowerCase()
+  return message.includes('load failed') || message.includes('failed to fetch')
 }
 
 export declare namespace authenticate {

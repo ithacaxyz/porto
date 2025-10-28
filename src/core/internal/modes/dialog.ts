@@ -1065,11 +1065,11 @@ function getAuthUrl(
   { storage }: { storage: Storage },
 ) {
   if (!apiUrl) return undefined
-
-  const authUrl = Siwe.resolveAuthUrl(
-    apiUrl,
-    typeof window !== 'undefined' ? window.location.origin : undefined,
-  )
+  const origin =
+    typeof window !== 'undefined' && typeof window.location !== 'undefined'
+      ? window.location.origin
+      : undefined
+  const authUrl = Siwe.resolveAuthUrl(apiUrl, origin)
 
   // Store the resolved auth URL for future use (e.g., disconnect)
   if (authUrl) storage.setItem('porto.authUrl', authUrl)

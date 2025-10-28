@@ -12,5 +12,6 @@
     "resolvePackageJsonExports": true,
     "resolvePackageJsonImports": true
   },
+  "include": ["src"],
   "files": ["env.d.ts", "app.config.ts", "package.json"]
 }
