@@ -88,10 +88,6 @@ const offDialogRequest = Events.onDialogRequest(
       connectedAccount?.address &&
       !Address.isEqual(account.address, connectedAccount.address)
 
-    // Clear accounts if parent is disconnected
-    if (!account && connectedAccount?.address)
-      porto._internal.store.setState((x) => ({ ...x, accounts: [] }))
-
     if (requireAccountSync) {
       await Router.router.navigate({
         to: '/dialog/pending',
