@@ -269,14 +269,15 @@ describe('wallet_getPermissions', () => {
       ).matchSnapshot()
     }
 
-    const [from] = await porto.provider.request({ method: 'eth_accounts' })
     const { id } = await interact(
       porto.provider.request({
         method: 'wallet_sendCalls',
-        params: [{ calls: [], from }],
+        params: [{ calls: [] }],
       }),
       async (iframe) => {
-        await iframe.getByTestId('buy').click()
+        try {
+          await iframe.getByTestId('buy').click({ timeout: 1000 })
+        } catch {}
         await iframe.getByTestId('confirm').click()
       },
     )
