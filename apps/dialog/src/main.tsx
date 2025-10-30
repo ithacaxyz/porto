@@ -83,10 +83,15 @@ const offDialogRequest = Events.onDialogRequest(
     if (!request) return Dialog.store.setState({ error: null })
 
     const connectedAccount = porto._internal.store.getState().accounts[0]
+
+    // Clear the dialog accounts if disconnected
+    if (!account && connectedAccount?.address)
+      porto._internal.store.setState((x) => ({ ...x, accounts: [] }))
+
     const requireAccountSync =
       account &&
-      connectedAccount?.address &&
-      !Address.isEqual(account.address, connectedAccount.address)
+      (!connectedAccount?.address ||
+        !Address.isEqual(account.address, connectedAccount.address))
 
     if (requireAccountSync) {
       await Router.router.navigate({
