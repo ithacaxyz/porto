@@ -2,9 +2,6 @@
   "compilerOptions": {
     "strict": true,
     "noEmit": true,
-    "paths": {
-      "*": ["./*"]
-    },
     "allowJs": true,
     "checkJs": true,
     "lib": ["ESNext"],
