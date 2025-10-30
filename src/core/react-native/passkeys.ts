@@ -1,16 +1,16 @@
 import { Base64 } from 'ox'
+import type * as PasskeysModule_ from 'react-native-passkeys'
 import type OxWebAuthn from '../../../node_modules/ox/_types/core/internal/webauthn.js'
-
 import type { relay } from '../internal/modes/relay.js'
 import { loadNativeModule } from './nativeModule.js'
 
-export type PasskeysModule = typeof import('react-native-passkeys')
-type RelayParameters = NonNullable<Parameters<typeof relay>[0]>
+type RelayParameters = NonNullable<Parameters<typeof relay>[number]>
 
+export type PasskeysModule = typeof PasskeysModule_
 let passkeysModule: PasskeysModule | null | undefined
 
-type PasskeysCreateRequest = Parameters<PasskeysModule['create']>[0]
-type PasskeysGetRequest = Parameters<PasskeysModule['get']>[0]
+type PasskeysCreateRequest = Parameters<PasskeysModule['create']>[number]
+type PasskeysGetRequest = Parameters<PasskeysModule['get']>[number]
 type PasskeysCreateExtensions = NonNullable<PasskeysCreateRequest['extensions']>
 type PasskeysGetExtensions = NonNullable<PasskeysGetRequest['extensions']>
 type PasskeysPrfInputs = NonNullable<PasskeysCreateExtensions['prf']>
@@ -43,8 +43,8 @@ export function createPasskeyAdapter(options?: {
 
   const keystoreHost = normalizeKeyStoreHost(
     options?.keyStoreHost ??
-      getEnv('EXPO_PUBLIC_PORTO_KEYSTORE_HOST') ??
-      getEnv('PORTO_KEYSTORE_HOST') ??
+      process.env.EXPO_PUBLIC_PORTO_KEYSTORE_HOST ??
+      process.env.PORTO_KEYSTORE_HOST ??
       undefined,
   )
 
@@ -331,17 +331,6 @@ function normalizeKeyStoreHost(host: string | undefined) {
     // not a URL, fall through
   }
   return host.replace(/^https?:\/\//, '').split('/')[0] || undefined
-}
-
-function getEnv(name: string) {
-  if (typeof process !== 'undefined' && process.env?.[name])
-    return process.env[name]
-  if (typeof global !== 'undefined' && (global as any)?.ExpoModules) {
-    const expoEnv = (global as any).ExpoModules?.expoConstants?.manifest2
-    const value = expoEnv?.extra?.expoPublic?.[name] ?? expoEnv?.extra?.[name]
-    if (value) return value
-  }
-  return undefined
 }
 
 function isPublicKeyCredentialCreationOptions(

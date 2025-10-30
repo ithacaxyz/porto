@@ -1,6 +1,5 @@
 import type { relay } from '../internal/modes/relay.js'
-import type { PasskeysModule } from './passkeys.js'
-import { createPasskeyAdapter } from './passkeys.js'
+import { createPasskeyAdapter, type PasskeysModule } from './passkeys.js'
 
 type RelayParameters = NonNullable<Parameters<typeof relay>[0]>
 
