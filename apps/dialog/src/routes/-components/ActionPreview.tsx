@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { cx } from 'cva'
 import { Value } from 'ox'
 import type * as Address from 'ox/Address'
+import { Chains } from 'porto'
 import type * as Quote_schema from 'porto/core/internal/relay/schema/quotes'
 import { Hooks as RemoteHooks } from 'porto/remote'
 import { RelayActions } from 'porto/viem'
@@ -434,7 +435,8 @@ function FundsNeededSection(props: {
 
     const isTestnet = Boolean(chain?.testnet)
 
-    if (import.meta.env.MODE === 'test') return hasDeficit && isTestnet
+    if (import.meta.env.MODE === 'test')
+      return hasDeficit && (isTestnet || Chains.isAnvil(deficit.chainId))
     if (!isTestnet || !hasDeficit) return false
 
     const tokenAddr = (deficit.assetDeficits?.[0]?.address ?? '').toLowerCase()
