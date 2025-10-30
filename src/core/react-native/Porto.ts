@@ -16,13 +16,6 @@ export function create(
 ): Porto.Porto {
   const { keystoreHost, webAuthn } = createReactNativePasskeyAdapter()
 
-  console.info('[react-native/Porto.ts][create()] start', {
-    createFn: Boolean(webAuthn?.createFn),
-    getFn: Boolean(webAuthn?.getFn),
-    hasKeystoreHost: Boolean(keystoreHost),
-    hasWebAuthn: Boolean(webAuthn),
-  })
-
   if (parameters?.mode)
     return Porto.create({ ...parameters, mode: parameters.mode })
   const mode = Mode.reactNative({

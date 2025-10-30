@@ -26,13 +26,17 @@ import type * as PortoType from '../core/Porto.js'
 import * as RpcSchema from '../core/RpcSchema.js'
 import * as Porto from '../core/react-native/Porto.js'
 
+type SupportAccountUpgrades = NonNullable<
+  Parameters<typeof Mode.reactNative>[0]
+>['supportAccountUpgrades']
+
 export type PortoParameters<
   chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
     Chains.Chain,
     ...Chains.Chain[],
   ],
 > = ExactPartial<PortoType.Config<chains>> & {
-  supportAccountUpgrades?: { keyStoreHost: string } | undefined
+  supportAccountUpgrades?: SupportAccountUpgrades
 }
 
 export function porto<
@@ -82,11 +86,6 @@ export function porto<
       Mode.reactNative({
         ...(supportAccountUpgrades ? { supportAccountUpgrades } : {}),
       })
-    console.info('[wagmi/index.native.ts][porto()] start', {
-      authUrl: restParameters.authUrl,
-      mode: mode.name,
-      supportAccountUpgrades,
-    })
 
     const porto = Porto.create({
       ...restParameters,

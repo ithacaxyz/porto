@@ -3,6 +3,7 @@ import { Value } from 'ox'
 import { baseSepolia } from 'porto/core/Chains'
 import { Mode } from 'porto/react-native'
 import { porto as portoConnector } from 'porto/wagmi'
+import * as Passkeys from 'react-native-passkeys'
 import { createConfig, createStorage, http } from 'wagmi'
 
 import { exp1Address, exp2Address } from './contracts.ts'
@@ -12,9 +13,9 @@ export const config = createConfig({
   connectors: [
     portoConnector({
       mode: Mode.reactNative({
-        host: 'https://o.bun-alewife.ts.net/dialog?relayEnv=prod',
         supportAccountUpgrades: {
           keyStoreHost: 'portox.up.railway.app',
+          passkeysModule: Passkeys,
         },
       }),
     }),
