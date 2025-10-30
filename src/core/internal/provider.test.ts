@@ -466,12 +466,16 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         value: Value.fromEther('100'),
       })
 
-      await expect(
-        porto.provider.request({
-          method: 'wallet_getAssets',
-          params: [{ account: address, chainFilter: [Hex.fromNumber(999999)] }],
-        }),
-      ).rejects.toThrow('unsupported chain 999999')
+      const result = await porto.provider.request({
+        method: 'wallet_getAssets',
+        params: [{ account: address, chainFilter: [Hex.fromNumber(999999)] }],
+      })
+
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "0x0": [],
+        }
+      `)
     })
   })
 
