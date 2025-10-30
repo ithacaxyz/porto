@@ -1,10 +1,13 @@
 {
-  "name": "permissions",
+  "name": "permissions-example",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "vite dev",
+    "build": "vite build",
+    "build:types": "wrangler types --include-runtime=false",
+    "deploy": "pnpm run build && wrangler deploy",
+    "prepreview": "pnpm build:types",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -12,7 +15,7 @@
     "porto": "latest",
     "react": "^19.1",
     "react-dom": "^19.1",
-    "viem": "^2.37.8",
+    "viem": "^2.38.5",
     "wagmi": "^2"
   },
   "devDependencies": {
@@ -22,6 +25,9 @@
     "@vitejs/plugin-react": "^5.0.4",
     "globals": "^16.4.0",
     "typescript": "~5.9.3",
-    "vite": "^6.3.6"
+    "vite": "^6.3.6",
+    "vite-plugin-mkcert": "^1.17.9",
+    "wrangler": "^4.43.0",
+    "@cloudflare/vite-plugin": "^1.13.13"
   }
 }
