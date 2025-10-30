@@ -1,6 +1,5 @@
 import { Buffer } from 'buffer'
 
-// @ts-expect-error
 globalThis.Buffer = Buffer
 
 import { PrivyProvider } from '@privy-io/react-auth'
@@ -14,6 +13,9 @@ import { App } from './App.tsx'
 import { config } from './config.ts'
 
 const queryClient = new QueryClient()
+
+const PRIVY_APP_ID = import.meta.env.VITE_PRIVY_APP_ID
+if (!PRIVY_APP_ID) throw new Error('VITE_PRIVY_APP_ID is not set')
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

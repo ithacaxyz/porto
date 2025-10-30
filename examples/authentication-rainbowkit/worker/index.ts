@@ -12,6 +12,15 @@ import {
 
 const app = new Hono<{ Bindings: Cloudflare.Env }>().basePath('/api')
 
+const headers = new Headers({
+  'Access-Control-Allow-Credentials': 'true',
+  'Access-Control-Allow-Headers':
+    'Content-Type, Authorization, X-Requested-With',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Origin': 'https://id.porto.sh',
+  'Access-Control-Max-Age': '86400',
+})
+
 app.on(['GET', 'POST', 'OPTIONS'], '/siwe/nonce', async (c) => {
   // Generate a nonce to be used in the SIWE message.
   // This is used to prevent replay attacks.
@@ -20,21 +29,26 @@ app.on(['GET', 'POST', 'OPTIONS'], '/siwe/nonce', async (c) => {
   // Store nonce for this session (10 minutes).
   await c.env.NONCE_STORE.put(nonce, 'valid', { expirationTtl: 600 })
 
-  return c.json({ nonce })
+  return c.json({ nonce }, { headers })
 })
 
-app.post('/siwe/verify', async (c) => {
+app.on(['POST', 'OPTIONS'], '/siwe/verify', async (c) => {
   // Extract properties from the request body and SIWE message.
   const { message, signature } = await c.req.json()
   const siweMessage = parseSiweMessage(message)
   const { address, chainId, nonce } = siweMessage
 
   // If there is no nonce, we cannot verify the signature.
-  if (!nonce) return c.json({ error: 'Nonce is required' }, 400)
+  if (!nonce)
+    return c.json({ error: 'Nonce is required' }, { headers, status: 400 })
 
   // Check if the nonce is valid for this session.
   const nonce_session = await c.env.NONCE_STORE.get(nonce)
-  if (!nonce_session) return c.json({ error: 'Invalid or expired nonce' }, 401)
+  if (!nonce_session)
+    return c.json(
+      { error: 'Invalid or expired nonce' },
+      { headers, status: 401 },
+    )
 
   await c.env.NONCE_STORE.delete(nonce)
 
@@ -49,10 +63,11 @@ app.post('/siwe/verify', async (c) => {
   })
 
   // If the signature is invalid, we cannot authenticate the user.
-  if (!valid) return c.json({ error: 'Invalid signature' }, 401)
+  if (!valid)
+    return c.json({ error: 'Invalid signature' }, { headers, status: 401 })
 
   const maxAge = 60 * 60 * 24 * 7 // 7 days
-  const exp = Math.floor(Date.now() / 1_000) + maxAge
+  const exp = Math.floor(Date.now() / 1000) + maxAge
 
   // Issue a JWT token for the user in a HTTP-only cookie.
   const token = await jwt.sign({ exp, sub: address }, c.env.JWT_SECRET)
@@ -64,7 +79,7 @@ app.post('/siwe/verify', async (c) => {
     secure: true,
   })
 
-  return c.json({ success: true })
+  return c.json({ success: true }, { headers })
 })
 
 app.post(
@@ -72,16 +87,17 @@ app.post(
   jwt.jwt({ cookie: 'auth', secret: env.JWT_SECRET }),
   async (c) => {
     deleteCookie(c, 'auth')
-    return c.json({ success: true })
+    return c.json({ success: true }, { headers })
   },
 )
 
-app.get(
+app.on(
+  ['GET', 'OPTIONS'],
   '/me',
   jwt.jwt({ cookie: 'auth', secret: env.JWT_SECRET }),
   async (c) => {
-    return c.json(c.get('jwtPayload'))
+    return c.json(c.get('jwtPayload'), { headers })
   },
 )
 
-export default app satisfies ExportedHandler<Env>
+export default app satisfies ExportedHandler<Cloudflare.Env>

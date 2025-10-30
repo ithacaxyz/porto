@@ -1,19 +1,20 @@
 {
-  "name": "next-sponsoring-example",
+  "name": "sponsoring-next-example",
   "private": true,
   "scripts": {
     "dev": "next dev --experimental-https",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
     "@tanstack/react-query": "^5",
-    "next": "^15.5.4",
+    "next": "^16.0.1",
     "porto": "latest",
     "react": "^19.1",
     "react-dom": "^19.1",
-    "viem": "^2.37.8",
-    "wagmi": "^2"
+    "viem": "^2.38.5",
+    "wagmi": "^2.19.1"
   },
   "devDependencies": {
     "@types/node": "^22",

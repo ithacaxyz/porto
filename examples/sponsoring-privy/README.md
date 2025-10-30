@@ -1,8 +1,6 @@
 # Merchant Sponsoring (Privy)
 
-## 0. Live Demo
-
-<https://sponsoring-privy.porto.workers.dev/>
+[Live Demo](https://sponsoring-privy-example.porto.workers.dev)
 
 ## 1. Setup
 
