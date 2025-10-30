@@ -1,6 +1,6 @@
 import { Env, Theme } from '@porto/apps'
 import * as Sentry from '@sentry/react'
-import { type Config as WagmiConfig } from '@wagmi/core'
+import type { Config as WagmiConfig } from '@wagmi/core'
 import { Address } from 'ox'
 import { TrustedHosts } from 'porto/internal'
 import { Events } from 'porto/remote'
