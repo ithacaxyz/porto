@@ -299,6 +299,8 @@
     "./core/Mode": {
       "src": "./src/core/Mode.ts",
       "types": "./dist/core/Mode.d.ts",
+      "react-native": "./dist/core/Mode.native.js",
+      "browser": "./dist/core/Mode.js",
       "default": "./dist/core/Mode.js"
     },
     "./core/Porto": {

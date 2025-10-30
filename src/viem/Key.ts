@@ -246,6 +246,13 @@ export async function createWebAuthnP256(
 ) {
   const { createFn, label, rpId, userId } = parameters
 
+  console.info('[porto][key][createWebAuthnP256] start', {
+    hasCreateFn: Boolean(createFn),
+    hasUserId: Boolean(userId),
+    label,
+    rpId,
+  })
+
   const credential = await WebAuthnP256.createCredential({
     authenticatorSelection: {
       requireResidentKey: true,

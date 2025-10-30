@@ -3,7 +3,6 @@ import { Value } from 'ox'
 import { baseSepolia } from 'porto/core/Chains'
 import { Mode } from 'porto/react-native'
 import { porto as portoConnector } from 'porto/wagmi'
-import { Platform } from 'react-native'
 import { createConfig, createStorage, http } from 'wagmi'
 
 import { exp1Address, exp2Address } from './contracts.ts'
@@ -12,15 +11,11 @@ export const config = createConfig({
   chains: [baseSepolia],
   connectors: [
     portoConnector({
-      ...Platform.select({
-        default: {
-          mode: Mode.reactNative({
-            supportAccountUpgrades: {
-              keyStoreHost: process.env.EXPO_PUBLIC_SERVER_URL,
-            },
-          }),
+      mode: Mode.reactNative({
+        host: 'https://o.bun-alewife.ts.net/dialog?relayEnv=prod',
+        supportAccountUpgrades: {
+          keyStoreHost: 'portox.up.railway.app',
         },
-        web: { mode: Mode.dialog() },
       }),
     }),
   ],
@@ -57,7 +52,7 @@ export const permissions = () =>
       ],
       spend: [
         {
-          limit: Value.fromEther('50000'),
+          limit: Value.fromEther('500'),
           period: 'minute',
           token: exp1Address,
         },

@@ -1,4 +1,5 @@
 import * as Dialog from '../../Dialog.js'
+import { createReactNativePasskeyAdapter } from '../../react-native/passkeyAdapter.js'
 import { isReactNative } from '../../react-native/utils.js'
 import * as Mode from '../mode.js'
 import * as Relay from '../modes/relay.js'
@@ -11,11 +12,29 @@ export function reactNative(parameters: reactNative.Parameters = {}) {
       Mode.from({ actions: Relay.relay().actions, name: 'relay' })
     )
 
-  const { redirectUri, requestOptions, ...baseParameters } = parameters
+  const {
+    fallback: fallbackParameter,
+    redirectUri,
+    requestOptions,
+    supportAccountUpgrades,
+    ...dialogParameters
+  } = parameters
+
+  const { keystoreHost, webAuthn } = createReactNativePasskeyAdapter({
+    keyStoreHost: supportAccountUpgrades?.keyStoreHost,
+  })
+
+  const fallback =
+    fallbackParameter ??
+    Relay.relay({
+      ...(keystoreHost ? { keystoreHost } : {}),
+      webAuthn,
+    })
 
   return Mode.from({
     ...dialog({
-      ...baseParameters,
+      ...dialogParameters,
+      fallback,
       renderer: Dialog.authSession({ redirectUri, requestOptions }),
     }),
     name: 'reactNative',
