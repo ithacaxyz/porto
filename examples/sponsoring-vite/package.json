@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "build:types": "wrangler types --include-runtime=false",
     "deploy": "pnpm run build && wrangler deploy",
     "dev": "vite",
@@ -15,8 +15,8 @@
     "porto": "latest",
     "react": "^19.1",
     "react-dom": "^19.1",
-    "viem": "^2.37.8",
-    "wagmi": "^2"
+    "viem": "^2.38.5",
+    "wagmi": "^2.19.1"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.13.13",
@@ -27,6 +27,7 @@
     "globals": "^16.4.0",
     "typescript": "~5.9.3",
     "vite": "^6.3.6",
+    "vite-plugin-mkcert": "^1.17.9",
     "wrangler": "^4.43.0"
   }
 }

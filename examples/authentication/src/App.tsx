@@ -2,6 +2,8 @@ import { Hooks } from 'porto/wagmi'
 import { useState } from 'react'
 import { useAccount, useConnectors, useDisconnect } from 'wagmi'
 
+import PWABadge from './pwa-badge'
+
 export function App() {
   const { isConnected } = useAccount()
   return (
@@ -18,6 +20,7 @@ export function App() {
           position: 'absolute',
         }}
       >
+        <PWABadge />
         <a
           href="https://github.com/ithacaxyz/porto/tree/main/examples/authentication"
           rel="noopener noreferrer"
