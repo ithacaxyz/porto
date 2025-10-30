@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Provider, RpcResponse } from 'ox'
 import type * as Messenger from 'porto/core/Messenger'
 import { Actions, Hooks } from 'porto/remote'
-import { type Account, RelayActions } from 'porto/viem'
+import { Account, RelayActions } from 'porto/viem'
 import * as React from 'react'
 import { waitForCallsStatus } from 'viem/actions'
 import type * as Calls from '~/lib/Calls'
@@ -59,36 +59,39 @@ function RouteComponent() {
       if (Dialog.handleWebAuthnIframeError(error)) return
       setGuestStatus('enabled')
     }
-  }, [])
+  }, [request.id])
 
-  const handleGuestSignUp = React.useCallback(async (email?: string) => {
-    setGuestStatus('signing-up')
-    try {
-      const response = await porto.provider.request({
-        method: 'wallet_connect',
-        params: [
-          {
-            capabilities: {
-              createAccount: email ? { label: email } : true,
-              email: Boolean(email),
+  const handleGuestSignUp = React.useCallback(
+    async (email?: string) => {
+      setGuestStatus('signing-up')
+      try {
+        const response = await porto.provider.request({
+          method: 'wallet_connect',
+          params: [
+            {
+              capabilities: {
+                createAccount: email ? { label: email } : true,
+                email: Boolean(email),
+              },
             },
-          },
-        ],
-      })
-      const newAccount = response.accounts?.[0]
-      const [portoAccount] = porto._internal.store.getState().accounts
-      if (newAccount && portoAccount) {
-        setAuthenticatedAccount(portoAccount)
-        porto.messenger.send('account', {
-          account: newAccount as Messenger.Payload<'account'>['account'],
+          ],
         })
-        setGuestStatus('disabled')
+        const newAccount = response.accounts?.[0]
+        const [portoAccount] = porto._internal.store.getState().accounts
+        if (newAccount && portoAccount) {
+          setAuthenticatedAccount(portoAccount)
+          porto.messenger.send('account', {
+            account: newAccount as Messenger.Payload<'account'>['account'],
+          })
+          setGuestStatus('disabled')
+        }
+      } catch (error) {
+        if (Dialog.handleWebAuthnIframeError(error)) return
+        setGuestStatus('enabled')
       }
-    } catch (error) {
-      if (Dialog.handleWebAuthnIframeError(error)) return
-      setGuestStatus('enabled')
-    }
-  }, [])
+    },
+    [request.id],
+  )
 
   const account = from ? currentAccount : authenticatedAccount
 

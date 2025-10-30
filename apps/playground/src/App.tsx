@@ -111,7 +111,7 @@ export function App() {
           </select>
         </div>
 
-        <div className="flex items-center gap-2" style={{ marginTop: '8px' }}>
+        <div className="flex gap-2 items-center" style={{ marginTop: '8px' }}>
           Relay:
           <div className="flex gap-2">
             {(() => {
