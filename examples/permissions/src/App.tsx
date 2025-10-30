@@ -21,7 +21,7 @@ function Account() {
   const disconnect = useDisconnect()
 
   return (
-    <div>
+    <main>
       <h2>Account</h2>
 
       <div>
@@ -37,7 +37,19 @@ function Account() {
           Sign out
         </button>
       )}
-    </div>
+
+      <footer
+        style={{ bottom: 10, fontSize: 24, left: 10, position: 'absolute' }}
+      >
+        <a
+          href="https://github.com/ithacaxyz/porto/tree/main/examples/permissions"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          Source code
+        </a>
+      </footer>
+    </main>
   )
 }
 
