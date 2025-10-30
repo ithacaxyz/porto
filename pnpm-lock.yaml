@@ -1719,9 +1719,15 @@ importers:
       expo-crypto:
         specifier: ~15.0.7
         version: 15.0.7(expo@54.0.20(@babel/core@7.28.4)(bufferutil@4.0.9)(graphql@16.11.0)(react-native@0.81.5(@babel/core@7.28.4)(@types/react@19.1.17)(bufferutil@4.0.9)(react@19.1.0)(utf-8-validate@5.0.10))(react@19.1.0)(utf-8-validate@5.0.10))
+      expo-linking:
+        specifier: ~8.0.8
+        version: 8.0.8(expo@54.0.20(@babel/core@7.28.4)(bufferutil@4.0.9)(graphql@16.11.0)(react-native@0.81.5(@babel/core@7.28.4)(@types/react@19.1.17)(bufferutil@4.0.9)(react@19.1.0)(utf-8-validate@5.0.10))(react@19.1.0)(utf-8-validate@5.0.10))(react-native@0.81.5(@babel/core@7.28.4)(@types/react@19.1.17)(bufferutil@4.0.9)(react@19.1.0)(utf-8-validate@5.0.10))(react@19.1.0)
       expo-network:
         specifier: ~8.0.7
         version: 8.0.7(expo@54.0.20(@babel/core@7.28.4)(bufferutil@4.0.9)(graphql@16.11.0)(react-native@0.81.5(@babel/core@7.28.4)(@types/react@19.1.17)(bufferutil@4.0.9)(react@19.1.0)(utf-8-validate@5.0.10))(react@19.1.0)(utf-8-validate@5.0.10))(react@19.1.0)
+      expo-secure-store:
+        specifier: ~15.0.7
+        version: 15.0.7(expo@54.0.20(@babel/core@7.28.4)(bufferutil@4.0.9)(graphql@16.11.0)(react-native@0.81.5(@babel/core@7.28.4)(@types/react@19.1.17)(bufferutil@4.0.9)(react@19.1.0)(utf-8-validate@5.0.10))(react@19.1.0)(utf-8-validate@5.0.10))
       expo-web-browser:
         specifier: ~15.0.8
         version: 15.0.8(expo@54.0.20(@babel/core@7.28.4)(bufferutil@4.0.9)(graphql@16.11.0)(react-native@0.81.5(@babel/core@7.28.4)(@types/react@19.1.17)(bufferutil@4.0.9)(react@19.1.0)(utf-8-validate@5.0.10))(react@19.1.0)(utf-8-validate@5.0.10))(react-native@0.81.5(@babel/core@7.28.4)(@types/react@19.1.17)(bufferutil@4.0.9)(react@19.1.0)(utf-8-validate@5.0.10))
@@ -10079,6 +10085,11 @@ packages:
     peerDependencies:
       expo: '*'
       react: '*'
+
+  expo-secure-store@15.0.7:
+    resolution: {integrity: sha512-9q7+G1Zxr5P6J5NRIlm86KulvmYwc6UnQlYPjQLDu1drDnerz6AT6l884dPu29HgtDTn4rR0heYeeGFhMKM7/Q==}
+    peerDependencies:
+      expo: '*'
 
   expo-server@1.0.2:
     resolution: {integrity: sha512-QlQLjFuwgCiBc+Qq0IyBBHiZK1RS0NJSsKVB5iECMJrR04q7PhkaF7dON0fhvo00COy4fT9rJ5brrJDpFro/gA==}
@@ -27082,6 +27093,10 @@ snapshots:
     dependencies:
       expo: 54.0.20(@babel/core@7.28.4)(bufferutil@4.0.9)(graphql@16.11.0)(react-native@0.81.5(@babel/core@7.28.4)(@types/react@19.1.17)(bufferutil@4.0.9)(react@19.1.0)(utf-8-validate@5.0.10))(react@19.1.0)(utf-8-validate@5.0.10)
       react: 19.1.0
+
+  expo-secure-store@15.0.7(expo@54.0.20(@babel/core@7.28.4)(bufferutil@4.0.9)(graphql@16.11.0)(react-native@0.81.5(@babel/core@7.28.4)(@types/react@19.1.17)(bufferutil@4.0.9)(react@19.1.0)(utf-8-validate@5.0.10))(react@19.1.0)(utf-8-validate@5.0.10)):
+    dependencies:
+      expo: 54.0.20(@babel/core@7.28.4)(bufferutil@4.0.9)(graphql@16.11.0)(react-native@0.81.5(@babel/core@7.28.4)(@types/react@19.1.17)(bufferutil@4.0.9)(react@19.1.0)(utf-8-validate@5.0.10))(react@19.1.0)(utf-8-validate@5.0.10)
 
   expo-server@1.0.2: {}
 
