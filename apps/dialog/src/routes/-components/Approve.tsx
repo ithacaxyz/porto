@@ -14,7 +14,7 @@ import { type Chain, erc20Abi, maxUint256 } from 'viem'
 import { useReadContracts } from 'wagmi'
 import { PriceFormatter, StringFormatter } from '~/utils'
 import LucideLockKeyholeOpen from '~icons/lucide/lock-keyhole-open'
-import { ActionPreview } from './ActionPreview'
+import { ActionPreview, type GuestMode } from './ActionPreview'
 import { Layout } from './Layout'
 
 export function Approve(props: Approve.Props) {
@@ -26,6 +26,7 @@ export function Approve(props: Approve.Props) {
     chainsPath,
     expiresAt,
     fetchingQuote,
+    guestMode,
     onApprove,
     onReject,
     refreshingQuote,
@@ -96,32 +97,37 @@ export function Approve(props: Approve.Props) {
     <ActionPreview
       account={address}
       actions={
-        <Layout.Footer.Actions>
-          <Button
-            disabled={approving}
-            onClick={onReject}
-            variant="negative-secondary"
-            width="grow"
-          >
-            Cancel
-          </Button>
-          <Button
-            disabled={tokenInfo.isLoading || tokenInfo.isError || fetchingQuote}
-            loading={
-              refreshingQuote
-                ? 'Refreshing quote…'
-                : approving
-                  ? 'Approving…'
-                  : undefined
-            }
-            onClick={onApprove}
-            variant="positive"
-            width="grow"
-          >
-            Approve
-          </Button>
-        </Layout.Footer.Actions>
+        guestMode ? undefined : (
+          <Layout.Footer.Actions>
+            <Button
+              disabled={approving}
+              onClick={onReject}
+              variant="negative-secondary"
+              width="grow"
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={
+                tokenInfo.isLoading || tokenInfo.isError || fetchingQuote
+              }
+              loading={
+                refreshingQuote
+                  ? 'Refreshing quote…'
+                  : approving
+                    ? 'Approving…'
+                    : undefined
+              }
+              onClick={onApprove}
+              variant="positive"
+              width="grow"
+            >
+              Approve
+            </Button>
+          </Layout.Footer.Actions>
+        )
       }
+      guestMode={guestMode}
       header={
         <Layout.Header.Default
           icon={LucideLockKeyholeOpen}
@@ -191,6 +197,7 @@ export namespace Approve {
     chainsPath: readonly Chain[]
     expiresAt?: Date
     fetchingQuote?: boolean | undefined
+    guestMode?: GuestMode
     onApprove: () => void
     onReject: () => void
     refreshingQuote?: boolean | undefined

@@ -17,7 +17,7 @@ export type AuthUrl = {
 export async function authenticate(
   parameters: authenticate.Parameters,
 ): Promise<authenticate.ReturnType> {
-  const { address, authUrl, message, signature } = parameters
+  const { address, authUrl, message, signature, publicKey } = parameters
 
   const { chainId } = Siwe.parseMessage(message)
 
@@ -28,6 +28,7 @@ export async function authenticate(
       message,
       signature,
       walletAddress: address,
+      ...(publicKey && { publicKey }),
     }),
     credentials: 'include',
     headers: {
@@ -42,6 +43,7 @@ export declare namespace authenticate {
     address: Address.Address
     authUrl: AuthUrl
     message: string
+    publicKey?: Hex.Hex | undefined
     signature: Hex.Hex
   }
 

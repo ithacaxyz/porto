@@ -1,4 +1,4 @@
-import { UserAgent } from '@porto/apps'
+import { Env, UserAgent } from '@porto/apps'
 import { useMutation } from '@tanstack/react-query'
 import type { Hex } from 'ox'
 import * as React from 'react'
@@ -8,9 +8,10 @@ import * as Dialog from './Dialog'
 
 const hostnames = [
   'playground.porto.sh',
-  // TODO(onramp): Enable hostnames
-  // 'id.porto.sh',
+  'id.porto.sh',
+  // TODO: Waiting for domain association file
   // 'relay.link',
+  // 'app.uniswap.org',
 ]
 
 export function useShowApplePay(error: Error | null) {
@@ -22,7 +23,9 @@ export function useShowApplePay(error: Error | null) {
     if (UserAgent.isInAppBrowser()) return false
     // Disallow non-Safari mobile browsers
     if (UserAgent.isMobile() && !UserAgent.isSafari()) return false
-    // Allow localhost (including [env].localhost)
+    // Disallow staging environment
+    if (Env.get() === 'stg') return false
+    // Allow localhost
     if (referrer?.url?.hostname.endsWith('localhost')) return true
     // Disallow Firefox when in iframe mode
     if (
@@ -30,6 +33,8 @@ export function useShowApplePay(error: Error | null) {
       (mode === 'iframe' || mode === 'inline-iframe')
     )
       return false
+    // Always allow in popup mode (since using `id.porto.sh`)
+    if (mode === 'popup') return true
     // Only allow sites that are allowlisted
     return Boolean(
       hostnames.includes(referrer?.url?.hostname ?? '') ||
@@ -95,7 +100,7 @@ export function useOnrampOrder(props: {
       if (event.origin !== 'https://pay.coinbase.com') return
       try {
         const data = z.parse(cbPostMessageSchema, JSON.parse(event.data))
-        console.log('postMessage', data)
+        console.debug('postMessage', data)
         if ('eventName' in data && data.eventName.startsWith('onramp_api.')) {
           setOnrampEvents((state) => [...state, data])
           if (data.eventName === 'onramp_api.commit_success')

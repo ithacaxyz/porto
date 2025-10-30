@@ -238,9 +238,6 @@ export function from<
             }
 
             case 'eth_sendTransaction': {
-              if (state.accounts.length === 0)
-                throw new ox_Provider.DisconnectedError()
-
               const [{ capabilities, chainId, data = '0x', from, to, value }] =
                 request._decoded.params
 
@@ -254,7 +251,8 @@ export function from<
                     Address.isEqual(account.address, from),
                   )
                 : state.accounts[0]
-              if (!account) throw new ox_Provider.UnauthorizedError()
+
+              if (from && !account) throw new ox_Provider.UnauthorizedError()
 
               const { id } = await getMode().actions.sendCalls({
                 account,
@@ -1044,9 +1042,6 @@ export function from<
             }
 
             case 'wallet_sendCalls': {
-              if (state.accounts.length === 0)
-                throw new ox_Provider.DisconnectedError()
-
               const [parameters] = request._decoded.params
               const { calls, capabilities, chainId, from } = parameters
 
@@ -1060,7 +1055,8 @@ export function from<
                     Address.isEqual(account.address, from),
                   )
                 : state.accounts[0]
-              if (!account) throw new ox_Provider.UnauthorizedError()
+
+              if (from && !account) throw new ox_Provider.UnauthorizedError()
 
               const { id } = await getMode().actions.sendCalls({
                 account,

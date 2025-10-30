@@ -13,7 +13,8 @@ import { exp1Address, exp1Config } from './contracts'
 export function App() {
   const { isConnected } = useAccount()
   return (
-    <>
+    <main>
+      <h1>Sponsoring Vite Example</h1>
       <Account />
       {isConnected ? (
         <>
@@ -23,7 +24,23 @@ export function App() {
       ) : (
         <Connect />
       )}
-    </>
+      <footer
+        style={{
+          bottom: 0,
+          fontFamily: 'monospace',
+          fontSize: 24,
+          position: 'absolute',
+        }}
+      >
+        <a
+          href="https://github.com/ithacaxyz/porto/tree/main/examples/sponsoring-vite"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          Source code
+        </a>
+      </footer>
+    </main>
   )
 }
 
@@ -96,13 +113,16 @@ function Balance() {
 }
 
 function Mint() {
-  const { address } = useAccount()
+  const { address, chain } = useAccount()
   const { data, error, isPending, sendCalls } = useSendCalls()
 
-  const { isLoading: isConfirming, isSuccess: isConfirmed } =
-    useWaitForCallsStatus({
-      id: data?.id,
-    })
+  const {
+    isLoading: isConfirming,
+    isSuccess: isConfirmed,
+    data: callStatusData,
+  } = useWaitForCallsStatus({
+    id: data?.id,
+  })
 
   return (
     <div>
@@ -126,7 +146,18 @@ function Mint() {
           {isPending ? 'Confirming...' : 'Mint 100 EXP'}
         </button>
       </form>
-      {data?.id && <div>Transaction Hash: {data.id}</div>}
+      {callStatusData?.receipts?.at(0)?.transactionHash && (
+        <div>
+          Transaction Hash:{' '}
+          <a
+            href={`${chain?.blockExplorers.default.url}/tx/${callStatusData?.receipts.at(0)?.transactionHash}`}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            {callStatusData?.receipts.at(0)?.transactionHash}
+          </a>
+        </div>
+      )}
       {isConfirming && 'Waiting for confirmation...'}
       {isConfirmed && 'Transaction confirmed.'}
       {error && (

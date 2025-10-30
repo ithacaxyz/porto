@@ -34,6 +34,51 @@ export function dialog(parameters: dialog.Parameters = {}) {
   const listeners = new Set<(requestQueue: readonly QueuedRequest[]) => void>()
   const requestStore = RpcRequest.createStore()
 
+  // Wait for a queued request to be resolved.
+  function waitForQueuedRequest(
+    requestId: number,
+    store: Porto.Internal['store'],
+  ): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const listener = (requestQueue: readonly QueuedRequest[]) => {
+        // Find the request in the queue based off its JSON-RPC identifier.
+        const queued = requestQueue.find((x) => x.request.id === requestId)
+
+        // If the request is not found and the queue is empty, reject the request
+        // as it will never be resolved (likely cancelled or dialog closed).
+        if (!queued && requestQueue.length === 0) {
+          listeners.delete(listener)
+          reject(new Provider.UserRejectedRequestError())
+          return
+        }
+
+        // If request not found but queue has other requests, wait for next update.
+        if (!queued) return
+
+        // If request found but not yet resolved, wait for next update.
+        if (queued.status !== 'success' && queued.status !== 'error') return
+
+        // We have a response, we can unsubscribe from the listener.
+        listeners.delete(listener)
+
+        // If the request was successful, resolve with the result.
+        if (queued.status === 'success') resolve(queued.result as any)
+        // Otherwise, reject with EIP-1193 Provider error.
+        else reject(Provider.parseError(queued.error))
+
+        // Remove the request from the queue.
+        store.setState((x) => ({
+          ...x,
+          requestQueue: x.requestQueue.filter(
+            (x) => x.request.id !== requestId,
+          ),
+        }))
+      }
+
+      listeners.add(listener)
+    })
+  }
+
   // Function to instantiate a provider for the dialog. This
   // will be used to queue up requests for the dialog and
   // handle responses.
@@ -72,48 +117,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             }
           })
 
-          // We need to wait for the request to be resolved.
-          return new Promise((resolve, reject) => {
-            const listener = (requestQueue: readonly QueuedRequest[]) => {
-              // Find the request in the queue based off its JSON-RPC identifier.
-              const queued = requestQueue.find(
-                (x) => x.request.id === request.id,
-              )
-
-              // If the request is not found and the queue is empty, reject the request
-              // as it will never be resolved (likely cancelled or dialog closed).
-              if (!queued && requestQueue.length === 0) {
-                listeners.delete(listener)
-                reject(new Provider.UserRejectedRequestError())
-                return
-              }
-
-              // If request not found but queue has other requests, wait for next update.
-              if (!queued) return
-
-              // If request found but not yet resolved, wait for next update.
-              if (queued.status !== 'success' && queued.status !== 'error')
-                return
-
-              // We have a response, we can unsubscribe from the listener.
-              listeners.delete(listener)
-
-              // If the request was successful, resolve with the result.
-              if (queued.status === 'success') resolve(queued.result as any)
-              // Otherwise, reject with EIP-1193 Provider error.
-              else reject(Provider.parseError(queued.error))
-
-              // Remove the request from the queue.
-              store.setState((x) => ({
-                ...x,
-                requestQueue: x.requestQueue.filter(
-                  (x) => x.request.id !== request.id,
-                ),
-              }))
-            }
-
-            listeners.add(listener)
-          })
+          return waitForQueuedRequest(request.id, store)
         },
       },
       { schema: RpcSchema.from<RpcSchema_porto.Schema>() },
@@ -232,6 +236,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 address: account.address,
                 authUrl,
                 message,
+                publicKey: account.capabilities?.admins?.[0]?.publicKey,
                 signature,
               })
               return {
@@ -542,6 +547,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                   address: account.address,
                   authUrl,
                   message,
+                  publicKey: account.capabilities?.admins?.[0]?.publicKey,
                   signature,
                 })
                 return {
@@ -735,16 +741,18 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const feeToken = await resolveFeeToken(internal, parameters)
 
         // Try and extract an authorized key to sign the calls with.
-        const key = await Mode.getAuthorizedExecuteKey({
-          account,
-          calls,
-          permissionsId: parameters.permissionsId,
-        })
+        const key = account
+          ? await Mode.getAuthorizedExecuteKey({
+              account,
+              calls,
+              permissionsId: parameters.permissionsId,
+            })
+          : undefined
 
         // If a session key is found, try execute the calls with it
         // without sending a request to the dialog. If the key does not
         // have permission to execute the calls, fall back to the dialog.
-        if (key && key.role === 'session') {
+        if (key?.role === 'session' && account) {
           if (!renderer.supportsHeadless)
             return fallback.actions.sendCalls(parameters)
 
@@ -978,6 +986,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
           const requests = requestQueue
             .map((x) => (x.status === 'pending' ? x : undefined))
             .filter(Boolean) as readonly QueuedRequest[]
+
           dialog.syncRequests(requests).catch(() => {})
           if (requests.length === 0) dialog.close()
         },

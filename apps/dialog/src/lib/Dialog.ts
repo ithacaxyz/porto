@@ -68,3 +68,25 @@ export function useStore<slice = store.State>(
 ) {
   return Zustand.useStore(store, useShallow(selector))
 }
+
+export function handleWebAuthnIframeError(error: unknown): boolean {
+  // Handle iframe WebAuthn limitation (e.g. Firefox + Bitwarden)
+  // See https://github.com/bitwarden/clients/issues/12590
+  if (
+    (error as any)?.message?.includes("Invalid 'sameOriginWithAncestors' value")
+  ) {
+    store.setState({
+      error: {
+        action: 'retry-in-popup',
+        message:
+          "Your browser doesn't support passkey creation in the current context.",
+        name: 'CREDENTIAL_CREATION_FAILED',
+        secondaryMessage:
+          'Please try again in a popup window for better compatibility.',
+        title: 'Passkey creation not supported',
+      },
+    })
+    return true
+  }
+  return false
+}
