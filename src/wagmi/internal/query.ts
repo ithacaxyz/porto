@@ -35,7 +35,7 @@ export declare namespace getPermissionsQueryKey {
   >
 }
 
-export function getAssetsQueryKey<config extends Config>(
+export function getAssetsQueryKey<_config extends Config>(
   options: getAssets.Parameters,
 ) {
   const { connector, ...parameters } = options

@@ -8,10 +8,10 @@ import { requestId } from 'hono/request-id'
 import { secureHeaders } from 'hono/secure-headers'
 import { trimTrailingSlash } from 'hono/trailing-slash'
 
-import { corsApp } from './routes/cors.ts'
-import { onrampApp } from './routes/onramp.ts'
-import { snapshotApp } from './routes/snapshot.tsx'
-import { verifyApp } from './routes/verify.ts'
+import { corsApp } from '#routes/cors.ts'
+import { onrampApp } from '#routes/onramp.ts'
+import { snapshotApp } from '#routes/snapshot.tsx'
+import { verifyApp } from '#routes/verify.ts'
 
 const app = new Hono<{ Bindings: Cloudflare.Env }>()
 app.use(cors())

@@ -30,6 +30,7 @@
     "build:css": "mkdir -p dist && panda cssgen --outfile dist/styles.css",
     "check": "biome check --write --unsafe",
     "check:types": "tsc --noEmit",
+    "check:types_fast": "tsgo --noEmit",
     "dev": "pnpm run /^dev:.*/",
     "dev:lib": "vite build --watch",
     "dev:css": "panda cssgen --outfile dist/styles.css --watch",
