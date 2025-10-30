@@ -79,6 +79,8 @@ export default function App() {
           <Divider />
           <SignMessage />
           <Divider />
+          <SendCalls />
+          <Divider />
           <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Permissions</Text>
           <GrantPermissions />
           <GetPermissions />
@@ -256,11 +258,66 @@ function UpgradeAccount() {
     address: Address.Address
     privateKey: Hex.Hex
   } | null>(null)
+
   const [grantPermissions, setGrantPermissions] = React.useState(true)
   const [privateKey, setPrivateKey] = React.useState<Hex.Hex | null>(null)
-  const [result, setResult] = React.useState<unknown | null>(null)
+  const [signInWithEthereum, setSignInWithEthereum] =
+    React.useState<boolean>(false)
 
   const [error, setError] = React.useState<string | null>(null)
+  const [result, setResult] = React.useState<unknown | null>(null)
+
+  async function upgradeAccount() {
+    try {
+      if (!privateKey) throw new Error('Private key is required')
+      const account = privateKeyToAccount(privateKey)
+      const link = Linking.createURL('/')
+
+      const { context, digests } = await porto.provider.request({
+        method: 'wallet_prepareUpgradeAccount',
+        params: [
+          {
+            address: account.address,
+            capabilities: {
+              grantPermissions: grantPermissions ? permissions() : undefined,
+              signInWithEthereum: signInWithEthereum
+                ? {
+                    ...Platform.select({
+                      default: {
+                        authUrl,
+                        domain: SERVER_BASE_URL,
+                        uri: link,
+                      },
+                      web: { authUrl },
+                    }),
+                  }
+                : undefined,
+            },
+          },
+        ],
+      })
+
+      const signatures = {
+        auth: await account.sign({ hash: digests.auth }),
+        exec: await account.sign({ hash: digests.exec }),
+      }
+
+      const address = await porto.provider.request({
+        method: 'wallet_upgradeAccount',
+        params: [{ context, signatures }],
+      })
+      setResult(address)
+    } catch (error) {
+      console.error(error)
+      setError(
+        Json.stringify(
+          { error: error instanceof Error ? error.message : error },
+          null,
+          2,
+        ),
+      )
+    }
+  }
 
   return (
     <View>
@@ -303,50 +360,15 @@ function UpgradeAccount() {
         />
         <Text>Grant Permissions</Text>
       </View>
-      <View>
-        <Button
-          onPress={async () => {
-            try {
-              if (!privateKey) throw new Error('Private key is required')
-              const account = privateKeyToAccount(privateKey)
-
-              const { context, digests } = await porto.provider.request({
-                method: 'wallet_prepareUpgradeAccount',
-                params: [
-                  {
-                    address: account.address,
-                    capabilities: {
-                      grantPermissions: grantPermissions
-                        ? permissions()
-                        : undefined,
-                    },
-                  },
-                ],
-              })
-
-              const signatures = {
-                auth: await account.sign({ hash: digests.auth }),
-                exec: await account.sign({ hash: digests.exec }),
-              }
-
-              const address = await porto.provider.request({
-                method: 'wallet_upgradeAccount',
-                params: [{ context, signatures }],
-              })
-              setResult(address)
-            } catch (error) {
-              console.error(error)
-              setError(
-                Json.stringify(
-                  { error: error instanceof Error ? error.message : error },
-                  null,
-                  2,
-                ),
-              )
-            }
-          }}
-          title="Upgrade EOA to Porto Account"
+      <View style={{ display: 'flex', flexDirection: 'row', gap: 5 }}>
+        <Checkbox
+          onValueChange={() => setSignInWithEthereum((x) => !x)}
+          value={signInWithEthereum}
         />
+        <Text>Sign-In with Ethereum</Text>
+      </View>
+      <View>
+        <Button onPress={upgradeAccount} title="Upgrade EOA to Porto Account" />
       </View>
       {result ? <Pre text={result} /> : error && <Pre text={error} />}
     </View>
@@ -405,6 +427,7 @@ function GrantPermissions() {
 
 function GetPermissions() {
   const [result, setResult] = React.useState<unknown | null>(null)
+  const [error, setError] = React.useState<string | null>(null)
 
   return (
     <View>
@@ -414,10 +437,90 @@ function GetPermissions() {
           porto.provider
             .request({ method: 'wallet_getPermissions' })
             .then(setResult)
+            .catch((error) => {
+              console.error(error)
+              setError(Json.stringify({ error: error.message }, null, 2))
+            })
         }
         title="Get Permissions"
       />
-      {result ? <Pre text={result} /> : null}
+      {result ? <Pre text={result} /> : error && <Pre text={error} />}
+    </View>
+  )
+}
+
+function SendCalls() {
+  const [id, setId] = React.useState<Hex.Hex | null>(null)
+  const [error, setError] = React.useState<string | null>(null)
+
+  const [txHash, setTxHash] = React.useState<string | null>(null)
+
+  async function sendCalls() {
+    try {
+      const [account] = await porto.provider.request({ method: 'eth_accounts' })
+      if (!account) throw new Error('Account not found')
+
+      const chainId = await porto.provider.request({ method: 'eth_chainId' })
+
+      const { id } = await porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            calls: [
+              {
+                data: AbiFunction.encodeData(
+                  AbiFunction.fromAbi(exp1Abi, 'mint'),
+                  [account, Value.fromEther('10')],
+                ),
+                to: exp1Address,
+              },
+            ],
+            chainId,
+            from: account,
+          },
+        ],
+      })
+      setId(id)
+    } catch (error) {
+      console.error(error)
+      setError(
+        Json.stringify(
+          { error: error instanceof Error ? error.message : error },
+          null,
+          2,
+        ),
+      )
+    }
+  }
+
+  React.useEffect(() => {
+    async function getCallsStatus() {
+      if (!id) return
+      const { receipts } = await porto.provider.request({
+        method: 'wallet_getCallsStatus',
+        params: [id],
+      })
+
+      const txHash = receipts?.at(0)?.transactionHash
+
+      const blockExplorerUrl =
+        porto.config.chains.at(0)?.blockExplorers.default.url
+      if (!blockExplorerUrl) throw new Error('blockExplorerUrl is not set')
+      if (txHash) setTxHash(`${blockExplorerUrl}/tx/${txHash}`)
+    }
+    void getCallsStatus()
+  }, [id])
+
+  return (
+    <View style={{ marginBottom: 16 }}>
+      <Text>wallet_sendCalls</Text>
+      <Button onPress={sendCalls} title="Send Calls" />
+      {id ? <Pre text={{ bundleId: id }} /> : error && <Pre text={error} />}
+      {txHash ? (
+        <Link href={txHash} text={txHash} />
+      ) : (
+        error && <Pre text={error} />
+      )}
     </View>
   )
 }
