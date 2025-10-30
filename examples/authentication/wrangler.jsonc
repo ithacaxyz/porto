@@ -1,7 +1,3 @@
-/**
- * For more details on how to configure Wrangler, refer to:
- * https://developers.cloudflare.com/workers/wrangler/configuration/
- */
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "assets": {
@@ -10,6 +6,7 @@
   },
   "compatibility_date": "2025-09-06",
   "compatibility_flags": ["nodejs_compat"],
+  "keep_vars": true,
   "kv_namespaces": [
     {
       "binding": "NONCE_STORE",
@@ -21,5 +18,6 @@
   "observability": {
     "enabled": true
   },
+  "preview_urls": true,
   "workers_dev": true
 }

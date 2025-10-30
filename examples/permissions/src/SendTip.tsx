@@ -3,12 +3,13 @@ import { type Address, formatUnits, parseEther } from 'viem'
 import {
   type BaseError,
   useAccount,
-  useReadContract,
   useSendCalls,
   useWaitForCallsStatus,
   useWatchBlockNumber,
 } from 'wagmi'
+
 import { exp1Config } from './contracts'
+import { useBalance } from './hooks'
 
 const format = (num: bigint | number | undefined, units = 18) => {
   if (!num) return '0'
@@ -18,14 +19,11 @@ const format = (num: bigint | number | undefined, units = 18) => {
 }
 
 export function SendTip(props: { address?: Address | undefined }) {
-  const { address = props.address, status } = useAccount()
+  const { address = props.address, status, chain } = useAccount()
   const creatorAddress = '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'
 
-  const { data: exp1Balance, refetch: expBalanceRefetch } = useReadContract({
-    abi: exp1Config.abi,
-    address: exp1Config.address,
-    args: [creatorAddress],
-    functionName: 'balanceOf',
+  const { balance: exp1Balance, refetch: expBalanceRefetch } = useBalance({
+    address: creatorAddress,
   })
 
   useWatchBlockNumber({
@@ -36,12 +34,14 @@ export function SendTip(props: { address?: Address | undefined }) {
   const { data, isPending, sendCalls } = useSendCalls()
 
   const {
+    data: callStatusData,
     error,
     isLoading: isConfirming,
     isSuccess: isConfirmed,
   } = useWaitForCallsStatus({
     id: data?.id,
   })
+  const receipt = callStatusData?.receipts?.at(0)
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -87,7 +87,18 @@ export function SendTip(props: { address?: Address | undefined }) {
           {isPending ? 'Tipping creator…' : 'Send a tip'}
         </button>
       </form>
-      {data?.id && <div>Transaction Hash: {data.id}</div>}
+      {data?.id && (
+        <div>
+          Transaction Hash:{' '}
+          <a
+            href={`${chain?.blockExplorers.default.url}/tx/${receipt?.transactionHash}`}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            {receipt?.transactionHash}
+          </a>
+        </div>
+      )}
       {isConfirming && 'Waiting for confirmation…'}
       {isConfirmed && 'Tip sent!'}
       {error && (

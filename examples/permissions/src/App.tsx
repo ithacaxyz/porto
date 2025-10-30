@@ -1,21 +1,16 @@
 import { Hooks } from 'porto/wagmi'
 import { formatEther, parseEther } from 'viem'
-import {
-  useAccount,
-  useChainId,
-  useConnect,
-  useDisconnect,
-  useReadContract,
-} from 'wagmi'
+import { useAccount, useChainId, useConnect, useDisconnect } from 'wagmi'
 
 import { permissions } from './config'
 import { exp1Config } from './contracts'
+import { useBalance } from './hooks'
 import { SendTip } from './SendTip'
 
 export function App() {
   const { isConnected } = useAccount()
   return (
-    <>
+    <main>
       <h1>Porto Permissions Example</h1>
       <Account />
       {isConnected ? (
@@ -26,7 +21,24 @@ export function App() {
         <Connect />
       )}
       {isConnected && <SendTip />}
-    </>
+      <footer
+        style={{
+          bottom: 10,
+          fontFamily: 'monospace',
+          fontSize: 24,
+          left: 10,
+          position: 'absolute',
+        }}
+      >
+        <a
+          href="https://github.com/ithacaxyz/porto/tree/main/examples/permissions"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          source code
+        </a>
+      </footer>
+    </main>
   )
 }
 
@@ -35,7 +47,7 @@ function Account() {
   const disconnect = useDisconnect()
 
   return (
-    <main>
+    <div>
       <h2>Account</h2>
 
       <div>
@@ -51,19 +63,7 @@ function Account() {
           Sign out
         </button>
       )}
-
-      <footer
-        style={{ bottom: 10, fontSize: 24, left: 10, position: 'absolute' }}
-      >
-        <a
-          href="https://github.com/ithacaxyz/porto/tree/main/examples/permissions"
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          Source code
-        </a>
-      </footer>
-    </main>
+    </div>
   )
 }
 
@@ -93,23 +93,9 @@ function Connect() {
   )
 }
 
-function useBalance() {
-  const { address } = useAccount()
-  const { data: balance, refetch } = useReadContract({
-    abi: exp1Config.abi,
-    address: exp1Config.address,
-    args: [address!],
-    functionName: 'balanceOf',
-  })
-
-  return {
-    balance,
-    refetch,
-  }
-}
-
 function Balance() {
-  const { balance } = useBalance()
+  const { address } = useAccount()
+  const { balance } = useBalance({ address })
 
   return (
     <div>
@@ -122,7 +108,7 @@ function Balance() {
 function AddFunds() {
   const chainId = useChainId()
   const { address } = useAccount()
-  const { balance, refetch } = useBalance()
+  const { balance, refetch } = useBalance({ address })
   const addFunds = Hooks.useAddFunds({
     mutation: {
       onSuccess: () => refetch(),
