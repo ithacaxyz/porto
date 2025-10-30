@@ -193,7 +193,6 @@ function Connect() {
 }
 
 function Me() {
-  const account = useAccount()
   const [authToken, setAuthToken] = React.useState<string | null>(null)
 
   return (
