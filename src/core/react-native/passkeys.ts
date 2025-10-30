@@ -1,9 +1,11 @@
 import { Base64 } from 'ox'
 import type OxWebAuthn from '../../../node_modules/ox/_types/core/internal/webauthn.js'
 
+import type { relay } from '../internal/modes/relay.js'
 import { loadNativeModule } from './nativeModule.js'
 
-type PasskeysModule = typeof import('react-native-passkeys')
+export type PasskeysModule = typeof import('react-native-passkeys')
+type RelayParameters = NonNullable<Parameters<typeof relay>[0]>
 
 let passkeysModule: PasskeysModule | null | undefined
 
@@ -31,7 +33,14 @@ function loadPasskeysStrict(): PasskeysModule {
 
 export function createPasskeyAdapter(options?: {
   keyStoreHost?: string | undefined
+  passkeysModule?: PasskeysModule | null | undefined
+  webAuthn?: RelayParameters['webAuthn']
 }) {
+  ensureSubtleCrypto()
+
+  if (options && 'passkeysModule' in options)
+    passkeysModule = options.passkeysModule ?? passkeysModule
+
   const keystoreHost = normalizeKeyStoreHost(
     options?.keyStoreHost ??
       getEnv('EXPO_PUBLIC_PORTO_KEYSTORE_HOST') ??
@@ -45,7 +54,7 @@ export function createPasskeyAdapter(options?: {
       '[porto][react-native][passkeys] react-native-passkeys native module is not available – WebAuthn requests will fail until the module is installed (pod install / Gradle sync) and the app is rebuilt.',
     )
 
-  console.log('passkeys', passkeys)
+  const webAuthnOverrides = options?.webAuthn
 
   return {
     keystoreHost,
@@ -53,6 +62,9 @@ export function createPasskeyAdapter(options?: {
       async createFn(
         options?: OxWebAuthn.CredentialCreationOptions,
       ): Promise<OxWebAuthn.Credential | null> {
+        if (webAuthnOverrides?.createFn)
+          return webAuthnOverrides.createFn(options) as never
+
         const passkeys = loadPasskeysStrict()
         const maybePublicKey = options?.publicKey ?? options
         if (!isPublicKeyCredentialCreationOptions(maybePublicKey)) return null
@@ -109,6 +121,9 @@ export function createPasskeyAdapter(options?: {
       async getFn(
         options?: OxWebAuthn.CredentialRequestOptions,
       ): Promise<OxWebAuthn.Credential | null> {
+        if (webAuthnOverrides?.getFn)
+          return webAuthnOverrides.getFn(options) as never
+
         const passkeys = loadPasskeysStrict()
         const maybePublicKey = options?.publicKey ?? options
         if (!isPublicKeyCredentialRequestOptions(maybePublicKey)) return null
@@ -156,6 +171,28 @@ export function createPasskeyAdapter(options?: {
       },
     },
   }
+}
+
+function ensureSubtleCrypto() {
+  if (typeof globalThis.crypto === 'undefined') return
+  const crypto = globalThis.crypto as { subtle?: Record<string, any> }
+  const subtle = (crypto.subtle ??= {} as Record<string, any>)
+
+  if (typeof subtle.importKey !== 'function')
+    subtle.importKey = async (format: string) => {
+      if (format !== 'spki') throw new Error('Unsupported key format')
+      const error = new Error('Permission denied to access object')
+      throw error
+    }
+
+  if (typeof subtle.exportKey !== 'function')
+    subtle.exportKey = async (format: string, key: { raw?: Uint8Array }) => {
+      if (format !== 'raw' || !key?.raw)
+        throw new Error('Unsupported key export')
+      return key.raw.buffer.slice(0)
+    }
+
+  crypto.subtle = subtle
 }
 
 function convertCreationExtensions(

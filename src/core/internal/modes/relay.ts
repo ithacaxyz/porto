@@ -35,15 +35,6 @@ export function relay(parameters: relay.Parameters = {}) {
   const config = parameters
   const { mock, multichain = true, webAuthn } = config
 
-  console.info('[core/internal/modes/relay.ts][relay()] start', {
-    hasCreateFn: Boolean(webAuthn?.createFn),
-    hasGetFn: Boolean(webAuthn?.getFn),
-    hasKeystoreHost: Boolean(config.keystoreHost),
-    hasMock: Boolean(config.mock),
-    hasMultichain: Boolean(config.multichain),
-    hasWebAuthn: Boolean(webAuthn),
-  })
-
   let address_internal: Hex.Hex | undefined
   let email_internal: string | undefined
 
@@ -79,13 +70,6 @@ export function relay(parameters: relay.Parameters = {}) {
 
         const feeTokens = await Tokens.getTokens(client)
 
-        console.info('[porto][relay][createAccount] start', {
-          hasCreateFn: Boolean(webAuthn?.createFn),
-          hasKeystoreHost: Boolean(keystoreHost),
-          hasUserId: Boolean(Bytes.from(eoa.address)),
-          label,
-          rpId: keystoreHost,
-        })
         const adminKey = !mock
           ? await Key.createWebAuthnP256({
               createFn: webAuthn?.createFn,
@@ -627,18 +611,6 @@ export function relay(parameters: relay.Parameters = {}) {
             store: internal.store,
           }),
         ])
-
-        console.info(
-          '[core/internal/modes/relay.ts][prepareUpgradeAccount] start',
-          {
-            hasCreateFn: Boolean(webAuthn?.createFn),
-            hasGetFn: Boolean(webAuthn?.getFn),
-            hasKeystoreHost: Boolean(keystoreHost),
-            hasMock: Boolean(mock),
-            hasMultichain: Boolean(multichain),
-            hasWebAuthn: Boolean(webAuthn),
-          },
-        )
 
         const adminKey = !mock
           ? await Key.createWebAuthnP256({

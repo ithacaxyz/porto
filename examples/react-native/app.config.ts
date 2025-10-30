@@ -36,6 +36,7 @@ export default (_context: ConfigContext): ExpoConfig => ({
   },
   icon: './assets/icon.png',
   ios: {
+    associatedDomains: ASSOCIATED_DOMAINS,
     bundleIdentifier: BUNDLE_IDENTIFIER,
     config: {
       usesNonExemptEncryption: false,

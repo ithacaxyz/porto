@@ -1,4 +1,5 @@
 import type { relay } from '../internal/modes/relay.js'
+import type { PasskeysModule } from './passkeys.js'
 import { createPasskeyAdapter } from './passkeys.js'
 
 type RelayParameters = NonNullable<Parameters<typeof relay>[0]>
@@ -10,9 +11,15 @@ export function createReactNativePasskeyAdapter<
   P extends RelayParameters = RelayParameters,
 >(options?: {
   keyStoreHost?: string | undefined
+  passkeysModule?: PasskeysModule | null | undefined
+  webAuthn?: RelayParameters['webAuthn']
 }): {
   keystoreHost?: P['keystoreHost']
   webAuthn: NonNullable<P['webAuthn']>
 } {
-  return createPasskeyAdapter({ keyStoreHost: options?.keyStoreHost })
+  return createPasskeyAdapter({
+    keyStoreHost: options?.keyStoreHost,
+    passkeysModule: options?.passkeysModule,
+    webAuthn: options?.webAuthn,
+  })
 }

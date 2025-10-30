@@ -108,7 +108,6 @@ function Connect() {
   )
 
   const account = useAccount()
-  console.info(account.address)
   const connect = Hooks.useConnect()
   const [connector] = useConnectors()
   const disconnect = Hooks.useDisconnect()
