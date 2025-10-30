@@ -1,5 +1,13 @@
-import { formatEther } from 'viem'
-import { useAccount, useConnect, useDisconnect, useReadContract } from 'wagmi'
+import { Hooks } from 'porto/wagmi'
+import { formatEther, parseEther } from 'viem'
+import {
+  useAccount,
+  useChainId,
+  useConnect,
+  useDisconnect,
+  useReadContract,
+} from 'wagmi'
+
 import { permissions } from './config'
 import { exp1Config } from './contracts'
 import { SendTip } from './SendTip'
@@ -10,7 +18,13 @@ export function App() {
     <>
       <h1>Porto Permissions Example</h1>
       <Account />
-      {isConnected ? <Balance /> : <Connect />}
+      {isConnected ? (
+        <>
+          <Balance /> <AddFunds />
+        </>
+      ) : (
+        <Connect />
+      )}
       {isConnected && <SendTip />}
     </>
   )
@@ -79,22 +93,59 @@ function Connect() {
   )
 }
 
-function Balance() {
+function useBalance() {
   const { address } = useAccount()
-  const { data: balance } = useReadContract({
+  const { data: balance, refetch } = useReadContract({
     abi: exp1Config.abi,
+    address: exp1Config.address,
     args: [address!],
     functionName: 'balanceOf',
-    query: {
-      enabled: !!address,
-      refetchInterval: 2_000,
-    },
   })
+
+  return {
+    balance,
+    refetch,
+  }
+}
+
+function Balance() {
+  const { balance } = useBalance()
 
   return (
     <div>
       <h2>Balance</h2>
       <div>Balance: {formatEther(balance ?? 0n)} EXP</div>
+    </div>
+  )
+}
+
+function AddFunds() {
+  const chainId = useChainId()
+  const { address } = useAccount()
+  const { balance, refetch } = useBalance()
+  const addFunds = Hooks.useAddFunds({
+    mutation: {
+      onSuccess: () => refetch(),
+    },
+  })
+
+  if (balance && balance >= parseEther('10'))
+    return <p>Your account is funded</p>
+  return (
+    <div>
+      <h2>Fund your account</h2>
+      <button
+        onClick={() =>
+          addFunds.mutate({
+            address,
+            chainId,
+            token: exp1Config.address,
+          })
+        }
+        type="button"
+      >
+        Add Funds
+      </button>
     </div>
   )
 }
