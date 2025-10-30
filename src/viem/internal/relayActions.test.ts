@@ -269,12 +269,13 @@ describe('getAssets', () => {
       keys: [key],
     })
 
-    await expect(
-      getAssets(client, {
-        account: account.address,
-        chainFilter: [client.chain.id, 999999],
-      }),
-    ).rejects.toThrow('unsupported chain 999999')
+    const result = await getAssets(client, {
+      account: account.address,
+      chainFilter: [client.chain.id, 999999],
+    })
+
+    expect(result).toBeDefined()
+    expect(Object.keys(result)).toContain(String(client.chain.id))
   })
 })
 

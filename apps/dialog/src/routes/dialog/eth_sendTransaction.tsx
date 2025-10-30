@@ -24,13 +24,12 @@ export const Route = createFileRoute('/dialog/eth_sendTransaction')({
 
 function RouteComponent() {
   const request = Route.useSearch()
-  const capabilities = request.params[0].capabilities
-  const { chainId, data, from, to, value } = request._decoded.params[0]
+  const { capabilities, chainId, data, to, value } = request._decoded.params[0]
 
   const calls = [{ data, to: to!, value }] as const
   const { feeToken, merchantUrl } = capabilities ?? {}
 
-  const currentAccount = Hooks.useAccount(porto, { address: from })
+  const currentAccount = Hooks.useAccount(porto)
   const client = Hooks.useRelayClient(porto, { chainId })
 
   const [authenticatedAccount, setAuthenticatedAccount] =
@@ -93,17 +92,15 @@ function RouteComponent() {
     [request.id],
   )
 
-  const account = from ? currentAccount : authenticatedAccount
+  const account = currentAccount ?? authenticatedAccount
 
   const preview = account
     ? { account, address: account.address, guest: false }
     : undefined
 
   React.useEffect(() => {
-    if (!from && !authenticatedAccount) {
-      setGuestStatus('enabled')
-    }
-  }, [from, authenticatedAccount])
+    if (!currentAccount && !authenticatedAccount) setGuestStatus('enabled')
+  }, [currentAccount, authenticatedAccount])
 
   const respond = useMutation({
     // TODO: use EIP-1193 Provider + `wallet_sendPreparedCalls` in the future

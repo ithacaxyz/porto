@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { cx } from 'cva'
 import { Value } from 'ox'
 import type * as Address from 'ox/Address'
+import { Chains } from 'porto'
 import type * as Quote_schema from 'porto/core/internal/relay/schema/quotes'
 import { Hooks as RemoteHooks } from 'porto/remote'
 import { RelayActions } from 'porto/viem'
@@ -425,16 +426,20 @@ function FundsNeededSection(props: {
   const client = RemoteHooks.useRelayClient(porto)
 
   const showFaucet = React.useMemo(() => {
-    if (import.meta.env.MODE !== 'test' && !chain?.testnet) return false
-
-    if (
-      !deficit.assetDeficits?.length ||
-      !deficit.chainId ||
-      !deficit.assetDeficits[0]?.address
+    const hasDeficit = Boolean(
+      deficit.assetDeficits?.length &&
+        deficit.chainId &&
+        deficit.assetDeficits[0]?.address &&
+        deficit.amount,
     )
-      return false
 
-    const tokenAddr = deficit.assetDeficits[0].address.toLowerCase()
+    const isTestnet = Boolean(chain?.testnet)
+
+    if (import.meta.env.MODE === 'test')
+      return hasDeficit && (isTestnet || Chains.isAnvil(deficit.chainId))
+    if (!isTestnet || !hasDeficit) return false
+
+    const tokenAddr = (deficit.assetDeficits?.[0]?.address ?? '').toLowerCase()
 
     const isExp1 =
       tokenAddr ===
