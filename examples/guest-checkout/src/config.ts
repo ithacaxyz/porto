@@ -1,7 +1,7 @@
 import { porto } from 'porto/wagmi'
-import { createConfig, http } from 'wagmi'
-import { mainnet, base, baseSepolia } from 'wagmi/chains'
 import { createPublicClient } from 'viem'
+import { createConfig, http } from 'wagmi'
+import { base, baseSepolia, mainnet } from 'wagmi/chains'
 
 export const chain =
   (import.meta.env.VITE_CHAIN || 'base-sepolia') === 'base' ? base : baseSepolia

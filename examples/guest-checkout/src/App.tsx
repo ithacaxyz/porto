@@ -1,8 +1,8 @@
+import { Button, CopyButton, Input, Ui } from '@porto/ui'
 import { useState } from 'react'
-import { erc20Abi, isAddress, parseUnits, type Address } from 'viem'
+import { type Address, erc20Abi, isAddress, parseUnits } from 'viem'
 import { normalize } from 'viem/ens'
 import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi'
-import { Button, CopyButton, Input, Ui } from '@porto/ui'
 import { chain, mainnetClient, usdcAddress } from './config'
 
 export function App() {
@@ -88,8 +88,8 @@ function Send() {
     writeContract({
       abi: erc20Abi,
       address: usdcAddress[chain.id],
-      functionName: 'transfer',
       args: [recipient, parseUnits(amount, 6)],
+      functionName: 'transfer',
     })
   }
 
@@ -97,19 +97,19 @@ function Send() {
     <div>
       <div
         style={{
-          textAlign: 'left',
           marginBottom: 32,
+          textAlign: 'left',
         }}
       >
-        <h1 style={{ fontSize: 24, marginBottom: 8, fontWeight: 600 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8 }}>
           Porto Guest Mode
         </h1>
         <p
           style={{
-            textAlign: 'left',
             color: '#666',
-            marginBottom: 16,
             lineHeight: 1.5,
+            marginBottom: 16,
+            textAlign: 'left',
           }}
         >
           Transactions can be sent without a connected account, letting Porto
@@ -121,32 +121,16 @@ function Send() {
         <div style={{ marginBottom: 16 }}>
           <label
             style={{
+              color: '#666',
               display: 'block',
-              marginBottom: 8,
               fontSize: 14,
               fontWeight: 500,
-              color: '#666',
+              marginBottom: 8,
             }}
           >
             Send a payment
           </label>
           <Input
-            value={recipient}
-            onChange={setRecipient}
-            onFocus={cancelResolve}
-            autoFocus
-            onBlur={() => {
-              if (recipient.endsWith('.eth')) {
-                resolveEns(recipient)
-              }
-            }}
-            placeholder="0x123… or example.eth"
-            type="text"
-            invalid={
-              recipient !== '' &&
-              !isAddress(recipient) &&
-              !recipient.endsWith('.eth')
-            }
             adornments={
               isResolving
                 ? {
@@ -154,32 +138,48 @@ function Send() {
                   }
                 : undefined
             }
+            autoFocus
+            invalid={
+              recipient !== '' &&
+              !isAddress(recipient) &&
+              !recipient.endsWith('.eth')
+            }
+            onBlur={() => {
+              if (recipient.endsWith('.eth')) {
+                resolveEns(recipient)
+              }
+            }}
+            onChange={setRecipient}
+            onFocus={cancelResolve}
+            placeholder="0x123… or example.eth"
+            type="text"
+            value={recipient}
           />
         </div>
 
         <div style={{ marginBottom: 24 }}>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <div style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
             <div style={{ flex: 1, minWidth: 0 }}>
               <Input
-                value={amount}
+                adornments={{
+                  start: { label: '$', type: 'solid' },
+                }}
                 onChange={setAmount}
                 placeholder="5"
                 type="number"
-                adornments={{
-                  start: { type: 'solid', label: '$' },
-                }}
+                value={amount}
               />
             </div>
             <div style={{ flexShrink: 0 }}>
               <Button
-                type="submit"
                 disabled={
                   !recipient || !amount || !isAddress(recipient) || isPending
                 }
                 loading={isPending ? 'Paying…' : false}
-                variant="primary"
                 size="medium"
                 style={{ minWidth: 100 }}
+                type="submit"
+                variant="primary"
               >
                 Pay
               </Button>
@@ -191,10 +191,10 @@ function Send() {
           <Info type="info">
             <a
               href={`https://${chain.id === 84532 ? 'sepolia.' : ''}basescan.org/tx/${hash}`}
-              target="_blank"
               rel="noopener noreferrer"
-              title={hash}
               style={{ textDecoration: 'underline' }}
+              target="_blank"
+              title={hash}
             >
               View transaction
             </a>
@@ -224,14 +224,14 @@ function Info({
   return (
     <div
       style={{
-        marginTop: 16,
-        padding: 12,
         background: isError ? '#fef2f2' : '#f0f9ff',
-        borderWidth: 1,
         borderColor: isError ? '#fecaca' : '#bfdbfe',
         borderRadius: 8,
-        fontSize: 14,
+        borderWidth: 1,
         color: isError ? '#dc2626' : '#0369a1',
+        fontSize: 14,
+        marginTop: 16,
+        padding: 12,
         whiteSpace: 'pre-wrap',
         wordBreak: 'break-word',
       }}
@@ -266,11 +266,11 @@ function CodePreview({
     <div>
       <label
         style={{
+          color: '#666',
+          display: 'block',
           fontSize: 14,
           fontWeight: 500,
           marginBottom: 8,
-          display: 'block',
-          color: '#666',
         }}
       >
         Using this code
@@ -281,22 +281,22 @@ function CodePreview({
             background: '#f9f9f9',
             border: '1px solid #e0e0e0',
             borderRadius: 8,
-            padding: 16,
-            overflowX: 'auto',
             fontSize: 12,
             lineHeight: 1.6,
+            overflowX: 'auto',
+            padding: 16,
           }}
         >
           {code}
         </pre>
         <div
           style={{
-            position: 'absolute',
             bottom: 12,
+            position: 'absolute',
             right: 12,
           }}
         >
-          <CopyButton value={code} size="mini" variant="content" />
+          <CopyButton size="mini" value={code} variant="content" />
         </div>
       </div>
     </div>
