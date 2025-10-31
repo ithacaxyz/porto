@@ -1,0 +1,11 @@
+{
+  "extends": "../../apps/tsconfig.base.json",
+  "include": ["src", "styled-system"],
+  "compilerOptions": {
+    "paths": {
+      "~/*": ["./src/*"],
+      "styled-system/*": ["./styled-system/*"]
+    },
+    "types": ["unplugin-icons/types/react", "typed-query-selector/strict"]
+  }
+}

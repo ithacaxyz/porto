@@ -1,0 +1,40 @@
+{
+  "name": "guest-checkout",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare": "panda codegen",
+    "dev": "vite",
+    "dev:base": "VITE_CHAIN=base vite",
+    "dev:base-sepolia": "VITE_CHAIN=base-sepolia vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@ariakit/react": "catalog:",
+    "@porto/apps": "workspace:*",
+    "@porto/ui": "workspace:*",
+    "@tanstack/react-query": "^5",
+    "porto": "latest",
+    "react": "^19.1",
+    "react-dom": "^19.1",
+    "viem": "^2.37.8",
+    "wagmi": "^2"
+  },
+  "devDependencies": {
+    "@iconify/json": "catalog:",
+    "@pandacss/dev": "catalog:",
+    "@tailwindcss/vite": "catalog:",
+    "@types/node": "^22",
+    "@types/react": "^19.1",
+    "@types/react-dom": "^19.1",
+    "@vitejs/plugin-react": "^5.0.4",
+    "globals": "^16.4.0",
+    "postcss": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "~5.9.3",
+    "unplugin-icons": "catalog:",
+    "vite": "^6.3.6",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}

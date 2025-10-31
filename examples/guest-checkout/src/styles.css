@@ -1,0 +1,22 @@
+@import "@porto/apps/styles.css";
+@import "../styled-system/styles.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --text-base: 15px;
+  --text-base--line-height: calc(1.325 / 1);
+}
+html {
+  color-scheme: light;
+}
+body {
+  font-family:
+    SFRounded, ui-rounded, "SF Pro Rounded", -apple-system, "system-ui", "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  @apply text-base;
+}
+pre {
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+}
