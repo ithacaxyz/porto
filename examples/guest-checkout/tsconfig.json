@@ -1,11 +1,21 @@
 {
-  "extends": "../../apps/tsconfig.base.json",
-  "include": ["src", "styled-system"],
-  "compilerOptions": {
-    "paths": {
-      "~/*": ["./src/*"],
-      "styled-system/*": ["./styled-system/*"]
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
     },
-    "types": ["unplugin-icons/types/react", "typed-query-selector/strict"]
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.worker.json"
+    }
+  ],
+  "compilerOptions": {
+    "types": [
+      "unplugin-icons/types/react",
+      "typed-query-selector/strict",
+      "./worker-configuration.d.ts"
+    ]
   }
 }

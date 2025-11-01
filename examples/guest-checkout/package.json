@@ -1,5 +1,5 @@
 {
-  "name": "guest-checkout",
+  "name": "guest-checkout-example",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,7 +8,9 @@
     "dev:base": "VITE_CHAIN=base vite",
     "dev:base-sepolia": "VITE_CHAIN=base-sepolia vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "build:types": "wrangler types --include-runtime=false",
+    "preview": "vite preview",
+    "deploy": "pnpm run build && wrangler deploy"
   },
   "dependencies": {
     "@ariakit/react": "catalog:",
@@ -22,6 +24,7 @@
     "wagmi": "^2"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.13.18",
     "@iconify/json": "catalog:",
     "@pandacss/dev": "catalog:",
     "@tailwindcss/vite": "catalog:",
@@ -36,6 +39,7 @@
     "unplugin-icons": "catalog:",
     "vite": "^6.3.6",
     "vite-plugin-mkcert": "catalog:",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "wrangler": "^4.45.3"
   }
 }

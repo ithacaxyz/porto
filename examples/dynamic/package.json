@@ -26,6 +26,6 @@
     "globals": "^16.4.0",
     "typescript": "~5.9.3",
     "vite": "^6.3.6",
-    "vite-plugin-mkcert": "^1.17"
+    "vite-plugin-mkcert": "^1.17.9"
   }
 }
