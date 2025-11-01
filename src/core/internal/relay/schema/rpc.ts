@@ -474,6 +474,71 @@ export namespace wallet_getCallsStatus {
   export type Response = z.infer<typeof Response>
 }
 
+export namespace wallet_getCallsHistory {
+  /** Parameters for `wallet_getCallsHistory` request. */
+  export const Parameters = z.object({
+    /** Account address to get call history for. */
+    address: u.address(),
+    /** Index to start from. */
+    index: z.optional(z.number()),
+    /** Number of call bundles to fetch after the provided index. */
+    limit: z.number(),
+    /** Whether to sort by least recent (asc) or most recent (desc). */
+    sort: z.union([z.literal('asc'), z.literal('desc')]),
+  })
+  export type Parameters = z.infer<typeof Parameters>
+
+  /** Request for `wallet_getCallsHistory`. */
+  export const Request = z.object({
+    method: z.literal('wallet_getCallsHistory'),
+    params: z.readonly(z.tuple([Parameters])),
+  })
+  export type Request = z.infer<typeof Request>
+
+  /** Transactions included in the call bundle. */
+  export const Transaction = z.object({
+    /** Chain identifier the transaction was executed on. */
+    chainId: u.number(),
+    /** Transaction hash. */
+    transactionHash: u.hex(),
+  })
+  export type Transaction = z.infer<typeof Transaction>
+
+  /** Capabilities associated with the call bundle. */
+  export const Capabilities = z.object({
+    /** Asset diff of the bundle. */
+    assetDiffs: z.optional(c.assetDiffs.Response),
+    /** Fee totals of the bundle. */
+    feeTotals: z.optional(c.feeTotals.Response),
+    /** Quotes related to the bundle. */
+    quotes: z.optional(z.readonly(z.array(Quotes.Quote))),
+  })
+  export type Capabilities = z.infer<typeof Capabilities>
+
+  /** Response entry for `wallet_getCallsHistory`. */
+  export const Entry = z.object({
+    /** Capabilities of the bundle. */
+    capabilities: Capabilities,
+    /** Bundle identifier. */
+    id: u.hex(),
+    /** Index of the bundle against the account. */
+    index: z.number(),
+    /** Key hash that signed the bundle. */
+    keyHash: u.hex(),
+    /** Call status. */
+    status: z.number(),
+    /** UNIX timestamp the bundle was included. */
+    timestamp: z.number(),
+    /** Transactions broadcast as part of the bundle. */
+    transactions: z.readonly(z.array(Transaction)),
+  })
+  export type Entry = z.infer<typeof Entry>
+
+  /** Response for `wallet_getCallsHistory`. */
+  export const Response = z.readonly(z.array(Entry))
+  export type Response = z.infer<typeof Response>
+}
+
 export namespace wallet_getKeys {
   /** Parameters for `wallet_getKeys` request. */
   export const Parameters = z.object({
