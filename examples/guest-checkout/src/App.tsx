@@ -1,9 +1,9 @@
 import { Button, CopyButton, Input, Ui } from '@porto/ui'
 import { useRef, useState } from 'react'
-import { type Address, erc20Abi, isAddress, parseUnits } from 'viem'
+import { type Address, erc20Abi, isAddress, parseUnits, type Hex } from 'viem'
+import { writeContract } from 'viem/actions'
 import { normalize } from 'viem/ens'
-import { useWriteContract } from 'wagmi'
-import { chain, mainnetClient, usdcAddress } from './config'
+import { chain, client, mainnetClient, porto, usdcAddress } from './config'
 
 export function App() {
   return (
@@ -52,17 +52,50 @@ function Send() {
   const [amount, setAmount] = useState('5')
   const ens = useEnsResolver(setRecipient)
 
-  const { data: hash, error, isPending, writeContract } = useWriteContract()
+  const [hash, setHash] = useState<Hex | null>(null)
+  const [error, setError] = useState<unknown | null>(null)
+  const [isPending, setIsPending] = useState(false)
+  const cancelTx = useRef<(() => void) | null>(null)
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     if (!recipient || !amount || !isAddress(recipient)) return
-    writeContract({
-      abi: erc20Abi,
-      address: usdcAddress[chain.id],
-      functionName: 'transfer',
-      args: [recipient, parseUnits(amount, 6)],
-    })
+
+    let cancelled = false
+    cancelTx.current?.()
+    cancelTx.current = () => {
+      cancelled = true
+    }
+
+    setIsPending(true)
+    setError(null)
+    setHash(null)
+
+    try {
+      // disconnect first
+      await client.request({ method: 'wallet_disconnect' })
+
+      const txHash = await writeContract(client, {
+        abi: erc20Abi,
+        account: null,
+        address: usdcAddress[chain.id],
+        functionName: 'transfer',
+        args: [recipient, parseUnits(amount, 6)],
+      })
+
+      if (!cancelled) setHash(txHash)
+    } catch (err) {
+      if (cancelled) return
+      const { shortMessage: errMessage } = err as { shortMessage: string }
+      console.log('Transaction error:', errMessage)
+      if (errMessage.includes('User rejected the request.')) return
+      setError(err)
+    } finally {
+      if (!cancelled) {
+        cancelTx.current = null
+        setIsPending(false)
+      }
+    }
   }
 
   return (
@@ -73,15 +106,23 @@ function Send() {
           textAlign: 'left',
         }}
       >
-        <h1
+        <div
           style={{
-            fontSize: 24,
-            fontWeight: 600,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'start',
             marginBottom: 8,
           }}
         >
-          Porto Guest Mode
-        </h1>
+          <h1
+            style={{
+              fontSize: 24,
+              fontWeight: 600,
+            }}
+          >
+            Porto Guest Mode
+          </h1>
+        </div>
         <p
           style={{
             color: '#666',
@@ -105,7 +146,7 @@ function Send() {
               marginBottom: 8,
             }}
           >
-            Send a payment
+            Send a payment, with no prior connection
           </label>
           <Input
             adornments={
@@ -235,8 +276,9 @@ function CodePreview({
     recipient && isAddress(recipient) ? recipient : '<address>'
   const displayAmount = amount || '5'
 
-  const code = `writeContract({
+  const plainCode = `await writeContract(client, {
   abi: erc20Abi,
+  account: null,
   address: usdcAddress,
   functionName: "transfer",
   args: [
@@ -256,7 +298,7 @@ function CodePreview({
           marginBottom: 8,
         }}
       >
-        Using this code
+        By using this code
       </label>
       <div style={{ position: 'relative' }}>
         <pre
@@ -270,7 +312,24 @@ function CodePreview({
             padding: 16,
           }}
         >
-          {code}
+          {`await writeContract(client, {
+  abi: erc20Abi,
+  `}
+          <span
+            style={{ background: '#fef3c7', padding: '0 2px', borderRadius: 2 }}
+          >
+            account: null
+          </span>
+          {`, `}
+          <span style={{ color: '#999' }}>// let Porto handle the account</span>
+          {`
+  address: usdcAddress,
+  functionName: "transfer",
+  args: [
+    "${displayRecipient}",
+    parseUnits("${displayAmount}", 6),
+  ],
+})`}
         </pre>
         <div
           style={{
@@ -279,7 +338,7 @@ function CodePreview({
             right: 12,
           }}
         >
-          <CopyButton size="mini" value={code} variant="content" />
+          <CopyButton size="mini" value={plainCode} variant="content" />
         </div>
       </div>
     </div>
@@ -320,8 +379,8 @@ function useEnsResolver(onResolved: (address: Address) => void = () => {}) {
   }
 
   return {
+    cancel,
     isResolving,
     resolve,
-    cancel,
   }
 }

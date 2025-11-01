@@ -1,19 +1,18 @@
-import { porto } from 'porto/wagmi'
-import { createPublicClient } from 'viem'
-import { createConfig, http } from 'wagmi'
-import { base, baseSepolia, mainnet } from 'wagmi/chains'
+import { createClient, createPublicClient, custom, http } from 'viem'
+import { base, baseSepolia, mainnet } from 'viem/chains'
+import { Mode, Porto } from 'porto'
 
 export const chain =
   (import.meta.env.VITE_CHAIN || 'base-sepolia') === 'base' ? base : baseSepolia
 
-export const config = createConfig({
+export const porto = Porto.create({
   chains: [chain],
-  connectors: [porto()],
-  multiInjectedProviderDiscovery: false,
-  transports: {
-    [base.id]: http(),
-    [baseSepolia.id]: http(),
-  },
+  mode: Mode.dialog(),
+})
+
+export const client = createClient({
+  chain,
+  transport: custom(porto.provider),
 })
 
 export const mainnetClient = createPublicClient({
