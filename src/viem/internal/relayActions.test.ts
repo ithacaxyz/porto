@@ -417,10 +417,14 @@ describe('getCallsHistory', () => {
       wrap: false,
     })
 
-    await sendPreparedCalls(client, {
+    const { id } = await sendPreparedCalls(client, {
       context: request.context,
       key: request.key!,
       signature,
+    })
+
+    await waitForCallsStatus(client, {
+      id,
     })
 
     const [entry] = await getCallsHistory(client, {
