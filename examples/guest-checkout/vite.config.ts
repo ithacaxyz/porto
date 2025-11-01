@@ -1,13 +1,13 @@
-import { cloudflare } from '@cloudflare/vite-plugin'
-import Tailwindcss from '@tailwindcss/vite'
-import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
-import mkcert from 'vite-plugin-mkcert'
-import TsconfigPaths from 'vite-tsconfig-paths'
-import Icons from 'unplugin-icons/vite'
 import { execSync } from 'node:child_process'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { cloudflare } from '@cloudflare/vite-plugin'
+import Tailwindcss from '@tailwindcss/vite'
+import react from '@vitejs/plugin-react'
+import Icons from 'unplugin-icons/vite'
+import { defineConfig } from 'vite'
+import mkcert from 'vite-plugin-mkcert'
+import TsconfigPaths from 'vite-tsconfig-paths'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -20,13 +20,12 @@ export default defineConfig({
       jsx: 'react',
     }),
     {
-      name: 'panda-cssgen',
       buildStart() {
         execSync('panda cssgen', { cwd: process.cwd(), stdio: 'inherit' })
       },
+      name: 'panda-cssgen',
     },
     {
-      name: 'styled-system-alias',
       config() {
         return {
           resolve: {
@@ -36,6 +35,7 @@ export default defineConfig({
           },
         }
       },
+      name: 'styled-system-alias',
     },
     Tailwindcss(),
     react(),
