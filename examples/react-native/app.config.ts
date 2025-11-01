@@ -27,12 +27,18 @@ export default (_context: ConfigContext): ExpoConfig => ({
       foregroundImage: './assets/adaptive-icon.png',
     },
     edgeToEdgeEnabled: true,
+    newArchEnabled: true,
     package: BUNDLE_IDENTIFIER.replaceAll('-', '_'),
     predictiveBackGestureEnabled: false,
   },
   experiments: {
     reactCompiler: true,
     turboModules: true,
+  },
+  extra: {
+    eas: {
+      projectId: 'cd5f88e2-6b90-46da-9851-0b901a6954b4',
+    },
   },
   icon: './assets/icon.png',
   ios: {
@@ -41,11 +47,13 @@ export default (_context: ConfigContext): ExpoConfig => ({
     config: {
       usesNonExemptEncryption: false,
     },
+    newArchEnabled: true,
     supportsTablet: true,
   },
   name: SCHEME,
   newArchEnabled: true,
   orientation: 'portrait',
+  owner: 'ithaca',
   plugins: [
     ['expo-web-browser', { experimentalLauncherActivity: true }],
     ['expo-dev-client', { launchMode: 'most-recent' }],

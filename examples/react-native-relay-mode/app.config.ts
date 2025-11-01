@@ -27,12 +27,30 @@ export default (_context: ConfigContext): ExpoConfig => ({
       foregroundImage: './assets/adaptive-icon.png',
     },
     edgeToEdgeEnabled: true,
+    intentFilters: [
+      {
+        action: 'VIEW',
+        autoVerify: true,
+        category: ['BROWSABLE', 'DEFAULT'],
+        data: {
+          host: SERVER_URL?.replaceAll('https://', ''),
+          pathPrefix: '/',
+          scheme: SCHEME,
+        },
+      },
+    ],
     package: BUNDLE_IDENTIFIER.replaceAll('-', '_'),
     predictiveBackGestureEnabled: false,
   },
   experiments: {
+    autolinkingModuleResolution: true,
     reactCompiler: true,
     turboModules: true,
+  },
+  extra: {
+    eas: {
+      projectId: 'f401cb79-1e2d-4ebe-a621-2e5f13d841ac',
+    },
   },
   icon: './assets/icon.png',
   ios: {
@@ -46,7 +64,9 @@ export default (_context: ConfigContext): ExpoConfig => ({
   name: SCHEME,
   newArchEnabled: true,
   orientation: 'portrait',
+  owner: 'ithaca',
   plugins: [
+    ['expo-web-browser', { experimentalLauncherActivity: true }],
     ['expo-dev-client', { launchMode: 'most-recent' }],
     [
       'expo-build-properties',
