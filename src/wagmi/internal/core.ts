@@ -22,6 +22,8 @@ import {
 import type { PartialBy } from '../../core/internal/types.js'
 import type * as RpcSchema from '../../core/RpcSchema.js'
 import * as AccountActions from '../../viem/AccountActions.js'
+import type { Account } from '../../viem/index.js'
+import type { GetAccountParameter } from '../../viem/internal/utils.js'
 import * as WalletActions from '../../viem/WalletActions.js'
 import type { ChainIdParameter, ConnectorParameter } from './types.js'
 
@@ -218,6 +220,33 @@ export declare namespace getAssets {
     PartialBy<WalletActions.getAssets.Parameters, 'account'>
 
   type ReturnType = WalletActions.getAssets.ReturnType
+
+  // TODO: Exhaustive ErrorType
+  type ErrorType = BaseError
+}
+
+export async function getCallsHistory<config extends Config>(
+  config: config,
+  parameters: getCallsHistory.Parameters,
+): Promise<getCallsHistory.ReturnType> {
+  const { account, connector } = parameters
+
+  const client = await getConnectorClient(config, {
+    account,
+    assertChainId: false,
+    connector,
+  })
+
+  return WalletActions.getCallsHistory(client as any, parameters)
+}
+
+export declare namespace getCallsHistory {
+  type Parameters<account extends Account.Account | undefined = undefined> =
+    Omit<RpcSchema.wallet_getCallsHistory.Parameters, 'address'> &
+      GetAccountParameter<account> &
+      ConnectorParameter
+
+  type ReturnType = RpcSchema.wallet_getCallsHistory.Response
 
   // TODO: Exhaustive ErrorType
   type ErrorType = BaseError

@@ -2,6 +2,7 @@ export {
   useAddFunds,
   useAdmins,
   useAssets,
+  useCallsHistory,
   useConnect,
   useDisconnect,
   useGrantAdmin,

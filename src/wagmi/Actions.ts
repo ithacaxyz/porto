@@ -4,6 +4,7 @@ export {
   disconnect,
   getAdmins,
   getAssets,
+  getCallsHistory,
   getPermissions,
   grantAdmin,
   grantPermissions,
