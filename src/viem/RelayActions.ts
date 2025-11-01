@@ -27,6 +27,7 @@ export {
   addFaucetFunds,
   getAssets,
   getAuthorization,
+  getCallsHistory,
   getCallsStatus,
   getCapabilities,
   health,
@@ -942,6 +943,19 @@ export type Decorator<
     parameters: RelayActions.getCallsStatus.Parameters,
   ) => Promise<RelayActions.getCallsStatus.ReturnType>
   /**
+   * Gets the call history for an account.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - The client to use.
+   * @param parameters - Parameters.
+   * @returns Result.
+   */
+  getCallsHistory: (
+    parameters: RelayActions.getCallsHistory.Parameters,
+  ) => Promise<RelayActions.getCallsHistory.ReturnType>
+  /**
    * Gets the capabilities for a given chain ID.
    *
    * @example
@@ -1065,6 +1079,8 @@ export function decorator<
 >(client: Client<transport, chain, account>): Decorator<chain, account> {
   return {
     createAccount: (parameters) => createAccount(client, parameters),
+    getCallsHistory: (parameters) =>
+      RelayActions.getCallsHistory(client, parameters),
     getCallsStatus: (parameters) =>
       RelayActions.getCallsStatus(client, parameters),
     getCapabilities: () => RelayActions.getCapabilities(client),

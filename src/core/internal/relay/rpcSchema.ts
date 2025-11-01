@@ -73,6 +73,10 @@ export type Schema = RpcSchema_ox.From<
       ReturnType: z.input<typeof Rpc.wallet_getCallsStatus.Response>
     }
   | {
+      Request: z.input<typeof Rpc.wallet_getCallsHistory.Request>
+      ReturnType: z.input<typeof Rpc.wallet_getCallsHistory.Response>
+    }
+  | {
       Request: z.input<typeof Rpc.wallet_getKeys.Request>
       ReturnType: z.input<typeof Rpc.wallet_getKeys.Response>
     }
