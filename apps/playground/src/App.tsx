@@ -172,6 +172,7 @@ export function App() {
         <Login />
         <AddFunds />
         <GetAssets />
+        <CallsHistory />
         <Accounts />
         <Disconnect />
         <UpgradeAccount />
@@ -577,6 +578,47 @@ function AddFunds() {
       {result && typeof result === 'object' && 'id' in result ? (
         <pre>{JSON.stringify(result, null, 2)}</pre>
       ) : null}
+    </div>
+  )
+}
+
+function CallsHistory() {
+  const [result, setResult] = React.useState<unknown | null>(null)
+  const [error, setError] = React.useState<string | null>(null)
+
+  return (
+    <div>
+      <h3>wallet_getCallsHistory</h3>
+      <button
+        onClick={async () => {
+          try {
+            const [address] = await porto.provider.request({
+              method: 'eth_accounts',
+            })
+
+            const callsHistory = await porto.provider.request({
+              method: 'wallet_getCallsHistory',
+              params: [
+                {
+                  address,
+                  limit: 100,
+                  sort: 'desc',
+                },
+              ],
+            })
+
+            setResult(callsHistory)
+          } catch (error) {
+            console.error(error)
+            setError((error as Error).message)
+          }
+        }}
+        type="button"
+      >
+        Get transaction history
+      </button>
+      {result ? <pre>{Json.stringify(result, null, 2)}</pre> : null}
+      {error && <pre>{error}</pre>}
     </div>
   )
 }
