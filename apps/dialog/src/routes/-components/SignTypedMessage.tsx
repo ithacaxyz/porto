@@ -56,7 +56,6 @@ export function SignTypedMessage({
               {messageEntries.map(([key, value, depth], index) => (
                 <SignTypedMessage.DataEntry
                   depth={depth}
-                  // biome-ignore lint/suspicious/noArrayIndexKey: _
                   key={index}
                   keyName={key}
                   value={value}
