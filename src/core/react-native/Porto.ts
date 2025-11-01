@@ -14,10 +14,10 @@ export const defaultConfig = {
 export function create(
   parameters: ExactPartial<Porto.Config> | undefined = {},
 ): Porto.Porto {
-  const { keystoreHost, webAuthn } = createReactNativePasskeyAdapter()
-
   if (parameters?.mode)
     return Porto.create({ ...parameters, mode: parameters.mode })
+
+  const { keystoreHost, webAuthn } = createReactNativePasskeyAdapter()
   const mode = Mode.reactNative({
     fallback: Mode.relay({
       ...(keystoreHost ? { keystoreHost } : {}),

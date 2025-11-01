@@ -1,0 +1,41 @@
+{
+  "$schema": "https://raw.githubusercontent.com/expo/eas-cli/refs/heads/main/packages/eas-json/schema/eas.schema.json",
+  "build": {
+    "base": {
+      "android": {},
+      "bun": "1.3.1"
+    },
+    "development": {
+      "android": {
+        "image": "latest"
+      },
+      "channel": "development",
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "extends": "base",
+      "ios": {
+        "image": "latest"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "channel": "production",
+      "credentialsSource": "remote",
+      "distribution": "store",
+      "env": {
+        "NODE_ENV": "production"
+      },
+      "extends": "base",
+      "ios": {
+        "simulator": false
+      }
+    }
+  },
+  "cli": {
+    "appVersionSource": "local",
+    "version": ">= 16.20.0"
+  }
+}

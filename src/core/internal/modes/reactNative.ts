@@ -6,7 +6,7 @@ import * as Mode from '../mode.js'
 import * as Relay from '../modes/relay.js'
 import { dialog } from './dialog.js'
 
-type RelayParameters = NonNullable<Parameters<typeof Relay.relay>[0]>
+type RelayParameters = NonNullable<Parameters<typeof Relay.relay>[number]>
 
 export function reactNative(parameters: reactNative.Parameters = {}) {
   if (!isReactNative())

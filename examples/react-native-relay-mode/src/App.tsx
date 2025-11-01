@@ -31,6 +31,7 @@ import {
 } from 'viem/accounts'
 
 import { exp1Abi, exp1Address } from './contracts.ts'
+import { supportsAccountUpgrade } from './passkeys.ts'
 import { permissions, porto } from './porto.ts'
 
 const SERVER_BASE_URL = process.env.EXPO_PUBLIC_SIWE_URL
@@ -49,6 +50,7 @@ type SessionKeyPair = {
 
 export default function App() {
   const [sessionKey, setSessionKey] = React.useState<SessionKeyPair>(null)
+  const passkeysAvailable = supportsAccountUpgrade
 
   return (
     <SafeAreaProvider>
@@ -70,29 +72,37 @@ export default function App() {
           <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Connect</Text>
           <Connect />
           <Divider />
-          <Me />
-          <Divider />
-          <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
-            EOA to Porto Account
-          </Text>
-          <UpgradeAccount />
-          <Divider />
-          <SignMessage />
-          <Divider />
-          <SendCalls />
-          <Divider />
-          <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Permissions</Text>
-          <GrantPermissions />
-          <GetPermissions />
-          <Divider />
-          <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
-            App-managed Signing ("session keys")
-          </Text>
-          <GrantKeyPermissions onKeyCreated={setSessionKey} />
-          <PreparedCalls sessionKey={sessionKey} />
-          <Divider />
-          <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Misc.</Text>
-          <Capabilities />
+          {passkeysAvailable ? (
+            <>
+              <Me />
+              <Divider />
+              <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
+                EOA to Porto Account
+              </Text>
+              <UpgradeAccount />
+              <Divider />
+              <SignMessage />
+              <Divider />
+              <SendCalls />
+              <Divider />
+              <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
+                Permissions
+              </Text>
+              <GrantPermissions />
+              <GetPermissions />
+              <Divider />
+              <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
+                App-managed Signing ("session keys")
+              </Text>
+              <GrantKeyPermissions onKeyCreated={setSessionKey} />
+              <PreparedCalls sessionKey={sessionKey} />
+              <Divider />
+              <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Misc.</Text>
+              <Capabilities />
+            </>
+          ) : (
+            <PasskeyUnavailable />
+          )}
         </ScrollView>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -151,12 +161,14 @@ function Connect() {
         />
         <Divider />
         <Button
+          disabled={!supportsAccountUpgrade}
           onPress={async () => {
+            if (!supportsAccountUpgrade) return
             const link = Linking.createURL('/')
 
             const payload = {
               capabilities: {
-                createAccount: true,
+                createAccount: supportsAccountUpgrade,
                 grantPermissions: grantPermissions ? permissions() : undefined,
                 signInWithEthereum: signInWithEthereum
                   ? {
@@ -185,7 +197,9 @@ function Connect() {
                 )
               })
           }}
-          title="Register"
+          title={
+            supportsAccountUpgrade ? 'Register' : 'Register (passkeys required)'
+          }
         />
         <Divider />
         <Button
@@ -223,6 +237,22 @@ function Connect() {
       </View>
       <Pre text={error} />
       <Pre text={result} />
+    </View>
+  )
+}
+
+function PasskeyUnavailable() {
+  return (
+    <View style={{ gap: 16 }}>
+      <Text style={{ fontWeight: '600' }}>
+        Passkeys unavailable on this device
+      </Text>
+      <Text>
+        Account upgrade and signing flows require the native
+        `react-native-passkeys` module. Install and rebuild the application on a
+        compatible device (iOS 15+/Android with Credential Manager) to test
+        these examples.
+      </Text>
     </View>
   )
 }

@@ -1,7 +1,7 @@
 import type { relay } from '../internal/modes/relay.js'
 import { createPasskeyAdapter, type PasskeysModule } from './passkeys.js'
 
-type RelayParameters = NonNullable<Parameters<typeof relay>[0]>
+export type RelayParameters = NonNullable<Parameters<typeof relay>[number]>
 
 /**
  * Creates a React Native passkey adapter compatible with the Relay mode.
