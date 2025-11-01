@@ -242,6 +242,7 @@ export async function addFaucetFunds<chain extends Chain | undefined>(
         params: [
           z.encode(RpcSchema.wallet_addFaucetFunds.Parameters, {
             address,
+            // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
             chainId: chain?.id!,
             tokenAddress,
             value,
@@ -426,6 +427,7 @@ export async function prepareCalls<
                 ...capabilities?.meta,
               },
             },
+            // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
             chainId: chain?.id!,
             from: address,
             key: key
@@ -1098,6 +1100,7 @@ export async function verifySignature<chain extends Chain | undefined>(
             params: [
               z.encode(RpcSchema.wallet_verifySignature.Parameters, {
                 address,
+                // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
                 chainId: chain?.id!,
                 digest,
                 signature,

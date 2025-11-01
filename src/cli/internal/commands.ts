@@ -174,12 +174,14 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
     })
 
     prompts.log.info('Address: ' + accounts[0]!.address)
+    // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
     if (reveal) prompts.log.info('Private key: ' + adminKey?.privateKey!()!)
     else {
       const keyFile = path.join(
         import.meta.dirname,
         `${accounts[0]!.address}.key`,
       )
+      // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
       fs.writeFileSync(keyFile, adminKey?.privateKey!()!, { mode: 0o600 })
       fs.chmodSync(keyFile, 0o600)
       prompts.log.info(`Private key saved securely to: ${keyFile}`)
