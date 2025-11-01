@@ -107,6 +107,13 @@ export type Mode = {
       internal: ActionsInternal
     }) => Promise<z.input<typeof RpcSchema.wallet_getCallsStatus.Response>>
 
+    getCallsHistory: (
+      parameters: RpcSchema.wallet_getCallsHistory.Parameters & {
+        /** Internal properties. */
+        internal: ActionsInternal
+      },
+    ) => Promise<RpcSchema.wallet_getCallsHistory.Response>
+
     getCapabilities: (parameters: {
       /** Chain IDs to get the capabilities for. */
       chainIds?: readonly Hex.Hex[] | undefined

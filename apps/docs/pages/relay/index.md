@@ -89,7 +89,7 @@ For more details on how accounts work, see the [Account documentation](#TODO).
 
 Intents are executed in two steps. First, [`wallet_prepareCalls`] is called to simulate the call and estimate fees. A context is returned with the built intent, which also includes a quote signed by the Relay, which expires after some time. The built intent is verified and signed by the user's key, and the quote plus the signed intent is sent to the Relay with [`wallet_sendPreparedCalls`].
 
-The Relay will validate that the quote is still valid, that the intent was signed, and will then include it in a transaction on the destination chain. [`wallet_sendPreparedCalls`] returns an opaque identifier that is the equivalent of a transaction hash. To get the status of an intent, plus any transaction receipts for the intent, you must use [`wallet_getCallsStatus`].
+The Relay will validate that the quote is still valid, that the intent was signed, and will then include it in a transaction on the destination chain. [`wallet_sendPreparedCalls`] returns an opaque identifier that is the equivalent of a transaction hash. To get the status of an intent, plus any transaction receipts for the intent, you must use [`wallet_getCallsStatus`]. For historical activity across bundles, paginate with [`wallet_getCallsHistory`].
 
 [`wallet_getCapabilities`]: /relay/wallet_getCapabilities
 [`wallet_prepareUpgradeAccount`]: /relay/wallet_prepareUpgradeAccount
@@ -98,3 +98,4 @@ The Relay will validate that the quote is still valid, that the intent was signe
 [`wallet_prepareCalls`]: /relay/wallet_prepareCalls
 [`wallet_sendPreparedCalls`]: /relay/wallet_sendPreparedCalls
 [`wallet_getCallsStatus`]: /relay/wallet_getCallsStatus
+[`wallet_getCallsHistory`]: /relay/wallet_getCallsHistory

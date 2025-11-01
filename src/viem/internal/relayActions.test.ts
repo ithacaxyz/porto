@@ -11,6 +11,7 @@ import {
   addFaucetFunds,
   getAssets,
   getAuthorization,
+  getCallsHistory,
   getCallsStatus,
   getCapabilities,
   getKeys,
@@ -385,6 +386,55 @@ describe('getCallsStatus', () => {
     })
 
     expect(result.id).toBeDefined()
+  })
+})
+
+describe('getCallsHistory', () => {
+  test('default', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    const request = await prepareCalls(client, {
+      address: account.address,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: 0n,
+        },
+      ],
+      key: {
+        prehash: false,
+        publicKey: key.publicKey,
+        type: 'webauthnp256',
+      },
+    })
+
+    const signature = await Key.sign(key, {
+      address: null,
+      payload: request.digest,
+      wrap: false,
+    })
+
+    const { id } = await sendPreparedCalls(client, {
+      context: request.context,
+      key: request.key!,
+      signature,
+    })
+
+    await waitForCallsStatus(client, {
+      id,
+    })
+
+    const [entry] = await getCallsHistory(client, {
+      address: account.address,
+      limit: 1,
+      sort: 'desc',
+    })
+
+    expect(entry?.id).toBeDefined()
+    expect(entry?.transactions?.[0]?.chainId).toBe(client.chain.id)
   })
 })
 

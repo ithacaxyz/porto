@@ -590,6 +590,26 @@ export namespace wallet_getCallsStatus {
   export type Response = z.infer<typeof Response>
 }
 
+export namespace wallet_getCallsHistory {
+  export const Parameters = Rpc_relay.wallet_getCallsHistory.Parameters
+  export type Parameters = z.infer<typeof Parameters>
+
+  export const Request = Rpc_relay.wallet_getCallsHistory.Request
+  export type Request = z.infer<typeof Request>
+
+  export const Transaction = Rpc_relay.wallet_getCallsHistory.Transaction
+  export type Transaction = z.infer<typeof Transaction>
+
+  export const Capabilities = Rpc_relay.wallet_getCallsHistory.Capabilities
+  export type Capabilities = z.infer<typeof Capabilities>
+
+  export const Entry = Rpc_relay.wallet_getCallsHistory.Entry
+  export type Entry = z.infer<typeof Entry>
+
+  export const Response = Rpc_relay.wallet_getCallsHistory.Response
+  export type Response = z.infer<typeof Response>
+}
+
 export namespace wallet_getCapabilities {
   export const Request = z.object({
     method: z.literal('wallet_getCapabilities'),

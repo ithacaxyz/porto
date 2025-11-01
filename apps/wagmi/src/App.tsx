@@ -64,6 +64,7 @@ export function App() {
           <Mint />
           <AddFunds />
           <Assets />
+          <CallsHistory />
         </>
       )}
     </>
@@ -435,4 +436,29 @@ async function siwePayload(enabled: boolean, chainId: number) {
     chainId,
     nonce: 'deadbeef',
   } as const
+}
+
+function CallsHistory() {
+  const { data, ...callsHistory } = Hooks.useCallsHistory({
+    limit: 50,
+    sort: 'desc',
+  })
+
+  return (
+    <div>
+      <h2>Calls History</h2>
+      <button onClick={() => callsHistory.refetch()} type="button">
+        Refetch
+      </button>
+      {data && <pre>{stringify(data, null, 2)}</pre>}
+      {callsHistory.isError && (
+        <div>
+          Error:{' '}
+          {(callsHistory.error as any).shortMessage ||
+            callsHistory.error?.message}
+        </div>
+      )}
+      <br />
+    </div>
+  )
 }

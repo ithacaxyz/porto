@@ -1,0 +1,62 @@
+# Actions.getCallsHistory
+
+VanillaJS action for retrieving call bundle history for an account. Uses Viem's [`getCallsHistory`](/sdk/viem/RelayActions/getCallsHistory) under the hood.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'porto/wagmi'
+import { config } from './config'
+
+const history = await Actions.getCallsHistory(config, {
+  account: '0x...',
+  limit: 20,
+  sort: 'desc',
+})
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/wagmi/config.ts]
+```
+
+:::
+
+## Parameters
+
+### account
+
+`Address | undefined`
+
+Account address to fetch history for. Defaults to the connected account if omitted.
+
+### connector
+
+`Connector | undefined`
+
+Connector instance to use. Defaults to the currently connected connector.
+
+### index
+
+`number | undefined`
+
+Optional cursor. Defaults to `0` for ascending and the most recent index for descending.
+
+### limit
+
+`number`
+
+Maximum number of bundles to return.
+
+### sort
+
+`'asc' | 'desc'`
+
+Ordering of the returned bundles.
+
+## Return value
+
+`CallHistoryEntry[]`
+
+See [`wallet_getCallsHistory`](/relay/wallet_getCallsHistory#response) for the shape.

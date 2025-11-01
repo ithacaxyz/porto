@@ -1,6 +1,13 @@
 import type { Config } from '@wagmi/core'
 
-import type { getAdmins, getAssets, getPermissions } from './core.js'
+import type { PartialBy } from '../../core/internal/types.js'
+
+import type {
+  getAdmins,
+  getAssets,
+  getCallsHistory,
+  getPermissions,
+} from './core.js'
 import { filterQueryOptions } from './utils.js'
 
 export function getAdminsQueryKey<config extends Config>(
@@ -48,5 +55,25 @@ export function getAssetsQueryKey<_config extends Config>(
 export declare namespace getAssetsQueryKey {
   type Value<config extends Config> = ReturnType<
     typeof getAssetsQueryKey<config>
+  >
+}
+
+export function getCallsHistoryQueryKey<_config extends Config>(
+  options: getCallsHistoryQueryKey.Parameters = {},
+) {
+  const { connector, ...parameters } = options
+  return [
+    'callsHistory',
+    { ...filterQueryOptions(parameters), connectorUid: connector?.uid },
+  ] as const
+}
+
+export declare namespace getCallsHistoryQueryKey {
+  type Parameters = PartialBy<
+    getCallsHistory.Parameters,
+    'account' | 'limit' | 'sort'
+  >
+  type Value<config extends Config> = ReturnType<
+    typeof getCallsHistoryQueryKey<config>
   >
 }

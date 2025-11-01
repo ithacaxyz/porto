@@ -314,6 +314,21 @@ export function dialog(parameters: dialog.Parameters = {}) {
         return z.decode(RpcSchema_porto.wallet_getAssets.Response, result)
       },
 
+      async getCallsHistory(parameters) {
+        const { internal } = parameters
+        const { store, request } = internal
+
+        if (request.method !== 'wallet_getCallsHistory')
+          throw new Error('Cannot get history for method: ' + request.method)
+
+        if (!renderer.supportsHeadless)
+          return fallback.actions.getCallsHistory(parameters)
+
+        const provider = getProvider(store)
+        const result = await provider.request(request)
+        return z.decode(RpcSchema_porto.wallet_getCallsHistory.Response, result)
+      },
+
       async getCallsStatus(parameters) {
         const { internal } = parameters
         const { store, request } = internal
