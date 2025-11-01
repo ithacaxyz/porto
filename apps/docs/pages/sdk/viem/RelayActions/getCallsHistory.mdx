@@ -1,0 +1,54 @@
+# `RelayActions.getCallsHistory`
+
+Viem Action for retrieving call bundle history for an account. Uses [`wallet_getCallsHistory`](/relay/wallet_getCallsHistory) under the hood.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { RelayActions } from 'porto/viem'
+import { client } from './config'
+
+const history = await RelayActions.getCallsHistory(client, { // [!code focus]
+  address: '0x1234...', // Account address // [!code focus]
+  limit: 20, // Maximum bundles to fetch // [!code focus]
+  sort: 'desc', // Most recent first // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.server.ts]
+```
+
+:::
+
+## Parameters
+
+### address
+
+- **Type:** `Address`
+
+Account address to fetch history for.
+
+### index
+
+- **Type:** `number | undefined`
+
+Optional cursor. Defaults to `0` for ascending or the latest index for descending.
+
+### limit
+
+- **Type:** `number`
+
+Number of bundles to return.
+
+### sort
+
+- **Type:** `'asc' | 'desc'`
+
+Ordering of bundles. Use `'desc'` for most recent first.
+
+## Return Value
+
+See [`wallet_getCallsHistory`](/relay/wallet_getCallsHistory#response).

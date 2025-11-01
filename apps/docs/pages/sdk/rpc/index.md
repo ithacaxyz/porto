@@ -13,6 +13,7 @@
 | [`wallet_disconnect`](/sdk/rpc/wallet_disconnect)                           | Disconnects the Application from Porto.                                            | [ERC-7846](https://eips.ethereum.org/EIPS/eip-7846) |
 | [`wallet_getCapabilities`](/sdk/rpc/wallet_getCapabilities)                 | Gets supported capabilities of Porto..                                             | [ERC-5792](https://eips.ethereum.org/EIPS/eip-5792) |
 | [`wallet_getCallsStatus`](/sdk/rpc/wallet_getCallsStatus)                   | Gets the status of a call bundle.                                                  | [ERC-5792](https://eips.ethereum.org/EIPS/eip-5792) |
+| [`wallet_getCallsHistory`](/sdk/rpc/wallet_getCallsHistory)                 | Gets the historical call bundles for an account.                                   | Experimental                                        |
 | [`wallet_getPermissions`](/sdk/rpc/wallet_getPermissions)       | Returns the active permissions for an account.                                     | Experimental                                        |
 | [`wallet_grantPermissions`](/sdk/rpc/wallet_grantPermissions)   | Grants permissions for an Application to perform actions on behalf of the account. | Experimental                                        |
 | [`wallet_revokePermissions`](/sdk/rpc/wallet_revokePermissions) | Revokes a permission.                                                              | Experimental                                        |

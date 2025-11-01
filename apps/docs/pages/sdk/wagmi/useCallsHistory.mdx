@@ -1,0 +1,88 @@
+import { TryItOut } from '../../../components/TryItOut'
+
+# `Hooks.useCallsHistory`
+
+Hook for retrieving call bundle history for an account.
+
+Internally uses [`wallet_getCallsHistory`](/sdk/rpc/wallet_getCallsHistory).
+
+```tsx twoslash
+import { Hooks } from 'porto/wagmi'
+
+function Example() {
+  const result = Hooks.useCallsHistory({
+    limit: 10,
+    sort: 'desc',
+  })
+}
+```
+
+<TryItOut
+  exampleSlug="#example"
+  fn={async ({ provider }) => {
+    const [address] = await provider.request({ method: 'eth_requestAccounts' })
+    return provider.request({
+      method: 'wallet_getCallsHistory',
+      params: [{
+        address,
+        limit: 5,
+        sort: 'desc',
+      }],
+    })
+  }}
+  transformResultCode={(code) => {
+    return 'const history = ' + code
+  }}
+/>
+
+## Parameters
+
+### account
+
+`Address | undefined`
+
+Account address to fetch history for. Defaults to the connected account.
+
+### config
+
+`Config | undefined`
+
+Wagmi config override for the query.
+
+### connector
+
+`Connector | undefined`
+
+Connector to use. Defaults to the active connector.
+
+### index
+
+`number | undefined`
+
+Optional cursor for pagination.
+
+### limit
+
+`number`
+
+Maximum number of bundles to return.
+
+### sort
+
+`'asc' | 'desc'`
+
+Ordering for results.
+
+### query
+
+`UseQueryOptions | undefined`
+
+Additional [`@tanstack/react-query`](https://tanstack.com/query/latest) options.
+
+## Return Type
+
+```tsx
+UseQueryResult<CallHistoryEntry[]>
+```
+
+Returns a [`TanStack Query`](https://tanstack.com/query/latest) result object mirroring the shape documented on [`wallet_getCallsHistory`](/relay/wallet_getCallsHistory#response).
