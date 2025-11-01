@@ -35,6 +35,7 @@
     "typescript": "~5.9.3",
     "unplugin-icons": "catalog:",
     "vite": "^6.3.6",
+    "vite-plugin-mkcert": "catalog:",
     "vite-tsconfig-paths": "^5.1.4"
   }
 }

@@ -1,8 +1,8 @@
 import { Button, CopyButton, Input, Ui } from '@porto/ui'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { type Address, erc20Abi, isAddress, parseUnits } from 'viem'
 import { normalize } from 'viem/ens'
-import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi'
+import { useWriteContract } from 'wagmi'
 import { chain, mainnetClient, usdcAddress } from './config'
 
 export function App() {
@@ -50,58 +50,36 @@ export function App() {
 function Send() {
   const [recipient, setRecipient] = useState('')
   const [amount, setAmount] = useState('5')
-  const [isResolving, setIsResolving] = useState(false)
-  const [resolvingName, setResolvingName] = useState('')
-
-  const resolveEns = async (name: string) => {
-    setIsResolving(true)
-    setResolvingName(name)
-    try {
-      const address = await mainnetClient.getEnsAddress({
-        name: normalize(name),
-      })
-      if (address) setRecipient(address)
-    } catch (error) {
-      console.error('ENS resolution failed:', error)
-    } finally {
-      setIsResolving(false)
-      setResolvingName('')
-    }
-  }
-
-  const cancelResolve = () => {
-    setIsResolving(false)
-    setResolvingName('')
-  }
+  const ens = useEnsResolver(setRecipient)
 
   const { data: hash, error, isPending, writeContract } = useWriteContract()
-
-  const { isLoading: isConfirming, isSuccess: isConfirmed } =
-    useWaitForTransactionReceipt({
-      hash,
-    })
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
     if (!recipient || !amount || !isAddress(recipient)) return
-
     writeContract({
       abi: erc20Abi,
       address: usdcAddress[chain.id],
-      args: [recipient, parseUnits(amount, 6)],
       functionName: 'transfer',
+      args: [recipient, parseUnits(amount, 6)],
     })
   }
 
   return (
-    <div>
+    <>
       <div
         style={{
           marginBottom: 32,
           textAlign: 'left',
         }}
       >
-        <h1 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8 }}>
+        <h1
+          style={{
+            fontSize: 24,
+            fontWeight: 600,
+            marginBottom: 8,
+          }}
+        >
           Porto Guest Mode
         </h1>
         <p
@@ -116,7 +94,6 @@ function Send() {
           handle the account connection for you.
         </p>
       </div>
-
       <form onSubmit={handleSubmit} style={{ marginBottom: 32 }}>
         <div style={{ marginBottom: 16 }}>
           <label
@@ -132,11 +109,7 @@ function Send() {
           </label>
           <Input
             adornments={
-              isResolving
-                ? {
-                    end: `resolving ${resolvingName}…`,
-                  }
-                : undefined
+              ens.isResolving ? { end: `resolving ${recipient}…` } : undefined
             }
             autoFocus
             invalid={
@@ -145,12 +118,11 @@ function Send() {
               !recipient.endsWith('.eth')
             }
             onBlur={() => {
-              if (recipient.endsWith('.eth')) {
-                resolveEns(recipient)
-              }
+              if (recipient.endsWith('.eth'))
+                ens.resolve(recipient as `${string}.eth`)
             }}
             onChange={setRecipient}
-            onFocus={cancelResolve}
+            onFocus={ens.cancel}
             placeholder="0x123… or example.eth"
             type="text"
             value={recipient}
@@ -158,11 +130,25 @@ function Send() {
         </div>
 
         <div style={{ marginBottom: 24 }}>
-          <div style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
+          <div
+            style={{
+              alignItems: 'center',
+              display: 'flex',
+              gap: 8,
+            }}
+          >
+            <div
+              style={{
+                flex: 1,
+                minWidth: 0,
+              }}
+            >
               <Input
                 adornments={{
-                  start: { label: '$', type: 'solid' },
+                  start: {
+                    label: '$',
+                    type: 'solid',
+                  },
                 }}
                 onChange={setAmount}
                 placeholder="5"
@@ -175,13 +161,13 @@ function Send() {
                 disabled={
                   !recipient || !amount || !isAddress(recipient) || isPending
                 }
-                loading={isPending ? 'Paying…' : false}
+                loading={isPending ? 'Sending…' : false}
                 size="medium"
                 style={{ minWidth: 100 }}
                 type="submit"
                 variant="primary"
               >
-                Pay
+                Send
               </Button>
             </div>
           </div>
@@ -200,16 +186,13 @@ function Send() {
             </a>
           </Info>
         )}
-        {isConfirming && <Info type="info">Waiting for confirmation…</Info>}
-        {isConfirmed && <Info type="info">Transaction confirmed!</Info>}
         {error && <Info type="error">{error.message}</Info>}
       </form>
-
       <CodePreview
         amount={amount}
         recipient={isAddress(recipient) ? recipient : null}
       />
-    </div>
+    </>
   )
 }
 
@@ -301,4 +284,44 @@ function CodePreview({
       </div>
     </div>
   )
+}
+
+function useEnsResolver(onResolved: (address: Address) => void = () => {}) {
+  const [isResolving, setIsResolving] = useState(false)
+  const cancelFn = useRef<(() => void) | null>(null)
+
+  const resolve = async (name: `${string}.eth`) => {
+    let cancelled = false
+    cancelFn.current?.()
+    cancelFn.current = () => {
+      cancelled = true
+      cancelFn.current = null
+    }
+    setIsResolving(true)
+
+    try {
+      const address = await mainnetClient.getEnsAddress({
+        name: normalize(name),
+      })
+      if (!cancelled && address) onResolved(address)
+    } catch (error) {
+      if (cancelled) return
+      console.error('ENS resolution failed:', error)
+    } finally {
+      if (cancelled) return
+      cancelFn.current?.()
+      setIsResolving(false)
+    }
+  }
+
+  const cancel = () => {
+    cancelFn.current?.()
+    setIsResolving(false)
+  }
+
+  return {
+    isResolving,
+    resolve,
+    cancel,
+  }
 }
