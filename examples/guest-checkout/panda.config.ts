@@ -1,7 +1,31 @@
 import { defineConfig } from '@pandacss/dev'
-import { portoUiConfig } from '@porto/ui/panda-config'
 
 export default defineConfig({
-  ...portoUiConfig,
-  include: ['./src/**/*.{ts,tsx}', '../../apps/ui/src/**/*.{ts,tsx}'],
+  include: ['./src/**/*.{ts,tsx}'],
+  jsxFramework: 'react',
+  jsxStyleProps: 'none',
+  prefix: 'ui',
+  preflight: false,
+  presets: [],
+  theme: {
+    extend: {
+      animationStyles: {
+        spin: {
+          value: {
+            animation: 'spin 1s linear infinite',
+          },
+        },
+      },
+      keyframes: {
+        'arc-pulse': {
+          '0%, 100%': { strokeDashoffset: 'var(--arc-offset-min)' },
+          '50%': { strokeDashoffset: 'var(--arc-offset-max)' },
+        },
+        spin: {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+      },
+    },
+  },
 })

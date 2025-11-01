@@ -1,4 +1,7 @@
-import { Button, CopyButton, Input, Ui } from '@porto/ui'
+import { Button } from './ui/Button/Button'
+import { CopyButton } from './ui/CopyButton/CopyButton'
+import { Input } from './ui/Input/Input'
+import { Ui } from './ui/Ui/Ui'
 import { useRef, useState } from 'react'
 import { type Address, erc20Abi, type Hex, isAddress, parseUnits } from 'viem'
 import { writeContract } from 'viem/actions'
