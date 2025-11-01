@@ -16,6 +16,7 @@ export type Schema =
             | 'wallet_getCapabilities'
             | 'wallet_getAssets'
             | 'wallet_getCallsStatus'
+            | 'wallet_getCallsHistory'
             | 'wallet_getPermissions'
             | 'wallet_grantPermissions'
             | 'wallet_revokePermissions'
@@ -98,6 +99,10 @@ export type Schema =
       | {
           Request: z.input<typeof Rpc.wallet_getCallsStatus.Request>
           ReturnType: z.input<typeof Rpc.wallet_getCallsStatus.Response>
+        }
+      | {
+          Request: z.input<typeof Rpc.wallet_getCallsHistory.Request>
+          ReturnType: z.input<typeof Rpc.wallet_getCallsHistory.Response>
         }
       | {
           Request: z.input<typeof Rpc.wallet_prepareCalls.Request>
