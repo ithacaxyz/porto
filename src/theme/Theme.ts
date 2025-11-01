@@ -114,6 +114,139 @@ export type Theme<
   fieldPositiveBackground: SchemeColor
   fieldFocusedBackground: SchemeColor
   fieldFocusedContent: SchemeColor
+
+  /**
+   * Hide the email input field in the account creation flow.
+   * When true, the email input field is hidden and a hidden input with empty value is used instead.
+   * This is useful for passkey-only authentication where email collection is not desired.
+   *
+   * When hidden, Porto will use a truncated wallet address as the account label
+   * (e.g., "0x775da7…717e09" - first 8 characters + last 6 characters).
+   *
+   * @default false (shows the email input field with "Optional" label)
+   */
+  hideEmailInput?: boolean | undefined
+
+  /**
+   * Hide the bug report icon in the dialog frame header.
+   * When true, the bug report icon is not displayed.
+   *
+   * @default false (shows the bug report icon)
+   */
+  hideBugReportIcon?: boolean | undefined
+
+  /**
+   * Hide the account switcher link in the signed-in view.
+   * When true, the "Switch" link is not displayed.
+   *
+   * @default false (shows the "Switch" link)
+   */
+  hideAccountSwitcher?: boolean | undefined
+
+  /**
+   * Hide the sign-up link in the signed-in view.
+   * When true, the "Sign up" link is not displayed.
+   *
+   * @default false (shows the "Sign up" link)
+   */
+  hideSignUpLink?: boolean | undefined
+
+  /**
+   * Hide the sign-in button in the "Get started" view.
+   * When true, the "Sign in" button is not displayed.
+   *
+   * @default false (shows the "Sign in" button)
+   */
+  hideSignInButton?: boolean | undefined
+
+  /**
+   * Hide the create account button in the "Get started" view.
+   * When true, the "Create account" button and "First time?" label are not displayed.
+   *
+   * @default false (shows the create account button)
+   */
+  hideCreateAccountButton?: boolean | undefined
+
+  /**
+   * Customizable text labels for the dialog interface.
+   * Allows customization of button text, prompts, and example values.
+   */
+  labels?:
+    | {
+        /**
+         * Text shown before the domain name in the sign-in prompt.
+         * Displayed at the top of the dialog when signing in.
+         *
+         * @default "Use Porto to sign in to"
+         */
+        signInPrompt?: string | undefined
+        /**
+         * Text for the sign-in button.
+         * Shown when the user has the option to sign in with an existing account.
+         *
+         * @default "Sign in with Porto"
+         */
+        signInButton?: string | undefined
+        /**
+         * Text for the sign-up button.
+         * Shown in the account creation flow.
+         *
+         * @default "Sign up with Porto"
+         */
+        signUpButton?: string | undefined
+        /**
+         * Text for the create account button.
+         * Shown when user is creating a new account and sign-in option is also available.
+         *
+         * @default "Create Porto account"
+         */
+        createAccount?: string | undefined
+        /**
+         * Text for the continue button.
+         * Shown when only sign-in is available (no sign-up option).
+         *
+         * @default "Continue with Porto"
+         */
+        continueButton?: string | undefined
+        /**
+         * Dialog title shown in the frame header.
+         * Currently not implemented in the UI.
+         *
+         * @default "Porto"
+         */
+        dialogTitle?: string | undefined
+        /**
+         * Example email/account ID shown in the email input placeholder.
+         * Only used when `hideEmailInput` is false (email input is visible).
+         *
+         * @default "example@ithaca.xyz"
+         */
+        exampleEmail?: string | undefined
+        /**
+         * Email address for bug reports shown in the dialog frame header.
+         * Only used when `hideBugReportIcon` is false (bug icon is visible).
+         *
+         * @default "support@ithaca.xyz"
+         */
+        bugReportEmail?: string | undefined
+        /**
+         * Text for the account switcher link.
+         * Only used when `hideAccountSwitcher` is false (switcher link is visible).
+         * Shown in the signed-in view to allow switching to a different account.
+         *
+         * @default "Switch"
+         */
+        switchAccount?: string | undefined
+        /**
+         * Text for the sign-up link.
+         * Only used when `hideSignUpLink` is false (sign-up link is visible).
+         * Shown in the signed-in view to allow creating a new account.
+         *
+         * @default "Sign up"
+         */
+        signUpLink?: string | undefined
+      }
+    | undefined
 }
 
 type PartialTheme<Th extends Theme<ThemeColorScheme>> = Partial<

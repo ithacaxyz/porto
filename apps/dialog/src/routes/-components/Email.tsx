@@ -24,6 +24,7 @@ export function Email(props: Email.Props) {
       ? state.accountMetadata[account.address]?.email
       : undefined,
   )
+  const customTheme = Dialog.useStore((state) => state.customTheme)
   const displayName = (() => {
     if (!account) return undefined
     if (email) return email
@@ -54,9 +55,11 @@ export function Email(props: Email.Props) {
 
   const content = React.useMemo(() => {
     if (cli) return undefined
+    const signInPromptText =
+      customTheme?.labels?.signInPrompt ?? 'Use Porto to sign in to'
     return (
       <>
-        Use <span className="font-medium">Porto</span> to sign in to{' '}
+        {signInPromptText}{' '}
         {hostname ? (
           <>
             <span className="font-medium">{hostname}</span>
@@ -68,7 +71,7 @@ export function Email(props: Email.Props) {
         .
       </>
     )
-  }, [actions, cli, hostname])
+  }, [actions, cli, customTheme?.labels?.signInPrompt, hostname])
 
   const [invalid, setInvalid] = React.useState(false)
 
@@ -85,7 +88,7 @@ export function Email(props: Email.Props) {
       <Permissions title="Permissions requested" {...permissions} />
 
       <div className="group flex min-h-[48px] w-full flex-col items-center justify-center space-y-3 px-3 pb-3">
-        {actions.includes('sign-in') && (
+        {actions.includes('sign-in') && !customTheme?.hideSignInButton && (
           <Button
             data-testid="sign-in"
             disabled={status === 'loading' || signingUp}
@@ -100,12 +103,13 @@ export function Email(props: Email.Props) {
             width="full"
           >
             {actions.includes('sign-up')
-              ? 'Sign in with Porto'
-              : 'Continue with Porto'}
+              ? (customTheme?.labels?.signInButton ?? 'Sign in with Porto')
+              : (customTheme?.labels?.continueButton ?? 'Continue with Porto')}
           </Button>
         )}
 
-        {actions.includes('sign-up') ? (
+        {actions.includes('sign-up') &&
+        !customTheme?.hideCreateAccountButton ? (
           <form
             className="flex w-full flex-grow flex-col gap-2"
             onInvalid={(event) => {
@@ -115,32 +119,39 @@ export function Email(props: Email.Props) {
             onSubmit={onSignUpSubmit}
           >
             {/* If "Sign in" button is present, show the "First time?" text for sign up. */}
-            {actions.includes('sign-in') && (
+            {actions.includes('sign-in') && !customTheme?.hideSignInButton && (
               <div className="-tracking-[2.8%] flex items-center whitespace-nowrap text-[12px] text-th_base-secondary leading-[17px]">
                 First time?
                 <div className="ms-2 h-px w-full bg-th_separator" />
               </div>
             )}
-            <div className="relative flex items-center">
-              <label className="sr-only" htmlFor="email">
-                Email
-              </label>
-              <Input
-                className={cx(
-                  'w-full bg-th_field',
-                  invalid && 'not-focus-visible:border-th_negative',
-                )}
-                defaultValue={defaultValue}
-                disabled={status === 'loading' || signingIn}
-                name="email"
-                onChange={() => setInvalid(false)}
-                placeholder="example@ithaca.xyz"
-                type="email"
-              />
-              <div className="-tracking-[2.8%] absolute end-3 text-[12px] text-th_base-secondary leading-normal">
-                Optional
+            {customTheme?.hideEmailInput ? (
+              // Hidden input when hideEmailInput is true
+              <input name="email" type="hidden" value="" />
+            ) : (
+              <div className="relative flex items-center">
+                <label className="sr-only" htmlFor="email">
+                  Email
+                </label>
+                <Input
+                  className={cx(
+                    'w-full bg-th_field',
+                    invalid && 'not-focus-visible:border-th_negative',
+                  )}
+                  defaultValue={defaultValue}
+                  disabled={status === 'loading' || signingIn}
+                  name="email"
+                  onChange={() => setInvalid(false)}
+                  placeholder={
+                    customTheme?.labels?.exampleEmail ?? 'example@ithaca.xyz'
+                  }
+                  type="email"
+                />
+                <div className="-tracking-[2.8%] absolute end-3 text-[12px] text-th_base-secondary leading-normal">
+                  Optional
+                </div>
               </div>
-            </div>
+            )}
             <Button
               data-testid="sign-up"
               disabled={status === 'loading' || signingIn}
@@ -152,11 +163,11 @@ export function Email(props: Email.Props) {
               {invalid ? (
                 'Invalid email'
               ) : actions.includes('sign-in') ? (
-                'Create Porto account'
+                (customTheme?.labels?.createAccount ?? 'Create Porto account')
               ) : (
                 <div className="flex gap-2">
                   <IconScanFace className="size-5.25" />
-                  Sign up with Porto
+                  {customTheme?.labels?.signUpButton ?? 'Sign up with Porto'}
                 </div>
               )}
             </Button>
@@ -166,28 +177,51 @@ export function Email(props: Email.Props) {
           // the user may want to sign in with a different passkey.
           <div className="flex w-full justify-between gap-2">
             <div>
-              <span className="text-th_base-secondary">Using</span>{' '}
-              <span className="text-th_base">{displayName}</span>
+              {displayName ? (
+                <>
+                  <span className="text-th_base-secondary">Using</span>{' '}
+                  <span className="text-th_base">{displayName}</span>
+                </>
+              ) : (
+                // Empty placeholder to maintain layout spacing
+                <span>&nbsp;</span>
+              )}
             </div>
-            <div className="flex items-center gap-0.5">
-              <TextButton
-                color="link"
-                onClick={() => {
-                  onApprove({ selectAccount: true, signIn: true })
-                }}
-              >
-                Switch
-              </TextButton>
-              <div className="text-th_base-secondary">⋅</div>
-              <TextButton
-                color="link"
-                onClick={() => {
-                  setActions(['sign-up'])
-                }}
-              >
-                Sign up
-              </TextButton>
-            </div>
+            {(() => {
+              const showSwitcher = !customTheme?.hideAccountSwitcher
+              const showSignUp = !customTheme?.hideSignUpLink
+
+              // If both are hidden, show nothing
+              if (!showSwitcher && !showSignUp) return null
+
+              return (
+                <div className="flex items-center gap-0.5">
+                  {showSwitcher && (
+                    <TextButton
+                      color="link"
+                      onClick={() => {
+                        onApprove({ selectAccount: true, signIn: true })
+                      }}
+                    >
+                      {customTheme?.labels?.switchAccount ?? 'Switch'}
+                    </TextButton>
+                  )}
+                  {showSwitcher && showSignUp && (
+                    <div className="text-th_base-secondary">⋅</div>
+                  )}
+                  {showSignUp && (
+                    <TextButton
+                      color="link"
+                      onClick={() => {
+                        setActions(['sign-up'])
+                      }}
+                    >
+                      {customTheme?.labels?.signUpLink ?? 'Sign up'}
+                    </TextButton>
+                  )}
+                </div>
+              )
+            })()}
           </div>
         )}
       </div>
