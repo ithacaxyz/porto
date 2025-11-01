@@ -13,7 +13,6 @@
     "deploy": "pnpm run build && wrangler deploy"
   },
   "dependencies": {
-    "@porto/apps": "workspace:*",
     "@ariakit/react": "^0.4.18",
     "@tanstack/react-query": "^5",
     "porto": "latest",
