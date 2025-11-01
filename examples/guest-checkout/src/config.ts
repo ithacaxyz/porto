@@ -1,6 +1,6 @@
+import { Mode, Porto } from 'porto'
 import { createClient, createPublicClient, custom, http } from 'viem'
 import { base, baseSepolia, mainnet } from 'viem/chains'
-import { Mode, Porto } from 'porto'
 
 export const chain =
   (import.meta.env.VITE_CHAIN || 'base-sepolia') === 'base' ? base : baseSepolia

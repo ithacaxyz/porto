@@ -1,6 +1,6 @@
 import { Button, CopyButton, Input, Ui } from '@porto/ui'
 import { useRef, useState } from 'react'
-import { type Address, erc20Abi, isAddress, parseUnits, type Hex } from 'viem'
+import { type Address, erc20Abi, type Hex, isAddress, parseUnits } from 'viem'
 import { writeContract } from 'viem/actions'
 import { normalize } from 'viem/ens'
 import { chain, client, mainnetClient, porto, usdcAddress } from './config'
@@ -79,8 +79,8 @@ function Send() {
         abi: erc20Abi,
         account: null,
         address: usdcAddress[chain.id],
-        functionName: 'transfer',
         args: [recipient, parseUnits(amount, 6)],
+        functionName: 'transfer',
       })
 
       if (!cancelled) setHash(txHash)
@@ -108,9 +108,9 @@ function Send() {
       >
         <div
           style={{
+            alignItems: 'start',
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'start',
             marginBottom: 8,
           }}
         >
@@ -136,7 +136,7 @@ function Send() {
         </p>
       </div>
       <form onSubmit={handleSubmit} style={{ marginBottom: 32 }}>
-        <div style={{ marginBottom: 16 }}>
+        <div style={{ marginBottom: 12 }}>
           <label
             style={{
               color: '#666',
@@ -170,12 +170,16 @@ function Send() {
           />
         </div>
 
-        <div style={{ marginBottom: 24 }}>
+        <div
+          style={{
+            marginBottom: 24,
+          }}
+        >
           <div
             style={{
               alignItems: 'center',
               display: 'flex',
-              gap: 8,
+              gap: 12,
             }}
           >
             <div
@@ -227,7 +231,7 @@ function Send() {
             </a>
           </Info>
         )}
-        {error && <Info type="error">{error.message}</Info>}
+        {error ? <Info type="error">{(error as Error).message}</Info> : null}
       </form>
       <CodePreview
         amount={amount}
@@ -316,7 +320,7 @@ function CodePreview({
   abi: erc20Abi,
   `}
           <span
-            style={{ background: '#fef3c7', padding: '0 2px', borderRadius: 2 }}
+            style={{ background: '#fef3c7', borderRadius: 2, padding: '0 2px' }}
           >
             account: null
           </span>
