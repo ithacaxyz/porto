@@ -1,27 +1,31 @@
 import Checkbox from 'expo-checkbox'
-import { AbiFunction, type Hex, Json, Value } from 'ox'
+import * as Linking from 'expo-linking'
+import { AbiFunction, type Address, type Hex, Json, Value } from 'ox'
 import { Key, RelayActions, RelayClient } from 'porto/viem'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import {
   Button,
-  Linking,
   ScrollView,
   StatusBar,
   type StyleProp,
   Text,
+  TextInput,
   type TextStyle,
   TouchableOpacity,
   View,
 } from 'react-native'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import {
+  generatePrivateKey,
+  privateKeyToAccount,
+  privateKeyToAddress,
+} from 'viem/accounts'
+import {
   useAccount,
   useCapabilities,
   useChainId,
-  useConnect,
   useConnectors,
-  useDisconnect,
   useSendCalls,
   useSignMessage,
   useWaitForCallsStatus,
@@ -30,6 +34,15 @@ import {
 import { config, permissions } from './config.ts'
 import { exp1Abi, exp1Address } from './contracts.ts'
 import { Providers } from './Providers.tsx'
+
+const SERVER_BASE_URL = process.env.EXPO_PUBLIC_SIWE_URL
+if (!SERVER_BASE_URL) throw new Error('EXPO_PUBLIC_SIWE_URL is not set')
+
+const authUrl = {
+  logout: `${SERVER_BASE_URL}/api/siwe/logout`,
+  nonce: `${SERVER_BASE_URL}/api/siwe/nonce`,
+  verify: `${SERVER_BASE_URL}/api/siwe/verify`,
+} as const
 
 export default function App() {
   const [sessionKey, setSessionKey] = React.useState<Key.Key | null>(null)
@@ -45,15 +58,25 @@ export default function App() {
             <Link
               href="https://porto.sh/sdk/api/mode#modereactnative"
               style={{
-                fontSize: 26,
+                fontSize: 22,
                 fontWeight: '600',
                 textAlign: 'center',
                 textDecorationLine: 'none',
               }}
-              text="Porto React Native Example"
+              text="Porto React Native (Dialog Mode)"
             />
+            <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Connect</Text>
             <Connect />
+            <Divider />
+            <Me />
+            <Divider />
+            <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
+              EOA to Porto Account
+            </Text>
+            <UpgradeAccount />
+            <Divider />
             <SignMessage />
+            <Divider />
             <SendCalls />
             <Divider />
             <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
@@ -63,7 +86,7 @@ export default function App() {
             <GetPermissions />
             <Divider />
             <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
-              App-managed Signing
+              App-managed Signing ("session keys")
             </Text>
             <GrantKeyPermissions onKeyCreated={setSessionKey} />
             <PreparedCalls sessionKey={sessionKey} />
@@ -78,57 +101,58 @@ export default function App() {
 }
 
 function Connect() {
-  const [email, setEmail] = React.useState<boolean>(true)
-  const [grantPermissions, setGrantPermissions] = React.useState<boolean>(false)
+  const [email, setEmail] = React.useState(true)
+  const [grantPermissions, setGrantPermissions] = React.useState(false)
+  const [signInWithEthereum, setSignInWithEthereum] = React.useState(
+    !!process.env.EXPO_PUBLIC_SIWE_URL,
+  )
 
   const account = useAccount()
-  const connect = useConnect()
-
-  const disconnect = useDisconnect()
+  const connect = Hooks.useConnect()
   const [connector] = useConnectors()
+  const disconnect = Hooks.useDisconnect()
 
   return (
     <View style={{ marginBottom: 16 }}>
       <Text>wallet_connect</Text>
       <View>
-        {account.isDisconnected && (
-          <Button
-            onPress={async () =>
-              connect.connect({
-                capabilities: {
-                  createAccount: false,
-                  email,
-                  grantPermissions: grantPermissions
-                    ? permissions()
-                    : undefined,
-                },
-                connector,
-              })
-            }
-            title="Login"
-          />
-        )}
+        <Button
+          onPress={async () =>
+            connect.mutate({
+              connector,
+              createAccount: false,
+              email,
+              grantPermissions: grantPermissions ? permissions() : undefined,
+              signInWithEthereum: signInWithEthereum ? { authUrl } : undefined,
+            })
+          }
+          title="Login"
+        />
         <Divider />
         <Button
-          onPress={async () => {
-            disconnect.disconnectAsync().then(() =>
-              connect.connect({
-                capabilities: {
-                  createAccount: true,
-                  email,
-                  grantPermissions: grantPermissions
-                    ? permissions()
-                    : undefined,
-                },
-                connector,
-              }),
-            )
-          }}
+          onPress={() =>
+            connect.mutate({
+              connector,
+              createAccount: true,
+              email,
+              grantPermissions: grantPermissions ? permissions() : undefined,
+              signInWithEthereum: signInWithEthereum
+                ? {
+                    authUrl,
+                  }
+                : undefined,
+            })
+          }
           title="Register"
+        />
+        <Divider />
+        <Button
+          onPress={() => disconnect.mutate({ connector })}
+          title="Disconnect"
         />
       </View>
 
-      <View style={{ display: 'flex', flexDirection: 'row', gap: 10 }}>
+      <View style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         <View style={{ display: 'flex', flexDirection: 'row', gap: 5 }}>
           <Checkbox onValueChange={() => setEmail((x) => !x)} value={email} />
           <Text>Email</Text>
@@ -141,37 +165,145 @@ function Connect() {
           />
           <Text>Grant Permissions</Text>
         </View>
+        <View style={{ display: 'flex', flexDirection: 'row', gap: 5 }}>
+          <Checkbox
+            onValueChange={() => setSignInWithEthereum((x) => !x)}
+            value={signInWithEthereum}
+          />
+          <Text>Sign-In with Ethereum</Text>
+        </View>
       </View>
+
       {connect.isPending && <Text>Connecting...</Text>}
-      {account.address && (
+      {connect.isSuccess && account.isConnected && (
         <Pre
-          text={Json.stringify(
-            {
-              addresses: account.addresses,
-              chainId: account.chainId,
-              status: account.status,
-            },
-            null,
-            2,
-          )}
+          text={{
+            account: account.address,
+            admins: connect.data?.accounts[0]?.capabilities?.admins,
+            permissions: connect.data?.accounts[0]?.capabilities?.permissions,
+            signInWithEthereum:
+              connect.data?.accounts[0]?.capabilities?.signInWithEthereum
+                ?.message,
+          }}
         />
       )}
-      {connect.isError && <Pre text={connect.error.message} />}
-      {connect.isSuccess ||
-        (account.isConnected && (
-          <Button onPress={() => disconnect.disconnect()} title="Disconnect" />
-        ))}
+      {connect.isError && <Pre text={connect.error} />}
+    </View>
+  )
+}
+
+function Me() {
+  const [authToken, setAuthToken] = React.useState<string | null>(null)
+
+  return (
+    <View>
+      <Text>Fetch /me (authenticated endpoint)</Text>
+      <Button
+        onPress={async () => {
+          try {
+            const response = await fetch(`${SERVER_BASE_URL}/api/me`, {
+              credentials: 'include',
+            })
+            const data = await response.text()
+            setAuthToken(data)
+          } catch (error) {
+            console.error(error)
+            setAuthToken(null)
+          }
+        }}
+        title="Fetch /me"
+      />
+      {authToken && <Pre text={authToken} />}
+    </View>
+  )
+}
+
+function UpgradeAccount() {
+  const [accountData, setAccountData] = React.useState<{
+    address: Address.Address
+    privateKey: Hex.Hex
+  } | null>(null)
+  const [grantPermissions, setGrantPermissions] = React.useState(true)
+  const [privateKey, setPrivateKey] = React.useState<Hex.Hex | null>(null)
+
+  const account = useAccount()
+  const [connector] = useConnectors()
+  const disconnect = Hooks.useDisconnect()
+
+  const upgradeAccount = Hooks.useUpgradeAccount({
+    mutation: {
+      onError: (error) => console.error(error),
+    },
+  })
+
+  return (
+    <View>
+      <Text>wallet_upgradeAccount</Text>
+      <View>
+        <Button
+          onPress={() => {
+            const privateKey = generatePrivateKey()
+            setPrivateKey(privateKey)
+            setAccountData({
+              address: privateKeyToAddress(privateKey),
+              privateKey,
+            })
+          }}
+          title="Create EOA"
+        />
+
+        {accountData && <Pre text={accountData} />}
+      </View>
+      <View>
+        <TextInput
+          onChangeText={(text) => setPrivateKey(text as Hex.Hex)}
+          placeholder="Private Key (leave empty to generate new EOA)"
+          style={{
+            borderColor: '#ccc',
+            borderWidth: 1,
+            flex: 1,
+            height: 30,
+          }}
+          value={privateKey ?? ''}
+        />
+      </View>
+      <View style={{ display: 'flex', flexDirection: 'row', gap: 5 }}>
+        <Checkbox
+          onValueChange={() => setGrantPermissions((x) => !x)}
+          value={grantPermissions}
+        />
+        <Text>Grant Permissions</Text>
+      </View>
+      <View>
+        <Button
+          onPress={async () => {
+            if (account.isConnected) disconnect.mutate({ connector })
+            upgradeAccount.mutate({
+              account: privateKeyToAccount(privateKey as Hex.Hex),
+              connector,
+              grantPermissions: grantPermissions ? permissions() : undefined,
+            })
+          }}
+          title="Upgrade EOA to Porto Account"
+        />
+      </View>
+      {upgradeAccount.isPending && <Text>Upgrading Account...</Text>}
+      <Pre text={upgradeAccount.status} />
+      {upgradeAccount.isSuccess && <Pre text={upgradeAccount.data} />}
+      {upgradeAccount.isError && <Pre text={upgradeAccount.error} />}
     </View>
   )
 }
 
 function SignMessage() {
+  const account = useAccount()
   const signMessage = useSignMessage()
 
   return (
     <View style={{ marginBottom: 16 }}>
       <Text>personal_sign</Text>
       <Button
+        disabled={!account.address}
         onPress={async () =>
           signMessage.signMessage({ message: 'hello world' })
         }
@@ -185,11 +317,14 @@ function SignMessage() {
 }
 
 function GrantPermissions() {
+  const account = useAccount()
   const grantPermissions = Hooks.useGrantPermissions()
+
   return (
     <View style={{ marginBottom: 16 }}>
       <Text>wallet_grantPermissions</Text>
       <Button
+        disabled={!account.address}
         onPress={async () => grantPermissions.mutate(permissions())}
         title="Grant Permissions"
       />
@@ -235,8 +370,9 @@ function SendCalls() {
 
   return (
     <View style={{ marginBottom: 16 }}>
-      <Text>wallet_sendCalls (Mint 100 EXP)</Text>
+      <Text>wallet_sendCalls</Text>
       <Button
+        disabled={!account.address}
         onPress={() =>
           sendCalls.sendCalls({
             calls: [
@@ -250,7 +386,7 @@ function SendCalls() {
             ],
           })
         }
-        title="Send Calls"
+        title="Mint 100 EXP"
       />
       {sendCalls.isPending && <Text>Sending Calls...</Text>}
       {sendCalls.isError && <Pre text={sendCalls.error.message} />}
@@ -274,14 +410,20 @@ function GrantKeyPermissions({
 }: {
   onKeyCreated: (key: Key.Key | null) => void
 }) {
+  const account = useAccount()
   const chainId = useChainId()
   const grantPermissions = Hooks.useGrantPermissions()
+
+  const connect = Hooks.useConnect()
+  const [connector] = useConnectors()
 
   return (
     <View style={{ marginBottom: 16 }}>
       <Text> Create Key & Grant Permissions</Text>
       <Button
+        disabled={!account.address}
         onPress={async () => {
+          if (account.isDisconnected) connect.mutate({ connector })
           const key = Key.createHeadlessWebAuthnP256({
             ...permissions(),
             role: 'session',
@@ -292,6 +434,7 @@ function GrantKeyPermissions({
           try {
             await grantPermissions.mutateAsync({
               chainId,
+              connector,
               ...permissions(),
               key,
             })
@@ -310,7 +453,6 @@ function GrantKeyPermissions({
 }
 
 function PreparedCalls({ sessionKey }: { sessionKey: Key.Key | null }) {
-  const chainId = useChainId()
   const account = useAccount()
 
   const [isPending, setIsPending] = React.useState(false)
@@ -347,7 +489,7 @@ function PreparedCalls({ sessionKey }: { sessionKey: Key.Key | null }) {
           {
             data: AbiFunction.encodeData(AbiFunction.fromAbi(exp1Abi, 'mint'), [
               account.address!,
-              Value.fromEther('100'),
+              Value.fromEther('10'),
             ]),
             to: exp1Address,
           },
@@ -389,7 +531,7 @@ function PreparedCalls({ sessionKey }: { sessionKey: Key.Key | null }) {
       <Button
         disabled={isPending || !sessionKey}
         onPress={sendPreparedCalls}
-        title="Mint 100 EXP"
+        title="Mint 10 EXP"
       />
       {isPending && <Text>Sending Prepared Calls...</Text>}
       {isSuccess && <Text>Prepared Calls Sent Successfully</Text>}
@@ -408,6 +550,7 @@ function PreparedCalls({ sessionKey }: { sessionKey: Key.Key | null }) {
 }
 
 function Capabilities() {
+  const account = useAccount()
   const [fetchCapabilities, setFetchCapabilities] = React.useState(false)
   const capabilities = useCapabilities({
     query: {
@@ -418,6 +561,7 @@ function Capabilities() {
     <View style={{ marginBottom: 16 }}>
       <Text>wallet_getCapabilities</Text>
       <Button
+        disabled={!account.address}
         onPress={() => setFetchCapabilities(true)}
         title="Get Capabilities"
       />

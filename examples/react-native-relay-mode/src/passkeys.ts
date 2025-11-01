@@ -1,26 +1,26 @@
 import { Base64 } from 'ox'
+import type { Mode } from 'porto'
 import { Platform } from 'react-native'
-import * as passkey from 'react-native-passkeys'
+
 import type OxWebAuthn from '../node_modules/ox/_types/core/internal/webauthn'
 
-const RELYING_PARTY_DOMAIN = process.env.EXPO_PUBLIC_SERVER_URL
-if (!RELYING_PARTY_DOMAIN) console.warn('EXPO_PUBLIC_SERVER_URL is not set')
+const SERVER_URL = process.env.EXPO_PUBLIC_SERVER_URL
+if (!SERVER_URL) console.warn('EXPO_PUBLIC_SERVER_URL is not set')
+
+const RELYING_PARTY_DOMAIN = SERVER_URL.replace('https://', '')
 
 const name = 'porto-relay-mode'
 
 export const rp = {
   id: Platform.select({
-    android: RELYING_PARTY_DOMAIN.replace('https://', ''),
-    ios: RELYING_PARTY_DOMAIN.replace('https://', ''),
+    default: RELYING_PARTY_DOMAIN,
+    web: 'self',
   }),
   name,
 } satisfies PublicKeyCredentialRpEntity
 
 export const user = {
   displayName: name.replaceAll('-', ' ').toLocaleUpperCase(),
-  /**
-   * @note
-   */
   id: bufferToBase64URL(new Uint8Array(16)),
   name,
 } satisfies PublicKeyCredentialUserEntityJSON
@@ -30,9 +30,34 @@ export const authenticatorSelection = {
   userVerification: 'preferred',
 } satisfies AuthenticatorSelectionCriteria
 
+type PasskeysModule = typeof import('react-native-passkeys')
+
+const passkeysModule = (() => {
+  try {
+    const module = require('react-native-passkeys') as PasskeysModule
+    if (typeof module.isSupported === 'function' && !module.isSupported())
+      return null
+    return module
+  } catch {
+    return null
+  }
+})()
+
+export const supportsAccountUpgrade = Boolean(passkeysModule)
+
+export const webAuthn:
+  | NonNullable<Parameters<typeof Mode.relay>[number]>['webAuthn']
+  | undefined = supportsAccountUpgrade
+  ? {
+      createFn,
+      getFn,
+    }
+  : undefined
+
 export async function createFn(
   options?: OxWebAuthn.CredentialCreationOptions,
-): Promise<Credential | null> {
+): Promise<OxWebAuthn.Credential | null> {
+  const passkeys = assertPasskeys()
   const publicKey = (options?.publicKey ||
     options) as PublicKeyCredentialCreationOptions
 
@@ -58,7 +83,7 @@ export async function createFn(
     },
   }
 
-  const response = await passkey.create(json)
+  const response = await passkeys.create(json)
   if (!response) throw new Error('Passkey creation cancelled')
 
   const credential = {
@@ -81,16 +106,17 @@ export async function createFn(
     type: response.type,
   }
 
-  return credential as unknown as Credential
+  return credential as unknown as OxWebAuthn.Credential
 }
 
 export async function getFn(
   options?: OxWebAuthn.CredentialRequestOptions,
-): Promise<Credential | null> {
+): Promise<OxWebAuthn.Credential | null> {
+  const passkeys = assertPasskeys()
   const publicKey =
     options?.publicKey || (options as PublicKeyCredentialRequestOptions)
 
-  const response = await passkey.get({
+  const response = await passkeys.get({
     allowCredentials: publicKey.allowCredentials?.map((item) => ({
       ...item,
       id: bufferToBase64URL(item.id as ArrayBuffer),
@@ -120,7 +146,15 @@ export async function getFn(
     type: response.type,
   }
 
-  return credential as unknown as Credential
+  return credential as unknown as OxWebAuthn.Credential
+}
+
+function assertPasskeys(): PasskeysModule {
+  if (!passkeysModule)
+    throw new Error(
+      'react-native-passkeys native module is unavailable. Install the module and rebuild the app.',
+    )
+  return passkeysModule
 }
 
 function arrayBufferToBase64URL(buffer: ArrayBuffer) {

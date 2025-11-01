@@ -69,8 +69,6 @@ function RouteComponent() {
     },
   })
 
-  useAuthSessionRedirect(respond)
-
   const status = React.useMemo(() => {
     if (capabilities?.grantPermissions && grantPermissionsQuery.isFetching)
       return 'loading'
@@ -81,6 +79,8 @@ function RouteComponent() {
     grantPermissionsQuery.isFetching,
     respond.isPending,
   ])
+
+  useAuthSessionRedirect(respond)
 
   if (capabilities?.email ?? true)
     return (

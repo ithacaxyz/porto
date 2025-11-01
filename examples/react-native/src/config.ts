@@ -3,7 +3,7 @@ import { Value } from 'ox'
 import { baseSepolia } from 'porto/core/Chains'
 import { Mode } from 'porto/react-native'
 import { porto as portoConnector } from 'porto/wagmi'
-import { Platform } from 'react-native'
+import * as Passkeys from 'react-native-passkeys'
 import { createConfig, createStorage, http } from 'wagmi'
 
 import { exp1Address, exp2Address } from './contracts.ts'
@@ -12,9 +12,11 @@ export const config = createConfig({
   chains: [baseSepolia],
   connectors: [
     portoConnector({
-      ...Platform.select({
-        default: { mode: Mode.reactNative() },
-        web: { mode: Mode.dialog() },
+      mode: Mode.reactNative({
+        supportAccountUpgrades: {
+          keyStoreHost: 'portox.up.railway.app',
+          passkeysModule: Passkeys,
+        },
       }),
     }),
   ],
@@ -51,7 +53,7 @@ export const permissions = () =>
       ],
       spend: [
         {
-          limit: Value.fromEther('50000'),
+          limit: Value.fromEther('500'),
           period: 'minute',
           token: exp1Address,
         },

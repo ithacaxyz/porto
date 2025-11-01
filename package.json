@@ -72,6 +72,7 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-native": "0.81.4",
+    "react-native-passkeys": "^0.4.0",
     "sherif": "^1.6.1",
     "simple-git-hooks": "^2.13.1",
     "size-limit": "^11.2.0",
@@ -238,6 +239,9 @@
     "react-native": {
       "optional": true
     },
+    "react-native-passkeys": {
+      "optional": true
+    },
     "typescript": {
       "optional": true
     },
@@ -295,6 +299,8 @@
     "./core/Mode": {
       "src": "./src/core/Mode.ts",
       "types": "./dist/core/Mode.d.ts",
+      "react-native": "./dist/core/Mode.native.js",
+      "browser": "./dist/core/Mode.js",
       "default": "./dist/core/Mode.js"
     },
     "./core/Porto": {

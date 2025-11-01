@@ -3,31 +3,79 @@ import type { ConfigContext, ExpoConfig } from 'expo/config'
 const SCHEME = 'porto-react-native'
 const BUNDLE_IDENTIFIER = `com.example.${SCHEME}`
 
-export const expoConfig = {
+const EXPO_TUNNEL_DOMAIN = `${process.env.EXPO_TUNNEL_SUBDOMAIN || SCHEME}.ngrok.io`
+
+const ASSOCIATED_DOMAINS = [
+  `applinks:${SCHEME}`,
+  `applinks:${EXPO_TUNNEL_DOMAIN}`,
+  `webcredentials:${SCHEME}`,
+  `webcredentials:${EXPO_TUNNEL_DOMAIN}`,
+]
+
+const SERVER_URL = process.env.EXPO_PUBLIC_SERVER_URL
+if (SERVER_URL) {
+  ASSOCIATED_DOMAINS.push(
+    `applinks:${SERVER_URL.replaceAll('https://', '')}`,
+    `webcredentials:${SERVER_URL.replaceAll('https://', '')}`,
+  )
+} else console.warn('EXPO_PUBLIC_SERVER_URL is not set')
+
+export default (_context: ConfigContext): ExpoConfig => ({
   android: {
     adaptiveIcon: {
       backgroundColor: '#ffffff',
       foregroundImage: './assets/adaptive-icon.png',
     },
     edgeToEdgeEnabled: true,
+    newArchEnabled: true,
     package: BUNDLE_IDENTIFIER.replaceAll('-', '_'),
     predictiveBackGestureEnabled: false,
   },
   experiments: {
     reactCompiler: true,
+    turboModules: true,
+  },
+  extra: {
+    eas: {
+      projectId: 'cd5f88e2-6b90-46da-9851-0b901a6954b4',
+    },
   },
   icon: './assets/icon.png',
   ios: {
+    associatedDomains: ASSOCIATED_DOMAINS,
     bundleIdentifier: BUNDLE_IDENTIFIER,
     config: {
       usesNonExemptEncryption: false,
     },
+    newArchEnabled: true,
     supportsTablet: true,
   },
   name: SCHEME,
   newArchEnabled: true,
   orientation: 'portrait',
-  plugins: ['expo-web-browser'],
+  owner: 'ithaca',
+  plugins: [
+    ['expo-web-browser', { experimentalLauncherActivity: true }],
+    ['expo-dev-client', { launchMode: 'most-recent' }],
+    [
+      'expo-secure-store',
+      {
+        faceIDPermission:
+          'Allow $(PRODUCT_NAME) to access your Face ID biometric data.',
+      },
+    ],
+    [
+      'expo-build-properties',
+      {
+        android: {
+          compileSdkVersion: 36,
+        },
+        ios: {
+          deploymentTarget: '26.0',
+        },
+      },
+    ],
+  ],
   scheme: SCHEME,
   slug: SCHEME,
   splash: {
@@ -42,6 +90,4 @@ export const expoConfig = {
     favicon: './assets/favicon.png',
     output: 'single',
   },
-} as const satisfies ExpoConfig
-
-export default (_context: ConfigContext): ExpoConfig => expoConfig
+})

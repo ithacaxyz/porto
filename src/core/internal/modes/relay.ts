@@ -19,6 +19,7 @@ import * as Erc8010 from '../erc8010.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import * as RequiredFunds from '../requiredFunds.js'
+import type * as Capabilities from '../schema/capabilities.js'
 import * as Siwe from '../siwe.js'
 import * as Tokens from '../tokens.js'
 import * as U from '../utils.js'
@@ -64,7 +65,7 @@ export function relay(parameters: relay.Parameters = {}) {
           internal,
           signInWithEthereum,
         } = parameters
-        const { client } = internal
+        const { client, config } = internal
 
         const eoa = eoa_ ?? Account.fromPrivateKey(Secp256k1.randomPrivateKey())
 
@@ -106,19 +107,41 @@ export function relay(parameters: relay.Parameters = {}) {
 
         const signInWithEthereum_response = await (async () => {
           if (!signInWithEthereum) return undefined
+          const resolvedSignInWithEthereum =
+            resolveSiweDefaults(signInWithEthereum)
 
-          const message = await Siwe.buildMessage(client, signInWithEthereum, {
-            address: account.address,
-          })
+          const message = await Siwe.buildMessage(
+            client,
+            resolvedSignInWithEthereum,
+            {
+              address: account.address,
+            },
+          )
           const signature = await Account.sign(eoa, {
             payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
+            storage: config.storage,
+            webAuthn,
           })
           const signature_erc8010 = await Erc8010.wrap(client, {
             address: account.address,
             signature,
           })
 
-          return { message, signature: signature_erc8010 }
+          // If authUrl is provided, authenticate with the server
+          const authUrl = signInWithEthereum.authUrl
+            ? Siwe.resolveAuthUrl(signInWithEthereum.authUrl)
+            : undefined
+
+          if (!authUrl) return { message, signature: signature_erc8010 }
+
+          const { token } = await Siwe.authenticate({
+            address: account.address,
+            authUrl,
+            message,
+            signature: signature_erc8010,
+          })
+
+          return { message, signature: signature_erc8010, token }
         })()
 
         return {
@@ -291,7 +314,7 @@ export function relay(parameters: relay.Parameters = {}) {
 
       async grantPermissions(parameters) {
         const { account, internal, permissions } = parameters
-        const { client } = internal
+        const { client, config } = internal
 
         const feeTokens = await Tokens.getTokens(client)
 
@@ -316,6 +339,8 @@ export function relay(parameters: relay.Parameters = {}) {
         const signature = await Key.sign(adminKey, {
           address: null,
           payload: digest,
+          storage: config.storage,
+          webAuthn,
         })
         await RelayActions.sendPreparedCalls(client, {
           context,
@@ -328,7 +353,7 @@ export function relay(parameters: relay.Parameters = {}) {
 
       async loadAccounts(parameters) {
         const { internal, permissions, signInWithEthereum } = parameters
-        const { client } = internal
+        const { client, config } = internal
 
         const feeTokens = await Tokens.getTokens(client)
 
@@ -342,9 +367,11 @@ export function relay(parameters: relay.Parameters = {}) {
         // prepareCalls requires the EOA address, but we don't know it here.
         const { digest, digestType, message } = await (async () => {
           if (signInWithEthereum && parameters.address) {
+            const resolvedSignInWithEthereum =
+              resolveSiweDefaults(signInWithEthereum)
             const message = await Siwe.buildMessage(
               client,
-              signInWithEthereum,
+              resolvedSignInWithEthereum,
               {
                 address: parameters.address,
               },
@@ -430,6 +457,12 @@ export function relay(parameters: relay.Parameters = {}) {
 
         const adminKey = Account.getKey(account, { role: 'admin' })!
 
+        if (webAuthnSignature && config.storage)
+          await config.storage.setItem(
+            `porto.webauthnVerified.${adminKey.hash}`,
+            Date.now(),
+          )
+
         // Get the signature of the authorize session key pre-call.
         const signature = await (async () => {
           // If we don't have a digest, we never signed over anything.
@@ -452,6 +485,8 @@ export function relay(parameters: relay.Parameters = {}) {
           return await Key.sign(adminKey, {
             address: account.address,
             payload: digest,
+            storage: config.storage,
+            webAuthn,
           })
         })()
 
@@ -465,6 +500,8 @@ export function relay(parameters: relay.Parameters = {}) {
           const signature = await Key.sign(adminKey, {
             address: null,
             payload: digest,
+            storage: config.storage,
+            webAuthn,
           })
           await RelayActions.sendPreparedCalls(client, {
             context,
@@ -475,6 +512,8 @@ export function relay(parameters: relay.Parameters = {}) {
 
         const signInWithEthereum_response = await (async () => {
           if (!signInWithEthereum) return undefined
+          const resolvedSignInWithEthereum =
+            resolveSiweDefaults(signInWithEthereum)
 
           if (digestType === 'siwe' && message && signature) {
             const signature_erc8010 = await Erc8010.wrap(client, {
@@ -484,27 +523,39 @@ export function relay(parameters: relay.Parameters = {}) {
             return { message, signature: signature_erc8010 }
           }
 
-          {
-            const message = await Siwe.buildMessage(
-              client,
-              signInWithEthereum,
-              {
-                address: account.address,
-              },
-            )
-            const signature = await Account.sign(account, {
-              payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
-              role: 'admin',
-            })
-            const signature_erc8010 = await Erc8010.wrap(client, {
+          const message_ = await Siwe.buildMessage(
+            client,
+            resolvedSignInWithEthereum,
+            {
               address: account.address,
-              signature,
-            })
-            return {
-              message,
-              signature: signature_erc8010,
-            }
-          }
+            },
+          )
+          const signature_ = await Account.sign(account, {
+            payload: PersonalMessage.getSignPayload(Hex.fromString(message_)),
+            role: 'admin',
+            webAuthn,
+          })
+          const signature_erc8010 = await Erc8010.wrap(client, {
+            address: account.address,
+            signature: signature_,
+          })
+
+          // If authUrl is provided, authenticate with the server
+          const authUrl = signInWithEthereum.authUrl
+            ? Siwe.resolveAuthUrl(signInWithEthereum.authUrl)
+            : undefined
+
+          if (!authUrl)
+            return { message: message_, signature: signature_erc8010 }
+
+          const { token } = await Siwe.authenticate({
+            address: account.address,
+            authUrl,
+            message: message_,
+            signature: signature_erc8010,
+          })
+
+          return { message: message_, signature: signature_erc8010, token }
         })()
 
         return {
@@ -774,7 +825,7 @@ export function relay(parameters: relay.Parameters = {}) {
 
       async signPersonalMessage(parameters) {
         const { account, data, internal } = parameters
-        const { client } = internal
+        const { client, config } = internal
 
         // Only admin keys can sign personal messages.
         const key = account.keys?.find(
@@ -785,6 +836,7 @@ export function relay(parameters: relay.Parameters = {}) {
         const signature = await Account.sign(account, {
           key,
           payload: PersonalMessage.getSignPayload(data),
+          storage: config.storage,
           webAuthn,
         })
 
@@ -793,7 +845,7 @@ export function relay(parameters: relay.Parameters = {}) {
 
       async signTypedData(parameters) {
         const { account, internal } = parameters
-        const { client } = internal
+        const { client, config } = internal
 
         // Only admin keys can sign typed data.
         const key = account.keys?.find(
@@ -808,6 +860,7 @@ export function relay(parameters: relay.Parameters = {}) {
           payload: TypedData.getSignPayload(data),
           // If the domain is the Orchestrator, we don't need to replay-safe sign.
           replaySafe: !isOrchestrator,
+          storage: config.storage,
           webAuthn,
         })
 
@@ -837,7 +890,7 @@ export function relay(parameters: relay.Parameters = {}) {
       async verifyEmail(parameters) {
         const { account, chainId, email, token, internal, walletAddress } =
           parameters
-        const { client } = internal
+        const { client, config } = internal
 
         // Only allow admin keys can sign message.
         const key = account.keys?.find(
@@ -848,6 +901,7 @@ export function relay(parameters: relay.Parameters = {}) {
         const signature = await Account.sign(account, {
           key,
           payload: Hash.keccak256(Hex.fromString(`${email}${token}`)),
+          storage: config.storage,
           webAuthn,
         })
 
@@ -863,6 +917,39 @@ export function relay(parameters: relay.Parameters = {}) {
     config: parameters,
     name: 'rpc',
   })
+}
+
+function resolveSiweDefaults(
+  capability: Capabilities.signInWithEthereum.Request,
+): Capabilities.signInWithEthereum.Request {
+  const location =
+    typeof window !== 'undefined' && typeof window.location !== 'undefined'
+      ? window.location
+      : undefined
+
+  if (!location) return capability
+
+  const domain =
+    capability.domain ??
+    (location.host?.length
+      ? location.host
+      : location.hostname?.length
+        ? location.hostname
+        : undefined)
+  const uri =
+    capability.uri ??
+    location.href ??
+    (location?.origin
+      ? `${location.origin}${location.pathname ?? ''}${location.search ?? ''}${location.hash ?? ''}`
+      : undefined)
+
+  if (!domain || !uri) return capability
+
+  return {
+    ...capability,
+    domain,
+    uri,
+  }
 }
 
 export declare namespace relay {
