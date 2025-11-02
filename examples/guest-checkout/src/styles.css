@@ -1,0 +1,80 @@
+@import "tailwindcss";
+@import "../styled-system/styles.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --text-base: 15px;
+  --text-base--line-height: calc(1.325 / 1);
+
+  /* Porto UI theme tokens */
+  --color-th_accent: light-dark(#0588f0, #3b9eff);
+  --color-th_focus: light-dark(#0090ff, #0090ff);
+  --color-th_link: light-dark(#0588f0, #3b9eff);
+
+  --radius-th_small: 5px;
+  --radius-th_medium: 8px;
+  --radius-th_large: 14px;
+  --radius-th_frame: 14px;
+
+  --background-color-th_base: light-dark(#fcfcfc, #191919);
+  --background-color-th_base-plane: light-dark(#f9f9f9, #222222);
+  --background-color-th_base-hovered: light-dark(#f0f0f0, #222222);
+  --background-color-th_frame: light-dark(#fcfcfc, #191919);
+  --background-color-th_badge: light-dark(#e0e0e0, #222222);
+  --background-color-th_primary: light-dark(#0090ff, #0090ff);
+  --background-color-th_secondary: light-dark(#e8e8e8, #2a2a2a);
+  --background-color-th_distinct: light-dark(#fcfcfc, #111111);
+  --background-color-th_disabled: light-dark(#f0f0f0, #222222);
+  --background-color-th_negative: light-dark(#dc3e42, #8f6424);
+  --background-color-th_negative-secondary: light-dark(#fcd8da, #500f1c);
+  --background-color-th_positive: light-dark(#30a46c, #30a46c);
+  --background-color-th_strong: light-dark(#202020, #eeeeee);
+  --background-color-th_warning-strong: light-dark(#e2a336, #e2a336);
+  --background-color-th_field: light-dark(#f9f9f9, #191919);
+
+  --border-color-th_frame: light-dark(#f0f0f0, #313131);
+  --border-color-th_primary: light-dark(#0090ff, #0090ff);
+  --border-color-th_secondary: light-dark(#e8e8e8, #2a2a2a);
+  --border-color-th_distinct: light-dark(#e8e8e8, #313131);
+  --border-color-th_disabled: light-dark(#f0f0f0, #222222);
+  --border-color-th_negative: light-dark(#dc3e42, #8f6424);
+  --border-color-th_negative-secondary: light-dark(#fcd8da, #500f1c);
+  --border-color-th_positive: light-dark(#30a46c, #30a46c);
+  --border-color-th_strong: light-dark(#202020, #eeeeee);
+  --border-color-th_warning-strong: light-dark(#e2a336, #e2a336);
+  --border-color-th_field: light-dark(#e0e0e0, #313131);
+  --border-color-th_field-error: light-dark(#eb8e90, #b54548);
+
+  --text-color-th_badge: light-dark(#838383, #7b7b7b);
+  --text-color-th_frame: light-dark(#8d8d8d, #6e6e6e);
+  --text-color-th_base-positive: light-dark(#30a46c, #30a46c);
+  --text-color-th_primary: light-dark(#ffffff, #ffffff);
+  --text-color-th_secondary: light-dark(#202020, #eeeeee);
+  --text-color-th_distinct: light-dark(#000000, #ffffff);
+  --text-color-th_disabled: light-dark(#bbbbbb, #606060);
+  --text-color-th_negative: light-dark(#ffffff, #ffffff);
+  --text-color-th_negative-secondary: light-dark(#e5484d, #e5484d);
+  --text-color-th_positive: light-dark(#ffffff, #ffffff);
+  --text-color-th_strong: light-dark(#ffffff, #000000);
+  --text-color-th_warning-strong: light-dark(#ffffff, #ffffff);
+  --text-color-th_field: light-dark(#202020, #eeeeee);
+  --text-color-th_field-secondary: light-dark(#8d8d8d, #6e6e6e);
+  --text-color-th_field-tertiary: light-dark(#bbbbbb, #606060);
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  font-family:
+    SFRounded, ui-rounded, "SF Pro Rounded", -apple-system, "system-ui", "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  @apply text-base;
+}
+
+pre {
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+}

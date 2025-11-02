@@ -20,8 +20,7 @@
     "wagmi": "^2"
   },
   "devDependencies": {
-    "vite-plugin-mkcert": "^1.17",
-    "@cloudflare/vite-plugin": "^1.13.13",
+    "@cloudflare/vite-plugin": "^1.13.18",
     "@cloudflare/workers-types": "^4.20251014.0",
     "@types/node": "^22",
     "@types/react": "^19.1",
@@ -31,9 +30,10 @@
     "globals": "^16.4.0",
     "typescript": "~5.9.3",
     "vite": "^6.3.6",
+    "vite-plugin-mkcert": "^1.17.9",
     "vite-plugin-pwa": "^1.1.0",
     "workbox-core": "^7.3.0",
     "workbox-window": "^7.3.0",
-    "wrangler": "^4.43.0"
+    "wrangler": "^4.45.3"
   }
 }

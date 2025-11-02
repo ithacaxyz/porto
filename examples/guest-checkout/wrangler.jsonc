@@ -1,0 +1,16 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  },
+  "compatibility_date": "2025-09-06",
+  "compatibility_flags": ["nodejs_compat"],
+  "keep_vars": true,
+  "name": "guest-checkout-example",
+  "observability": {
+    "enabled": true
+  },
+  "preview_urls": true,
+  "workers_dev": true
+}
