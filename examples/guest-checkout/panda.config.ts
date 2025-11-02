@@ -9,13 +9,6 @@ export default defineConfig({
   presets: [],
   theme: {
     extend: {
-      animationStyles: {
-        spin: {
-          value: {
-            animation: 'spin 1s linear infinite',
-          },
-        },
-      },
       keyframes: {
         'arc-pulse': {
           '0%, 100%': { strokeDashoffset: 'var(--arc-offset-min)' },

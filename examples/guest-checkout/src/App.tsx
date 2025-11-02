@@ -1,11 +1,11 @@
+import { Button } from './ui/Button/Button'
+import { CopyButton } from './ui/CopyButton/CopyButton'
+import { Input } from './ui/Input/Input'
 import { useRef, useState } from 'react'
 import { type Address, erc20Abi, type Hex, isAddress, parseUnits } from 'viem'
 import { writeContract } from 'viem/actions'
 import { normalize } from 'viem/ens'
 import { chain, client, mainnetClient, porto, usdcAddress } from './config'
-import { Button } from './ui/Button/Button'
-import { CopyButton } from './ui/CopyButton/CopyButton'
-import { Input } from './ui/Input/Input'
 
 export function App() {
   return (
@@ -282,16 +282,16 @@ function CodePreview({
     recipient && isAddress(recipient) ? recipient : '<address>'
   const displayAmount = amount || '5'
 
-  const plainCode = `await writeContract(client, {
-  abi: erc20Abi,
-  account: null,
-  address: usdcAddress,
-  functionName: "transfer",
-  args: [
-    "${displayRecipient}",
-    parseUnits("${displayAmount}", 6),
-  ],
-})`
+  const plainCode = `writeContract(client, {
+    abi: erc20Abi,
+    account: null,
+    address: usdcAddress,
+    functionName: "transfer",
+    args: [
+      "${displayRecipient}",
+      parseUnits("${displayAmount}", 6),
+    ],
+  })`
 
   return (
     <div>
@@ -318,16 +318,20 @@ function CodePreview({
             padding: 16,
           }}
         >
-          {`await writeContract(client, {
+          {`writeContract(client, {
   abi: erc20Abi,
   `}
           <span
-            style={{ background: '#fef3c7', borderRadius: 2, padding: '0 2px' }}
+            style={{
+              background: '#fef3c7',
+              borderRadius: 2,
+              padding: '0 2px',
+            }}
           >
             account: null
           </span>
           {`, `}
-          <span style={{ color: '#999' }}>// let Porto handle the account</span>
+          <span style={{ color: '#999' }}>// Porto handles the connection</span>
           {`
   address: usdcAddress,
   functionName: "transfer",
@@ -339,9 +343,9 @@ function CodePreview({
         </pre>
         <div
           style={{
-            bottom: 12,
             position: 'absolute',
             right: 12,
+            top: 12,
           }}
         >
           <CopyButton size="mini" value={plainCode} variant="content" />
