@@ -1,5 +1,4 @@
 import { Query, UserAgent } from '@porto/apps'
-import { Input } from '@porto/apps/components'
 import { exp1Address, exp2Address } from '@porto/apps/contracts'
 import { Button, Separator } from '@porto/ui'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -23,6 +22,7 @@ import { porto } from '~/lib/Porto'
 import { ValueFormatter } from '~/utils'
 import LucideInfo from '~icons/lucide/info'
 import { AddFunds } from './AddFunds'
+import { GuestCheckoutSection } from './GuestCheckoutSection'
 import { Layout } from './Layout'
 import { SetupApplePay } from './SetupApplePay'
 
@@ -186,7 +186,11 @@ export function ActionPreview(props: ActionPreview.Props) {
       </Layout.Content>
       <Layout.Footer>
         {guestMode ? (
-          <GuestCheckoutSection guestMode={guestMode} onReject={onReject} />
+          <GuestCheckoutSection
+            guestStatus={guestMode.status}
+            onGuestSignIn={guestMode.onSignIn}
+            onGuestSignUp={guestMode.onSignUp}
+          />
         ) : deficit ? (
           <FundsNeededSection
             account={account}
@@ -610,88 +614,4 @@ export function ApplePayIframe(props: {
       title="Apple Pay Onramp"
     />
   )
-}
-
-function GuestCheckoutSection(props: GuestCheckoutSection.Props) {
-  const { guestMode } = props
-
-  const [invalid, setInvalid] = React.useState(false)
-
-  const onSignUpSubmit = React.useCallback<
-    React.FormEventHandler<HTMLFormElement>
-  >(
-    async (event) => {
-      event.preventDefault()
-      const formData = new FormData(event.target as HTMLFormElement)
-      const email = String(formData.get('email'))
-      guestMode.onSignUp(email)
-    },
-    [guestMode],
-  )
-
-  return (
-    <div className="flex w-full flex-col gap-[8px] px-3">
-      <Button
-        data-testid="sign-in"
-        disabled={guestMode.status === 'signing-up'}
-        loading={guestMode.status === 'signing-in' && 'Signing in…'}
-        onClick={guestMode.onSignIn}
-        variant="primary"
-        width="full"
-      >
-        Sign in to proceed
-      </Button>
-
-      <div className="-tracking-[2.8%] flex items-center whitespace-nowrap text-[12px] text-th_base-secondary leading-[17px]">
-        First time, or lost access?
-        <div className="ms-2 h-px w-full bg-th_separator" />
-      </div>
-
-      <form
-        className="flex w-full flex-col gap-2"
-        onInvalid={(event) => {
-          event.preventDefault()
-          setInvalid(true)
-        }}
-        onSubmit={onSignUpSubmit}
-      >
-        <div className="relative flex items-center">
-          <label className="sr-only" htmlFor="email">
-            Email
-          </label>
-          <Input
-            className={cx(
-              'w-full bg-th_field',
-              invalid && 'not-focus-visible:border-th_negative',
-            )}
-            disabled={guestMode.status === 'signing-in'}
-            name="email"
-            onChange={() => setInvalid(false)}
-            placeholder="example@ithaca.xyz"
-            type="email"
-          />
-          <div className="-tracking-[2.8%] absolute end-3 text-[12px] text-th_base-secondary leading-normal">
-            Optional
-          </div>
-        </div>
-        <Button
-          data-testid="sign-up"
-          disabled={guestMode.status === 'signing-in'}
-          loading={guestMode.status === 'signing-up' && 'Signing up…'}
-          type="submit"
-          variant="secondary"
-          width="full"
-        >
-          {invalid ? 'Invalid email' : 'Create account'}
-        </Button>
-      </form>
-    </div>
-  )
-}
-
-namespace GuestCheckoutSection {
-  export type Props = {
-    guestMode: GuestMode
-    onReject: () => void
-  }
 }
