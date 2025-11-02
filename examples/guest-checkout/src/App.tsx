@@ -92,6 +92,11 @@ function Send() {
   const [isPending, setIsPending] = useState(false)
   const cancelTx = useRef<(() => void) | null>(null)
 
+  const isAmountValid = amount !== '' && !Number.isNaN(Number(amount))
+  const displayRecipient =
+    recipient && isAddress(recipient) ? recipient : '<address>'
+  const displayAmount = isAmountValid ? amount : '<amount>'
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     if (!recipient || !amount || !isAddress(recipient)) return
@@ -231,6 +236,7 @@ function Send() {
                   },
                 }}
                 inputMode="numeric"
+                invalid={!isAmountValid}
                 onChange={setAmount}
                 placeholder="5"
                 value={amount}
@@ -239,7 +245,10 @@ function Send() {
             <div style={{ flexShrink: 0 }}>
               <Button
                 disabled={
-                  !recipient || !amount || !isAddress(recipient) || isPending
+                  !recipient ||
+                  !isAmountValid ||
+                  !isAddress(recipient) ||
+                  isPending
                 }
                 loading={isPending ? 'Sending…' : false}
                 size="medium"
@@ -268,10 +277,7 @@ function Send() {
         )}
         {error ? <Info type="error">{(error as Error).message}</Info> : null}
       </form>
-      <CodePreview
-        amount={amount}
-        recipient={isAddress(recipient) ? recipient : null}
-      />
+      <CodePreview amount={displayAmount} recipient={displayRecipient} />
     </>
   )
 }
@@ -308,21 +314,17 @@ function CodePreview({
   recipient,
   amount,
 }: {
-  recipient: Address | null
+  recipient: string
   amount: string
 }) {
-  const displayRecipient =
-    recipient && isAddress(recipient) ? recipient : '<address>'
-  const displayAmount = amount || '5'
-
   const plainCode = `writeContract(client, {
     abi: erc20Abi,
     account: null,
     address: usdcAddress,
     functionName: "transfer",
     args: [
-      "${displayRecipient}",
-      parseUnits("${displayAmount}", 6),
+      "${recipient}",
+      parseUnits("${amount}", 6),
     ],
   })`
 
@@ -369,8 +371,8 @@ function CodePreview({
   address: usdcAddress,
   functionName: "transfer",
   args: [
-    "${displayRecipient}",
-    parseUnits("${displayAmount}", 6),
+    "${recipient}",
+    parseUnits("${amount}", 6),
   ],
 })`}
         </pre>
