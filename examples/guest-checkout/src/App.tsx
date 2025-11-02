@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { type Address, erc20Abi, type Hex, isAddress, parseUnits } from 'viem'
 import { writeContract } from 'viem/actions'
 import { normalize } from 'viem/ens'
+import LucideExternalLink from '~icons/lucide/external-link'
 import { chain, client, mainnetClient, porto, usdcAddress } from './config'
 import { Button } from './ui/Button/Button'
 import { CopyButton } from './ui/CopyButton/CopyButton'
@@ -22,10 +23,21 @@ export function App() {
         .container {
           background: white;
           border-radius: 16px;
-          padding: 48px 48px 40px;
+          padding: 48px 48px 24px;
           width: 520px;
           min-width: 400px;
           box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+        }
+        a {
+          border-radius: 4px;
+          text-decoration: none;
+        }
+        a:active {
+          transform: translateY(1px);
+        }
+        a:focus-visible {
+          outline: 2px solid var(--color-th_focus);
+          outline-offset: 2px;
         }
         @media (max-width: 600px) {
           .container {
@@ -43,6 +55,27 @@ export function App() {
       <div className="container-wrapper">
         <div className="container">
           <Send />
+          <div
+            style={{
+              marginTop: 24,
+            }}
+          >
+            <a
+              href="https://github.com/ithacaxyz/porto/tree/main/examples/guest-checkout"
+              rel="noopener noreferrer"
+              style={{
+                alignItems: 'center',
+                color: 'var(--color-th_link)',
+                display: 'inline-flex',
+                fontSize: 14,
+                gap: 6,
+              }}
+              target="_blank"
+            >
+              Source code
+              <LucideExternalLink style={{ height: 14, width: 14 }} />
+            </a>
+          </div>
         </div>
       </div>
     </>
@@ -304,7 +337,7 @@ function CodePreview({
           marginBottom: 8,
         }}
       >
-        By using this code
+        Code preview
       </label>
       <div style={{ position: 'relative' }}>
         <pre
