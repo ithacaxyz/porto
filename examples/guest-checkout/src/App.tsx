@@ -13,9 +13,9 @@ export function App() {
     <>
       <style>{`
         .container-wrapper {
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          display: grid;
+          place-items: center;
+          width: 100vw;
           min-height: 100vh;
           padding: 20px;
           background: #F9F9F9;
@@ -25,7 +25,7 @@ export function App() {
           border-radius: 16px;
           padding: 48px 48px 24px;
           width: 520px;
-          min-width: 400px;
+          min-width: 360px;
           box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
         }
         a {
@@ -186,7 +186,7 @@ function Send() {
               marginBottom: 8,
             }}
           >
-            Send a payment, with no prior connection
+            Send a payment (no connected wallet needed)
           </label>
           <Input
             adornments={
