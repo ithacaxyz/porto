@@ -3,7 +3,7 @@ import { createClient, createPublicClient, custom, http } from 'viem'
 import { base, baseSepolia, mainnet } from 'viem/chains'
 
 export const chain =
-  (import.meta.env.VITE_CHAIN || 'base-sepolia') === 'base' ? base : baseSepolia
+  (import.meta.env.VITE_CHAIN || 'base') === 'base-sepolia' ? baseSepolia : base
 
 export const porto = Porto.create({
   chains: [chain],

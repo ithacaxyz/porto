@@ -1,11 +1,11 @@
-import { Button } from './ui/Button/Button'
-import { CopyButton } from './ui/CopyButton/CopyButton'
-import { Input } from './ui/Input/Input'
 import { useRef, useState } from 'react'
 import { type Address, erc20Abi, type Hex, isAddress, parseUnits } from 'viem'
 import { writeContract } from 'viem/actions'
 import { normalize } from 'viem/ens'
 import { chain, client, mainnetClient, porto, usdcAddress } from './config'
+import { Button } from './ui/Button/Button'
+import { CopyButton } from './ui/CopyButton/CopyButton'
+import { Input } from './ui/Input/Input'
 
 export function App() {
   return (

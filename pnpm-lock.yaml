@@ -1344,14 +1344,8 @@ importers:
   examples/guest-checkout:
     dependencies:
       '@ariakit/react':
-        specifier: 'catalog:'
+        specifier: ^0.4.18
         version: 0.4.19(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@porto/apps':
-        specifier: workspace:*
-        version: link:../../apps/~internal
-      '@porto/ui':
-        specifier: workspace:*
-        version: link:../../apps/ui
       '@tanstack/react-query':
         specifier: ^5
         version: 5.90.5(react@19.1.0)
@@ -1371,17 +1365,26 @@ importers:
         specifier: ^2
         version: 2.19.2(@tanstack/query-core@5.90.5)(@tanstack/react-query@5.90.5(react@19.1.0))(@types/react@19.1.17)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(viem@2.38.5(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.1.12))(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@4.1.12)
     devDependencies:
+      '@biomejs/biome':
+        specifier: ^2.3.2
+        version: 2.3.2
       '@cloudflare/vite-plugin':
         specifier: ^1.13.18
         version: 1.13.18(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vite@6.4.1(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))(workerd@1.20251011.0)(wrangler@4.45.3(@cloudflare/workers-types@4.20251014.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@iconify/json':
-        specifier: 'catalog:'
+        specifier: ^2.2.386
         version: 2.2.401
       '@pandacss/dev':
-        specifier: 'catalog:'
+        specifier: ^0.54.0
         version: 0.54.0(typescript@5.9.3)
+      '@svgr/core':
+        specifier: ^8.1.0
+        version: 8.1.0(typescript@5.9.3)
+      '@svgr/plugin-jsx':
+        specifier: ^8.1.0
+        version: 8.1.0(@svgr/core@8.1.0(typescript@5.9.3))
       '@tailwindcss/vite':
-        specifier: 'catalog:'
+        specifier: ^4.1.13
         version: 4.1.16(vite@6.4.1(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))
       '@types/node':
         specifier: ^22
@@ -1399,22 +1402,22 @@ importers:
         specifier: ^16.4.0
         version: 16.4.0
       postcss:
-        specifier: 'catalog:'
+        specifier: ^8.5.6
         version: 8.5.6
       tailwindcss:
-        specifier: 'catalog:'
+        specifier: ^4.1.13
         version: 4.1.16
       typescript:
         specifier: ~5.9.3
         version: 5.9.3
       unplugin-icons:
-        specifier: 'catalog:'
+        specifier: ^22.3.0
         version: 22.5.0(@svgr/core@8.1.0(typescript@5.9.3))(@vue/compiler-sfc@3.4.19)
       vite:
         specifier: 6.4.1
         version: 6.4.1(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1)
       vite-plugin-mkcert:
-        specifier: 'catalog:'
+        specifier: ^1.17.8
         version: 1.17.9(vite@6.4.1(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))
       vite-tsconfig-paths:
         specifier: ^5.1.4
