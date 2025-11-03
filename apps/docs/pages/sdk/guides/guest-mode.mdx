@@ -1,0 +1,49 @@
+import { GuideDemoContainer } from '../../../components/GuideDemoContainer'
+import { Example } from '../../../components/guides/GuestMode'
+
+# Guest Mode
+
+Guest mode allows users to send transactions without pre-connecting a wallet. Porto automatically handles the account connection flow when the transaction is submitted.
+
+This reduces friction and improves conversion rates by allowing users to preview actions before deciding to create or connect a wallet.
+
+<GuideDemoContainer src="ithacaxyz/porto/tree/main/examples/guest-checkout">
+  <Example />
+</GuideDemoContainer>
+
+## How It Works
+
+When `account: null` is set in a transaction call, Porto intercepts the request and prompts the user to create or connect an account only when needed.
+
+```tsx twoslash [Send.tsx]
+import * as React from 'react'
+const tokenAddress = '' as Address
+const recipient = '' as Address
+// ---cut---
+import { erc20Abi, parseUnits, type Address } from 'viem'
+import { writeContract } from 'viem/actions'
+import { useClient } from 'wagmi'
+
+
+export function Send() {
+  const client = useClient()
+
+  async function handleSend() {
+    await writeContract(client!, {
+      abi: erc20Abi,
+      account: null, // let Porto handle the account connection
+      address: tokenAddress,
+      functionName: 'transfer',
+      args: [recipient, parseUnits('10', 18)],
+    })
+  }
+
+  return (
+    <button onClick={handleSend}>
+      Send
+    </button>
+  )
+}
+```
+
+See the [full example](https://github.com/ithacaxyz/porto/tree/main/examples/guest-checkout) for a complete implementation.

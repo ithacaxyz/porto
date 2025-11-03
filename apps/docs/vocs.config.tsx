@@ -207,6 +207,10 @@ export default defineConfig({
             text: 'Subscriptions',
           },
           {
+            link: '/sdk/guides/guest-mode',
+            text: 'Guest Mode',
+          },
+          {
             link: '/sdk/guides/theming',
             text: 'Theming',
           },
