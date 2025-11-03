@@ -17,6 +17,7 @@ import { Layout } from '~/routes/-components/Layout'
 import TriangleAlertIcon from '~icons/lucide/triangle-alert'
 import Star from '~icons/ph/star-four-bold'
 import { ApplePayButton, ApplePayIframe } from './ActionPreview'
+import { GuestCheckoutSection } from './GuestCheckoutSection'
 import { SetupApplePay } from './SetupApplePay'
 
 const presetAmounts = ['30', '50', '100', '250'] as const
@@ -25,7 +26,16 @@ const maxAmount = 500
 type View = 'default' | 'error' | 'onramp' | 'setup-onramp'
 
 export function AddFunds(props: AddFunds.Props) {
-  const { chainId, onApprove, onReject, value } = props
+  const {
+    chainId,
+    guestMode,
+    guestStatus,
+    onApprove,
+    onGuestSignIn,
+    onGuestSignUp,
+    onReject,
+    value,
+  } = props
 
   const [view, setView] = React.useState<View>('default')
 
@@ -222,14 +232,15 @@ export function AddFunds(props: AddFunds.Props) {
       <Layout.Content>
         <div className="flex flex-col gap-3">
           <Separator label="Select deposit method" size="medium" spacing={0} />
-          {showFaucet && (
+          {!guestMode && showFaucet && (
             <Faucet
               address={address}
               chainId={chain?.id}
               onApprove={onApprove}
             />
           )}
-          {showApplePay &&
+          {!guestMode &&
+            showApplePay &&
             address &&
             (onrampStatus?.email &&
             onrampStatus.phone &&
@@ -256,7 +267,7 @@ export function AddFunds(props: AddFunds.Props) {
                 onClick={() => setView('setup-onramp')}
               />
             ))}
-          {view !== 'onramp' && (
+          {!guestMode && view !== 'onramp' && (
             <DepositButtons
               address={address ?? ''}
               chainId={chain?.id}
@@ -265,14 +276,26 @@ export function AddFunds(props: AddFunds.Props) {
           )}
         </div>
       </Layout.Content>
-      {onReject && view !== 'onramp' && (
+      {guestMode && guestStatus && guestStatus !== 'disabled' ? (
         <Layout.Footer>
-          <Layout.Footer.Actions>
-            <Button onClick={onReject} variant="secondary" width="full">
-              Back
-            </Button>
-          </Layout.Footer.Actions>
+          <GuestCheckoutSection
+            guestStatus={guestStatus}
+            label="Sign in to add funds"
+            onGuestSignIn={onGuestSignIn!}
+            onGuestSignUp={onGuestSignUp!}
+          />
         </Layout.Footer>
+      ) : (
+        onReject &&
+        view !== 'onramp' && (
+          <Layout.Footer>
+            <Layout.Footer.Actions>
+              <Button onClick={onReject} variant="secondary" width="full">
+                Back
+              </Button>
+            </Layout.Footer.Actions>
+          </Layout.Footer>
+        )
       )}
     </Layout>
   )
@@ -282,7 +305,11 @@ export declare namespace AddFunds {
   export type Props = {
     address?: Address.Address | undefined
     chainId?: number | undefined
+    guestMode?: boolean | undefined
+    guestStatus?: 'disabled' | 'enabled' | 'signing-in' | 'signing-up'
     onApprove: (result: { id: Hex.Hex }) => void
+    onGuestSignIn?: () => void
+    onGuestSignUp?: (email?: string) => void
     onReject?: () => void
     value?: string | undefined
   }

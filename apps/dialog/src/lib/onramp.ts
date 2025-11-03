@@ -1,10 +1,12 @@
 import { Env, UserAgent } from '@porto/apps'
 import { useMutation } from '@tanstack/react-query'
 import type { Hex } from 'ox'
+import { Hooks as RemoteHooks } from 'porto/remote'
 import * as React from 'react'
 import { zeroAddress } from 'viem'
 import * as z from 'zod/mini'
 import * as Dialog from './Dialog'
+import { porto } from './Porto'
 
 const hostnames = [
   'playground.porto.sh',
@@ -17,6 +19,7 @@ const hostnames = [
 export function useShowApplePay(error: Error | null) {
   const referrer = Dialog.useStore((state) => state.referrer)
   const mode = Dialog.useStore((state) => state.mode)
+  const chain = RemoteHooks.useChain(porto)
   return React.useMemo(() => {
     if (error) return false
     // Disallow in-app browsers
@@ -25,6 +28,8 @@ export function useShowApplePay(error: Error | null) {
     if (UserAgent.isMobile() && !UserAgent.isSafari()) return false
     // Disallow staging environment
     if (Env.get() === 'stg') return false
+    // Disallow testnets
+    if (chain?.testnet) return false
     // Allow localhost
     if (referrer?.url?.hostname.endsWith('localhost')) return true
     // Disallow Firefox when in iframe mode
@@ -41,7 +46,7 @@ export function useShowApplePay(error: Error | null) {
         // Or Vercel porto previews
         referrer?.url?.hostname.endsWith('preview.porto.sh'),
     )
-  }, [error, mode, referrer?.url])
+  }, [chain?.testnet, error, mode, referrer?.url])
 }
 
 export function useOnrampOrder(props: {

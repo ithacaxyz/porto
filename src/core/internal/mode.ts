@@ -37,8 +37,8 @@ type PrepareCallsContext = {
 export type Mode = {
   actions: {
     addFunds: (parameters: {
-      /** Address to add funds to. */
-      address: Address.Address
+      /** Address to add funds to (optional for guest checkout). */
+      address?: Address.Address | undefined
       /** Internal properties. */
       internal: ActionsInternal
       /** Token to add funds to. */

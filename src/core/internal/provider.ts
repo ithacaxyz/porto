@@ -156,9 +156,6 @@ export function from<
             }
 
             case 'wallet_addFunds': {
-              if (state.accounts.length === 0)
-                throw new ox_Provider.DisconnectedError()
-
               const { address, value, token } = request.params[0] ?? {}
 
               const account = address
@@ -166,12 +163,11 @@ export function from<
                     Address.isEqual(account.address, address),
                   )
                 : state.accounts[0]
-              if (!account) throw new ox_Provider.UnauthorizedError()
 
               const client = getClient()
 
               const result = await getMode().actions.addFunds({
-                address: account.address,
+                address: account?.address,
                 internal: {
                   client,
                   config,
