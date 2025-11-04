@@ -42,5 +42,6 @@ export default defineConfig((config) => ({
     cors: {
       origin: config.mode === 'development' ? '*' : 'https://id.porto.sh',
     },
+    port: 24321,
   },
 }))

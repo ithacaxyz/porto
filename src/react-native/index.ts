@@ -12,3 +12,4 @@ if (isReactNative() && !isEnvironmentConfigured()) configure()
  **/
 export * as Mode from '../core/Mode.native.js'
 export * from '../core/react-native/index.js'
+export * as Porto from '../core/react-native/Porto.js'

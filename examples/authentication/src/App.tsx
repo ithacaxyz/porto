@@ -15,9 +15,9 @@ export function App() {
         style={{
           bottom: 10,
           fontFamily: 'monospace',
-          fontSize: 24,
-          left: 10,
+          fontSize: 18,
           position: 'absolute',
+          right: 10,
         }}
       >
         <PWABadge />
@@ -98,7 +98,7 @@ function Me() {
       >
         Fetch /me (authenticated endpoint)
       </button>
-      <div>{me}</div>
+      <pre>{me}</pre>
     </div>
   )
 }

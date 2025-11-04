@@ -17,9 +17,10 @@ const headers = new Headers({
   'Access-Control-Allow-Headers':
     'Content-Type, Authorization, X-Requested-With',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Origin': 'https://id.porto.sh',
   'Access-Control-Max-Age': '86400',
 })
+
+app.options('*', (c) => c.json({ success: true }, { headers }))
 
 app.on(['GET', 'POST', 'OPTIONS'], '/siwe/nonce', async (c) => {
   // Generate a nonce to be used in the SIWE message.
@@ -82,7 +83,8 @@ app.on(['POST', 'OPTIONS'], '/siwe/verify', async (c) => {
   return c.json({ success: true }, { headers })
 })
 
-app.post(
+app.on(
+  ['POST', 'OPTIONS'],
   '/siwe/logout',
   jwt.jwt({ cookie: 'auth', secret: env.JWT_SECRET }),
   async (c) => {
