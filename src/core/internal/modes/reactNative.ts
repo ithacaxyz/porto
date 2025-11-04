@@ -26,7 +26,9 @@ export function reactNative(parameters: reactNative.Parameters = {}) {
   const { keystoreHost, webAuthn } = createReactNativePasskeyAdapter({
     keyStoreHost: supportAccountUpgrades?.keyStoreHost,
     passkeysModule: supportAccountUpgrades?.passkeysModule,
-    webAuthn: supportAccountUpgrades?.webAuthn,
+    webAuthn: supportAccountUpgrades?.webAuthn as NonNullable<
+      RelayParameters['webAuthn']
+    >,
   })
 
   const fallbackMode =

@@ -1,12 +1,10 @@
 import { Base64 } from 'ox'
 import type * as PasskeysModule_ from 'react-native-passkeys'
-import type OxWebAuthn from '../../../node_modules/ox/_types/core/internal/webauthn.js'
 import type { relay } from '../internal/modes/relay.js'
-import { loadNativeModule } from './nativeModule.js'
 
 type RelayParameters = NonNullable<Parameters<typeof relay>[number]>
 
-export type PasskeysModule = typeof PasskeysModule_
+export type PasskeysModule = Pick<typeof PasskeysModule_, 'create' | 'get'>
 let passkeysModule: PasskeysModule | null | undefined
 
 type PasskeysCreateRequest = Parameters<PasskeysModule['create']>[number]
@@ -15,18 +13,19 @@ type PasskeysCreateExtensions = NonNullable<PasskeysCreateRequest['extensions']>
 type PasskeysGetExtensions = NonNullable<PasskeysGetRequest['extensions']>
 type PasskeysPrfInputs = NonNullable<PasskeysCreateExtensions['prf']>
 
-function loadPasskeys(): PasskeysModule | null {
-  if (passkeysModule !== undefined) return passkeysModule
-  passkeysModule =
-    loadNativeModule<PasskeysModule>('react-native-passkeys') ?? null
-  return passkeysModule
+function resolvePasskeys(): PasskeysModule | null {
+  return passkeysModule ?? null
 }
 
-function loadPasskeysStrict(): PasskeysModule {
-  const module = loadPasskeys()
-  if (!module || typeof module.create !== 'function')
+function resolvePasskeysStrict(): PasskeysModule {
+  const module = resolvePasskeys()
+  if (
+    !module ||
+    typeof module.create !== 'function' ||
+    typeof module.get !== 'function'
+  )
     throw new Error(
-      'react-native-passkeys native module is unavailable. Ensure pods are installed / Gradle is synced and rebuild the app.',
+      'react-native-passkeys methods are unavailable. Pass the module you imported from `react-native-passkeys` into Porto via the `passkeysModule` option when creating the React Native passkey adapter.',
     )
   return module
 }
@@ -48,10 +47,10 @@ export function createPasskeyAdapter(options?: {
       undefined,
   )
 
-  const passkeys = loadPasskeys()
+  const passkeys = resolvePasskeys()
   if (!passkeys || typeof passkeys.create !== 'function')
     console.warn(
-      '[porto][react-native][passkeys] react-native-passkeys native module is not available – WebAuthn requests will fail until the module is installed (pod install / Gradle sync) and the app is rebuilt.',
+      '[porto][react-native][passkeys] react-native-passkeys methods are not available – import `react-native-passkeys` in your app and pass its `create`/`get` methods to Porto via the `passkeysModule` option. WebAuthn requests will fail until these methods are provided.',
     )
 
   const webAuthnOverrides = options?.webAuthn
@@ -60,15 +59,15 @@ export function createPasskeyAdapter(options?: {
     keystoreHost,
     webAuthn: {
       async createFn(
-        options?: OxWebAuthn.CredentialCreationOptions,
-      ): Promise<OxWebAuthn.Credential | null> {
+        options?: CredentialCreationOptions | undefined,
+      ): Promise<Credential | null> {
         if (webAuthnOverrides?.createFn)
-          return webAuthnOverrides.createFn(options) as never
+          return webAuthnOverrides.createFn(options as never) as never
 
-        const passkeys = loadPasskeysStrict()
+        const passkeys = resolvePasskeysStrict()
         const maybePublicKey = options?.publicKey ?? options
         if (!isPublicKeyCredentialCreationOptions(maybePublicKey)) return null
-        const publicKey = maybePublicKey
+        const publicKey = maybePublicKey as PublicKeyCredentialCreationOptions
         const request: Parameters<typeof passkeys.create>[number] = {
           challenge: toBase64Url(publicKey.challenge),
           pubKeyCredParams: publicKey.pubKeyCredParams ?? [],
@@ -116,18 +115,18 @@ export function createPasskeyAdapter(options?: {
             getTransports: () => [],
           },
           type: response.type,
-        } as unknown as OxWebAuthn.Credential
+        } as unknown as Credential
       },
       async getFn(
-        options?: OxWebAuthn.CredentialRequestOptions,
-      ): Promise<OxWebAuthn.Credential | null> {
+        options?: CredentialRequestOptions | undefined,
+      ): Promise<Credential | null> {
         if (webAuthnOverrides?.getFn)
-          return webAuthnOverrides.getFn(options) as never
+          return webAuthnOverrides.getFn(options as never) as never
 
-        const passkeys = loadPasskeysStrict()
+        const passkeys = resolvePasskeysStrict()
         const maybePublicKey = options?.publicKey ?? options
         if (!isPublicKeyCredentialRequestOptions(maybePublicKey)) return null
-        const publicKey = maybePublicKey
+        const publicKey = maybePublicKey as PublicKeyCredentialRequestOptions
 
         const request: Parameters<typeof passkeys.get>[number] = {
           challenge: toBase64Url(publicKey.challenge),
@@ -167,7 +166,7 @@ export function createPasskeyAdapter(options?: {
               : null,
           },
           type: response.type,
-        } as unknown as OxWebAuthn.Credential
+        } as unknown as Credential
       },
     },
   }
@@ -196,7 +195,7 @@ function ensureSubtleCrypto() {
 }
 
 function convertCreationExtensions(
-  extensions: OxWebAuthn.PublicKeyCredentialCreationOptions['extensions'],
+  extensions: PublicKeyCredentialCreationOptions['extensions'],
 ): PasskeysCreateExtensions | undefined {
   if (!extensions) return undefined
   const next: PasskeysCreateExtensions = {}
@@ -208,7 +207,7 @@ function convertCreationExtensions(
     | {
         read?: boolean
         support?: 'preferred' | 'required'
-        write?: OxWebAuthn.BufferSource
+        write?: BufferSource
       }
     | undefined
   if (largeBlob) {
@@ -225,7 +224,7 @@ function convertCreationExtensions(
 
   const prfInputs = (
     extensions as {
-      prf?: OxWebAuthn.AuthenticationExtensionsClientInputs['prf']
+      prf?: AuthenticationExtensionsClientInputs['prf']
     }
   ).prf
   const prf = convertPrfInputs(prfInputs)
@@ -235,7 +234,7 @@ function convertCreationExtensions(
 }
 
 function convertRequestExtensions(
-  extensions: OxWebAuthn.PublicKeyCredentialRequestOptions['extensions'],
+  extensions: PublicKeyCredentialRequestOptions['extensions'],
 ): PasskeysGetExtensions | undefined {
   if (!extensions) return undefined
   const next: PasskeysGetExtensions = {}
@@ -244,7 +243,7 @@ function convertRequestExtensions(
     | {
         read?: boolean
         support?: 'preferred' | 'required'
-        write?: OxWebAuthn.BufferSource
+        write?: BufferSource
       }
     | undefined
   if (largeBlob) {
@@ -261,7 +260,7 @@ function convertRequestExtensions(
 
   const prfInputs = (
     extensions as {
-      prf?: OxWebAuthn.AuthenticationExtensionsClientInputs['prf']
+      prf?: AuthenticationExtensionsClientInputs['prf']
     }
   ).prf
   const prf = convertPrfInputs(prfInputs)
@@ -271,7 +270,7 @@ function convertRequestExtensions(
 }
 
 function convertPrfInputs(
-  inputs: OxWebAuthn.AuthenticationExtensionsClientInputs['prf'],
+  inputs: AuthenticationExtensionsClientInputs['prf'],
 ): PasskeysPrfInputs | undefined {
   if (!inputs) return undefined
   if (typeof inputs !== 'object') return undefined
@@ -280,14 +279,14 @@ function convertPrfInputs(
   const prf: PasskeysPrfInputs = {}
   const { eval: evalInput, evalByCredential } = inputs as {
     eval?: {
-      first: OxWebAuthn.BufferSource
-      second?: OxWebAuthn.BufferSource
+      first: BufferSource
+      second?: BufferSource
     }
     evalByCredential?: Record<
       string,
       {
-        first: OxWebAuthn.BufferSource
-        second?: OxWebAuthn.BufferSource
+        first: BufferSource
+        second?: BufferSource
       }
     >
   }
@@ -356,7 +355,7 @@ function isPublicKeyCredentialRequestOptions(
   return isBufferSource(options.challenge)
 }
 
-function toBase64Url(value: OxWebAuthn.BufferSource) {
+function toBase64Url(value: BufferSource) {
   const bytes =
     value instanceof ArrayBuffer
       ? new Uint8Array(value)
@@ -365,14 +364,14 @@ function toBase64Url(value: OxWebAuthn.BufferSource) {
 }
 
 type PublicKeyCredentialCreationOptions = NonNullable<
-  OxWebAuthn.CredentialCreationOptions['publicKey']
+  CredentialCreationOptions['publicKey']
 >
 
 type PublicKeyCredentialRequestOptions = NonNullable<
-  OxWebAuthn.CredentialRequestOptions['publicKey']
+  CredentialRequestOptions['publicKey']
 >
 
-function isBufferSource(value: unknown): value is OxWebAuthn.BufferSource {
+function isBufferSource(value: unknown): value is BufferSource {
   if (value instanceof ArrayBuffer) return true
   return typeof ArrayBuffer !== 'undefined' && ArrayBuffer.isView(value)
 }

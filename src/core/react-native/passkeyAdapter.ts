@@ -11,7 +11,7 @@ export function createReactNativePasskeyAdapter<
 >(options?: {
   keyStoreHost?: string | undefined
   passkeysModule?: PasskeysModule | null | undefined
-  webAuthn?: RelayParameters['webAuthn']
+  webAuthn?: NonNullable<RelayParameters['webAuthn']>
 }): {
   keystoreHost?: P['keystoreHost']
   webAuthn: NonNullable<P['webAuthn']>
@@ -19,6 +19,9 @@ export function createReactNativePasskeyAdapter<
   return createPasskeyAdapter({
     keyStoreHost: options?.keyStoreHost,
     passkeysModule: options?.passkeysModule,
-    webAuthn: options?.webAuthn,
-  })
+    webAuthn: options?.webAuthn ?? undefined,
+  }) as {
+    keystoreHost?: P['keystoreHost']
+    webAuthn: NonNullable<P['webAuthn']>
+  }
 }

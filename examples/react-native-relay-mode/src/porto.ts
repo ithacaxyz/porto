@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Hex, Json, Value } from 'ox'
-import { Mode, Porto, type Storage as PortoStorage } from 'porto'
+import { Mode, Porto, type Storage } from 'porto'
 
 import { baseSepolia } from 'porto/core/Chains'
 import { RelayClient } from 'porto/viem'
@@ -10,7 +10,7 @@ import { rp, webAuthn } from './passkeys'
 
 type MaybePromise<T> = T | Promise<T>
 
-const storage: PortoStorage = {
+const storage: Storage.Storage = {
   // @ts-expect-error - async
   getItem: (name: string) =>
     AsyncStorage.getItem(name) as unknown as MaybePromise<string | null>,
