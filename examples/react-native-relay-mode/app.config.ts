@@ -43,7 +43,6 @@ export default (_context: ConfigContext): ExpoConfig => ({
     predictiveBackGestureEnabled: false,
   },
   experiments: {
-    autolinkingModuleResolution: true,
     reactCompiler: true,
     turboModules: true,
   },
