@@ -1,6 +1,8 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 
+console.info('prepublish:pre')
+
 const packageJsonPath = path.join(process.cwd(), 'package.json')
 
 fs.copyFileSync(packageJsonPath, packageJsonPath.replace('.json', '.tmp.json'))
