@@ -1,5 +1,11 @@
 # porto
 
+## 0.2.36
+
+### Patch Changes
+
+- [#1019](https://github.com/ithacaxyz/porto/pull/1019) [`db24dd2`](https://github.com/ithacaxyz/porto/commit/db24dd2eedcd8f25cd8b83cd9bf9129c652e4199) Thanks [@o-az](https://github.com/o-az)! - Added `wallet_getCallsHistory` support and related Wagmi hook
+
 ## 0.2.35
 
 ### Patch Changes
