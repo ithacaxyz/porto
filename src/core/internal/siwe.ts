@@ -179,3 +179,5 @@ function normalizeDomain(domain: string | undefined) {
   })()
   return normalized.length > 0 ? normalized : undefined
 }
+
+export const parseMessage = Siwe.parseMessage

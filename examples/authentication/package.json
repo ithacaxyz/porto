@@ -6,7 +6,7 @@
     "build": "vite build",
     "build:types": "wrangler types --include-runtime=false",
     "deploy": "pnpm run build && wrangler deploy",
-    "dev": "vite",
+    "dev": "vite dev",
     "prepreview": "pnpm build:types",
     "preview": "pnpm run build && vite preview"
   },
@@ -29,6 +29,7 @@
     "@vitejs/plugin-react": "^5.0.4",
     "globals": "^16.4.0",
     "typescript": "~5.9.3",
+    "unplugin-cloudflare-tunnel": "0.0.0-alpha-1",
     "vite": "^6.3.6",
     "vite-plugin-mkcert": "^1.17.9",
     "vite-plugin-pwa": "^1.1.0",

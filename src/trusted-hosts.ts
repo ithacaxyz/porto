@@ -27,6 +27,7 @@ export const hostnames = [
   'playground.porto.sh',
   'portal.eco.com',
   'porto-react-native.ngrok.io',
+  'porto.sauce.wiki',
   'porto.sh',
   'postcaptain.xyz',
   'preview.porto.sh',
