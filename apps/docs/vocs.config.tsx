@@ -152,6 +152,10 @@ export default defineConfig({
             text: 'wallet_getCallsStatus',
           },
           {
+            link: '/relay/wallet_getCallsHistory',
+            text: 'wallet_getCallsHistory',
+          },
+          {
             link: '/relay/health',
             text: 'health',
           },
@@ -295,6 +299,10 @@ export default defineConfig({
                 text: 'getAssets',
               },
               {
+                link: '/sdk/wagmi/getCallsHistory',
+                text: 'getCallsHistory',
+              },
+              {
                 link: '/sdk/wagmi/grantPermissions',
                 text: 'grantPermissions',
               },
@@ -319,6 +327,10 @@ export default defineConfig({
               {
                 link: '/sdk/wagmi/useAssets',
                 text: 'useAssets',
+              },
+              {
+                link: '/sdk/wagmi/useCallsHistory',
+                text: 'useCallsHistory',
               },
               {
                 link: '/sdk/wagmi/useGrantPermissions',
@@ -480,6 +492,10 @@ export default defineConfig({
                     text: 'getCallsStatus',
                   },
                   {
+                    link: '/sdk/viem/RelayActions/getCallsHistory',
+                    text: 'getCallsHistory',
+                  },
+                  {
                     link: '/sdk/viem/RelayActions/getCapabilities',
                     text: 'getCapabilities',
                   },
@@ -569,6 +585,10 @@ export default defineConfig({
           {
             link: '/sdk/rpc/wallet_getCallsStatus',
             text: 'wallet_getCallsStatus',
+          },
+          {
+            link: '/sdk/rpc/wallet_getCallsHistory',
+            text: 'wallet_getCallsHistory',
           },
           {
             link: '/sdk/rpc/wallet_getPermissions',

@@ -1,0 +1,98 @@
+import { TryItOut } from '../../../components/TryItOut'
+
+# `wallet_getCallsHistory`
+
+Returns a paginated list of call bundles for an account.
+
+<TryItOut
+  exampleSlug="#example"
+  fn={async ({ provider }) => {
+    const [address] = await provider.request({ method: 'eth_requestAccounts' })
+    return provider.request({
+      method: 'wallet_getCallsHistory',
+      params: [{
+        address,
+        limit: 5,
+        sort: 'desc',
+      }],
+    })
+  }}
+  transformResultCode={(code) => {
+    return 'const history = ' + code
+  }}
+/>
+
+## Request
+
+```ts
+type Request = {
+  method: 'wallet_getCallsHistory'
+  params: [{
+    /** Address to fetch call bundles for. */
+    address: `0x${string}`
+    /** Optional index cursor. */
+    index?: number
+    /** Maximum number of bundles to return. */
+    limit: number
+    /** Sort direction. */
+    sort: 'asc' | 'desc'
+  }]
+}
+```
+
+## Response
+
+```ts
+type Response = {
+  capabilities: {
+    assetDiffs?: AssetDiffs
+    feeTotals?: FeeTotals
+    quotes?: Quote[]
+  }
+  id: `0x${string}`
+  index: number
+  keyHash: `0x${string}`
+  status: number
+  timestamp: number
+  transactions: {
+    chainId: number
+    transactionHash: `0x${string}`
+  }[]
+}[]
+```
+
+Refer to [`wallet_prepareCalls`](/sdk/rpc/wallet_prepareCalls#response) for the `AssetDiffs`, `FeeTotals`, and `Quote` structures.
+
+## Example
+
+```ts twoslash
+import { Porto } from 'porto'
+
+const { provider } = Porto.create()
+
+const [address] = await provider.request({ method: 'eth_requestAccounts' })
+
+const history = await provider.request({ // [!code focus]
+  method: 'wallet_getCallsHistory', // [!code focus]
+  params: [{ // [!code focus]
+    address, // [!code focus]
+    limit: 10, // [!code focus]
+    sort: 'desc', // [!code focus]
+  }], // [!code focus]
+}) // [!code focus]
+```
+
+<TryItOut
+  exampleSlug="#example"
+  fn={async ({ provider }) => {
+    const [address] = await provider.request({ method: 'eth_requestAccounts' })
+    return provider.request({
+      method: 'wallet_getCallsHistory',
+      params: [{
+        address,
+        limit: 10,
+        sort: 'desc',
+      }],
+    })
+  }}
+/>

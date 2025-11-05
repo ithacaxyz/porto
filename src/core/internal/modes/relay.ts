@@ -167,6 +167,15 @@ export function relay(parameters: relay.Parameters = {}) {
         return result
       },
 
+      async getCallsHistory(parameters) {
+        const { internal, ...rest } = parameters
+        const { client } = internal
+
+        const result = await RelayActions_internal.getCallsHistory(client, rest)
+
+        return result
+      },
+
       async getCallsStatus(parameters) {
         const { id, internal } = parameters
         const { client } = internal

@@ -952,6 +952,24 @@ export function from<
               >
             }
 
+            case 'wallet_getCallsHistory': {
+              const [parameters] = request._decoded.params ?? []
+
+              const client = getClient()
+
+              const response = await getMode().actions.getCallsHistory({
+                ...parameters,
+                internal: {
+                  client,
+                  config,
+                  request,
+                  store,
+                },
+              })
+
+              return z.encode(Rpc.wallet_getCallsHistory.Response, response)
+            }
+
             case 'wallet_getCapabilities': {
               const [_, chainIds] = request.params ?? []
 

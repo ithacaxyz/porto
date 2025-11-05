@@ -31,6 +31,10 @@ Import via named export or `Actions` namespace (better autocomplete DX and does 
 
 - `addFunds`
 - `createAccount`
+- `connect`
+- `disconnect`
+- `getAssets`
+- `getCallsHistory`
 - `getPermissions`
 - `grantPermissions`
 - `revokePermissions`
@@ -45,7 +49,9 @@ import { connect } from 'porto/wagmi/Actions'
 
 Import via named export or `Hooks` namespace (better autocomplete DX and does not impact tree shaking).
 
+- `useAssets`
 - `useAddFunds`
+- `useCallsHistory`
 - `useCreateAccount`
 - `useGrantPermissions`
 - `usePermissions`
