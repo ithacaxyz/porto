@@ -3,7 +3,7 @@ import { type Address, erc20Abi, type Hex, isAddress, parseUnits } from 'viem'
 import { writeContract } from 'viem/actions'
 import { normalize } from 'viem/ens'
 import LucideExternalLink from '~icons/lucide/external-link'
-import { chain, client, mainnetClient, porto, usdcAddress } from './config'
+import { chain, client, mainnetClient, usdcAddress } from './config'
 import { Button } from './ui/Button/Button'
 import { CopyButton } from './ui/CopyButton/CopyButton'
 import { Input } from './ui/Input/Input'
@@ -178,6 +178,7 @@ function Send() {
       <form onSubmit={handleSubmit} style={{ marginBottom: 32 }}>
         <div style={{ marginBottom: 12 }}>
           <label
+            htmlFor="recipient"
             style={{
               color: '#666',
               display: 'block',
@@ -331,6 +332,7 @@ function CodePreview({
   return (
     <div>
       <label
+        htmlFor="code-preview"
         style={{
           color: '#666',
           display: 'block',
@@ -365,8 +367,10 @@ function CodePreview({
           >
             account: null
           </span>
-          {`, `}
-          <span style={{ color: '#999' }}>// Porto handles the connection</span>
+          {', '}
+          <span style={{ color: '#999' }}>
+            {'//'} Porto handles the connection
+          </span>
           {`
   address: usdcAddress,
   functionName: "transfer",
@@ -412,6 +416,7 @@ function useEnsResolver(onResolved: (address: Address) => void = () => {}) {
       if (cancelled) return
       console.error('ENS resolution failed:', error)
     } finally {
+      // biome-ignore lint/correctness/noUnsafeFinally: _
       if (cancelled) return
       cancelFn.current?.()
       setIsResolving(false)
