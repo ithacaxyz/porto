@@ -1,49 +1,54 @@
 auditConfig:
   ignoreGhsas:
     - GHSA-ffrw-9mx8-89p8
+autoInstallPeers: false
 catalog:
-  "@ariakit/react": "^0.4.18"
-  "@ariakit/tailwind": "^0.1.8"
-  "@iconify/json": "^2.2.386"
-  "@pandacss/dev": "^0.54.0"
-  "@sentry/react": "^10.12.0"
-  "@sentry/vite-plugin": "^4.3.0"
-  "@svgr/core": "^8.1.0"
-  "@svgr/plugin-jsx": "^8.1.0"
-  "@tanstack/query-sync-storage-persister": "^5.90.1"
-  "@tanstack/react-query": "^5.90.1"
-  "@tanstack/react-query-persist-client": "^5.90.1"
-  "@tanstack/react-router": "^1.114.25"
-  "@tanstack/router-plugin": "^1.114.17"
-  "@tanstack/react-query-devtools": "^5.90.1"
-  "@tanstack/react-router-devtools": "^1.114.25"
-  "@types/node": "^22.15.32"
-  "@types/react": "^19.1"
-  "@types/react-dom": "^19.1"
-  "@typescript/native-preview": "7.0.0-dev.20251025.1"
-  "@wagmi/core": "^2.21.2"
-  cva: "npm:class-variance-authority@^0.7.1"
-  globals: "^16.4.0"
-  ox: "^0.9.6"
-  postcss: "^8.5.6"
-  prool: "^0.0.23"
-  react: "^19.1"
-  react-dom: "^19.1"
-  sonner: "^2.0.7"
-  tailwindcss: "^4.1.13"
-  "@tailwindcss/vite": "^4.1.13"
-  tw-animate-css: "^1.3.8"
-  typescript: "~5.9.2"
-  unplugin-icons: "^22.3.0"
-  viem: "^2.38.2"
-  vite: "^6.4.1"
-  vitest: "^4.0.3"
-  vite-plugin-mkcert: "^1.17.8"
-  wagmi: "^2.18.2"
-  zod: "4.1.5"
-  zustand: "^5.0.3"
-  "@vitejs/plugin-react": "^4.6.0"
-minimumReleaseAge: 2880 # 48 hours
+  "@ariakit/react": ^0.4.18
+  "@ariakit/tailwind": ^0.1.8
+  "@iconify/json": ^2.2.386
+  "@pandacss/dev": ^0.54.0
+  "@sentry/react": ^10.12.0
+  "@sentry/vite-plugin": ^4.3.0
+  "@svgr/core": ^8.1.0
+  "@svgr/plugin-jsx": ^8.1.0
+  "@tailwindcss/vite": ^4.1.13
+  "@tanstack/query-sync-storage-persister": ^5.90.1
+  "@tanstack/react-query": ^5.90.1
+  "@tanstack/react-query-devtools": ^5.90.1
+  "@tanstack/react-query-persist-client": ^5.90.1
+  "@tanstack/react-router": ^1.114.25
+  "@tanstack/react-router-devtools": ^1.114.25
+  "@tanstack/router-plugin": ^1.114.17
+  "@types/node": ^22.15.32
+  "@types/react": ^19.1
+  "@types/react-dom": ^19.1
+  "@typescript/native-preview": 7.0.0-dev.20251025.1
+  "@vitejs/plugin-react": ^4.6.0
+  "@wagmi/core": ^2.21.2
+  cva: npm:class-variance-authority@^0.7.1
+  globals: ^16.5.0
+  ox: ^0.9.6
+  postcss: ^8.5.6
+  prool: ^0.0.23
+  react: ^19.1
+  react-dom: ^19.1
+  sonner: ^2.0.7
+  tailwindcss: ^4.1.13
+  tw-animate-css: ^1.3.8
+  typescript: ~5.9.2
+  unplugin-icons: ^22.3.0
+  viem: ^2.38.2
+  vite: ^6.4.1
+  vite-plugin-mkcert: ^1.17.9
+  vitest: ^4.0.3
+  wagmi: ^2.18.2
+  zod: 4.1.5
+  zustand: ^5.0.3
+cleanupUnusedCatalogs: true
+enablePrePostScripts: true
+linkWorkspacePackages: false
+managePackageManagerVersions: true
+minimumReleaseAge: 2880
 minimumReleaseAgeExclude:
   - "@wagmi/connectors"
   - "@wagmi/core"
@@ -52,10 +57,47 @@ minimumReleaseAgeExclude:
   - vite
   - wagmi
   - zile
+nodeOptions: "--disable-warning=ExperimentalWarning --disable-warning=DeprecationWarning"
+overrides:
+  "@metamask/sdk-communication-layer@>=0.16.0 <=0.33.0": 0.33.1
+  "@metamask/sdk@>=0.16.0 <=0.33.0": 0.33.1
+  abitype: latest
+  axios@<1.12.0: 1.12.0
+  bigint-buffer@<=1.1.5: npm:bigint-buffer-fixed
+  brace-expansion@>=1.0.0 <=1.1.11: 1.1.12
+  brace-expansion@>=2.0.0 <=2.0.1: 2.0.2
+  form-data@>=4.0.0 <4.0.4: 4.0.4
+  hono@<4.10.3: 4.10.3
+  hono@<4.9.7: 4.9.7
+  hono@>=1.1.0 <4.10.2: ">=4.10.2"
+  hono@>=4.8.0 <4.9.6: 4.9.6
+  mermaid@>=11.0.0-alpha.1 <11.10.0: 11.10.0
+  mermaid@>=11.1.0 <11.10.0: 11.10.0
+  nanoid@>=4.0.0 <5.0.9: 5.0.9
+  on-headers@<1.1.0: 1.1.0
+  ox: "catalog:"
+  playwright@<1.55.1: 1.55.1
+  porto: workspace:*
+  tar-fs@>=2.0.0 <2.1.4: 2.1.4
+  tar-fs@>=3.0.0 <3.0.7: 3.0.7
+  tar-fs@>=3.0.0 <3.0.9: 3.0.9
+  tar-fs@>=3.0.0 <3.1.1: 3.1.1
+  tmp@<=0.2.3: 0.2.4
+  viem: "catalog:"
+  vite@>=6.0.0 <=6.4.1: 6.4.1
+  ws@>=8.0.0 <8.17.1: 8.17.1
 packages:
-  - "."
-  - "apps/*"
-  - "docker/*"
-  - "examples/*"
+  - .
+  - apps/*
+  - docker/*
+  - examples/*
   - "!examples/react-native-relay-mode/server"
-  
+patchedDependencies:
+  "@tanstack/react-router": patches/@tanstack__react-router.patch
+  "@wagmi/cli": patches/@wagmi__cli.patch
+peerDependencyRules:
+  ignoreMissing:
+    - "@rspack/core"
+    - fastestsmallesttextencoderdecoder
+shellEmulator: true
+strictPeerDependencies: false

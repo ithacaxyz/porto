@@ -11,12 +11,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5",
+    "@tanstack/react-query": "^5.90.5",
     "porto": "latest",
-    "react": "^19.1",
-    "react-dom": "^19.1",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
     "viem": "^2.38.5",
-    "wagmi": "^2"
+    "wagmi": "^2.19.1"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.13.18",

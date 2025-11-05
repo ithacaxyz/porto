@@ -2,7 +2,7 @@
   "type": "module",
   "dependencies": {
     "jose": "^6.1.0",
-    "viem": "^2.38.4",
-    "porto": "latest"
+    "porto": "latest",
+    "viem": "^2.38.4"
   }
 }

@@ -8,16 +8,16 @@
     "build": "vite build"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5",
+    "@tanstack/react-query": "^5.90.5",
     "cors": "^2.8.5",
     "dotenv": "^17.1.0",
     "express": "^5.1.0",
     "porto": "latest",
-    "react": "^19.1",
-    "react-dom": "^19.1",
-    "viem": "^2.37.8",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "viem": "^2.38.5",
     "vite-express": "^0.21.1",
-    "wagmi": "^2"
+    "wagmi": "^2.19.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
