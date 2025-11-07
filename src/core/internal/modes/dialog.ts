@@ -232,12 +232,35 @@ export function dialog(parameters: dialog.Parameters = {}) {
                   signature,
                 }
 
+              if (
+                await hasAuthenticatedSiweNonce({
+                  authUrl,
+                  message,
+                  storage,
+                })
+              ) {
+                await markAuthenticatedSiweNonce({
+                  authUrl,
+                  message,
+                  storage,
+                })
+                return {
+                  message,
+                  signature,
+                }
+              }
+
               const { token } = await Siwe.authenticate({
                 address: account.address,
                 authUrl,
                 message,
                 publicKey: account.capabilities?.admins?.[0]?.publicKey,
                 signature,
+              })
+              await markAuthenticatedSiweNonce({
+                authUrl,
+                message,
+                storage,
               })
               return {
                 message,
@@ -558,12 +581,35 @@ export function dialog(parameters: dialog.Parameters = {}) {
                     signature,
                   }
 
+                if (
+                  await hasAuthenticatedSiweNonce({
+                    authUrl,
+                    message,
+                    storage,
+                  })
+                ) {
+                  await markAuthenticatedSiweNonce({
+                    authUrl,
+                    message,
+                    storage,
+                  })
+                  return {
+                    message,
+                    signature,
+                  }
+                }
+
                 const { token } = await Siwe.authenticate({
                   address: account.address,
                   authUrl,
                   message,
                   publicKey: account.capabilities?.admins?.[0]?.publicKey,
                   signature,
+                })
+                await markAuthenticatedSiweNonce({
+                  authUrl,
+                  message,
+                  storage,
                 })
                 return {
                   message,
@@ -1065,14 +1111,62 @@ function getAuthUrl(
   { storage }: { storage: Storage },
 ) {
   if (!apiUrl) return undefined
-
-  const authUrl = Siwe.resolveAuthUrl(
-    apiUrl,
-    typeof window !== 'undefined' ? window.location.origin : undefined,
-  )
+  const origin =
+    typeof window !== 'undefined' && typeof window.location !== 'undefined'
+      ? window.location.origin
+      : undefined
+  const authUrl = Siwe.resolveAuthUrl(apiUrl, origin)
 
   // Store the resolved auth URL for future use (e.g., disconnect)
   if (authUrl) storage.setItem('porto.authUrl', authUrl)
 
   return authUrl
+}
+
+const SIWE_NONCE_CACHE_TTL_MS = 5 * 60 * 1000
+
+async function hasAuthenticatedSiweNonce(parameters: {
+  authUrl: Siwe.AuthUrl
+  message: string
+  storage: Storage
+}) {
+  const { message, storage } = parameters
+  try {
+    const { domain, nonce } = Siwe.parseMessage(message)
+    if (!nonce) return false
+    const key = getSiweNonceCacheKey(domain, nonce)
+    const value = (await storage.getItem<number>(key)) ?? null
+    if (!value) return false
+    if (Date.now() - value > SIWE_NONCE_CACHE_TTL_MS) {
+      try {
+        await storage.removeItem(key)
+      } catch {
+        // ignore
+      }
+      return false
+    }
+    return true
+  } catch {
+    return false
+  }
+}
+
+async function markAuthenticatedSiweNonce(parameters: {
+  authUrl: Siwe.AuthUrl
+  message: string
+  storage: Storage
+}) {
+  const { message, storage } = parameters
+  try {
+    const { domain, nonce } = Siwe.parseMessage(message)
+    if (!nonce) return
+    const key = getSiweNonceCacheKey(domain, nonce)
+    await storage.setItem(key, Date.now())
+  } catch {
+    // ignore
+  }
+}
+
+function getSiweNonceCacheKey(domain: string | undefined, nonce: string) {
+  return `porto.siwe.authenticated.${domain ?? 'unknown'}.${nonce}`
 }

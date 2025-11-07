@@ -10,8 +10,6 @@ interface EnvironmentVariables {
 
   readonly EXPO_PUBLIC_SIWE_URL: string
   readonly EXPO_PUBLIC_SERVER_URL: string
-
-  readonly SIWE_ALLOWED_ORIGINS: string
 }
 
 declare namespace NodeJS {

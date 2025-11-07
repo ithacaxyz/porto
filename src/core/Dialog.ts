@@ -622,6 +622,7 @@ export function authSession(options: authSession.Options = {}) {
           wallet_sendCalls: 'wallet_sendCalls',
           wallet_sendPreparedCalls: 'wallet_sendPreparedCalls',
           wallet_switchEthereumChain: 'wallet_switchEthereumChain',
+          wallet_upgradeAccount: 'wallet_upgradeAccount',
           wallet_verifySignature: 'wallet_verifySignature',
         } as const satisfies Record<string, string>
 
@@ -640,14 +641,13 @@ export function authSession(options: authSession.Options = {}) {
         })
 
         const url = new URL(host)
+        const searchParams = new URLSearchParams(url.search)
         url.pathname = `${url.pathname.replace(/\/$/, '')}/${rpcMethod}`
 
-        const searchParams = new URLSearchParams({
-          id: String(rpcRequest.id),
-          jsonrpc: '2.0',
-          method: rpcRequest.method,
-          redirectUri,
-        })
+        searchParams.set('id', String(rpcRequest.id))
+        searchParams.set('jsonrpc', '2.0')
+        searchParams.set('method', rpcRequest.method)
+        searchParams.set('redirectUri', redirectUri)
 
         const params = (rpcRequest.params ?? []) as readonly unknown[]
         if (params.length > 0)

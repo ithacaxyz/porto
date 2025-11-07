@@ -76,4 +76,6 @@ no-hooks
 dev-dist
 
 credentials
-credentials.*
+credentials*
+
+*.har

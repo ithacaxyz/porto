@@ -6,19 +6,6 @@
     ],
     "target": {
       "namespace": "android_app",
-      "package_name": "com.example.porto_relay_mode",
-      "sha256_cert_fingerprints": [
-        "EC:A8:80:A4:E6:11:87:76:0D:00:C0:82:E3:2E:B3:01:AB:BE:B8:82:AD:AE:CD:86:92:EE:8A:92:47:CF:98:3D"
-      ]
-    }
-  },
-  {
-    "relation": [
-      "delegate_permission/common.handle_all_urls",
-      "delegate_permission/common.get_login_creds"
-    ],
-    "target": {
-      "namespace": "android_app",
       "package_name": "com.example.porto_react_native",
       "sha256_cert_fingerprints": [
         "8A:CC:02:20:E0:E7:BA:62:6C:94:BA:07:2F:06:91:9E:E6:7E:19:FD:45:D7:CF:B1:BF:14:67:63:F0:DC:FF:3C"

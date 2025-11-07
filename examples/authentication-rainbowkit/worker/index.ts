@@ -17,11 +17,13 @@ const headers = new Headers({
   'Access-Control-Allow-Headers':
     'Content-Type, Authorization, X-Requested-With',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Origin': 'https://id.porto.sh',
+  'Access-Control-Allow-Origin': '*',
   'Access-Control-Max-Age': '86400',
 })
 
-app.on(['GET', 'POST', 'OPTIONS'], '/siwe/nonce', async (c) => {
+app.options('*', (c) => c.json({ success: true }, { headers }))
+
+app.on(['POST', 'OPTIONS'], '/siwe/nonce', async (c) => {
   // Generate a nonce to be used in the SIWE message.
   // This is used to prevent replay attacks.
   const nonce = generateSiweNonce()

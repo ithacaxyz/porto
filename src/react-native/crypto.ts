@@ -1,7 +1,12 @@
 import * as ExpoCrypto from 'expo-crypto'
-import { Platform } from 'react-native'
+import { isReactNative } from '../core/react-native/utils.js'
 
-if (Platform.OS !== 'web')
+const shouldPolyfillCrypto =
+  isReactNative() &&
+  typeof globalThis !== 'undefined' &&
+  !('crypto' in globalThis)
+
+if (shouldPolyfillCrypto)
   Object.defineProperty(globalThis, 'crypto', {
     enumerable: true,
     value: {

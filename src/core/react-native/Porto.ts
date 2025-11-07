@@ -1,6 +1,7 @@
 import type { ExactPartial } from '../internal/types.js'
-import * as Mode from '../Mode.js'
+import * as Mode from '../Mode.native.js'
 import * as Porto from '../Porto.js'
+import { createReactNativePasskeyAdapter } from './passkeyAdapter.js'
 
 export const defaultConfig = {
   ...Porto.defaultConfig,
@@ -13,8 +14,21 @@ export const defaultConfig = {
 export function create(
   parameters: ExactPartial<Porto.Config> | undefined = {},
 ): Porto.Porto {
+  if (parameters?.mode)
+    return Porto.create({ ...parameters, mode: parameters.mode })
+
+  const { keystoreHost, webAuthn } = createReactNativePasskeyAdapter()
+  const mode = Mode.reactNative({
+    fallback: Mode.relay({
+      ...(keystoreHost ? { keystoreHost } : {}),
+      webAuthn,
+    }),
+  })
+
   return Porto.create({
     ...parameters,
-    mode: parameters.mode ?? defaultConfig.mode,
+    mode,
   })
 }
+
+export { createReactNativePasskeyAdapter } from './passkeyAdapter.js'

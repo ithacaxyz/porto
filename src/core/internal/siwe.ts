@@ -21,21 +21,38 @@ export async function authenticate(
 
   const { chainId } = Siwe.parseMessage(message)
 
-  return await fetch(authUrl.verify, {
-    body: JSON.stringify({
-      address,
-      chainId,
-      message,
-      signature,
-      walletAddress: address,
-      ...(publicKey && { publicKey }),
-    }),
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-  }).then((res) => res.json())
+  async function send(credentials: RequestCredentials) {
+    const response = await fetch(authUrl.verify, {
+      body: JSON.stringify({
+        address,
+        chainId,
+        message,
+        signature,
+        ...(publicKey && { publicKey }),
+        walletAddress: address,
+      }),
+      credentials,
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+    })
+
+    const text = await response.json()
+    return text
+  }
+
+  try {
+    return await send('include')
+  } catch (error) {
+    console.error('[porto][siwe] authenticate include failed', error)
+    if (!shouldRetryWithoutCredentials(error)) throw error
+    return await send('omit')
+  }
+}
+
+function shouldRetryWithoutCredentials(error: unknown) {
+  if (!(error instanceof TypeError)) return false
+  const message = (error.message ?? '').toLowerCase()
+  return message.includes('load failed') || message.includes('failed to fetch')
 }
 
 export declare namespace authenticate {
@@ -69,7 +86,8 @@ export async function buildMessage<chain extends Chain | undefined>(
   const authUrl = siwe.authUrl ? resolveAuthUrl(siwe.authUrl) : undefined
 
   if (!chainId) throw new Error('`chainId` is required.')
-  if (!domain) throw new Error('`domain` is required.')
+  const normalizedDomain = normalizeDomain(domain)
+  if (!normalizedDomain) throw new Error('`domain` is required.')
   if (!siwe.nonce && !authUrl?.nonce)
     throw new Error('`nonce` or `authUrl.nonce` is required.')
   if (!uri) throw new Error('`uri` is required.')
@@ -98,7 +116,7 @@ export async function buildMessage<chain extends Chain | undefined>(
     ...siwe,
     address: options.address,
     chainId,
-    domain,
+    domain: normalizedDomain,
     nonce,
     resources: resources as string[] | undefined,
     uri,
@@ -144,3 +162,22 @@ function resolveUrl(url: string, origin: string) {
   if (!url.startsWith('/')) return url
   return origin + url
 }
+
+function normalizeDomain(domain: string | undefined) {
+  if (!domain) return domain
+  const trimmed = domain.trim()
+  const normalized = (() => {
+    try {
+      const url = new URL(trimmed)
+      return url.host
+    } catch {}
+    try {
+      const url = new URL(`https://${trimmed}`)
+      return url.host
+    } catch {}
+    return trimmed
+  })()
+  return normalized.length > 0 ? normalized : undefined
+}
+
+export const parseMessage = Siwe.parseMessage

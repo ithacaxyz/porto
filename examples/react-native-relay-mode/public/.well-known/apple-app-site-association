@@ -4,10 +4,17 @@
       {
         "appIDs": ["Q7767Q7TRJ.com.example.porto-relay-mode"],
         "components": [{ "/": "/*" }]
+      },
+      {
+        "appIDs": ["Q7767Q7TRJ.com.example.porto-react-native"],
+        "components": [{ "/": "/*" }]
       }
     ]
   },
   "webcredentials": {
-    "apps": ["Q7767Q7TRJ.com.example.porto-relay-mode"]
+    "apps": [
+      "Q7767Q7TRJ.com.example.porto-relay-mode",
+      "Q7767Q7TRJ.com.example.porto-react-native"
+    ]
   }
 }

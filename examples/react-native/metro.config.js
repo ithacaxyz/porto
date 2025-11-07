@@ -34,6 +34,7 @@ module.exports = {
       return context.resolveRequest(context, moduleName, platform)
     },
     unstable_conditionNames: [
+      'react-native',
       ...(defaultConfiguration.resolver?.unstable_conditionNames || []),
       'import',
     ],

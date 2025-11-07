@@ -1,17 +1,15 @@
 import { Hex, Value } from 'ox'
 import { Mode, Porto } from 'porto'
+
 import { baseSepolia } from 'porto/core/Chains'
 import { RelayClient } from 'porto/viem'
 
 import { exp1Address, exp2Address } from './contracts'
-import { createFn, getFn, rp } from './passkeys'
+import { rp, webAuthn } from './passkeys'
 
 export const porto = Porto.create({
   chains: [baseSepolia],
-  mode: Mode.relay({
-    keystoreHost: rp.id,
-    webAuthn: { createFn, getFn },
-  }),
+  mode: Mode.relay({ keystoreHost: rp.id, webAuthn }),
 })
 
 export const client = RelayClient.fromPorto(porto, { chainId: baseSepolia.id })
@@ -34,7 +32,7 @@ export const permissions = () =>
       ],
       spend: [
         {
-          limit: Hex.fromNumber(Value.fromEther('5000')),
+          limit: Hex.fromNumber(Value.fromEther('500')),
           period: 'minute',
           token: exp1Address,
         },

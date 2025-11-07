@@ -3,6 +3,6 @@
   "dependencies": {
     "jose": "^6.1.0",
     "viem": "^2.38.4",
-    "porto": "latest"
+    "porto": "^0.2.34"
   }
 }

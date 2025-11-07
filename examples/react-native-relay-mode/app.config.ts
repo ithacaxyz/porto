@@ -1,15 +1,14 @@
 import type { ConfigContext, ExpoConfig } from 'expo/config'
 
 const SCHEME = 'porto-relay-mode'
-const HOSTNAME = 'porto-relay-mode.app'
 const BUNDLE_IDENTIFIER = `com.example.${SCHEME}`
 
 const EXPO_TUNNEL_DOMAIN = `${process.env.EXPO_TUNNEL_SUBDOMAIN || SCHEME}.ngrok.io`
 
 const ASSOCIATED_DOMAINS = [
-  `applinks:${HOSTNAME}`,
+  `applinks:${SCHEME}`,
   `applinks:${EXPO_TUNNEL_DOMAIN}`,
-  `webcredentials:${HOSTNAME}`,
+  `webcredentials:${SCHEME}`,
   `webcredentials:${EXPO_TUNNEL_DOMAIN}`,
 ]
 
@@ -21,15 +20,36 @@ if (SERVER_URL) {
   )
 } else console.warn('EXPO_PUBLIC_SERVER_URL is not set')
 
-export const expoConfig = {
+export default (_context: ConfigContext): ExpoConfig => ({
   android: {
     adaptiveIcon: {
       backgroundColor: '#ffffff',
       foregroundImage: './assets/adaptive-icon.png',
     },
     edgeToEdgeEnabled: true,
-    package: BUNDLE_IDENTIFIER,
+    intentFilters: [
+      {
+        action: 'VIEW',
+        autoVerify: true,
+        category: ['BROWSABLE', 'DEFAULT'],
+        data: {
+          host: SERVER_URL?.replaceAll('https://', ''),
+          pathPrefix: '/',
+          scheme: SCHEME,
+        },
+      },
+    ],
+    package: BUNDLE_IDENTIFIER.replaceAll('-', '_'),
     predictiveBackGestureEnabled: false,
+  },
+  experiments: {
+    reactCompiler: true,
+    turboModules: true,
+  },
+  extra: {
+    eas: {
+      projectId: 'f401cb79-1e2d-4ebe-a621-2e5f13d841ac',
+    },
   },
   icon: './assets/icon.png',
   ios: {
@@ -43,7 +63,10 @@ export const expoConfig = {
   name: SCHEME,
   newArchEnabled: true,
   orientation: 'portrait',
+  owner: 'ithaca',
   plugins: [
+    ['expo-web-browser', { experimentalLauncherActivity: true }],
+    ['expo-dev-client', { launchMode: 'most-recent' }],
     [
       'expo-build-properties',
       {
@@ -70,6 +93,4 @@ export const expoConfig = {
     favicon: './assets/favicon.png',
     output: 'single',
   },
-} satisfies ExpoConfig
-
-export default (_context: ConfigContext): ExpoConfig => expoConfig
+})

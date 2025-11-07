@@ -1,5 +1,4 @@
 import { Database } from 'bun:sqlite'
-import NodePath from 'node:path'
 import * as Bun from 'bun'
 import * as JoseMourinho from 'jose'
 import { Porto } from 'porto'
@@ -18,12 +17,33 @@ if (!JWT_SECRET) throw new Error('JWT_SECRET is not set')
 /**
  * In production you will want to have a stricter CORS policy.
  */
-const headers = new Headers({
-  'Access-Control-Allow-Credentials': 'true',
+const baseHeaders = new Headers({
   'Access-Control-Allow-Headers': 'Content-Type',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Origin': 'https://porto-relay-mode.ngrok.io',
 })
+
+const allowedOrigins = Bun.env.SIWE_ALLOWED_ORIGINS.split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean)
+
+function resolveAllowedOrigin(origin: string | null) {
+  if (!origin || origin === 'null') return allowedOrigins[0] ?? null
+  const normalizedOrigin = origin.replace(/\/$/, '')
+  if (allowedOrigins.includes('*')) return normalizedOrigin
+  if (allowedOrigins.includes(normalizedOrigin)) return normalizedOrigin
+  return null
+}
+
+function createSiweHeaders(origin: string | null) {
+  const headers = new Headers(baseHeaders)
+  headers.set('Access-Control-Allow-Credentials', 'true')
+  headers.append('Vary', 'Origin')
+
+  const allowedOrigin = resolveAllowedOrigin(origin)
+  if (allowedOrigin) headers.set('Access-Control-Allow-Origin', allowedOrigin)
+
+  return { allowedOrigin, headers }
+}
 
 const database = new Database(':memory:')
 
@@ -36,28 +56,57 @@ database.run(/* sql */ `
 `)
 
 const server = Bun.serve({
+  development: Bun.env.NODE_ENV !== 'production',
   error: (error) =>
-    Response.json({ error: error.message }, { headers, status: 500 }),
+    Response.json(
+      { error: error.message },
+      { headers: createSiweHeaders(null).headers, status: 500 },
+    ),
   port: Number(Bun.env.PORT || 69_69),
   routes: {
-    '/': Response.json({ ok: new Date().toISOString() }, { headers }),
-    '/.well-known/apple-app-site-association': async () =>
-      Response.json(
-        await Bun.file(
-          NodePath.join(import.meta.dirname, './apple-app-site-association'),
-        ).json(),
-      ),
+    '/': Response.json(
+      {
+        ok: new Date().toISOString(),
+        routes: [
+          '/api/me',
+          '/api/siwe/logout',
+          '/api/siwe/nonce',
+          '/api/siwe/verify',
+          '/.well-known/apple-app-site-association',
+          '/.well-known/apple-app-site-association.json',
+          '/.well-known/assetlinks.json',
+        ],
+      },
+      { headers: baseHeaders },
+    ),
+    '/.well-known/apple-app-site-association': {
+      GET: async () => {
+        return Response.json(
+          await Bun.file('./apple-app-site-association').json(),
+          { headers: baseHeaders },
+        )
+      },
+    },
     '/.well-known/apple-app-site-association.json': Response.redirect(
       '/.well-known/apple-app-site-association',
     ),
-    '/.well-known/assetlinks.json': async () =>
-      Response.json(
-        await Bun.file(
-          NodePath.join(import.meta.dirname, './assetlinks.json'),
-        ).json(),
-      ),
+    '/.well-known/assetlinks.json': {
+      GET: async () =>
+        Response.json(await Bun.file('./assetlinks.json').json(), {
+          headers: baseHeaders,
+        }),
+    },
     '/api/me': async (request) => {
       const token = request.cookies.get('auth')
+      const { allowedOrigin, headers } = createSiweHeaders(
+        request.headers.get('origin'),
+      )
+
+      if (!allowedOrigin)
+        return Response.json(
+          { error: 'Origin not allowed' },
+          { headers, status: 403 },
+        )
 
       if (!token)
         return Response.json(
@@ -67,19 +116,39 @@ const server = Bun.serve({
 
       const { payload } = await JoseMourinho.jwtVerify(
         token,
-        new TextEncoder().encode(Bun.env.JWT_SECRET),
+        new TextEncoder().encode(JWT_SECRET),
       )
 
       return Response.json(payload, { headers })
     },
     '/api/siwe/logout': async (request) => {
       request.cookies.delete('auth')
+      const { allowedOrigin, headers } = createSiweHeaders(
+        request.headers.get('origin'),
+      )
+
+      if (!allowedOrigin)
+        return Response.json(
+          { error: 'Origin not allowed' },
+          { headers, status: 403 },
+        )
       return Response.json({ success: true }, { headers, status: 204 })
     },
     '/api/siwe/nonce': {
-      OPTIONS: () => new Response(null, { headers }),
+      OPTIONS: (request) =>
+        new Response(null, {
+          headers: createSiweHeaders(request.headers.get('origin')).headers,
+        }),
       POST: async (request) => {
-        const url = new URL(request.url)
+        const { allowedOrigin, headers } = createSiweHeaders(
+          request.headers.get('origin'),
+        )
+
+        if (!allowedOrigin)
+          return Response.json(
+            { error: 'Origin not allowed' },
+            { headers, status: 403 },
+          )
 
         const nonce = generateSiweNonce()
 
@@ -92,9 +161,21 @@ const server = Bun.serve({
       },
     },
     '/api/siwe/verify': {
-      OPTIONS: () => new Response(null, { headers }),
+      OPTIONS: (request) =>
+        new Response(null, {
+          headers: createSiweHeaders(request.headers.get('origin')).headers,
+        }),
       POST: async (request) => {
         const { message, signature } = await request.json()
+        const { allowedOrigin, headers } = createSiweHeaders(
+          request.headers.get('origin'),
+        )
+
+        if (!allowedOrigin)
+          return Response.json(
+            { error: 'Origin not allowed' },
+            { headers, status: 403 },
+          )
 
         const { address, chainId, nonce } = parseSiweMessage(message)
 
@@ -138,7 +219,7 @@ const server = Bun.serve({
           .setProtectedHeader({ alg: 'HS256' })
           .setIssuedAt()
           .setExpirationTime(exp)
-          .sign(new TextEncoder().encode(Bun.env.JWT_SECRET))
+          .sign(new TextEncoder().encode(JWT_SECRET))
 
         request.cookies.set('auth', token, {
           httpOnly: true,
