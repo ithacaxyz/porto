@@ -31,8 +31,32 @@ export const hostUrls = {
 export type Dialog = {
   name: string
   setup: (parameters: {
+    features?:
+      | {
+          bugReporting?: boolean | undefined
+          emailInput?: boolean | undefined
+          accountSwitcher?: boolean | undefined
+          signUpLink?: boolean | undefined
+          signIn?: boolean | undefined
+          createAccount?: boolean | undefined
+        }
+      | undefined
     host: string
     internal: Internal
+    labels?:
+      | {
+          signInPrompt?: string | undefined
+          signIn?: string | undefined
+          signUp?: string | undefined
+          createAccount?: string | undefined
+          continue?: string | undefined
+          dialogTitle?: string | undefined
+          exampleEmail?: string | undefined
+          bugReportEmail?: string | undefined
+          switchAccount?: string | undefined
+          signUpLink?: string | undefined
+        }
+      | undefined
     theme?: ThemeFragment | undefined
     themeController?: ThemeController | undefined
   }) => {
@@ -83,7 +107,8 @@ export function iframe(options: iframe.Options = {}) {
   return from({
     name: 'iframe',
     setup(parameters) {
-      const { host, internal, theme, themeController } = parameters
+      const { features, host, internal, labels, theme, themeController } =
+        parameters
       const { store } = internal
 
       const fallback = popup().setup(parameters)
@@ -189,6 +214,8 @@ export function iframe(options: iframe.Options = {}) {
 
         messenger.send('__internal', {
           chainIds: compatibleChainIds,
+          features,
+          labels,
           mode: 'iframe',
           referrer: getReferrer(),
           theme,
@@ -308,6 +335,8 @@ export function iframe(options: iframe.Options = {}) {
           open = false
 
           messenger.send('__internal', {
+            features,
+            labels,
             mode: 'iframe',
             referrer: getReferrer(),
             type: 'init',
@@ -338,6 +367,8 @@ export function iframe(options: iframe.Options = {}) {
           activateDialog()
 
           messenger.send('__internal', {
+            features,
+            labels,
             mode: 'iframe',
             referrer: getReferrer(),
             type: 'init',
@@ -445,7 +476,7 @@ export function popup(options: popup.Options = {}) {
   return from({
     name: 'popup',
     setup(parameters) {
-      const { host, internal, themeController } = parameters
+      const { features, host, internal, labels, themeController } = parameters
       const { store } = internal
 
       const hostUrl = new URL(host)
@@ -513,6 +544,8 @@ export function popup(options: popup.Options = {}) {
           themeController?._setup(messenger, false)
 
           messenger.send('__internal', {
+            features,
+            labels,
             mode: resolvedType === 'page' ? 'page' : 'popup',
             referrer: getReferrer(),
             theme: themeController?.getTheme() ?? parameters.theme,
@@ -826,7 +859,8 @@ export function experimental_inline(options: inline.Options) {
   return from({
     name: 'inline',
     setup(parameters) {
-      const { host, internal, theme, themeController } = parameters
+      const { features, host, internal, labels, theme, themeController } =
+        parameters
       const { store } = internal
 
       let open = false
@@ -872,6 +906,8 @@ export function experimental_inline(options: inline.Options) {
 
       messenger.on('ready', () => {
         messenger.send('__internal', {
+          features,
+          labels,
           mode: 'inline-iframe',
           referrer: getReferrer(),
           theme,
@@ -894,6 +930,8 @@ export function experimental_inline(options: inline.Options) {
           open = true
 
           messenger.send('__internal', {
+            features,
+            labels,
             mode: 'iframe',
             referrer: getReferrer(),
             type: 'init',

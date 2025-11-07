@@ -7,26 +7,6 @@ import {
 export type TailwindCustomTheme = {
   colorScheme: PortoTheme.ThemeColorScheme
   tailwindCss: string
-  hideEmailInput?: boolean | undefined
-  hideBugReportIcon?: boolean | undefined
-  hideAccountSwitcher?: boolean | undefined
-  hideSignUpLink?: boolean | undefined
-  hideSignInButton?: boolean | undefined
-  hideCreateAccountButton?: boolean | undefined
-  labels?:
-    | {
-        signInPrompt?: string | undefined
-        signInButton?: string | undefined
-        signUpButton?: string | undefined
-        createAccount?: string | undefined
-        continueButton?: string | undefined
-        dialogTitle?: string | undefined
-        exampleEmail?: string | undefined
-        bugReportEmail?: string | undefined
-        switchAccount?: string | undefined
-        signUpLink?: string | undefined
-      }
-    | undefined
 }
 
 /** Formats a JSON theme string into a Tailwind theme declaration.
@@ -59,39 +39,8 @@ export function parseJsonTheme(
       css += `\n    ${tailwindVar}: ${formatCssValue(value, type, theme.colorScheme)};`
   }
 
-  // Extract non-CSS theme properties
-  const hideEmailInput = (theme as Record<string, unknown>).hideEmailInput
-  const hideBugReportIcon = (theme as Record<string, unknown>).hideBugReportIcon
-  const hideAccountSwitcher = (theme as Record<string, unknown>)
-    .hideAccountSwitcher
-  const hideSignUpLink = (theme as Record<string, unknown>).hideSignUpLink
-  const hideSignInButton = (theme as Record<string, unknown>).hideSignInButton
-  const hideCreateAccountButton = (theme as Record<string, unknown>)
-    .hideCreateAccountButton
-  const labels = (theme as Record<string, unknown>).labels
-
   return {
     colorScheme: theme.colorScheme,
-    hideAccountSwitcher:
-      typeof hideAccountSwitcher === 'boolean'
-        ? hideAccountSwitcher
-        : undefined,
-    hideBugReportIcon:
-      typeof hideBugReportIcon === 'boolean' ? hideBugReportIcon : undefined,
-    hideCreateAccountButton:
-      typeof hideCreateAccountButton === 'boolean'
-        ? hideCreateAccountButton
-        : undefined,
-    hideEmailInput:
-      typeof hideEmailInput === 'boolean' ? hideEmailInput : undefined,
-    hideSignInButton:
-      typeof hideSignInButton === 'boolean' ? hideSignInButton : undefined,
-    hideSignUpLink:
-      typeof hideSignUpLink === 'boolean' ? hideSignUpLink : undefined,
-    labels:
-      labels && typeof labels === 'object'
-        ? (labels as TailwindCustomTheme['labels'])
-        : undefined,
     tailwindCss: `@layer theme {\n  :root, :host {${css}\n  }\n}`,
   }
 }

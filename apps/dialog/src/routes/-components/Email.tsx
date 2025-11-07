@@ -24,7 +24,8 @@ export function Email(props: Email.Props) {
       ? state.accountMetadata[account.address]?.email
       : undefined,
   )
-  const customTheme = Dialog.useStore((state) => state.customTheme)
+  const customFeatures = Dialog.useStore((state) => state.customFeatures)
+  const customLabels = Dialog.useStore((state) => state.customLabels)
   const displayName = (() => {
     if (!account) return undefined
     if (email) return email
@@ -55,11 +56,17 @@ export function Email(props: Email.Props) {
 
   const content = React.useMemo(() => {
     if (cli) return undefined
-    const signInPromptText =
-      customTheme?.labels?.signInPrompt ?? 'Use Porto to sign in to'
     return (
       <>
-        {signInPromptText}{' '}
+        {customLabels?.signInPrompt ? (
+          // Custom sign-in prompt (no Porto branding)
+          customLabels.signInPrompt
+        ) : (
+          // Default: "Use Porto to sign in to" with Porto bolded
+          <>
+            Use <span className="font-medium">Porto</span> to sign in to
+          </>
+        )}{' '}
         {hostname ? (
           <>
             <span className="font-medium">{hostname}</span>
@@ -71,7 +78,7 @@ export function Email(props: Email.Props) {
         .
       </>
     )
-  }, [actions, cli, customTheme?.labels?.signInPrompt, hostname])
+  }, [actions, cli, customLabels?.signInPrompt, hostname])
 
   const [invalid, setInvalid] = React.useState(false)
 
@@ -88,7 +95,7 @@ export function Email(props: Email.Props) {
       <Permissions title="Permissions requested" {...permissions} />
 
       <div className="group flex min-h-[48px] w-full flex-col items-center justify-center space-y-3 px-3 pb-3">
-        {actions.includes('sign-in') && !customTheme?.hideSignInButton && (
+        {actions.includes('sign-in') && customFeatures?.signIn !== false && (
           <Button
             data-testid="sign-in"
             disabled={status === 'loading' || signingUp}
@@ -103,13 +110,13 @@ export function Email(props: Email.Props) {
             width="full"
           >
             {actions.includes('sign-up')
-              ? (customTheme?.labels?.signInButton ?? 'Sign in with Porto')
-              : (customTheme?.labels?.continueButton ?? 'Continue with Porto')}
+              ? (customLabels?.signIn ?? 'Sign in with Porto')
+              : (customLabels?.continue ?? 'Continue with Porto')}
           </Button>
         )}
 
         {actions.includes('sign-up') &&
-        !customTheme?.hideCreateAccountButton ? (
+          customFeatures?.createAccount !== false ? (
           <form
             className="flex w-full flex-grow flex-col gap-2"
             onInvalid={(event) => {
@@ -119,14 +126,15 @@ export function Email(props: Email.Props) {
             onSubmit={onSignUpSubmit}
           >
             {/* If "Sign in" button is present, show the "First time?" text for sign up. */}
-            {actions.includes('sign-in') && !customTheme?.hideSignInButton && (
-              <div className="-tracking-[2.8%] flex items-center whitespace-nowrap text-[12px] text-th_base-secondary leading-[17px]">
-                First time?
-                <div className="ms-2 h-px w-full bg-th_separator" />
-              </div>
-            )}
-            {customTheme?.hideEmailInput ? (
-              // Hidden input when hideEmailInput is true
+            {actions.includes('sign-in') &&
+              customFeatures?.signIn !== false && (
+                <div className="-tracking-[2.8%] flex items-center whitespace-nowrap text-[12px] text-th_base-secondary leading-[17px]">
+                  First time?
+                  <div className="ms-2 h-px w-full bg-th_separator" />
+                </div>
+              )}
+            {customFeatures?.emailInput === false ? (
+              // Hidden input when emailInput is disabled
               <input name="email" type="hidden" value="" />
             ) : (
               <div className="relative flex items-center">
@@ -143,7 +151,7 @@ export function Email(props: Email.Props) {
                   name="email"
                   onChange={() => setInvalid(false)}
                   placeholder={
-                    customTheme?.labels?.exampleEmail ?? 'example@ithaca.xyz'
+                    customLabels?.exampleEmail ?? 'example@ithaca.xyz'
                   }
                   type="email"
                 />
@@ -163,11 +171,11 @@ export function Email(props: Email.Props) {
               {invalid ? (
                 'Invalid email'
               ) : actions.includes('sign-in') ? (
-                (customTheme?.labels?.createAccount ?? 'Create Porto account')
+                (customLabels?.createAccount ?? 'Create Porto account')
               ) : (
                 <div className="flex gap-2">
                   <IconScanFace className="size-5.25" />
-                  {customTheme?.labels?.signUpButton ?? 'Sign up with Porto'}
+                  {customLabels?.signUp ?? 'Sign up with Porto'}
                 </div>
               )}
             </Button>
@@ -188,8 +196,8 @@ export function Email(props: Email.Props) {
               )}
             </div>
             {(() => {
-              const showSwitcher = !customTheme?.hideAccountSwitcher
-              const showSignUp = !customTheme?.hideSignUpLink
+              const showSwitcher = customFeatures?.accountSwitcher !== false
+              const showSignUp = customFeatures?.signUpLink !== false
 
               // If both are hidden, show nothing
               if (!showSwitcher && !showSignUp) return null
@@ -203,7 +211,7 @@ export function Email(props: Email.Props) {
                         onApprove({ selectAccount: true, signIn: true })
                       }}
                     >
-                      {customTheme?.labels?.switchAccount ?? 'Switch'}
+                      {customLabels?.switchAccount ?? 'Switch'}
                     </TextButton>
                   )}
                   {showSwitcher && showSignUp && (
@@ -216,7 +224,7 @@ export function Email(props: Email.Props) {
                         setActions(['sign-up'])
                       }}
                     >
-                      {customTheme?.labels?.signUpLink ?? 'Sign up'}
+                      {customLabels?.signUpLink ?? 'Sign up'}
                     </TextButton>
                   )}
                 </div>

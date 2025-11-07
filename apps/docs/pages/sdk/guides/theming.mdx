@@ -121,106 +121,120 @@ export const theme2 = {
 
 ## UI Customization
 
-Beyond colors and styling, Porto themes support customization of UI elements and text labels.
+Beyond colors and styling, Porto supports customization of UI elements and text labels through the `Mode.dialog()` options.
 
-### Hiding UI Elements
+### Disabling UI Features
 
-You can hide specific UI elements using boolean flags:
+Control which UI elements are shown using the `features` option:
 
-```ts [hide-ui-elements.ts]
-import type { ThemeFragment } from 'porto/theme'
+```ts [disable-features.ts]
+import { Mode } from 'porto'
 
-export const theme: ThemeFragment = {
-  colorScheme: 'light',
+const connector = porto({
+  mode: Mode.dialog({
+    features: {
+      // When false, removes the bug report icon from the dialog header
+      // and disables the report feature on error screens
+      bugReporting: false,  // Default: true
 
-  // Hide email input field (for passkey-only authentication)
-  hideEmailInput: true,
+      // When false, hides email input field
+      // Uses truncated wallet address as account label instead
+      emailInput: false,  // Default: true
 
-  // Hide bug report icon in frame header
-  hideBugReportIcon: true,
+      // When false, hides "Switch" link in signed-in view
+      accountSwitcher: false,  // Default: true
 
-  // Hide account management links in signed-in view
-  hideAccountSwitcher: true,  // Hides "Switch" link
-  hideSignUpLink: true,        // Hides "Sign up" link
+      // When false, hides "Sign up" link in signed-in view
+      signUpLink: false,  // Default: true
 
-  // Hide buttons in "Get started" view
-  hideSignInButton: false,           // Show sign-in button
-  hideCreateAccountButton: true,     // Hide create account button
-}
+      // When false, hides "Sign in" button in get started view
+      signIn: false,  // Default: true
+
+      // When false, hides "Create account" button and "First time?" label
+      createAccount: false,  // Default: true
+    },
+  }),
+})
 ```
 
-**Available hide flags:**
-- `hideEmailInput` - Hides email input field (uses truncated wallet address as account label)
-- `hideBugReportIcon` - Hides bug report icon in dialog header
-- `hideAccountSwitcher` - Hides "Switch" link when signed in
-- `hideSignUpLink` - Hides "Sign up" link when signed in
-- `hideSignInButton` - Hides "Sign in" button in get started view
-- `hideCreateAccountButton` - Hides "Create account" button and "First time?" label
+**Available features:**
+- `bugReporting` - Show/hide bug report icon and error reporting UI
+- `emailInput` - Show/hide email input field (uses wallet address when hidden)
+- `accountSwitcher` - Show/hide account switching link
+- `signUpLink` - Show/hide sign up link
+- `signIn` - Show/hide sign-in button
+- `createAccount` - Show/hide create account button
 
 ### Customizing Text Labels
 
-Customize button text, prompts, and other labels:
+Customize button text, prompts, and other labels using the `labels` option:
 
 ```ts [custom-labels.ts]
-import type { ThemeFragment } from 'porto/theme'
+import { Mode } from 'porto'
 
-export const theme: ThemeFragment = {
-  colorScheme: 'light',
+const connector = porto({
+  mode: Mode.dialog({
+    labels: {
+      // Sign-in prompt text
+      signInPrompt: 'Use passkey to sign in to',  // Default: "Use Porto to sign in to"
 
-  labels: {
-    // Sign-in prompt text
-    signInPrompt: 'Use passkey to sign in to',  // Default: "Use Porto to sign in to"
+      // Button labels (note: no "Button" suffix)
+      signIn: 'Sign in with passkey',       // Default: "Sign in with Porto"
+      signUp: 'Sign up with passkey',       // Default: "Sign up with Porto"
+      createAccount: 'Create passkey account',    // Default: "Create Porto account"
+      continue: 'Continue with passkey',    // Default: "Continue with Porto"
 
-    // Button labels
-    signInButton: 'Sign in with passkey',       // Default: "Sign in with Porto"
-    signUpButton: 'Sign up with passkey',       // Default: "Sign up with Porto"
-    createAccount: 'Create passkey account',    // Default: "Create Porto account"
-    continueButton: 'Continue with passkey',    // Default: "Continue with Porto"
+      // Account management links
+      switchAccount: 'Change account',            // Default: "Switch"
+      signUpLink: 'Set up',                       // Default: "Sign up"
 
-    // Account management links
-    switchAccount: 'Change account',            // Default: "Switch"
-    signUpLink: 'Set up',                       // Default: "Sign up"
+      // Email and support
+      exampleEmail: 'user@example.com',           // Default: "example@ithaca.xyz"
+      bugReportEmail: 'support@example.com',      // Default: "support@ithaca.xyz"
 
-    // Email and support
-    exampleEmail: 'user@example.com',           // Default: "example@ithaca.xyz"
-    bugReportEmail: 'support@example.com',      // Default: "support@ithaca.xyz"
-
-    // Frame title (not currently implemented)
-    dialogTitle: 'Passkey',                     // Default: "Porto"
-  }
-}
+      // Frame title (not currently implemented)
+      dialogTitle: 'Passkey',                     // Default: "Porto"
+    },
+  }),
+})
 ```
 
-**Note**: Labels are only used when their corresponding UI elements are visible (not hidden by hide flags).
+**Note**: Labels are only used when their corresponding UI elements are visible (controlled by `features`).
 
 ### Combining Customizations
 
-You can combine hide flags with custom labels for complete control:
+Combine theme colors, features, and labels for complete control:
 
 ```ts [complete-customization.ts]
+import { Mode } from 'porto'
 import type { ThemeFragment } from 'porto/theme'
 
-export const theme: ThemeFragment = {
+// Define theme colors separately
+const theme: ThemeFragment = {
   colorScheme: 'light',
-
-  // Passkey-only authentication (no email collection)
-  hideEmailInput: true,
-
-  // Simplified account management
-  hideAccountSwitcher: true,
-  hideSignUpLink: true,
-
-  // Custom branding
-  labels: {
-    signInPrompt: 'Use your passkey to access',
-    signInButton: 'Access with passkey',
-    bugReportEmail: 'help@myapp.com',
-  },
-
-  // Color customization
   primaryBackground: '#007bff',
   primaryContent: '#ffffff',
 }
+
+const connector = porto({
+  mode: Mode.dialog({
+    theme,
+
+    // Passkey-only authentication (no email collection)
+    features: {
+      emailInput: false,
+      accountSwitcher: false,
+      signUpLink: false,
+    },
+
+    // Custom branding
+    labels: {
+      signInPrompt: 'Use your passkey to access',
+      signIn: 'Access with passkey',
+      bugReportEmail: 'help@myapp.com',
+    },
+  }),
+})
 ```
 
 This creates a streamlined, branded passkey authentication experience.

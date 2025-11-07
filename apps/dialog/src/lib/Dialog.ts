@@ -11,6 +11,8 @@ export const store = createStore(
     persist<store.State>(
       () => ({
         accountMetadata: {},
+        customFeatures: undefined,
+        customLabels: undefined,
         customTheme: undefined,
         display: 'full',
         error: null,
@@ -37,6 +39,30 @@ export declare namespace store {
         email?: string | undefined
       }
     >
+    customFeatures:
+      | {
+          bugReporting?: boolean | undefined
+          emailInput?: boolean | undefined
+          accountSwitcher?: boolean | undefined
+          signUpLink?: boolean | undefined
+          signIn?: boolean | undefined
+          createAccount?: boolean | undefined
+        }
+      | undefined
+    customLabels:
+      | {
+          signInPrompt?: string | undefined
+          signIn?: string | undefined
+          signUp?: string | undefined
+          createAccount?: string | undefined
+          continue?: string | undefined
+          dialogTitle?: string | undefined
+          exampleEmail?: string | undefined
+          bugReportEmail?: string | undefined
+          switchAccount?: string | undefined
+          signUpLink?: string | undefined
+        }
+      | undefined
     customTheme: Theme.TailwindCustomTheme | undefined
     // reflects how the dialog window gets displayed:
     // - 'full': uses the full space available (popup, popup-standalone) (default)

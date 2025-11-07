@@ -25,7 +25,9 @@ import { relay } from './relay.js'
 export function dialog(parameters: dialog.Parameters = {}) {
   const {
     fallback = relay(),
+    features,
     host = Dialog.hostUrls.prod,
+    labels,
     renderer = Dialog.iframe(),
     theme,
     themeController,
@@ -966,8 +968,10 @@ export function dialog(parameters: dialog.Parameters = {}) {
       const { store } = internal
 
       const dialog = renderer.setup({
+        features,
         host,
         internal,
+        labels,
         theme,
         themeController,
       })
@@ -1003,10 +1007,143 @@ export declare namespace dialog {
      */
     fallback?: Mode.Mode | undefined
     /**
+     * Feature flags to control UI element visibility and behavior.
+     * @default undefined
+     */
+    features?:
+      | {
+          /**
+           * Enable or disable bug reporting functionality.
+           * When false, removes the bug report icon from the dialog header
+           * and disables the report feature on error screens (only showing the error).
+           *
+           * @default true
+           */
+          bugReporting?: boolean | undefined
+          /**
+           * Show or hide the email input field in the account creation flow.
+           * When false, the email input is hidden and Porto uses a truncated
+           * wallet address as the account label (e.g., "0x775da7…717e09").
+           *
+           * @default true
+           */
+          emailInput?: boolean | undefined
+          /**
+           * Show or hide the account switcher link in the signed-in view.
+           * When false, the account switcher link is not displayed.
+           *
+           * @default true
+           */
+          accountSwitcher?: boolean | undefined
+          /**
+           * Show or hide the sign-up link in the signed-in view.
+           * When false, the sign-up link is not displayed.
+           *
+           * @default true
+           */
+          signUpLink?: boolean | undefined
+          /**
+           * Show or hide the sign-in button in the "Get started" view.
+           * When false, the sign-in button is not displayed.
+           *
+           * @default true
+           */
+          signIn?: boolean | undefined
+          /**
+           * Show or hide the create account button in the "Get started" view.
+           * When false, the create account button and "First time?" label are hidden.
+           *
+           * @default true
+           */
+          createAccount?: boolean | undefined
+        }
+      | undefined
+    /**
      * URL of the dialog embed.
      * @default 'http://id.porto.sh/dialog'
      */
     host?: string | undefined
+    /**
+     * Customizable text labels for the dialog interface.
+     * Allows customization of button text, prompts, and example values.
+     * @default undefined
+     */
+    labels?:
+      | {
+          /**
+           * Text shown before the domain name in the sign-in prompt.
+           * Displayed at the top of the dialog when signing in.
+           *
+           * @default "Use Porto to sign in to"
+           */
+          signInPrompt?: string | undefined
+          /**
+           * Text for the sign-in button.
+           * Shown when the user has the option to sign in with an existing account.
+           *
+           * @default "Sign in with Porto"
+           */
+          signIn?: string | undefined
+          /**
+           * Text for the sign-up button.
+           * Shown in the account creation flow.
+           *
+           * @default "Sign up with Porto"
+           */
+          signUp?: string | undefined
+          /**
+           * Text for the create account button.
+           * Shown when creating a new account with sign-in option available.
+           *
+           * @default "Create Porto account"
+           */
+          createAccount?: string | undefined
+          /**
+           * Text for the continue button.
+           * Shown when only sign-in is available (no sign-up option).
+           *
+           * @default "Continue with Porto"
+           */
+          continue?: string | undefined
+          /**
+           * Dialog title shown in the frame header.
+           * Currently not implemented in the UI.
+           *
+           * @default "Porto"
+           */
+          dialogTitle?: string | undefined
+          /**
+           * Example email/account ID shown in the email input placeholder.
+           * Only used when features.emailInput is true (email input is visible).
+           *
+           * @default "example@ithaca.xyz"
+           */
+          exampleEmail?: string | undefined
+          /**
+           * Email address for bug reports.
+           * Only used when features.bugReporting is true (bug icon is visible).
+           *
+           * @default "support@ithaca.xyz"
+           */
+          bugReportEmail?: string | undefined
+          /**
+           * Text for the account switcher link.
+           * Only used when features.accountSwitcher is true.
+           * Shown in the signed-in view to allow switching accounts.
+           *
+           * @default "Switch"
+           */
+          switchAccount?: string | undefined
+          /**
+           * Text for the sign-up link.
+           * Only used when features.signUpLink is true.
+           * Shown in the signed-in view to allow creating a new account.
+           *
+           * @default "Sign up"
+           */
+          signUpLink?: string | undefined
+        }
+      | undefined
     /**
      * Dialog renderer.
      * @default Dialog.iframe()

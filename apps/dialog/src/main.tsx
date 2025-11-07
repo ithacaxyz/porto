@@ -32,7 +32,7 @@ if (import.meta.env.PROD) {
 }
 
 const offInitialized = Events.onInitialized(porto, async (payload, event) => {
-  const { chainIds, mode, referrer, theme } = payload
+  const { chainIds, features, labels, mode, referrer, theme } = payload
 
   // Prevent showing stale route from a previous action.
   const pathname = Router.router.state.location.pathname.replace(/\/+$/, '')
@@ -73,6 +73,9 @@ const offInitialized = Events.onInitialized(porto, async (payload, event) => {
     ...(theme
       ? { customTheme: Theme.parseJsonTheme(JSON.stringify(theme)) }
       : {}),
+    // Same pattern for optional features and labels
+    ...(features ? { customFeatures: features } : {}),
+    ...(labels ? { customLabels: labels } : {}),
   })
 })
 
@@ -146,10 +149,14 @@ porto.messenger.on('__internal', (payload) => {
           },
     )
 
-  if (payload.type === 'set-theme' && payload.theme)
-    Dialog.store.setState({
-      customTheme: Theme.parseJsonTheme(JSON.stringify(payload.theme)),
-    })
+  if (payload.type === 'set-theme') {
+    const updates: Partial<typeof Dialog.store._value> = {}
+    if (payload.theme)
+      updates.customTheme = Theme.parseJsonTheme(JSON.stringify(payload.theme))
+    if (payload.features) updates.customFeatures = payload.features
+    if (payload.labels) updates.customLabels = payload.labels
+    if (Object.keys(updates).length > 0) Dialog.store.setState(updates)
+  }
 
   // backward compatibility from 0.2.7 (to be removed in a future version)
   if (payload.type === 'dialog-lifecycle' && payload.action === 'request:close')

@@ -83,6 +83,30 @@ export type Schema = [
       | {
           type: 'init'
           chainIds?: readonly number[] | undefined
+          features?:
+            | {
+                bugReporting?: boolean | undefined
+                emailInput?: boolean | undefined
+                accountSwitcher?: boolean | undefined
+                signUpLink?: boolean | undefined
+                signIn?: boolean | undefined
+                createAccount?: boolean | undefined
+              }
+            | undefined
+          labels?:
+            | {
+                signInPrompt?: string | undefined
+                signIn?: string | undefined
+                signUp?: string | undefined
+                createAccount?: string | undefined
+                continue?: string | undefined
+                dialogTitle?: string | undefined
+                exampleEmail?: string | undefined
+                bugReportEmail?: string | undefined
+                switchAccount?: string | undefined
+                signUpLink?: string | undefined
+              }
+            | undefined
           mode:
             | 'inline-iframe'
             | 'iframe'
@@ -111,7 +135,31 @@ export type Schema = [
         }
       | {
           type: 'set-theme'
-          theme: Theme.ThemeFragment
+          features?:
+            | {
+                bugReporting?: boolean | undefined
+                emailInput?: boolean | undefined
+                accountSwitcher?: boolean | undefined
+                signUpLink?: boolean | undefined
+                signIn?: boolean | undefined
+                createAccount?: boolean | undefined
+              }
+            | undefined
+          labels?:
+            | {
+                signInPrompt?: string | undefined
+                signIn?: string | undefined
+                signUp?: string | undefined
+                createAccount?: string | undefined
+                continue?: string | undefined
+                dialogTitle?: string | undefined
+                exampleEmail?: string | undefined
+                bugReportEmail?: string | undefined
+                switchAccount?: string | undefined
+                signUpLink?: string | undefined
+              }
+            | undefined
+          theme?: Theme.ThemeFragment | undefined
         }
       | {
           // backward compatibility from 0.2.7 (to be removed in a future version)
