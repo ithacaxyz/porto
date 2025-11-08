@@ -37,7 +37,7 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
 
   let shouldPrintKeyOnExit = Boolean(adminKey)
   function cleanup(label?: string, err?: unknown) {
-    if (!shouldPrintKeyOnExit) return process.exit(1)
+    if (!shouldPrintKeyOnExit) process.exit(1)
     try {
       s.stop('Interrupted.')
     } catch {}
@@ -183,7 +183,6 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
       )
       // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
       fs.writeFileSync(keyFile, adminKey?.privateKey!()!, { mode: 0o600 })
-      fs.chmodSync(keyFile, 0o600)
       prompts.log.info(`Private key saved securely to: ${keyFile}`)
     }
     if (tempKeyFile)
