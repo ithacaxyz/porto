@@ -144,6 +144,7 @@ export function ActionRequest(props: ActionRequest.Props) {
   const refreshingQuote = prepareCallsQuery.isRefetching
 
   const guestModeData: GuestMode | undefined = React.useMemo(() => {
+    if (!guestMode) return undefined
     if (!guestStatus || guestStatus === 'disabled') return undefined
     if (!onGuestSignIn || !onGuestSignUp) return undefined
     return {
@@ -151,7 +152,7 @@ export function ActionRequest(props: ActionRequest.Props) {
       onSignUp: onGuestSignUp,
       status: guestStatus,
     }
-  }, [guestStatus, onGuestSignIn, onGuestSignUp])
+  }, [guestMode, guestStatus, onGuestSignIn, onGuestSignUp])
 
   const insufficientFunds = React.useMemo(() => {
     const errorMessage = prepareCallsQuery.error?.message ?? ''

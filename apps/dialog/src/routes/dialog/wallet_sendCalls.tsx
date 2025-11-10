@@ -26,16 +26,17 @@ function RouteComponent() {
 
   const currentAccount = Hooks.useAccount(porto)
   const client = Hooks.useRelayClient(porto, { chainId })
+  const guestMode = useGuestMode(currentAccount)
 
-  const { guestModeAccount, guestStatus, onSignIn, onSignUp } =
-    useGuestMode(currentAccount)
+  const account = guestMode.isEphemeral
+    ? guestMode.account
+    : (currentAccount ?? guestMode.account)
 
-  const account = currentAccount ?? guestModeAccount
-
-  const preview = React.useMemo(() => {
-    if (account) return { account, address: account.address, guest: false }
-    return undefined
-  }, [account])
+  const preview = account && {
+    account,
+    address: account.address,
+    guest: guestMode.isEphemeral || !currentAccount,
+  }
 
   const respond = useMutation({
     // TODO: use EIP-1193 Provider + `wallet_sendPreparedCalls` in the future
@@ -88,12 +89,12 @@ function RouteComponent() {
       chainId={chainId}
       feeToken={feeToken}
       guestMode={preview?.guest}
-      guestStatus={guestStatus}
+      guestStatus={guestMode.status}
       loading={respond.isPending}
       merchantUrl={merchantUrl}
       onApprove={(data) => respond.mutate(data)}
-      onGuestSignIn={onSignIn}
-      onGuestSignUp={onSignUp}
+      onGuestSignIn={guestMode.onSignIn}
+      onGuestSignUp={guestMode.onSignUp}
       onReject={() => respond.mutate({ reject: true })}
       requiredFunds={requiredFunds}
     />
