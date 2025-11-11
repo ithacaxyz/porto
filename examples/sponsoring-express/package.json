@@ -17,7 +17,7 @@
     "react-dom": "19.1.0",
     "viem": "^2.38.5",
     "vite-express": "^0.21.1",
-    "wagmi": "^2.19.1"
+    "wagmi": "^2.19.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

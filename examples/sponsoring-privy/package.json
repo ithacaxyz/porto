@@ -20,11 +20,11 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "viem": "^2.38.5",
-    "wagmi": "^2.19.1"
+    "wagmi": "^2.19.3"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.13.18",
-    "@cloudflare/workers-types": "^4.20251014.0",
+    "@cloudflare/vite-plugin": "^1.14.0",
+    "@cloudflare/workers-types": "^4.20251111.0",
     "@types/react": "^19.1",
     "@types/react-dom": "^19.1",
     "@vitejs/plugin-react": "^5.0.4",
@@ -32,6 +32,6 @@
     "typescript": "~5.9.3",
     "vite": "^6.3.6",
     "vite-plugin-mkcert": "^1.17.9",
-    "wrangler": "^4.45.3"
+    "wrangler": "^4.46.0"
   }
 }

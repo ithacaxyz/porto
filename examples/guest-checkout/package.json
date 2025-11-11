@@ -19,11 +19,11 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "viem": "^2.38.5",
-    "wagmi": "^2.19.1"
+    "wagmi": "^2.19.3"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.3.3",
-    "@cloudflare/vite-plugin": "^1.13.18",
+    "@biomejs/biome": "^2.3.5",
+    "@cloudflare/vite-plugin": "^1.14.0",
     "@iconify/json": "^2.2.386",
     "@pandacss/dev": "^0.54.0",
     "@svgr/core": "^8.1.0",
@@ -41,6 +41,6 @@
     "vite": "^6.3.6",
     "vite-plugin-mkcert": "^1.17.9",
     "vite-tsconfig-paths": "^5.1.4",
-    "wrangler": "^4.45.3"
+    "wrangler": "^4.46.0"
   }
 }

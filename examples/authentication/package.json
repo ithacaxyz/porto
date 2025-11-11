@@ -12,16 +12,16 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.5",
-    "hono": "^4.10.3",
+    "hono": "^4.10.4",
     "porto": "latest",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "viem": "^2.38.5",
-    "wagmi": "^2.19.1"
+    "wagmi": "^2.19.3"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.13.18",
-    "@cloudflare/workers-types": "^4.20251014.0",
+    "@cloudflare/vite-plugin": "^1.14.0",
+    "@cloudflare/workers-types": "^4.20251111.0",
     "@types/node": "^22",
     "@types/react": "^19.1",
     "@types/react-dom": "^19.1",
@@ -34,6 +34,6 @@
     "vite-plugin-pwa": "^1.1.0",
     "workbox-core": "^7.3.0",
     "workbox-window": "^7.3.0",
-    "wrangler": "^4.45.3"
+    "wrangler": "^4.46.0"
   }
 }
