@@ -384,6 +384,10 @@ export default defineConfig({
                 text: 'getAssets',
               },
               {
+                link: '/sdk/viem/WalletActions/getCallsHistory',
+                text: 'getCallsHistory',
+              },
+              {
                 link: '/sdk/viem/WalletActions/grantPermissions',
                 text: 'grantPermissions',
               },
