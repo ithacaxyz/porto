@@ -35,6 +35,7 @@ export type Dialog = {
   setup: (parameters: {
     host: string
     internal: Internal
+    telemetry?: boolean | undefined
     theme?: ThemeFragment | undefined
     themeController?: ThemeController | undefined
   }) => {
@@ -85,7 +86,7 @@ export function iframe(options: iframe.Options = {}) {
   return from({
     name: 'iframe',
     setup(parameters) {
-      const { host, internal, theme, themeController } = parameters
+      const { host, internal, telemetry, theme, themeController } = parameters
       const { store } = internal
 
       const fallback = popup().setup(parameters)
@@ -193,6 +194,7 @@ export function iframe(options: iframe.Options = {}) {
           chainIds: compatibleChainIds,
           mode: 'iframe',
           referrer: getReferrer(),
+          telemetry,
           theme,
           type: 'init',
         })
@@ -315,6 +317,7 @@ export function iframe(options: iframe.Options = {}) {
           messenger.send('__internal', {
             mode: 'iframe',
             referrer: getReferrer(),
+            telemetry,
             type: 'init',
           })
 
@@ -345,6 +348,7 @@ export function iframe(options: iframe.Options = {}) {
           messenger.send('__internal', {
             mode: 'iframe',
             referrer: getReferrer(),
+            telemetry,
             type: 'init',
           })
         },
@@ -450,7 +454,7 @@ export function popup(options: popup.Options = {}) {
   return from({
     name: 'popup',
     setup(parameters) {
-      const { host, internal, themeController } = parameters
+      const { host, internal, telemetry, themeController } = parameters
       const { store } = internal
 
       const hostUrl = new URL(host)
@@ -520,6 +524,7 @@ export function popup(options: popup.Options = {}) {
           messenger.send('__internal', {
             mode: resolvedType === 'page' ? 'page' : 'popup',
             referrer: getReferrer(),
+            telemetry,
             theme: themeController?.getTheme() ?? parameters.theme,
             type: 'init',
           })
@@ -835,7 +840,7 @@ export function experimental_inline(options: inline.Options) {
   return from({
     name: 'inline',
     setup(parameters) {
-      const { host, internal, theme, themeController } = parameters
+      const { host, internal, telemetry, theme, themeController } = parameters
       const { store } = internal
 
       let open = false
@@ -883,6 +888,7 @@ export function experimental_inline(options: inline.Options) {
         messenger.send('__internal', {
           mode: 'inline-iframe',
           referrer: getReferrer(),
+          telemetry,
           theme,
           type: 'init',
         })
@@ -908,6 +914,7 @@ export function experimental_inline(options: inline.Options) {
           messenger.send('__internal', {
             mode: 'iframe',
             referrer: getReferrer(),
+            telemetry,
             type: 'init',
           })
         },

@@ -16,24 +16,40 @@ import * as Wagmi from '~/lib/Wagmi.ts'
 import { App } from './App.js'
 import './styles.css'
 
+// Initialize Sentry conditionally based on telemetry setting
+let sentryInitialized = false
+
 if (import.meta.env.PROD) {
-  Sentry.init({
-    dsn: 'https://457697aad11614a3f667c8e61f6b9e20@o4509056062849024.ingest.us.sentry.io/4509080285741056',
-    enabled: document.referrer
-      ? TrustedHosts.hostnames.includes(new URL(document.referrer).hostname)
-      : true,
-    environment: Env.get(),
-    integrations: [
-      Sentry.replayIntegration(),
-      Sentry.tanstackRouterBrowserTracingIntegration(Router.router),
-    ],
-    replaysOnErrorSampleRate: 1.0,
-    replaysSessionSampleRate: 0.1,
-  })
+  // Check localStorage for telemetry preference
+  const telemetryDisabled = localStorage.getItem('__porto_telemetry_disabled') === 'true'
+
+  if (!telemetryDisabled) {
+    Sentry.init({
+      dsn: 'https://457697aad11614a3f667c8e61f6b9e20@o4509056062849024.ingest.us.sentry.io/4509080285741056',
+      enabled: document.referrer
+        ? TrustedHosts.hostnames.includes(new URL(document.referrer).hostname)
+        : true,
+      environment: Env.get(),
+      integrations: [
+        Sentry.replayIntegration(),
+        Sentry.tanstackRouterBrowserTracingIntegration(Router.router),
+      ],
+      replaysOnErrorSampleRate: 1.0,
+      replaysSessionSampleRate: 0.1,
+    })
+    sentryInitialized = true
+  }
 }
 
 const offInitialized = Events.onInitialized(porto, async (payload, event) => {
-  const { chainIds, mode, referrer, theme } = payload
+  const { chainIds, mode, referrer, telemetry, theme } = payload
+
+  // Store telemetry preference in localStorage
+  if (telemetry === false) {
+    localStorage.setItem('__porto_telemetry_disabled', 'true')
+  } else {
+    localStorage.removeItem('__porto_telemetry_disabled')
+  }
 
   // Prevent showing stale route from a previous action.
   const pathname = Router.router.state.location.pathname.replace(/\/+$/, '')
@@ -172,15 +188,27 @@ const rootElement = document.querySelector('div#root')
 if (!rootElement) throw new Error('Root element not found')
 
 createRoot(rootElement, {
-  onCaughtError: Sentry.reactErrorHandler((error) => {
-    console.error(error)
-  }),
-  onRecoverableError: Sentry.reactErrorHandler((error) => {
-    console.error(error)
-  }),
-  onUncaughtError: Sentry.reactErrorHandler((error) => {
-    console.error(error)
-  }),
+  onCaughtError: sentryInitialized
+    ? Sentry.reactErrorHandler((error) => {
+        console.error(error)
+      })
+    : (error) => {
+        console.error(error)
+      },
+  onRecoverableError: sentryInitialized
+    ? Sentry.reactErrorHandler((error) => {
+        console.error(error)
+      })
+    : (error) => {
+        console.error(error)
+      },
+  onUncaughtError: sentryInitialized
+    ? Sentry.reactErrorHandler((error) => {
+        console.error(error)
+      })
+    : (error) => {
+        console.error(error)
+      },
 }).render(
   <StrictMode>
     <App />

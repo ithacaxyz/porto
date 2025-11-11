@@ -984,11 +984,12 @@ export function dialog(parameters: dialog.Parameters = {}) {
     name: 'dialog',
     setup(parameters) {
       const { internal } = parameters
-      const { store } = internal
+      const { config, store } = internal
 
       const dialog = renderer.setup({
         host,
         internal,
+        telemetry: config.telemetry,
         theme,
         themeController,
       })
