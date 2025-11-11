@@ -86,7 +86,7 @@
     "yaml": "^2.8.1",
     "zile": "^0.0.7"
   },
-  "packageManager": "pnpm@10.20.0",
+  "packageManager": "pnpm@10.21.0",
   "engines": {
     "node": ">=22.5"
   },
