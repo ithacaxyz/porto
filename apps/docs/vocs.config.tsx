@@ -211,6 +211,10 @@ export default defineConfig({
             text: 'Subscriptions',
           },
           {
+            link: '/sdk/guides/guest-mode',
+            text: 'Guest Mode',
+          },
+          {
             link: '/sdk/guides/theming',
             text: 'Theming',
           },
@@ -378,6 +382,10 @@ export default defineConfig({
               {
                 link: '/sdk/viem/WalletActions/getAssets',
                 text: 'getAssets',
+              },
+              {
+                link: '/sdk/viem/WalletActions/getCallsHistory',
+                text: 'getCallsHistory',
               },
               {
                 link: '/sdk/viem/WalletActions/grantPermissions',
