@@ -30,7 +30,7 @@ export function useGuestMode(currentAccount?: Account.Account) {
       return Account.fromPrivateKey(pk)
     },
     queryKey: ['guestMode', 'account'],
-    staleTime: Infinity,
+    staleTime: Number.POSITIVE_INFINITY,
   })
 
   React.useEffect(() => {
@@ -56,16 +56,18 @@ export function useGuestMode(currentAccount?: Account.Account) {
     if (guestModeAccount.isFetching) return
 
     // keep dialogs in sync e.g. to use the iframe after signup in popup
-    const checkStale = async () => {
-      const { storage } = porto._internal.config
-      const key = await storage.getItem('porto.guestMode.key')
-
-      // no key in storage but have cached guest => guest was upgraded
-      if (!key && guestModeAccount.data)
-        queryClient.invalidateQueries({ queryKey: ['guestMode'] })
-    }
     skipStaleCheck.current = true
-    checkStale()
+    const { getItem } = porto._internal.config.storage
+    void Promise.resolve(getItem<Hex>('porto.guestMode.key')).then(
+      (key) => {
+        // no key in storage but have cached guest => guest was upgraded
+        if (!key && guestModeAccount.data)
+          queryClient.invalidateQueries({ queryKey: ['guestMode'] })
+      },
+      (err) => {
+        console.error('Failed to check guest mode key:', err)
+      },
+    )
   }, [
     currentAccount,
     guestModeAccount.data,
@@ -92,51 +94,54 @@ export function useGuestMode(currentAccount?: Account.Account) {
       if (Dialog.handleWebAuthnIframeError(error)) return
       setGuestStatus('enabled')
     }
-  }, [])
+  }, [queryClient.invalidateQueries])
 
-  const handleGuestSignUp = React.useCallback(async (email?: string) => {
-    setGuestStatus('signing-up')
-    try {
-      const storage = porto._internal.config.storage
+  const handleGuestSignUp = React.useCallback(
+    async (email?: string) => {
+      setGuestStatus('signing-up')
+      try {
+        const storage = porto._internal.config.storage
 
-      // get stored ephemeral private key
-      const key = await storage.getItem<Hex>('porto.guestMode.key')
-      if (!key) throw new Error('No ephemeral account found')
+        // get stored ephemeral private key
+        const key = await storage.getItem<Hex>('porto.guestMode.key')
+        if (!key) throw new Error('No ephemeral account found')
 
-      // call wallet_connect with ephemeral eoa to upgrade it with WebAuthn
-      const response = await porto.provider.request({
-        method: 'wallet_connect',
-        params: [
-          {
-            capabilities: {
-              createAccount: {
-                eoa: key,
-                label: email,
+        // call wallet_connect with ephemeral eoa to upgrade it with WebAuthn
+        const response = await porto.provider.request({
+          method: 'wallet_connect',
+          params: [
+            {
+              capabilities: {
+                createAccount: {
+                  eoa: key,
+                  label: email,
+                },
+                email: Boolean(email),
               },
-              email: Boolean(email),
             },
-          },
-        ],
-      })
-
-      const newAccount = response.accounts?.[0]
-      if (newAccount) {
-        porto.messenger.send('account', {
-          account: newAccount as Messenger.Payload<'account'>['account'],
+          ],
         })
-        setGuestStatus('disabled')
 
-        // guest was upgraded => delete ephemeral key
-        await storage.removeItem('porto.guestMode.key')
+        const newAccount = response.accounts?.[0]
+        if (newAccount) {
+          porto.messenger.send('account', {
+            account: newAccount as Messenger.Payload<'account'>['account'],
+          })
+          setGuestStatus('disabled')
 
-        queryClient.invalidateQueries({ queryKey: ['guestMode'] })
+          // guest was upgraded => delete ephemeral key
+          await storage.removeItem('porto.guestMode.key')
+
+          queryClient.invalidateQueries({ queryKey: ['guestMode'] })
+        }
+      } catch (error) {
+        console.error('Failed to upgrade ephemeral account:', error)
+        if (Dialog.handleWebAuthnIframeError(error)) return
+        setGuestStatus('enabled')
       }
-    } catch (error) {
-      console.error('Failed to upgrade ephemeral account:', error)
-      if (Dialog.handleWebAuthnIframeError(error)) return
-      setGuestStatus('enabled')
-    }
-  }, [])
+    },
+    [queryClient.invalidateQueries],
+  )
 
   const hasGuestKeyQuery = useQuery({
     async queryFn() {
