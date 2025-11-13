@@ -111,12 +111,12 @@ export function Email(props: Email.Props) {
           >
             {actions.includes('sign-up')
               ? (customLabels?.signIn ?? 'Sign in with Porto')
-              : (customLabels?.continue ?? 'Continue with Porto')}
+              : (customLabels?.signInAlt ?? 'Continue with Porto')}
           </Button>
         )}
 
         {actions.includes('sign-up') &&
-          customFeatures?.createAccount !== false ? (
+        customFeatures?.createAccount !== false ? (
           <form
             className="flex w-full flex-grow flex-col gap-2"
             onInvalid={(event) => {

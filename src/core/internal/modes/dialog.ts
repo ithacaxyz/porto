@@ -1099,12 +1099,12 @@ export declare namespace dialog {
            */
           createAccount?: string | undefined
           /**
-           * Text for the continue button.
-           * Shown when only sign-in is available (no sign-up option).
+           * Text for the sign-in button when only sign-in is available (no sign-up option).
+           * Alternative label for the sign-in button in this context.
            *
            * @default "Continue with Porto"
            */
-          continue?: string | undefined
+          signInAlt?: string | undefined
           /**
            * Dialog title shown in the frame header.
            * Currently not implemented in the UI.

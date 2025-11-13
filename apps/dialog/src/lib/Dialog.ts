@@ -55,7 +55,7 @@ export declare namespace store {
           signIn?: string | undefined
           signUp?: string | undefined
           createAccount?: string | undefined
-          continue?: string | undefined
+          signInAlt?: string | undefined
           dialogTitle?: string | undefined
           exampleEmail?: string | undefined
           bugReportEmail?: string | undefined
