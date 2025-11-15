@@ -40,4 +40,7 @@ export const hostnames = [
   'swap.defillama.com',
   'uniswap.org',
   'www.bungee.exchange',
+  'hub.berachain.com',
+  'bend.berachain.com',
+  'honey.berachain.com',
 ]
