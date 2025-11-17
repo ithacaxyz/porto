@@ -72,6 +72,7 @@ export function create(
     relay: parameters.relay ?? defaultConfig.relay,
     storage: parameters.storage ?? defaultConfig.storage,
     storageKey: parameters.storageKey ?? defaultConfig.storageKey,
+    telemetry: parameters.telemetry ?? true,
     transports,
   } satisfies Config
 
@@ -210,6 +211,11 @@ export type Config<
    * Key to use for store.
    */
   storageKey?: string | undefined
+  /**
+   * Whether to enable telemetry/error tracking.
+   * @default true
+   */
+  telemetry?: boolean | undefined
   /**
    * Public RPC Transport overrides to use for each chain.
    */
