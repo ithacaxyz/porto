@@ -118,3 +118,115 @@ export const theme2 = {
 ```
 
 :::
+
+## UI Customization
+
+Beyond colors and styling, Porto supports customization of UI elements and text labels through the `Mode.dialog()` options.
+
+### Disabling UI Features
+
+Control which UI elements are shown using the `features` option:
+
+```ts [disable-features.ts]
+import { Mode } from 'porto'
+
+const connector = porto({
+  mode: Mode.dialog({
+    features: {
+      // When false, removes the bug report icon from the dialog header
+      // and disables the report feature on error screens
+      bugReporting: false,  // Default: true
+
+      // When false, hides email input field
+      // Uses truncated wallet address as account label instead
+      emailInput: false,  // Default: true
+
+      // When false, hides "Sign up" link in signed-in view
+      signUpLink: false,  // Default: true
+
+      // When false, hides "Create account" button and "First time?" label
+      createAccount: false,  // Default: true
+    },
+  }),
+})
+```
+
+**Available features:**
+- `bugReporting` - Show/hide bug report icon and error reporting UI
+- `emailInput` - Show/hide email input field (uses wallet address when hidden)
+- `signUpLink` - Show/hide sign up link
+- `createAccount` - Show/hide create account button
+
+### Customizing Text Labels
+
+Customize button text, prompts, and other labels using the `labels` option:
+
+```ts [custom-labels.ts]
+import { Mode } from 'porto'
+
+const connector = porto({
+  mode: Mode.dialog({
+    labels: {
+      // Sign-in prompt text
+      signInPrompt: 'Use passkey to sign in to',  // Default: "Use Porto to sign in to"
+
+      // Button labels (note: no "Button" suffix)
+      signIn: 'Sign in with passkey',       // Default: "Sign in with Porto"
+      signUp: 'Sign up with passkey',       // Default: "Sign up with Porto"
+      createAccount: 'Create passkey account',    // Default: "Create Porto account"
+      signInAlt: 'Continue with passkey',    // Default: "Continue with Porto"
+
+      // Account management links
+      switchAccount: 'Change account',            // Default: "Switch"
+      signUpLink: 'Set up',                       // Default: "Sign up"
+
+      // Email and support
+      exampleEmail: 'user@example.com',           // Default: "example@ithaca.xyz"
+      bugReportEmail: 'support@example.com',      // Default: "support@ithaca.xyz"
+
+      // Frame title (not currently implemented)
+      dialogTitle: 'Passkey',                     // Default: "Porto"
+    },
+  }),
+})
+```
+
+**Note**: Labels are only used when their corresponding UI elements are visible (controlled by `features`).
+
+### Combining Customizations
+
+Combine theme colors, features, and labels for complete control:
+
+```ts [complete-customization.ts]
+import { Mode } from 'porto'
+import type { ThemeFragment } from 'porto/theme'
+
+// Define theme colors separately
+const theme: ThemeFragment = {
+  colorScheme: 'light',
+  primaryBackground: '#007bff',
+  primaryContent: '#ffffff',
+}
+
+const connector = porto({
+  mode: Mode.dialog({
+    theme,
+
+    // Passkey-only authentication (no email collection)
+    features: {
+      emailInput: false,
+      signUpLink: false,
+    },
+
+    // Custom branding
+    labels: {
+      signInPrompt: 'Use your passkey to access',
+      signIn: 'Access with passkey',
+      bugReportEmail: 'help@myapp.com',
+    },
+  }),
+})
+```
+
+This creates a streamlined, branded passkey authentication experience.
+
