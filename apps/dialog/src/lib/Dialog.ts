@@ -43,9 +43,7 @@ export declare namespace store {
       | {
           bugReporting?: boolean | undefined
           emailInput?: boolean | undefined
-          accountSwitcher?: boolean | undefined
           signUpLink?: boolean | undefined
-          signIn?: boolean | undefined
           createAccount?: boolean | undefined
         }
       | undefined

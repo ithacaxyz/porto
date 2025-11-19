@@ -1029,26 +1029,12 @@ export declare namespace dialog {
            */
           emailInput?: boolean | undefined
           /**
-           * Show or hide the account switcher link in the signed-in view.
-           * When false, the account switcher link is not displayed.
-           *
-           * @default true
-           */
-          accountSwitcher?: boolean | undefined
-          /**
            * Show or hide the sign-up link in the signed-in view.
            * When false, the sign-up link is not displayed.
            *
            * @default true
            */
           signUpLink?: boolean | undefined
-          /**
-           * Show or hide the sign-in button in the "Get started" view.
-           * When false, the sign-in button is not displayed.
-           *
-           * @default true
-           */
-          signIn?: boolean | undefined
           /**
            * Show or hide the create account button in the "Get started" view.
            * When false, the create account button and "First time?" label are hidden.
@@ -1128,7 +1114,6 @@ export declare namespace dialog {
           bugReportEmail?: string | undefined
           /**
            * Text for the account switcher link.
-           * Only used when features.accountSwitcher is true.
            * Shown in the signed-in view to allow switching accounts.
            *
            * @default "Switch"

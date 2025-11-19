@@ -87,9 +87,7 @@ export type Schema = [
             | {
                 bugReporting?: boolean | undefined
                 emailInput?: boolean | undefined
-                accountSwitcher?: boolean | undefined
                 signUpLink?: boolean | undefined
-                signIn?: boolean | undefined
                 createAccount?: boolean | undefined
               }
             | undefined
@@ -139,9 +137,7 @@ export type Schema = [
             | {
                 bugReporting?: boolean | undefined
                 emailInput?: boolean | undefined
-                accountSwitcher?: boolean | undefined
                 signUpLink?: boolean | undefined
-                signIn?: boolean | undefined
                 createAccount?: boolean | undefined
               }
             | undefined

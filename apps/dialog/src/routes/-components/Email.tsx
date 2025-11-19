@@ -95,7 +95,7 @@ export function Email(props: Email.Props) {
       <Permissions title="Permissions requested" {...permissions} />
 
       <div className="group flex min-h-[48px] w-full flex-col items-center justify-center space-y-3 px-3 pb-3">
-        {actions.includes('sign-in') && customFeatures?.signIn !== false && (
+        {actions.includes('sign-in') && (
           <Button
             data-testid="sign-in"
             disabled={status === 'loading' || signingUp}
@@ -126,13 +126,12 @@ export function Email(props: Email.Props) {
             onSubmit={onSignUpSubmit}
           >
             {/* If "Sign in" button is present, show the "First time?" text for sign up. */}
-            {actions.includes('sign-in') &&
-              customFeatures?.signIn !== false && (
-                <div className="-tracking-[2.8%] flex items-center whitespace-nowrap text-[12px] text-th_base-secondary leading-[17px]">
-                  First time?
-                  <div className="ms-2 h-px w-full bg-th_separator" />
-                </div>
-              )}
+            {actions.includes('sign-in') && (
+              <div className="-tracking-[2.8%] flex items-center whitespace-nowrap text-[12px] text-th_base-secondary leading-[17px]">
+                First time?
+                <div className="ms-2 h-px w-full bg-th_separator" />
+              </div>
+            )}
             {customFeatures?.emailInput === false ? (
               // Hidden input when emailInput is disabled
               <input name="email" type="hidden" value="" />
@@ -196,36 +195,31 @@ export function Email(props: Email.Props) {
               )}
             </div>
             {(() => {
-              const showSwitcher = customFeatures?.accountSwitcher !== false
               const showSignUp = customFeatures?.signUpLink !== false
 
-              // If both are hidden, show nothing
-              if (!showSwitcher && !showSignUp) return null
-
+              // Always show Switch link, conditionally show Sign up link
               return (
                 <div className="flex items-center gap-0.5">
-                  {showSwitcher && (
-                    <TextButton
-                      color="link"
-                      onClick={() => {
-                        onApprove({ selectAccount: true, signIn: true })
-                      }}
-                    >
-                      {customLabels?.switchAccount ?? 'Switch'}
-                    </TextButton>
-                  )}
-                  {showSwitcher && showSignUp && (
-                    <div className="text-th_base-secondary">⋅</div>
-                  )}
+                  <TextButton
+                    color="link"
+                    onClick={() => {
+                      onApprove({ selectAccount: true, signIn: true })
+                    }}
+                  >
+                    {customLabels?.switchAccount ?? 'Switch'}
+                  </TextButton>
                   {showSignUp && (
-                    <TextButton
-                      color="link"
-                      onClick={() => {
-                        setActions(['sign-up'])
-                      }}
-                    >
-                      {customLabels?.signUpLink ?? 'Sign up'}
-                    </TextButton>
+                    <>
+                      <div className="text-th_base-secondary">⋅</div>
+                      <TextButton
+                        color="link"
+                        onClick={() => {
+                          setActions(['sign-up'])
+                        }}
+                      >
+                        {customLabels?.signUpLink ?? 'Sign up'}
+                      </TextButton>
+                    </>
                   )}
                 </div>
               )

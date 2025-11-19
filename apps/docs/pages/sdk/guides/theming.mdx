@@ -141,14 +141,8 @@ const connector = porto({
       // Uses truncated wallet address as account label instead
       emailInput: false,  // Default: true
 
-      // When false, hides "Switch" link in signed-in view
-      accountSwitcher: false,  // Default: true
-
       // When false, hides "Sign up" link in signed-in view
       signUpLink: false,  // Default: true
-
-      // When false, hides "Sign in" button in get started view
-      signIn: false,  // Default: true
 
       // When false, hides "Create account" button and "First time?" label
       createAccount: false,  // Default: true
@@ -160,9 +154,7 @@ const connector = porto({
 **Available features:**
 - `bugReporting` - Show/hide bug report icon and error reporting UI
 - `emailInput` - Show/hide email input field (uses wallet address when hidden)
-- `accountSwitcher` - Show/hide account switching link
 - `signUpLink` - Show/hide sign up link
-- `signIn` - Show/hide sign-in button
 - `createAccount` - Show/hide create account button
 
 ### Customizing Text Labels
@@ -223,7 +215,6 @@ const connector = porto({
     // Passkey-only authentication (no email collection)
     features: {
       emailInput: false,
-      accountSwitcher: false,
       signUpLink: false,
     },
 
