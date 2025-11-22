@@ -43,4 +43,5 @@ export const hostnames = [
   'hub.berachain.com',
   'bend.berachain.com',
   'honey.berachain.com',
+  'privote.live',
 ]
