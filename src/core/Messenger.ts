@@ -101,6 +101,7 @@ export type Schema = [
             icon?: string | { light: string; dark: string } | undefined
             title: string
           }
+          telemetry?: boolean | undefined
           theme?: Theme.ThemeFragment | undefined
         }
       | {

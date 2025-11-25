@@ -7,17 +7,26 @@ import * as Router from '~/lib/Router.js'
 import { App } from './App.js'
 import './styles.css'
 
+// Initialize Sentry conditionally based on telemetry setting
+let sentryInitialized = false
+
 if (import.meta.env.PROD) {
-  Sentry.init({
-    dsn: 'https://1b4e28921c688e2b03d1b63f8d018913@o4509056062849024.ingest.us.sentry.io/4509080371724288',
-    environment: Env.get(),
-    integrations: [
-      Sentry.replayIntegration(),
-      Sentry.tanstackRouterBrowserTracingIntegration(Router.router),
-    ],
-    replaysOnErrorSampleRate: 1.0,
-    replaysSessionSampleRate: 0.1,
-  })
+  // Check localStorage for telemetry preference
+  const telemetryDisabled = localStorage.getItem('__porto_telemetry_disabled') === 'true'
+
+  if (!telemetryDisabled) {
+    Sentry.init({
+      dsn: 'https://1b4e28921c688e2b03d1b63f8d018913@o4509056062849024.ingest.us.sentry.io/4509080371724288',
+      environment: Env.get(),
+      integrations: [
+        Sentry.replayIntegration(),
+        Sentry.tanstackRouterBrowserTracingIntegration(Router.router),
+      ],
+      replaysOnErrorSampleRate: 1.0,
+      replaysSessionSampleRate: 0.1,
+    })
+    sentryInitialized = true
+  }
 }
 
 const rootElement = document.querySelector('div#root')
@@ -25,11 +34,23 @@ const rootElement = document.querySelector('div#root')
 if (!rootElement) throw new Error('Root element not found')
 
 createRoot(rootElement, {
-  onCaughtError: Sentry.reactErrorHandler(),
-  onRecoverableError: Sentry.reactErrorHandler(),
-  onUncaughtError: Sentry.reactErrorHandler((error, errorInfo) => {
-    console.warn('Uncaught error', error, errorInfo.componentStack)
-  }),
+  onCaughtError: sentryInitialized
+    ? Sentry.reactErrorHandler()
+    : (error) => {
+        console.error(error)
+      },
+  onRecoverableError: sentryInitialized
+    ? Sentry.reactErrorHandler()
+    : (error) => {
+        console.error(error)
+      },
+  onUncaughtError: sentryInitialized
+    ? Sentry.reactErrorHandler((error, errorInfo) => {
+        console.warn('Uncaught error', error, errorInfo.componentStack)
+      })
+    : (error) => {
+        console.warn('Uncaught error', error)
+      },
 }).render(
   <StrictMode>
     <App />

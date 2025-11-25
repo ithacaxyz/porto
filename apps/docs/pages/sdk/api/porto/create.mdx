@@ -147,6 +147,21 @@ Available:
 - [`Storage.localStorage()`](/sdk/api/storage#storagelocalstorage): Uses `window.localStorage{:ts}`
 - [`Storage.cookie()`](/sdk/api/storage#storagecookie): Uses `document.cookie{:ts}`
 
+### telemetry
+
+- **Type:** `boolean | undefined`
+- **Default:** `true{:ts}`
+
+Whether to enable telemetry and error tracking. When set to `false`, disables anonymous error reporting via Sentry in the Porto dialog and authentication interfaces.
+
+```ts twoslash
+import { Porto } from 'porto'
+
+const porto = Porto.create({
+  telemetry: false, // Disable telemetry
+})
+```
+
 ### transports
 
 - **Type:** `{ [chainId: string]: Transport }{:ts}`
