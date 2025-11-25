@@ -72,3 +72,8 @@ styled-system
 tsconfig.tmp.json
 
 no-hooks
+
+dev-dist
+
+credentials
+credentials.*

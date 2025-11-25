@@ -14,7 +14,6 @@ import {
   privateKeyToAddress,
 } from 'viem/accounts'
 import {
-  type BaseError,
   useAccount,
   useChainId,
   useConnectors,
@@ -65,6 +64,7 @@ export function App() {
           <Mint />
           <AddFunds />
           <Assets />
+          <CallsHistory />
         </>
       )}
     </>
@@ -374,7 +374,7 @@ function Mint() {
       {isConfirming && 'Waiting for confirmation...'}
       {isConfirmed && 'Transaction confirmed.'}
       {error && (
-        <div>Error: {(error as BaseError).shortMessage || error.message}</div>
+        <div>Error: {(error as any).shortMessage || error.message}</div>
       )}
     </div>
   )
@@ -402,8 +402,8 @@ function AddFunds() {
       </form>
       <br />
       {data?.id && <div>Transaction Hash: {data.id}</div>}
-      {addFunds.isError && (
-        <div>Error: {(error as BaseError).shortMessage || error?.message}</div>
+      {addFunds.isError && error && (
+        <div>Error: {(error as any).shortMessage || error?.message}</div>
       )}
       <br />
     </div>
@@ -422,8 +422,7 @@ function Assets() {
       {data && <pre>{stringify(data, null, 2)}</pre>}
       {assets.isError && (
         <div>
-          Error:{' '}
-          {(assets.error as BaseError).shortMessage || assets.error?.message}
+          Error: {(assets.error as any).shortMessage || assets.error?.message}
         </div>
       )}
       <br />
@@ -437,4 +436,29 @@ async function siwePayload(enabled: boolean, chainId: number) {
     chainId,
     nonce: 'deadbeef',
   } as const
+}
+
+function CallsHistory() {
+  const { data, ...callsHistory } = Hooks.useCallsHistory({
+    limit: 50,
+    sort: 'desc',
+  })
+
+  return (
+    <div>
+      <h2>Calls History</h2>
+      <button onClick={() => callsHistory.refetch()} type="button">
+        Refetch
+      </button>
+      {data && <pre>{stringify(data, null, 2)}</pre>}
+      {callsHistory.isError && (
+        <div>
+          Error:{' '}
+          {(callsHistory.error as any).shortMessage ||
+            callsHistory.error?.message}
+        </div>
+      )}
+      <br />
+    </div>
+  )
 }

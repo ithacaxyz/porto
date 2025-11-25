@@ -496,7 +496,6 @@ function Action({
   })
   const queryClient = useQueryClient()
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: _
   React.useEffect(() => {
     if (!waitForCallsStatus.isSuccess) return
     queryClient.invalidateQueries({

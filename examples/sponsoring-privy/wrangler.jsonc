@@ -6,9 +6,12 @@
   },
   "compatibility_date": "2025-09-06",
   "compatibility_flags": ["nodejs_compat"],
+  "keep_vars": true,
   "main": "worker/index.ts",
-  "name": "sponsoring-privy",
+  "name": "sponsoring-privy-example",
   "observability": {
     "enabled": true
-  }
+  },
+  "preview_urls": true,
+  "workers_dev": true
 }

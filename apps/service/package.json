@@ -2,6 +2,9 @@
   "name": "service",
   "private": true,
   "type": "module",
+  "imports": {
+    "#routes/*": "./src/routes/*"
+  },
   "scripts": {
     "dev": "vite dev --port 5176",
     "build": "vite build",
@@ -20,12 +23,12 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.13.13",
+    "@cloudflare/vite-plugin": "^1.13.18",
     "@cloudflare/workers-types": "^4.20251014.0",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-mkcert": "catalog:",
-    "wrangler": "^4.43.0"
+    "wrangler": "^4.45.3"
   }
 }

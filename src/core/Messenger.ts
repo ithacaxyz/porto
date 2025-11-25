@@ -6,6 +6,7 @@ import type * as Theme from '../theme/Theme.js'
 import * as promise from './internal/promise.js'
 import * as Utils from './internal/utils.js'
 import type * as Porto from './Porto.js'
+import type * as RpcSchema from './RpcSchema.js'
 
 /** Messenger interface. */
 export type Messenger = {
@@ -74,6 +75,13 @@ export type Schema = [
     payload: {
       title: string
       content: string
+    }
+    response: undefined
+  },
+  {
+    topic: 'account'
+    payload: {
+      account: RpcSchema.wallet_connect.Response['accounts'][number]
     }
     response: undefined
   },

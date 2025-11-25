@@ -23,3 +23,7 @@ export const anvil3 = /*#__PURE__*/ defineChain({
   ...anvil,
   id: 31_339,
 })
+
+export function isAnvil(chainId: number | undefined) {
+  return chainId === anvil.id || chainId === anvil2.id || chainId === anvil3.id
+}

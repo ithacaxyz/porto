@@ -37,8 +37,8 @@ type PrepareCallsContext = {
 export type Mode = {
   actions: {
     addFunds: (parameters: {
-      /** Address to add funds to. */
-      address: Address.Address
+      /** Address to add funds to (optional for guest checkout). */
+      address?: Address.Address | undefined
       /** Internal properties. */
       internal: ActionsInternal
       /** Token to add funds to. */
@@ -52,6 +52,8 @@ export type Mode = {
       admins?: readonly Pick<Key.Key, 'publicKey' | 'type'>[] | undefined
       /** Whether to link `label` to account address as email. */
       email?: boolean | undefined
+      /** Pre-generated EOA to use for account creation. If not provided, a random one will be generated. */
+      eoa?: Account.Account<'privateKey'> | undefined
       /** Internal properties. */
       internal: ActionsInternal
       /** Label to associate with the WebAuthn credential. */
@@ -104,6 +106,13 @@ export type Mode = {
       /** Internal properties. */
       internal: ActionsInternal
     }) => Promise<z.input<typeof RpcSchema.wallet_getCallsStatus.Response>>
+
+    getCallsHistory: (
+      parameters: RpcSchema.wallet_getCallsHistory.Parameters & {
+        /** Internal properties. */
+        internal: ActionsInternal
+      },
+    ) => Promise<RpcSchema.wallet_getCallsHistory.Response>
 
     getCapabilities: (parameters: {
       /** Chain IDs to get the capabilities for. */
@@ -257,8 +266,8 @@ export type Mode = {
     }) => Promise<void>
 
     sendCalls: (parameters: {
-      /** Account to execute the calls with. */
-      account: Account.Account
+      /** Account to execute the calls with (optional for guest checkout). */
+      account?: Account.Account | undefined
       /** Whether the returned bundle identifier is the transaction hash. */
       asTxHash?: boolean | undefined
       /** Calls to execute. */

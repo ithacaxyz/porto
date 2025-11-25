@@ -6,7 +6,7 @@ import { baseSepolia } from 'porto/core/Chains'
 import { Account, Key, RelayActions } from 'porto/viem'
 import * as React from 'react'
 import { parseEther } from 'viem'
-import { useAccount, useWaitForCallsStatus } from 'wagmi'
+import { useAccount, useChains, useWaitForCallsStatus } from 'wagmi'
 
 import { permissions, relayClient } from './config'
 import { exp1Address, exp1Config } from './contracts'
@@ -17,9 +17,27 @@ export function App() {
   if (!privy.ready) return <div>Loading...</div>
   return (
     <main>
+      <h1>Sponsoring Example (Privy)</h1>
       <ConnectOrCreate />
       <UpgradeAccount />
       <SponsoredMint />
+      <footer
+        style={{
+          bottom: 10,
+          fontFamily: 'monospace',
+          fontSize: 24,
+          left: 10,
+          position: 'absolute',
+        }}
+      >
+        <a
+          href="https://github.com/ithacaxyz/porto/tree/main/examples/sponsoring-privy"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          source code
+        </a>
+      </footer>
     </main>
   )
 }
@@ -29,6 +47,8 @@ function ConnectOrCreate() {
   const wallet = useWallet()
 
   if (!wallet) return null
+
+  const hasEmbeddedWallet = !!wallet.embedded
 
   return (
     <div>
@@ -46,16 +66,21 @@ function ConnectOrCreate() {
       >
         {privy.user ? 'Logout' : 'Connect or Create'}
       </button>
-      {wallet.embedded && (
+      {!hasEmbeddedWallet && (
+        <p>No embedded wallet found. Please create one.</p>
+      )}
+      {(wallet.embedded || wallet.selected) && (
         <pre>
           {JSON.stringify(
             {
               embedded: wallet.embedded,
               selectedWallet: {
+                address: wallet.all.at(0)?.address,
                 addresses: wallet.selected.addresses,
-                chainId: wallet.selected.chainId,
+                chainId: wallet.all.at(0)?.chainId,
                 status: wallet.selected.status,
               },
+              type: wallet.all.at(0)?.type,
             },
             null,
             2,
@@ -184,6 +209,7 @@ function UpgradeAccount() {
 }
 
 function SponsoredMint() {
+  const [chain] = useChains()
   const wallet = useWallet()
   const sessionKey = useSessionKey()
   const account = usePortoFromPrivyAccount()
@@ -228,13 +254,19 @@ function SponsoredMint() {
       >
         mint 100 EXP
       </button>
-      {id && <pre>{Json.stringify({ bundleId: id }, null, 2)}</pre>}
-      {callStatus.isError && <pre>Error: {callStatus.error?.message}</pre>}
       {callStatus.data?.receipts?.at(0)?.transactionHash && (
-        <pre>
-          Transaction Hash: {callStatus.data.receipts.at(0)?.transactionHash}
-        </pre>
+        <div>
+          Transaction Hash:{' '}
+          <a
+            href={`${chain?.blockExplorers.default.url}/tx/${callStatus.data.receipts.at(0)?.transactionHash}`}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            {callStatus.data.receipts.at(0)?.transactionHash}
+          </a>
+        </div>
       )}
+      {callStatus.isError && <pre>Error: {callStatus.error?.message}</pre>}
     </div>
   )
 }
@@ -245,6 +277,7 @@ function useWallet() {
   const embedded = allWallets.find(
     (wallet) => wallet.walletClientType === 'privy',
   )
+
   const { setActiveWallet } = useSetActiveWallet()
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: _

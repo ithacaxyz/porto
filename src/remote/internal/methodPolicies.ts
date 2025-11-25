@@ -98,6 +98,12 @@ export const methodPolicies = [
     },
   },
   {
+    method: 'wallet_getCallsHistory',
+    modes: {
+      headless: true,
+    },
+  },
+  {
     method: 'wallet_getCapabilities',
     modes: {
       headless: true,

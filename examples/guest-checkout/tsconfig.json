@@ -1,0 +1,21 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.worker.json"
+    }
+  ],
+  "compilerOptions": {
+    "types": [
+      "unplugin-icons/types/react",
+      "typed-query-selector/strict",
+      "./worker-configuration.d.ts"
+    ]
+  }
+}

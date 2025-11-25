@@ -15,6 +15,7 @@
     "check:repo": "sherif --ignore-rule packages-without-package-json",
     "check:size": "size-limit",
     "check:types": "pnpm run --r --parallel check:types && tsc -b",
+    "check:types_fast": "pnpm run --r --parallel check:types_fast && tsgo -b",
     "clean": "rm -rf dist ./tsconfig.build.tsbuildinfo src/tsconfig.build.tsbuildinfo",
     "deps": "pnpx taze -r",
     "dev": "pnpm preconstruct && pnpm --filter dialog --filter id --filter playground --filter service dev",
@@ -39,7 +40,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.17.1",
-    "@biomejs/biome": "^2.2.6",
+    "@biomejs/biome": "^2.3.4",
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.7",
     "@clack/prompts": "~0.11.0",
@@ -51,6 +52,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "@typescript/native-preview": "catalog:",
     "@vitest/browser-playwright": "4.0.3",
     "@vitest/coverage-v8": "4.0.3",
     "@wagmi/cli": "^2.2.0",
@@ -84,7 +86,7 @@
     "yaml": "^2.8.1",
     "zile": "^0.0.7"
   },
-  "packageManager": "pnpm@10.19.0",
+  "packageManager": "pnpm@10.20.0",
   "engines": {
     "node": ">=22.5"
   },
@@ -184,7 +186,7 @@
   "[!start-pkg]": {},
   "name": "porto",
   "description": "Next-gen Account for Ethereum",
-  "version": "0.2.35",
+  "version": "0.2.37",
   "type": "module",
   "bin": {
     "porto": "./dist/cli/bin/index.js"

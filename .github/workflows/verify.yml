@@ -21,7 +21,7 @@ jobs:
         run: pnpm audit
 
       - name: Check code
-        run: pnpm check
+        run: pnpm dlx @biomejs/biome check . --error-on-warnings
 
       - name: Check types
         run: |

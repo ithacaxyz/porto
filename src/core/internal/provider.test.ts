@@ -466,12 +466,16 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         value: Value.fromEther('100'),
       })
 
-      await expect(
-        porto.provider.request({
-          method: 'wallet_getAssets',
-          params: [{ account: address, chainFilter: [Hex.fromNumber(999999)] }],
-        }),
-      ).rejects.toThrow('unsupported chain 999999')
+      const result = await porto.provider.request({
+        method: 'wallet_getAssets',
+        params: [{ account: address, chainFilter: [Hex.fromNumber(999999)] }],
+      })
+
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "0x0": [],
+        }
+      `)
     })
   })
 
@@ -1642,6 +1646,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
                 method: 'wallet_verifySignature',
                 params: [
                   {
+                    // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
                     address: res.accounts.at(0)?.address!,
                     digest: hashMessage(message),
                     signature,
@@ -1653,6 +1658,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
 
             {
               const valid = await verifyHash(relayClient, {
+                // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
                 address: res.accounts.at(0)?.address!,
                 hash: hashMessage(message),
                 signature,
@@ -2944,6 +2950,68 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
     })
   })
 
+  describe('wallet_getCallsHistory', () => {
+    test('default', async () => {
+      const porto = getPorto()
+      const client = TestConfig.getRelayClient(porto)
+      const contracts = await TestConfig.getContracts(porto)
+
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
+      })
+      const address = account!.address
+
+      await setBalance(client, {
+        address,
+        value: Value.fromEther('10000'),
+      })
+
+      const alice = Hex.random(20)
+
+      const { id } = await porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            calls: [
+              {
+                data: encodeFunctionData({
+                  abi: contracts.exp1.abi,
+                  args: [alice, 123n],
+                  functionName: 'transfer',
+                }),
+                to: contracts.exp1.address,
+              },
+            ],
+            from: address,
+            version: '1',
+          },
+        ],
+      })
+
+      await waitForCallsStatus(WalletClient.fromPorto(porto), {
+        id,
+      })
+
+      const history = await porto.provider.request({
+        method: 'wallet_getCallsHistory',
+        params: [
+          {
+            address,
+            limit: 1,
+            sort: 'desc',
+          },
+        ],
+      })
+
+      expect(Array.isArray(history)).toBe(true)
+      expect(history[0]?.id).toBe(id)
+      expect(history[0]?.transactions?.[0]?.transactionHash).toBeDefined()
+    })
+  })
+
   describe('wallet_getCallsStatus', () => {
     test('default', async () => {
       const porto = getPorto()
@@ -3043,6 +3111,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         })
 
         await setBalance(client, {
+          // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
           address: accounts[0]?.address!,
           value: Value.fromEther('10000'),
         })
@@ -3142,6 +3211,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         })
 
         await setBalance(client, {
+          // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
           address: accounts[0]?.address!,
           value: Value.fromEther('10000'),
         })
@@ -3245,6 +3315,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         })
 
         await setBalance(client, {
+          // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
           address: accounts[0]?.address!,
           value: Value.fromEther('10000'),
         })
@@ -3324,6 +3395,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
         })
 
         await setBalance(client, {
+          // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
           address: accounts[0]?.address!,
           value: Value.fromEther('10000'),
         })
@@ -3409,6 +3481,7 @@ describe.each([['relay', Mode.relay]] as const)('%s', (type, mode) => {
       })
 
       await setBalance(client, {
+        // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
         address: accounts[0]?.address!,
         value: Value.fromEther('10000'),
       })

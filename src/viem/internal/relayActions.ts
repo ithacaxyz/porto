@@ -242,6 +242,7 @@ export async function addFaucetFunds<chain extends Chain | undefined>(
         params: [
           z.encode(RpcSchema.wallet_addFaucetFunds.Parameters, {
             address,
+            // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
             chainId: chain?.id!,
             tokenAddress,
             value,
@@ -304,6 +305,44 @@ export namespace getCallsStatus {
   }
 
   export type ReturnType = RpcSchema.wallet_getCallsStatus.Response
+
+  export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
+}
+
+/**
+ * Gets the call history for an account.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - The client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function getCallsHistory(
+  client: Client,
+  parameters: getCallsHistory.Parameters,
+): Promise<getCallsHistory.ReturnType> {
+  try {
+    const method = 'wallet_getCallsHistory' as const
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
+    const result = await client.request<Schema>({
+      method,
+      params: [
+        z.encode(RpcSchema.wallet_getCallsHistory.Parameters, parameters),
+      ],
+    })
+    return z.decode(RpcSchema.wallet_getCallsHistory.Response, result)
+  } catch (error) {
+    parseSchemaError(error)
+    throw error
+  }
+}
+
+export namespace getCallsHistory {
+  export type Parameters = RpcSchema.wallet_getCallsHistory.Parameters
+
+  export type ReturnType = RpcSchema.wallet_getCallsHistory.Response
 
   export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
 }
@@ -426,6 +465,7 @@ export async function prepareCalls<
                 ...capabilities?.meta,
               },
             },
+            // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
             chainId: chain?.id!,
             from: address,
             key: key
@@ -1098,6 +1138,7 @@ export async function verifySignature<chain extends Chain | undefined>(
             params: [
               z.encode(RpcSchema.wallet_verifySignature.Parameters, {
                 address,
+                // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
                 chainId: chain?.id!,
                 digest,
                 signature,

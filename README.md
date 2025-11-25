@@ -23,6 +23,9 @@ Next-gen Account for Ethereum.
       <img src="https://img.shields.io/badge/license-APACHE-blue.svg?colorA=f6f8fa&colorB=f6f8fa&style=flat" alt="APACHE License">
     </picture>
   </a>
+  <a href="https://deepwiki.com/ithacaxyz/porto">
+    <img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki">
+  </a>
 </p>
 
 ## Documentation

@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { cx } from 'cva'
 import { Value } from 'ox'
 import type * as Address from 'ox/Address'
+import { Chains } from 'porto'
 import type * as Quote_schema from 'porto/core/internal/relay/schema/quotes'
 import { Hooks as RemoteHooks } from 'porto/remote'
 import { RelayActions } from 'porto/viem'
@@ -21,10 +22,17 @@ import { porto } from '~/lib/Porto'
 import { ValueFormatter } from '~/utils'
 import LucideInfo from '~icons/lucide/info'
 import { AddFunds } from './AddFunds'
+import { GuestCheckoutSection } from './GuestCheckoutSection'
 import { Layout } from './Layout'
 import { SetupApplePay } from './SetupApplePay'
 
 type View = 'default' | 'setup-onramp'
+
+export type GuestMode = {
+  status: 'enabled' | 'signing-in' | 'signing-up'
+  onSignIn: () => void
+  onSignUp: (email?: string) => void
+}
 
 export function ActionPreview(props: ActionPreview.Props) {
   const {
@@ -37,6 +45,7 @@ export function ActionPreview(props: ActionPreview.Props) {
     account,
     onReject,
     onQuotesRefetch,
+    guestMode,
   } = props
 
   const deficit = useDeficit(quotes, error, queryParams)
@@ -176,7 +185,13 @@ export function ActionPreview(props: ActionPreview.Props) {
         {deficit?.amount && <DeficitWarning amount={deficit.amount} />}
       </Layout.Content>
       <Layout.Footer>
-        {deficit ? (
+        {guestMode ? (
+          <GuestCheckoutSection
+            guestStatus={guestMode.status}
+            onGuestSignIn={guestMode.onSignIn}
+            onGuestSignUp={guestMode.onSignUp}
+          />
+        ) : deficit ? (
           <FundsNeededSection
             account={account}
             deficit={deficit}
@@ -195,7 +210,7 @@ export function ActionPreview(props: ActionPreview.Props) {
         ) : (
           actions
         )}
-        {account && <Layout.Footer.Account address={account} />}
+        {account && !guestMode && <Layout.Footer.Account address={account} />}
       </Layout.Footer>
     </Layout>
   )
@@ -216,6 +231,7 @@ export namespace ActionPreview {
     account?: Address.Address
     onReject: () => void
     onQuotesRefetch?: () => void
+    guestMode?: GuestMode
   }
 
   export type Quote = {
@@ -414,16 +430,20 @@ function FundsNeededSection(props: {
   const client = RemoteHooks.useRelayClient(porto)
 
   const showFaucet = React.useMemo(() => {
-    if (import.meta.env.MODE !== 'test' && !chain?.testnet) return false
-
-    if (
-      !deficit.assetDeficits?.length ||
-      !deficit.chainId ||
-      !deficit.assetDeficits[0]?.address
+    const hasDeficit = Boolean(
+      deficit.assetDeficits?.length &&
+        deficit.chainId &&
+        deficit.assetDeficits[0]?.address &&
+        deficit.amount,
     )
-      return false
 
-    const tokenAddr = deficit.assetDeficits[0].address.toLowerCase()
+    const isTestnet = Boolean(chain?.testnet)
+
+    if (import.meta.env.MODE === 'test')
+      return hasDeficit && (isTestnet || Chains.isAnvil(deficit.chainId))
+    if (!isTestnet || !hasDeficit) return false
+
+    const tokenAddr = (deficit.assetDeficits?.[0]?.address ?? '').toLowerCase()
 
     const isExp1 =
       tokenAddr ===

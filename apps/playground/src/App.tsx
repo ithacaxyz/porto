@@ -110,6 +110,43 @@ export function App() {
             <option value="rpc">Relay</option>
           </select>
         </div>
+
+        <div className="flex items-center gap-2" style={{ marginTop: '8px' }}>
+          Relay:
+          <div className="flex gap-2">
+            {(() => {
+              const envs = Env.envs.filter(
+                (env) =>
+                  env !== 'anvil' || import.meta.env.MODE === 'development',
+              )
+              const [hostEnv] = window.location.host.split(/\.|-/)
+              const defaultEnv = envs.includes(hostEnv as never)
+                ? (hostEnv as Env.Env)
+                : Env.defaultEnv
+              return (
+                <>
+                  {envs.map((env) => (
+                    <button
+                      disabled={Env.get() === env}
+                      key={env}
+                      onClick={() => {
+                        const url = new URL(window.location.href)
+                        if (defaultEnv === env)
+                          url.searchParams.delete('relayEnv')
+                        else url.searchParams.set('relayEnv', env)
+                        window.location.href = String(url)
+                      }}
+                      type="button"
+                    >
+                      {env} {defaultEnv === env && '(default)'}
+                    </button>
+                  ))}
+                </>
+              )
+            })()}
+          </div>
+        </div>
+
         <hr />
         <State />
         <Events />
@@ -135,6 +172,7 @@ export function App() {
         <Login />
         <AddFunds />
         <GetAssets />
+        <CallsHistory />
         <Accounts />
         <Disconnect />
         <UpgradeAccount />
@@ -217,10 +255,30 @@ function State() {
     <div>
       <h3>State</h3>
       {state.accounts.length === 0 ? (
-        <div>Disconnected</div>
+        <div className="flex gap-2">
+          Disconnected
+          <button
+            onClick={async () => {
+              await porto.provider.request({ method: 'eth_requestAccounts' })
+            }}
+            type="button"
+          >
+            Connect
+          </button>
+        </div>
       ) : (
         <div className="flex flex-col gap-2">
-          <div>Address: {state.accounts[0].address}</div>
+          <div>
+            <span>Address: {state.accounts[0].address} </span>
+            <button
+              onClick={async () => {
+                await porto.provider.request({ method: 'wallet_disconnect' })
+              }}
+              type="button"
+            >
+              Disconnect
+            </button>
+          </div>
           <div>Chain ID: {state.chainIds[0]}</div>
           <SwitchChain />
           <div>
@@ -520,6 +578,47 @@ function AddFunds() {
       {result && typeof result === 'object' && 'id' in result ? (
         <pre>{JSON.stringify(result, null, 2)}</pre>
       ) : null}
+    </div>
+  )
+}
+
+function CallsHistory() {
+  const [result, setResult] = React.useState<unknown | null>(null)
+  const [error, setError] = React.useState<string | null>(null)
+
+  return (
+    <div>
+      <h3>wallet_getCallsHistory</h3>
+      <button
+        onClick={async () => {
+          try {
+            const [address] = await porto.provider.request({
+              method: 'eth_accounts',
+            })
+
+            const callsHistory = await porto.provider.request({
+              method: 'wallet_getCallsHistory',
+              params: [
+                {
+                  address,
+                  limit: 100,
+                  sort: 'desc',
+                },
+              ],
+            })
+
+            setResult(callsHistory)
+          } catch (error) {
+            console.error(error)
+            setError((error as Error).message)
+          }
+        }}
+        type="button"
+      >
+        Get transaction history
+      </button>
+      {result ? <pre>{Json.stringify(result, null, 2)}</pre> : null}
+      {error && <pre>{error}</pre>}
     </div>
   )
 }
@@ -962,14 +1061,23 @@ function SendCalls() {
         const action = formData.get('action') as string | null
         const address = formData.get('address') as `0x${string}` | null
 
-        const result = await porto.provider.request({
-          method: 'eth_accounts',
-        })
-        const chainId = Hex.toNumber(
-          await porto.provider.request({
-            method: 'eth_chainId',
-          }),
-        )
+        let result: readonly `0x${string}`[] = []
+        try {
+          result = await porto.provider.request({
+            method: 'eth_accounts',
+          })
+        } catch {}
+
+        let chainId: number
+        try {
+          chainId = Hex.toNumber(
+            await porto.provider.request({
+              method: 'eth_chainId',
+            }),
+          )
+        } catch {
+          chainId = porto.config.chains[0].id
+        }
 
         if (!isExpChainId(chainId)) {
           alert(`unsupported chainId: ${chainId}`)
@@ -977,7 +1085,8 @@ function SendCalls() {
         }
 
         const account = result[0]
-        const recipient = address || account
+        const recipient =
+          address || account || '0x0000000000000000000000000000000000000000'
 
         const params = (() => {
           if (action === 'mint')
@@ -1197,7 +1306,8 @@ function SendCalls() {
           params: [
             {
               ...params,
-              from: account,
+              chainId: Hex.fromNumber(chainId),
+              ...(account && { from: account }),
               version: '1',
             },
           ],
@@ -1264,28 +1374,42 @@ function SendTransaction() {
         const formData = new FormData(e.target as HTMLFormElement)
         const action = formData.get('action') as string | null
 
-        const [account] = await porto.provider.request({
-          method: 'eth_accounts',
-        })
+        let result: readonly `0x${string}`[] = []
+        try {
+          result = await porto.provider.request({
+            method: 'eth_accounts',
+          })
+        } catch {}
 
-        const chainId = Hex.toNumber(
-          await porto.provider.request({
-            method: 'eth_chainId',
-          }),
-        ) as ChainId
+        let chainId: ChainId
+        try {
+          chainId = Hex.toNumber(
+            await porto.provider.request({
+              method: 'eth_chainId',
+            }),
+          ) as ChainId
+        } catch {
+          chainId = porto.config.chains[0].id as ChainId
+        }
+
+        const account = result[0]
 
         const params = (() => {
           if (action === 'mint') {
             const token = exp1Address[chainId as never]
             if (!token)
               throw new Error(`exp1 address not defined for chainId ${chainId}`)
+
+            const recipient =
+              account || '0x0000000000000000000000000000000000000001'
+
             return [
               {
                 data: AbiFunction.encodeData(
                   AbiFunction.fromAbi(exp1Abi, 'mint'),
-                  [account, Value.fromEther('100')],
+                  [recipient, Value.fromEther('100')],
                 ),
-                from: account,
+                ...(account && { from: account }),
                 to: token,
               },
             ] as const
@@ -1302,7 +1426,7 @@ function SendTransaction() {
                   AbiFunction.fromAbi(exp1Abi, 'approve'),
                   [spender, Value.fromEther('50')],
                 ),
-                from: account,
+                ...(account && { from: account }),
                 to: token,
               },
             ] as const
@@ -1319,7 +1443,7 @@ function SendTransaction() {
                   AbiFunction.fromAbi(exp1Abi, 'approve'),
                   [spender, maxUint256],
                 ),
-                from: account,
+                ...(account && { from: account }),
                 to: token,
               },
             ] as const
@@ -1327,7 +1451,7 @@ function SendTransaction() {
 
           return [
             {
-              from: account,
+              ...(account && { from: account }),
               to: '0x0000000000000000000000000000000000000000',
               value: '0x0',
             },
@@ -1342,13 +1466,15 @@ function SendTransaction() {
       }}
     >
       <h3>eth_sendTransaction</h3>
-      <select name="action">
-        <option value="mint">Mint 100 EXP</option>
-        <option value="approve">Approve 50 EXP</option>
-        <option value="approve-infinite">Approve Infinite EXP</option>
-        <option value="noop">Noop</option>
-      </select>
-      <button type="submit">Send</button>
+      <div className="flex flex-wrap gap-2">
+        <select name="action">
+          <option value="mint">Mint 100 EXP</option>
+          <option value="approve">Approve 50 EXP</option>
+          <option value="approve-infinite">Approve Infinite EXP</option>
+          <option value="noop">Noop</option>
+        </select>
+        <button type="submit">Send</button>
+      </div>
       {hash && <pre>{hash}</pre>}
     </form>
   )

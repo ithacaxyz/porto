@@ -1,5 +1,17 @@
 # porto
 
+## 0.2.37
+
+### Patch Changes
+
+- [#1032](https://github.com/ithacaxyz/porto/pull/1032) [`3f9eb89`](https://github.com/ithacaxyz/porto/commit/3f9eb89627b1ecedbc977b650f5e40b277d6c1c8) Thanks [@o-az](https://github.com/o-az)! - Added missing `WalletActions.getCallsHistory` export and types
+
+## 0.2.36
+
+### Patch Changes
+
+- [#1019](https://github.com/ithacaxyz/porto/pull/1019) [`db24dd2`](https://github.com/ithacaxyz/porto/commit/db24dd2eedcd8f25cd8b83cd9bf9129c652e4199) Thanks [@o-az](https://github.com/o-az)! - Added `wallet_getCallsHistory` support and related Wagmi hook
+
 ## 0.2.35
 
 ### Patch Changes

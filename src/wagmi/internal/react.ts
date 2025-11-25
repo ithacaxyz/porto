@@ -28,6 +28,7 @@ import {
   disconnect,
   getAdmins,
   getAssets,
+  getCallsHistory,
   getPermissions,
   grantAdmin,
   grantPermissions,
@@ -39,6 +40,7 @@ import {
 import {
   getAdminsQueryKey,
   getAssetsQueryKey,
+  getCallsHistoryQueryKey,
   getPermissionsQueryKey,
 } from './query.js'
 import type { ConfigParameter } from './types.js'
@@ -279,6 +281,94 @@ export declare namespace useAssets {
   >
 }
 
+export function useCallsHistory<
+  config extends Config = ResolvedRegister['config'],
+  selectData = getCallsHistory.ReturnType,
+>(
+  parameters: useCallsHistory.Parameters<config, selectData> = {},
+): useCallsHistory.ReturnType<selectData> {
+  const {
+    account: accountParam,
+    connector: connectorParam,
+    query = {},
+    ...rest
+  } = parameters
+
+  const config = useConfig(rest)
+  const { address, connector, status } = useAccount()
+
+  const account = accountParam ?? address
+  const activeConnector = connectorParam ?? connector
+  const { index, limit, sort } = rest
+
+  const enabled = Boolean(
+    account &&
+      limit &&
+      (status === 'connected' ||
+        (status === 'reconnecting' && activeConnector?.getProvider)) &&
+      (query.enabled ?? true),
+  )
+
+  const queryKey = useMemo(
+    () =>
+      getCallsHistoryQueryKey({
+        account,
+        connector: activeConnector,
+        index,
+        limit,
+        sort,
+      }),
+    [account, activeConnector, index, limit, sort],
+  )
+
+  return useQuery({
+    ...(query as any),
+    enabled,
+    gcTime: 0,
+    queryFn:
+      account && activeConnector
+        ? async (context) => {
+            const [, { connectorUid: _, ...options }] =
+              context.queryKey as typeof queryKey
+            return await getCallsHistory(config, {
+              ...options,
+              account,
+              connector: activeConnector,
+              limit: options.limit!,
+              sort: options.sort ?? 'desc',
+            })
+          }
+        : skipToken,
+    queryKey,
+    staleTime: Number.POSITIVE_INFINITY,
+  }) as never
+}
+
+export declare namespace useCallsHistory {
+  type Parameters<
+    config extends Config = Config,
+    selectData = getCallsHistory.ReturnType,
+  > = getCallsHistoryQueryKey.Parameters &
+    ConfigParameter<config> & {
+      query?:
+        | Omit<
+            UseQueryParameters<
+              getCallsHistory.ReturnType,
+              getCallsHistory.ErrorType,
+              selectData,
+              getCallsHistoryQueryKey.Value<config>
+            >,
+            'gcTime' | 'staleTime'
+          >
+        | undefined
+    }
+
+  type ReturnType<selectData = getCallsHistory.ReturnType> = UseQueryReturnType<
+    selectData,
+    getCallsHistory.ErrorType
+  >
+}
+
 export function useConnect<
   config extends Config = ResolvedRegister['config'],
   context = unknown,
@@ -320,7 +410,7 @@ export declare namespace useConnect {
 }
 
 export function useDisconnect<
-  config extends Config = ResolvedRegister['config'],
+  _config extends Config = ResolvedRegister['config'],
   context = unknown,
 >(
   parameters: useDisconnect.Parameters<context> = {},

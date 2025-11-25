@@ -38,7 +38,7 @@ export namespace getTokens {
         'enabled' | 'select'
       >
 
-    export function queryKey<const calls extends readonly unknown[]>(
+    export function queryKey<const _calls extends readonly unknown[]>(
       client: Client,
       options: queryKey.Options,
     ) {
@@ -141,7 +141,7 @@ export namespace resolveFeeToken {
     export type Options = queryKey.Options &
       Pick<Query.UseQueryOptions<Data, Error, Data, QueryKey>, 'enabled'>
 
-    export function queryKey<const calls extends readonly unknown[]>(
+    export function queryKey<const _calls extends readonly unknown[]>(
       client: Client,
       options: queryKey.Options,
     ) {

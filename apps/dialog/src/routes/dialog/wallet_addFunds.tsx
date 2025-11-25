@@ -1,7 +1,8 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import * as Provider from 'ox/Provider'
-import { Actions } from 'porto/remote'
+import { Actions, Hooks } from 'porto/remote'
+import { useGuestMode } from '~/lib/guestMode'
 import { porto } from '~/lib/Porto'
 import { useAuthSessionRedirect } from '~/lib/ReactNative'
 import * as Router from '~/lib/Router'
@@ -23,6 +24,13 @@ function RouteComponent() {
       ? request._decoded.params[0]
       : {}
 
+  const currentAccount = Hooks.useAccount(porto, { address })
+  const { guestModeAccount, guestStatus, onSignIn, onSignUp } = useGuestMode(
+    address ? currentAccount : undefined,
+  )
+
+  const account = address ? currentAccount : guestModeAccount
+
   const respond = useMutation({
     async mutationFn(
       result: Parameters<AddFunds.Props['onApprove']>[0] | { reject: true },
@@ -40,9 +48,13 @@ function RouteComponent() {
 
   return (
     <AddFunds
-      address={address}
+      address={account?.address ?? address}
       chainId={chainId}
+      guestMode={!address && !guestModeAccount}
+      guestStatus={guestStatus}
       onApprove={(result) => respond.mutate(result)}
+      onGuestSignIn={onSignIn}
+      onGuestSignUp={onSignUp}
       onReject={() => respond.mutate({ reject: true })}
       value={value}
     />

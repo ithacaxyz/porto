@@ -6,6 +6,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "check:types": "tsc --noEmit",
+    "check:types_fast": "tsgo --noEmit",
     "preview": "vite preview"
   },
   "dependencies": {

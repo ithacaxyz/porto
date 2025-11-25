@@ -291,6 +291,7 @@ export function Dashboard() {
                     const formData = new FormData(
                       event.target as HTMLFormElement,
                     )
+                    // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: _
                     const email = formData.get('email')?.toString()!
                     setEmailData({ email, verified: false })
                     setEmail('')
@@ -756,7 +757,6 @@ function PaginatedTable<T>({
         <tbody className="border-transparent border-t-10">
           {itemsToShow && itemsToShow?.length > 0 ? (
             itemsToShow?.map((item, index) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: _
               <React.Fragment key={index}>{renderRow(item)}</React.Fragment>
             ))
           ) : (

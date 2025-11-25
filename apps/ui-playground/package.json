@@ -8,6 +8,7 @@
     "build": "vite build",
     "check": "biome check --write --unsafe",
     "check:types": "tsc --noEmit",
+    "check:types_fast": "tsgo --noEmit",
     "prepare": "panda codegen",
     "prepreview": "pnpm build",
     "preview": "vite preview",

@@ -3,7 +3,9 @@ import { createFileRoute } from '@tanstack/react-router'
 import * as Provider from 'ox/Provider'
 import { Actions, Hooks } from 'porto/remote'
 import { RelayActions } from 'porto/viem'
+import * as React from 'react'
 import type * as Calls from '~/lib/Calls'
+import { useGuestMode } from '~/lib/guestMode'
 import { porto } from '~/lib/Porto'
 import { useAuthSessionRedirect } from '~/lib/ReactNative'
 import * as Router from '~/lib/Router'
@@ -18,13 +20,22 @@ export const Route = createFileRoute('/dialog/wallet_sendCalls')({
 
 function RouteComponent() {
   const request = Route.useSearch()
-  const { capabilities, calls, chainId, from } =
-    request._decoded.params[0] ?? {}
+  const { capabilities, calls, chainId } = request._decoded.params[0] ?? {}
 
   const { feeToken, merchantUrl, requiredFunds } = capabilities ?? {}
 
-  const account = Hooks.useAccount(porto, { address: from })
+  const currentAccount = Hooks.useAccount(porto)
   const client = Hooks.useRelayClient(porto, { chainId })
+
+  const { guestModeAccount, guestStatus, onSignIn, onSignUp } =
+    useGuestMode(currentAccount)
+
+  const account = currentAccount ?? guestModeAccount
+
+  const preview = React.useMemo(() => {
+    if (account) return { account, address: account.address, guest: false }
+    return undefined
+  }, [account])
 
   const respond = useMutation({
     // TODO: use EIP-1193 Provider + `wallet_sendPreparedCalls` in the future
@@ -72,13 +83,17 @@ function RouteComponent() {
 
   return (
     <ActionRequest
-      address={from}
+      address={preview?.address}
       calls={calls}
       chainId={chainId}
       feeToken={feeToken}
+      guestMode={preview?.guest}
+      guestStatus={guestStatus}
       loading={respond.isPending}
       merchantUrl={merchantUrl}
       onApprove={(data) => respond.mutate(data)}
+      onGuestSignIn={onSignIn}
+      onGuestSignUp={onSignUp}
       onReject={() => respond.mutate({ reject: true })}
       requiredFunds={requiredFunds}
     />

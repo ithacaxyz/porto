@@ -40,6 +40,7 @@ import type * as RpcSchema_viem from './RpcSchema.js'
 const supportedWalletActions = [
   'getAddresses',
   'getCallsStatus',
+  'getCallsHistory',
   'getCapabilities',
   'getChainId',
   'requestAddresses',
@@ -50,7 +51,7 @@ const supportedWalletActions = [
   'showCallsStatus',
   'waitForCallsStatus',
   'writeContract',
-] as const satisfies (keyof viem_WalletActions)[]
+] as const satisfies (keyof viem_WalletActions | 'getCallsHistory')[]
 
 export async function addFunds(
   client: Client,
@@ -181,6 +182,43 @@ export declare namespace getAdmins {
   type Parameters = RpcSchema.wallet_getAdmins.Parameters
 
   type ReturnType = RpcSchema.wallet_getAdmins.Response
+}
+
+export async function getCallsHistory<
+  chain extends Chain | undefined,
+  account extends Account.Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: getCallsHistory.Parameters<account>,
+): Promise<getCallsHistory.ReturnType> {
+  const { account: accountParam = client.account, ...rest } = parameters
+
+  const account_ = accountParam ? Account.from(accountParam) : undefined
+  if (!account_) throw new Error('account is required')
+
+  const method = 'wallet_getCallsHistory' as const
+  type Method = typeof method
+  const response = await client.request<
+    Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
+  >({
+    method,
+    params: [
+      z.encode(RpcSchema.wallet_getCallsHistory.Parameters, {
+        ...rest,
+        address: account_.address,
+      }),
+    ],
+  })
+
+  return z.decode(RpcSchema.wallet_getCallsHistory.Response, response)
+}
+
+export declare namespace getCallsHistory {
+  type Parameters<account extends Account.Account | undefined = undefined> =
+    Omit<RpcSchema.wallet_getCallsHistory.Parameters, 'address'> &
+      GetAccountParameter<account>
+
+  type ReturnType = RpcSchema.wallet_getCallsHistory.Response
 }
 
 export async function getPermissions(
@@ -425,7 +463,11 @@ export type Decorator<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account.Account | undefined = Account.Account | undefined,
 > = Pick<
-  viem_WalletActions<chain, account>,
+  viem_WalletActions<chain, account> & {
+    getCallsHistory: (
+      parameters: getCallsHistory.Parameters<account>,
+    ) => Promise<getCallsHistory.ReturnType>
+  },
   (typeof supportedWalletActions)[number]
 > & {
   connect: (parameters: connect.Parameters) => Promise<connect.ReturnType>
@@ -433,6 +475,9 @@ export type Decorator<
   getPermissions: (
     parameters: getPermissions.Parameters,
   ) => Promise<getPermissions.ReturnType>
+  getCallsHistory: (
+    parameters: getCallsHistory.Parameters<account>,
+  ) => Promise<getCallsHistory.ReturnType>
   grantPermissions: (
     parameters: grantPermissions.Parameters,
   ) => Promise<grantPermissions.ReturnType>
@@ -456,6 +501,7 @@ export function decorator<
     connect: (parameters) => connect(client, parameters),
     disconnect: () => disconnect(client),
     getAddresses: () => getAddresses(client),
+    getCallsHistory: (parameters) => getCallsHistory(client, parameters),
     getCallsStatus: (parameters) => getCallsStatus(client, parameters),
     getCapabilities: () => getCapabilities(client),
     getChainId: () => getChainId(client),
