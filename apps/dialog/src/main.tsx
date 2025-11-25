@@ -156,7 +156,7 @@ porto.messenger.on('__internal', (payload) => {
     )
 
   if (payload.type === 'set-theme') {
-    const updates: Partial<typeof Dialog.store._value> = {}
+    const updates: Partial<Dialog.store.State> = {}
     if (payload.theme)
       updates.customTheme = Theme.parseJsonTheme(JSON.stringify(payload.theme))
     if (payload.features) updates.customFeatures = payload.features
