@@ -8,6 +8,28 @@ export const config = createConfig({
   connectors: [
     porto({
       mode: Mode.dialog({
+        // Feature flags - control UI element visibility
+        features: {
+          bugReporting: false,
+          createAccount: true,
+          emailInput: true,
+          signUpLink: false,
+        },
+
+        // Custom text labels
+        labels: {
+          bugReportEmail: 'support@myapp.com',
+          createAccount: 'Create MyApp account',
+          exampleEmail: 'example@myapp.com',
+          signIn: 'Sign in with MyApp',
+          signInAlt: 'Continue with MyApp',
+          signInPrompt: 'Use MyApp to sign in to',
+          signUp: 'Sign up with MyApp',
+          signUpLink: 'Register',
+          switchAccount: 'Change',
+        },
+
+        // Custom theme colors
         theme: {
           badgeBackground: '#ffffff',
           badgeContent: '#ff007a',
@@ -30,7 +52,7 @@ export const config = createConfig({
           focus: '#ff007a',
           frameBackground: '#ff007a',
           frameBorder: 'transparent',
-          frameContent: '#ffffff',
+          frameContent: '#202020',
           frameRadius: 14,
           link: '#ff007a',
           negativeBackground: '#f0f',

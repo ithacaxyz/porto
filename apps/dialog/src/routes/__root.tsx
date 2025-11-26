@@ -48,6 +48,8 @@ function RouteComponent() {
 
   const mode = Dialog.useStore((state) => state.mode)
   const referrer = Dialog.useStore((state) => state.referrer)
+  const customFeatures = Dialog.useStore((state) => state.customFeatures)
+  const customLabels = Dialog.useStore((state) => state.customLabels)
   const customTheme = Dialog.useStore((state) => state.customTheme)
   const display = Dialog.useStore((state) => state.display)
   const verifyStatus = Referrer.useVerify()
@@ -99,14 +101,16 @@ function RouteComponent() {
         // [2] https://github.com/w3c/csswg-drafts/issues/4772
         colorScheme={customTheme?.colorScheme}
         frameActions={
-          <UI.ButtonArea.Anchor
-            className="flex h-full items-center bg-transparent px-[4px] focus-visible:outline-[2px] focus-visible:outline-th_focus focus-visible:outline-offset-[-2px]"
-            external
-            href="mailto:support@ithaca.xyz"
-            title="Report Bug"
-          >
-            <LucideBug className="size-[16px] text-th_frame" />
-          </UI.ButtonArea.Anchor>
+          customFeatures?.bugReporting === false ? null : (
+            <UI.ButtonArea.Anchor
+              className="flex h-full items-center bg-transparent px-[4px] focus-visible:outline-[2px] focus-visible:outline-th_focus focus-visible:outline-offset-[-2px]"
+              external
+              href={`mailto:${customLabels?.bugReportEmail ?? 'support@ithaca.xyz'}`}
+              title="Report Bug"
+            >
+              <LucideBug className="size-[16px] text-th_frame" />
+            </UI.ButtonArea.Anchor>
+          )
         }
         mode={
           display === 'full'
