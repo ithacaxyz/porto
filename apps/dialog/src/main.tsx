@@ -88,8 +88,12 @@ const offDialogRequest = Events.onDialogRequest(
 
     const connectedAccount = porto._internal.store.getState().accounts[0]
 
-    // Clear the dialog accounts if disconnected
-    if (!account && connectedAccount?.address)
+    // Only clear dialog accounts on explicit disconnect request.
+    // We do NOT clear accounts just because `account` is undefined in the request -
+    // that just means the request didn't specify a `from` address (e.g. wallet_sendCalls
+    // without `from`). The connected account should persist through such requests.
+    // See: https://github.com/ithacaxyz/porto/pull/1009
+    if (request?.method === 'wallet_disconnect' && connectedAccount?.address)
       porto._internal.store.setState((x) => ({ ...x, accounts: [] }))
 
     const requireAccountSync =
