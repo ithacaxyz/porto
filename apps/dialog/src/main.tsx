@@ -35,6 +35,10 @@ if (import.meta.env.PROD) {
 const offInitialized = Events.onInitialized(porto, async (payload, event) => {
   const { chainIds, features, labels, mode, referrer, theme } = payload
 
+  // Clear accounts on dialog init. If the parent has a connected account,
+  // it will be synced via when the first request comes in (requireAccountSync).
+  porto._internal.store.setState((x) => ({ ...x, accounts: [] }))
+
   // Prevent showing stale route from a previous action.
   const pathname = Router.router.state.location.pathname.replace(/\/+$/, '')
   if (pathname !== '/dialog') await Router.router.navigate({ to: '/dialog' })
