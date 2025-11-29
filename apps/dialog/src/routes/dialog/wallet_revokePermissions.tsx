@@ -29,6 +29,13 @@ function RouteComponent() {
       }
       return Actions.respond(porto, request)
     },
+    onError(error) {
+      console.error('Revoke failed', error)
+      alert(
+        'Failed to revoke permissions: ' +
+          (error instanceof Error ? error.message : 'Unknown error'),
+      )
+    },
   })
 
   useAuthSessionRedirect(respond)
