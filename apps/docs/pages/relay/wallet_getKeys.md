@@ -2,6 +2,8 @@
 
 Get all keys for an account.
 
+When [`wallet_prepareUpgradeAccount`](/relay/wallet_prepareUpgradeAccount) & [`wallet_upgradeAccount`](/relay/wallet_upgradeAccount) are called with a key, it gets stored by the Relay. This allows `wallet_getKeys` to return keys for chains where the account has not yet been deployed. For example, if an account is prepared with an admin key but only deployed on Chain A, calling `wallet_getKeys` for Chain B (where the account is not deployed) will still return the admin key that was authorized during account preparation.
+
 ## Request
 
 ```ts twoslash
