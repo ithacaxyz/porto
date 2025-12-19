@@ -30,9 +30,9 @@ Contract addresses for Porto infrastructure. All chains use the same addresses f
 
 | Contract Name      | Address                                      |
 |--------------------|----------------------------------------------|
-| Orchestrator       | `0x36A7Cd5b1F475122A2b52580FC8e170A2Cd312eF` |
-| Account Proxy      | `0x7C27e3AEcbF42879B64d76F604dC3430F4886462` |
-| Simulator          | `0x6F3fD9f2d110a74e01F114e2710b8AC45de10c8a` |
-| Funder             | `0x899B09fa62BA30e334adbF4A7d57b9dcFCd32617` |
-| Escrow             | `0x8d888156B10B68b8aB86Db054abF6388b1E636b8` |
-| Layer Zero Settler | `0xF8E7dE8c81ce2B90782fFA5EB050CAedd55fE1f4` |
+| Orchestrator       | [`0x36A7Cd5b1F475122A2b52580FC8e170A2Cd312eF`](https://etherscan.io/address/0x36A7Cd5b1F475122A2b52580FC8e170A2Cd312eF) |
+| Account Proxy      | [`0x7C27e3AEcbF42879B64d76F604dC3430F4886462`](https://etherscan.io/address/0x7C27e3AEcbF42879B64d76F604dC3430F4886462) |
+| Simulator          | [`0x6F3fD9f2d110a74e01F114e2710b8AC45de10c8a`](https://etherscan.io/address/0x6F3fD9f2d110a74e01F114e2710b8AC45de10c8a) |
+| Funder             | [`0x899B09fa62BA30e334adbF4A7d57b9dcFCd32617`](https://etherscan.io/address/0x899B09fa62BA30e334adbF4A7d57b9dcFCd32617) |
+| Escrow             | [`0x8d888156B10B68b8aB86Db054abF6388b1E636b8`](https://etherscan.io/address/0x8d888156B10B68b8aB86Db054abF6388b1E636b8) |
+| Layer Zero Settler | [`0xF8E7dE8c81ce2B90782fFA5EB050CAedd55fE1f4`](https://etherscan.io/address/0xF8E7dE8c81ce2B90782fFA5EB050CAedd55fE1f4) |
