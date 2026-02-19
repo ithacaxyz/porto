@@ -159,21 +159,30 @@ export function dialog(parameters: dialog.Parameters = {}) {
             const signInWithEthereum =
               request.params?.[0]?.capabilities?.signInWithEthereum
 
-            // Parse the authorize key into a structured key.
-            const key = await PermissionsRequest.toKey(
-              capabilities?.grantPermissions,
+            // Parse the authorize key(s) into structured keys.
+            const grantPermissionsInput = capabilities?.grantPermissions
+            const permissionsInputArray = Array.isArray(grantPermissionsInput)
+              ? grantPermissionsInput
+              : grantPermissionsInput
+                ? [grantPermissionsInput]
+                : []
+            const generatedKeys = await PermissionsRequest.toKeys(
+              permissionsInputArray,
               {
                 chainId: client.chain.id,
               },
             )
 
-            // Convert the key into a permission.
-            const permissionsRequest = key
-              ? z.encode(
-                  PermissionsRequest.Schema,
-                  PermissionsRequest.fromKey(key),
-                )
-              : undefined
+            // Convert the keys back into permission requests (with generated key info).
+            const permissionsPayload =
+              generatedKeys.length === 0
+                ? undefined
+                : generatedKeys.map((k) =>
+                    z.encode(
+                      PermissionsRequest.Schema,
+                      PermissionsRequest.fromKey(k),
+                    ),
+                  )
 
             // Send a request off to the dialog to create an account.
             const { accounts } = await provider.request({
@@ -182,7 +191,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 {
                   capabilities: {
                     ...request.params?.[0]?.capabilities,
-                    grantPermissions: permissionsRequest,
+                    grantPermissions: permissionsPayload,
                     signInWithEthereum:
                       authUrl || signInWithEthereum
                         ? {
@@ -210,10 +219,13 @@ export function dialog(parameters: dialog.Parameters = {}) {
                   const key_permission = Permissions.toKey(
                     z.decode(Permissions.Schema, permission),
                   )
-                  if (key_permission.id === key?.id)
+                  const matchedKey = generatedKeys.find(
+                    (gk) => gk.id === key_permission.id,
+                  )
+                  if (matchedKey)
                     return {
                       ...key_permission,
-                      ...key,
+                      ...matchedKey,
                       permissions: key_permission.permissions,
                     }
                   return key_permission
@@ -488,21 +500,30 @@ export function dialog(parameters: dialog.Parameters = {}) {
           const signInWithEthereum =
             request.params?.[0]?.capabilities?.signInWithEthereum
 
-          // Parse provided (RPC) key into a structured key.
-          const key = await PermissionsRequest.toKey(
-            capabilities?.grantPermissions,
+          // Parse provided (RPC) key(s) into structured keys.
+          const grantPermissionsInput = capabilities?.grantPermissions
+          const permissionsInputArray = Array.isArray(grantPermissionsInput)
+            ? grantPermissionsInput
+            : grantPermissionsInput
+              ? [grantPermissionsInput]
+              : []
+          const generatedKeys = await PermissionsRequest.toKeys(
+            permissionsInputArray,
             {
               chainId: client.chain.id,
             },
           )
 
-          // Convert the key into a permissions request.
-          const permissionsRequest = key
-            ? z.encode(
-                PermissionsRequest.Schema,
-                PermissionsRequest.fromKey(key),
-              )
-            : undefined
+          // Convert the keys back into permission requests (with generated key info).
+          const permissionsPayload =
+            generatedKeys.length === 0
+              ? undefined
+              : generatedKeys.map((k) =>
+                  z.encode(
+                    PermissionsRequest.Schema,
+                    PermissionsRequest.fromKey(k),
+                  ),
+                )
 
           // Send a request to the dialog.
           const { accounts } = await provider.request({
@@ -512,7 +533,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 ...request.params?.[0],
                 capabilities: {
                   ...request.params?.[0]?.capabilities,
-                  grantPermissions: permissionsRequest,
+                  grantPermissions: permissionsPayload,
                   signInWithEthereum:
                     authUrl || signInWithEthereum
                       ? {
@@ -536,10 +557,13 @@ export function dialog(parameters: dialog.Parameters = {}) {
                     const key_permission = Permissions.toKey(
                       z.decode(Permissions.Schema, permission),
                     )
-                    if (key_permission.id === key?.id)
+                    const matchedKey = generatedKeys.find(
+                      (gk) => gk.id === key_permission.id,
+                    )
+                    if (matchedKey)
                       return {
                         ...key_permission,
-                        ...key,
+                        ...matchedKey,
                         permissions: key_permission.permissions,
                       }
                     return key_permission
@@ -644,18 +668,30 @@ export function dialog(parameters: dialog.Parameters = {}) {
         // Extract the capabilities from the request.
         const [{ capabilities }] = request._decoded.params ?? [{}]
 
-        // Parse the authorize key into a structured key.
-        const key = await PermissionsRequest.toKey(
-          capabilities?.grantPermissions,
+        // Parse the authorize key(s) into structured keys.
+        const grantPermissionsInput = capabilities?.grantPermissions
+        const permissionsInputArray = Array.isArray(grantPermissionsInput)
+          ? grantPermissionsInput
+          : grantPermissionsInput
+            ? [grantPermissionsInput]
+            : []
+        const generatedKeys = await PermissionsRequest.toKeys(
+          permissionsInputArray,
           {
             chainId: client.chain.id,
           },
         )
 
-        // Convert the key into a permission.
-        const permissionsRequest = key
-          ? z.encode(PermissionsRequest.Schema, PermissionsRequest.fromKey(key))
-          : undefined
+        // Convert the keys back into permission requests (with generated key info).
+        const permissionsPayload =
+          generatedKeys.length === 0
+            ? undefined
+            : generatedKeys.map((k) =>
+                z.encode(
+                  PermissionsRequest.Schema,
+                  PermissionsRequest.fromKey(k),
+                ),
+              )
 
         // Send a request off to the dialog to prepare the upgrade.
         const provider = getProvider(store)
@@ -666,7 +702,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
               ...request.params?.[0],
               capabilities: {
                 ...request.params?.[0]?.capabilities,
-                grantPermissions: permissionsRequest,
+                grantPermissions: permissionsPayload,
               },
             },
           ],
@@ -674,7 +710,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         type Context = { account: Account.Account }
         const keys = (context as Context).account.keys?.map((k) => {
-          if (k.id === key?.id) return { ...k, ...key }
+          const matchedKey = generatedKeys.find((gk) => gk.id === k.id)
+          if (matchedKey) return { ...k, ...matchedKey }
           return k
         })
 
