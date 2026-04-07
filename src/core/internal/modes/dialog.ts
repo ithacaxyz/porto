@@ -855,16 +855,23 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         if (request.method === 'eth_sendTransaction') {
           // Send a transaction request to the dialog.
+          const caps = { feeToken, merchantUrl }
           const id = await provider.request({
             ...request,
+            _decoded: {
+              ...request._decoded,
+              params: [
+                {
+                  ...request._decoded?.params?.[0],
+                  capabilities: caps,
+                },
+              ],
+            },
             params: [
               {
                 ...request.params?.[0],
                 // @ts-expect-error
-                capabilities: {
-                  feeToken,
-                  merchantUrl,
-                },
+                capabilities: caps,
                 ...(chainId ? { chainId: Hex.fromNumber(chainId) } : {}),
               },
             ],
