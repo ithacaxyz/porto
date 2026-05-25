@@ -110,6 +110,12 @@ export const methodPolicies = [
     },
   },
   {
+    method: 'wallet_getAppPrf',
+    modes: {
+      dialog: true,
+    },
+  },
+  {
     method: 'wallet_prepareCalls',
     modes: {
       headless: true,

@@ -8,6 +8,7 @@ import * as PermissionsRequest from '~/lib/PermissionsRequest'
 import { porto } from '~/lib/Porto'
 import { useAuthSessionRedirect } from '~/lib/ReactNative'
 import * as Router from '~/lib/Router'
+import * as WebAuthnPrf from '~/lib/WebAuthnPrf'
 import { Email } from '../-components/Email'
 import { SignIn } from '../-components/SignIn'
 import { SignUp } from '../-components/SignUp'
@@ -137,6 +138,7 @@ function RouteComponent() {
       )
 
       const { accounts } = response as { accounts: { address: string }[] }
+      WebAuthnPrf.recordConnectResult(response)
       const address = accounts[0]?.address
 
       if (address && email)

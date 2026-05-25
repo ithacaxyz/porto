@@ -42,6 +42,7 @@ const supportedWalletActions = [
   'getCallsStatus',
   'getCallsHistory',
   'getCapabilities',
+  'getAppPrf',
   'getChainId',
   'requestAddresses',
   'sendCalls',
@@ -51,7 +52,11 @@ const supportedWalletActions = [
   'showCallsStatus',
   'waitForCallsStatus',
   'writeContract',
-] as const satisfies (keyof viem_WalletActions | 'getCallsHistory')[]
+] as const satisfies (
+  | keyof viem_WalletActions
+  | 'getAppPrf'
+  | 'getCallsHistory'
+)[]
 
 export async function addFunds(
   client: Client,
@@ -160,6 +165,28 @@ export async function disconnect(client: Client) {
   >({
     method,
   } as never)
+}
+
+export async function getAppPrf(
+  client: Client,
+  parameters: getAppPrf.Parameters,
+): Promise<getAppPrf.ReturnType> {
+  const method = 'wallet_getAppPrf' as const
+  type Method = typeof method
+  const response = await client.request<
+    Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
+  >({
+    method,
+    params: [z.encode(RpcSchema.wallet_getAppPrf.Parameters, parameters)],
+  })
+
+  return z.decode(RpcSchema.wallet_getAppPrf.Response, response)
+}
+
+export declare namespace getAppPrf {
+  type Parameters = RpcSchema.wallet_getAppPrf.Parameters
+
+  type ReturnType = RpcSchema.wallet_getAppPrf.Response
 }
 
 export async function getAdmins(
@@ -464,6 +491,9 @@ export type Decorator<
   account extends Account.Account | undefined = Account.Account | undefined,
 > = Pick<
   viem_WalletActions<chain, account> & {
+    getAppPrf: (
+      parameters: getAppPrf.Parameters,
+    ) => Promise<getAppPrf.ReturnType>
     getCallsHistory: (
       parameters: getCallsHistory.Parameters<account>,
     ) => Promise<getCallsHistory.ReturnType>
@@ -472,6 +502,7 @@ export type Decorator<
 > & {
   connect: (parameters: connect.Parameters) => Promise<connect.ReturnType>
   disconnect: () => Promise<void>
+  getAppPrf: (parameters: getAppPrf.Parameters) => Promise<getAppPrf.ReturnType>
   getPermissions: (
     parameters: getPermissions.Parameters,
   ) => Promise<getPermissions.ReturnType>
@@ -501,6 +532,7 @@ export function decorator<
     connect: (parameters) => connect(client, parameters),
     disconnect: () => disconnect(client),
     getAddresses: () => getAddresses(client),
+    getAppPrf: (parameters) => getAppPrf(client, parameters),
     getCallsHistory: (parameters) => getCallsHistory(client, parameters),
     getCallsStatus: (parameters) => getCallsStatus(client, parameters),
     getCapabilities: () => getCapabilities(client),

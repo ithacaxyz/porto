@@ -177,6 +177,49 @@ describe('createWebAuthnP256', () => {
     `)
   })
 
+  test('behavior: prf create option shape', async () => {
+    let options: CredentialCreationOptions | undefined
+
+    const key = await Key.createWebAuthnP256({
+      createFn(options_) {
+        options = options_ as CredentialCreationOptions
+        return Promise.resolve({
+          getClientExtensionResults() {
+            return { prf: { enabled: true } }
+          },
+          id: 'm1-bMPuAqpWhCxHZQZTT6e-lSPntQbh3opIoGe7g4Qs',
+          response: {
+            getPublicKey() {
+              return [
+                48, 89, 48, 19, 6, 7, 42, 134, 72, 206, 61, 2, 1, 6, 8, 42, 134,
+                72, 206, 61, 3, 1, 7, 3, 66, 0, 4, 171, 137, 20, 0, 20, 15, 196,
+                248, 233, 65, 206, 15, 249, 14, 65, 157, 233, 71, 10, 202, 202,
+                97, 59, 189, 113, 122, 71, 117, 67, 80, 49, 167, 216, 132, 49,
+                142, 145, 159, 211, 179, 229, 166, 49, 216, 102, 216, 163, 128,
+                180, 64, 99, 231, 15, 12, 56, 30, 225, 110, 6, 82, 247, 249,
+                117, 84,
+              ]
+            },
+          },
+          type: 'public-key',
+        } as any)
+      },
+      label: 'test',
+      prf: true,
+      userId: Bytes.from('0x0000000000000000000000000000000000000000'),
+    })
+
+    expect(options?.publicKey?.extensions).toMatchObject({
+      credProps: true,
+      prf: {},
+    })
+    expect((options?.publicKey?.extensions as any).prf.eval).toBeUndefined()
+    expect(
+      (options?.publicKey?.extensions as any).prf.evalByCredential,
+    ).toBeUndefined()
+    expect((key.privateKey as any)?.prf).toEqual({ enabled: true })
+  })
+
   test('behavior: authorize + sign', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await createAccount(client, {

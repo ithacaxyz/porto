@@ -76,6 +76,7 @@ export function relay(parameters: relay.Parameters = {}) {
               label:
                 label ||
                 `${eoa.address.slice(0, 8)}\u2026${eoa.address.slice(-6)}`,
+              prf: webAuthn?.prf,
               rpId: keystoreHost,
               userId: Bytes.from(eoa.address),
             })
@@ -204,6 +205,9 @@ export function relay(parameters: relay.Parameters = {}) {
       async getCapabilities(parameters) {
         const { chainIds, internal } = parameters
         const { client } = internal
+        const prfStatus = await webAuthn?.prfStatus?.({
+          account: internal.store.getState().accounts[0]?.address,
+        })
 
         const base = {
           atomic: {
@@ -221,6 +225,11 @@ export function relay(parameters: relay.Parameters = {}) {
           },
           permissions: {
             supported: true,
+          },
+          prf: {
+            status:
+              prfStatus ??
+              (webAuthn?.prf ? 'credential-not-enabled' : 'unsupported'),
           },
           requiredFunds: {
             supported: Boolean(multichain),
@@ -602,6 +611,7 @@ export function relay(parameters: relay.Parameters = {}) {
               createFn: webAuthn?.createFn,
               label:
                 label || `${address.slice(0, 8)}\u2026${address.slice(-6)}`,
+              prf: webAuthn?.prf,
               rpId: keystoreHost,
               userId: Bytes.from(address),
             })
@@ -901,6 +911,16 @@ export declare namespace relay {
             | WebAuthnP256.createCredential.Options['createFn']
             | undefined
           getFn?: WebAuthnP256.sign.Options['getFn'] | undefined
+          prf?: boolean | undefined
+          prfStatus?:
+            | ((parameters?: {
+                account?: string | undefined
+              }) =>
+                | 'unsupported'
+                | 'credential-not-enabled'
+                | 'enabled'
+                | Promise<'unsupported' | 'credential-not-enabled' | 'enabled'>)
+            | undefined
         }
       | undefined
   }

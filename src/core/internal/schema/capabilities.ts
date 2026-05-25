@@ -112,6 +112,17 @@ export namespace permissions {
   export type Response = z.infer<typeof Response>
 }
 
+export namespace prf {
+  export const GetCapabilitiesResponse = z.object({
+    status: z.union([
+      z.literal('unsupported'),
+      z.literal('credential-not-enabled'),
+      z.literal('enabled'),
+    ]),
+  })
+  export type GetCapabilitiesResponse = z.infer<typeof GetCapabilitiesResponse>
+}
+
 export namespace preCalls {
   export const Request = z.readonly(
     z.array(

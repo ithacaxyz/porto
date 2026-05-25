@@ -1,8 +1,9 @@
-import { PortoConfig } from '@porto/apps'
+import { Env, PortoConfig } from '@porto/apps'
 import { Mode, Storage } from 'porto'
 import { Porto } from 'porto/remote'
 
 import * as ReactNative from './ReactNative.js'
+import * as WebAuthnPrf from './WebAuthnPrf.js'
 
 const baseConfig = PortoConfig.getConfig()
 const { mode: baseMode, ...restConfig } = baseConfig
@@ -14,7 +15,16 @@ const mode = ReactNative.isReactNativeRequest()
         ? { host: ReactNative.reactNativeHost }
         : {}),
     })
-  : baseMode
+  : Mode.relay({
+      mock: import.meta.env.MODE === 'test',
+      multichain: Env.get() !== 'anvil',
+      webAuthn: {
+        createFn: WebAuthnPrf.create as never,
+        getFn: WebAuthnPrf.get as never,
+        prf: true,
+        prfStatus: WebAuthnPrf.getCapabilityStatus,
+      },
+    })
 
 export const porto = Porto.create({
   ...restConfig,

@@ -638,6 +638,7 @@ export function authSession(options: authSession.Options = {}) {
           wallet_addFunds: 'wallet_addFunds',
           wallet_connect: 'wallet_connect',
           wallet_getAccountVersion: 'wallet_getAccountVersion',
+          wallet_getAppPrf: 'wallet_getAppPrf',
           wallet_getAssets: 'wallet_getAssets',
           wallet_getCallsHistory: 'wallet_getCallsHistory',
           wallet_getCallsStatus: 'wallet_getCallsStatus',
