@@ -1,8 +1,13 @@
 import * as Address from 'ox/Address'
+import type * as WebAuthnP256 from 'ox/WebAuthnP256'
 
 const metadataKey = 'porto.dialog.prfCredentials'
 const pendingMetadataKey = 'porto.dialog.pendingPrfCredential'
 const hkdfSalt = 'porto-app-prf-v1'
+
+type CreateCredentialFn = NonNullable<
+  WebAuthnP256.createCredential.Options['createFn']
+>
 
 type PrfValues = {
   first: BufferSource
@@ -36,6 +41,23 @@ type PublicKeyCredentialLike = Credential & {
   }
 }
 
+type AccountWithKeys = {
+  address: Address.Address
+  keys?: readonly AccountKey[]
+}
+
+type AccountKey = {
+  credentialId?: string | undefined
+  privateKey?: unknown
+  type?: string | undefined
+}
+
+type WebAuthnPrivateKey = {
+  credential?: { id?: string | undefined } | undefined
+  prf?: { enabled?: boolean | undefined } | undefined
+  rpId?: string | undefined
+}
+
 export type Metadata = {
   account: Address.Address
   credentialId: string
@@ -51,14 +73,14 @@ type PrfOutput = {
   source: string
 }
 
-export async function create(
-  options: CredentialCreationOptions = {},
-): Promise<Credential | null> {
-  if (!options.publicKey) return navigator.credentials.create(options)
+export const create: CreateCredentialFn = async (options) => {
+  const credentialOptions = (options ?? {}) as CredentialCreationOptions
+  if (!credentialOptions.publicKey)
+    return navigator.credentials.create(credentialOptions)
 
-  const publicKey = options.publicKey
-  const next: CredentialCreationOptions = {
-    ...options,
+  const publicKey = credentialOptions.publicKey
+  const next = {
+    ...credentialOptions,
     publicKey: {
       ...publicKey,
       extensions: {
@@ -66,7 +88,7 @@ export async function create(
         prf: {},
       } as AuthenticationExtensionsClientInputs,
     },
-  }
+  } satisfies CredentialCreationOptions
 
   const credential = await navigator.credentials.create(next)
   if (!isPublicKeyCredentialLike(credential)) return credential
@@ -97,12 +119,6 @@ export async function create(
   return credential
 }
 
-export async function get(
-  options: CredentialRequestOptions = {},
-): Promise<Credential | null> {
-  return navigator.credentials.get(options)
-}
-
 export function recordConnectResult(response: unknown): void {
   const pending = loadPendingMetadata()
   if (!pending) return
@@ -115,16 +131,63 @@ export function recordConnectResult(response: unknown): void {
     account,
     updatedAt: Date.now(),
   }
-  const records = loadMetadata()
-  records[account.toLowerCase() as Address.Address] = next
-  window.localStorage.setItem(metadataKey, JSON.stringify(records))
+  recordAccountMetadata(next)
   window.localStorage.removeItem(pendingMetadataKey)
+}
+
+export function recordAccountMetadata(metadata: Metadata): void {
+  const records = loadMetadata()
+  records[metadata.account.toLowerCase() as Address.Address] = {
+    ...metadata,
+    credentialId: normalizeBase64Url(metadata.credentialId),
+    updatedAt: Date.now(),
+  }
+  window.localStorage.setItem(metadataKey, JSON.stringify(records))
 }
 
 export function loadAccountMetadata(
   account: Address.Address,
 ): Metadata | undefined {
   return loadMetadata()[account.toLowerCase() as Address.Address]
+}
+
+export function resolveAccountMetadata(
+  account: AccountWithKeys,
+): Metadata | undefined {
+  const stored = loadAccountMetadata(account.address)
+  const recovered = recoverAccountMetadata(account)
+  if (!stored) return recovered
+  if (!recovered) return stored
+
+  if (
+    normalizeBase64Url(stored.credentialId) ===
+      normalizeBase64Url(recovered.credentialId) &&
+    stored.rpId === recovered.rpId
+  )
+    return stored
+
+  return recovered
+}
+
+export function recoverAccountMetadata(
+  account: AccountWithKeys,
+): Metadata | undefined {
+  const candidates = account.keys?.filter(
+    (key) => key.type === 'webauthn-p256' && getKeyCredentialId(key),
+  )
+  const key =
+    candidates?.find((key) => getKeyPrfEnabled(key) === true) ?? candidates?.[0]
+  if (!key) return undefined
+  const credentialId = getKeyCredentialId(key)
+  if (!credentialId) return undefined
+
+  return {
+    account: account.address,
+    credentialId: normalizeBase64Url(credentialId),
+    prfEnabled: getKeyPrfEnabled(key) === true,
+    rpId: getKeyRpId(key),
+    updatedAt: Date.now(),
+  }
 }
 
 export function validateAppReferrer(input: {
@@ -139,33 +202,24 @@ export function validateAppReferrer(input: {
 }
 
 export function assertAccountCredentialBinding(input: {
-  account: {
-    address: Address.Address
-    keys?: readonly {
-      privateKey?: unknown
-      type?: string | undefined
-    }[]
-  }
+  account: AccountWithKeys
   metadata: Metadata
 }): void {
   if (!Address.isEqual(input.account.address, input.metadata.account))
     throw new Error('Stored PRF account does not match selected account.')
 
+  const credentialId = normalizeBase64Url(input.metadata.credentialId)
   const key = input.account.keys?.find((key) => {
-    const privateKey = key.privateKey as
-      | {
-          credential?: { id?: string | undefined } | undefined
-        }
-      | undefined
+    const keyCredentialId = getKeyCredentialId(key)
     return (
       key.type === 'webauthn-p256' &&
-      privateKey?.credential?.id === input.metadata.credentialId
+      keyCredentialId &&
+      normalizeBase64Url(keyCredentialId) === credentialId
     )
   })
   if (!key) throw new Error('Selected account does not own the PRF credential.')
 
-  const privateKey = key.privateKey as { rpId?: string | undefined } | undefined
-  if (privateKey?.rpId !== input.metadata.rpId)
+  if (getKeyRpId(key) !== input.metadata.rpId)
     throw new Error('Stored PRF RP ID does not match selected account key.')
 }
 
@@ -254,6 +308,27 @@ export function getCapabilityStatus(parameters?: {
     : Object.values(loadMetadata())
   if (metadata.some((record) => record.prfEnabled)) return 'enabled'
   return 'credential-not-enabled'
+}
+
+function getKeyCredentialId(key: AccountKey): string | undefined {
+  const privateKey = key.privateKey as WebAuthnPrivateKey | undefined
+  return privateKey?.credential?.id ?? key.credentialId
+}
+
+function getKeyPrfEnabled(key: AccountKey): boolean | undefined {
+  const privateKey = key.privateKey as WebAuthnPrivateKey | undefined
+  return privateKey?.prf?.enabled
+}
+
+function getKeyRpId(key: AccountKey): string {
+  const privateKey = key.privateKey as WebAuthnPrivateKey | undefined
+  return privateKey?.rpId ?? currentRpId()
+}
+
+function currentRpId(): string {
+  const hostname = window.location.hostname
+  if (!hostname) throw new Error('Unable to determine WebAuthn RP ID.')
+  return hostname
 }
 
 function extractConnectedAccount(

@@ -24,7 +24,6 @@ function RouteComponent() {
   const request = Route.useSearch()
   const parameters = request.params[0]
   const referrer = Dialog.useStore((state) => state.referrer)
-  const account = (request as any).account?.address
 
   const respond = useMutation({
     async mutationFn({ reject }: { reject?: boolean } = {}) {
@@ -35,8 +34,7 @@ function RouteComponent() {
 
       try {
         const state = porto._internal.store.getState()
-        const selectedAccount =
-          state.accounts.find((x) => x.address === account) ?? state.accounts[0]
+        const selectedAccount = state.accounts[0]
         if (!selectedAccount) throw new Provider.UnauthorizedError()
 
         const appOrigin = WebAuthnPrf.validateAppReferrer({
@@ -44,16 +42,11 @@ function RouteComponent() {
           url: referrer?.url,
         })
 
-        const metadata = WebAuthnPrf.loadAccountMetadata(
-          selectedAccount.address,
-        )
+        const metadata = WebAuthnPrf.resolveAccountMetadata(selectedAccount)
         if (!metadata)
           throw new Provider.UnsupportedMethodError({
-            message: 'No PRF metadata found for the selected account.',
-          })
-        if (!metadata.prfEnabled)
-          throw new Provider.UnsupportedMethodError({
-            message: 'The selected account credential is not PRF-enabled.',
+            message:
+              'No WebAuthn PRF credential metadata found for the selected account.',
           })
 
         WebAuthnPrf.assertAccountCredentialBinding({
@@ -61,23 +54,43 @@ function RouteComponent() {
           metadata,
         })
 
-        const output = await WebAuthnPrf.getAppPrf({
-          account: selectedAccount.address,
-          appOrigin,
-          credentialId: metadata.credentialId,
-          purpose: parameters.purpose,
-          rpId: metadata.rpId,
-          salt: parameters.salt,
-          vaultId: parameters.vaultId,
-        })
+        const output = await (async () => {
+          try {
+            return await WebAuthnPrf.getAppPrf({
+              account: selectedAccount.address,
+              appOrigin,
+              credentialId: metadata.credentialId,
+              purpose: parameters.purpose,
+              rpId: metadata.rpId,
+              salt: parameters.salt,
+              vaultId: parameters.vaultId,
+            })
+          } catch (error) {
+            if (
+              error instanceof Error &&
+              error.message.startsWith('No byte PRF output returned.')
+            )
+              throw new Provider.UnsupportedMethodError({
+                message: 'The selected account credential is not PRF-enabled.',
+              })
+            throw error
+          }
+        })()
+
+        const confirmedMetadata = {
+          ...metadata,
+          prfEnabled: true,
+          updatedAt: Date.now(),
+        }
+        WebAuthnPrf.recordAccountMetadata(confirmedMetadata)
 
         return Actions.respond(porto, request, {
           result: {
             account: selectedAccount.address,
-            credentialId: metadata.credentialId,
+            credentialId: confirmedMetadata.credentialId,
             output,
             prfSupported: true,
-            rpId: metadata.rpId,
+            rpId: confirmedMetadata.rpId,
           },
         })
       } catch (error) {

@@ -19,8 +19,7 @@ const mode = ReactNative.isReactNativeRequest()
       mock: import.meta.env.MODE === 'test',
       multichain: Env.get() !== 'anvil',
       webAuthn: {
-        createFn: WebAuthnPrf.create as never,
-        getFn: WebAuthnPrf.get as never,
+        createFn: WebAuthnPrf.create,
         prf: true,
         prfStatus: WebAuthnPrf.getCapabilityStatus,
       },

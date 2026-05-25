@@ -139,6 +139,77 @@ describe('WebAuthnPrf', () => {
     expect((calls.get?.publicKey?.extensions as any).prf.eval).toBeUndefined()
   })
 
+  test('behavior: recovers account metadata from credential ID and stores it only after PRF succeeds', async () => {
+    const rawPrf = new Uint8Array(32)
+    rawPrf.fill(13)
+    const rawPrfBase64 = base64UrlEncode(rawPrf)
+    const storage = createStorage()
+
+    stubBrowser({
+      credentials: {
+        async get() {
+          return credential({
+            extensionResults: {
+              prf: {
+                resultsByCredential: {
+                  [credentialId]: { first: rawPrf },
+                },
+              },
+            },
+          })
+        },
+      },
+      storage,
+    })
+
+    const metadata = WebAuthnPrf.resolveAccountMetadata({
+      address: account,
+      keys: [{ credentialId, type: 'webauthn-p256' }],
+    })
+
+    expect(metadata).toMatchObject({
+      account,
+      credentialId,
+      prfEnabled: false,
+      rpId,
+    })
+    expect(WebAuthnPrf.loadAccountMetadata(account)).toBeUndefined()
+    if (!metadata) throw new Error('Expected recovered PRF metadata.')
+
+    WebAuthnPrf.assertAccountCredentialBinding({
+      account: {
+        address: account,
+        keys: [{ credentialId, type: 'webauthn-p256' }],
+      },
+      metadata,
+    })
+
+    const output = await WebAuthnPrf.getAppPrf({
+      account,
+      appOrigin: 'https://app.example',
+      credentialId: metadata.credentialId,
+      purpose: 'ergon-vault-unlock',
+      rpId: metadata.rpId,
+      salt,
+      vaultId: 'vault-1',
+    })
+
+    WebAuthnPrf.recordAccountMetadata({
+      ...metadata,
+      prfEnabled: true,
+      updatedAt: 1,
+    })
+
+    expect(WebAuthnPrf.loadAccountMetadata(account)).toMatchObject({
+      account,
+      credentialId,
+      prfEnabled: true,
+      rpId,
+    })
+    expect([...storage.values()].join('')).not.toContain(rawPrfBase64)
+    expect([...storage.values()].join('')).not.toContain(output)
+  })
+
   test('behavior: getAppPrf normalizes results.first ArrayBuffer output', async () => {
     const rawPrf = new Uint8Array(new ArrayBuffer(32))
     rawPrf.fill(9)
@@ -398,6 +469,8 @@ describe('WebAuthnPrf', () => {
   })
 
   test('behavior: validates account, credential, and RP binding', () => {
+    stubBrowser({ storage: createStorage() })
+
     const metadata = {
       account,
       credentialId,
@@ -419,6 +492,16 @@ describe('WebAuthnPrf', () => {
               type: 'webauthn-p256',
             },
           ],
+        },
+        metadata,
+      }),
+    ).not.toThrow()
+
+    expect(() =>
+      WebAuthnPrf.assertAccountCredentialBinding({
+        account: {
+          address: account,
+          keys: [{ credentialId, type: 'webauthn-p256' }],
         },
         metadata,
       }),
