@@ -1206,7 +1206,7 @@ export function from<
     _internal: {
       destroy,
     },
-  }) as Provider & { _internal: { destroy: () => void } }
+  })
 }
 
 export declare namespace from {

@@ -129,22 +129,22 @@ export function porto<
           // Manage EIP-1193 event listeners
           // https://eips.ethereum.org/EIPS/eip-1193#events
           if (connect) {
-            provider.removeListener?.('connect', connect)
+            provider.removeListener('connect', connect)
             connect = undefined
           }
           if (!accountsChanged) {
             accountsChanged = this.onAccountsChanged.bind(this)
             // Porto Provider uses Ox, which uses `readonly Address.Address[]` for `accountsChanged`,
             // while Connector `accountsChanged` is `string[]`
-            provider.on?.('accountsChanged', accountsChanged as never)
+            provider.on('accountsChanged', accountsChanged as never)
           }
           if (!chainChanged) {
             chainChanged = this.onChainChanged.bind(this)
-            provider.on?.('chainChanged', chainChanged)
+            provider.on('chainChanged', chainChanged)
           }
           if (!disconnect) {
             disconnect = this.onDisconnect.bind(this)
-            provider.on?.('disconnect', disconnect)
+            provider.on('disconnect', disconnect)
           }
 
           return {
@@ -168,16 +168,16 @@ export function porto<
         const provider = await this.getProvider()
 
         if (chainChanged) {
-          provider.removeListener?.('chainChanged', chainChanged)
+          provider.removeListener('chainChanged', chainChanged)
           chainChanged = undefined
         }
         if (disconnect) {
-          provider.removeListener?.('disconnect', disconnect)
+          provider.removeListener('disconnect', disconnect)
           disconnect = undefined
         }
         if (!connect) {
           connect = this.onConnect.bind(this)
-          provider.on?.('connect', connect)
+          provider.on('connect', connect)
         }
 
         await provider.request({ method: 'wallet_disconnect' })
@@ -241,22 +241,22 @@ export function porto<
         const provider = await this.getProvider()
         if (provider) {
           if (connect) {
-            provider.removeListener?.('connect', connect)
+            provider.removeListener('connect', connect)
             connect = undefined
           }
           if (!accountsChanged) {
             accountsChanged = this.onAccountsChanged.bind(this)
             // Porto Provider uses Ox, which uses `readonly Address.Address[]` for `accountsChanged`,
             // while Connector `accountsChanged` is `string[]`
-            provider.on?.('accountsChanged', accountsChanged as never)
+            provider.on('accountsChanged', accountsChanged as never)
           }
           if (!chainChanged) {
             chainChanged = this.onChainChanged.bind(this)
-            provider.on?.('chainChanged', chainChanged)
+            provider.on('chainChanged', chainChanged)
           }
           if (!disconnect) {
             disconnect = this.onDisconnect.bind(this)
-            provider.on?.('disconnect', disconnect)
+            provider.on('disconnect', disconnect)
           }
         }
       },
@@ -268,16 +268,16 @@ export function porto<
         // Manage EIP-1193 event listeners
         if (provider) {
           if (chainChanged) {
-            provider.removeListener?.('chainChanged', chainChanged)
+            provider.removeListener('chainChanged', chainChanged)
             chainChanged = undefined
           }
           if (disconnect) {
-            provider.removeListener?.('disconnect', disconnect)
+            provider.removeListener('disconnect', disconnect)
             disconnect = undefined
           }
           if (!connect) {
             connect = this.onConnect.bind(this)
-            provider.on?.('connect', connect)
+            provider.on('connect', connect)
           }
         }
       },
@@ -285,7 +285,7 @@ export function porto<
         if (!connect) {
           const provider = await this.getProvider()
           connect = this.onConnect.bind(this)
-          provider.on?.('connect', connect)
+          provider.on('connect', connect)
         }
       },
       async switchChain({ chainId }) {
