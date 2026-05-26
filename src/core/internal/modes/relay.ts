@@ -205,8 +205,10 @@ export function relay(parameters: relay.Parameters = {}) {
       async getCapabilities(parameters) {
         const { chainIds, internal } = parameters
         const { client } = internal
+        const currentAccount = internal.store.getState().accounts[0]
         const prfStatus = await webAuthn?.prfStatus?.({
-          account: internal.store.getState().accounts[0]?.address,
+          account: currentAccount?.address,
+          keys: currentAccount?.keys,
         })
 
         const base = {
@@ -915,6 +917,7 @@ export declare namespace relay {
           prfStatus?:
             | ((parameters?: {
                 account?: string | undefined
+                keys?: readonly unknown[] | undefined
               }) =>
                 | 'unsupported'
                 | 'credential-not-enabled'

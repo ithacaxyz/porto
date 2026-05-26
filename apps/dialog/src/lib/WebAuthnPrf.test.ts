@@ -429,6 +429,21 @@ describe('WebAuthnPrf', () => {
     stubBrowser({ storage })
 
     expect(WebAuthnPrf.getCapabilityStatus()).toBe('credential-not-enabled')
+    expect(
+      WebAuthnPrf.getCapabilityStatus({
+        account,
+        keys: [
+          {
+            privateKey: {
+              credential: { id: credentialId },
+              prf: { enabled: true },
+              rpId,
+            },
+            type: 'webauthn-p256',
+          },
+        ],
+      }),
+    ).toBe('enabled')
 
     storage.set(
       'porto.dialog.prfCredentials',
@@ -445,6 +460,9 @@ describe('WebAuthnPrf', () => {
 
     expect(WebAuthnPrf.getCapabilityStatus()).toBe('enabled')
     expect(WebAuthnPrf.getCapabilityStatus({ account })).toBe('enabled')
+    expect(WebAuthnPrf.getCapabilityStatus({ account, keys: [] })).toBe(
+      'credential-not-enabled',
+    )
     expect(
       WebAuthnPrf.getCapabilityStatus({
         account: '0x0000000000000000000000000000000000000002',

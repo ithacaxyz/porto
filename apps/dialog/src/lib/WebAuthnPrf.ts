@@ -298,8 +298,26 @@ export function isClientPrfCapable(): boolean {
 
 export function getCapabilityStatus(parameters?: {
   account?: string | undefined
+  keys?: readonly unknown[] | undefined
 }): 'unsupported' | 'credential-not-enabled' | 'enabled' {
   if (!isClientPrfCapable()) return 'unsupported'
+
+  if (parameters?.account && Address.validate(parameters.account)) {
+    if (parameters.keys) {
+      const recovered = recoverAccountMetadata({
+        address: parameters.account,
+        keys: parameters.keys as readonly AccountKey[] | undefined,
+      })
+      if (!recovered) return 'credential-not-enabled'
+    }
+
+    const metadata = resolveAccountMetadata({
+      address: parameters.account,
+      keys: parameters.keys as readonly AccountKey[] | undefined,
+    })
+    if (metadata?.prfEnabled) return 'enabled'
+    if (metadata) return 'credential-not-enabled'
+  }
 
   const metadata = parameters?.account
     ? [loadAccountMetadata(parameters.account as Address.Address)].filter(

@@ -52,6 +52,12 @@ describe('relay PRF capabilities', () => {
 
     expect(prfStatus).toHaveBeenCalledWith({
       account: '0x0000000000000000000000000000000000000001',
+      keys: [
+        {
+          credentialId: 'AQIDBA',
+          type: 'webauthn-p256',
+        },
+      ],
     })
     expect(Object.values(capabilities)[0]?.prf).toEqual({ status: 'enabled' })
   })
@@ -70,6 +76,12 @@ function internal() {
           accounts: [
             {
               address: '0x0000000000000000000000000000000000000001',
+              keys: [
+                {
+                  credentialId: 'AQIDBA',
+                  type: 'webauthn-p256',
+                },
+              ],
             },
           ],
         }
