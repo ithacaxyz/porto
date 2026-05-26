@@ -1307,6 +1307,8 @@ export function serializeWebAuthnSignature(
   options: serializeWebAuthnSignature.Options,
 ) {
   const { metadata, signature } = options
+  if (metadata.challengeIndex === undefined || metadata.typeIndex === undefined)
+    throw new Error('Invalid WebAuthn signature metadata.')
   return AbiParameters.encode(
     AbiParameters.from([
       'struct WebAuthnAuth { bytes authenticatorData; string clientDataJSON; uint256 challengeIndex; uint256 typeIndex; bytes32 r; bytes32 s; }',
