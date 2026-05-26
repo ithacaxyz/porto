@@ -14,6 +14,7 @@ export type Schema =
         Request: {
           method:
             | 'wallet_getCapabilities'
+            | 'wallet_getAppPrf'
             | 'wallet_getAssets'
             | 'wallet_getCallsStatus'
             | 'wallet_getCallsHistory'
@@ -87,6 +88,10 @@ export type Schema =
       | {
           Request: z.input<typeof Rpc.wallet_getCapabilities.Request>
           ReturnType: z.input<typeof Rpc.wallet_getCapabilities.Response>
+        }
+      | {
+          Request: z.input<typeof Rpc.wallet_getAppPrf.Request>
+          ReturnType: z.input<typeof Rpc.wallet_getAppPrf.Response>
         }
       | {
           Request: z.input<typeof Rpc.wallet_getKeys.Request>

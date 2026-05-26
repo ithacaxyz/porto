@@ -634,11 +634,36 @@ export namespace wallet_getCapabilities {
       feeToken: C.feeToken.GetCapabilitiesResponse,
       merchant: C.merchant.GetCapabilitiesResponse,
       permissions: C.permissions.GetCapabilitiesResponse,
+      prf: z.optional(C.prf.GetCapabilitiesResponse),
       requiredFunds: C.requiredFunds.GetCapabilitiesResponse,
     }),
   )
   export type Response = z.infer<typeof Response>
   export type Response_encoded = z.input<typeof Response>
+}
+
+export namespace wallet_getAppPrf {
+  export const Parameters = z.object({
+    purpose: z.string().check(z.minLength(1), z.maxLength(128)),
+    salt: z.string().check(z.regex(/^[A-Za-z0-9_-]{43}$/)),
+    vaultId: z.string().check(z.minLength(1), z.maxLength(128)),
+  })
+  export type Parameters = z.infer<typeof Parameters>
+
+  export const Request = z.object({
+    method: z.literal('wallet_getAppPrf'),
+    params: z.readonly(z.tuple([Parameters])),
+  })
+  export type Request = z.infer<typeof Request>
+
+  export const Response = z.object({
+    account: u.address(),
+    credentialId: z.string(),
+    output: z.string(),
+    prfSupported: z.literal(true),
+    rpId: z.string(),
+  })
+  export type Response = z.infer<typeof Response>
 }
 
 export namespace wallet_getKeys {

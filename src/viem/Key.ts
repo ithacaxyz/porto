@@ -33,6 +33,12 @@ import type * as Storage from '../core/Storage.js'
 
 type PrivateKeyFn = () => Hex.Hex
 
+type PrfOutputs = {
+  enabled?: boolean | undefined
+  results?: { first?: unknown; second?: unknown } | undefined
+  resultsByCredential?: Record<string, unknown> | undefined
+}
+
 export type BaseKey<
   type extends string = string,
   privateKey = unknown,
@@ -59,6 +65,7 @@ export type WebAuthnKey = BaseKey<
   OneOf<
     | {
         credential: Pick<WebAuthnP256.P256Credential, 'id' | 'publicKey'>
+        prf?: { enabled: boolean } | undefined
         rpId: string | undefined
       }
     | {
@@ -244,7 +251,7 @@ export declare namespace createSecp256k1 {
 export async function createWebAuthnP256(
   parameters: createWebAuthnP256.Parameters,
 ) {
-  const { createFn, label, rpId, userId } = parameters
+  const { createFn, label, prf, rpId, userId } = parameters
 
   const credential = await WebAuthnP256.createCredential({
     authenticatorSelection: {
@@ -255,7 +262,8 @@ export async function createWebAuthnP256(
     createFn,
     extensions: {
       credProps: true,
-    },
+      ...(prf ? { prf: {} } : {}),
+    } as WebAuthnP256.createCredential.Options['extensions'],
     rp: rpId
       ? {
           id: rpId,
@@ -280,6 +288,21 @@ export async function createWebAuthnP256(
       : PublicKey.toHex(credential.publicKey, {
           includePrefix: false,
         }),
+    prf: prf
+      ? {
+          enabled: prfWasEnabled(
+            (
+              credential as {
+                raw?: {
+                  getClientExtensionResults?: () => {
+                    prf?: PrfOutputs | undefined
+                  }
+                }
+              }
+            ).raw?.getClientExtensionResults?.().prf,
+          ),
+        }
+      : undefined,
   })
 }
 
@@ -297,6 +320,8 @@ export declare namespace createWebAuthnP256 {
     createFn?: WebAuthnP256.createCredential.Options['createFn'] | undefined
     /** Label. */
     label: string
+    /** Request WebAuthn PRF support during credential creation. */
+    prf?: boolean | undefined
     /** Relying Party ID. */
     rpId?: string | undefined
     /** User ID. */
@@ -687,7 +712,7 @@ export declare namespace fromSecp256k1 {
  * @returns WebAuthnP256 key.
  */
 export function fromWebAuthnP256(parameters: fromWebAuthnP256.Parameters) {
-  const { credential, id, rpId } = parameters
+  const { credential, id, prf, rpId } = parameters
   const publicKey = PublicKey.toHex(credential.publicKey, {
     includePrefix: false,
   })
@@ -699,6 +724,7 @@ export function fromWebAuthnP256(parameters: fromWebAuthnP256.Parameters) {
     permissions: parameters.permissions,
     privateKey: {
       credential,
+      ...(prf ? { prf } : {}),
       rpId,
     },
     publicKey,
@@ -714,6 +740,8 @@ export declare namespace fromWebAuthnP256 {
   > & {
     /** WebAuthnP256 Credential. */
     credential: Pick<WebAuthnP256.P256Credential, 'id' | 'publicKey'>
+    /** PRF metadata. */
+    prf?: { enabled: boolean } | undefined
     /** Relying Party ID. */
     rpId?: string | undefined
   }
@@ -867,6 +895,14 @@ export function hash(key: Pick<Key, 'publicKey' | 'type'>): Hex.Hex {
  */
 export function serializePublicKey(publicKey: Hex.Hex): Hex.Hex {
   return Hex.size(publicKey) < 32 ? Hex.padLeft(publicKey, 32) : publicKey
+}
+
+function prfWasEnabled(outputs?: PrfOutputs): boolean {
+  return (
+    outputs?.enabled === true ||
+    outputs?.results?.first !== undefined ||
+    Object.keys(outputs?.resultsByCredential ?? {}).length > 0
+  )
 }
 
 /**

@@ -31,6 +31,7 @@ export const Request = z.discriminatedUnion('method', [
   RpcRequest.wallet_getCallsStatus.Request,
   RpcRequest.wallet_getCallsHistory.Request,
   RpcRequest.wallet_getCapabilities.Request,
+  RpcRequest.wallet_getAppPrf.Request,
   RpcRequest.wallet_getKeys.Request,
   RpcRequest.wallet_prepareCalls.Request,
   RpcRequest.wallet_sendCalls.Request,

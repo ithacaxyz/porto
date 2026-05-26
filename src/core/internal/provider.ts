@@ -981,6 +981,13 @@ export function from<
               return capabilities
             }
 
+            case 'wallet_getAppPrf': {
+              throw new ox_Provider.UnsupportedMethodError({
+                message:
+                  'wallet_getAppPrf must be handled by the hosted dialog.',
+              })
+            }
+
             case 'wallet_prepareCalls': {
               const [parameters] = request._decoded.params
               const { calls, capabilities, chainId, key, from } = parameters

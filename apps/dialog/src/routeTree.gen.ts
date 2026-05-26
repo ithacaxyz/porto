@@ -19,6 +19,7 @@ import { Route as DialogWalletrevokeAdminImport } from './routes/dialog/wallet_r
 import { Route as DialogWalletprepareUpgradeAccountImport } from './routes/dialog/wallet_prepareUpgradeAccount'
 import { Route as DialogWalletgrantPermissionsImport } from './routes/dialog/wallet_grantPermissions'
 import { Route as DialogWalletgrantAdminImport } from './routes/dialog/wallet_grantAdmin'
+import { Route as DialogWalletgetAppPrfImport } from './routes/dialog/wallet_getAppPrf'
 import { Route as DialogWalletconnectImport } from './routes/dialog/wallet_connect'
 import { Route as DialogWalletaddFundsImport } from './routes/dialog/wallet_addFunds'
 import { Route as DialogSuccessImport } from './routes/dialog/success'
@@ -81,6 +82,12 @@ const DialogWalletgrantPermissionsRoute =
 const DialogWalletgrantAdminRoute = DialogWalletgrantAdminImport.update({
   id: '/dialog/wallet_grantAdmin',
   path: '/dialog/wallet_grantAdmin',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DialogWalletgetAppPrfRoute = DialogWalletgetAppPrfImport.update({
+  id: '/dialog/wallet_getAppPrf',
+  path: '/dialog/wallet_getAppPrf',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -238,6 +245,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DialogWalletconnectImport
       parentRoute: typeof rootRoute
     }
+    '/dialog/wallet_getAppPrf': {
+      id: '/dialog/wallet_getAppPrf'
+      path: '/dialog/wallet_getAppPrf'
+      fullPath: '/dialog/wallet_getAppPrf'
+      preLoaderRoute: typeof DialogWalletgetAppPrfImport
+      parentRoute: typeof rootRoute
+    }
     '/dialog/wallet_grantAdmin': {
       id: '/dialog/wallet_grantAdmin'
       path: '/dialog/wallet_grantAdmin'
@@ -305,6 +319,7 @@ export interface FileRoutesByFullPath {
   '/dialog/success': typeof DialogSuccessRoute
   '/dialog/wallet_addFunds': typeof DialogWalletaddFundsRoute
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
+  '/dialog/wallet_getAppPrf': typeof DialogWalletgetAppPrfRoute
   '/dialog/wallet_grantAdmin': typeof DialogWalletgrantAdminRoute
   '/dialog/wallet_grantPermissions': typeof DialogWalletgrantPermissionsRoute
   '/dialog/wallet_prepareUpgradeAccount': typeof DialogWalletprepareUpgradeAccountRoute
@@ -327,6 +342,7 @@ export interface FileRoutesByTo {
   '/dialog/success': typeof DialogSuccessRoute
   '/dialog/wallet_addFunds': typeof DialogWalletaddFundsRoute
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
+  '/dialog/wallet_getAppPrf': typeof DialogWalletgetAppPrfRoute
   '/dialog/wallet_grantAdmin': typeof DialogWalletgrantAdminRoute
   '/dialog/wallet_grantPermissions': typeof DialogWalletgrantPermissionsRoute
   '/dialog/wallet_prepareUpgradeAccount': typeof DialogWalletprepareUpgradeAccountRoute
@@ -350,6 +366,7 @@ export interface FileRoutesById {
   '/dialog/success': typeof DialogSuccessRoute
   '/dialog/wallet_addFunds': typeof DialogWalletaddFundsRoute
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
+  '/dialog/wallet_getAppPrf': typeof DialogWalletgetAppPrfRoute
   '/dialog/wallet_grantAdmin': typeof DialogWalletgrantAdminRoute
   '/dialog/wallet_grantPermissions': typeof DialogWalletgrantPermissionsRoute
   '/dialog/wallet_prepareUpgradeAccount': typeof DialogWalletprepareUpgradeAccountRoute
@@ -374,6 +391,7 @@ export interface FileRouteTypes {
     | '/dialog/success'
     | '/dialog/wallet_addFunds'
     | '/dialog/wallet_connect'
+    | '/dialog/wallet_getAppPrf'
     | '/dialog/wallet_grantAdmin'
     | '/dialog/wallet_grantPermissions'
     | '/dialog/wallet_prepareUpgradeAccount'
@@ -395,6 +413,7 @@ export interface FileRouteTypes {
     | '/dialog/success'
     | '/dialog/wallet_addFunds'
     | '/dialog/wallet_connect'
+    | '/dialog/wallet_getAppPrf'
     | '/dialog/wallet_grantAdmin'
     | '/dialog/wallet_grantPermissions'
     | '/dialog/wallet_prepareUpgradeAccount'
@@ -416,6 +435,7 @@ export interface FileRouteTypes {
     | '/dialog/success'
     | '/dialog/wallet_addFunds'
     | '/dialog/wallet_connect'
+    | '/dialog/wallet_getAppPrf'
     | '/dialog/wallet_grantAdmin'
     | '/dialog/wallet_grantPermissions'
     | '/dialog/wallet_prepareUpgradeAccount'
@@ -439,6 +459,7 @@ export interface RootRouteChildren {
   DialogSuccessRoute: typeof DialogSuccessRoute
   DialogWalletaddFundsRoute: typeof DialogWalletaddFundsRoute
   DialogWalletconnectRoute: typeof DialogWalletconnectRoute
+  DialogWalletgetAppPrfRoute: typeof DialogWalletgetAppPrfRoute
   DialogWalletgrantAdminRoute: typeof DialogWalletgrantAdminRoute
   DialogWalletgrantPermissionsRoute: typeof DialogWalletgrantPermissionsRoute
   DialogWalletprepareUpgradeAccountRoute: typeof DialogWalletprepareUpgradeAccountRoute
@@ -461,6 +482,7 @@ const rootRouteChildren: RootRouteChildren = {
   DialogSuccessRoute: DialogSuccessRoute,
   DialogWalletaddFundsRoute: DialogWalletaddFundsRoute,
   DialogWalletconnectRoute: DialogWalletconnectRoute,
+  DialogWalletgetAppPrfRoute: DialogWalletgetAppPrfRoute,
   DialogWalletgrantAdminRoute: DialogWalletgrantAdminRoute,
   DialogWalletgrantPermissionsRoute: DialogWalletgrantPermissionsRoute,
   DialogWalletprepareUpgradeAccountRoute:
@@ -493,6 +515,7 @@ export const routeTree = rootRoute
         "/dialog/success",
         "/dialog/wallet_addFunds",
         "/dialog/wallet_connect",
+        "/dialog/wallet_getAppPrf",
         "/dialog/wallet_grantAdmin",
         "/dialog/wallet_grantPermissions",
         "/dialog/wallet_prepareUpgradeAccount",
@@ -537,6 +560,9 @@ export const routeTree = rootRoute
     },
     "/dialog/wallet_connect": {
       "filePath": "dialog/wallet_connect.tsx"
+    },
+    "/dialog/wallet_getAppPrf": {
+      "filePath": "dialog/wallet_getAppPrf.tsx"
     },
     "/dialog/wallet_grantAdmin": {
       "filePath": "dialog/wallet_grantAdmin.tsx"
