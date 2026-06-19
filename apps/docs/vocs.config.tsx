@@ -681,6 +681,13 @@ export default defineConfig({
       alias: {
         porto: NodePath.join(process.cwd(), '../../src'),
       },
+      dedupe: [
+        '@tanstack/react-query',
+        '@wagmi/core',
+        'react',
+        'react-dom',
+        'wagmi',
+      ],
     },
     server: {
       proxy: {},

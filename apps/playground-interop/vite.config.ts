@@ -12,4 +12,13 @@ export default defineConfig({
       hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
     }),
   ],
+  resolve: {
+    dedupe: [
+      '@tanstack/react-query',
+      '@wagmi/core',
+      'react',
+      'react-dom',
+      'wagmi',
+    ],
+  },
 })

@@ -5,4 +5,13 @@ import mkcert from 'vite-plugin-mkcert'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [mkcert(), react()],
+  resolve: {
+    dedupe: [
+      '@tanstack/react-query',
+      '@wagmi/core',
+      'react',
+      'react-dom',
+      'wagmi',
+    ],
+  },
 })

@@ -68,6 +68,15 @@ export default defineConfig(({ mode }) => {
             ),
     },
     plugins,
+    resolve: {
+      dedupe: [
+        '@tanstack/react-query',
+        '@wagmi/core',
+        'react',
+        'react-dom',
+        'wagmi',
+      ],
+    },
     server: {
       allowedHosts,
     },
