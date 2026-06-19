@@ -11,6 +11,7 @@ const queryClient = new QueryClient()
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
+      <SunsetBanner />
       <WagmiProvider config={WagmiConfig.config}>
         <QueryClientProvider client={queryClient}>
           {children}
@@ -31,6 +32,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         }}
       />
     </>
+  )
+}
+
+function SunsetBanner() {
+  return (
+    <div className="border-gray4 border-b bg-gray2 px-4 py-2 text-center font-[400] text-[14px] text-gray12 leading-[20px] dark:bg-gray1">
+      Porto is sunsetting. Please move any funds out before July 24, 2026.
+      Details{' '}
+      <a
+        aria-label="Read the Porto sunsetting details"
+        className="font-[500] underline underline-offset-2"
+        href="https://ithaca.xyz/updates/sunsetting-porto"
+      >
+        here
+      </a>
+      .
+    </div>
   )
 }
 
