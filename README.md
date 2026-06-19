@@ -1,5 +1,8 @@
 ![Porto](https://github.com/ithacaxyz/porto/blob/main/.github/banner.png)
 
+> [!IMPORTANT]
+> Porto is sunsetting. Please move any funds out before July 24, 2026. Details [here](https://ithaca.xyz/updates/sunsetting-porto).
+
 # Porto
 
 Next-gen Account for Ethereum.
