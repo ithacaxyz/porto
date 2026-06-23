@@ -86,7 +86,10 @@ export namespace feeToken {
 }
 
 export namespace grantPermissions {
-  export const Request = Permissions.Request
+  export const Request = z.union([
+    Permissions.Request,
+    z.readonly(z.array(Permissions.Request)),
+  ])
   export type Request = z.infer<typeof Request>
 }
 

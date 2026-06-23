@@ -80,7 +80,12 @@ export function relay(parameters: relay.Parameters = {}) {
               userId: Bytes.from(eoa.address),
             })
           : Key.createHeadlessWebAuthnP256()
-        const sessionKey = await PermissionsRequest.toKey(permissions, {
+        const permissionsArray = Array.isArray(permissions)
+          ? permissions
+          : permissions
+            ? [permissions]
+            : []
+        const sessionKeys = await PermissionsRequest.toKeys(permissionsArray, {
           chainId: client.chain.id,
           feeTokens,
         })
@@ -89,11 +94,7 @@ export function relay(parameters: relay.Parameters = {}) {
 
         const account = await RelayActions.upgradeAccount(client, {
           account: eoa,
-          authorizeKeys: [
-            adminKey,
-            ...(adminKeys ?? []),
-            ...(sessionKey ? [sessionKey] : []),
-          ],
+          authorizeKeys: [adminKey, ...(adminKeys ?? []), ...sessionKeys],
         })
 
         address_internal = eoa.address
@@ -325,6 +326,7 @@ export function relay(parameters: relay.Parameters = {}) {
         const signature = await Key.sign(adminKey, {
           address: null,
           payload: digest,
+          webAuthn,
         })
         await RelayActions.sendPreparedCalls(client, {
           context,
@@ -341,10 +343,18 @@ export function relay(parameters: relay.Parameters = {}) {
 
         const feeTokens = await Tokens.getTokens(client)
 
-        const authorizeKey = await PermissionsRequest.toKey(permissions, {
-          chainId: client.chain.id,
-          feeTokens,
-        })
+        const permissionsArray = Array.isArray(permissions)
+          ? permissions
+          : permissions
+            ? [permissions]
+            : []
+        const authorizeKeys_ = await PermissionsRequest.toKeys(
+          permissionsArray,
+          {
+            chainId: client.chain.id,
+            feeTokens,
+          },
+        )
 
         // Prepare calls to sign over the session key or SIWE message to authorize.
         // TODO: figure out with relay if we can prepare the "precall" here also.
@@ -417,24 +427,22 @@ export function relay(parameters: relay.Parameters = {}) {
         // Instantiate the account based off the extracted address and keys.
         const account = Account.from({
           address,
-          keys: [...keys, ...(authorizeKey ? [authorizeKey] : [])].map(
-            (key, i) => {
-              // Assume that the first key is the admin WebAuthn key.
-              if (i === 0) {
-                if (key.type === 'webauthn-p256')
-                  return Key.fromWebAuthnP256({
-                    ...key,
-                    credential: {
-                      id: credentialId!,
-                      publicKey: PublicKey.fromHex(key.publicKey),
-                    },
-                    id: address,
-                    rpId: keystoreHost,
-                  })
-              }
-              return key
-            },
-          ),
+          keys: [...keys, ...authorizeKeys_].map((key, i) => {
+            // Assume that the first key is the admin WebAuthn key.
+            if (i === 0) {
+              if (key.type === 'webauthn-p256')
+                return Key.fromWebAuthnP256({
+                  ...key,
+                  credential: {
+                    id: credentialId!,
+                    publicKey: PublicKey.fromHex(key.publicKey),
+                  },
+                  id: address,
+                  rpId: keystoreHost,
+                })
+            }
+            return key
+          }),
         })
 
         const adminKey = Account.getKey(account, { role: 'admin' })!
@@ -464,11 +472,11 @@ export function relay(parameters: relay.Parameters = {}) {
           })
         })()
 
-        // Prepare and send the authorize key pre-call.
-        if (authorizeKey) {
+        // Prepare and send the authorize keys pre-call.
+        if (authorizeKeys_.length > 0) {
           const { context, digest } = await RelayActions.prepareCalls(client, {
             account,
-            authorizeKeys: [authorizeKey],
+            authorizeKeys: authorizeKeys_,
             preCalls: true,
           })
           const signature = await Key.sign(adminKey, {
@@ -606,7 +614,12 @@ export function relay(parameters: relay.Parameters = {}) {
               userId: Bytes.from(address),
             })
           : Key.createHeadlessWebAuthnP256()
-        const sessionKey = await PermissionsRequest.toKey(permissions, {
+        const permissionsArray = Array.isArray(permissions)
+          ? permissions
+          : permissions
+            ? [permissions]
+            : []
+        const sessionKeys = await PermissionsRequest.toKeys(permissionsArray, {
           chainId: client.chain.id,
           feeTokens: tokens,
         })
@@ -615,7 +628,7 @@ export function relay(parameters: relay.Parameters = {}) {
           client,
           {
             address,
-            authorizeKeys: [adminKey, ...(sessionKey ? [sessionKey] : [])],
+            authorizeKeys: [adminKey, ...sessionKeys],
             feeToken: feeToken?.address,
           },
         )

@@ -76,6 +76,14 @@ export declare namespace toKey {
   }
 }
 
+export async function toKeys(
+  requests: readonly PermissionsRequest[],
+  options: toKey.Options = {},
+): Promise<Key.Key[]> {
+  const results = await Promise.all(requests.map((r) => toKey(r, options)))
+  return results.filter((k): k is Key.Key => k !== undefined)
+}
+
 function isWebCryptoUnavailable(error: unknown) {
   if (!(error instanceof Error)) return false
   const message = error.message?.toLowerCase() ?? ''
