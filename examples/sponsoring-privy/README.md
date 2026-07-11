@@ -1,5 +1,8 @@
 # Merchant Sponsoring (Privy)
 
+> [!IMPORTANT]
+> Porto is sunsetting. Please move any funds out before July 24, 2026. See the [sunsetting details](https://ithaca.xyz/updates/sunsetting-porto).
+
 [Live Demo](https://sponsoring-privy-example.porto.workers.dev)
 
 ## 1. Setup
