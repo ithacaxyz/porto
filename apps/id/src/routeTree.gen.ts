@@ -11,6 +11,7 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as RecoverImport } from './routes/recover'
 import { Route as PlaygroundImport } from './routes/playground'
 import { Route as LayoutImport } from './routes/_layout'
 import { Route as LayoutIndexImport } from './routes/_layout.index'
@@ -19,6 +20,12 @@ import { Route as LayoutAboutImport } from './routes/_layout.about'
 import { Route as LayoutEmailVerifyImport } from './routes/_layout.email.verify'
 
 // Create/Update Routes
+
+const RecoverRoute = RecoverImport.update({
+  id: '/recover',
+  path: '/recover',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const PlaygroundRoute = PlaygroundImport.update({
   id: '/playground',
@@ -71,6 +78,13 @@ declare module '@tanstack/react-router' {
       path: '/playground'
       fullPath: '/playground'
       preLoaderRoute: typeof PlaygroundImport
+      parentRoute: typeof rootRoute
+    }
+    '/recover': {
+      id: '/recover'
+      path: '/recover'
+      fullPath: '/recover'
+      preLoaderRoute: typeof RecoverImport
       parentRoute: typeof rootRoute
     }
     '/_layout/about': {
@@ -126,6 +140,7 @@ const LayoutRouteWithChildren =
 export interface FileRoutesByFullPath {
   '': typeof LayoutRouteWithChildren
   '/playground': typeof PlaygroundRoute
+  '/recover': typeof RecoverRoute
   '/about': typeof LayoutAboutRoute
   '/recovery': typeof LayoutRecoveryRoute
   '/': typeof LayoutIndexRoute
@@ -134,6 +149,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/playground': typeof PlaygroundRoute
+  '/recover': typeof RecoverRoute
   '/about': typeof LayoutAboutRoute
   '/recovery': typeof LayoutRecoveryRoute
   '/': typeof LayoutIndexRoute
@@ -144,6 +160,7 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/_layout': typeof LayoutRouteWithChildren
   '/playground': typeof PlaygroundRoute
+  '/recover': typeof RecoverRoute
   '/_layout/about': typeof LayoutAboutRoute
   '/_layout/recovery': typeof LayoutRecoveryRoute
   '/_layout/': typeof LayoutIndexRoute
@@ -152,13 +169,27 @@ export interface FileRoutesById {
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/playground' | '/about' | '/recovery' | '/' | '/email/verify'
+  fullPaths:
+    | ''
+    | '/playground'
+    | '/recover'
+    | '/about'
+    | '/recovery'
+    | '/'
+    | '/email/verify'
   fileRoutesByTo: FileRoutesByTo
-  to: '/playground' | '/about' | '/recovery' | '/' | '/email/verify'
+  to:
+    | '/playground'
+    | '/recover'
+    | '/about'
+    | '/recovery'
+    | '/'
+    | '/email/verify'
   id:
     | '__root__'
     | '/_layout'
     | '/playground'
+    | '/recover'
     | '/_layout/about'
     | '/_layout/recovery'
     | '/_layout/'
@@ -169,11 +200,13 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   LayoutRoute: typeof LayoutRouteWithChildren
   PlaygroundRoute: typeof PlaygroundRoute
+  RecoverRoute: typeof RecoverRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   LayoutRoute: LayoutRouteWithChildren,
   PlaygroundRoute: PlaygroundRoute,
+  RecoverRoute: RecoverRoute,
 }
 
 export const routeTree = rootRoute
@@ -187,7 +220,8 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/_layout",
-        "/playground"
+        "/playground",
+        "/recover"
       ]
     },
     "/_layout": {
@@ -201,6 +235,9 @@ export const routeTree = rootRoute
     },
     "/playground": {
       "filePath": "playground.tsx"
+    },
+    "/recover": {
+      "filePath": "recover.tsx"
     },
     "/_layout/about": {
       "filePath": "_layout.about.tsx",

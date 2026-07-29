@@ -23,7 +23,7 @@ if (
 }
 
 export default defineConfig({
-    banner: {
+  banner: {
     content:
       'Porto is sunsetting. Please move any funds out before July 24, 2026. Details [here](https://ithaca.xyz/updates/sunsetting-porto).',
     dismissable: false,

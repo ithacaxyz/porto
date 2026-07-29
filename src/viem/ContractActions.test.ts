@@ -2,10 +2,11 @@ import { AbiFunction, Secp256k1, Value } from 'ox'
 import { privateKeyToAccount } from 'viem/accounts'
 import { getBalance, readContract, setBalance } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
-
+import { accountProxyAddress } from '../../test/src/_generated/addresses.js'
 import { getAccount } from '../../test/src/actions.js'
 import * as TestConfig from '../../test/src/config.js'
 import * as Call from '../core/internal/call.js'
+import * as Account from './Account.js'
 import * as AccountContract from './ContractActions.js'
 import * as Key from './Key.js'
 
@@ -306,6 +307,72 @@ describe('execute', () => {
   })
 
   describe('behavior: arbitrary calls', () => {
+    test('behavior: recovers full balance with prepared passkey execution', async () => {
+      const porto = TestConfig.getPorto()
+      const client = TestConfig.getRelayClient(porto)
+
+      const key = Key.createHeadlessWebAuthnP256()
+      const { account } = await getAccount(client, {
+        keys: [key],
+        setBalance: false,
+      })
+      const value = Value.fromEther('2')
+
+      await setBalance(client as any, {
+        address: account.address,
+        value,
+      })
+
+      await AccountContract.execute(client, {
+        account,
+        calls: [Call.authorize({ key })],
+        delegation: accountProxyAddress,
+      })
+
+      const recoveryAccount = Account.from({
+        address: account.address,
+        keys: [key],
+      })
+      const executor = privateKeyToAccount(Secp256k1.randomPrivateKey())
+      const recipient = privateKeyToAccount(Secp256k1.randomPrivateKey())
+
+      await setBalance(client as any, {
+        address: executor.address,
+        value: Value.fromEther('1'),
+      })
+
+      const { digests, request } = await AccountContract.prepareExecute(
+        client,
+        {
+          account: recoveryAccount,
+          calls: [{ to: recipient.address, value }],
+          executor,
+        },
+      )
+      const exec = await Account.sign(recoveryAccount, {
+        key,
+        payload: digests.exec,
+        replaySafe: false,
+      })
+
+      await AccountContract.execute(client, {
+        ...request,
+        signatures: { exec },
+      })
+
+      expect(
+        await Promise.all([
+          getBalance(client, { address: recoveryAccount.address }),
+          getBalance(client, { address: recipient.address }),
+        ]),
+      ).toMatchInlineSnapshot(`
+        [
+          0n,
+          2000000000000000000n,
+        ]
+      `)
+    })
+
     test('key: p256, executor: JSON-RPC', async () => {
       const porto = TestConfig.getPorto()
       const contracts = await TestConfig.getContracts(porto)

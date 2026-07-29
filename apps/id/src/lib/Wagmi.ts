@@ -2,9 +2,13 @@ import { porto as portoConnector } from 'porto/wagmi'
 import { createConfig, createStorage } from 'wagmi'
 import * as Porto from './Porto'
 
+const isRecover =
+  window.location.pathname === '/recover' ||
+  window.location.pathname.startsWith('/recover/')
+
 export const config = createConfig({
   chains: Porto.config.chains,
-  connectors: [portoConnector(Porto.config)],
+  connectors: isRecover ? [] : [portoConnector(Porto.config)],
   multiInjectedProviderDiscovery: false,
   storage: createStorage({ storage: localStorage }),
   transports: Porto.config.transports,
