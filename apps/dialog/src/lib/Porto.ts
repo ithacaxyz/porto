@@ -1,8 +1,12 @@
 import { PortoConfig } from '@porto/apps'
+import * as Provider from 'ox/Provider'
 import { Mode, Storage } from 'porto'
 import { Porto } from 'porto/remote'
 
 import * as ReactNative from './ReactNative.js'
+
+export const accountCreationEnabled = import.meta.env.DEV
+export const accountCreationDisabledReason = 'Porto is deprecated.'
 
 const baseConfig = PortoConfig.getConfig()
 const { mode: baseMode, ...restConfig } = baseConfig
@@ -21,6 +25,38 @@ export const porto = Porto.create({
   mode,
   storage: Storage.combine(Storage.cookie(), Storage.localStorage()),
 })
+
+if (!accountCreationEnabled) {
+  const request = porto.provider.request.bind(porto.provider)
+  porto.provider.request = ((rpcRequest) => {
+    const capabilities =
+      rpcRequest.method === 'wallet_connect'
+        ? (
+            rpcRequest as typeof rpcRequest & {
+              params?: readonly [
+                {
+                  capabilities?: {
+                    createAccount?: unknown
+                    email?: unknown
+                  }
+                },
+              ]
+            }
+          ).params?.[0]?.capabilities
+        : undefined
+    if (
+      rpcRequest.method === 'wallet_prepareUpgradeAccount' ||
+      capabilities?.createAccount ||
+      capabilities?.email
+    )
+      return Promise.reject(
+        new Provider.UnauthorizedError({
+          message: accountCreationDisabledReason,
+        }),
+      )
+    return request(rpcRequest as never)
+  }) as typeof porto.provider.request
+}
 
 if (
   ReactNative.isReactNativeRequest() &&

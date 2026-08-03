@@ -15,8 +15,25 @@ function RouteComponent() {
       </Layout.Hero>
 
       <Layout.Content>
+        <DeprecationBanner />
         <Outlet />
       </Layout.Content>
     </Layout>
+  )
+}
+
+function DeprecationBanner() {
+  return (
+    <div className="border-gray4 mb-4 border-b bg-gray2 px-4 py-2 text-center font-[400] text-[14px] text-gray12 leading-[20px]">
+      Porto is deprecated.{' '}
+      <a
+        aria-label="Transfer funds from Porto"
+        className="font-[500] underline underline-offset-2"
+        href="https://id.porto.sh/recover"
+      >
+        Transfer your funds
+      </a>
+      .
+    </div>
   )
 }
