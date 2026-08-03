@@ -1,5 +1,5 @@
-import { Hex, Value } from 'ox'
-import { Key } from 'porto'
+import { Hex, Secp256k1, Value } from 'ox'
+import { Account, Key } from 'porto'
 import { Route } from 'porto/server'
 import { readContract, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
@@ -37,6 +37,89 @@ describe('merchant', () => {
 
   test('behavior: simple sponsor', async () => {
     const { server, merchantAccount } = await setup()
+
+    const userKey = Key.createHeadlessWebAuthnP256()
+    const userAccount = await TestActions.createAccount(client, {
+      keys: [userKey],
+    })
+
+    const userBalance_pre = await readContract(client, {
+      ...contracts.exp1,
+      args: [userAccount.address],
+      functionName: 'balanceOf',
+    })
+    const merchantBalance_pre = await readContract(client, {
+      ...contracts.exp1,
+      args: [merchantAccount.address],
+      functionName: 'balanceOf',
+    })
+
+    const result = await RelayActions.sendCalls(client, {
+      account: userAccount,
+      calls: [
+        {
+          abi: contracts.exp1.abi,
+          args: [userAccount.address, Value.fromEther('1')],
+          functionName: 'mint',
+          to: contracts.exp1.address,
+        },
+      ],
+      merchantUrl: server.url,
+    })
+
+    await waitForCallsStatus(client, {
+      id: result.id,
+    })
+
+    const userBalance_post = await readContract(client, {
+      ...contracts.exp1,
+      args: [userAccount.address],
+      functionName: 'balanceOf',
+    })
+    const merchantBalance_post = await readContract(client, {
+      ...contracts.exp1,
+      args: [merchantAccount.address],
+      functionName: 'balanceOf',
+    })
+
+    // Check if user was credited with 1 EXP.
+    expect(userBalance_post).toBe(userBalance_pre + Value.fromEther('1'))
+
+    // Check if merchant was debited the fee payment.
+    expect(merchantBalance_post).toBeLessThan(merchantBalance_pre)
+  })
+
+  test('behavior: sponsor with root eoa key', async () => {
+    // Reproduces https://github.com/ithacaxyz/relay/issues/1516
+    // Merchant uses their root EOA private key directly in Route.merchant
+    // without registering it as a named key on their Porto account.
+    const merchantAdminKey = Key.createHeadlessWebAuthnP256()
+    const merchantPrivateKey = Secp256k1.randomPrivateKey()
+    const merchantAccount = Account.fromPrivateKey(merchantPrivateKey, {
+      keys: [merchantAdminKey],
+    })
+    await TestActions.setBalance(client, {
+      address: merchantAccount.address,
+    })
+    await RelayActions.upgradeAccount(client, {
+      account: merchantAccount,
+      authorizeKeys: [merchantAdminKey],
+    })
+    const { id: deployId } = await RelayActions.sendCalls(client, {
+      account: merchantAccount,
+      calls: [],
+      feeToken: contracts.exp1.address,
+    })
+    await waitForCallsStatus(client, { id: deployId })
+
+    const route = Route.merchant({
+      ...porto.config,
+      address: merchantAccount.address,
+      key: merchantPrivateKey,
+    })
+
+    if (server) await server.closeAsync()
+    server = await Http.createServer(route.listener)
 
     const userKey = Key.createHeadlessWebAuthnP256()
     const userAccount = await TestActions.createAccount(client, {
