@@ -789,11 +789,12 @@ export function from<
 
               const { accounts } = await (async () => {
                 if (email || createAccount) {
-                  const { label = undefined } =
+                  const { eoa, label = undefined } =
                     typeof createAccount === 'object' ? createAccount : {}
                   const { account } = await getMode().actions.createAccount({
                     admins,
                     email,
+                    eoa: eoa && Account.fromPrivateKey(eoa),
                     internal,
                     label,
                     permissions,
