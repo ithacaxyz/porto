@@ -17,6 +17,7 @@ export const hostnames = [
   'happypath.enso.build',
   'id.porto.sh',
   'jumper.exchange',
+  'levery.io',  
   'localhost',
   'mainnet.cashmere.exchange',
   'news.kiwistand.com',
