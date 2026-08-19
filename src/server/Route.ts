@@ -192,6 +192,10 @@ export function merchant(options: merchant.Options) {
             ? await Key.sign(key, {
                 address: null,
                 payload: feePayerDigest,
+                wrap: !(
+                  key.type === 'secp256k1' &&
+                  key.publicKey.toLowerCase() === address.toLowerCase()
+                ),
               })
             : undefined
 
