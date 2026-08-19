@@ -25,11 +25,9 @@ function RouteComponent() {
       : {}
 
   const currentAccount = Hooks.useAccount(porto, { address })
-  const { guestModeAccount, guestStatus, onSignIn, onSignUp } = useGuestMode(
-    address ? currentAccount : undefined,
-  )
+  const guestMode = useGuestMode(currentAccount)
 
-  const account = address ? currentAccount : guestModeAccount
+  const account = currentAccount ?? guestMode.account
 
   const respond = useMutation({
     async mutationFn(
@@ -50,11 +48,11 @@ function RouteComponent() {
     <AddFunds
       address={account?.address ?? address}
       chainId={chainId}
-      guestMode={!address && !guestModeAccount}
-      guestStatus={guestStatus}
+      guestMode={guestMode.isEphemeral || !currentAccount}
+      guestStatus={guestMode.status}
       onApprove={(result) => respond.mutate(result)}
-      onGuestSignIn={onSignIn}
-      onGuestSignUp={onSignUp}
+      onGuestSignIn={guestMode.onSignIn}
+      onGuestSignUp={guestMode.onSignUp}
       onReject={() => respond.mutate({ reject: true })}
       value={value}
     />

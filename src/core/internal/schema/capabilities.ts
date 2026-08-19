@@ -15,6 +15,7 @@ export namespace createAccount {
     z.boolean(),
     z.object({
       chainId: z.optional(u.number()),
+      eoa: z.optional(u.hex()),
       label: z.optional(z.string()),
     }),
   ])
