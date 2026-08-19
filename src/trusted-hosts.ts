@@ -45,4 +45,9 @@ export const hostnames = [
   'honey.berachain.com',
   'privote.live',
   'portkey.bsky.nyc',
+  'villa.cash',
+  'beta.villa.cash',
+  'dev-1.villa.cash',
+  'dev-2.villa.cash',
+  'dev-3.villa.cash',
 ]
