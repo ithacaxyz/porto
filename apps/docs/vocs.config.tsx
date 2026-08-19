@@ -25,10 +25,8 @@ if (
 export default defineConfig({
   banner: {
     content:
-      'Porto is sunsetting. Please move any funds out before July 24, 2026. Details [here](https://ithaca.xyz/updates/sunsetting-porto).',
+      'Porto is deprecated. [Transfer your funds](https://id.porto.sh/recover).',
     dismissable: false,
-    dismissId: 'porto-sunsetting-2026-07-24',
-    variant: 'warning',
   },
   description:
     'Sign in with superpowers. Buy, swap, subscribe, and much more. No passwords or extensions required.',

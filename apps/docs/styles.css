@@ -20,6 +20,10 @@
   align-items: center;
 }
 
+.vocs_Banner_closeButton {
+  display: none;
+}
+
 /***
  *** `/demo` styles
  ***/
